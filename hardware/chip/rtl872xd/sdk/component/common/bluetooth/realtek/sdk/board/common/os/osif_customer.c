@@ -112,7 +112,7 @@ bool os_msg_recv_intern(void *p_handle, void *p_msg, uint32_t wait_ms,
     if (wait_ms == 0xFFFFFFFF)
         wait_ms = 1000 * 1000 * 1000;
 
-    if (aos_queue_recv(&desc->queue_hdl, wait_ms, p_msg, (uint32_t*)&desc->message_size) == 0)
+    if (aos_queue_recv(&desc->queue_hdl, wait_ms, p_msg, (size_t*)&desc->message_size) == 0)
         return true;
 	else
 		return false;

@@ -6,7 +6,7 @@ type: solution
 
 solution:
   cpu_id: cpu0
-  board_name: haas100
+  # board_name: haas100
   # board_name: board_dummy
   # toolchain_prefix: csky-abiv2-elf
   # cpu_name: CK805EF
@@ -15,18 +15,17 @@ solution:
   # ld_script: configs/gcc_eflash.ld
   # ld_script: gcc_eflash.ld
 
+# 编译前，需要将当前需要编译的板子添加到depends中，同时修改board_name
 depends:                                       # 该组件依赖其他的组件
   - linksdk: master
-  - haas100: master
-  - haas200: master
+  # - haas100: master
   - mbedtls: master
   - netmgr: master
   - lwip: master
   - uservice: master
   - wifi: master
   - cli: master
-# TODO: 将depends中的板子信息移入supported_boards
-# depends 中仅保留当前需要编译的板子，和board_name一致
+
 # supported_boards 中记录当前组件能支持的所有板子
 supported_boards:
   - haas100: master

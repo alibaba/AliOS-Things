@@ -183,6 +183,24 @@ int netmgr_wifi_del_msg_cb(netmgr_hdl_t hdl, netmgr_msg_cb_t cb);
  */
 int netmgr_wifi_set_auto_save_ap(bool auto_save_ap);
 
+/**
+ * @brief  set if config information
+ * @param  [in] hdl
+ * @param  [in] channel_array channel array for wifi specific scan
+ * @param  [in] channel_num channel num for wifi specific scan
+ * @return 0 on success, others on error
+ */
+int netmgr_wifi_set_channelist(netmgr_hdl_t hdl, int *channel_array, int channel_num);
+
+/**
+ * @brief  set if config information
+ * @param  [in] hdl
+ * @param  [out] channel_array channel array for wifi specific scan
+ * @param  [out] channel_num channel num for wifi specific scan
+ * @return 0 on success, others on error
+ */
+int netmgr_wifi_get_channelist(netmgr_hdl_t hdl, int **channel_array, int *channel_num);
+
 /** @} */
 
 #if defined(__cplusplus)

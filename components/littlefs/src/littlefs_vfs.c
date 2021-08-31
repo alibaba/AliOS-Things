@@ -633,10 +633,17 @@ static int32_t _lfs_deinit(void)
 
         close(g_lfs_manager[i]->fd);
 
-        if (g_lfs_manager[i]->config->read_buffer) lfs_free(g_lfs_manager[i]->config->read_buffer);
-        if (g_lfs_manager[i]->config->prog_buffer) lfs_free(g_lfs_manager[i]->config->prog_buffer);
-        if (g_lfs_manager[i]->config->lookahead_buffer) lfs_free(g_lfs_manager[i]->config->lookahead_buffer);
-
+        if (g_lfs_manager[i]->config) {
+            if (g_lfs_manager[i]->config->read_buffer) {
+                lfs_free(g_lfs_manager[i]->config->read_buffer);
+            }
+            if (g_lfs_manager[i]->config->prog_buffer) {
+                lfs_free(g_lfs_manager[i]->config->prog_buffer);
+            }
+            if (g_lfs_manager[i]->config->lookahead_buffer) {
+                lfs_free(g_lfs_manager[i]->config->lookahead_buffer);
+            }
+        }
         g_lfs_manager[i] = NULL;
 
         i++;
@@ -716,6 +723,15 @@ static int32_t _lfs_init(void)
 
         /* Set LFS default config */
         g_lfs_manager[i]->config = &default_cfg[i];
+        g_lfs_manager[i]->config->read_buffer = \
+            lfs_malloc(default_cfg[i].read_size);
+        g_lfs_manager[i]->config->prog_buffer = \
+            lfs_malloc(default_cfg[i].prog_size);
+        g_lfs_manager[i]->config->lookahead_buffer = \
+            lfs_malloc(default_cfg[i].lookahead_size);
+        LFS_ASSERT(default_cfg[i].read_buffer);
+        LFS_ASSERT(default_cfg[i].prog_buffer);
+        LFS_ASSERT(default_cfg[i].lookahead_buffer);
 
     #if LITTLEFS_USING_MTD
         g_lfs_manager[i]->config->context = aos_mtd_open(mtd_part[i]);
@@ -746,7 +762,12 @@ static int32_t _lfs_init(void)
 #endif
         {
             /* Create LFS Global Lock */
+    #ifdef LFS_STATIC_OBJECT
             g_lfs_manager[i]->lock = &native_lfs_lock[i];
+    #else
+            g_lfs_manager[i]->lock = \
+                (lfs_lock_t *)lfs_malloc(sizeof(lfs_lock_t));
+    #endif
             if (g_lfs_manager[i]->lock == NULL) {
                 goto ERROR;
             }
@@ -768,13 +789,6 @@ static int32_t _lfs_init(void)
         if (g_lfs_manager[i]->lfs == NULL) {
             goto ERROR;
         }
-
-        g_lfs_manager[i]->config->read_buffer = lfs_malloc(default_cfg[i].read_size);
-        g_lfs_manager[i]->config->prog_buffer = lfs_malloc(default_cfg[i].prog_size);
-        g_lfs_manager[i]->config->lookahead_buffer = lfs_malloc(default_cfg[i].lookahead_size);
-        LFS_ASSERT(default_cfg[i].read_buffer);
-        LFS_ASSERT(default_cfg[i].prog_buffer);
-        LFS_ASSERT(default_cfg[i].lookahead_buffer);
 
         i++;
     }
@@ -830,7 +844,7 @@ static int32_t lfs_vfs_open(vfs_file_t *fp, const char *path, int flags)
 
     ret = lfs_ret_value_convert(ret);
     if (ret < 0) {
-        LFS_ERROR("%s %s failed, ret - %d", __func__, path, ret);
+        LFS_DEBUG("%s %s failed, ret - %d", __func__, path, ret);
         lfs_free(target_path);
         lfs_free(file);
         return ret;
@@ -858,7 +872,7 @@ static int32_t lfs_vfs_close(vfs_file_t *fp)
 
     ret = lfs_ret_value_convert(ret);
     if (ret < 0) {
-        LFS_ERROR("%s failed, ret - %d", __func__, ret);
+        LFS_DEBUG("%s failed, ret - %d", __func__, ret);
         return ret;
     }
 
@@ -881,7 +895,7 @@ static int32_t lfs_vfs_read(vfs_file_t *fp, char *buf, uint32_t len)
     ret = lfs_file_read(g_lfs_manager[idx]->lfs, file, buf, len);
     lfs_unlock(g_lfs_manager[idx]->lock);
 
-    if (ret < LFS_ERR_OK) LFS_ERROR("%s return %d", __func__, ret);
+    if (ret < LFS_ERR_OK) LFS_DEBUG("%s return %d", __func__, ret);
     return lfs_ret_value_convert(ret);
 }
 
@@ -907,7 +921,7 @@ static int32_t lfs_vfs_write(vfs_file_t *fp, const char *buf, uint32_t len)
     ret = lfs_file_write(g_lfs_manager[idx]->lfs, file, buf, len);
     lfs_unlock(g_lfs_manager[idx]->lock);
 
-    if (ret < LFS_ERR_OK) LFS_ERROR("%s return %d", __func__, ret);
+    if (ret < LFS_ERR_OK) LFS_DEBUG("%s return %d", __func__, ret);
     return lfs_ret_value_convert(ret);
 }
 
@@ -1076,7 +1090,7 @@ static int32_t lfs_vfs_remove(vfs_file_t *fp, const char *path)
     ret = lfs_remove(g_lfs_manager[idx]->lfs, target_path);
     lfs_unlock(g_lfs_manager[idx]->lock);
 
-    if (ret < LFS_ERR_OK) LFS_ERROR("%s %s return %d", __func__, path, ret);
+    if (ret < LFS_ERR_OK) LFS_DEBUG("%s %s return %d", __func__, path, ret);
     ret = lfs_ret_value_convert(ret);
 
     lfs_free(target_path);
@@ -1126,7 +1140,7 @@ static int32_t lfs_vfs_rename(vfs_file_t *fp, const char *oldpath, const char *n
     ret = lfs_rename(g_lfs_manager[idx]->lfs, oldname, newname);
     lfs_unlock(g_lfs_manager[idx]->lock);
 
-    if (ret < LFS_ERR_OK) LFS_ERROR("%s %s->%s return %d", __func__, oldpath, newpath, ret);
+    if (ret < LFS_ERR_OK) LFS_DEBUG("%s %s->%s return %d", __func__, oldpath, newpath, ret);
     ret = lfs_ret_value_convert(ret);
 
     lfs_free(oldname);
@@ -1162,7 +1176,7 @@ static vfs_dir_t *lfs_vfs_opendir(vfs_file_t *fp, const char *path)
     ret = lfs_dir_open(g_lfs_manager[idx]->lfs, &lfsvfs_dir->lfsdir, relpath);
     lfs_unlock(g_lfs_manager[idx]->lock);
 
-    if (ret < LFS_ERR_OK) LFS_ERROR("%s return %d", __func__, ret);
+    if (ret < LFS_ERR_OK) LFS_DEBUG("%s return %d", __func__, ret);
     ret = lfs_ret_value_convert(ret);
     if (ret < 0) {
 #ifdef CONFIG_VFS_USE_ERRNO
@@ -1238,7 +1252,7 @@ static int32_t lfs_vfs_closedir(vfs_file_t *fp, vfs_dir_t *dir)
     ret = lfs_dir_close(g_lfs_manager[idx]->lfs, &lfsvfs_dir->lfsdir);
     lfs_unlock(g_lfs_manager[idx]->lock);
 
-    if (ret < LFS_ERR_OK) LFS_ERROR("%s return %d", __func__, ret);
+    if (ret < LFS_ERR_OK) LFS_DEBUG("%s return %d", __func__, ret);
     ret = lfs_ret_value_convert(ret);
     if (ret < 0) {
         return ret;
@@ -1273,7 +1287,7 @@ static int32_t lfs_vfs_mkdir(vfs_file_t *fp, const char *path)
     lfs_unlock(g_lfs_manager[idx]->lock);
 
     if ((ret < LFS_ERR_OK) && (ret != LFS_ERR_EXIST)) {
-        LFS_ERROR("%s %s return %d", __func__, path, ret);
+        LFS_DEBUG("%s %s return %d", __func__, path, ret);
     }
 
     ret = lfs_ret_value_convert(ret);
@@ -1306,7 +1320,7 @@ static int32_t lfs_vfs_rmdir (vfs_file_t *fp, const char *path)
     ret = lfs_remove(g_lfs_manager[idx]->lfs, pathname);
     lfs_unlock(g_lfs_manager[idx]->lock);
 
-    if (ret < LFS_ERR_OK) LFS_ERROR("%s %s return %d", __func__, path, ret);
+    if (ret < LFS_ERR_OK) LFS_DEBUG("%s %s return %d", __func__, path, ret);
     ret = lfs_ret_value_convert(ret);
 
     lfs_free(pathname);

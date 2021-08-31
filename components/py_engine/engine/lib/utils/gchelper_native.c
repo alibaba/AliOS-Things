@@ -24,12 +24,13 @@
  * THE SOFTWARE.
  */
 
-#if 0 //disabled by haas amp
 #include <stdio.h>
 
 #include "py/mpstate.h"
 #include "py/gc.h"
 #include "lib/utils/gchelper.h"
+
+#if !MICROPY_PY_HAAS_SPECIFIC // disabled by HaaS-AMP
 
 #if MICROPY_ENABLE_GC
 

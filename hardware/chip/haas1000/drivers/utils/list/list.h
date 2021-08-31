@@ -16,7 +16,7 @@ extern "C" {
 typedef void *(*list_mempool_zmalloc)(size_t);
 typedef void (*list_mempool_free)(void *);
 
-typedef struct {    
+typedef struct {
     list_mempool_zmalloc zmalloc;
     list_mempool_free free;
 } list_mempool_functions_t;

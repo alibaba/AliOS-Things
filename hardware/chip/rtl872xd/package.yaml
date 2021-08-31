@@ -157,10 +157,10 @@ build_config:
 source_file:
   - aos/aos_osdep.c
 #  - aos/qc.c ? <CONFIG_WIFI>
-  - aos/qc_gpio_test.c
+#  - aos/qc_gpio_test.c
   - aos/soc_impl.c
   - aos/ethernetif.c ? <CONFIG_WIFI>
-  - aos/ota_port.c
+#  - aos/ota_port.c
   - CheckSumUtils.c
 
   - csi_driver/iic/iic.c

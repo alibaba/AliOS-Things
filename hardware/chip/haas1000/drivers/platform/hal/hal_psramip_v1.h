@@ -22,7 +22,7 @@ extern "C" {
 #define psramip_write32(v,reg_base,a) \
      ((*(volatile unsigned int *)((reg_base)+(a))) = v)
 
-	
+
 #define	PSRAM_STAT_BUSY  (0x01)
 #define	PSRAM_STAT_TXFIFO_EMPTY  	(0x02)
 #define	PSRAM_STAT_TXFIFO_FULL 	(0x04)

@@ -73,7 +73,7 @@ STATIC mp_obj_t mqtt_client_new(const mp_obj_type_t *type, size_t n_args, size_t
 	char password[65] = {0};
     mqtt_client_obj_t* mqtt_client_obj = m_new_obj(mqtt_client_obj_t);
     if (!mqtt_client_obj) {
-        mp_raise_OSError(ENOMEM);
+        mp_raise_OSError(MP_EINVAL);
     }
 
     mqtt_client_obj->Base.type = &mqtt_client_type;

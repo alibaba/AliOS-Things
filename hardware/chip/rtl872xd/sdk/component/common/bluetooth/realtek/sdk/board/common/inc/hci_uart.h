@@ -27,6 +27,7 @@ bool hci_uart_tx(uint8_t *p_buf, uint16_t len, P_UART_TX_CB tx_cb);
 
 void hci_uart_set_baudrate(uint32_t baudrate);
 
+void hci_uart_set_rx_ind(P_UART_RX_CB rx_ind);
 
 void set_hci_uart_out(bool flag);
 

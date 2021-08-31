@@ -305,6 +305,7 @@ int pcm_close(void *dev)
         return -EINVAL;
     }
     ret = pcm_dev->ops->close(pcm_dev->hdl);
+    pcm_dev->hdl = NULL;
     pcm_dev->isOpenState = false;
     return ret;
 }

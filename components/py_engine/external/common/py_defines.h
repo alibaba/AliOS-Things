@@ -16,7 +16,7 @@
 #define AMP_PY_PATH "main.py"
 #define AMP_PY_PKG_PATH "app.zip"
 
-#define AMP_PY_ENTRY_DEFAULE    (AMP_EXT_FS_ROOT_DIR"/"AMP_PY_PATH)
+#define AMP_PY_ENTRY_DEFAULE    (AMP_FS_EXT_ROOT_DIR"/"AMP_PY_PATH)
 #define AMP_PY_ENTRY_BAK        (AMP_FS_ROOT_DIR"/"AMP_PY_PATH)
 
 #define AMP_PY_PKG_DEFAULE      (AMP_FS_ROOT_DIR"/"AMP_PY_PKG_PATH)
@@ -41,7 +41,7 @@ typedef enum {
 
 /* interval device infomation */
 #define AMP_DEVICE_TOKEN                "_amp_device_token"
-#define AMP_DEVICE_TOKEN_VERIFY_FLAG    "_amp_device_token_verify_flag"
+#define AMP_DEVICE_TOKEN_VERIFY_FLAG    "_amp_device_pyamptoken_verify_flag"
 #define AMP_DEVICE_TOKEN_LENGTH         64
 
 #define AMP_INTERNAL_PRODUCTKEY         "_amp_internal_productkey"

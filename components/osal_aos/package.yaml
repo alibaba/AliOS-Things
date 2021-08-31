@@ -56,6 +56,7 @@ source_file:
 #  - example/sem_example.c
 #  - example/task_example.c
 #  - example/timer_example.c
+#  - example/workqueue_example.c
 
 
 ## 第五部分：配置信息

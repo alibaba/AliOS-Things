@@ -27,13 +27,13 @@ export function unlinkSync(path) {
 }
 
 export function totalSize() {
-    return FS.totalsize();
+    return FS.totalSize();
 }
 
 export function usedSize() {
-    return FS.usedsize();
+    return FS.usedSize();
 }
 
 export function freeSize() {
-    return FS.freesize();
+    return FS.freeSize();
 }

@@ -1,5 +1,12 @@
 #ifndef BOARD_H
 #define BOARD_H
+
+#if (CONFIG_A7_DSP_ENABLE == 1)
+#define DEBUG_LASTWORD_RAM_ADDR 0x20166000
+#else
+#define DEBUG_LASTWORD_RAM_ADDR 0x201e6000
+#endif
+
 typedef enum {
     HAAS_EDU_K1 = 0,                     /**< Playback stream */
     HAAS_EDU_K1C,                         /**< Capture stream */

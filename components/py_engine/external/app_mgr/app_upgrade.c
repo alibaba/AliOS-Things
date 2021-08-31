@@ -57,7 +57,7 @@ int ota_get_py_install_path(char *store_file_full_path, char *path_buf, int path
     return ret;
 }
 
-int ota_file_plus_name(char *file_path1, char *file_path2, char *new_path, int new_path_len)
+int pyamp_ota_file_plus_name(char *file_path1, char *file_path2, char *new_path, int new_path_len)
 {
     int ret = -1;
     int file_path1_len = 0;

@@ -15,7 +15,7 @@
 
 #define MOD_STR "AIOT_ACTINFO"
 
-int32_t amp_app_devinfo_report(void *mqtt_handle)
+int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
 {
     int32_t res = STATE_SUCCESS;
     void *devinfo_handle = NULL;

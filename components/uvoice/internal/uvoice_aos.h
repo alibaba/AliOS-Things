@@ -5,63 +5,58 @@
 #ifndef __UVOICE_AOS_H__
 #define __UVOICE_AOS_H__
 
-
 #include <fcntl.h>
 #include "aos/kv.h"
 #include "aos/vfs.h"
-#include <k_api.h>
 #include <aos/kernel.h>
 
-typedef aos_dir_t        os_dir_t;
-typedef aos_dirent_t    os_dirent_t;
-typedef int             os_file_t;
+typedef aos_dir_t os_dir_t;
+typedef aos_dirent_t os_dirent_t;
+typedef int os_file_t;
 
-typedef aos_queue_t        os_message_queue_t;
-typedef aos_mutex_t        os_mutex_t;
-typedef aos_sem_t        os_sem_t;
-typedef aos_task_t        os_task_t;
-typedef aos_timer_t        os_timer_t;
+typedef aos_queue_t os_message_queue_t;
+typedef aos_mutex_t os_mutex_t;
+typedef aos_sem_t os_sem_t;
+typedef aos_task_t os_task_t;
+typedef aos_timer_t os_timer_t;
 
+#define OS_SEEK_SET SEEK_SET
+#define OS_SEEK_CUR SEEK_CUR
+#define OS_SEEK_END SEEK_END
 
-#define OS_SEEK_SET            SEEK_SET
-#define OS_SEEK_CUR            SEEK_CUR
-#define OS_SEEK_END            SEEK_END
+#define OS_F_OK F_OK
+#define OS_X_OK X_OK
+#define OS_W_OK W_OK
+#define OS_R_OK R_OK
 
-#define OS_F_OK                F_OK
-#define OS_X_OK                X_OK
-#define OS_W_OK                W_OK
-#define OS_R_OK                R_OK
+#define OS_FILE_OPEN_FAIL(stream) (stream <= 0)
+#define OS_FILE_OPENING(stream) (stream > 0)
+#define OS_FILE_CLOSED (0)
 
-#define OS_FILE_OPEN_FAIL(stream)    (stream <= 0)
-#define OS_FILE_OPENING(stream)        (stream > 0)
-#define OS_FILE_CLOSED                (0)
+#define OS_WAIT_FOREVER AOS_WAIT_FOREVER
 
-#define OS_WAIT_FOREVER        AOS_WAIT_FOREVER
-
-#define os_container_of(ptr, type, member)    \
-    ((type *)((char *)(ptr) - offsetof(type, member)))
+#define os_container_of(ptr, type, member) ((type *)((char *)(ptr) - offsetof(type, member)))
 
 enum {
-    UVOICE_TASK_PRI_LOWEST      = AOS_DEFAULT_APP_PRI + 5,
-    UVOICE_TASK_PRI_LOWER       = AOS_DEFAULT_APP_PRI + 1,
-    UVOICE_TASK_PRI_NORMAL      = AOS_DEFAULT_APP_PRI,
-    UVOICE_TASK_PRI_HIGHER      = AOS_DEFAULT_APP_PRI - 1,
-    UVOICE_TASK_PRI_HIGHEST     = AOS_DEFAULT_APP_PRI - 5,
+    UVOICE_TASK_PRI_LOWEST = AOS_DEFAULT_APP_PRI + 5,
+    UVOICE_TASK_PRI_LOWER = AOS_DEFAULT_APP_PRI + 1,
+    UVOICE_TASK_PRI_NORMAL = AOS_DEFAULT_APP_PRI,
+    UVOICE_TASK_PRI_HIGHER = AOS_DEFAULT_APP_PRI - 1,
+    UVOICE_TASK_PRI_HIGHEST = AOS_DEFAULT_APP_PRI - 5,
 };
-
 
 #ifdef UVOICE_BUILD_RELEASE
 #define M_LOGD(fmt, ...)
 #else
-#define M_LOGD(fmt, ...)    aos_printf("%s: "fmt, __func__, ##__VA_ARGS__)
+#define M_LOGD(fmt, ...) aos_printf("%s: " fmt, __func__, ##__VA_ARGS__)
 #endif
-#define M_LOGI(fmt, ...)    aos_printf("%s: "fmt, __func__, ##__VA_ARGS__)
-#define M_LOGW(fmt, ...)    aos_printf("%s: "fmt, __func__, ##__VA_ARGS__)
-#define M_LOGE(fmt, ...)    aos_printf("%s: "fmt, __func__, ##__VA_ARGS__)
-#define M_LOGR(fmt, ...)    aos_printf(fmt, ##__VA_ARGS__)
+#define M_LOGI(fmt, ...) aos_printf("%s: " fmt, __func__, ##__VA_ARGS__)
+#define M_LOGW(fmt, ...) aos_printf("%s: " fmt, __func__, ##__VA_ARGS__)
+#define M_LOGE(fmt, ...) aos_printf("%s: " fmt, __func__, ##__VA_ARGS__)
+#define M_LOGR(fmt, ...) aos_printf(fmt, ##__VA_ARGS__)
 
-#define AFM_MAIN        0x1
-#define AFM_EXTN        0x2
+#define AFM_MAIN 0x1
+#define AFM_EXTN 0x2
 
 static inline void *snd_zalloc(size_t size, int flags)
 {
@@ -200,14 +195,12 @@ static inline int os_remove(const char *filename)
     return aos_remove(filename);
 }
 
-static inline int os_message_queue_send(os_message_queue_t mq, void *msg,
-    unsigned int size, unsigned int timeout)
+static inline int os_message_queue_send(os_message_queue_t mq, void *msg, unsigned int size, unsigned int timeout)
 {
     return aos_queue_send(&mq, msg, size);
 }
 
-static inline int os_message_queue_recv(os_message_queue_t mq, void *msg,
-    unsigned int size, unsigned int timeout)
+static inline int os_message_queue_recv(os_message_queue_t mq, void *msg, unsigned int size, unsigned int timeout)
 {
     return aos_queue_recv(&mq, timeout, msg, &size);
 }
@@ -296,8 +289,8 @@ static inline void os_sem_free(os_sem_t sem)
     aos_sem_free(&sem);
 }
 
-static inline int os_task_create(os_task_t *task, const char *name,
-        void (*fn)(void *), void *arg, int stack_size, int pri)
+static inline int os_task_create(os_task_t *task, const char *name, void (*fn)(void *), void *arg, int stack_size,
+                                 int pri)
 {
     return aos_task_new_ext(task, name, fn, arg, stack_size, pri);
 }
@@ -323,7 +316,7 @@ static inline int os_partition_read(int pt, uint32_t *offset, uint8_t *buffer, u
     return -1;
 }
 
-static inline int os_partition_write(int pt, uint32_t *offset, const uint8_t *buffer , uint32_t len)
+static inline int os_partition_write(int pt, uint32_t *offset, const uint8_t *buffer, uint32_t len)
 {
     return -1;
 }
@@ -332,6 +325,5 @@ static inline int os_partition_erase(int pt, uint32_t offset, uint32_t len)
 {
     return -1;
 }
-
 
 #endif /* __UVOICE_AOS_H__ */

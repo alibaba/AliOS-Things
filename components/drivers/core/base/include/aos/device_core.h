@@ -12,21 +12,14 @@
 #ifdef AOS_COMP_VFS
 #include <aos/vfs.h>
 #endif
-
-typedef enum {
-    AOS_DEV_TYPE_MISC           = 0,
-    AOS_DEV_TYPE_TTY,
-    AOS_DEV_TYPE_GPIOC,
-    AOS_DEV_TYPE_GPIO,
-} aos_dev_type_t;
+#include <aos/device.h>
 
 struct aos_dev;
-struct aos_dev_ref;
 
 typedef struct {
     void (*unregister)(struct aos_dev *);
-    aos_status_t (*get)(struct aos_dev_ref *);
-    void (*put)(struct aos_dev_ref *);
+    aos_status_t (*get)(aos_dev_ref_t *);
+    void (*put)(aos_dev_ref_t *);
 } aos_dev_ops_t;
 
 #ifdef AOS_COMP_VFS
@@ -51,19 +44,8 @@ typedef struct aos_dev {
     uint32_t ref_count;
 } aos_dev_t;
 
-#define aos_dev_lock(dev) \
-    do { (void)aos_mutex_lock(&(dev)->mutex, AOS_WAIT_FOREVER); } while (0)
-#define aos_dev_unlock(dev) \
-    do { (void)aos_mutex_unlock(&(dev)->mutex); } while (0)
-
-typedef struct aos_dev_ref {
-    aos_dev_t *dev;
-    void *pdata;
-} aos_dev_ref_t;
-
-#define aos_dev_ref_init(ref) \
-    do { (ref)->dev = NULL; (ref)->pdata = NULL; } while (0)
-#define aos_dev_ref_is_valid(ref)       (!!(ref)->dev)
+#define aos_dev_lock(dev)               do { (void)aos_mutex_lock(&(dev)->mutex, AOS_WAIT_FOREVER); } while (0)
+#define aos_dev_unlock(dev)             do { (void)aos_mutex_unlock(&(dev)->mutex); } while (0)
 #define aos_dev_ref_is_first(ref)       ((ref)->dev->ref_count == 0)
 #define aos_dev_ref_is_last(ref)        ((ref)->dev->ref_count == 0)
 
@@ -74,8 +56,6 @@ extern "C" {
 aos_status_t aos_dev_register(aos_dev_t *dev);
 aos_status_t aos_dev_unregister(aos_dev_type_t type, uint32_t id);
 aos_status_t aos_dev_ref(aos_dev_ref_t *ref, aos_dev_t *dev);
-aos_status_t aos_dev_get(aos_dev_ref_t *ref, aos_dev_type_t type, uint32_t id);
-void aos_dev_put(aos_dev_ref_t *ref);
 
 #ifdef __cplusplus
 }

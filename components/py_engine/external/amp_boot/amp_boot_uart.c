@@ -7,21 +7,21 @@
 
 static uart_dev_t g_boot_uart = {0};
 
-void amp_boot_uart_send_byte(unsigned char c)
+void pyamp_boot_uart_send_byte(unsigned char c)
 {
     if ((aos_hal_uart_send(&g_boot_uart, &c, 1, osWaitForever)) != 0) {
-        //aos_printf("amp_boot_uart_send_byte error\n");
+        // aos_printf("pyamp_boot_uart_send_byte error\n");
     }
 }
 
-void amp_boot_uart_send_str(char *str)
+void pyamp_boot_uart_send_str(char *str)
 {
     if ((aos_hal_uart_send(&g_boot_uart, str, strlen(str), osWaitForever)) != 0) {
-        //aos_printf("amp_boot_uart_send_str %s error\n", str);
+        // aos_printf("pyamp_boot_uart_send_str %s error\n", str);
     }
 }
 
-unsigned char amp_boot_uart_recv_byte(unsigned char *c)
+unsigned char pyamp_boot_uart_recv_byte(unsigned char *c)
 {
     int read_byte = 0;
     if (aos_hal_uart_recv_poll(&g_boot_uart, c, 1, &read_byte) != 0) {
@@ -30,7 +30,7 @@ unsigned char amp_boot_uart_recv_byte(unsigned char *c)
     return read_byte;
 }
 
-int amp_boot_uart_recv_line(unsigned char *str_line, int lens, int timeout_ms)
+int pyamp_boot_uart_recv_line(unsigned char *str_line, int lens, int timeout_ms)
 {
     uint64_t begin_time = (uint64_t)aos_now_ms();
     int32_t  read_byte  = 0;
@@ -62,7 +62,7 @@ int amp_boot_uart_recv_line(unsigned char *str_line, int lens, int timeout_ms)
     return 0;
 }
 
-void amp_boot_uart_init(void)
+void pyamp_boot_uart_init(void)
 {
     g_boot_uart.port = MP_RECOVERY_UART_PORT;
     g_boot_uart.config.baud_rate = MP_RECOVERY_UART_PORT_BAUDRATE;

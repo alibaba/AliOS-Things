@@ -401,6 +401,9 @@ err_t sys_mbox_new(sys_mbox_t *mb, int size)
 
     if (stat == 0) {
         ret = ERR_OK;
+    } else {
+        ret = ERR_MEM;
+        free(msg_start);
     }
     return ret;
 }

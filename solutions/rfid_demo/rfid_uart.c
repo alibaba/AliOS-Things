@@ -42,7 +42,7 @@ static void task_recvdata_entry(void *arg)
                 send_property_post(params);
             }
         }
-        usleep(1000);
+        usleep(50000);
     }
 }
 

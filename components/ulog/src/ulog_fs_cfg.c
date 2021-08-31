@@ -203,17 +203,17 @@ int load_cfg_2_mm(void)
     int off = 0;
     int read_len = 0;
 
-    const int fd = open_log_file(ULOG_FILE_CFG_IDX, O_RDONLY, 0);
+    int fd = open_log_file(ULOG_FILE_CFG_IDX, O_RDONLY, 0);
     if (fd < 0) {
         SESSION_FS_DEBUG("%s %d open log cfg file fail\r\n", __FILE__, __LINE__);
         return rc;
     }
 
-    /* log cofig file exist, read it to archive config item */
-    while ((read_len = get_log_line(fd, one_cfg_item, sizeof(one_cfg_item))) > 1) {
-        off += (read_len + ((ULOG_CFG_LINE_MAX_SIZE == read_len) ? 0 : 1));
+    do {
+        read_len = get_log_line(fd, one_cfg_item, sizeof(one_cfg_item));
         parser_cfg_file(one_cfg_item);
-    }
+    }while (read_len > 0);
+
     aos_close(fd);
 
     ulog_cfg_node_t *p = ulog_cfg_header;
@@ -319,7 +319,7 @@ static void parser_cfg_file(const char* cfg)
     cJSON *config_para = NULL;
     cJSON *config_node = NULL;
 
-    if (NULL != cfg) {
+    if (NULL == cfg) {
         return ;
     }
 
@@ -328,7 +328,7 @@ static void parser_cfg_file(const char* cfg)
         return ;
     }
 
-    SESSION_FS_DEBUG("parser_cfg_file input %s\n", cfg);
+    SESSION_FS_DEBUG("parser_cfg_file input %s %d \n", cfg, __LINE__);
     for (; i < ulog_cfg_type_cnt; i++) {
         SESSION_FS_DEBUG("key list description %s @ %d\n", cfg_key_list[i].desription, i);
         config_node = cJSON_GetObjectItem(root, cfg_key_list[i].desription);

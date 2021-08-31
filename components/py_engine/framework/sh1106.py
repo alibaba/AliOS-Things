@@ -138,6 +138,46 @@ class SH1106:
                     p_x = nbyte//y_byte
                     self.pixel(x + p_x, y + p_y, 1)
 
+    def fill_rect(self, x, y, w, h, c):
+        self.fill_rect(x, y, w, h, c)
+
+    def fill_circle(self, x0, y0, r, c):
+        x = 0
+        y = r
+        deltax = 3
+        deltay = 2 - r - r
+        d = 1 - r
+        #print(x)
+        #print(y)
+        #print(deltax)
+        #print(deltay)
+        #print(d)
+        self.pixel(x + x0, y + y0, c)
+        self.pixel(x + x0, -y + y0, c)
+        for i in range(-r + x0, r + x0):
+            self.pixel(i, y0, c)
+        while x < y:
+            if d < 0:
+                d += deltax
+                deltax += 2
+                x = x +1
+            else:
+                d += (deltax + deltay)
+                deltax += 2
+                deltay += 2
+                x = x +1
+                y = y -1
+            for i in range(-x + x0, x + x0):
+                self.pixel(i, -y + y0, c)
+                self.pixel(i, y + y0, c)
+            for i in range(-y + x0, y + x0):
+                self.pixel(i, -x + y0, c)
+                self.pixel(i, x + y0, c)
+
+    def draw_circle(self, x0, y0, r, w, c):
+        self.fill_circle(x0, y0, r, c)
+        self.fill_circle(x0, y0, r -w, 0)
+
     def reset(self, res):
         if res is not None:
             res.write(1)

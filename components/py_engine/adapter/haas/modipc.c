@@ -51,7 +51,7 @@ STATIC mp_obj_t ipc_obj_make_new(const mp_obj_type_t *type, size_t n_args, size_
 
     pyb_ipc_obj_t* ipc_obj = m_new_obj(pyb_ipc_obj_t);
     if (!ipc_obj) {
-        mp_raise_OSError(ENOMEM);
+        mp_raise_OSError(MP_EINVAL);
     }
 
     mp_int_t  ret = krhino_buf_queue_dyn_create(&queue, pname, size, max_msg);

@@ -25,6 +25,8 @@
 #include "sys/stat.h"
 #include "aos/vfs.h"
 #include "py_defines.h"
+#include "aos_hal_uart.h"
+#include "netmgr.h"
 
 #if AOS_COMP_CLI
 #include "aos/cli.h"
@@ -35,7 +37,7 @@
 #define LOG_TAG "haas_main"
 
 static char *stack_top = NULL;
-static bool is_engine_run = false ;
+static bool isPythonRunning = false;
 
 #if MICROPY_ENABLE_GC
 static char *heap = NULL;
@@ -52,13 +54,12 @@ static mpy_thread_args *alloc_mpy_thread_args(int argc, char **argv)
         return NULL;
     }
 
-    if (argc == 0) {
-        temp_args->is_bootup = true;
-        temp_args->argc = 2;
+    if (argc == 1) {
+        temp_args->is_repl_mode = true;
     } else {
-        temp_args->is_bootup = false;
-        temp_args->argc = argc;
+        temp_args->is_repl_mode = false;
     }
+    temp_args->argc = argc;
 
     temp_args->argv = (char **)calloc(1, sizeof(char *) * temp_args->argc);
     if (temp_args->argv == NULL) {
@@ -92,7 +93,81 @@ static int free_mpy_thread_args(mpy_thread_args *args)
     return 0;
 }
 
-static void py_engine_entry(void *p)
+static bool is_file_exist(const char* path) {
+    if(path == NULL) {
+        LODE(LOG_TAG, "File path null\n");
+        return false;
+    }
+
+    FILE *fd = fopen(path, "r");
+    if(fd != NULL) {
+        fclose(fd);
+        return true;
+    }
+
+    return false;
+}
+
+static uint8_t* is_mainpy_exist() {
+    /* check whether main/pyamp/main.py */
+    FILE *fd = fopen(AMP_PY_ENTRY_DEFAULE, "r");
+    if( fd != NULL) {
+        printf(" ==== python execute from %s ====\n", AMP_PY_ENTRY_DEFAULE);
+        fclose(fd);
+        return AMP_PY_ENTRY_DEFAULE;
+    }
+
+    fd = fopen(AMP_PY_ENTRY_BAK, "r");
+    if( fd != NULL) {
+        printf(" ==== python execute from %s ====\n", AMP_PY_ENTRY_BAK);
+        fclose(fd);
+        return AMP_PY_ENTRY_BAK;
+    }
+
+    return NULL;
+}
+
+static netmgr_hdl_t hdl_t = -1;
+
+void set_netmgr_hdl(netmgr_hdl_t hdl) {
+    hdl_t = hdl;
+}
+
+netmgr_hdl_t get_netmgr_hdl() {
+    return hdl_t;
+}
+
+static void net_init() {
+    #define WIFI_DEV_PATH "/dev/wifi0"
+
+    char* wificonf = MP_FS_ROOT_DIR"/wifi.conf";
+    if(is_file_exist(wificonf) == true) {
+        event_service_init(NULL);
+        netmgr_service_init(NULL);
+        netmgr_set_auto_reconnect(NULL, true);
+        netmgr_wifi_set_auto_save_ap(true);
+
+        netmgr_add_dev(WIFI_DEV_PATH);
+        netmgr_hdl_t hdl = netmgr_get_dev(WIFI_DEV_PATH);
+        set_netmgr_hdl(hdl);
+    }
+}
+
+#include "extmod/vfs.h"
+#include "extmod/vfs_posix.h"
+// Try to mount the data on "/data" and chdir to it for the boot-up directory.
+static int mount_fs(char* mount_point_str) {
+    mp_obj_t mount_point = mp_obj_new_str(mount_point_str, strlen(mount_point_str));
+    mp_obj_t bdev = mp_type_vfs_posix.make_new(&mp_type_vfs_posix, 0, 0, NULL);
+    int32_t ret = mp_vfs_mount_and_chdir_protected(bdev, mount_point);
+    if (ret != 0) {
+        printf("mount_fs failed with mount_point: %s\n", mount_point_str);
+        return -MP_ENOENT;
+    }
+    return 0;
+}
+
+static void py_engine_mainloop(void *p)
 {
     mpy_thread_args *args = (mpy_thread_args *)p;
     if (args == NULL) {
@@ -102,18 +177,26 @@ static void py_engine_entry(void *p)
 
     int ret = mpy_init(args);
     if(ret) {
-        LOGE(LOG_TAG, "%s:init python engine failed\n", __func__);
+        LOGE(LOG_TAG, "%s:mpy_init failed, ret=%d\n", __func__, ret);
     } else {
+        /* Suspend CLI to make sure REPL use UART exclusively */
+        aos_cli_suspend();
+
+        isPythonRunning = true;
         mpy_run(args->argc, args->argv);
-        mpy_deinit();
+
+        /* Resume CLI after REPL */
+        aos_cli_resume();
     }
 
     free_mpy_thread_args(args);
+    mpy_deinit();
+    isPythonRunning = false;
 }
 
 static void py_engine_task(void *p)
 {
-    py_task_init();  
+    py_task_init();
     while (1) {
         /* loop for asynchronous operation */
         if(py_task_yield(200) == 1) {
@@ -127,20 +210,6 @@ static void py_engine_task(void *p)
 #ifdef PY_BUILD_CHANNEL
 static void network_func(void *argv)
 {
-    // netmgr_service_init(NULL);
-    // netmgr_set_auto_reconnect(NULL, true);
-    // netmgr_wifi_set_auto_save_ap(true);
-
-    // netmgr_add_dev("/dev/wifi0");
-    // aos_network_status_registercb(NULL, NULL);
-
-    // char * dev_name = aos_get_device_name();
-    // if (!dev_name) {
-    //     LOGE(LOG_TAG, "internal device name is null");
-    //     aos_task_exit(0);
-    //     return;
-    // }
-    // LOGD(LOG_TAG, "internal device name is %s",dev_name);
     while(!aos_get_network_status()) {
         aos_msleep(1000);
     }
@@ -150,17 +219,37 @@ static void network_func(void *argv)
 }
 #endif
 
-void haas_main(int argc, char **argv)
+static void python_entry(int argc, char **argv)
 {
+    if(isPythonRunning == true) {
+        printf(" **************************************************** \r\n");
+        printf(" ** Python is running, cannot start another engine ** \r\n");
+        printf(" **************************************************** \r\n");
+
+        return;
+    }
+
     printf(" Welcome to MicroPython \n");
 
+    aos_task_t engine_entry = NULL;
+    mpy_thread_args *args = alloc_mpy_thread_args(argc, argv);
+
+    int32_t ret = aos_task_new_ext(&engine_entry, "py_engine", py_engine_mainloop, args, 1024 * 20, AOS_DEFAULT_APP_PRI);
+    if (ret != 0) {
+        LOGE(LOG_TAG, "py_engine_mainloop task creat failed!");
+        return;
+    }
+}
+
+void haas_main(int argc, char **argv)
+{
 #if PY_BUILD_BOOT
-    amp_boot_main();
+    aos_cli_suspend();
+    pyamp_boot_main();
+    aos_cli_resume();
 #endif
 
-    int ret = -1 ;
-    aos_task_t engine_entry;
-    aos_task_t engine_task;
+    int ret = -1;
 
     /* ulog module init */
     ulog_init();
@@ -175,23 +264,17 @@ void haas_main(int argc, char **argv)
     }
 #endif
 
-    mpy_thread_args *args = alloc_mpy_thread_args(argc, argv);
+    /* net init */
+    net_init();
 
-    ret = aos_task_new_ext(&engine_task, "py_engine_task", py_engine_task, args, 1024 * 8, AOS_DEFAULT_APP_PRI);
+    aos_task_t engine_task;
+    ret = aos_task_new_ext(&engine_task, "py_engine_task", py_engine_task, NULL, 1024 * 8, AOS_DEFAULT_APP_PRI);
     if (ret != 0) {
         LOGE(LOG_TAG, "pyengine task creat failed!");
         return;
     }
-
-    ret = aos_task_new_ext(&engine_entry, "py_engine", py_engine_entry, args, 1024 * 20, AOS_DEFAULT_APP_PRI);
-    if (ret != 0) {
-        LOGE(LOG_TAG, "pyengine task creat failed!");
-        return;
-    }
-
 
 #ifdef PY_BUILD_CHANNEL
-
     aos_task_t network_task;
     /* network start */
     ret = aos_task_new_ext(&network_task, "mpy_network", network_func, NULL, 1024 * 4, AOS_DEFAULT_APP_PRI);
@@ -200,6 +283,13 @@ void haas_main(int argc, char **argv)
         return ret;
     }
 #endif
+
+    /* Check whether we have main.py to execute */
+    uint8_t *path = is_mainpy_exist();
+    if(path != NULL) {
+        uint8_t *argv[2] = {"python", path};
+        python_entry(2, &argv);
+    }
 }
 
 static void handle_unzip_cmd(int argc, char **argv)
@@ -245,13 +335,10 @@ void do_str(const char *src, mp_parse_input_kind_t input_kind) {
 
 int mpy_init(mpy_thread_args *args)
 {
-    if (is_engine_run){
-        amp_warn(LOG_TAG,"engine already run! ");
-        return  -1 ;
-    }
-    is_engine_run = true;
-	
+    int32_t ret = -1;
     uint32_t stack_size = 1024;
+
+    mp_uart_init(MP_REPL_UART_PORT, MP_REPL_UART_BAUDRATE);
 
 #if MICROPY_PY_THREAD
     void *stack_addr = mp_sal_get_stack_addr();
@@ -270,13 +357,24 @@ int mpy_init(mpy_thread_args *args)
 #if MICROPY_ENABLE_GC
     heap = (char *)malloc(MICROPY_GC_HEAP_SIZE);
     if(NULL == heap){
-        printf("mpy_main:heap alloc fail!\r\n");
+        LOGE(LOG_TAG, "mpy_init: heap alloc fail!\r\n");
         return -1;
     }
     gc_init(heap, heap + MICROPY_GC_HEAP_SIZE);
 #endif
 
     mp_init();
+
+    #if MICROPY_VFS_POSIX
+    {
+        // Mount the host FS at the root of our internal VFS
+        ret = mount_fs("/");
+        if(ret != 0) {
+            printf(" !!!!!!!! %s, %d, faild to mount fs !!!!!!!! \n", __func__, __LINE__);
+        }
+        MP_STATE_VM(vfs_cur) = MP_STATE_VM(vfs_mount_table);
+    }
+    #endif
 
     /*set default mp_sys_path*/
     mp_obj_list_init(mp_sys_path, 0);
@@ -290,26 +388,7 @@ int mpy_init(mpy_thread_args *args)
 
     mp_obj_list_init(mp_sys_argv, 0);
 
-    if(args->is_bootup == true) {
-        FILE *fd = fopen(AMP_PY_ENTRY_DEFAULE, "r");
-        if( fd != NULL) {
-            args->argc = 2;
-            args->argv[0] = strdup("python");
-            args->argv[1] = strdup(AMP_PY_ENTRY_DEFAULE);
-            printf(" ==== python execute main.py from sdcard ====\n");
-            fclose(fd);
-        } else {
-            fd = fopen(AMP_PY_ENTRY_BAK, "r");
-            if( fd != NULL) {
-                args->argc = 2;
-                args->argv[0] = strdup("python");
-                args->argv[1] = strdup(AMP_PY_ENTRY_BAK);
-                printf(" ==== python execute main.py from data ====\n");
-                fclose(fd);
-            }
-        }
-    }
-    return  0 ;
+    return 0;
 }
 
 int mpy_deinit(void)
@@ -317,12 +396,12 @@ int mpy_deinit(void)
     // need relese python run mem
 #if MICROPY_ENABLE_GC
     if(NULL != heap){
-        // printf("free python heap mm\r\n");
         free(heap);
         heap == NULL;
     }
 #endif
-    is_engine_run = false ;
+
+    mp_uart_deinit();
 }
 
 static void set_sys_argv(char *argv[], int argc, int start_arg) {
@@ -338,53 +417,34 @@ int is_download_mode(uint32_t wait_time_ms)
 	int64_t now_time = 0;
 	int64_t begin_time = aos_now_ms();
 
-	//give_timeout_signle(wait_time_ms);
-	
-	do{
-		int c = mp_hal_stdin_rx_chr();
-		LOGD(LOG_TAG,"0x%02x",c);
-		if(c == '\x03')
-		{
-			ret = 1;
-			//give_timeout_signle_delete();
-			break;
-		}
-		now_time = aos_now_ms();
+    do {
+        int c = ringbuf_get(&stdin_ringbuf);
+        LOGD(LOG_TAG, "0x%02x", c);
+        if (c == '\x03') {
+            ret = 1;
+            break;
+        }
+        now_time = aos_now_ms();
         uint32_t time = now_time - begin_time ;
         if(time >= wait_time_ms){
             ret = 0;
-			LOGD(LOG_TAG,"tmout:0x%02x",'\x03');
-			break;
-        }else{
-            LOGD(LOG_TAG," time is  %d",time);
-
+            LOGD(LOG_TAG, "tmout:0x%02x", '\x03');
+            break;
+        } else {
+            LOGD(LOG_TAG, "time is %d", time);
         }
-        aos_boot_delay(1);
+        pyamp_boot_delay(1);
+    } while (1);
 
-
-	} while(1);
-
-
-	return ret;
+    return ret;
 }
 
-
-int mpy_run(int argc, char *argv[]) {
-
-
-    #if 1
+int mpy_run(int argc, char *argv[])
+{
+#if 1
     int mode = 0 ;
 	mode = is_download_mode(300);
-	// if(mode == 0)
-	// {
-	// 	int mp_stat = pyexec_file_if_exists("main.py");
-	// 	ZYF_LOG("mp_stat %d.\n",mp_stat);
-	// 	if(1 == mp_stat)
-	// 	{
-	// 		ZYF_LOG("gpio.py is not found.\n");
-	// 	}
-	// }
-	#endif
+#endif
 
     if (argc >= 2 && mode == 0) {
         char *filename = argv[1] ;
@@ -437,34 +497,6 @@ MP_WEAK mp_lexer_t *mp_lexer_new_from_file(const char *filename) {
     mp_raise_OSError(MP_ENOENT);
 }
 
-mp_import_stat_t mp_import_stat(const char *path) {
-    int len;
-    char * sys_path;
-    struct aos_stat pst;
-    int32_t ret;
-
-    if(NULL == path){
-        return MP_IMPORT_STAT_NO_EXIST;
-    }
-
-    ret = aos_stat(path, &pst);
-    if(0 == ret){
-        if(pst.st_mode & S_IFDIR){
-            return MP_IMPORT_STAT_DIR;
-        }else{
-            return MP_IMPORT_STAT_FILE;
-        }
-    }
-
-    return MP_IMPORT_STAT_NO_EXIST;
-}
-
-mp_obj_t mp_builtin_open(size_t n_args, const mp_obj_t *args, mp_map_t *kwargs
-) {
-    return mp_const_none;
-}
-MP_DEFINE_CONST_FUN_OBJ_KW(mp_builtin_open_obj, 1, mp_builtin_open);
-
 void nlr_jump_fail(void *val) {
     while (1);
 }
@@ -474,34 +506,17 @@ void NORETURN __fatal_error(const char *msg) {
 }
 
 #ifndef NDEBUG
-void MP_WEAK __assert_func(const char *file, int line, const char *func,
-const char *expr) {
-    printf("Assertion '%s' failed, at file %s:%d\n", expr, file, line);
-    __fatal_error("Assertion failed");
+void MP_WEAK __assert_func(const char *file, int line, const char *func,const char *expr) {
+    printf("assert:%s:%d:%s: %s\n", file, line, func, expr);
+    mp_raise_msg(&mp_type_AssertionError, MP_ERROR_TEXT("C-level assert"));
 }
 #endif
-
-
-
-
-int DEBUG_printf(const char *fmt, ...)
-{
-    va_list args;
-
-    va_start(args, fmt);
-    int ret = vprintf(fmt, args);
-    va_end(args);
-
-    fflush(stdout);
-
-    return ret;
-}
 
 #ifdef AOS_COMP_CLI
 #if BOARD_HAAS700
 #include <console.h>
 #endif
 /* reg args: fun, cmd, description*/
-ALIOS_CLI_CMD_REGISTER(haas_main, python, start micropython)
+ALIOS_CLI_CMD_REGISTER(python_entry, python, start micropython)
 ALIOS_CLI_CMD_REGISTER(handle_unzip_cmd, unzip, start unzip)
 #endif

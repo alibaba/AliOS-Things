@@ -44,10 +44,10 @@ int32_t amp_app_devinfo_report(void *mqtt_handle)
     aos_kv_get(AMP_CUSTOMER_DEVICENAME, device_name, &devicename_len);
 
     msg_len = strlen(DEVICE_INFO_UPDATE_FMT) + 32;
-    msg = (char *)aos_malloc(msg_len);
+    msg = (char *)amp_malloc(msg_len);
     if (msg == NULL) {
         amp_debug(MOD_STR, "malloc msg err");
-        return -1;
+        goto exit;
     }
     memset(msg, 0, msg_len);
 
@@ -60,42 +60,34 @@ int32_t amp_app_devinfo_report(void *mqtt_handle)
                       );
     if (res <= 0) {
         amp_debug(MOD_STR, "topic msg generate err");
-        aos_free(msg);
-        return -1;
+        goto exit;
     }
 
-    devinfo = aos_malloc(sizeof(aiot_devinfo_msg_t));
+    devinfo = amp_malloc(sizeof(aiot_devinfo_msg_t));
     if (devinfo == NULL) {
         amp_debug(MOD_STR, "device update info malloc failed");
-        aos_free(msg);
-        return -1;
+        goto exit;
     }
     memset(devinfo, 0, sizeof(aiot_devinfo_msg_t));
 
-    devinfo->product_key = aos_malloc(IOTX_PRODUCT_KEY_LEN);
+    devinfo->product_key = amp_malloc(IOTX_PRODUCT_KEY_LEN);
     if (devinfo->product_key == NULL) {
         amp_debug(MOD_STR, "device update info malloc failed");
-        aos_free(msg);
-        aos_free(devinfo);
-        return -1;
+        goto exit;
     }
     memset(devinfo->product_key, 0, IOTX_PRODUCT_KEY_LEN);
 
-    devinfo->device_name = aos_malloc(IOTX_DEVICE_NAME_LEN);
+    devinfo->device_name = amp_malloc(IOTX_DEVICE_NAME_LEN);
     if (devinfo->device_name == NULL) {
         amp_debug(MOD_STR, "device update info malloc failed");
-        aos_free(msg);
-        aos_free(devinfo);
-        return -1;
+        goto exit;
     }
     memset(devinfo->device_name, 0, IOTX_DEVICE_NAME_LEN);
 
-    devinfo->data.update.params = aos_malloc(msg_len);
+    devinfo->data.update.params = amp_malloc(msg_len);
     if (devinfo == NULL) {
         amp_debug(MOD_STR, "device update info malloc failed");
-        aos_free(msg);
-        aos_free(devinfo);
-        return -1;
+        goto exit;
     }
     memset(devinfo->data.update.params, 0, msg_len);
 
@@ -107,20 +99,24 @@ int32_t amp_app_devinfo_report(void *mqtt_handle)
     res = aiot_devinfo_send(devinfo_handle, devinfo);
     if (res < STATE_SUCCESS) {
         amp_debug(MOD_STR, "das stepping failed");
-        aos_free(msg);
-        aos_free(devinfo->product_key);
-        aos_free(devinfo->device_name);
-        aos_free(devinfo->data.update.params);
-        aos_free(devinfo);
-        aiot_devinfo_deinit(&devinfo_handle);
-        return -1;
+        goto exit;
     }
 
-    aos_free(msg);
-    aos_free(devinfo->product_key);
-    aos_free(devinfo->device_name);
-    aos_free(devinfo->data.update.params);
-    aos_free(devinfo);
+exit:
+    if (msg)
+        amp_free(msg);
+    if (devinfo) {
+        if (devinfo->product_key)
+            amp_free(devinfo->product_key);
+        if (devinfo->device_name) {
+            amp_free(devinfo->device_name);
+        }
+        if (devinfo->data.update.params) {
+            amp_free(devinfo->data.update.params);
+        }
+        amp_free(devinfo);
+    }
+    aiot_devinfo_deinit(&devinfo_handle);
 
     return res;
 }

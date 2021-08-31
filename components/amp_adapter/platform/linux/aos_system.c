@@ -601,3 +601,13 @@ const char *aos_get_module_software_version(void)
 {
     return "Module_Software_version";
 }
+
+int32_t aos_rand(void)
+{
+    return rand();
+}
+
+void aos_srand(uint32_t seed)
+{
+    srand(seed);
+}

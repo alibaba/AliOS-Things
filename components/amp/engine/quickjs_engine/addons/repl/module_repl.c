@@ -105,7 +105,7 @@ static JSValue native_repl_read(JSContext *ctx, JSValueConst this_val,
 
     uint64_t pos, len;
     size_t size;
-    ssize_t ret;
+    size_t ret;
     uint8_t *buf;
 
     if (JS_ToIndex(ctx, &pos, argv[1]))

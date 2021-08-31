@@ -70,7 +70,7 @@ void judge_station_disconnect(void)
 	switch(mode) {
 	case IW_MODE_MASTER:	//In AP mode
 		wifi_off();
-		vTaskDelay(20);
+		rtw_msleep_os(20);
 		wifi_on(RTW_MODE_STA);
 		break;
 	case IW_MODE_INFRA:		//In STA mode
@@ -298,7 +298,8 @@ int connect_by_open_system(char *target_ssid)
 void eap_autoreconnect_thread(void *method)
 {
 	eap_start((char*)method);
-	vTaskDelete(NULL);
+	//vTaskDelete(NULL);
+	aos_task_exit(0);
 }
 #endif
 
@@ -322,8 +323,9 @@ void eap_autoreconnect_hdl(u8 method_id)
 			printf("invalid eap method\n");
 			return;
 	}
-	if(xTaskCreate(eap_autoreconnect_thread, ((const char*)"eap_autoreconnect_thread"), 1024, (void*) method, tskIDLE_PRIORITY + 1, NULL) != pdPASS)
-		printf("\n\r%s xTaskCreate failed\n", __FUNCTION__);
+	//if(xTaskCreate(eap_autoreconnect_thread, ((const char*)"eap_autoreconnect_thread"), 1024, (void*) method, tskIDLE_PRIORITY + 1, NULL) != pdPASS)
+	//	printf("\n\r%s xTaskCreate failed\n", __FUNCTION__);
+	aos_task_new("eap_autoreconnect_thread", eap_autoreconnect_thread, method, 1024);
 #endif
 }
 

@@ -215,7 +215,7 @@ int32_t aiot_app_send_property_post(void *dm_handle, char *params);
 int32_t aiot_app_send_event_post(void *dm_handle, char *event_id, char *params);
 
 /* device dynmic register */
-int32_t aiot_dynreg_http(int js_cb_ref);
+int32_t aiot_dynreg_http(JSValue *js_cb_ref);
 
 /* device active info report */
 int32_t amp_app_devinfo_report(void *mqtt_handle);

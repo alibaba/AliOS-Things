@@ -82,7 +82,7 @@ STATIC mp_obj_t http_client_new(const mp_obj_type_t *type, size_t n_args, size_t
     LOGD(LOG_TAG, "entern  %s;\n", __func__);
     http_client_obj_t* http_client_obj = m_new_obj(http_client_obj_t);
     if (!http_client_obj) {
-        mp_raise_OSError(ENOMEM);
+        mp_raise_OSError(MP_EINVAL);
     }
 
     http_client_obj->Base.type = &http_client_type;
@@ -612,19 +612,23 @@ static void http_request_notify(void *pdata)
 
 
 /* create task for http download */
-static void task_http_download_func(char * url,char *filepath)
+static bool task_http_download_func(char * url, char *filepath)
 {
     httpclient_t client = {0};
     httpclient_data_t client_data = {0};
-    int num=0;
+    int num = 0;
     int ret;
+    bool download_result = false;
 
+    if (!aos_access(filepath, 0)) {
+        aos_remove(filepath);
+    }
     // 字符串偶现丢失，不知原因，暂时写死，by梓同
     //char * req_url = param->url;
     //int fd = aos_open(param->filepath,  O_CREAT | O_RDWR | O_APPEND);
     int fd = aos_open(filepath,  O_CREAT | O_RDWR | O_APPEND);
 
-    char * req_url = url ;
+    char * req_url = url;
     //printf("usr ls %s , filepath is %s \r\n",req_url,param->filepath);
 
     memset(rsp_buf, 0, sizeof(rsp_buf));
@@ -636,20 +640,33 @@ static void task_http_download_func(char * url,char *filepath)
     if (!ret) {
         ret = httpclient_send(&client, req_url, HTTP_GET, &client_data);
 
-        do{
+        do {
             ret = httpclient_recv(&client, &client_data);
             // printf("response_content_len=%d, retrieve_len=%d,content_block_len=%d\n", client_data.response_content_len,client_data.retrieve_len,client_data.content_block_len);
             // printf("ismore=%d \n", client_data.is_more);
-
-            num = aos_write(fd, client_data.response_buf, client_data.content_block_len);
-            if(num > 0){
-                printf("aos_write num=%d\n", num);
+            if (client_data.content_block_len > 0) {
+                num = aos_write(fd, client_data.response_buf, client_data.content_block_len);
+                if(num > 0){
+                    printf("aos_write num=%d\n", num);
+                }
             }
-        }while(client_data.is_more);
+        } while(client_data.is_more);
+        if (client_data.response_content_len == 0)
+            download_result = false;
+        else
+            download_result = true;
+    } else {
+        download_result = false;
     }
+
     // printf("************task_http_download_func0********** \r\n");
 
-    ret = aos_sync(fd);
+    if (download_result) {
+        ret = aos_sync(fd);
+    } else {
+        aos_remove(filepath);
+    }
+    aos_close(fd);
     // param->buffer = "http download success";
     // printf("************task_http_download_func1********** \r\n");
 
@@ -657,9 +674,8 @@ static void task_http_download_func(char * url,char *filepath)
 
     //amp_task_schedule_call(http_request_notify, param);
     // printf("************task_http_download_func2********** \r\n");
+    return download_result;
 }
-
-
 
 STATIC mp_obj_t obj_http_download(size_t n_args, const mp_obj_t *args)
 {
@@ -667,7 +683,7 @@ STATIC mp_obj_t obj_http_download(size_t n_args, const mp_obj_t *args)
     aos_task_t http_task;
     http_param_t *http_param = NULL;
     char *http_buffer = NULL;
-
+    bool result = false;
 
     int ret = -1;
     void* instance = NULL;
@@ -697,7 +713,7 @@ STATIC mp_obj_t obj_http_download(size_t n_args, const mp_obj_t *args)
     http_param->filepath = filepath; 
 
     //aos_task_new_ext(&http_task, "amp http download task", task_http_download_func, http_param, 1024 * 8, AOS_DEFAULT_APP_PRI + 3);
-    task_http_download_func(url,filepath);
+    result = task_http_download_func(url,filepath);
 
 done:
     if (http_buffer)
@@ -707,7 +723,7 @@ done:
     if (http_param)
         aos_free(http_param);
 
-    return mp_obj_new_int(0);
+    return (result ? mp_obj_new_int(1) : mp_obj_new_int(0));
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_obj_http_download, 3, obj_http_download);
 

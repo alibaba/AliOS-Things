@@ -141,19 +141,10 @@
 
 #define BAD_MIC_COUNTERMEASURE 1
 #define DEFRAGMENTATION 1
+#define RX_AGGREGATION 1
+#define RX_AMSDU 1
 
 #define WIFI_LOGO_CERTIFICATION 0
-#if WIFI_LOGO_CERTIFICATION
-    #define RX_AGGREGATION 1
-	#define RX_AMSDU 1
-#else
-	#ifdef CONFIG_HIGH_TP_TEST
-    		#define RX_AGGREGATION 1
-	#else
-		#define RX_AGGREGATION 1
-	#endif
-	#define RX_AMSDU 0
-#endif
 
 #if defined(CONFIG_PLATFORM_8711B)
 	#define CONFIG_FW_C2H_PKT
@@ -237,7 +228,7 @@
 #define PSK_SUPPORT_TKIP	1
 #endif
 
-//#define CONFIG_PMKSA_CACHING
+#define CONFIG_PMKSA_CACHING
 
 /* For WPA3 */
 #define CONFIG_IEEE80211W
@@ -245,6 +236,13 @@
 #ifdef CONFIG_SAE_SUPPORT
 #define CONFIG_SAE_DH_SUPPORT 1
 #define ALL_DH_GROUPS
+#endif
+
+
+/* For repeater mode */
+#define CONFIG_REPEATER		0
+#if defined(CONFIG_REPEATER) && CONFIG_REPEATER
+#define NOT_SUPPORT_40M
 #endif
 
 /* For promiscuous mode */
@@ -264,6 +262,8 @@
 /* For multicast */
 #define CONFIG_MULTICAST
 #endif
+
+#define CONFIG_RX_PACKET_APPEND_FCS
 
 /* For STA+AP Concurrent MODE */
 #define CONFIG_CONCURRENT_MODE
@@ -533,7 +533,7 @@ extern unsigned int g_ap_sta_num;
 			#undef CONFIG_CONCURRENT_MODE
 			#undef CONFIG_AUTO_RECONNECT
 		#endif
-	//#define CONFIG_WLAN_SWITCH_MODE         //save memory while switching mode without driver re-init
+	#define CONFIG_WLAN_SWITCH_MODE         //save memory while switching mode without driver re-init
 	//#define LOW_POWER_WIFI_CONNECT
 	//#define LONG_PERIOD_TICKLESS
 	#endif

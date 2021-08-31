@@ -11,7 +11,7 @@
 #include "board_mgr.h"
 #include "amp_task.h"
 #include "aos_hal_timer.h"
-#include "amp_list.h"
+#include "aos/list.h"
 #include "quickjs.h"
 #include "quickjs_addon_common.h"
 
@@ -28,7 +28,7 @@ typedef struct {
     dlist_t node;
 } timer_info_t;
 
-static dlist_t g_timer_list = AMP_DLIST_HEAD_INIT(g_timer_list);
+static dlist_t g_timer_list = AOS_DLIST_HEAD_INIT(g_timer_list);
 static JSClassID js_timer_class_id;
 
 static void hw_timer_delete(timer_dev_t *dev)

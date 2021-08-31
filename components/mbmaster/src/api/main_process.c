@@ -36,7 +36,7 @@ mb_status_t mbmaster_main_type1_process(mb_handler_t *req_handler, uint8_t funct
             break;
         default:
             status = MB_FUNCTION_CODE_NOT_SUPPORT;
-            LOGE(MODBUS_MOUDLE, "invalid funciton code!");
+            LOGE(MODBUS_MOUDLE, "invalid funciton code!\n");
             break;
     }
     if (status != MB_SUCCESS) {
@@ -53,7 +53,7 @@ mb_status_t mbmaster_main_type1_process(mb_handler_t *req_handler, uint8_t funct
     }
 
      /* wait slave respond */
-    LOGD(MODBUS_MOUDLE, "waiting for respond");
+    LOGD(MODBUS_MOUDLE, "waiting for respond\n");
 
     status = req_handler->frame_recv(req_handler);
     if (status != MB_SUCCESS) {
@@ -101,7 +101,7 @@ mb_status_t mbmaster_main_type2_process(mb_handler_t *req_handler, uint8_t funct
             break;
         default:
             status = MB_FUNCTION_CODE_NOT_SUPPORT;
-            LOGE(MODBUS_MOUDLE, "invalid funciton code!");
+            LOGE(MODBUS_MOUDLE, "invalid funciton code!\n");
             break;
     }
     if (status != MB_SUCCESS) {
@@ -118,7 +118,7 @@ mb_status_t mbmaster_main_type2_process(mb_handler_t *req_handler, uint8_t funct
     }
 
      /* wait slave respond */
-    LOGD(MODBUS_MOUDLE, "waiting for respond");
+    LOGD(MODBUS_MOUDLE, "waiting for respond\n");
 
     status = req_handler->frame_recv(req_handler);
     if (status != MB_SUCCESS) {
@@ -164,7 +164,7 @@ mb_status_t mbmaster_main_type3_process(mb_handler_t *req_handler, uint8_t funct
             break;
         default:
             status = MB_FUNCTION_CODE_NOT_SUPPORT;
-            LOGE(MODBUS_MOUDLE, "invalid funciton code!");
+            LOGE(MODBUS_MOUDLE, "invalid funciton code!\n");
             break;
     }
     if (status != MB_SUCCESS) {
@@ -181,7 +181,7 @@ mb_status_t mbmaster_main_type3_process(mb_handler_t *req_handler, uint8_t funct
     }
 
      /* wait slave respond */
-    LOGD(MODBUS_MOUDLE, "waiting for respond");
+    LOGD(MODBUS_MOUDLE, "waiting for respond\n");
 
     status = req_handler->frame_recv(req_handler);
     if (status != MB_SUCCESS) {

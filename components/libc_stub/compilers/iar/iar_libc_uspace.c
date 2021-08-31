@@ -68,7 +68,7 @@ size_t __write(int handle, const unsigned char *buffer, size_t size)
     uart_dev_t uart_stdio;
     int i;
     memset(&uart_stdio, 0, sizeof(uart_stdio));
-    uart_stdio.port = 0;
+    uart_stdio.port = HAL_UART_STDIO_PORT;
 
     if (buffer == 0) {
         /*

@@ -12,43 +12,43 @@ const uint8_t CN_POWER_OFF [] = {
 #include "res/cn/SOUND_POWER_OFF.txt"
 };
 
-const uint8_t CN_SOUND_ZERO[] = { 
+const uint8_t CN_SOUND_ZERO[] = {
 #include "res/cn/SOUND_ZERO.txt"
 };
 
-const uint8_t CN_SOUND_ONE[] = { 
+const uint8_t CN_SOUND_ONE[] = {
 #include "res/cn/SOUND_ONE.txt"
 };
 
-const uint8_t CN_SOUND_TWO[] = { 
+const uint8_t CN_SOUND_TWO[] = {
 #include "res/cn/SOUND_TWO.txt"
 };
 
-const uint8_t CN_SOUND_THREE[] = { 
+const uint8_t CN_SOUND_THREE[] = {
 #include "res/cn/SOUND_THREE.txt"
 };
 
-const uint8_t CN_SOUND_FOUR[] = { 
+const uint8_t CN_SOUND_FOUR[] = {
 #include "res/cn/SOUND_FOUR.txt"
 };
 
-const uint8_t CN_SOUND_FIVE[] = { 
+const uint8_t CN_SOUND_FIVE[] = {
 #include "res/cn/SOUND_FIVE.txt"
 };
 
-const uint8_t CN_SOUND_SIX[] = { 
+const uint8_t CN_SOUND_SIX[] = {
 #include "res/cn/SOUND_SIX.txt"
 };
 
-const uint8_t CN_SOUND_SEVEN[] = { 
+const uint8_t CN_SOUND_SEVEN[] = {
 #include "res/cn/SOUND_SEVEN.txt"
 };
 
-const uint8_t CN_SOUND_EIGHT[] = { 
+const uint8_t CN_SOUND_EIGHT[] = {
 #include "res/cn/SOUND_EIGHT.txt"
 };
 
-const uint8_t CN_SOUND_NINE[] = { 
+const uint8_t CN_SOUND_NINE[] = {
 #include "res/cn/SOUND_NINE.txt"
 };
 
@@ -64,24 +64,24 @@ const uint8_t CN_BT_PAIRING_FAIL[] = {
 #include "res/cn/SOUND_PAIRING_FAIL.txt"
 };
 
-const uint8_t CN_BT_PAIRING_SUCCESS[] = { 
+const uint8_t CN_BT_PAIRING_SUCCESS[] = {
 #include "res/cn/SOUND_PAIRING_SUCCESS.txt"
 };
 
-const uint8_t CN_BT_REFUSE[] = { 
+const uint8_t CN_BT_REFUSE[] = {
 #include "res/cn/SOUND_REFUSE.txt"
 };
 
-const uint8_t CN_BT_OVER[] = { 
+const uint8_t CN_BT_OVER[] = {
 #include "res/cn/SOUND_OVER.txt"
 };
 
-const uint8_t CN_BT_ANSWER[] = { 
+const uint8_t CN_BT_ANSWER[] = {
 #include "res/cn/SOUND_ANSWER.txt"
 };
 
 
-const uint8_t CN_BT_HUNG_UP[] = { 
+const uint8_t CN_BT_HUNG_UP[] = {
 #include "res/cn/SOUND_HUNG_UP.txt"
 };
 
@@ -90,7 +90,7 @@ const uint8_t CN_BT_INCOMING_CALL [] = {
 };
 
 const uint8_t CN_BT_CONNECTED [] = {
-#include "res/cn/SOUND_CONNECTED.txt"    
+#include "res/cn/SOUND_CONNECTED.txt"
 };
 
 const uint8_t CN_BT_DIS_CONNECT [] = {
@@ -105,19 +105,19 @@ const uint8_t CN_CHARGE_FINISH[] = {
 #include "res/cn/SOUND_CHARGE_FINISH.txt"
 };
 
-const uint8_t CN_LANGUAGE_SWITCH[] = { 
+const uint8_t CN_LANGUAGE_SWITCH[] = {
 #include "res/cn/SOUND_LANGUAGE_SWITCH.txt"
 };
 
-const uint8_t CN_BT_WARNING[] = { 
+const uint8_t CN_BT_WARNING[] = {
 #include "res/cn/SOUND_WARNING.txt"
 };
 
-const uint8_t CN_BT_ALEXA_START[] = { 
+const uint8_t CN_BT_ALEXA_START[] = {
 
 };
 
-const uint8_t CN_BT_ALEXA_STOP[] = { 
+const uint8_t CN_BT_ALEXA_STOP[] = {
 
 };
 

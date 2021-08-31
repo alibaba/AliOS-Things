@@ -1,36 +1,37 @@
 /*
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
-
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
+#include <aos/ble.h>
 #include <aos/errno.h>
 #include <aos/kernel.h>
-#include "aos/init.h"
-#include "board.h"
-#include <k_api.h>
-#include <aos/ble.h>
+#include <atomic.h>
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
-#include <atomic.h>
-#include <work.h>
 #include <bluetooth/gatt.h>
 #include <bluetooth/uuid.h>
-
-#include "amp_platform.h"
-#include "aos_system.h"
-#include "amp_defines.h"
-#include "amp_task.h"
-#include "aiot_state_api.h"
+#include <k_api.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <work.h>
 
 #include "bt_host_adapter.h"
+#include "aiot_state_api.h"
+#include "amp_defines.h"
+#include "amp_platform.h"
+#include "amp_task.h"
+#include "aos/init.h"
+#include "aos_system.h"
+#include "board.h"
 
 #define MOD_STR "BT_HOST_ADAPTER"
 
 static void bt_host_adapter_adv_data_destroy(ad_data_t *ad_data, int ad_num);
 static int bt_host_adapter_event_callback(ble_event_en event, void *event_data);
-extern int bt_gatts_adapter_event_callback(ble_event_en event, void *event_data);
+extern int bt_gatts_adapter_event_callback(ble_event_en event,
+                                           void *event_data);
+extern int netdev_set_epta_params(int wlan_duration, int bt_duration,
+                                  int hw_epta_enable);
 
 static ble_event_cb_t bt_host_adapter_ble_cb = {
     .callback = bt_host_adapter_event_callback,
@@ -67,7 +68,7 @@ static int bt_host_adapter_hex2bin(char *hex, uint8_t *buf)
     }
 
     /* regular hex conversion */
-    for (i = 0; i < hexlen/2; i++) {
+    for (i = 0; i < hexlen / 2; i++) {
         if (bt_host_adapter_char2hex(hex[2 * i], &dec) < 0) {
             return 0;
         }
@@ -79,7 +80,7 @@ static int bt_host_adapter_hex2bin(char *hex, uint8_t *buf)
         buf[i] += dec;
     }
 
-    return hexlen/2;
+    return hexlen / 2;
 }
 
 int bt_host_adapter_bin2hex(char *hex, uint8_t *buf, uint8_t buf_len)
@@ -91,10 +92,10 @@ int bt_host_adapter_bin2hex(char *hex, uint8_t *buf, uint8_t buf_len)
 
     hex[0] = 0;
     for (i = 0; i < buf_len; i++) {
-        sprintf(hex+strlen(hex), "%02x", buf[i]);
+        sprintf(hex + strlen(hex), "%02x", buf[i]);
     }
 
-    return buf_len*2;
+    return buf_len * 2;
 }
 
 static int bt_host_adapter_addr2hex(char *hex, uint8_t *addr)
@@ -106,11 +107,11 @@ static int bt_host_adapter_addr2hex(char *hex, uint8_t *addr)
 
     hex[0] = 0;
     for (i = 0; i < 6; i++) {
-        sprintf(hex+strlen(hex), "%02x:", addr[5-i]);
+        sprintf(hex + strlen(hex), "%02x:", addr[5 - i]);
     }
     hex[17] = 0;
 
-    return i*3-1;
+    return i * 3 - 1;
 }
 
 static int bt_host_adapter_event_callback(ble_event_en event, void *event_data)
@@ -119,7 +120,8 @@ static int bt_host_adapter_event_callback(ble_event_en event, void *event_data)
     switch (event) {
     case EVENT_GAP_CONN_CHANGE:
         {
-            evt_data_gap_conn_change_t *e = (evt_data_gap_conn_change_t *)event_data;
+            evt_data_gap_conn_change_t *e =
+                (evt_data_gap_conn_change_t *)event_data;
             int32_t connect;
 
             if (e->connected == CONNECTED) {
@@ -142,7 +144,8 @@ static int bt_host_adapter_event_callback(ble_event_en event, void *event_data)
             bt_host_adapter_bin2hex(adv_data, e->adv_data, e->adv_len);
             addr[0] = 0;
             bt_host_adapter_addr2hex(addr, e->dev_addr.val);
-            native_bt_host_scan_handle(addr, e->dev_addr.type, e->adv_type, adv_data, e->rssi);
+            native_bt_host_scan_handle(addr, e->dev_addr.type, e->adv_type,
+                                       adv_data, e->rssi);
         }
         break;
     default:
@@ -172,38 +175,38 @@ static ad_data_t *bt_host_adapter_adv_data_parse(char *adv_data, int8_t *num)
     adv_len = bt_host_adapter_hex2bin(adv_data, adv_bin);
 
     ad_num = 0;
-    for (i = 0; i < adv_len; ) {
+    for (i = 0; i < adv_len;) {
         len = adv_bin[i];
-        if (i+len >= adv_len) {
+        if (i + len >= adv_len) {
             amp_debug(MOD_STR, "%s, wrong data %s", __func__, adv_data);
             return NULL;
         }
 
-        i += len+1;
+        i += len + 1;
         ad_num++;
     }
     if (ad_num == 0) {
         return NULL;
     }
 
-    ad_data = aos_malloc(ad_num*sizeof(ad_data_t));
+    ad_data = aos_malloc(ad_num * sizeof(ad_data_t));
     if (ad_data == NULL) {
         return NULL;
     }
-    memset(ad_data, 0, sizeof(ad_num*sizeof(ad_data_t)));
+    memset(ad_data, 0, sizeof(ad_num * sizeof(ad_data_t)));
     ad_num = 0;
-    for (i = 0; i < adv_len; ) {
+    for (i = 0; i < adv_len;) {
         len = adv_bin[i];
-        ad_data[ad_num].len = len-1;
-        ad_data[ad_num].type = adv_bin[i+1];
-        ad_data[ad_num].data = aos_malloc(len-1);
+        ad_data[ad_num].len = len - 1;
+        ad_data[ad_num].type = adv_bin[i + 1];
+        ad_data[ad_num].data = aos_malloc(len - 1);
         if (ad_data[ad_num].data == NULL) {
             bt_host_adapter_adv_data_destroy(ad_data, ad_num);
             return NULL;
         }
-        memcpy(ad_data[ad_num].data, adv_bin+i+2, len-2);
+        memcpy(ad_data[ad_num].data, adv_bin + i + 2, len - 1);
 
-        i += len+1;
+        i += len + 1;
         ad_num++;
     }
 
@@ -238,8 +241,11 @@ int bt_host_adapter_init(amp_bt_host_adapter_init_t *init)
         return -1;
     }
 
+    /* HaaS100/EDU WI-FI/蓝牙共存设置 */
+    netdev_set_epta_params(80000, 20000, 0);
+
     ret = ble_stack_event_register(&bt_host_adapter_ble_cb);
-    if(ret) {
+    if (ret) {
         return -1;
     }
 
@@ -258,14 +264,19 @@ int bt_host_adapter_start_adv(amp_bt_host_adapter_adv_start_t *adv_param)
 
     param.ad_num = 0;
     param.sd_num = 0;
-    param.ad = bt_host_adapter_adv_data_parse(adv_param->adv_data, &(param.ad_num));
-    param.sd = bt_host_adapter_adv_data_parse(adv_param->scan_rsp_data, &(param.sd_num));
+    param.ad =
+        bt_host_adapter_adv_data_parse(adv_param->adv_data, &(param.ad_num));
+    param.sd = bt_host_adapter_adv_data_parse(adv_param->scan_rsp_data,
+                                              &(param.sd_num));
 
     param.filter_policy = ADV_FILTER_POLICY_ANY_REQ;
     memset(&(param.direct_peer_addr), 0, sizeof(dev_addr_t));
-    amp_debug(MOD_STR, "%s, ble_stack_adv_start, type = %d, min = %d, max = %d, ch = %d, ad_num = %d, sd_num = %d, ad[0].type = %d, ad[0].len = %d", __func__,
-            param.type, param.interval_min, param.interval_max, param.channel_map,
-            param.ad_num, param.sd_num, param.ad[0].type, param.ad[0].len);
+    amp_debug(MOD_STR,
+              "%s, ble_stack_adv_start, type = %d, min = %d, max = %d, ch = "
+              "%d, ad_num = %d, sd_num = %d, ad[0].type = %d, ad[0].len = %d",
+              __func__, param.type, param.interval_min, param.interval_max,
+              param.channel_map, param.ad_num, param.sd_num, param.ad[0].type,
+              param.ad[0].len);
     ret = ble_stack_adv_start(&param);
     amp_debug(MOD_STR, "ble_stack_adv_start ret = %d", ret);
     if (param.ad) {
@@ -274,7 +285,7 @@ int bt_host_adapter_start_adv(amp_bt_host_adapter_adv_start_t *adv_param)
     if (param.sd) {
         bt_host_adapter_adv_data_destroy(param.sd, param.sd_num);
     }
-    if(ret) {
+    if (ret) {
         return -1;
     }
 
@@ -286,7 +297,7 @@ int bt_host_adapter_stop_adv(void)
     int ret;
 
     ret = ble_stack_adv_stop();
-    if(ret) {
+    if (ret) {
         return -1;
     }
 
@@ -303,11 +314,12 @@ int bt_host_adapter_start_scan(amp_bt_host_adapter_scan_start_t *scan_param)
     param.window = scan_param->window;
     param.filter_dup = SCAN_FILTER_DUP_DISABLE;
     param.scan_filter = SCAN_FILTER_POLICY_ANY_ADV;
-    amp_debug(MOD_STR, "%s, ble_stack_scan_start, type = %d, int = %d, win = %d", __func__,
-            param.type, param.interval, param.window);
+    amp_debug(MOD_STR,
+              "%s, ble_stack_scan_start, type = %d, int = %d, win = %d",
+              __func__, param.type, param.interval, param.window);
     ret = ble_stack_scan_start(&param);
     amp_debug(MOD_STR, "ble_stack_scan_start ret = %d", ret);
-    if(ret) {
+    if (ret) {
         return -1;
     }
 
@@ -319,11 +331,9 @@ int bt_host_adapter_stop_scan(void)
     int ret;
 
     ret = ble_stack_scan_stop();
-    if(ret) {
+    if (ret) {
         return -1;
     }
 
     return ret;
-
 }
-

@@ -39,22 +39,22 @@ static char dev_name[256];
 static void js_cb_conn_status(void *pdata)
 {
     int ret = -1;
-    wifi_connect_task_params_t* params;
+    wifi_connect_task_params_t *params;
     netmgr_ifconfig_info_t info;
     netmgr_hdl_t hdl;
     JSValue cb_ref;
     uint32_t value = 0;
 
-    if(pdata == NULL) {
+    if (pdata == NULL) {
         amp_debug(MOD_STR, "pdata is null");
         return ;
     }
 
-    if(g_checkip_task_run_flag != 1) {
+    if (g_checkip_task_run_flag != 1) {
         return;
     }
 
-    params = (wifi_connect_task_params_t*)pdata;
+    params = (wifi_connect_task_params_t *)pdata;
     hdl = params->hdl;
     ret = netmgr_get_ifconfig(hdl, &info);
     if (ret != 0) {
@@ -70,8 +70,8 @@ static void js_cb_conn_status(void *pdata)
 
     JSValue val = JS_Call(ctx, params->cb_ref, JS_UNDEFINED, 1, &args);
     JS_FreeValue(ctx, args);
-    if (JS_IsException(val)){
-        amp_info(MOD_STR,"netmgr connect callback error %d ", __LINE__);
+    if (JS_IsException(val)) {
+        amp_info(MOD_STR, "netmgr connect callback error %d ", __LINE__);
     }
 
     JS_FreeValue(ctx, params->cb_ref);
@@ -83,16 +83,16 @@ static void check_ip_task(void *arg)
     int ret = -1;
     int count = 0;
     netmgr_ifconfig_info_t info;
-    wifi_connect_task_params_t* params;
+    wifi_connect_task_params_t *params;
     netmgr_hdl_t hdl;
     JSContext *ctx = js_get_context();
 
-    if(arg == NULL) {
+    if (arg == NULL) {
         amp_debug(MOD_STR, "check ip task arg is null");
         return ;
     }
 
-    params = (wifi_connect_task_params_t*) arg;
+    params = (wifi_connect_task_params_t *) arg;
     hdl = params->hdl;
 
     while (g_checkip_task_run_flag) {
@@ -102,7 +102,7 @@ static void check_ip_task(void *arg)
         }
 
         if ((strcmp(info.ip_addr, "0.0.0.0") != 0) ||
-            (count > CONNECT_WAIT_TIME_MS / CHECKIP_INTERVAL_MS)) {
+                (count > CONNECT_WAIT_TIME_MS / CHECKIP_INTERVAL_MS)) {
             amp_task_schedule_call(js_cb_conn_status, arg);
             break;
         }
@@ -152,7 +152,7 @@ out:
 
 static JSValue native_netmgr_add_dev(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
-    char* name;
+    char *name;
     int ret = -1;
 
     if (!JS_IsString(argv[0])) {
@@ -173,7 +173,7 @@ out:
 
 static JSValue native_netmgr_get_dev(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
-    char* name;
+    char *name;
     int ret = -1;
 
     if (!JS_IsString(argv[0])) {
@@ -183,13 +183,13 @@ static JSValue native_netmgr_get_dev(JSContext *ctx, JSValueConst this_val, int 
 
     name = JS_ToCString(ctx, argv[0]);
 
-    if( name != NULL ) {
+    if (name != NULL) {
         memset(dev_name, 0, sizeof(dev_name));
         strcpy(dev_name, name);
     }
 
     ret = netmgr_get_dev(name);
-    if (ret != 0) {
+    if (ret == -1) {
         amp_debug(MOD_STR, "netmgr get %s dev failed\n", name);
     }
     JS_FreeCString(ctx, name);
@@ -210,10 +210,10 @@ static JSValue native_netmgr_set_auto_reconnect(JSContext *ctx, JSValueConst thi
     JS_ToInt32(ctx, &hdl, argv[0]);
     JS_ToInt32(ctx, &enable, argv[1]);
 
-    if(enable == 1) {
+    if (enable == 1) {
         netmgr_set_auto_reconnect(hdl, true);
         ret = 0;
-    } else if(enable == 0) {
+    } else if (enable == 0) {
         netmgr_set_auto_reconnect(hdl, false);
         ret = 0;
     }
@@ -242,7 +242,7 @@ static JSValue native_netmgr_connect(JSContext *ctx, JSValueConst this_val, int 
     JS_ToInt32(ctx, &hdl, argv[0]);
 
     JSValue js_ssid = JS_GetPropertyStr(ctx, argv[1], "ssid");
-    if(!JS_IsString(js_ssid)){
+    if (!JS_IsString(js_ssid)) {
         amp_error(MOD_STR, "request ssid is invalid");
         goto out;
     }
@@ -250,7 +250,7 @@ static JSValue native_netmgr_connect(JSContext *ctx, JSValueConst this_val, int 
     JS_FreeValue(ctx, js_ssid);
 
     JSValue js_password = JS_GetPropertyStr(ctx, argv[1], "password");
-    if(!JS_IsString(js_password)){
+    if (!JS_IsString(js_password)) {
         amp_error(MOD_STR, "request password is invalid");
         goto out;
     }
@@ -258,7 +258,7 @@ static JSValue native_netmgr_connect(JSContext *ctx, JSValueConst this_val, int 
     JS_FreeValue(ctx, js_password);
 
     JSValue js_bssid = JS_GetPropertyStr(ctx, argv[1], "bssid");
-    if(!JS_IsString(js_bssid)){
+    if (!JS_IsString(js_bssid)) {
         amp_error(MOD_STR, "request bssid is invalid");
         goto out;
     }
@@ -266,7 +266,7 @@ static JSValue native_netmgr_connect(JSContext *ctx, JSValueConst this_val, int 
     JS_FreeValue(ctx, js_bssid);
 
     JSValue js_timeout_ms = JS_GetPropertyStr(ctx, argv[1], "timeout_ms");
-    if(!JS_IsString(js_timeout_ms)){
+    if (!JS_IsString(js_timeout_ms)) {
         JS_ToInt32(ctx, &timeout_ms, js_timeout_ms);
     }
     JS_FreeValue(ctx, js_timeout_ms);
@@ -274,7 +274,7 @@ static JSValue native_netmgr_connect(JSContext *ctx, JSValueConst this_val, int 
     memset(&params, 0, sizeof(netmgr_connect_params_t));
     params.type = NETMGR_TYPE_WIFI;
     strncpy(params.params.wifi_params.ssid, ssid, sizeof(params.params.wifi_params.ssid) - 1);
-	strncpy(params.params.wifi_params.pwd, password, sizeof(params.params.wifi_params.pwd) - 1);
+    strncpy(params.params.wifi_params.pwd, password, sizeof(params.params.wifi_params.pwd) - 1);
     params.params.wifi_params.timeout = timeout_ms;
     ret = netmgr_connect(hdl, &params);
     if (ret != 0) {
@@ -505,32 +505,32 @@ out:
     return obj;
 }
 
-static int set_msg_cb(netmgr_msg_t* msg)
+static int set_msg_cb(netmgr_msg_t *msg)
 {
-    msg_cb_info_t* info;
+    msg_cb_info_t *info;
     JSContext *ctx = js_get_context();
     JSValue args;
 
     slist_for_each_entry(&g_msg_cb_list_head, info, msg_cb_info_t, next) {
-        switch(msg->id) {
-            case NETMGR_MSGID_WIFI_STATUS:
-                JS_SetPropertyStr(ctx, args, "msgid", JS_NewInt32(ctx, msg->id));
-                JS_SetPropertyStr(ctx, args, "data", JS_NewString(ctx, msg->data.network_status_change));
-                break;
-            case NETMGR_MSGID_WIFI_STATUS_FROM_IMPL:
-                JS_SetPropertyStr(ctx, args, "msgid", JS_NewInt32(ctx, msg->id));
-                JS_SetPropertyStr(ctx, args, "data", JS_NewString(ctx, msg->data.status));
-                break;
-            case NETMGR_MSGID_WIFI_TRACE_FROM_IMPL:
-            case NETMGR_MSGID_NETWORK_STATUS:
-            case NETMGR_MSGID_ETH_STATUS_FROM_IMPL:
-            default:
-                return -1;
+        switch (msg->id) {
+        case NETMGR_MSGID_WIFI_STATUS:
+            JS_SetPropertyStr(ctx, args, "msgid", JS_NewInt32(ctx, msg->id));
+            JS_SetPropertyStr(ctx, args, "data", JS_NewString(ctx, msg->data.network_status_change));
+            break;
+        case NETMGR_MSGID_WIFI_STATUS_FROM_IMPL:
+            JS_SetPropertyStr(ctx, args, "msgid", JS_NewInt32(ctx, msg->id));
+            JS_SetPropertyStr(ctx, args, "data", JS_NewString(ctx, msg->data.status));
+            break;
+        case NETMGR_MSGID_WIFI_TRACE_FROM_IMPL:
+        case NETMGR_MSGID_NETWORK_STATUS:
+        case NETMGR_MSGID_ETH_STATUS_FROM_IMPL:
+        default:
+            return -1;
         }
         JSValue val = JS_Call(ctx, info->cb_ref, JS_UNDEFINED, 1, &args);
         JS_FreeValue(ctx, args);
-        if (JS_IsException(val)){
-            amp_info(MOD_STR,"netmgr connect callback error %d", __LINE__);
+        if (JS_IsException(val)) {
+            amp_info(MOD_STR, "netmgr connect callback error");
         }
         JS_FreeValue(ctx, val);
     }
@@ -556,9 +556,9 @@ static JSValue native_netmgr_set_msg_cb(JSContext *ctx, JSValueConst this_val, i
     }
     msg_cb_ref = JS_DupValue(ctx, msg_cb);
 
-    info = (msg_cb_info_t*)aos_malloc(sizeof(msg_cb_info_t));
-    if(info != NULL) {
-        if(slist_empty(&g_msg_cb_list_head)) {
+    info = (msg_cb_info_t *)aos_malloc(sizeof(msg_cb_info_t));
+    if (info != NULL) {
+        if (slist_empty(&g_msg_cb_list_head)) {
             ret = netmgr_set_msg_cb(hdl, set_msg_cb);
         }
         memset(info, 0, sizeof(msg_cb_info_t));
@@ -589,7 +589,7 @@ static JSValue native_netmgr_del_msg_cb(JSContext *ctx, JSValueConst this_val, i
     }
 
     slist_for_each_entry(&g_msg_cb_list_head, info, msg_cb_info_t, next) {
-        if(JS_VALUE_GET_PTR(msg_cb) == JS_VALUE_GET_PTR(info->cb_ref)) {
+        if (JS_VALUE_GET_PTR(msg_cb) == JS_VALUE_GET_PTR(info->cb_ref)) {
             slist_del(&(info->next), &g_msg_cb_list_head);
             ret = 0;
             aos_free(info);
@@ -597,7 +597,7 @@ static JSValue native_netmgr_del_msg_cb(JSContext *ctx, JSValueConst this_val, i
             break;
         }
     }
-    if(slist_empty(&g_msg_cb_list_head)) {
+    if (slist_empty(&g_msg_cb_list_head)) {
         ret = netmgr_del_msg_cb(hdl, set_msg_cb);
     }
 out:
@@ -625,7 +625,6 @@ static JSClassDef js_netmgr_class = {
 };
 
 static const JSCFunctionListEntry js_netmgr_funcs[] = {
-
     JS_CFUNC_DEF("serviceInit", 0, native_netmgr_service_init),
     JS_CFUNC_DEF("serviceDeinit", 1, native_netmgr_service_deinit),
     JS_CFUNC_DEF("addDev", 1, native_netmgr_add_dev),

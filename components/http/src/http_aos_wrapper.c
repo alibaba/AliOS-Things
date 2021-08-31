@@ -244,7 +244,8 @@ int http_ssl_conn_wrapper(httpclient_t *client, const char *host)
     char port[10] = {0};
     httpclient_ssl_t *ssl;
 
-    client->ssl = (httpclient_ssl_t *)malloc(sizeof(httpclient_ssl_t));
+    client->ssl = (httpclient_ssl_t *)calloc(1, sizeof(httpclient_ssl_t));
+
     if (!client->ssl) {
         http_err("Memory malloc error.");
         ret = -1;
@@ -427,6 +428,7 @@ int http_ssl_close_wrapper(httpclient_t *client)
     mbedtls_entropy_free(&ssl->entropy);
 #endif
     free(ssl);
+    ssl = NULL;
     return 0;
 }
 

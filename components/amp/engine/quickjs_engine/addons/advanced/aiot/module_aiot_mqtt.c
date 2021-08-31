@@ -36,7 +36,7 @@ static char *__amp_strdup(char *src, int len)
         return NULL;
     }
 
-    dst = aos_malloc(len+1);
+    dst = amp_malloc(len + 1);
     if (dst == NULL) {
         return NULL;
     }
@@ -115,8 +115,8 @@ void aiot_app_mqtt_recv_handler(void *handle, const aiot_mqtt_recv_t *packet, vo
                 message.recv.topic_len = packet->data.pub.topic_len;
                 message.recv.payload_len = packet->data.pub.payload_len;
                 udata->callback(&message, udata);
-                aos_free(message.recv.topic);
-                aos_free(message.recv.payload);
+                amp_free(message.recv.topic);
+                amp_free(message.recv.payload);
             }
         }
         break;
@@ -245,7 +245,7 @@ int32_t aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_userdat
 
     if (mqtt_handle == NULL) {
         amp_debug(MOD_STR, "aiot_mqtt_init failed");
-        aos_free(mqtt_handle);
+        amp_free(mqtt_handle);
         return -1;
     }
 
@@ -324,7 +324,7 @@ int32_t aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_userdat
     if (res != 0) {
         amp_debug(MOD_STR, "uAgent ext comm  start failed ret = %d\n", res);
     }
-#endif   
+#endif
 
     return STATE_SUCCESS;
 }

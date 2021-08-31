@@ -53,7 +53,7 @@ typedef enum
 
 } BT_LINK_ACTIVE_MODE_KEEPER_USER_E;
 
-#define MAX_ACTIVE_MODE_MANAGED_LINKS       3  
+#define MAX_ACTIVE_MODE_MANAGED_LINKS       3
 #define UPDATE_ACTIVE_MODE_FOR_ALL_LINKS    MAX_ACTIVE_MODE_MANAGED_LINKS
 
 void app_bt_active_mode_manager_init(void);

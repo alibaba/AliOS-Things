@@ -58,7 +58,7 @@ int application_start(int argc, char *argv[])
     bool out = false;
     int fd;
 
-    status = mbmaster_rtu_init(&mb, 1, 9600, MB_PAR_NONE);
+    status = mbmaster_rtu_init(&mb, 1, 9600, MB_PAR_NONE, 200);
     if (status != MB_SUCCESS) {
         printf("Failed to init mbmaster.\r\n");
         mb = NULL;

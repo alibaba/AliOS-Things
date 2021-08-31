@@ -415,10 +415,10 @@ extern "C" {
 
     btif_avdtp_codec_type_t btif_a2dp_get_stream_register_codec_type(a2dp_stream_t *stream);
 
-    bt_status_t btif_a2dp_register(a2dp_stream_t *Stream, 
+    bt_status_t btif_a2dp_register(a2dp_stream_t *Stream,
                                    btif_a2dp_endpoint_type_t stream_type,
                                    btif_avdtp_codec_t *Codec,
-                                   btif_avdtp_content_prot_t *Prot,                               
+                                   btif_avdtp_content_prot_t *Prot,
                                    uint8_t Priority,
                                    uint8_t Device_id,
                                    btif_a2dp_callback Callback);

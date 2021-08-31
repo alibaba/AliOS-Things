@@ -27,8 +27,6 @@ static char guc_logfile_path[ULOG_FILE_PATH_SIZE / 2] = {0};
 */
 static uint8_t session_fs_init = 0;
 
-static int operating_fd = -1;
-
 static uint8_t log_file_failed = 0;
 
 #if ULOG_RESERVED_FS
@@ -333,7 +331,7 @@ int open_log_file(const ulog_idx_type file_idx, int flag, const off_t off)
             fd = -1;
         }
     } else {
-        SESSION_FS_INFO("open %s fail fd %d\n", ulog_file_name, fd);
+        SESSION_FS_INFO("open %s flag %d fail fd %d\n", ulog_file_name, flag, fd);
     }
     return fd;
 }
@@ -421,6 +419,7 @@ int write_log_line(const int file_instanse, const char *buf, const bool keep_ope
             } else {
                 rtn = rc;
             }
+            aos_sync(file_instanse);
         } else {
             SESSION_FS_INFO("write fail rc %d\n", rtn);
         }
@@ -499,8 +498,12 @@ static int update_new_log_file(const ulog_idx_type idx)
 static int reload_log_argu()
 {
     int rc = -1;
+    struct aos_stat st_logstat = {0};
+    char ulog_file_name[ULOG_FILE_PATH_SIZE] = {0};
     ulog_idx_type tmp_idx = ULOG_FILE_IDX_INVALID;
+
     operating_file_offset = 0;
+
     if (log_file_exist(ULOG_FILE_CFG_IDX)) {
         /* ulog cfg exist, try to read it */
         load_cfg_2_mm();
@@ -508,24 +511,10 @@ static int reload_log_argu()
 
         SESSION_FS_INFO("[%s]log file idx %d\n", ULOG_TAG_SELF, tmp_idx);
         if (tmp_idx <= LOCAL_FILE_CNT) {
-            /* read it for test */
-            if (log_file_exist(tmp_idx)) {
-                /* log file does exist, open it and calculate content */
-                int fd = open_log_file(tmp_idx, O_RDONLY, 0);
-                if (fd >= 0) {
-                    int read_len = 0;
-                    char log_buf[ULOG_SIZE];
-                    /* log file exist, read it to archive operating_file_offset */
-                    while ((read_len = get_log_line(fd, log_buf, ULOG_SIZE)) > 1) {
-                        operating_file_offset += read_len;
-                    }
-
-                    aos_close(fd);
-                    rc = 0;
-                } else {
-                    SESSION_FS_INFO("log file exist buf can not open it\n");
-                    rc = -2;
-                }
+            snprintf(ulog_file_name, sizeof(ulog_file_name), ULOG_FILE_FORMAT, guc_logfile_path, tmp_idx);
+            rc = aos_stat(ulog_file_name, &st_logstat);
+            if (rc == 0) {
+                operating_file_offset += st_logstat.st_size;
             } else {
                 /* no such log file exist, then create it */
                 rc = update_new_log_file(tmp_idx);
@@ -562,25 +551,20 @@ void on_show_ulog_file()
 
 static void stop_operating()
 {
-    if (operating_fd >= 0) {
-        char time_stop[24];
+    char time_stop[24];
 
-        ulog_format_time(time_stop, sizeof(time_stop));
-
-        update_mm_cfg(ulog_cfg_type_list, get_working_from_cfg_mm(), ulog_cfg_para_end, time_stop);
-        aos_sync(operating_fd);
-        aos_close(operating_fd);
-        operating_fd = -1;
-    }
+    ulog_format_time(time_stop, sizeof(time_stop));
+    update_mm_cfg(ulog_cfg_type_list, get_working_from_cfg_mm(), ulog_cfg_para_end, time_stop);
 }
 
 static void write_fail_retry()
 {
-    if (++log_file_failed >= ULOG_FILE_FAIL_COUNT) {
-        operating_fd = -1;
-        int8_t retry = ULOG_FILE_FAIL_COUNT;
-        char log_file_name[ULOG_FILE_PATH_SIZE];
+    int8_t retry = ULOG_FILE_FAIL_COUNT;
+    char log_file_name[ULOG_FILE_PATH_SIZE];
+    char buf[ULOG_SIZE];
 
+    log_file_failed++;
+    if (log_file_failed >= ULOG_FILE_FAIL_COUNT) {
         snprintf(log_file_name, ULOG_FILE_PATH_SIZE, ULOG_FILE_FORMAT, guc_logfile_path, get_working_from_cfg_mm());
         while (0 != aos_unlink(log_file_name)) {
             if (--retry <= 0) {
@@ -592,15 +576,11 @@ static void write_fail_retry()
         if (retry > 0) {
             SESSION_FS_INFO("remove file %s, then create new one %d\n", log_file_name, get_working_from_cfg_mm());
             if (0 == update_new_log_file(get_working_from_cfg_mm())) {
-                operating_fd = open_log_file(get_working_from_cfg_mm(), O_WRONLY, 0);
 #if ULOG_RESERVED_FS
-                if (operating_fd >= 0) {
-                    char buf[ULOG_SIZE];
+                memset(buf, 0, ULOG_SIZE);
+                while (0 == pop_fs_tmp(buf, ULOG_SIZE)) {
+                    pop_out_on_fs(buf, strlen(buf));
                     memset(buf, 0, ULOG_SIZE);
-                    while (0 == pop_fs_tmp(buf, ULOG_SIZE)) {
-                        pop_out_on_fs(buf, strlen(buf));
-                        memset(buf, 0, ULOG_SIZE);
-                    }
                 }
 #endif /* ULOG_RESERVED_FS */
             }
@@ -619,81 +599,99 @@ static void write_fail_retry()
 int32_t pop_out_on_fs(const char *data, const uint16_t len)
 {
     int32_t rc = -1;
-    if (operating_fd >= 0) {
-        const int write_rlt = write_log_line(operating_fd, data, true);
-        if (write_rlt > 0) {
-            log_file_failed = 0;
-            rc = 0;
-            operating_file_offset += write_rlt;
-            if (operating_file_offset >= gu32_log_file_size) {
-                stop_operating();
+    int fd = 0;
+    int write_rlt = 0;
+    ulog_idx_type idx = ULOG_FILE_IDX_INVALID;
 
-                /* roll back if working index reaches end */
-                ulog_idx_type tmp_working = get_working_from_cfg_mm() + 1;
-                if (tmp_working > LOCAL_FILE_CNT) {
-                    tmp_working = ULOG_FILE_IDX_START;
-                }
-                operating_file_offset = 0;
-                if (0 == update_new_log_file(tmp_working)) {
-                    operating_fd = open_log_file(get_working_from_cfg_mm(), O_WRONLY, 0);
-                }
-            }
-
-        } else {
-            SESSION_FS_INFO("write fail %d retry %d\n", write_rlt, log_file_failed);
-#if ULOG_RESERVED_FS
-            /* save them temporary */
-            rc = push_fs_tmp(data, len);
-            if (0 != rc) {
-                SESSION_FS_INFO("*(%d)", rc);
-            }
-#endif /* ULOG_RESERVED_FS */
-            /* check fail count */
-            write_fail_retry();
+    idx = get_working_from_cfg_mm();
+    if (idx > LOCAL_FILE_CNT) {
+        SESSION_FS_INFO("fail to get working log file idx %d update working cfg\n", idx);
+        rc = reload_log_argu();
+        if (rc < 0) {
+            SESSION_FS_INFO("fail to pop log to fs for reload log cfg fail \n");
+            return -1;
         }
-    } else {
+        /*this time idx will be fine not need to check*/
+        idx = get_working_from_cfg_mm();
+    }
+
+    fd = open_log_file(idx, O_WRONLY, operating_file_offset);
+    if (fd < 0) {
+        SESSION_FS_INFO("fail to pop log to fs for open working log file %d offset fail %d \n", idx, operating_file_offset, errno);
+        rc = -1;
 #if ULOG_RESERVED_FS
         rc = push_fs_tmp(data, len);
         if (0 != rc) {
             SESSION_FS_INFO("*(%d)", rc);
         }
-#else
-        SESSION_FS_INFO("$");
+        return rc;
 #endif
     }
-    return rc;
+
+
+    write_rlt = write_log_line(fd, data, true);
+    aos_sync(fd);
+    aos_close(fd);
+    if (write_rlt < 0) {
+        SESSION_FS_INFO("write fail %d retry %d\n", write_rlt, log_file_failed);
+        rc = -1;
+#if ULOG_RESERVED_FS
+        /* save them temporary */
+        rc = push_fs_tmp(data, len);
+        if (0 != rc) {
+            SESSION_FS_INFO("*(%d)", rc);
+        }
+#endif /* ULOG_RESERVED_FS */
+        /* check fail count */
+        write_fail_retry();
+        return rc;
+    }
+
+    log_file_failed = 0;
+    operating_file_offset += write_rlt;
+    if (operating_file_offset >= gu32_log_file_size) {
+        stop_operating();
+
+        /* roll back if working index reaches end */
+        idx++;
+        if (idx > LOCAL_FILE_CNT) {
+            idx = ULOG_FILE_IDX_START;
+        }
+        operating_file_offset = 0;
+        rc = update_new_log_file(idx);
+        if (rc) {
+            SESSION_FS_INFO("creat new log file %d fail %d in pop to fs\n", idx, rc);
+        }
+    }
+
+    return 0;
 }
 
 void on_fs_record_pause(const uint32_t on, const uint32_t off)
 {
-    if (on ^ off) {
-        LOGI(ULOG_TAG_SELF, "ulog fs ctrl %d fd %d", on, operating_fd);
-        if (1 == on) {
-            stop_operating();
-        } else {/* resume the file record */
-            if (operating_fd < 0) {
-                if (0 == reload_log_argu()) {
-                    operating_fd = open_log_file(get_working_from_cfg_mm(), O_WRONLY, operating_file_offset);
-                    LOGI(ULOG_TAG_SELF, "reload ulog idx %d off %d rlt %d",
-                         get_working_from_cfg_mm(), operating_file_offset, operating_fd);
+    if ((on ^ off) == 0) {
+        return ;
+    }
+
+    SESSION_FS_INFO(ULOG_TAG_SELF, "ulog fs ctrl on %d off %d \n", on, off);
+    if (1 == on) {
+        stop_operating();
+    } else {/* resume the file record */
+            if (0 == reload_log_argu()) {
+                LOGI(ULOG_TAG_SELF, "reload ulog idx %d off %d",
+                        get_working_from_cfg_mm(), operating_file_offset);
 #if ULOG_RESERVED_FS
-                    if (operating_fd >= 0) {
-                        char buf[ULOG_SIZE];
-                        memset(buf, 0, ULOG_SIZE);
-                        while (0 == pop_fs_tmp(buf, ULOG_SIZE)) {
-                            pop_out_on_fs(buf, strlen(buf));
-                            memset(buf, 0, ULOG_SIZE);
-                        }
-                    }
-#endif
-                } else {
-                    LOGE(ULOG_TAG_SELF, "restart ulog fs fail");
+                char buf[ULOG_SIZE];
+                memset(buf, 0, ULOG_SIZE);
+                while (0 == pop_fs_tmp(buf, ULOG_SIZE)) {
+                    pop_out_on_fs(buf, strlen(buf));
+                    memset(buf, 0, ULOG_SIZE);
                 }
+#endif
             } else {
-                LOGW(ULOG_TAG_SELF, "resume file record fail %d", operating_fd);
+                LOGE(ULOG_TAG_SELF, "restart ulog fs fail");
             }
         }
-    }
 }
 
 void fs_control_cli(const char cmd, const char *param)
@@ -730,6 +728,9 @@ int ulog_fs_log_file_path(char *filepath)
 {
     size_t len = 0;
     size_t max_len = 0;
+    int ret = 0;
+    aos_dir_t *pstdir = NULL;
+
     if (NULL == filepath) {
         return -1;
     }
@@ -744,10 +745,26 @@ int ulog_fs_log_file_path(char *filepath)
     memset(guc_logfile_path, 0, sizeof(guc_logfile_path));
     memcpy(guc_logfile_path, filepath, len);
 
-    /*add the / for the last byte*/
-    if (filepath[len - 1] != '/') {
-        guc_logfile_path[len] = '/';
+    /*remove / at first to make dir ,then and / */
+    if (filepath[len - 1] == '/') {
+        guc_logfile_path[len - 1] = 0;
     }
+
+    /*check logfile path exist */
+    pstdir = aos_opendir(guc_logfile_path);
+    if (NULL == pstdir) {
+        /*log file path doesn't exist , creat it*/
+        ret = aos_mkdir(guc_logfile_path);
+        if (ret) {
+            SESSION_FS_INFO("%s %d log dir path %s doesn't exist and mkdir fail %d \r\n", __FILE__, __LINE__, guc_logfile_path, ret);
+            return -1;
+        }
+    } else {
+        aos_closedir(pstdir);
+    }
+
+    /*and / for log file process*/
+    guc_logfile_path[len - 1] = '/';
 
     return 0;
 }
@@ -767,9 +784,7 @@ int32_t ulog_fs_init()
         ulog_fs_log_file_path(ULOG_DEAULT_FS_PATH);
         rc = reload_log_argu();
         if (rc == 0) {
-            operating_fd = open_log_file(get_working_from_cfg_mm(), O_WRONLY, operating_file_offset);
-            SESSION_FS_INFO("reload ulog idx %d off %d new fd %d\n", get_working_from_cfg_mm(), operating_file_offset, operating_fd);
-
+            SESSION_FS_INFO("reload ulog idx %d len %d \n", get_working_from_cfg_mm(), operating_file_offset);
         }
     }
     return rc;

@@ -32,6 +32,8 @@
 #include "py/mperrno.h"
 #include "py/mphal.h"
 
+#if !MICROPY_VFS_POSIX && !MICROPY_VFS_POSIX_FILE  //disabled by HaaS-AMP
+
 // TODO make stdin, stdout and stderr writable objects so they can
 // be changed by Python code.  This requires some changes, as these
 // objects are in a read-only module (py/modsys.c).
@@ -172,4 +174,6 @@ STATIC const mp_obj_type_t stdio_buffer_obj_type = {
 };
 
 STATIC const sys_stdio_obj_t stdio_buffer_obj = {{&stdio_buffer_obj_type}, .fd = 0}; // fd unused
+#endif
+
 #endif

@@ -20,15 +20,15 @@
 
 #define MOD_STR "APP_MESSAGE"
 
-int upgrading = 0;
-int device_token_verify_rejected = 0;
-char file_url[300] = {0};
+int pyamp_upgrading = 0;
+int pyamp_device_token_verify_rejected = 0;
+char pyamp_file_url[300] = {0};
 
 /* ntp timestamp */
-int64_t g_ntp_time = 0;
-int64_t g_up_time = 0;
+int64_t pyamp_g_ntp_time = 0;
+int64_t pyamp_g_up_time = 0;
 
-int32_t update_file(const char *payload)
+int32_t pyamp_update_file(const char *payload)
 {
     int32_t ret = -1;
     cJSON *root = NULL, *params = NULL, *url = NULL;
@@ -56,14 +56,14 @@ int32_t update_file(const char *payload)
             return ret;
         }
 
-        strcpy(file_url, url->valuestring);
+        strcpy(pyamp_file_url, url->valuestring);
         // amp_debug(MOD_STR, "get url: %s", url->valuestring);
-        if (upgrading)
+        if (pyamp_upgrading)
         {
-            amp_debug(MOD_STR, "upgrading.........");
+            amp_debug(MOD_STR, "pyamp_upgrading.........");
             return ret;
         }
-        apppack_upgrade(file_url);
+        pyamp_apppack_upgrade(pyamp_file_url);
     } while (0);
 
     cJSON_Delete(root);
@@ -71,7 +71,7 @@ int32_t update_file(const char *payload)
     return STATE_SUCCESS;
 }
 
-int32_t token_verify(const char *payload)
+int32_t pyamptoken_verify(const char *payload)
 {
     int32_t ret = -1;
     char token_flag[AMP_DEVICE_TOKEN_LENGTH] = {0};
@@ -99,13 +99,13 @@ int32_t token_verify(const char *payload)
         cJSON_Delete(root);
         return ret;
     }
-    // strcpy(file_url, token->valuestring);
+    // strcpy(pyamp_file_url, token->valuestring);
     amp_debug(MOD_STR, "get token flag is: %s", token->valuestring);
     aos_kv_set(AMP_DEVICE_TOKEN_VERIFY_FLAG, token->valuestring, strlen(token->valuestring), 1);
     if (strcmp(token->valuestring, "rejected") == 0)
     {
         amp_debug(MOD_STR, "token verify failed, destroy pclient");
-        device_token_verify_rejected = 1;
+        pyamp_device_token_verify_rejected = 1;
     }
 
     cJSON_Delete(root);
@@ -113,7 +113,7 @@ int32_t token_verify(const char *payload)
     return STATE_SUCCESS;
 }
 
-void putfile_message_handler(void *handle, const aiot_mqtt_recv_t *packet, void *userdata)
+void pyamp_putfile_message_handler(void *handle, const aiot_mqtt_recv_t *packet, void *userdata)
 {
     switch (packet->type)
     {
@@ -121,14 +121,14 @@ void putfile_message_handler(void *handle, const aiot_mqtt_recv_t *packet, void 
         /* print topic name and topic message */
         amp_debug(MOD_STR, "pub, qos: %d, len: %d, topic: %s  \r\n", packet->data.pub.qos, packet->data.pub.topic_len, packet->data.pub.topic);
         amp_debug(MOD_STR, "pub, len: %d, payload: %s  \r\n", packet->data.pub.payload_len, packet->data.pub.payload);
-        update_file(packet->data.pub.payload);
+        pyamp_update_file(packet->data.pub.payload);
         break;
     default:
         break;
     }
 }
 
-void verify_message_handler(void *handle, const aiot_mqtt_recv_t *packet, void *userdata)
+void pyamp_verify_message_handler(void *handle, const aiot_mqtt_recv_t *packet, void *userdata)
 {
     switch (packet->type)
     {
@@ -136,7 +136,7 @@ void verify_message_handler(void *handle, const aiot_mqtt_recv_t *packet, void *
         /* print topic name and topic message */
         amp_debug(MOD_STR, "pub, qos: %d, len: %d, topic: %.*s", packet->data.pub.qos, packet->data.pub.topic_len, packet->data.pub.topic);
         amp_debug(MOD_STR, "pub, len: %d, payload: %.*s", packet->data.pub.payload_len, packet->data.pub.payload);
-        token_verify(packet->data.pub.payload);
+        pyamptoken_verify(packet->data.pub.payload);
         break;
     default:
         break;
@@ -213,21 +213,21 @@ static int32_t topic_publish(void *handle, const char *fmt, char *payload)
     return 0;
 }
 
-int32_t amp_internal_service_subscribe(void *mqtt_handle)
+int32_t pyamp_internal_service_subscribe(void *mqtt_handle)
 {
     int res = STATE_SUCCESS;
 
     const char *update_fmt = "/sys/%s/%s/thing/service/putfile";
     const char *verify_fmt = "/sys/%s/%s/thing/service/verify";
 
-    res = topic_subscribe(mqtt_handle, update_fmt, putfile_message_handler);
+    res = topic_subscribe(mqtt_handle, update_fmt, pyamp_putfile_message_handler);
     if (res < STATE_SUCCESS)
     {
         amp_debug(MOD_STR, "subscribe update topic failed");
         return -1;
     }
 
-    res = topic_subscribe(mqtt_handle, verify_fmt, verify_message_handler);
+    res = topic_subscribe(mqtt_handle, verify_fmt, pyamp_verify_message_handler);
     if (res < STATE_SUCCESS)
     {
         amp_debug(MOD_STR, "subscribe update topic failed");
@@ -238,7 +238,7 @@ int32_t amp_internal_service_subscribe(void *mqtt_handle)
 }
 
 #define PROP_POST_FORMAT_TOKEN "{\"params\":{\"token\":\"%s\"}}"
-int32_t amp_internal_service_publish(void *mqtt_handle)
+int32_t pyamp_internal_service_publish(void *mqtt_handle)
 {
     int res = 0;
     char token_content[AMP_DEVICE_TOKEN_LENGTH] = {0};
@@ -316,8 +316,8 @@ static void aiot_ntp_recv_handler(void *handle, const aiot_ntp_recv_t *packet, v
                 packet->data.local_time.timestamp
         );
 
-        g_ntp_time = packet->data.local_time.timestamp;
-        g_up_time = aos_now_ms();
+        pyamp_g_ntp_time = packet->data.local_time.timestamp;
+        pyamp_g_up_time = aos_now_ms();
 
         break;
     default:
@@ -342,7 +342,7 @@ static void aiot_ntp_event_handler(void *handle, const aiot_ntp_event_t *event, 
 }
 
 /* ntp service */
-int32_t amp_ntp_service(void *mqtt_handle)
+int32_t pyamp_ntp_service(void *mqtt_handle)
 {
     int32_t res = STATE_SUCCESS;
     int32_t time_zone = 8;
@@ -412,7 +412,7 @@ static int32_t location_event_post(void *dm_handle, char *event_id, char *params
     return aiot_dm_send(dm_handle, &msg);
 }
 
-int32_t amp_location_service(void *mqtt_handle)
+int32_t pyamp_location_service(void *mqtt_handle)
 {
     int32_t res = STATE_SUCCESS;
     void *dm_handle = NULL;
@@ -490,7 +490,7 @@ int32_t amp_location_service(void *mqtt_handle)
 }
 
 /* device activition info report */
-int32_t amp_devinfo_report_service(void *mqtt_handle)
+int32_t pyamp_devinfo_report_service(void *mqtt_handle)
 {
     int32_t res = STATE_SUCCESS;
     void *devinfo_handle = NULL;

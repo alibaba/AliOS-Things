@@ -201,25 +201,25 @@ typedef struct {
 }iot_mqtt_userdata_t;
 
 /* create mqtt client */
-int32_t aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_userdata_t *userdata);
+int32_t pyamp_aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_userdata_t *userdata);
 
 /* destroy mqtt client */
-int32_t aiot_mqtt_client_stop(void **handle);
+int32_t pyamp_aiot_mqtt_client_stop(void **handle);
 
 /* app mqtt process thread */
-void aiot_app_mqtt_process_thread(void *args);
+void pyamp_aiot_app_mqtt_process_thread(void *args);
 
 /* app mqtt recv thread */
-void aiot_app_mqtt_recv_thread(void *args);
+void pyamp_aiot_app_mqtt_recv_thread(void *args);
 
 /* property post */
-int32_t aiot_app_send_property_post(void *dm_handle, char *params);
+int32_t pyamp_aiot_app_send_property_post(void *dm_handle, char *params);
 
 /* event post */
-int32_t aiot_app_send_event_post(void *dm_handle, char *event_id, char *params);
+int32_t pyamp_aiot_app_send_event_post(void *dm_handle, char *event_id, char *params);
 
 /* device dynmic register */
-int32_t aiot_dynreg_http(int js_cb_ref);
+int32_t pyamp_aiot_dynreg_http(mp_obj_t cb);
 
 /* device active info report */
-int32_t amp_app_devinfo_report(void *mqtt_handle);
+int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle);

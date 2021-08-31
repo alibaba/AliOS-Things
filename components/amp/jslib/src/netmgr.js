@@ -1,13 +1,11 @@
-'use strict';
-
 import * as NETMGR from 'NETMGR'
 import * as events from 'events'
 
-class netMgr extends events.EventEmitter{
+class netMgr extends events.EventEmitter {
     constructor(options) {
         super();
 
-        if(!options || !options.name){
+        if (!options || !options.name) {
             throw new Error('device info error');
         }
 
@@ -21,7 +19,7 @@ class netMgr extends events.EventEmitter{
     }
 
     _init() {
-        if(NETMGR.serviceInit() !== 0){
+        if (NETMGR.serviceInit() !== 0) {
             this.emit('error', 'netmgr init error');
         }
     }
@@ -29,8 +27,8 @@ class netMgr extends events.EventEmitter{
     _getDev() {
         console.log('wifi name:' + this.name)
         var dev_handler = NETMGR.getDev(this.name);
-        if (!dev_handler){
-            this.emit('error', 'netmgr get dev error ' + this.name);
+        if (dev_handler == -1) {
+            console.log('netmgr get wifi dev error: ' + this.name);
             return;
         }
 
@@ -61,8 +59,8 @@ class netMgr extends events.EventEmitter{
             timeout_ms: options.timeout_ms || 18000
         }
 
-        NETMGR.connect(this.dev_handler, options, function(status) {
-            if (status == 'DISCONNECT'){
+        NETMGR.connect(this.dev_handler, options, function (status) {
+            if (status == 'DISCONNECT') {
                 this.emit('disconnect', options.ssid);
                 return;
             }
@@ -82,6 +80,7 @@ class netMgr extends events.EventEmitter{
     getType() {
         return NETMGR.getType();
     }
+
     getState() {
         var ret = NETMGR.getState(this.dev_handler);
         switch (ret) {

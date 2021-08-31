@@ -1,6 +1,6 @@
-@page linksdk_demo WI-FI设备连接阿里云示例
+@page linksdk_demo Wi-Fi设备连接阿里云示例
 
-[更正文档](https://gitee.com/alios-things/linksdk_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/linksdk_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 # 1. 案例简介
 linksdk_demo是Link SDK物模型单品上云最简示例。
@@ -88,10 +88,10 @@ linksdk_demo是Link SDK物模型单品上云最简示例。
 
 ### 4.2.2 AliOS Things开发环境搭建
 
-开发环境的搭建请参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+开发环境的搭建请参考[《AliOS Things集成开发环境使用说明之搭建开发环境》](https://help.aliyun.com/document_detail/302378.html)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
 
 ### 4.2.3 linksdk_demo代码下载
-物模型上云的代码下载请参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)，其中，
+物模型上云的代码下载请参考[《AliOS Things集成开发环境使用说明之创建工程》](https://help.aliyun.com/document_detail/302379.html)，其中，
 > 选择解决方案: “linksdk_demo”
 > 选择开发板: HaaS100
 
@@ -115,9 +115,9 @@ int demo_main(int argc, char *argv[])
 ### 4.2.5 代码编译、烧录
 编译linksdk_demo的过程如下：
 
--- 编译固件可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+-- 编译固件可参考[《AliOS Things集成开发环境使用说明之编译固件》](https://help.aliyun.com/document_detail/302384.html)。
 
--- 烧录固件可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)。
+-- 烧录固件可参考[《AliOS Things集成开发环境使用说明之烧录固件》](https://help.aliyun.com/document_detail/302383.html)。
 
 ## 4.3 调试
 
@@ -241,3 +241,4 @@ msg_id = 1590651031, params = {"LightSwitch":1}
 
 # 6. 总结
 本用例简单介绍了如何使用AliOS Things及HaaS开发板进行端云一体开发。了解更多连云相关知识请参考Link SDK[编程手册](https://help.aliyun.com/document_detail/163772.html?spm=a2c4g.11186623.6.576.50e76ba7rkfLbp)。
+

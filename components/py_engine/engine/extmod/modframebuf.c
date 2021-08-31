@@ -571,7 +571,7 @@ STATIC mp_obj_t framebuf_text(size_t n_args, const mp_obj_t *args) {
     // loop over chars
     for (; *str; ++str) {
         // get char and make sure its in range of font
-        int chr = *(uint8_t*)str;
+        int chr = *(uint8_t *)str;
         if (chr < 32 || chr > 127) {
             chr = 127;
         }

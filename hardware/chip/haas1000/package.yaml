@@ -49,6 +49,7 @@ depends:
 #   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
 #     - libs                               #   -Llibs
 build_config:
+  prebuild_script: _haas1000_alios_lds.py
   cflag: >
         -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -g -Os
         -DSECURE_BOOT -DHAAS_OTA_ENABLED=1 -DHAAS_OTA_BIN_VER=\"HAAS_AOS_3.1\"
@@ -83,9 +84,10 @@ build_config:
     - drivers/platform/hal/haas1000/
     - drivers/services/wifi_app/alsa_adapter/
     - drivers/services/multimedia/speech/inc/
-    - drivers/services/a7_dsp/
+    - drivers/services/a7_dsp/common/
     - drivers/utils/heap/
     - drivers/net/
+    - drivers/rtos/rhino/kernel/include/network/
 
   internal_include:
     - drivers/services/nv_section/include/
@@ -96,11 +98,12 @@ build_config:
     - drivers/net/
     - drivers/apps/common/
     - drivers/services/wifi_app/sniffer/
-    - drivers/services/a7_dsp/
+    - drivers/services/a7_dsp/common/
     - drivers/services/nvrecord/
     - drivers/platform/drivers/ana/
   libs:
-    - mcuhaas1000
+    - mcuhaas1000 ? <!CONFIG_A7_DSP_ENABLE>
+    - mcuhaas1000_a7 ? <CONFIG_A7_DSP_ENABLE>
   libpath:
     - drivers
 
@@ -156,7 +159,7 @@ def_config:
   CMSIS_NN_LIB: 1
   SPEECH_LIB: 1
   # hardware module numbers config - used in VFS drivers
-  CONFIG_ADC_NUM: 2
+  CONFIG_ADC_NUM: 3
   CONFIG_DAC_NUM: 0
   CONFIG_GPIO_NUM: 42
   CONFIG_U_I2C_CORE: 1
@@ -178,14 +181,14 @@ chip:
   arch_name: arm
   cpu_name: cortex-m4
   vendor_name: alibaba IoT
-  ld_script: _haas1000_alios_sec_b.lds
+  ld_script: _haas1000_alios.lds
 
 hw_info:
   arch_name: arm
   cpu_name: cortex-m4
   toolchain_prefix: arm-none-eabi
   vendor_name: alibaba IoT
-  ld_script: _haas1000_alios_sec_b.lds
+  ld_script: _haas1000_alios.lds
   flash_program: release/aos_burn_tool/flash_program.py
   # program_data_files:
   #   - filename: release/write_flash_tool/ota_bin/littlefs.bin
@@ -210,7 +213,8 @@ install:
       - drivers/services/wifi_app/alsa_adapter/*.h
   - dest: "lib"
     source:
-      - drivers/libmcuhaas1000.a
+      - drivers/libmcuhaas1000.a ? <!CONFIG_A7_DSP_ENABLE>
+      - drivers/libmcuhaas1000_a7.a ? <CONFIG_A7_DSP_ENABLE>
 
 
 ## 第七部分：导出部分

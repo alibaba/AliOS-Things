@@ -2,11 +2,13 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
+#include "aos/kernel.h"
+#include "aos/vfs.h"
+#include "aos_system.h"
+#include "amp_platform.h"
 #include "amp_config.h"
 #include "aos_fs.h"
-#include "aos/vfs.h"
 #include "amp_defines.h"
-#include "aos_system.h"
 #include "quickjs.h"
 #include "quickjs_addon_common.h"
 

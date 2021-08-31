@@ -29,7 +29,9 @@
 #define CONFIG_LITTLE_ENDIAN
 
 #if defined(CONFIG_PLATFORM_8195A) || defined(CONFIG_PLATFORM_8711B) || defined(CONFIG_PLATFORM_8721D)
-#define CONFIG_PLATFORM_AMEBA_X
+#ifndef CONFIG_PLATFORM_AMEBA_X
+#define CONFIG_PLATFORM_AMEBA_X    1
+#endif
 #endif
 
 #if defined(CONFIG_PLATFORM_8195A)
@@ -104,12 +106,19 @@
 #include "aos_osdep.h"
 #endif
 
+#ifndef pdTRUE
 #define pdTRUE		( 1 )
+#endif
+#ifndef pdFALSE
 #define pdFALSE		( 0 )
+#endif
 
+#ifndef pdPASS
 #define pdPASS									( 1 )
+#endif
+#ifndef pdFAIL
 #define pdFAIL									( 0 )
-
+#endif
 
 #define RTW_MAX_DELAY			0xFFFFFFFF
 #define RTW_WAIT_FOREVER		0xFFFFFFFF
@@ -523,7 +532,7 @@ int	rtw_mutex_get_timeout(_mutex *pmutex, u32 timeout_ms);
  * so must be used with care!
  */
 #if 1
-void rtw_enter_critical(plock,pirqL);
+void rtw_enter_critical(_lock *plock, _irqL *pirqL);
 /**
  * @brief  This function marks end of a critical code region. Preemptive context
  * switches cannot occur when in a critical region.
@@ -533,7 +542,7 @@ void rtw_enter_critical(plock,pirqL);
  * @note: This may alter the stack (depending on the portable implementation)
  * so must be used with care!
  */
-void rtw_exit_critical(plock, pirqL); 
+void rtw_exit_critical(_lock *plock, _irqL *pirqL); 
 
 /**
  * @brief  This function marks the start of a critical code region from isr.
@@ -541,7 +550,7 @@ void rtw_exit_critical(plock, pirqL);
  * @param[in] pirqL: Pointer to the IRQ.
  * @return	  None
  */
-void rtw_enter_critical_from_isr(plock, pirqL); 
+void rtw_enter_critical_from_isr(_lock *plock, _irqL *pirqL); 
 
 /**
  * @brief  This function marks the end of a critical code region from isr.
@@ -549,7 +558,7 @@ void rtw_enter_critical_from_isr(plock, pirqL);
  * @param[in] pirqL: Pointer to the IRQ.
  * @return	  None
  */
-void rtw_exit_critical_from_isr(plock,pirqL); 
+void rtw_exit_critical_from_isr(_lock *plock, _irqL *pirqL); 
 #else
     #define  rtw_enter_critical(plock,pirqL) {cpsr =cpu_intrpt_save();}
     #define  rtw_exit_critical(plock,pirqL)   {cpu_intrpt_restore(cpsr);}
@@ -963,6 +972,13 @@ void rtw_delete_task(struct task_struct * task);
  */
 void rtw_wakeup_task(struct task_struct *task);
 
+void rtw_set_priority_task(void* task, u32 NewPriority );
+
+int rtw_get_priority_task(void* task);
+void rtw_suspend_task (void* task);
+
+void rtw_resume_task (void* task);
+
 /**
  * @brief  This function creates a new worker thread.
  * @param[in] worker_thread:  The pointer to the worker thread stucture.
@@ -1313,6 +1329,10 @@ struct osdep_service_ops {
 	int (*rtw_create_task)(struct task_struct *task, const char *name, u32 stack_size, u32 priority, thread_func_t func, void *thctx);
 	void (*rtw_delete_task)(struct task_struct *task);
 	void (*rtw_wakeup_task)(struct task_struct *task);
+	void (*rtw_set_priority_task)(void* task, u32 NewPriority);	
+	int (*rtw_get_priority_task)(void* task);
+	void (*rtw_suspend_task)(void* task);
+	void (*rtw_resume_task)(void* task);
 	
 #if 0	//TODO
 	void (*rtw_init_delayed_work)(struct delayed_work *dwork, work_func_t func, const char *name);

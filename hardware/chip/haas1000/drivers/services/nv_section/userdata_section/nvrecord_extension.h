@@ -294,7 +294,7 @@ typedef struct
     uint8_t rsv2;
 }PERIOD_TIMER_SETTING;
 
-typedef struct 
+typedef struct
 {
     union
     {
@@ -317,14 +317,14 @@ typedef struct
 {
     uint32_t unix_time;
     uint32_t cur_time;//system seconds.
-    //bit 0, for unix time; 
+    //bit 0, for unix time;
     //bit 1, for time adjust set.
     //bit 2, for time zone.
     //bit 3, for time update
     uint16_t set_flag;
     int8_t time_zone;
     uint8_t used_timer_num;
-    
+
     TIME_ADJUST time_adjust;
     VENDOR_TIMER timer[GENIE_TIME_CNT];
 }MESH_TIME_SCENE;

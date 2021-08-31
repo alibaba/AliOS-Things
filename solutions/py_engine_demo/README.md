@@ -1,6 +1,6 @@
 @page py_engine_demo python轻应用示例合集
 
-[更正文档](https://gitee.com/alios-things/py_engine_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/py_engine_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 # 1. 案例简介
 
@@ -59,11 +59,11 @@ py_engine_demo 只有一个appdemo.c,注册了python cli 命令后就退出了�
 
 * AliOS Things开发环境搭建
 
-    开发环境的搭建请参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+    开发环境的搭建请参考[《AliOS Things集成开发环境使用说明之搭建开发环境》](https://help.aliyun.com/document_detail/302378.html)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
 
 
 * py_engine代码下载
-    py_engine代码下载请参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)，其中，
+    py_engine代码下载请参考[《AliOS Things集成开发环境使用说明之创建工程》](https://help.aliyun.com/document_detail/302379.html)，其中，
     > 选择解决方案: "micropython示例"
 
     > 选择开发板: HaaS100
@@ -71,7 +71,7 @@ py_engine_demo 只有一个appdemo.c,注册了python cli 命令后就退出了�
 
 *  编译
 
-    参考 [《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+    参考 [《AliOS Things集成开发环境使用说明之编译固件》](https://help.aliyun.com/document_detail/302384.html)。
 
 
 * 烧录
@@ -86,7 +86,7 @@ py_engine_demo 只有一个appdemo.c,注册了python cli 命令后就退出了�
       address: 0xB32000
 ```
 
-    参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)。
+    参考[《AliOS Things集成开发环境使用说明之烧录固件》](https://help.aliyun.com/document_detail/302383.html)。
 
 ## 4.3 验证Python功能
 

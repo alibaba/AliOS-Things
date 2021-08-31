@@ -29,7 +29,7 @@ static slist_t g_hdl_list_head;
 
 int netmgr_wifi_set_ip_mode(netmgr_wifi_ip_mode_t mode);
 netmgr_wifi_ip_mode_t netmgr_wifi_get_ip_mode(void);
-int netmgr_wifi_get_ip_stat(char* ip_addr, char* mask, char* gw, char* dns_server);
+int netmgr_wifi_get_ip_stat(char *ip_addr, char *mask, char *gw, char *dns_server, char *mac, int *rssi);
 void netmgr_wifi_auto_reconnect(int enable);
 int  netmgr_wifi_get_wifi_state();
 int netmgr_wifi_set_static_ip_stat(const char* ip_addr, const char* mask, const char* gw, const char* dns_server);
@@ -234,7 +234,7 @@ int netmgr_get_ifconfig(netmgr_hdl_t hdl, netmgr_ifconfig_info_t* info)
             } else {
                 info->dhcp_en = false;
             }
-            return netmgr_wifi_get_ip_stat(info->ip_addr, info->mask, info->gw, info->dns_server);
+            return netmgr_wifi_get_ip_stat(info->ip_addr, info->mask, info->gw, info->dns_server, info->mac, &info->rssi);
         }
     }
 

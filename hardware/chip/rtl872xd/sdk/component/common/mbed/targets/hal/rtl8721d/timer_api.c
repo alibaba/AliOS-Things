@@ -18,6 +18,9 @@
 #include "objects.h"
 #include "timer_api.h"
 
+extern void aos_interrupt_enter();
+extern void aos_interrupt_leave();
+
 /** @defgroup AmebaD_Mbed_API 
   * @{
   */
@@ -42,7 +45,7 @@ static void gtimer_timeout_handler (uint32_t data)
 	uint32_t tid = obj->timer_id;
 	gtimer_irq_handler handler;
 
-	krhino_intrpt_enter();
+  aos_interrupt_enter();
 
 	RTIM_INTClear(TIMx[tid]);
 
@@ -55,7 +58,7 @@ static void gtimer_timeout_handler (uint32_t data)
 		gtimer_stop(obj);
 	}
 
-	krhino_intrpt_exit();
+  aos_interrupt_leave();
 
 }
 

@@ -23,7 +23,7 @@
 #define WIFI_DEV_PATH "/dev/wifi0"
 
 static mp_obj_t on_wifi_connected ;
-
+#define TAG "WIFI"
 typedef enum{
 
     WIFI_CONNECT_SUCC =1 ,
@@ -45,17 +45,28 @@ static void wifi_event_cb(uint32_t event_id, const void *param, void *context)
 
 }
 
+extern netmgr_hdl_t get_netmgr_hdl() ;
+
 STATIC mp_obj_t netmgr_init(void) {
 
     //amp_wifi_init();
-    event_service_init(NULL);
-    netmgr_service_init(NULL);
-    netmgr_set_auto_reconnect(NULL, true);
-    netmgr_wifi_set_auto_save_ap(true);
 
-    netmgr_add_dev(WIFI_DEV_PATH);
-    hdl = netmgr_get_dev(WIFI_DEV_PATH);
-    event_subscribe(EVENT_NETMGR_DHCP_SUCCESS, wifi_event_cb, NULL);
+    hdl = get_netmgr_hdl();
+    if(hdl >= 0 ){
+        LOGD(TAG,"wifi already init by python main task");
+        event_subscribe(EVENT_NETMGR_DHCP_SUCCESS, wifi_event_cb, NULL);
+    }else{
+        LOGD(TAG,"wifi have not  init ");
+        event_service_init(NULL);
+        netmgr_service_init(NULL);
+        netmgr_set_auto_reconnect(NULL, true);
+        netmgr_wifi_set_auto_save_ap(true);
+
+        netmgr_add_dev(WIFI_DEV_PATH);
+        hdl = netmgr_get_dev(WIFI_DEV_PATH);
+        event_subscribe(EVENT_NETMGR_DHCP_SUCCESS, wifi_event_cb, NULL);
+    }
+
 
     return mp_obj_new_int(0);
 }
@@ -144,14 +155,8 @@ STATIC mp_obj_t netmgr_get_status(void) {
 
     //int status = amp_get_network_status();
     int status = netmgr_get_state(hdl);
-    printf(" status is %d \n",status);
-    if(status == 5){
-        return mp_const_true ;
-    }else{
-        return mp_const_false ;
-    }
 
-    return mp_const_false ;
+    return mp_obj_new_int(status) ;
 }
 MP_DEFINE_CONST_FUN_OBJ_0(netmgr_obj_get_status, netmgr_get_status);
 
@@ -188,8 +193,7 @@ MP_DEFINE_CONST_FUN_OBJ_2(netmgr_obj_connect_wifi, connect_wifi);
 
 
 STATIC mp_obj_t disconnect_wifi(void) {
-   // wifi_service_disconnect();
-    return mp_const_none;
+    return mp_obj_new_int(netmgr_disconnect(hdl));
 }
 MP_DEFINE_CONST_FUN_OBJ_0(netmgr_obj_disconnect_wifi, disconnect_wifi);
 

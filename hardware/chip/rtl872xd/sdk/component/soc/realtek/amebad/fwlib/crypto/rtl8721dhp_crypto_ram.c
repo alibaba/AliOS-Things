@@ -24,6 +24,7 @@
   */
 
 #include "ameba_soc.h"
+#include "osdep_service.h"
 
 ALIGNMTO(32) static u8 ipsec_padding[64]  = { 0x0 };
 

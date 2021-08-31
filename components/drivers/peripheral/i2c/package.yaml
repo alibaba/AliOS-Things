@@ -51,6 +51,7 @@ source_file:
 # I2C device driver
   - src/i2c_dev.c ? <CONFIG_U_I2C_DEV>
   - src/i2c_core.c ? <CONFIG_U_I2C_CORE>
+  - src/i2c.c
 # i2c VFS driver example
   - example/i2c_example.c ? <CONFIG_U_I2C_CORE>
 
