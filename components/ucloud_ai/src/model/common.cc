@@ -68,4 +68,42 @@ const char *getAccessSecret(void)
 {
     return accessSecret.c_str();
 }
+
+char *getTokenId(const char *domain, const char *regionId)
+{
+    InitializeSdk();
+    string key = getAccessKey();
+    string secret = getAccessSecret();
+    string regionIdStr = regionId;
+    string domainStr = domain;
+    ClientConfiguration configuration;
+    configuration.setRegionId(regionIdStr);
+    configuration.setEndpoint(domainStr);
+    CommonClient client(key, secret, configuration);
+    CommonRequest request(CommonRequest::RpcPattern);
+    char *response = NULL;
+
+    request.setScheme("http");
+    request.setDomain(domainStr);
+    request.setHttpMethod(HttpRequest::Post);
+    request.setQueryParameter("Action", "CreateToken");
+    request.setVersion("2019-02-28");
+
+    auto outcome = client.commonResponse(request);
+    if (!outcome.isSuccess()) {
+        cout << "error code:      " << outcome.error().errorCode() << endl;
+        cout << "error message:   " << outcome.error().errorMessage() << endl;
+        cout << "error host:      " << outcome.error().host() << endl;
+        cout << "error requestId: " << outcome.error().requestId() << endl;
+        cout << "error detail:    " << outcome.error().detail() << endl;
+        ShutdownSdk();
+        return NULL;
+    }
+    cout << endl << "add item returns: " << outcome.result().payload() << endl << endl;
+    response = strdup(outcome.result().payload().c_str());
+    ShutdownSdk();
+
+    return response;
+}
+
 }

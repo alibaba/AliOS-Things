@@ -69,6 +69,9 @@ typedef struct wifi_driver {
     /* esp8266 related API */
     int (*set_smartcfg)(netdev_t *dev, int enable);
 
+     /* channellist for wifi scan related API */
+    int (*set_channellist)(netdev_t *dev, wifi_channel_list_t *channellist);
+    int (*get_channellist)(netdev_t *dev, wifi_channel_list_t *channellist);
 } wifi_driver_t;
 
 int vfs_wifi_dev_register(wifi_driver_t *ops, int id);

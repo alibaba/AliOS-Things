@@ -1,7 +1,9 @@
 
 #include <platform_stdlib.h>
+#include <math.h>
 #include "rl6548.h"
 #include "audio_internel.h"
+#include "osdep_service.h"
 
 //#define ENABLE_PA
 
@@ -24,6 +26,9 @@ static int TX_GDMA_flag = 0;
 static SP_OBJ sp_obj;
 static SP_InitTypeDef SP_InitStruct;
 
+extern void PLL_Div(u32 div);
+extern BOOL AUDIO_SP_TXGDMA_Restart(u8 GDMA_Index, u8 GDMA_ChNum, u32 tx_addr, u32 tx_length);
+extern BOOL AUDIO_SP_RXGDMA_Restart(u8 GDMA_Index, u8 GDMA_ChNum, u32 rx_addr, u32 rx_length);
 
 static u8 *sp_get_free_tx_page(void)
 {
@@ -127,7 +132,7 @@ static u8 *sp_get_ready_rx_page(void)
     if (prx_block->rx_gdma_own)
         return NULL;
     else{
-        return prx_block->rx_addr;
+        return (u8 *)prx_block->rx_addr;
     }
 }
 
@@ -135,7 +140,7 @@ static void sp_read_rx_page(u8 *dst, u32 length)
 {
     pRX_BLOCK prx_block = &(sp_rx_info.rx_block[sp_rx_info.rx_usr_cnt]);
 
-    memcpy(dst, prx_block->rx_addr, length);
+    memcpy(dst, (u8 *)prx_block->rx_addr, length);
     prx_block->rx_gdma_own = 1;
     sp_rx_info.rx_usr_cnt++;
     if (sp_rx_info.rx_usr_cnt == SP_DMA_PAGE_NUM){
@@ -166,11 +171,11 @@ static u8 *sp_get_free_rx_page(void)
 
     if (prx_block->rx_gdma_own){
         sp_rx_info.rx_full_flag = 0;
-        return prx_block->rx_addr;
+        return (u8 *)prx_block->rx_addr;
     }
     else{
         sp_rx_info.rx_full_flag = 1;
-        return sp_rx_info.rx_full_block.rx_addr;	//for audio buffer full case
+        return (u8 *)sp_rx_info.rx_full_block.rx_addr;	//for audio buffer full case
     }
 }
 
@@ -219,7 +224,7 @@ static void sp_init_rx_variables(void)
 
     for(i=0; i<SP_DMA_PAGE_NUM; i++){
         sp_rx_info.rx_block[i].rx_gdma_own = 1;
-        sp_rx_info.rx_block[i].rx_addr = sp_rx_buf+i*SP_DMA_PAGE_SIZE;
+        sp_rx_info.rx_block[i].rx_addr = (u32)(sp_rx_buf + i*SP_DMA_PAGE_SIZE);
         sp_rx_info.rx_block[i].rx_length = SP_DMA_PAGE_SIZE;
     }
 }
@@ -334,7 +339,7 @@ void rl6548_capture_start()
 
     rx_addr = (u32)sp_get_free_rx_page();
     rx_length = sp_get_free_rx_length();
-    AUDIO_SP_RXGDMA_Init(0, &SPGdmaStruct.SpRxGdmaInitStruct, &SPGdmaStruct, (IRQ_FUN)sp_rx_complete, rx_addr, rx_length);
+    AUDIO_SP_RXGDMA_Init(0, &SPGdmaStruct.SpRxGdmaInitStruct, &SPGdmaStruct, (IRQ_FUN)sp_rx_complete, (u8 *)rx_addr, rx_length);
 }
 
 // static 
@@ -370,7 +375,7 @@ void rl6548_playback_stop()
 
 void *rl6548_audio_init(int sampleRate, int channels, int wordLen)
 {
-    printf("enter rl6548_audio_init\n");
+    // printf("enter rl6548_audio_init\n");
     pSP_OBJ psp_obj = &sp_obj;
 
     if(channels == 1)
@@ -403,7 +408,7 @@ void *rl6548_audio_init(int sampleRate, int channels, int wordLen)
             psp_obj->sample_rate = SR_88P2K;
             break;
         default:
-            LOGE("not support sr %d\n",sampleRate);
+            printf("not support sr %d\n", sampleRate);
     }
 
     psp_obj->direction = APP_AMIC_IN | APP_LINE_OUT; //default
@@ -424,7 +429,7 @@ void *rl6548_audio_init(int sampleRate, int channels, int wordLen)
 
 void rl6548_audio_deinit()
 {
-    printf("enter rl6548_audio_deinit\n");
+    // printf("enter rl6548_audio_deinit\n");
     RCC_PeriphClockCmd(APBPeriph_AUDIOC, APBPeriph_AUDIOC_CLOCK, DISABLE);
     RCC_PeriphClockCmd(APBPeriph_SPORT, APBPeriph_SPORT_CLOCK, DISABLE);
     CODEC_DeInit(APP_AMIC_IN | APP_LINE_OUT);
@@ -444,7 +449,8 @@ int rl6548_audio_write(void *h, uint8_t *buf, uint32_t size)
             offset += tx_len;
             size -= tx_len;
         } else {
-            rtw_msleep_os(1);
+            // rtw_msleep_os(1);
+            aos_msleep(1);
         }
     }
 }
@@ -483,7 +489,8 @@ int rl6548_data_read(void *handle, void *buf, unsigned int size)
                 sz = 0;
             }
         } else {
-            rtw_msleep_os(1);
+            // rtw_msleep_os(1);
+            aos_msleep(1);
         }
     }
     return size - sz;
@@ -492,9 +499,9 @@ int rl6548_data_read(void *handle, void *buf, unsigned int size)
 
 void rl6548_volume_set(int index)
 {		
-    int vol = (int)(VOLUME_MAX / 100 * index) ;
+    int vol = (int)(VOLUME_MAX / 100.0 * index) ;
     SET_VOLUME(vol, vol);
-    printf("Volume Set, index %d, value %d\r\n", index, vol);
+    // printf("Volume Set, index %d, value %d\r\n", index, vol);
 }
 
 
@@ -505,10 +512,10 @@ int rl6548_volume_get()
     u16 volume_16 = 0;
 
     GET_VOLUME(&volume_16);
-    printf("Volume Register Data %x", volume_16);
+    // printf("Volume Register Data %x", volume_16);
 
     vol = volume_16 & 0x00FF;
-    volume_index = round(vol * 100 / VOLUME_MAX);
+    volume_index = round(vol * 100.0 / VOLUME_MAX);
     return volume_index;
 }
 

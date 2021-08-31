@@ -1,14 +1,34 @@
 # -*- coding: UTF-8 -*-
 
 import netmgr as nm
+import time
 
-class NetWorkClient(object):
+_wifi_connected = False
+
+def singleton(cls, *args, **kw):
+    instances = {}
+    def getinstance():
+        if cls not in instances:
+            instances[cls] = cls(*args, **kw)
+            nm.init()
+        return instances[cls]
+    return getinstance
+
+
+def _on_wifi_cb(data):
+    print('Get Wifi CallBack for wifi.py')
+    _wifi_connected = True
+
+@singleton
+class NetWorkClient:
 
     """
     该模块实现网络管理相关的功能，包括初始化，联网，状态信息等.
     """
+    global _on_wifi_cb
+
     def __init__(self):
-        nm.init()
+        nm.register_call_back(1,_on_wifi_cb)
 
     def __str_is_empty(self,value):
         if value is None or value == "":
@@ -49,6 +69,7 @@ class NetWorkClient(object):
                     }
                 )
         """
+        global _wifi_cb
         if isinstance(data, dict):
             pass
         else:
@@ -63,13 +84,14 @@ class NetWorkClient(object):
             raise ValueError('connect : param must have key "password"')
         elif self.__str_is_empty(data['password']):
             raise ValueError("password wrong")
-        nm.connect(data['ssid'],data['password'])
+
+        return nm.connect(data['ssid'],data['password'])
 
     def disconnect(self):
         """
         断开网络
         """
-        nm.disconnect
+        nm.disconnect()
 
     def getType(self):
         """
@@ -105,6 +127,28 @@ class NetWorkClient(object):
         :param 空:
         :returns: 
 
+          .. list-table::
+
+                * - 返回值
+                  - 连接状态
+                * - 0
+                  - 断开连接中
+                * - 1
+                  - 断开连接
+                * - 2
+                  - 连接中
+                * - 3
+                  - 连接成功
+                * - 4
+                  - 获取ip中
+                * - 5
+                  - 获取ip成功
+                * - 6
+                  - 连接失败
+                * - 7
+                  - 位置状态
+
+
           - ``True``  已连接
           - ``False`` 未连接
 
@@ -136,3 +180,5 @@ class NetWorkClient(object):
         return nm.getInfo()
 
 
+    def on(self,id,func):
+        nm.register_call_back(1,func)

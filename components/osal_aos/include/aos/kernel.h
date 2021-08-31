@@ -149,6 +149,23 @@ typedef aos_hdl_t aos_timer_t; /**< AOS定时器对象句柄类型 */
 /** @} */
 
 /**
+ * @addtogroup aos_kernel_workqueue
+ * 提供AliOS Things系统内核任务队列功能的基础API.
+ *
+ * @{
+ */
+
+/* Define the main handle for workqueue module */
+typedef struct {
+    aos_hdl_t hdl;     /**< internel rhino handle */
+    void *stk;     /**< workqueue task stack start addr */
+} aos_workqueue_t;
+
+/* Define the main handle for work of workqueue module  */
+typedef aos_hdl_t aos_work_t; /**< AOS任务队列中任务的对象句柄类型 */
+/** @} */
+
+/**
  * @addtogroup aos_kernel_task
  * 提供AliOS Things系统内核任务管理功能的基础API.
  *
@@ -721,6 +738,84 @@ aos_status_t aos_timer_change_once(aos_timer_t *timer, uint32_t ms);
  * @return  false: invalid, true: valid.
  */
 bool aos_timer_is_valid(aos_timer_t *timer);
+
+/** @} */
+
+/**
+ * @defgroup aos_kernel_workqueue 任务队列
+ * 提供AliOS Things系统内核任务队列功能的基础API.
+ *
+ * @{
+ */
+
+/**
+ * 创建任务队列.
+ *
+ * @param[in]  workqueue   被创建任务队列地址.
+ * @param[in]  name         任务队列名称.
+ * @param[in]  pri         任务优先级.
+ * @param[in]  stack_buffer  任务队列的任务栈地址，若为NULL，则系统内部动态分配.
+ * @param[in]  stack_size  任务栈大小.
+ *
+ * @return  0: 成功, 其他: 失败。
+ */
+aos_status_t aos_workqueue_create(aos_workqueue_t *workqueue, const char *name, int32_t prio, void *stack_buffer, size_t stack_size);
+
+/**
+ * 删除任务队列.
+ *
+ * @param[in]  workqueue  待删除的任务队列.
+ */
+void aos_workqueue_del(aos_workqueue_t *workqueue);
+
+/**
+ * 初始化一个预在任务队列中执行的任务.
+ *
+ * @param[in]  work  已初始化的任务（针对任务队列）.
+ * @param[in]  fn    任务执行函数.
+ * @param[in]  arg   任务执行函数的参数.
+ * @param[in]  dly   运行前延迟毫秒数.
+ *
+ * @return  0: 成功, 其他: 失败.
+ */
+aos_status_t aos_work_init(aos_work_t *work, void (*fn)(void *), void *arg, int dly);
+
+/**
+ * 销毁一个任务队列中的任务.
+ *
+ * @param[in]  work  待销毁的任务（针对任务队列）.
+ *
+ * @return  none.
+ */
+void aos_work_destroy(aos_work_t *work);
+
+/**
+ * 将任务添加到任务队列中运行.
+ *
+ * @param[in]  workqueue  执行目标任务的任务队列.
+ * @param[in]  work       待执行的任务.
+ *
+ * @return  0: 成功, 其他: 失败.
+ */
+aos_status_t aos_work_run(aos_workqueue_t *workqueue, aos_work_t *work);
+
+/**
+ * 将任务放入默认任务队列执行.
+ *
+ * @param[in]  work  待执行的任务.
+ *
+ * @return  0: 成功, 其他: 失败.
+ */
+aos_status_t aos_work_sched(aos_work_t *work);
+
+/**
+ * 取消默认任务队列中的一个任务.
+ *
+ * @param[in]  work  待取消的任务.
+ *
+ * @return  0: 成功, 其他: 失败.
+ */
+aos_status_t aos_work_cancel(aos_work_t *work);
 
 /** @} */
 

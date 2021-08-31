@@ -10,12 +10,16 @@ class HW_UART extends EventEmitter{
             throw new Error("options is invalid");
         }
         this.options = {
-            id: options.id
+            id: options.id,
+            mode: options.mode 
         };
 
         this.success = options.success || function(){};
         this.fail = options.fail || function(){};
         this._open();
+        if (this.options.mode !== 'poll') {
+            this._onData();
+        } 
     }
 
     _open() {

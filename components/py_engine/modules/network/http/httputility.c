@@ -107,7 +107,7 @@ static void parse_url(const char *url, char *uri)
     }
 }
 
-int32_t httpc_construct_header(char *buf, uint16_t buf_size, const char *name, const char *data)
+int32_t pyamp_httpc_construct_header(char *buf, uint16_t buf_size, const char *name, const char *data)
 {
     uint32_t hdr_len;
     uint32_t hdr_data_len;
@@ -229,7 +229,7 @@ static void task_http_request_func(void *arg)
     aos_msleep(50); /* need do things after state changed in main task */
 
     for (i = 0; i < http_header_index; i++) {
-        httpc_construct_header(customer_header, HTTP_HEADER_SIZE, param->http_header[i].name, param->http_header[i].data);
+        pyamp_httpc_construct_header(customer_header, HTTP_HEADER_SIZE, param->http_header[i].name, param->http_header[i].data);
     }
     http_header_index = 0;
     httpclient_set_custom_header(&client, customer_header);

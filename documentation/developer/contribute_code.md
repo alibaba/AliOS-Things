@@ -1,6 +1,6 @@
 @page contribute_code 贡献代码说明
 
-**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/developer/contribute_code.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/developer/contribute_code.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://help.aliyun.com/document_detail/302301.html)**
 
 项目地址：[https://gitee.com/alios-things/AliOS-Things](https://gitee.com/alios-things/AliOS-Things)
 
@@ -101,8 +101,3 @@ $ git merge upstream/rel_3.3.0		        #合并AliOS Things/<TARGET>的更新至
 如果你喜欢这个项目，就请给我们一个小星星吧
 
 <div align=left display=flex>     <img src="https://img.alicdn.com/imgextra/i2/O1CN01J3HMIe1ecaBDvfWOl_!!6000000003892-2-tps-2818-850.png" style="max-width:800px;" /> </div>
-
-
-**完整创建视频请参考如下**
-
-[CreatePullRequest.mp4](https://yuque.antfin.com/attachments/lark/0/2021/mp4/1556466/1615277106309-09891a36-3e08-44e0-9aaa-4183b0635ef7.mp4?_lake_card=%7B%22uid%22%3A%221615277100374-0%22%2C%22src%22%3A%22https%3A%2F%2Fyuque.antfin.com%2Fattachments%2Flark%2F0%2F2021%2Fmp4%2F1556466%2F1615277106309-09891a36-3e08-44e0-9aaa-4183b0635ef7.mp4%22%2C%22name%22%3A%22CreatePullRequest.mp4%22%2C%22size%22%3A48166341%2C%22type%22%3A%22video%2Fmp4%22%2C%22ext%22%3A%22mp4%22%2C%22progress%22%3A%7B%22percent%22%3A99%7D%2C%22status%22%3A%22done%22%2C%22percent%22%3A0%2C%22id%22%3A%22iRu44%22%2C%22card%22%3A%22file%22%7D)

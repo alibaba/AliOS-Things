@@ -19,7 +19,7 @@
 
 static char app_version[32] = {0};
 
-void apppack_init()
+void pyamp_apppack_init()
 {
     /* remove all js file */
     aos_rmdir_r(AMP_FS_ROOT_DIR);
@@ -84,20 +84,29 @@ static int app_fp          = -1;
 
 
 
-int download_apppack(uint8_t *buf, int32_t buf_len)
+int pyamp_download_apppack(uint8_t *buf, int32_t buf_len)
 {
+    int ret = -1 ;
     amp_warn(MOD_STR, "download buf len = %d", buf_len);
-    int fd = aos_open("/data/pyamp/app.zip",  O_CREAT | O_RDWR );
-    aos_write(fd, buf, buf_len);
- 
-
+    int fp = aos_open("/data/pyamp/app.zip",  O_CREAT | O_RDWR);
+    if (fp < 0) {
+        LOGE(MOD_STR, " open /data/pyamp/app.zip fail ");
+        return 0;
+    }
+    ret = aos_write(fp, buf, buf_len);
+    if (ret <= 0) {
+        LOGE(MOD_STR, " write  /data/pyamp/app.zip fail\n");
+        aos_close(fp);
+        return 0;
+    }
+    aos_close(fp);
     return 0;
 }
 
 
 
 extern void *task_mutex;
-extern int upgrading;
+extern int pyamp_upgrading;
 static void download_work(void *arg)
 {
     int ret;
@@ -116,7 +125,7 @@ static void download_work(void *arg)
         aos_msleep(200);
     }
 
-    upgrading = 0;
+    pyamp_upgrading = 0;
 
     aos_reboot();
 
@@ -127,16 +136,16 @@ static void download_work(void *arg)
 
 
 
-int apppack_upgrade(char *url)
+int pyamp_apppack_upgrade(char *url)
 {
-    upgrading = 1;
+    pyamp_upgrading = 1;
     aos_task_t upgrade_task;
 
-    amp_warn(MOD_STR, "apppack_upgrade url=%s ", (char *)url);
+    amp_warn(MOD_STR, "pyamp_apppack_upgrade url=%s ", (char *)url);
 
     if (update_done) {
         update_done = 0;
-        apppack_init();
+        pyamp_apppack_init();
 
         amp_warn(MOD_STR, "create upgrade task ...");
 
@@ -149,7 +158,7 @@ int apppack_upgrade(char *url)
 
     } else {
         aos_free(url);
-        amp_warn(MOD_STR, "apppack upgrading...");
+        amp_warn(MOD_STR, "apppack pyamp_upgrading...");
     }
 
     return 0;
@@ -157,14 +166,14 @@ int apppack_upgrade(char *url)
 
 
 
-void amp_app_version_set(char *version)
+void pyamp_app_version_set(char *version)
 {
     if (!version)
         return;
     snprintf(app_version, sizeof(app_version), "%s", version);
 }
 
-const char *amp_jsapp_version_get(void)
+const char *pyamp_jsapp_version_get(void)
 {
     return app_version;
 }

@@ -23,7 +23,7 @@ extern "C" {
     void osapi_unlock_stack(void);
 
     void osapi_notify_evm(void);
-	
+
 	uint8_t osapi_lock_is_exist(void);
 
 #ifdef __cplusplus

@@ -1,6 +1,6 @@
 @page ucloud_ai_demo 老板来了：通过HaaS100实现端云一体人脸识别示例
 
-[更正文档](https://gitee.com/alios-things/ucloud_ai_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/ucloud_ai_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 # 1. 案例简介
 ucloud_ai_demo是基于云端AI能力实现的AI识别案例，主要有三个部分组成：
@@ -218,18 +218,18 @@ wifi camera的http访问地址,用户根据自己摄像头的IP地址进行替�
 
 
 ## 4.6 AliOS Things开发环境搭建
-案例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **alios-studio** ，所以首先需要参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，下载安装 **alios-studio** 。
+案例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具，所以首先需要参考[《AliOS Things集成开发环境使用说明之搭建开发环境》](https://help.aliyun.com/document_detail/302378.html)，下载安装。
 待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
 ## 4.7 案例代码下载
-该案例相关的源代码下载可参考[《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)。
+该案例相关的源代码下载可参考[《AliOS Things集成开发环境使用说明之创建工程》](https://help.aliyun.com/document_detail/302379.html)。
 其中：
 > 选择解决方案: “云端AI案例”或者“ucloud_ai_demo”
 
 > 选择开发板: HaaS100
 
 ## 4.8 代码编译、烧录
--- 固件编译方法可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+-- 固件编译方法可参考[《AliOS Things集成开发环境使用说明之编译固件》](https://help.aliyun.com/document_detail/302384.html)。
 
 ### 4.8.1 文件件系统烧录
 本组件例子中使用到到图片及字体分别存放在代码中hardware/chip/haas1000/prebuild/data/目录下ai_demo_image及font目录，除烧录ucloud_ai_demo image外，需烧录littlefs文件系统，请将hardware/chip/haas1000/package.yaml文件中以下代码段的注释打开：
@@ -240,11 +240,11 @@ wifi camera的http访问地址,用户根据自己摄像头的IP地址进行替�
       address: 0xB32000
 ```
 
--- 固件烧录方法可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)。
+-- 固件烧录方法可参考[《AliOS Things集成开发环境使用说明之烧录固件》](https://help.aliyun.com/document_detail/302383.html)。
 
 ### 4.9 打开串口
 
-固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《aos-studio使用说明之查看日志》](https://g.alicdn.com/alios-things-3.3/doc/view_log.html)。
+固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《AliOS Things集成开发环境使用说明之查看日志》](https://help.aliyun.com/document_detail/302382.html)。
 
 
 ## 4.10 网络连接

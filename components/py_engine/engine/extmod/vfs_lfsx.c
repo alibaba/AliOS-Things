@@ -36,7 +36,7 @@
 #include "extmod/vfs.h"
 #include "lib/timeutils/timeutils.h"
 
-#if 0 //disabled by haas amp
+#if !MICROPY_PY_HAAS_SPECIFIC // disabled by HaaS-AMP
 
 STATIC int MP_VFS_LFSx(dev_ioctl)(const struct LFSx_API (config) * c, int cmd, int arg, bool must_return_int) {
     mp_obj_t ret = mp_vfs_blockdev_ioctl(c->context, cmd, arg);

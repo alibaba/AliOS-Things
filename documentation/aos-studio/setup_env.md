@@ -1,6 +1,6 @@
 @page setup_env 搭建开发环境
 
-[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/aos-studio/setup_env.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/aos-studio/setup_env.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 # 安装工具
 * Visual Studio Code

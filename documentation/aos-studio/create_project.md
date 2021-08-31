@@ -1,6 +1,6 @@
 @page create_project 创建工程
 
-[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/aos-studio/create_project.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/aos-studio/create_project.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 创建工程会自动拉取AliOS-Things的核心组件代码，并配置好相关编译选项。
 

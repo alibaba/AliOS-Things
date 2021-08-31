@@ -2,9 +2,11 @@
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  *
  */
- 
+
 #ifndef __UVOICE_PLAYER_H__
 #define __UVOICE_PLAYER_H__
+
+#include "uvoice_types.h"
 
 /** @defgroup uvoice_player_api uvoice_player
  *  @ingroup uvoice_aos_api
@@ -94,4 +96,3 @@ int uvoice_player_release(uvoice_player_t *mplayer);
  */
 
 #endif /* __UVOICE_PLAYER_H__ */
-

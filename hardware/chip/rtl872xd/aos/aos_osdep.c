@@ -535,7 +535,7 @@ static int _aos_arc4random(void)
 	return (int)seed;
 }
 
-static int _aos_get_random_bytes(void *buf, size_t len)
+static int _aos_get_random_bytes(void *buf, u32 len)
 {
 #if 1 //becuase of 4-byte align, we use the follow code style.
 	unsigned int ranbuf;
@@ -641,6 +641,30 @@ static void _aos_delete_task(struct task_struct *ptask)
 void _aos_wakeup_task(struct task_struct *ptask)
 {
     _aos_up_sema(&ptask->wakeup_sema);
+}
+
+void _aos_set_priority_task(void* task, u32 NewPriority)
+{
+    uint8_t old_pri = 0;
+    uint8_t priority = (uint8_t)(11 - NewPriority);
+    aos_task_pri_change((aos_task_t *)&task, priority, &old_pri);
+}
+
+int _aos_get_priority_task(void* task)
+{
+    uint8_t priority = 0;
+    aos_task_pri_get((aos_task_t *)&task, &priority);
+    return (int)(11 - priority);
+}
+
+void _aos_suspend_task(void* task)
+{
+    aos_task_suspend((aos_task_t *)&task);
+}
+
+void _aos_resume_task(void* task)
+{
+    aos_task_resume((aos_task_t *)&task);
 }
 
 static void _aos_thread_enter(char *name)
@@ -907,6 +931,11 @@ const struct osdep_service_ops osdep_service = {
 	_aos_create_task,			//rtw_create_task
 	_aos_delete_task,			//rtw_delete_task
 	_aos_wakeup_task,			//rtw_wakeup_task
+
+	_aos_set_priority_task,     //rtw_set_priority_task
+	_aos_get_priority_task,     //rtw_get_priority_task
+	_aos_suspend_task,          //rtw_suspend_task
+	_aos_resume_task,           //rtw_resume_task
 
 	_aos_thread_enter,			//rtw_thread_enter
 	_aos_thread_exit,			//rtw_thread_exit

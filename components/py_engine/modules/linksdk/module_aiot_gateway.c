@@ -43,7 +43,7 @@ static aos_sem_t g_iot_close_sem = NULL;
 static ota_store_module_info_t g_module_info[3];
 ota_service_t g_appota_service;
 static JSValue g_on_message_cb_ref = 0;
-extern const char *amp_jsapp_version_get(void);
+extern const char *pyamp_jsapp_version_get(void);
 
 static char *__amp_strdup(char *src)
 {
@@ -75,7 +75,7 @@ static int user_jsapp_ota_triger_cb(void* pctx, char *ver, char *module_name)
     }
     if (strncmp(module_name, "default", strlen(module_name)) == 0) {
         char *current_ver = NULL;
-        current_ver = amp_jsapp_version_get();
+        current_ver = pyamp_jsapp_version_get();
         if (current_ver == NULL) {
             return ret;
         }
@@ -409,7 +409,7 @@ static void aiot_gateway_connect(void *pdata)
     userdata->callback = aiot_mqtt_message_cb;
     userdata->handle = iot_gateway_handle;
 
-    res = aiot_mqtt_client_start(&iot_gateway_handle->mqtt_handle, keepaliveSec, userdata);
+    res = pyamp_aiot_mqtt_client_start(&iot_gateway_handle->mqtt_handle, keepaliveSec, userdata);
     if (res < STATE_SUCCESS) {
         amp_debug(MOD_STR, "mqtt client create failed");
         aos_free(userdata);
@@ -440,7 +440,7 @@ static void aiot_gateway_connect(void *pdata)
     py_task_schedule_call(aiot_subdev_notify, param);
 
     /* app device active info report */
-    res = amp_app_devinfo_report(iot_gateway_handle->mqtt_handle);
+    res = pyamp_amp_app_devinfo_report(iot_gateway_handle->mqtt_handle);
     if (res < STATE_SUCCESS) {
         amp_debug(MOD_STR, "device active info report failed");
     }
@@ -465,7 +465,7 @@ static void aiot_gateway_connect(void *pdata)
     // }
 
     // //report app js version
-    // res = ota_report_module_version(ota_svc, "default", amp_jsapp_version_get());
+    // res = ota_report_module_version(ota_svc, "default", pyamp_jsapp_version_get());
     // if(res < 0) {
     //     amp_error(MOD_STR, "user ota report ver failed!");
     // }
@@ -484,7 +484,7 @@ static void aiot_gateway_connect(void *pdata)
 
     // duk_context *ctx = be_get_context();
 
-    aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
+    pyamp_aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
 
     aos_free(userdata);
     aos_free(iot_gateway_handle);
@@ -674,7 +674,7 @@ static JSValue native_aiot_addTopo(JSContext *ctx, JSValueConst this_val,int arg
     if (res < STATE_SUCCESS) {
         amp_debug(MOD_STR, "send subdev topo add failed, res: -0x%04X", -res);
         // aiot_subdev_deinit(&iot_gateway_handle->subdev_handle);
-        // aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
+        // pyamp_aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
     }
 
 out:
@@ -719,7 +719,7 @@ static JSValue native_aiot_getTopo(JSContext *ctx, JSValueConst this_val,int arg
     if (res < STATE_SUCCESS) {
         amp_error(MOD_STR, "send subdev topo get failed, res: -0x%04X", -res);
         // aiot_subdev_deinit(&iot_gateway_handle->subdev_handle);
-        // aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
+        // pyamp_aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
     }
 
 out:
@@ -797,7 +797,7 @@ static JSValue native_aiot_removeTopo(JSContext *ctx, JSValueConst this_val,int 
     if (res < STATE_SUCCESS) {
         amp_error(MOD_STR, "send subdev topo remove failed, res: -0x%04X", -res);
         // aiot_subdev_deinit(&iot_gateway_handle->subdev_handle);
-        // aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
+        // pyamp_aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
     }
 
 out:
@@ -886,7 +886,7 @@ static JSValue native_aiot_registerSubDevice(JSContext *ctx, JSValueConst this_v
     if (res < STATE_SUCCESS) {
         amp_error(MOD_STR, "send subdev register failed, res: -0x%04X", -res);
         // aiot_subdev_deinit(&iot_gateway_handle->subdev_handle);
-        // aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
+        // pyamp_aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
     }
 
 out:
@@ -976,7 +976,7 @@ amp_debug(MOD_STR, "ccc");
     if (res < STATE_SUCCESS) {
         amp_error(MOD_STR, "send subdev batch login failed, res: -0x%04X", -res);
         // aiot_subdev_deinit(&iot_gateway_handle->subdev_handle);
-        // aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
+        // pyamp_aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
     }
 
 out:
@@ -1056,7 +1056,7 @@ static JSValue native_aiot_logout(JSContext *ctx, JSValueConst this_val,int argc
     if (res < STATE_SUCCESS) {
         amp_error(MOD_STR, "send subdev batch logout failed, res: -0x%04X", -res);
         // aiot_subdev_deinit(&iot_gateway_handle->subdev_handle);
-        // aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
+        // pyamp_aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
     }
 
 out:
@@ -1092,7 +1092,7 @@ static JSValue native_aiot_gateway_close(JSContext *ctx, JSValueConst this_val,i
 
     g_iot_close_flag = 1;
     aos_sem_wait(&g_iot_close_sem, 200 + 50);
-    res = aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
+    res = pyamp_aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
     if (res < 0) {
         amp_debug(MOD_STR, "aiot stop failed");
         goto out;

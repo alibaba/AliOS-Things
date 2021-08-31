@@ -84,7 +84,12 @@
 #endif
 
 static void arp_timer(void *arg);
-
+extern int rltk_wlan_send(int idx, struct eth_drv_sg *sg_list, int sg_len, int total_len);
+extern void rltk_wlan_recv(int idx, struct eth_drv_sg *sg_list, int sg_len);
+extern unsigned char rltk_wlan_running(unsigned char idx);		// interface is up. 0: interface is down
+extern int netif_get_idx(struct netif *pnetif);
+extern void rltk_mii_recv(struct eth_drv_sg *sg_list, int sg_len);
+extern s8 rltk_mii_send(struct eth_drv_sg *sg_list, int sg_len, int total_len);
 
 /**
  * In this function, the hardware should be initialized.

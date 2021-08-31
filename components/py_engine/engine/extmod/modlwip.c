@@ -26,8 +26,6 @@
  * THE SOFTWARE.
  */
 
-#if 0 //disabled by haas amp
-
 #include <string.h>
 #include <stdio.h>
 
@@ -36,6 +34,8 @@
 #include "py/stream.h"
 #include "py/mperrno.h"
 #include "py/mphal.h"
+
+#if !MICROPY_PY_HAAS_SPECIFIC // disabled by HaaS-AMP
 
 #include "lib/netutils/netutils.h"
 

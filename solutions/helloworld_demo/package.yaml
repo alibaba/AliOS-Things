@@ -8,7 +8,7 @@ type: solution                                      # <必选项> 组件类型�
 
 solution:
   cpu_id: cpu0
-  board_name: haas100
+  # board_name: haas100
 
 ## 第二部分：依赖信息
 #           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
@@ -16,14 +16,13 @@ solution:
 # depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
+# 编译前，需要将当前需要编译的板子添加到depends中，同时修改board_name
 depends:
   - init: master
   - cli: master
   - osal_aos: master
-  - haas100: master
-  - haas200: master
-# TODO: 将depends中的板子信息移入supported_boards
-# depends 中仅保留当前需要编译的板子，和board_name一致
+  # - haas100: master
+
 # supported_boards 中记录当前组件能支持的所有板子
 supported_boards:
   - haas100: master

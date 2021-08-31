@@ -127,9 +127,14 @@ void ucloud_ai_disconnect(void);
  */
 int32_t ucloud_ai_get_stream(char *url, char **stream);
 /**
- * @}
+ * Get token id by domain and region id.
+ *
  */
 
+char *ucloud_ai_get_token_id(const char *domain, const char *region_id);
+/**
+ * @}
+ */
 #ifdef __cplusplus
 }
 #endif

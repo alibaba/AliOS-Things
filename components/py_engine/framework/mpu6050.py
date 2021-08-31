@@ -120,7 +120,7 @@ class MPU6050(object):
         self.i2cDev.write(reg)
         sleep_ms(20)
         self.i2cDev.read(data)
-        print("--> read " + str(len) + " bytes from addr " + str(addr) + ", " + str(len) + " bytes value = " + str(data))
+        # print("--> read " + str(len) + " bytes from addr " + str(addr) + ", " + str(len) + " bytes value = " + str(data))
         return data
 
     # 设置MPU6050陀螺仪传感器满量程范围

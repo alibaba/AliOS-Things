@@ -11,21 +11,37 @@
 #include <k_api.h>
 #include "aos/hal/uart.h"
 #include "mphalport.h"
+#include "mpsalport.h"
 
 STATIC uint8_t stdin_ringbuf_array[260];
 ringbuf_t stdin_ringbuf = {stdin_ringbuf_array, sizeof(stdin_ringbuf_array), 0, 0};
 
 static uart_dev_t uart_stdio = {0};
 
-extern int hal_uart_rx_sem_take(int uartid, int timeout);
-extern int hal_uart_rx_sem_give(int port);
-
 /*
  * Core UART functions to implement for a port
  */
 
-// Receive single character
+uintptr_t mp_hal_stdio_poll(uintptr_t poll_flags) {
+    uintptr_t ret = 0;
+    if ((poll_flags & MP_STREAM_POLL_RD) && stdin_ringbuf.iget != stdin_ringbuf.iput) {
+        ret |= MP_STREAM_POLL_RD;
+    }
+    return ret;
+}
+
+// Receive single character, Wait until we get UART input
 int mp_hal_stdin_rx_chr(void) {
+#ifndef AOS_BOARD_HAAS700
+    for (;;) {
+        int c = ringbuf_get(&stdin_ringbuf);
+        if (c != -1) {
+            return c;
+        }
+        MICROPY_EVENT_POLL_HOOK
+        mp_sal_sem_take(&stdin_sem, AOS_WAIT_FOREVER); // AOS_WAIT_FOREVER
+    }
+#else
     uint8_t c = 0;
     uint32_t recv_size = 0;
     int ret = -1;
@@ -35,21 +51,23 @@ int mp_hal_stdin_rx_chr(void) {
 
     // try to check whether we have receive uart input
     ret = hal_uart_recv_II(&uart_stdio, &c, 1, &recv_size, 200);
-    if (ret == 0 && recv_size == 1) {
+    if (ret == 0 && recv_size == 1)
         return c;
-    }
 
-#ifndef AOS_BOARD_HAAS700
-    MICROPY_EVENT_POLL_HOOK
-
-    // // wait till we get any uart input or wakeup
-    // ret = hal_uart_rx_sem_take(uart_stdio.port, HAL_WAIT_FOREVER);
-	return (-MP_EAGAIN);
+    return -MP_EAGAIN;
 #endif
 }
 
 // Send string of given length
 void mp_hal_stdout_tx_strn(const char *str, size_t len) {
+#if MICROPY_VFS_POSIX || MICROPY_VFS_POSIX_FILE
+    /* COPY LOGIC FROM UNIX IMPLEMENTATION
+        vfs_posix_file_write will check MICROPY_PY_OS_DUPTERM MACRO and
+        call this API directly
+    */
+    ssize_t ret;
+    MP_HAL_RETRY_SYSCALL(ret, write(STDOUT_FILENO, str, len), {});
+#else
     // Only release the GIL if many characters are being sent
     bool release_gil = len > 20;
     if (release_gil) {
@@ -58,14 +76,40 @@ void mp_hal_stdout_tx_strn(const char *str, size_t len) {
 
     memset(&uart_stdio, 0, sizeof(uart_stdio));
     uart_stdio.port = 0;
-    if ((len > 0) && (str != NULL)) {
-        hal_uart_send(&uart_stdio, str, len, 5000);
-    }
+    aos_hal_uart_send(&uart_stdio, str, len, 5000);
 
     if (release_gil) {
         MP_THREAD_GIL_ENTER();
     }
+#endif
+
+#if MICROPY_PY_OS_DUPTERM
     mp_uos_dupterm_tx_strn(str, len);
+#endif
+}
+
+void mp_hal_stdout_tx_str(const char *str) {
+    mp_hal_stdout_tx_strn(str, strlen(str));
+}
+
+// Efficiently convert "\n" to "\r\n"
+void mp_hal_stdout_tx_strn_cooked(const char *str, size_t len) {
+    const char *last = str;
+    while (len--) {
+        if (*str == '\n') {
+            if (str > last) {
+                mp_hal_stdout_tx_strn(last, str - last);
+            }
+            mp_hal_stdout_tx_strn("\r\n", 2);
+            ++str;
+            last = str;
+        } else {
+            ++str;
+        }
+    }
+    if (str > last) {
+        mp_hal_stdout_tx_strn(last, str - last);
+    }
 }
 
 mp_uint_t mp_hal_ticks_us(void) {
@@ -118,16 +162,8 @@ void mp_hal_delay_ms(mp_uint_t ms) {
 // Wake up the main task if it is sleeping
 void mp_hal_wake_main_task_from_isr(void) {
 #ifndef AOS_BOARD_HAAS700
-    hal_uart_rx_sem_give(uart_stdio.port);
+    mp_sal_sem_give(&stdin_sem);
 #endif
-}
-
-uintptr_t mp_hal_stdio_poll(uintptr_t poll_flags) {
-    uintptr_t ret = 0;
-    if ((poll_flags & MP_STREAM_POLL_RD) && stdin_ringbuf.iget != stdin_ringbuf.iput) {
-        ret |= MP_STREAM_POLL_RD;
-    }
-    return ret;
 }
 
 /*******************************************************************************/

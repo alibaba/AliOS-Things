@@ -52,6 +52,7 @@ void wifi_rx_beacon_hdl( char* buf, int buf_len, int flags, void* userdata);
 /* Exported functions ------------------------------------------------------- */
 void LwIP_Init(void);
 uint8_t LwIP_DHCP(uint8_t idx, uint8_t dhcp_state);
+void LwIP_ReleaseIP(uint8_t idx);
 unsigned char* LwIP_GetMAC(struct netif *pnetif);
 unsigned char* LwIP_GetIP(struct netif *pnetif);
 unsigned char* LwIP_GetGW(struct netif *pnetif);

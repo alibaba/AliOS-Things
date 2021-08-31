@@ -184,6 +184,7 @@ extern int rltk_set_mode_posthandle(rtw_mode_t curr_mode, rtw_mode_t next_mode, 
 #ifdef CONFIG_PMKSA_CACHING
 extern int wifi_set_pmk_cache_enable(unsigned char value);
 #endif
+extern void rltk_wlan_enable_scan_with_ssid_by_extended_security(BOOL enable);
 //----------------------------------------------------------------------------//
 static int wifi_connect_local(rtw_network_info_t *pWifi)
 {
@@ -2444,7 +2445,7 @@ int wifi_scan_networks_mcc(rtw_scan_result_handler_t results_handler, void* user
 			}
 		}
 
-		vTaskDelay(SCAN_DONE_INTERVAL);
+		rtw_msleep_os(SCAN_DONE_INTERVAL);
 
 		scan_result_handler_ptr.scan_running = 1;
 		scan_result_handler_ptr.scan_start_time = rtw_get_current_time();
@@ -2790,9 +2791,6 @@ int wifi_restart_ap(
 		return -1;
 	}
 
-#if (INCLUDE_uxTaskGetStackHighWaterMark == 1)
-	RTW_API_INFO("\r\nWebServer Thread: High Water Mark is %ld\n", uxTaskGetStackHighWaterMark(NULL));
-#endif
 #ifdef  CONFIG_CONCURRENT_MODE
 	// connect to ap if wlan0 was linked with ap
 	if(idx > 0 && sta_linked == 0){
@@ -2821,9 +2819,7 @@ int wifi_restart_ap(
 	osThreadId_t id = osThreadGetId();
 	RTW_API_INFO("\r\nWebServer Thread: High Water Mark is %ld\n", osThreadGetStackSpace(id));
 #else
-#if (INCLUDE_uxTaskGetStackHighWaterMark == 1)
-	RTW_API_INFO("\r\nWebServer Thread: High Water Mark is %ld\n", uxTaskGetStackHighWaterMark(NULL));
-#endif
+
 #endif
 #if CONFIG_LWIP_LAYER
 #if defined(CONFIG_MBED_ENABLED) || defined(CONFIG_PLATFOMR_CUSTOMER_RTOS)
@@ -2919,7 +2915,7 @@ void wifi_autoreconnect_hdl(rtw_security_t security_type,
 	param->password_len = password_len;
 	param->key_id = key_id;
 	//xTaskCreate(wifi_autoreconnect_thread, (const char *)"wifi_autoreconnect", 512, &param, tskIDLE_PRIORITY + 1, NULL);
-		aos_task_new("wifi_autoreconnect", wifi_autoreconnect_thread, param, 4096);
+	aos_task_new("wifi_autoreconnect", wifi_autoreconnect_thread, param, 4096);
 }
 #endif
 

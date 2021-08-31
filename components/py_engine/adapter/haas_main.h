@@ -18,7 +18,7 @@ extern "C"
 typedef struct {
     int argc;
     char **argv;
-    bool is_bootup;
+    bool is_repl_mode;
 } mpy_thread_args;
 
 int mpy_run(int argc, char **argv);

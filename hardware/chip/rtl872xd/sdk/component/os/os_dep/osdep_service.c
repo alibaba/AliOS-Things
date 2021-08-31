@@ -1156,6 +1156,45 @@ void rtw_wakeup_task(struct task_struct *task)
 	return;	
 }
 
+void rtw_set_priority_task(void* task, u32 NewPriority)
+{
+	if(osdep_service.rtw_set_priority_task)
+		osdep_service.rtw_set_priority_task(task,NewPriority);
+	else
+		OSDEP_DBG("Not implement osdep service: rtw_set_priority_task");
+
+	return;	
+}
+
+int rtw_get_priority_task(void* task)
+{
+	if(osdep_service.rtw_get_priority_task)
+		return osdep_service.rtw_get_priority_task(task);
+	else
+		OSDEP_DBG("Not implement osdep service: rtw_get_priority_task");
+
+	return -1;	
+}
+void rtw_suspend_task(void * task)
+{
+	if(osdep_service.rtw_suspend_task)
+		osdep_service.rtw_suspend_task(task);
+	else
+		OSDEP_DBG("Not implement osdep service: rtw_suspend_task");
+
+	return;	
+}
+
+void rtw_resume_task(void * task)
+{
+	if(osdep_service.rtw_resume_task)
+		osdep_service.rtw_resume_task(task);
+	else
+		OSDEP_DBG("Not implement osdep service: rtw_resume_task");
+
+	return;	
+}
+
 static void worker_thread_main( void *arg )
 {
 	rtw_worker_thread_t* worker_thread = (rtw_worker_thread_t*) arg;
@@ -1187,7 +1226,7 @@ int rtw_create_worker_thread( rtw_worker_thread_t* worker_thread, u8 priority, u
 		return FAIL;
 	}
 
-	if ( !rtw_create_task( &worker_thread->thread, "worker thread", stack_size, priority, worker_thread_main, (void*) worker_thread ) )
+	if ( !rtw_create_task( &worker_thread->thread, "worker thread", stack_size, priority, (thread_func_t)worker_thread_main, (void*) worker_thread ) )
 	{
 		rtw_deinit_xqueue( &worker_thread->event_queue );
 		return FAIL;

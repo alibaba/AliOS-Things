@@ -1,6 +1,6 @@
 @page smarttrace 分析工具 SmartTrace
 
-**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/debug-tools/smarttrace.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/debug-tools/smarttrace.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://help.aliyun.com/document_detail/302301.html)**
 
 # 使用目的
 - 接收日志和交互shell，取代串口工具

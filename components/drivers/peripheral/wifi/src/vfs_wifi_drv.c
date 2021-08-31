@@ -200,6 +200,18 @@ int wifi_device_ioctl (file_t *f, int cmd, unsigned long arg)
 
         break;
     }
+    case WIFI_DEV_CMD_SET_CHANNELLIST: {
+        wifi_channel_list_t *channel = (wifi_channel_list_t *)(arg);
+
+        ret = hal_wifi_set_channellist(wifi_dev, channel);
+        break;
+    }
+    case WIFI_DEV_CMD_GET_CHANNELLIST: {
+        wifi_channel_list_t *channel = (wifi_channel_list_t *)(arg);
+
+        ret = hal_wifi_get_channellist(wifi_dev, channel);
+        break;
+    }
     default:
         ret = -EINVAL;
         ddkc_err("invalid cmd:%d\r\n", cmd);

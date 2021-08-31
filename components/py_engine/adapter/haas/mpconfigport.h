@@ -36,7 +36,7 @@ extern const char haas_help_text[];
 // Python internal features
 #define MICROPY_READER_VFS                  (0)
 #define MICROPY_READER_POSIX                (1)
-#define MICROPY_ENABLE_FINALISER            (0)
+#define MICROPY_ENABLE_FINALISER            (1)
 #define MICROPY_STACK_CHECK                 (1)
 #define MICROPY_ENABLE_EMERGENCY_EXCEPTION_BUF (1)
 #define MICROPY_KBD_EXCEPTION               (1)
@@ -48,7 +48,7 @@ extern const char haas_help_text[];
 #define MICROPY_ERROR_REPORTING             (MICROPY_ERROR_REPORTING_NORMAL)
 #define MICROPY_WARNINGS                    (1)
 #define MICROPY_FLOAT_IMPL                  (MICROPY_FLOAT_IMPL_FLOAT)
-#define MICROPY_CPYTHON_COMPAT              (0)
+#define MICROPY_CPYTHON_COMPAT              (1)
 #define MICROPY_STREAMS_NON_BLOCK           (1)
 #define MICROPY_STREAMS_POSIX_API           (1)
 #define MICROPY_MODULE_BUILTIN_INIT         (1)
@@ -57,14 +57,14 @@ extern const char haas_help_text[];
 #define MICROPY_MODULE_FROZEN_MPY           (1)
 #define MICROPY_QSTR_EXTRA_POOL             mp_qstr_frozen_const_pool
 #define MICROPY_CAN_OVERRIDE_BUILTINS       (1)
-#define MICROPY_USE_INTERNAL_ERRNO          (0) // errno.h from xtensa-esp32-elf/sys-include/sys
-#define MICROPY_USE_INTERNAL_PRINTF         (0) // ESP32 SDK requires its own printf
+#define MICROPY_USE_INTERNAL_ERRNO          (1)
+#define MICROPY_USE_INTERNAL_PRINTF         (0) // HaaS use its own printf
 #define MICROPY_ENABLE_SCHEDULER            (1)
 #define MICROPY_SCHEDULER_DEPTH             (8)
 #define MICROPY_VFS                         (1)
-#define MICROPY_VFS_FAT                     (0)
-#define MICROPY_VFS_POSIX                   (0)
-#define USE_STATFS                          (MICROPY_VFS_POSIX)
+#define MICROPY_VFS_POSIX                   (1)
+#define MICROPY_VFS_POSIX_FILE              (1)
+#define USE_STATFS                          MICROPY_VFS_POSIX
 
 #define MICROPY_ENABLE_GC                   (1)
 #define MICROPY_MALLOC_USES_ALLOCATED_SIZE  (1)
@@ -117,7 +117,7 @@ extern const char haas_help_text[];
 #define MICROPY_PY_GC                       (1)
 #define MICROPY_PY_IO                       (1)
 #define MICROPY_PY_IO_IOBASE                (1)
-#define MICROPY_PY_IO_FILEIO                (0)
+#define MICROPY_PY_IO_FILEIO                (1)
 #define MICROPY_PY_IO_BYTESIO               (1)
 #define MICROPY_PY_IO_BUFFEREDWRITER        (1)
 #define MICROPY_PY_STRUCT                   (1)
@@ -126,7 +126,7 @@ extern const char haas_help_text[];
 #define MICROPY_PY_SYS_MODULES              (1)
 #define MICROPY_PY_SYS_EXIT                 (1)
 #define MICROPY_PY_SYS_ATEXIT               (1)
-#define MICROPY_PY_SYS_STDFILES             (0)
+#define MICROPY_PY_SYS_STDFILES             (1)
 #define MICROPY_PY_SYS_STDIO_BUFFER         (1)
 #define MICROPY_PY_UERRNO                   (1)
 #define MICROPY_PY_USELECT                  (1)
@@ -184,11 +184,11 @@ extern const char haas_help_text[];
 #define MICROPY_PY_USSL_FINALISER           (1)
 #define MICROPY_PY_UWEBSOCKET               (1)
 #define MICROPY_PY_WEBREPL                  (1)
-#define MICROPY_PY_FRAMEBUF                 (1) //  fatal error: ports/stm32/font_petme128_8x8.h: No such file or directory
+#define MICROPY_PY_FRAMEBUF                 (1)
 #define MICROPY_PY_BTREE                    (0) //  fatal error: btree/btree.h: No such file or directory
 #define MICROPY_PY_USOCKET_EVENTS           (MICROPY_PY_WEBREPL)
 #define MICROPY_PY_BLUETOOTH_RANDOM_ADDR    (1)
-#define MICROPY_PY_BLUETOOTH_DEFAULT_GAP_NAME ("HAAS")
+#define MICROPY_PY_BLUETOOTH_DEFAULT_GAP_NAME ("HaaS")
 
 // fatfs configuration
 #define MICROPY_FATFS_ENABLE_LFN       (1)
@@ -196,21 +196,34 @@ extern const char haas_help_text[];
 #define MICROPY_FATFS_USE_LABEL        (1)
 #define MICROPY_FATFS_RPATH            (2)
 #define MICROPY_FATFS_MULTI_PARTITION  (1)
-#if MICROPY_VFS_FAT
-#define mp_type_fileio mp_type_vfs_fat_fileio
-#define mp_type_textio mp_type_vfs_fat_textio
+
+#if MICROPY_VFS_POSIX
+#define mp_type_fileio                  mp_type_vfs_posix_fileio
+#define mp_type_textio                  mp_type_vfs_posix_textio
+#elif MICROPY_VFS_FAT
+#define mp_type_fileio                  mp_type_vfs_fat_fileio
+#define mp_type_textio                  mp_type_vfs_fat_textio
 #elif MICROPY_VFS_LFS1
-#define mp_type_fileio mp_type_vfs_lfs1_fileio
-#define mp_type_textio mp_type_vfs_lfs1_textio
+#define mp_type_fileio                  mp_type_vfs_lfs1_fileio
+#define mp_type_textio                  mp_type_vfs_lfs1_textio
 #elif MICROPY_VFS_LFS2
-#define mp_type_fileio mp_type_vfs_lfs2_fileio
-#define mp_type_textio mp_type_vfs_lfs2_textio
+#define mp_type_fileio                  mp_type_vfs_lfs2_fileio
+#define mp_type_textio                  mp_type_vfs_lfs2_textio
 #endif
 
-// extended modules by aiot
+// use vfs's functions for import stat and builtin open
+#define mp_import_stat mp_vfs_import_stat
+#define mp_builtin_open mp_vfs_open
+#define mp_builtin_open_obj mp_vfs_open_obj
+
+// extended modules by HaaS
+#define MICROPY_PY_HAAS_SPECIFIC            (1)
 #define MICROPY_QSTR_BYTES_IN_HASH          (1)
 #define MICROPY_ALLOC_PARSE_CHUNK_INIT      (16)
 #define MICROPY_ENABLE_EXTERNAL_IMPORT      (1)
+
+#define MICROPY_PORT_ROOT_POINTERS \
+    const char *readline_hist[8];
 
 // type definitions for the specific machine
 
@@ -248,7 +261,7 @@ typedef long mp_off_t;
 #endif
 
 #ifndef MICROPY_HW_MCU_NAME
-#define MICROPY_HW_MCU_NAME "AliOS"
+#define MICROPY_HW_MCU_NAME "HaaS1000"
 #endif
 
 #ifdef __thumb__
@@ -291,10 +304,6 @@ typedef long mp_off_t;
 
 #define MP_STATE_PORT MP_STATE_VM
 
-#define MICROPY_PORT_ROOT_POINTERS \
-    const char *readline_hist[8];
-
-
 #ifdef MICROPY_PY_UTIME
 #define MICROPY_PY_UTIME_DEF
 #define MICROPY_PY_UTIME_DEF_WEAK_LINKS
@@ -319,13 +328,13 @@ typedef long mp_off_t;
 #define MICROPY_COMPONENTS_UCAMERA      0
 #define MICROPY_COMPONENTS_ULOG         1
 
- 
-#define MICROPY_GC_HEAP_SIZE           (1024 * 64)
+
+#define MICROPY_GC_HEAP_SIZE           (1024 * 512)
 
 extern const struct _mp_obj_module_t utime_module;
 extern const struct _mp_obj_module_t driver_module;
 
-#if MICROPY_COMPONENTS_MINICV
+#if PY_BUILD_AI
 extern const struct _mp_obj_module_t minicv_module;
 #define MICROPY_PY_MINICV_DEF { MP_ROM_QSTR(MP_QSTR_minicv), MP_ROM_PTR(&minicv_module) },
 #else
@@ -337,6 +346,20 @@ extern const struct _mp_obj_module_t oss_module;
 #define MICROPY_PY_OSS_DEF { MP_ROM_QSTR(MP_QSTR_OSS), MP_ROM_PTR(&oss_module) },
 #else
 #define MICROPY_PY_OSS_DEF
+#endif
+
+#if PY_BUILD_UCLOUD_AI
+extern const struct _mp_obj_module_t ucloud_ai_module;
+#define MICROPY_PY_UCLOUD_AI_DEF { MP_ROM_QSTR(MP_QSTR_ucloud_ai), MP_ROM_PTR(&ucloud_ai_module) },
+#else
+#define MICROPY_PY_UCLOUD_AI_DEF
+#endif
+
+#if PY_BUILD_AIAGENT
+extern const struct _mp_obj_module_t aiagent_module;
+#define MICROPY_PY_AIAGENT_DEF { MP_ROM_QSTR(MP_QSTR_aiagent), MP_ROM_PTR(&aiagent_module) },
+#else
+#define MICROPY_PY_AIAGENT_DEF
 #endif
 
 #if PY_BUILD_UCAMERA
@@ -412,8 +435,8 @@ extern const struct _mp_obj_module_t mp_module_usocket;
 
 
 #if PY_BUILD_UOS
-extern const struct _mp_obj_module_t mp_module_uos;
-#define MICROPY_PY_UOS_DEF { MP_ROM_QSTR(MP_QSTR_uos), MP_ROM_PTR(&mp_module_uos) },
+extern const struct _mp_obj_module_t uos_module;
+#define MICROPY_PY_UOS_DEF { MP_ROM_QSTR(MP_QSTR_uos), MP_ROM_PTR(&uos_module) },
 #else
 #define MICROPY_PY_UOS_DEF
 #endif
@@ -495,7 +518,9 @@ extern const struct _mp_obj_module_t network_module;
         MICROPY_PY_SNTP_DEF \
         MICROPY_PY_MODBUS_DEF \
         MICROPY_PY_ULOG_DEF \
-        MICROPY_PY_OTA_DEF
+        MICROPY_PY_OTA_DEF  \
+        MICROPY_PY_UCLOUD_AI_DEF \
+        MICROPY_PY_AIAGENT_DEF
 #else
 #define MICROPY_PORT_BUILTIN_MODULES \
         MICROPY_PY_UTIME_DEF \

@@ -5,12 +5,12 @@
 #include "quickjs.h"
 #include "amp_config.h"
 #include "amp_defines.h"
-#include "amp_list.h"
+#include "aos/list.h"
 #include "quickjs-libc.h"
 #include "aos_system.h"
 
 #define MOD_STR "quickjs_module_load"
-static dlist_t g_prebuild_module_list = AMP_DLIST_HEAD_INIT(g_prebuild_module_list);
+static dlist_t g_prebuild_module_list = AOS_DLIST_HEAD_INIT(g_prebuild_module_list);
 
 extern JSValue js_load_binary_module(JSContext *ctx, const uint8_t *buf, size_t buf_len);
 
@@ -39,7 +39,7 @@ static uint8_t *find_prebuild_module(char *module_name, uint32_t *module_len)
 {
     prebuild_module_info_t *module_info = NULL;
     dlist_for_each_entry(&g_prebuild_module_list, module_info, prebuild_module_info_t, node) {
-        if(strcmp(module_info->name, module_name) == 0) {
+        if (strcmp(module_info->name, module_name) == 0) {
             *module_len = module_info->module_len;
             return module_info->module_data;
         }
@@ -48,8 +48,8 @@ static uint8_t *find_prebuild_module(char *module_name, uint32_t *module_len)
     return NULL;
 }
 
-JSModuleDef * quickjs_module_loader(JSContext *ctx,
-                                          const char *module_name, void *opaque)
+JSModuleDef *quickjs_module_loader(JSContext *ctx,
+                                   const char *module_name, void *opaque)
 {
     size_t buf_len = 0;
     uint8_t *buf = NULL;
@@ -60,8 +60,8 @@ JSModuleDef * quickjs_module_loader(JSContext *ctx,
 
     aos_printf("begin load module %s\n", module_name);
 
-    if(strchr(module_name, '/') != NULL) {
-        if(*module_name != '/') {
+    if (strchr(module_name, '/') != NULL) {
+        if (*module_name != '/') {
             buf_len = strlen(AMP_FS_ROOT_DIR) + 1 + strlen(module_name) + 1;
             path = aos_malloc(buf_len);
             memset(path, 0, buf_len);
@@ -74,15 +74,19 @@ JSModuleDef * quickjs_module_loader(JSContext *ctx,
         buf = js_load_file(ctx, &buf_len, path);
         if (!buf) {
             JS_ThrowReferenceError(ctx, "could not load module filename '%s'", module_name);
-            if(path_flag)aos_free(path);
+            if (path_flag) {
+                aos_free(path);
+            }
             return NULL;
         }
 
         /* compile the module */
-        func_val = JS_Eval(ctx, (char *)buf, buf_len, module_name,
-                        JS_EVAL_TYPE_MODULE | JS_EVAL_FLAG_COMPILE_ONLY);
+        func_val = JS_Eval(ctx, (char *) buf, buf_len, module_name,
+                           JS_EVAL_TYPE_MODULE | JS_EVAL_FLAG_COMPILE_ONLY);
         js_free(ctx, buf);
-        if(path_flag)aos_free(path);
+        if (path_flag) {
+            aos_free(path);
+        }
     } else {
         uint8_t *module_data = NULL;
         uint32_t module_len  = 0;
@@ -93,18 +97,26 @@ JSModuleDef * quickjs_module_loader(JSContext *ctx,
             func_val = js_load_binary_module(ctx, module_data, module_len);
         } else {
             amp_error(MOD_STR, "find module %s fail\n", module_name);
+            return NULL;
         }
     }
 
-    if (JS_IsException(func_val)) {
+    if (JS_IsUndefined(func_val)) {
+        aos_printf("load module %s fail, undefined\n", module_name);
         return NULL;
     }
 
-    /* the module is already referenced, so we must free it */
-    m = JS_VALUE_GET_PTR(func_val);
-    JS_FreeValue(ctx, func_val);
-    if (m)
-        aos_printf("load module %s success\n", module_name);
+    if (JS_IsException(func_val)) {
+        aos_printf("load module %s fail, exception\n", module_name);
+        return NULL;
+    }
 
+    m = JS_VALUE_GET_PTR(func_val);
+    if (m) {
+        aos_printf("load module %s success\n", module_name);
+    }
+
+    JS_FreeValue(ctx, func_val);
     return m;
 }
+

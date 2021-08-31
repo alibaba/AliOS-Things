@@ -93,6 +93,9 @@
 
 #if defined(__AOS_AMP__)
 extern long long aos_utc_offset_get();  // 本时区时间相对UTC偏移 毫秒
+#ifndef CONFIG_VERSION
+#define CONFIG_VERSION "2.0.0"
+#endif
 #endif
 
 /* dump object free */

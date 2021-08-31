@@ -98,7 +98,7 @@ static int aos_device_bridge_reg(const char *name, subsys_file_ops_t *fops, aos_
     ppsdev->node_name = (char *)((ppsdev) + 1);
     snprintf((ppsdev)->node_name, node_name_len, "%s", name);
     LOGD(TAG, "ppsdev:%p, (ppsdev) + 1:%p, node_name:%s, sizeof(struct subsys_dev):%d",
-         ppsdev, (ppsdev)->node_name, (ppsdev) + 1, sizeof(struct subsys_dev));
+         ppsdev, (ppsdev) + 1, (ppsdev)->node_name, sizeof(struct subsys_dev));
     ppsdev->permission = 0;
     // please refer to definitions in enum SUBSYS_BUS_TYPE
     ppsdev->type = BUS_TYPE_PLATFORM;
@@ -116,10 +116,9 @@ static int aos_device_bridge_reg(const char *name, subsys_file_ops_t *fops, aos_
     return 0;
 
 err:
-    // shall uninstall devices who are already registered
-    aos_dev_unreg(ppsdev);
-
     if (ppsdev) {
+        // shall uninstall devices who are already registered
+        aos_dev_unreg(ppsdev);
         LOGI(TAG, "free memory");
         free(ppsdev);
         ppsdev = NULL;

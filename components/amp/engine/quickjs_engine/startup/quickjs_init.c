@@ -1,13 +1,13 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include "quickjs.h"
 #include "amp_config.h"
-#include "amp_list.h"
-#include "quickjs-libc.h"
+#include "aos/list.h"
 #include "aos_system.h"
+#include "quickjs-libc.h"
+#include "quickjs.h"
 #include "quickjs_addon.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 
 #define MOD_STR "QUICKJS_INIT"
 
@@ -16,8 +16,7 @@ static JSContext *ctx = NULL;
 static JSValue val;
 
 extern int g_repl_config;
-extern JSModuleDef * quickjs_module_loader(JSContext *ctx,
-                                          const char *module_name, void *opaque);
+extern JSModuleDef *quickjs_module_loader(JSContext *ctx, const char *module_name, void *opaque);
 
 JSContext *js_get_context(void)
 {
@@ -118,8 +117,22 @@ static void jsengine_register_addons()
     module_systimer_register();
 #endif
 
+#ifdef JSE_NET_ADDON_TCP
+    module_tcp_register();
+    extern uint32_t jslib_tcp_size;
+    extern uint8_t jslib_tcp[];
+    quickjs_add_prebuild_module("tcp", jslib_tcp, jslib_tcp_size);
+#endif
+
 #ifdef JSE_NET_ADDON_HTTP
     module_http_register();
+#endif
+
+#ifdef JSE_NET_ADDON_MQTT
+    module_mqtt_register();
+    extern uint32_t jslib_mqtt_size;
+    extern uint8_t jslib_mqtt[];
+    quickjs_add_prebuild_module("mqtt", jslib_mqtt, jslib_mqtt_size);
 #endif
 
 #ifdef JSE_NET_ADDON_NETMGR
@@ -143,7 +156,7 @@ static void jsengine_register_addons()
 #ifdef JSE_ADVANCED_ADDON_UI
     page_entry_register();
     app_entry_register();
-    //module_vm_register();
+    // module_vm_register();
     module_ui_register();
 #endif
 
@@ -160,18 +173,11 @@ static void jsengine_register_addons()
 
 #ifdef JSE_ADVANCED_ADDON_AIOT_DEVICE
     module_aiot_device_register();
+    module_aiot_gateway_register();
     extern uint32_t jslib_iot_size;
     extern uint8_t jslib_iot[];
     quickjs_add_prebuild_module("iot", jslib_iot, jslib_iot_size);
 #endif
-
-#ifdef JSE_ADVANCED_ADDON_AIOT_GATEWAY
-    module_aiot_gateway_register();
-    extern uint32_t jslib_gateway_size;
-    extern uint8_t jslib_gateway[];
-    quickjs_add_prebuild_module("gateway", jslib_gateway, jslib_gateway_size);
-#endif
-
 
 #ifdef JSE_CORE_ADDON_LOG
     module_log_register();
@@ -204,19 +210,30 @@ static void jsengine_register_addons()
 
 #ifdef JSE_CORE_ADDON_CHECKSUM
     module_checksum_register();
+    extern uint32_t jslib_checksum_size;
+    extern uint8_t jslib_checksum[];
+    quickjs_add_prebuild_module("checksum", jslib_checksum, jslib_checksum_size);
 #endif
 
 #ifdef JSE_ADVANCED_ADDON_BLECFGNET
     module_blecfgnet_register();
 #endif
+
 #ifdef JSE_NET_ADDON_CELLULAR
     module_cellular_register();
 #endif
+
 #if defined(JSE_NET_ADDON_NETMGR) || defined(JSE_NET_ADDON_CELLULAR)
     module_network_register();
     extern uint32_t jslib_network_size;
     extern uint8_t jslib_network[];
     quickjs_add_prebuild_module("network", jslib_network, jslib_network_size);
+#endif
+
+#if (defined(JSE_NET_ADDON_NETMGR) || defined(JSE_NET_ADDON_CELLULAR)) && defined(JSE_ADVANCED_ADDON_LOCATION)
+    extern uint32_t jslib_location_size;
+    extern uint8_t jslib_location[];
+    quickjs_add_prebuild_module("location", jslib_location, jslib_location_size);
 #endif
 
 #ifdef JSE_ADVANCED_ADDON_OSS
@@ -228,16 +245,16 @@ int jsengine_init(void)
 {
     rt = JS_NewRuntime();
     if (rt == NULL) {
-        fprintf(stderr, "JS_NewRuntime failure");
+        aos_printf("JS_NewRuntime failure");
         aos_task_exit(1);
     }
     js_std_init_handlers(rt);
 
     ctx = JS_NewContext(rt);
     if (ctx == NULL) {
-        fprintf(stderr, "JS_NewContext failure");
+        aos_printf("JS_NewContext failure");
     }
-    //JS_AddIntrinsicBaseObjects(ctx);
+
     JS_SetCanBlock(rt, 1);
 
     /* loader for ES6 modules */
@@ -260,9 +277,9 @@ int jsengine_init(void)
     return 0;
 }
 
-void qjs_dump_obj(JSContext* ctx, JSValueConst val)
+void qjs_dump_obj(JSContext *ctx, JSValueConst val)
 {
-    const char* str;
+    const char *str;
 
     str = JS_ToCString(ctx, val);
     if (str) {
@@ -273,7 +290,7 @@ void qjs_dump_obj(JSContext* ctx, JSValueConst val)
     }
 }
 
-void qjs_std_dump_error1(JSContext* ctx, JSValueConst exception_val)
+void qjs_std_dump_error1(JSContext *ctx, JSValueConst exception_val)
 {
     JSValue val;
     bool is_error;
@@ -289,7 +306,7 @@ void qjs_std_dump_error1(JSContext* ctx, JSValueConst exception_val)
     }
 }
 
-void qjs_std_dump_error(JSContext* ctx)
+void qjs_std_dump_error(JSContext *ctx)
 {
     JSValue exception_val;
 
@@ -312,7 +329,7 @@ void jsengine_eval_file(const char *filename)
         aos_printf("read js file %s error\n", filename);
         return;
     }
-    if(filename[strlen(filename) - 1] == 's') {
+    if (filename[strlen(filename) - 1] == 's') {
         val = JS_Eval(ctx, buf, buf_len, filename, eval_flags);
         if (JS_IsException(val)) {
             aos_printf("js engine eval %s error\n", filename);
@@ -333,12 +350,12 @@ void jsengine_eval_file(const char *filename)
     }
 }
 
-void jsengine_loop_once()
+void jsengine_loop_once(void)
 {
     js_std_loop_once(ctx);
 }
 
-void jsengine_exit()
+void jsengine_exit(void)
 {
     JS_FreeValue(ctx, val);
     js_std_loop(ctx);
@@ -346,7 +363,7 @@ void jsengine_exit()
     JS_FreeRuntime(rt);
 }
 
-void dump_quickjs_memory()
+void dump_quickjs_memory(void)
 {
     JS_RunGC(rt);
     JSMemoryUsage stats;

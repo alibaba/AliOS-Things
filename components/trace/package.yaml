@@ -37,7 +37,6 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #     - libs                               #   -Llibs
 build_config:
   include:
-    - include/
     - Config/
     - SEGGER/
 

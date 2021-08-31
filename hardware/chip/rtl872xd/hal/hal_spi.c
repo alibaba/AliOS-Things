@@ -120,11 +120,11 @@ int32_t hal_spi_send(spi_dev_t *spi, const uint8_t *data, uint16_t size, uint32_
 
 	if(spi_slave){
                 spi_irq_hook(spi_dev[port].dev,(spi_irq_handler) Slave_tr_done_callback, (uint32_t)spi_dev[port].dev);
-		spi_slave_write_stream(spi_dev[port].dev, data, size);
+		spi_slave_write_stream(spi_dev[port].dev, (uint8_t *)data, size);
 		aos_sem_wait(&slave_tx_down_sema, timeout);
 	}else{
 	        spi_irq_hook(spi_dev[port].dev,(spi_irq_handler) Master_tr_done_callback, (uint32_t)spi_dev[port].dev);
-		spi_master_write_stream(spi_dev[port].dev, data, size);
+		spi_master_write_stream(spi_dev[port].dev, (uint8_t *)data, size);
 		aos_sem_wait(&master_tx_down_sema, timeout);
 	}
 }

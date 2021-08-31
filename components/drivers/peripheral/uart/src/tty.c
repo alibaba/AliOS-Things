@@ -50,7 +50,7 @@ static void reset_termios(struct termios *termios)
     termios->c_cc[VSTOP] = '\23';
     termios->c_cc[VSUSP] = '\32';
     cfmakeraw(termios);
-    cfsetspeed(termios, B9600);
+    cfsetspeed(termios, 9600);
 }
 
 static void dev_tty_unregister(aos_dev_t *dev)

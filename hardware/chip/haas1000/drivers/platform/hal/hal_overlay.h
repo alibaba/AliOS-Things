@@ -76,7 +76,7 @@ uint32_t hal_overlay_get_text_all_size(void);
  */
 uint32_t hal_overlay_get_text_size(enum HAL_OVERLAY_ID_T id);
 /*
- * Use the free space of one segement, this function 
+ * Use the free space of one segement, this function
  * return the free address of space
  */
 uint32_t hal_overlay_get_text_free_addr(enum HAL_OVERLAY_ID_T id);

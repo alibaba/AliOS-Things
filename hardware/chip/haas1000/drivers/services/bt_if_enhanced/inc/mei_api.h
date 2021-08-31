@@ -1,6 +1,31 @@
-/*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
- */
+/****************************************************************************
+ *
+ * File:
+ *     $Id: mei_api.h 886 2009-02-24 14:40:12Z brentk $
+ *     $Product: BES Blue SDK v3.x $
+ *     $Revision: 886 $
+ *
+ * Description:
+ *     Public types, defines, and prototypes for accessing the
+ *     upper layer of the Management Entity.
+ *
+ * Copyright 1999-2005 Extended Systems, Inc.
+ * Portions copyright BES.
+ * All rights reserved. All unpublished rights reserved.
+ *
+ * Unpublished Confidential Information of BES.
+ * Do Not Disclose.
+ *
+ * No part of this work may be used or reproduced in any form or by any
+ * means, or stored in a database or retrieval system, without prior written
+ * permission of BES.
+ *
+ * Use of this work is governed by a license granted by BES.
+ * This work contains confidential and proprietary information of
+ * BES. which is protected by copyright, trade secret,
+ * trademark and other intellectual property rights.
+ *
+ ****************************************************************************/
 
 #ifndef __MEI_API__H__
 #define __MEI_API__H__

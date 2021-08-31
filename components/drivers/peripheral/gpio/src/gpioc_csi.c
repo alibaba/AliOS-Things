@@ -13,8 +13,7 @@ static void gpioc_csi_unregister(aos_gpioc_t *gpioc)
     (void)csi_gpio_uninit(&gpioc_csi->csi_gpio);
 }
 
-static aos_status_t
-set_dir(aos_gpioc_csi_t *gpioc_csi, uint32_t pin, uint32_t dir)
+static aos_status_t set_dir(aos_gpioc_csi_t *gpioc_csi, uint32_t pin, uint32_t dir)
 {
     uint32_t mask = (uint32_t)1 << pin;
     csi_error_t r;
@@ -31,8 +30,7 @@ set_dir(aos_gpioc_csi_t *gpioc_csi, uint32_t pin, uint32_t dir)
     return (r == CSI_OK) ? 0 : -EIO;
 }
 
-static aos_status_t
-set_input_cfg(aos_gpioc_csi_t *gpioc_csi, uint32_t pin, uint32_t cfg)
+static aos_status_t set_input_cfg(aos_gpioc_csi_t *gpioc_csi, uint32_t pin, uint32_t cfg)
 {
     uint32_t mask = (uint32_t)1 << pin;
     csi_error_t r;
@@ -49,8 +47,7 @@ set_input_cfg(aos_gpioc_csi_t *gpioc_csi, uint32_t pin, uint32_t cfg)
     return (r == CSI_OK) ? 0 : -EIO;
 }
 
-static aos_status_t
-set_irq_trig(aos_gpioc_csi_t *gpioc_csi, uint32_t pin, uint32_t trig)
+static aos_status_t set_irq_trig(aos_gpioc_csi_t *gpioc_csi, uint32_t pin, uint32_t trig)
 {
     csi_gpio_t *csi_gpio = &gpioc_csi->csi_gpio;
     uint32_t mask = (uint32_t)1 << pin;
@@ -74,8 +71,7 @@ set_irq_trig(aos_gpioc_csi_t *gpioc_csi, uint32_t pin, uint32_t trig)
     return (r == CSI_OK) ? 0 : -EIO;
 }
 
-static aos_status_t
-set_output_cfg(aos_gpioc_csi_t *gpioc_csi, uint32_t pin, uint32_t cfg)
+static aos_status_t set_output_cfg(aos_gpioc_csi_t *gpioc_csi, uint32_t pin, uint32_t cfg)
 {
     uint32_t mask = (uint32_t)1 << pin;
     csi_error_t r;
@@ -228,19 +224,17 @@ static const aos_gpioc_ops_t gpioc_csi_ops = {
     .set_value          = gpioc_csi_set_value,
 };
 
-#define get_polarity(gpio, pin) \
-    (!!(csi_gpio_read(gpio, (uint32_t)1 << (pin)) & ((uint32_t)1 << (pin))))
+#define get_polarity(gpio, pin) (!!(csi_gpio_read(gpio, (uint32_t)1 << (pin)) & ((uint32_t)1 << (pin))))
 
 static void irq_handler(csi_gpio_t *csi_gpio, uint32_t pin_mask, void *arg)
 {
     aos_gpioc_csi_t *gpioc_csi;
     aos_gpioc_t *gpioc;
-    uint32_t i;
 
     gpioc_csi = aos_container_of(csi_gpio, aos_gpioc_csi_t, csi_gpio);
     gpioc = &gpioc_csi->gpioc;
 
-    for (i = 0; i < gpioc->num_pins; i++) {
+    for (uint32_t i = 0; i < gpioc->num_pins; i++) {
         if (pin_mask & ((uint32_t)1 << i))
             aos_gpioc_hard_irq_handler(gpioc, i, get_polarity(csi_gpio, i));
     }
@@ -251,7 +245,6 @@ aos_status_t aos_gpioc_csi_register(aos_gpioc_csi_t *gpioc_csi)
     aos_gpioc_t *gpioc;
     csi_gpio_t *csi_gpio;
     aos_status_t ret;
-    uint32_t i;
 
     if (!gpioc_csi)
         return -EINVAL;
@@ -263,7 +256,7 @@ aos_status_t aos_gpioc_csi_register(aos_gpioc_csi_t *gpioc_csi)
 
     gpioc->ops = &gpioc_csi_ops;
 
-    for (i = 0; i < gpioc->num_pins; i++)
+    for (uint32_t i = 0; i < gpioc->num_pins; i++)
         gpioc_csi->modes[i] = AOS_GPIO_DIR_NONE;
 
     csi_gpio = &gpioc_csi->csi_gpio;

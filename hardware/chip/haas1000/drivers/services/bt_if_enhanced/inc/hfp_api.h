@@ -189,7 +189,7 @@ typedef void (*hf_event_cb_t) (hf_chan_handle_t chan, struct hfp_context * ctx);
 
 #ifdef __cplusplus
 extern "C" {
-#endif                         
+#endif
 
     /*
      *  AT+XAPL=[vendorID]-[productID]-[version],[features]
@@ -253,11 +253,11 @@ extern "C" {
                                      hf_chan_handle_t answer_chan_h);
 
     hf_chan_handle_t btif_get_hf_chan_by_address(bt_bdaddr_t *bdaddr);
-    
+
     uint8_t btif_get_hf_chan_audio_up_flag(hf_chan_handle_t chan_h);
-    
+
     btif_hf_chan_state_t btif_get_hf_chan_state(hf_chan_handle_t chan_h);
-    
+
     bool btif_hf_check_AudioConnect_status(hf_chan_handle_t chan_h);
 
     hf_chan_handle_t btif_hf_create_channel(void);
@@ -298,7 +298,7 @@ extern "C" {
     bt_status_t btif_hf_sync_conn_audio_connected(hfp_sco_codec_t codec,uint16_t conhdl);
     bt_status_t btif_hf_sync_conn_audio_disconnected(uint16_t conhdl);
     btif_hf_chan_state_t btif_hfp_profile_channel_state(uint8_t bt_device_id);
-#endif    
+#endif
 
     bt_status_t btif_hf_indicators_1(hf_chan_handle_t chan_h);
     bt_status_t btif_hf_indicators_2(hf_chan_handle_t chan_h);

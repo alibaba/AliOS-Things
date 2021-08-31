@@ -153,10 +153,10 @@ void haas_main(int argc, char **argv)
     mp_sal_taskhandler_obj_t python_entry_obj;
     void *stack_addr = NULL;
 
-    printf(" Welcome to MicroPython \n");
+    printf(" Welcome to MicroPython\n");
 
 #if PY_BUILD_BOOT
-    amp_boot_main();
+    pyamp_boot_main();
 #endif
 
     mpy_thread_args *args = alloc_mpy_thread_args(argc, argv);

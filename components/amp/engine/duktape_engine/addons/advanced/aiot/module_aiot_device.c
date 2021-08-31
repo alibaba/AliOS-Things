@@ -230,8 +230,9 @@ static void aiot_app_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv
             //        recv->data.generic_reply.data,
             //        recv->data.generic_reply.message_len,
             //        recv->data.generic_reply.message);
+            amp_free(param);
+            return;
         }
-        break;
 
         /* 属性设置 */
         case AIOT_DMRECV_PROPERTY_SET: {
@@ -335,8 +336,9 @@ static void aiot_app_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv
                 }
             }
             */
+            amp_free(param);
+            return;
         }
-        break;
 
         /* 下行二进制数据 */
         case AIOT_DMRECV_RAW_DATA: {
@@ -354,19 +356,22 @@ static void aiot_app_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv
                 aiot_dm_send(dm_handle, &msg);
             }
             */
+            amp_free(param);
+            return;
         }
-        break;
 
         /* 二进制格式的同步服务调用, 比单纯的二进制数据消息多了个rrpc_id */
         case AIOT_DMRECV_RAW_SYNC_SERVICE_INVOKE: {
             amp_debug(MOD_STR, "raw sync service rrpc_id = %s, data_len = %d",
                    recv->data.raw_service_invoke.rrpc_id,
                    recv->data.raw_service_invoke.data_len);
+            amp_free(param);
+            return;
         }
-        break;
 
         default:
-            break;
+            amp_free(param);
+            return;
     }
 
     amp_task_schedule_call(aiot_device_notify, param);

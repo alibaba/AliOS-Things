@@ -2,167 +2,189 @@
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
+#include <stdint.h>
+#include <errno.h>
+#include <execinfo.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <sys/select.h>
+#include <termios.h>
 #include <unistd.h>
-#include <limits.h>
-#include <poll.h>
-#include "aos/kernel.h"
+#include <semaphore.h>
+#include <pthread.h>
+#include <signal.h>
+#include <sys/time.h>
+#include <time.h>
+
 #include "aos_hal_uart.h"
-
-#ifdef CONFIG_UART_NUM
-#define PLATFORM_UART_NUM CONFIG_UART_NUM
-#else
-#define PLATFORM_UART_NUM 4
-#endif
-
-static int uart_fd_table[PLATFORM_UART_NUM];
-
-int32_t aos_hal_uart_init(uart_dev_t *uart)
-{
-    //return hal_uart_init(uart);
-    printf("[%s][%d]\n\r", __FUNCTION__, __LINE__);
-    return 0;
-}
-
-int32_t aos_hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
-{
-    int i = 0;
-    char *sbuf = (char *)data;
-     printf("[%s][%d] send data: \n\r", __FUNCTION__, __LINE__);
-     for(i = 0; i < size; i++)
-     {
-         printf("%c", sbuf[i]);
-     }
-     printf("\n\r");
-     return size;
-    //return hal_uart_send(uart, data, size, timeout);
-}
-
-int32_t aos_hal_uart_recv(uart_dev_t *uart, void *data,
-                          uint32_t expect_size, uint32_t timeout)
-{
-    /* deprecated */
-    return -1;
-}
-
-int32_t aos_hal_uart_recv_poll(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size)
-{
-    printf("[%s][%d]\n\r", __FUNCTION__, __LINE__);
-    return recv_size;
-    //return hal_uart_recv_poll(uart, data, expect_size, recv_size);
-}
-
-int32_t aos_hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
-                             uint32_t *recv_size, uint32_t timeout)
-{
-    
-    *recv_size = 10;
-    strncpy(data, "test for recv", 10);
-    return 10;
-    // return hal_uart_recv_II(uart, data, expect_size, recv_size, timeout);
-}
-
-typedef struct {
-    void (*callback)(int, void *, uint16_t, void *);
-    void *userdata;
-    uart_dev_t *uart;
-    int task_running;
-    int stop;
-    aos_mutex_t lock;
-    aos_sem_t sem;
-    aos_task_t task;
-} uart_recv_notify_t;
-
-static uart_recv_notify_t *uart_recv_notifiers[PLATFORM_UART_NUM];
-
-static void uart_recv_handler(void *args)
-{
-    uart_recv_notify_t *notify = (uart_recv_notify_t *)args;
-    uart_dev_t *uart;
-    char recv_buffer[256];
-    int recv_size;
-    int ret;
-
-    if (!notify)
-        return;
-
-    uart = notify->uart;
-    while (1) {
-        aos_mutex_lock(&notify->lock, AOS_WAIT_FOREVER);
-        if (notify->stop) {
-            aos_mutex_unlock(&notify->lock);
-            break;
-        }
-        aos_mutex_unlock(&notify->lock);
-
-        ret = aos_hal_uart_recv_II(uart, recv_buffer, sizeof(recv_buffer),
-                                   &recv_size, 100);
-        if (ret || recv_size <= 0)
-            continue;
-
-        notify->callback(uart->port, recv_buffer, recv_size, notify->userdata);
-    }
-
-    aos_sem_signal(&notify->sem);
-}
-
-#if 0
-extern int32_t hal_uart_receive_register(int port,  void(*cb)(int, void *), void *args);
-static int uart_port_registered[7];
-#endif
 
 int32_t aos_hal_uart_callback(uart_dev_t *uart, void (*cb)(int, void *, uint16_t, void *), void *args)
 {
-#if 0
-    if (uart_port_registered[uart->port])
-        return 0;
-    hal_uart_receive_register(uart, cb, args);
-    uart_port_registered[uart->port] = 1;
-#else
-    uart_recv_notify_t *notify = uart_recv_notifiers[uart->port];
+    return 0;
+}
 
-    if (!notify) {
-        notify = aos_malloc(sizeof(uart_recv_notify_t));
-        if (!notify)
+typedef unsigned char UINT8; /* Unsigned  8 bit quantity        */
+typedef signed char INT8; /* Signed    8 bit quantity        */
+typedef unsigned short UINT16; /* Unsigned 16 bit quantity        */
+typedef signed short INT16; /* Signed   16 bit quantity        */
+typedef uint32_t UINT32; /* Unsigned 32 bit quantity        */
+typedef int32_t INT32; /* Signed   32 bit quantity        */
+
+static struct termios term_orig;
+
+#define MAX_UART_NUM 1
+
+enum _uart_status_e {
+    _UART_STATUS_CLOSED = 0,
+    _UART_STATUS_OPENED,
+};
+
+typedef struct {
+    uint8_t uart;
+    uint8_t status;
+    pthread_t threaid;
+    pthread_mutex_t mutex;
+} _uart_drv_t;
+
+static _uart_drv_t _uart_drv[MAX_UART_NUM];
+
+extern int32_t uart_read_byte(uint8_t *rx_byte);
+extern void uart_write_byte(uint8_t byte);
+extern uint8_t uart_is_tx_fifo_empty(void);
+extern uint8_t uart_is_tx_fifo_full(void);
+extern void uart_set_tx_stop_end_int(uint8_t set);
+
+static void exit_cleanup(void)
+{
+    tcsetattr(0, TCSANOW, &term_orig);
+}
+
+int32_t aos_hal_uart_init(uart_dev_t *uart)
+{
+    setvbuf(stdout, NULL, _IONBF, 0);
+    int err_num;
+    _uart_drv_t *pdrv = &_uart_drv[0];
+    struct termios term_vi;
+
+    if (pdrv->status == _UART_STATUS_CLOSED) {
+        pdrv->status = _UART_STATUS_OPENED;
+        tcgetattr(0, &term_orig);
+        term_vi = term_orig;
+        term_vi.c_lflag &= (~ICANON & ~ECHO); // leave ISIG ON- allow intr's
+        term_vi.c_iflag &= (~IXON & ~ICRNL);
+        tcsetattr(0, TCSANOW, &term_vi);
+        atexit(exit_cleanup);
+
+        err_num = pthread_mutex_init(&pdrv->mutex, NULL);
+        if (0 != err_num) {
+            perror("create mutex failed\n");
             return -1;
-        memset(notify, 0, sizeof(uart_recv_notify_t));
-        aos_mutex_new(&notify->lock);
-        aos_sem_new(&notify->sem, 0);
-        uart_recv_notifiers[uart->port] = notify;
+        }
+    } else {
+        return -1;
     }
-
-    notify->callback = cb;
-    notify->userdata = args;
-    notify->uart = uart;
-
-    if (!notify->task_running) {
-        if (aos_task_new_ext(&notify->task, "amp_uart_recv",
-            uart_recv_handler, notify, 2048, 32))
-            return -1;
-        notify->task_running = 1;
-    }
-#endif
     return 0;
 }
 
 int32_t aos_hal_uart_finalize(uart_dev_t *uart)
 {
-    uart_recv_notify_t *notify = uart_recv_notifiers[uart->port];
-    if (notify) {
-        if (notify->task_running) {
-            aos_mutex_lock(&notify->lock, AOS_WAIT_FOREVER);
-            notify->stop = 1;
-            aos_mutex_unlock(&notify->lock);
-            aos_sem_wait(&notify->sem, 3000);
-        }
-        aos_mutex_free(&notify->lock);
-        aos_sem_free(&notify->sem);
-        aos_free(notify);
-        uart_recv_notifiers[uart->port] = NULL;
+    _uart_drv_t *pdrv = &_uart_drv[uart->port];
+
+    pthread_mutex_destroy(&pdrv->mutex);
+    pdrv->status = _UART_STATUS_CLOSED;
+    tcsetattr(0, TCSANOW, &term_orig);
+    return 0;
+}
+
+int32_t aos_hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
+{
+    uint32_t i = 0;
+    _uart_drv_t *pdrv = &_uart_drv[uart->port];
+
+    pthread_mutex_lock(&pdrv->mutex);
+
+    for (i = 0; i < size; i++) {
+        putchar(((uint8_t *)data)[i]);
     }
 
-    close(uart_fd_table[uart->port]);
-    uart_fd_table[uart->port] = -1;
+    pthread_mutex_unlock(&pdrv->mutex);
 
+    return 0;
+}
+
+int aaa = 0;
+int32_t aos_hal_uart_recv_poll(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size)
+{
+    fd_set fdset;
+    int ret;
+    char nbuf;
+    char *read_buf = data;
+    (void *)uart;
+
+    if (data == NULL || recv_size == NULL) {
+        return -1;
+    }
+    *recv_size = 0;
+
+    /* Obtain the size of the packet and put it into the "len"
+        variable. */
+    int readlen = read(0, &nbuf, 1);
+    if (readlen > 0) {
+        *(char *)data = nbuf;
+        *recv_size = 1;
+        return 0;
+    }
+
+    return -1;
+}
+
+int32_t aos_hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size, uint32_t *recv_size, uint32_t timeout)
+{
+    fd_set fdset;
+    int ret;
+    char nbuf;
+    char *read_buf = data;
+    struct timeval st;
+    time_t t_begin, t_now;
+
+    (void *)uart;
+
+    t_begin = clock();
+
+    if (data == NULL || recv_size == NULL) {
+        return -1;
+    }
+    *recv_size = 0;
+
+    while (1) {
+        t_now = clock();
+        if (difftime(t_now, t_begin) > timeout) {
+            break;
+        }
+        usleep(10);
+        FD_ZERO(&fdset);
+        FD_SET(0, &fdset);
+
+        /* Wait for a packet to arrive. */
+        st.tv_sec = 0;
+        st.tv_usec = 100;
+        ret = select(1, &fdset, NULL, NULL, &st);
+        if (ret == 1) {
+            /* Obtain the size of the packet and put it into the "len"
+             variable. */
+            int readlen = read(0, &nbuf, 1);
+            if (readlen < 0) {
+                perror("cli read eror");
+                continue;
+            }
+
+            /* Handle incoming packet. */
+            read_buf[*recv_size] = nbuf;
+            *recv_size += 1;
+            if (*recv_size >= expect_size) {
+                break;
+            }
+        }
+    }
     return 0;
 }

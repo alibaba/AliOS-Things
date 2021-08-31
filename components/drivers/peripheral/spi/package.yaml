@@ -50,6 +50,7 @@ source_file:
 
 # SPI
   - src/spi_dev.c ? <CONFIG_U_SPI_DEV>
+  - src/spi.c
 
 # SPI Example
 #  - example/spi_example.c

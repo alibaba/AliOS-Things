@@ -1,6 +1,6 @@
 @page packageyaml_user_manual 构建配置 package.yaml
 
-**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/yaml/package.yaml_user_manual.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)**
+**[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/yaml/package.yaml_user_manual.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://help.aliyun.com/document_detail/302301.html)**
 
 package.yaml是组件的配置文件，采用yaml文本的方式，配置组件包含哪些源文件，头文件，宏，以及组件依赖关系等等，替代了传统的makefile文件。
 # 构建规则说明

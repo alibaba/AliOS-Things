@@ -1674,6 +1674,7 @@ void wext_set_indicate_mgnt(int enable)
 #ifdef CONFIG_AP_MODE
 extern void rltk_suspend_softap(const char *ifname);
 extern void rltk_suspend_softap_beacon(const char *ifname);
+extern int rtw_ap_switch_chl_and_inform(unsigned char new_channel);
 void wext_suspend_softap(const char *ifname)
 {
 	rltk_suspend_softap(ifname);

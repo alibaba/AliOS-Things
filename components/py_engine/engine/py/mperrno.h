@@ -30,6 +30,8 @@
 
 #if MICROPY_USE_INTERNAL_ERRNO
 
+#include <errno.h>
+
 // MP_Exxx errno's are defined directly as numeric values
 // (Linux constants are used as a reference)
 

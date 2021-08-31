@@ -37,17 +37,17 @@ MEMORY
  FLASH (r) : ORIGIN = (0x2C000000 + 0x2A000), LENGTH = (0x1000000 - ((0x2C000000 + 0x2A000) - 0x2C000000))
  FLASH_NC (r) : ORIGIN = (((0x2C000000 + 0x2A000)) - 0x2C000000 + 0x28000000), LENGTH = (0x1000000 - ((0x2C000000 + 0x2A000) - 0x2C000000))
  FLASHX (rx) : ORIGIN = (((0x2C000000 + 0x2A000)) - 0x2C000000 + 0x0C000000), LENGTH = (0x1000000 - ((0x2C000000 + 0x2A000) - 0x2C000000))
- RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x200000-0x00057000-0x00029000 - 0x16000
- RAMX (rx) : ORIGIN = 0x00200000, LENGTH = 0x200000-0x00057000-0x00029000 - 0x16000
- FRAMX (rwx) : ORIGIN = 0x00200000 + 0x200000-0x00057000-0x00029000 - 0x16000, LENGTH = 0x16000
+ RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x280000-0x00057000-0x00029000 - 0x16000
+ RAMX (rx) : ORIGIN = 0x00200000, LENGTH = 0x280000-0x00057000-0x00029000 - 0x16000
+ FRAMX (rwx) : ORIGIN = 0x00200000 + 0x280000-0x00057000-0x00029000 - 0x16000, LENGTH = 0x16000
  PSRAM (rwx) : ORIGIN = 0x34000000, LENGTH = 0x800000
  PSRAM_NC (rwx) : ORIGIN = 0x30000000, LENGTH = 0x800000
  PSRAMX (rx) : ORIGIN = 0x14000000, LENGTH = 0x800000
- PSRAMUHS (rwx) : ORIGIN = (0x3C000000 + 0x5D4000), LENGTH = 0x22C000
- PSRAMUHS_NC (rwx) : ORIGIN = (0x38000000 + 0x5D4000), LENGTH = 0x22C000
- PSRAMUHSX (rx) : ORIGIN = (0x1C000000 + 0x5D4000), LENGTH = 0x22C000
- RAMCP (rwx) : ORIGIN = 0x20000000+0x200000-0x00057000-0x00029000, LENGTH = 0x00057000
- RAMCPX (rwx) : ORIGIN = 0x00200000+0x200000-0x00057000-0x00029000+0x00057000, LENGTH = 0x00029000
+ PSRAMUHS (rwx) : ORIGIN = (0x3C000000 + (0)), LENGTH = (0)
+ PSRAMUHS_NC (rwx) : ORIGIN = (0x38000000 + (0)), LENGTH = (0)
+ PSRAMUHSX (rx) : ORIGIN = (0x1C000000 + (0)), LENGTH = (0)
+ RAMCP (rwx) : ORIGIN = 0x20000000+0x280000-0x00057000-0x00029000, LENGTH = 0x00057000
+ RAMCPX (rwx) : ORIGIN = 0x00200000+0x280000-0x00057000-0x00029000+0x00057000, LENGTH = 0x00029000
  RAMEXT (rwx) : ORIGIN = 0x20040000, LENGTH = 0xc0000
 }
 /* Library configurations */
@@ -360,79 +360,68 @@ SECTIONS
   *(.sram_data*)
   . = ALIGN(4);
  } > RAM
-
- .core_driver_entry (.):
- {
-  __core_driver_start__ = .;
-  KEEP(*(.core_driver_entry))
-  . = ALIGN(4);
-  __core_driver_end__ = .;
- } > RAM
-
- .bus_driver_entry (.):
- {
-  __bus_driver_start__ = .;
-  KEEP(*(*.bus_driver_entry))
-  __bus_driver_end__ = .;
- } > RAM
-
- .early_driver_entry (.):
+  .core_driver_entry (.):
   {
-   __early_driver_start__ = .;
-   KEEP(*(*.early_driver_entry))
-   __early_driver_end__ = .;
+   __core_driver_start__ = .;
+   KEEP(*(.core_driver_entry))
+   . = ALIGN(4);
+   __core_driver_end__ = .;
   } > RAM
-
- .vfs_driver_entry (.):
+  .bus_driver_entry (.):
   {
-   __vfs_driver_start__ = .;
-   KEEP(*(*.vfs_driver_entry))
-   __vfs_driver_end__ = .;
+   __bus_driver_start__ = .;
+   KEEP(*(*.bus_driver_entry))
+   __bus_driver_end__ = .;
   } > RAM
-
-
- .level0_driver_entry (.):
-  {
-   __level0_driver_start__ = .;
-   KEEP(*(*.level0_driver_entry))
-   __level0_driver_end__ = .;
-  } > RAM
-
- .level1_driver_entry (.):
-  {
-   __level1_driver_start__ = .;
-   KEEP(*(*.level1_driver_entry))
-   __level1_driver_end__ = .;
-  } > RAM
-
- .level2_driver_entry (.):
-  {
-   __level2_driver_start__ = .;
-   KEEP(*(*.level2_driver_entry))
-   __level2_driver_end__ = .;
-  } > RAM
-
- .level3_driver_entry (.):
-  {
-   __level3_driver_start__ = .;
-   KEEP(*(*.level3_driver_entry))
-   __level3_driver_end__ = .;
-  } > RAM
-
- .post_driver_entry (.):
-  {
-   __post_driver_start__ = .;
-   KEEP(*(*.post_driver_entry))
-   __post_driver_end__ = .;
-  } > RAM
-
+  .early_driver_entry (.):
+   {
+    __early_driver_start__ = .;
+    KEEP(*(*.early_driver_entry))
+    __early_driver_end__ = .;
+   } > RAM
+  .vfs_driver_entry (.):
+   {
+    __vfs_driver_start__ = .;
+    KEEP(*(*.vfs_driver_entry))
+    __vfs_driver_end__ = .;
+   } > RAM
+  .level0_driver_entry (.):
+   {
+    __level0_driver_start__ = .;
+    KEEP(*(*.level0_driver_entry))
+    __level0_driver_end__ = .;
+   } > RAM
+  .level1_driver_entry (.):
+   {
+    __level1_driver_start__ = .;
+    KEEP(*(*.level1_driver_entry))
+    __level1_driver_end__ = .;
+   } > RAM
+  .level2_driver_entry (.):
+   {
+    __level2_driver_start__ = .;
+    KEEP(*(*.level2_driver_entry))
+    __level2_driver_end__ = .;
+   } > RAM
+  .level3_driver_entry (.):
+   {
+    __level3_driver_start__ = .;
+    KEEP(*(*.level3_driver_entry))
+    __level3_driver_end__ = .;
+   } > RAM
+  .post_driver_entry (.):
+   {
+    __post_driver_start__ = .;
+    KEEP(*(*.post_driver_entry))
+    __post_driver_end__ = .;
+   } > RAM
  __sram_text_data_end_flash__ = __sram_text_data_start_flash__ +
-        SIZEOF(.sram_text) + SIZEOF(.sram_data) +
-        SIZEOF(.core_driver_entry) + SIZEOF(.bus_driver_entry) +
-        SIZEOF(.early_driver_entry) + SIZEOF(.vfs_driver_entry) +
-        SIZEOF(.level0_driver_entry) + SIZEOF(.level1_driver_entry) +
-        SIZEOF(.level2_driver_entry) + SIZEOF(.level3_driver_entry) +
-        SIZEOF(.post_driver_entry);
+         SIZEOF(.sram_text) + SIZEOF(.sram_data) +
+         SIZEOF(.core_driver_entry) + SIZEOF(.bus_driver_entry) +
+         SIZEOF(.early_driver_entry) + SIZEOF(.vfs_driver_entry) +
+         SIZEOF(.level0_driver_entry) + SIZEOF(.level1_driver_entry) +
+         SIZEOF(.level2_driver_entry) + SIZEOF(.level3_driver_entry) +
+         SIZEOF(.post_driver_entry);
  .sram_bss (.) (NOLOAD) : AT (ADDR(.sram_bss))
  {
   __sram_bss_start__ = .;
@@ -1159,37 +1148,6 @@ SECTIONS
   __psram_bss_end__ = .;
  } > PSRAM
  __flash_text_data_start__ = __psram_text_data_end_flash__;
- __psramuhs_text_data_start__ = ORIGIN(PSRAMUHS);
- __psramuhs_text_data_start_flash__ = __flash_text_data_start__;
- .psramuhs_text (((__psramuhs_text_data_start__) - 0x3C000000 + 0x1C000000)) : AT (__psramuhs_text_data_start_flash__)
- {
-  __psramux_text_start__ = .;
-  *(EXCLUDE_FILE(*hal_*.o *cmsis_nvic.o *system_ARMCM4.o *system_utils.o *system_cp.o *cp_accel.o *bpabi.o *div*.o *_dvmd_tls.o *best*.o wifi_drv*.o) .text*)
-  *(.psramuhs_text*)
-  . = ALIGN(4);
-  __psramux_text_end__ = .;
- } > PSRAMUHSX
- .psramuhs_data (__psramuhs_text_data_start__ + SIZEOF(.psramuhs_text)) :
-    AT (__psramuhs_text_data_start_flash__ + SIZEOF(.psramuhs_text))
- {
-/*
-		*(EXCLUDE_FILE(*hal_*.o *cmsis_nvic.o *system_ARMCM4.o *system_utils.o *system_cp.o *cp_accel.o *bpabi.o *div*.o *_dvmd_tls.o *best*.o wifi_drv*.o) .data*)
-*/
-  *(.psramuhs_data*)
-  . = ALIGN(4);
- } > PSRAMUHS
- __psramuhs_text_data_end_flash__ = __psramuhs_text_data_start_flash__ + SIZEOF(.psramuhs_text)+ SIZEOF(.psramuhs_data);
- .psramuhs_bss (.) (NOLOAD) : AT (ADDR(.psramuhs_bss))
- {
-  __psramuhs_bss_start__ = .;
-/*
-		*(EXCLUDE_FILE(*hal_*.o *cmsis_nvic.o *system_ARMCM4.o *system_utils.o *system_cp.o *cp_accel.o *bpabi.o *div*.o *_dvmd_tls.o *best*.o wifi_drv*.o) .bss*)
-*/
-  *(.psramuhs_bss*)
-  . = ALIGN(4);
-  __psramuhs_bss_end__ = .;
- } > PSRAMUHS
- __flash_text_data_start__ = __psramuhs_text_data_end_flash__;
  .text (((__flash_text_data_start__) - 0x2C000000 + 0x0C000000)) : AT (((ADDR(.text)) - 0x0C000000 + 0x2C000000))
  {
   __flashx_text_start__ = .;
@@ -1209,6 +1167,7 @@ SECTIONS
   *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
   *(SORT(.dtors.*))
   *(.dtors)
+  *(EXCLUDE_FILE(*hal_*.o *cmsis_nvic.o *system_ARMCM4.o *system_utils.o *system_cp.o *cp_accel.o *bpabi.o *div*.o *_dvmd_tls.o *best*.o wifi_drv*.o) .text*)
  } > FLASHX
  .ARM.extab (.) : AT (((ADDR(.ARM.extab)) - 0x0C000000 + 0x2C000000))
  {
@@ -1268,21 +1227,20 @@ SECTIONS
    KEEP(*(.eh_frame*))
   *(.note.gnu.build-id)
  } > FLASH
- .CliRegion (.) :
- {
-  _cli_region_begin = .;
-  KEEP(*(CliRegion))
-  . = ALIGN(4);
-  _cli_region_end = .;
- } > FLASH
-
-  .UsrCmdSymTab (.) :
- {
-  _usrcmd_table_begin = .;
-  KEEP(*(UsrCmdSymTab))
-  . = ALIGN(4);
-  _usrcmd_table_end = .;
- } > FLASH
+    .CliRegion (.) :
+    {
+    _cli_region_begin = .;
+    KEEP(*(CliRegion))
+    . = ALIGN(4);
+    _cli_region_end = .;
+    } > FLASH
+    .UsrCmdSymTab (.) :
+    {
+    _usrcmd_table_begin = .;
+    KEEP(*(UsrCmdSymTab))
+    . = ALIGN(4);
+    _usrcmd_table_end = .;
+    } > FLASH
  /* To copy multiple FLASH to RAM sections,
 	 * uncomment .copy.table section and,
 	 * define __STARTUP_COPY_MULTIPLE in startup_ARMCMx.S */
@@ -1428,7 +1386,7 @@ SECTIONS
   __aos_lastword_end = .;
   . = ALIGN(4);
  } > RAM
- ASSERT((0x20000000 +0x200000-0x00057000-0x00029000 -0x16000-0x4000) == __aos_lastword_start,
+ ASSERT((0x20000000 +0x280000-0x00057000-0x00029000 -0x16000-0x4000) == __aos_lastword_start,
   "Adjust M33 and A7 DEBUG_CONFIG_LASTWORD_RAM_ADDR in k_config.h, if you change SRAM map")
  /* Check if data + heap + stack exceeds RAM limit */
  ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")

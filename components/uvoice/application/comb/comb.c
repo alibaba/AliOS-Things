@@ -20,17 +20,15 @@
 
 #include "cJSON.h"
 
+#define TONE_SOURCE_PREFIX ""
+#define TONE_SOURCE_SUFFIX ""
 
-#define TONE_SOURCE_PREFIX        ""
-#define TONE_SOURCE_SUFFIX        ""
+#define TONE_SOURCE_LEN_MAX 64
 
-#define TONE_SOURCE_LEN_MAX        64
-
-#define FILE_LIST_COUNT_MAX        32
-#define HTTP_LIST_COUNT_MAX        32
+#define FILE_LIST_COUNT_MAX 32
+#define HTTP_LIST_COUNT_MAX 32
 
 #define BUILD_FOR_WTK_PAYBOX
-
 
 enum {
     COMB_PLAY_STAT_STOP = 0,
@@ -69,17 +67,7 @@ typedef struct {
 } url_node_t;
 
 static char *tonename_numb[] = {
-    "num_0",
-    "num_1",
-    "num_2",
-    "num_3",
-    "num_4",
-    "num_5",
-    "num_6",
-    "num_7",
-    "num_8",
-    "num_9",
-    "num_10",
+    "num_0", "num_1", "num_2", "num_3", "num_4", "num_5", "num_6", "num_7", "num_8", "num_9", "num_10",
 };
 
 static char *tonename_unit[] = {
@@ -157,7 +145,6 @@ static int add_amount(uvoice_list_t *head, double num, int index)
         prev_slot_zero = false;
 
         for (depth = 3; depth >= 0; depth--) {
-
             if (sub_number == 0)
                 break;
 
@@ -165,8 +152,7 @@ static int add_amount(uvoice_list_t *head, double num, int index)
 
             if ((hundred_million_exist || ten_thousand_exist) && i == 0) {
                 M_LOGD("%s: nop\n", __func__);
-            } else if (hundred_million_exist && ten_thousand_exist &&
-                (depth > 0) && sub_target < factor) {
+            } else if (hundred_million_exist && ten_thousand_exist && (depth > 0) && sub_target < factor) {
                 M_LOGD("%s: nop\n", __func__);
             } else if (sub_target < factor) {
                 continue;
@@ -178,9 +164,7 @@ static int add_amount(uvoice_list_t *head, double num, int index)
             if (slot == 0 && depth == 0)
                 continue;
 
-            if ((sub_target < 20 && depth == 1) ||
-                (slot == 0 && prev_slot_zero) ||
-                (slot == 0 && depth == 0)) {
+            if ((sub_target < 20 && depth == 1) || (slot == 0 && prev_slot_zero) || (slot == 0 && depth == 0)) {
                 M_LOGD("%s: nop\n", __func__);
             } else {
                 node = snd_zalloc(sizeof(comb_node_t), AFM_EXTN);
@@ -188,8 +172,7 @@ static int add_amount(uvoice_list_t *head, double num, int index)
                     M_LOGE("alloc tone list failed !\n");
                     return -1;
                 }
-                snprintf(node->source, sizeof(node->source),
-                    "%s", tonename_numb[slot]);
+                snprintf(node->source, sizeof(node->source), "%s", tonename_numb[slot]);
                 node->index = index;
                 uvoice_list_add_tail(&node->list, head);
                 count++;
@@ -206,8 +189,7 @@ static int add_amount(uvoice_list_t *head, double num, int index)
                     M_LOGE("alloc tone list failed !\n");
                     return -1;
                 }
-                snprintf(node->source, sizeof(node->source),
-                    "%s", tonename_unit[depth]);
+                snprintf(node->source, sizeof(node->source), "%s", tonename_unit[depth]);
                 node->index = index;
                 uvoice_list_add_tail(&node->list, head);
                 count++;
@@ -221,8 +203,7 @@ static int add_amount(uvoice_list_t *head, double num, int index)
                 return -1;
             }
 
-            snprintf(node->source, sizeof(node->source),
-                "%s", tonename_hunit[i - 1]);
+            snprintf(node->source, sizeof(node->source), "%s", tonename_hunit[i - 1]);
             node->index = index;
             uvoice_list_add_tail(&node->list, head);
             count++;
@@ -236,8 +217,7 @@ static int add_amount(uvoice_list_t *head, double num, int index)
             return -1;
         }
 
-        snprintf(node->source, sizeof(node->source),
-            "num_0");
+        snprintf(node->source, sizeof(node->source), "num_0");
         node->index = index;
         uvoice_list_add_tail(&node->list, head);
         count++;
@@ -257,8 +237,7 @@ static int add_amount(uvoice_list_t *head, double num, int index)
         uvoice_list_add_tail(&node->list, head);
 
         snprintf(deci_desc, sizeof(deci_desc), "%lf", deci);
-        memmove(deci_desc, (char *)deci_desc + 2,
-            strlen((char *)deci_desc + 2));
+        memmove(deci_desc, (char *)deci_desc + 2, strlen((char *)deci_desc + 2));
 
         ptr = (char *)deci_desc + (strlen(deci_desc) - 1);
 
@@ -278,8 +257,7 @@ static int add_amount(uvoice_list_t *head, double num, int index)
                 return -1;
             }
 
-            snprintf(node->source, sizeof(node->source),
-                "%s", tonename_numb[sub_number]);
+            snprintf(node->source, sizeof(node->source), "%s", tonename_numb[sub_number]);
             node->index = index;
             uvoice_list_add_tail(&node->list, head);
         }
@@ -319,8 +297,7 @@ static int add_number(uvoice_list_t *head, const char *number, int index)
             M_LOGE("alloc tone list failed !\n");
             continue;
         }
-        snprintf(node->source, sizeof(node->source),
-            "%s", tonename_numb[num_code]);
+        snprintf(node->source, sizeof(node->source), "%s", tonename_numb[num_code]);
         node->index = index;
         uvoice_list_add_tail(&node->list, head);
     }
@@ -328,8 +305,8 @@ static int add_number(uvoice_list_t *head, const char *number, int index)
     return 0;
 }
 
-static int add_file_source(uvoice_list_t *head, const char *source,
-    int index, int final, void (*cb)(void *args, int event), void *userdata)
+static int add_file_source(uvoice_list_t *head, const char *source, int index, int final,
+                           void (*cb)(void *args, int event), void *userdata)
 {
     comb_node_t *node;
 
@@ -379,8 +356,7 @@ static int add_http_source(uvoice_list_t *head, const char *url, int index)
         return -1;
     }
 
-    if (strncmp(url, "http://", strlen("http://")) &&
-        strncmp(url, "https://", strlen("https://")) &&
+    if (strncmp(url, "http://", strlen("http://")) && strncmp(url, "https://", strlen("https://")) &&
         strncmp(url, "fs:", strlen("fs:"))) {
         M_LOGE("url invalid !\n");
         return -1;
@@ -447,8 +423,8 @@ static int __comb_play_url(comb_handler_t *handler)
         return 0;
     }
 
-    uvoice_list_for_each_entry_safe(&handler->url_list, temp,
-            node, url_node_t, list) {
+    uvoice_list_for_each_entry_safe(&handler->url_list, temp, node, url_node_t, list)
+    {
         if (node->url) {
             if (player->set_source(node->url)) {
                 uvoice_list_del(&node->list);
@@ -517,20 +493,19 @@ static void __comb_task(void *arg)
         }
 
         player->get_state(&state);
-        if (state == PLAYER_STAT_RUNNING ||
-            state == PLAYER_STAT_COMPLETE) {
-            #ifdef BUILD_FOR_WTK_PAYBOX
+        if (state == PLAYER_STAT_RUNNING || state == PLAYER_STAT_COMPLETE) {
+#ifdef BUILD_FOR_WTK_PAYBOX
             player->stop();
             player->clr_source();
             player_paused = false;
-            #else
+#else
             player->pause();
             player_paused = true;
-            #endif
+#endif
         }
 
-        uvoice_list_for_each_entry_safe(&handler->list, temp,
-            node, comb_node_t, list) {
+        uvoice_list_for_each_entry_safe(&handler->list, temp, node, comb_node_t, list)
+        {
             if (handler->listplay_stop) {
                 uvoice_list_del(&node->list);
                 snd_free(node);
@@ -545,8 +520,7 @@ static void __comb_task(void *arg)
 
             if (handler->comb_play_state == PLAYER_STAT_LIST_PLAY_STOP) {
                 handler->comb_play_state = PLAYER_STAT_LIST_PLAY_START;
-                uvoice_event_post(UVOICE_EV_PLAYER,
-                        UVOICE_CODE_PLAYER_STATE, handler->comb_play_state);
+                uvoice_event_post(UVOICE_EV_PLAYER, UVOICE_CODE_PLAYER_STATE, handler->comb_play_state);
             }
 
             M_LOGD("play %s, index %d\n", node->source, node->index);
@@ -597,7 +571,7 @@ static void __comb_task(void *arg)
 
             first_buffer = 2;
             while (1) {
-                #if 1
+#if 1
                 ret = os_fread(buffer, 1, buffer_size, fp);
                 if (ret < 0) {
                     M_LOGE("read failed %d!\n", ret);
@@ -606,7 +580,7 @@ static void __comb_task(void *arg)
                     break;
                 }
                 read_size = ret;
-                #else
+#else
                 if (file_size - play_size < buffer_size) {
                     read_size = file_size - play_size;
                     if (read_size <= 0)
@@ -620,7 +594,7 @@ static void __comb_task(void *arg)
                     break;
                 }
                 play_size += read_size;
-                #endif
+#endif
 
                 if (node->index == 0 && first_buffer == 2 && list_play_count > 0 && format == MEDIA_FMT_WAV) {
                     player->put_stream(buffer + 44, read_size - 44);
@@ -667,8 +641,7 @@ static void __comb_task(void *arg)
         player->clr_stream(0);
         stream_open = false;
         handler->comb_play_state = PLAYER_STAT_LIST_PLAY_STOP;
-        uvoice_event_post(UVOICE_EV_PLAYER,
-                UVOICE_CODE_PLAYER_STATE, handler->comb_play_state);
+        uvoice_event_post(UVOICE_EV_PLAYER, UVOICE_CODE_PLAYER_STATE, handler->comb_play_state);
 
         if (handler->listplay_stop) {
             handler->listplay_stop = 0;
@@ -711,14 +684,14 @@ int comb_receipt_play(const char *req)
         return -1;
     }
 
-    root = AMP_cJSON_Parse(req);
-    if (!root || !AMP_cJSON_IsObject(root)) {
+    root = cJSON_Parse(req);
+    if (!root || !cJSON_IsObject(root)) {
         M_LOGE("parse json root failed !\n");
         return -1;
     }
 
-    item = AMP_cJSON_GetObjectItem(root, "Timestamp");
-    if (!item || !AMP_cJSON_IsString(item)) {
+    item = cJSON_GetObjectItem(root, "Timestamp");
+    if (!item || !cJSON_IsString(item)) {
         M_LOGE("receipt timestamp not found !\n");
         cJSON_Delete(root);
         return -1;
@@ -732,24 +705,24 @@ int comb_receipt_play(const char *req)
     }
     M_LOGI("timestamp %d\n", timestamp);
 
-    item = AMP_cJSON_GetObjectItem(root, "Index");
-    if (!item || !AMP_cJSON_IsNumber(item)) {
+    item = cJSON_GetObjectItem(root, "Index");
+    if (!item || !cJSON_IsNumber(item)) {
         M_LOGE("receipt index not found !\n");
         cJSON_Delete(root);
         return -1;
     }
     index = item->valueint;
 
-    item = AMP_cJSON_GetObjectItem(root, "MSG");
-    if (!item || !AMP_cJSON_IsArray(item)) {
+    item = cJSON_GetObjectItem(root, "MSG");
+    if (!item || !cJSON_IsArray(item)) {
         M_LOGE("get receipt object failed !\n");
         cJSON_Delete(root);
         return -1;
     }
 
     for (i = 0; i < cJSON_GetArraySize(item); i++) {
-        sub_item = AMP_cJSON_GetArrayItem(item, i);
-        if (!sub_item || !AMP_cJSON_IsString(sub_item)) {
+        sub_item = cJSON_GetArrayItem(item, i);
+        if (!sub_item || !cJSON_IsString(sub_item)) {
             M_LOGE("parse array item %d failed !\n", i);
             continue;
         }
@@ -764,8 +737,8 @@ int comb_receipt_play(const char *req)
 
     os_mutex_lock(handler->list_lock, OS_WAIT_FOREVER);
     for (i = 0; i < cJSON_GetArraySize(item); i++) {
-        sub_item = AMP_cJSON_GetArrayItem(item, i);
-        if (!sub_item || !AMP_cJSON_IsString(sub_item)) {
+        sub_item = cJSON_GetArrayItem(item, i);
+        if (!sub_item || !cJSON_IsString(sub_item)) {
             M_LOGE("parse array item %d failed !\n", i);
             continue;
         }
@@ -814,14 +787,14 @@ int comb_content_play(const char *req)
         return -1;
     }
 
-    root = AMP_cJSON_Parse(req);
-    if (!root || !AMP_cJSON_IsObject(root)) {
+    root = cJSON_Parse(req);
+    if (!root || !cJSON_IsObject(root)) {
         M_LOGE("parse json root failed !");
         return -1;
     }
 
-    item = AMP_cJSON_GetObjectItem(root, "Timestamp");
-    if (!item || !AMP_cJSON_IsString(item)) {
+    item = cJSON_GetObjectItem(root, "Timestamp");
+    if (!item || !cJSON_IsString(item)) {
         M_LOGE("content timestamp not found !\n");
         cJSON_Delete(root);
         return -1;
@@ -835,16 +808,16 @@ int comb_content_play(const char *req)
     }
     M_LOGI("timestamp %d\n", timestamp);
 
-    item = AMP_cJSON_GetObjectItem(root, "Index");
-    if (!item || !AMP_cJSON_IsNumber(item)) {
+    item = cJSON_GetObjectItem(root, "Index");
+    if (!item || !cJSON_IsNumber(item)) {
         M_LOGE("content index not found !\n");
         cJSON_Delete(root);
         return -1;
     }
     index = item->valueint;
 
-    item = AMP_cJSON_GetObjectItem(root, "URL");
-    if (!item || !AMP_cJSON_IsString(item)) {
+    item = cJSON_GetObjectItem(root, "URL");
+    if (!item || !cJSON_IsString(item)) {
         M_LOGE("get url object failed !\n");
         cJSON_Delete(root);
         return -1;
@@ -936,8 +909,8 @@ int comb_add_file_source_list(comb_source_info_t *info)
     return 0;
 }
 
-int comb_add_file_source_unlock(const char *source, int index,
-    int final, void (*cb)(void *args, int event), void *userdata)
+int comb_add_file_source_unlock(const char *source, int index, int final, void (*cb)(void *args, int event),
+                                void *userdata)
 {
     comb_handler_t *handler = g_comb_handler;
     int ret = 0;
@@ -1044,8 +1017,8 @@ int comb_clr_http_source(void)
     }
 
     os_mutex_lock(handler->url_list_lock, OS_WAIT_FOREVER);
-    uvoice_list_for_each_entry_safe(&handler->url_list, temp,
-            node, url_node_t, list) {
+    uvoice_list_for_each_entry_safe(&handler->url_list, temp, node, url_node_t, list)
+    {
         uvoice_list_del(&node->list);
         snd_free(node->url);
         snd_free(node);
@@ -1107,11 +1080,7 @@ int comb_init(void)
 
     g_comb_handler = handler;
 
-    if (os_task_create(&handler->task, "comb_player_task",
-        __comb_task,
-        handler,
-        8192,
-        UVOICE_TASK_PRI_NORMAL)) {
+    if (os_task_create(&handler->task, "comb_player_task", __comb_task, handler, 8192, UVOICE_TASK_PRI_NORMAL)) {
         M_LOGE("create comb task failed !\n");
         os_mutex_free(handler->list_lock);
         os_mutex_free(handler->url_list_lock);

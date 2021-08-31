@@ -187,6 +187,17 @@ typedef enum {
     WIFI_STORAGE_RAM,    /**< all configuration will only store in the memory */
 } wifi_storage_t;
 
+typedef enum wifi_sec_type_e {
+    SECURITY_TYPE_NONE,       /* Open system. */
+    SECURITY_TYPE_WEP,        /* Wired Equivalent Privacy. WEP security. */
+    SECURITY_TYPE_WPA_TKIP,   /* WPA /w TKIP */
+    SECURITY_TYPE_WPA_AES,    /* WPA /w AES */
+    SECURITY_TYPE_WPA2_TKIP,  /* WPA2 /w TKIP */
+    SECURITY_TYPE_WPA2_AES,   /* WPA2 /w AES */
+    SECURITY_TYPE_WPA2_MIXED, /* WPA2 /w AES or TKIP */
+    SECURITY_TYPE_AUTO,       /* It is used when calling @ref micoWlanStartAdv, MICO read security type from scan result. */
+} wifi_sec_type_t;
+
 typedef struct {
     char* partner;
     char* project;
@@ -264,6 +275,7 @@ typedef struct {
     uint8_t listen_interval; /**  STA's listen interval, default to 0 */
     char bssid[6]; /** indicate Target AP's bssid, default to {0x00, 0x00, 0x00, 0x00, 0x00, 0x00} */
     uint8_t channel;/* set a channel that can speed up a connection procedure, default yo 0*/
+    wifi_sec_type_t sec_type; /* Security type, @ref wlan_sec_type_t */
 } wifi_config_sta_adv_t;
 
 typedef struct {
@@ -377,17 +389,6 @@ typedef struct {
     char    broadcastip[16];
 } wifi_ip_stat_t;
 
-typedef enum wifi_sec_type_e {
-    SECURITY_TYPE_NONE,       /* Open system. */
-    SECURITY_TYPE_WEP,        /* Wired Equivalent Privacy. WEP security. */
-    SECURITY_TYPE_WPA_TKIP,   /* WPA /w TKIP */
-    SECURITY_TYPE_WPA_AES,    /* WPA /w AES */
-    SECURITY_TYPE_WPA2_TKIP,  /* WPA2 /w TKIP */
-    SECURITY_TYPE_WPA2_AES,   /* WPA2 /w AES */
-    SECURITY_TYPE_WPA2_MIXED, /* WPA2 /w AES or TKIP */
-    SECURITY_TYPE_AUTO,       /* It is used when calling @ref micoWlanStartAdv, MICO read security type from scan result. */
-} wifi_sec_type_t;
-
 typedef struct {
     char    ssid[32 + 1];         /* The SSID of an access point. */
     int8_t  ap_power;             /* Received Signal Strength Indication, min: -110, max: 0 */
@@ -395,6 +396,11 @@ typedef struct {
     uint8_t channel;              /* The RF frequency, 1-13 */
     wifi_sec_type_t sec_type;     /* Security type, @ref wlan_sec_type_t */
 } ap_list_t;
+
+typedef struct {
+    int *channel_list; /**< channel list */
+    int channel_num; /**< number of channel that associated with soft-AP */
+} wifi_channel_list_t;
 
 /*
  *  Scan result using normal scan.
@@ -468,7 +474,9 @@ typedef enum
     WIFI_DEV_CMD_START_MGNT_MONITOR,
     WIFI_DEV_CMD_STOP_MGNT_MONITOR,
     WIFI_DEV_CMD_REGISTER_MGNT_MONITOR_CB,
-    WIFI_DEV_CMD_SET_SMARTCFG
+    WIFI_DEV_CMD_SET_SMARTCFG,
+    WIFI_DEV_CMD_SET_CHANNELLIST,
+    WIFI_DEV_CMD_GET_CHANNELLIST,
 
 } rt_wlan_cmd_t;
 

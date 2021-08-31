@@ -14,15 +14,16 @@ mb_status_t rtu_assemble(mb_handler_t *handler)
     mb_status_t status = MB_SUCCESS;
     uint8_t    *send_buf;
 #ifdef DEBUG
-    uint8_t     debug_buf[100];
-    uint8_t     debug_hex[14];
+    uint8_t     debug_buf[256];
+    uint8_t     debug_hex[6];
 #endif
 
-    if (handler->slave_addr == SLAVE_ADDR_BROADCAST) {
-        handler->respond_timeout = 1000;
-    } else {
-        handler->respond_timeout = 200;
-    }
+    // // ?? why we need to fix timeout to 1000/200
+    // if (handler->slave_addr == SLAVE_ADDR_BROADCAST) {
+    //     handler->respond_timeout = 1000;
+    // } else {
+    //     handler->respond_timeout = 200;
+    // }
 
     send_buf = handler->mb_frame_buff;
 
@@ -35,17 +36,17 @@ mb_status_t rtu_assemble(mb_handler_t *handler)
 
 #ifdef DEBUG
     uint32_t debug_len = 0;
-    LOGD(MODBUS_MOUDLE, "start to send data len=%u", (unsigned int)handler->mb_frame_length);
+    LOGD(MODBUS_MOUDLE, "start to send data len=%u, data is: ", (unsigned int)handler->mb_frame_length);
     memset(debug_buf, 0, sizeof(debug_buf));
     for (int i = 0; i < handler->mb_frame_length; i++) {
         debug_len += snprintf(debug_hex, sizeof(debug_hex),"0x%02x ", send_buf[i]);
         if (debug_len >= (sizeof(debug_buf))) {
-            LOGD(MODBUS_MOUDLE, "assemble debug buf is not enough");
+            LOGD(MODBUS_MOUDLE, "assemble debug buf is not enough\n");
             break;
         }
         strncat(debug_buf, debug_hex, sizeof(debug_buf) - strlen(debug_buf) -1);
     }
-    LOGD(MODBUS_MOUDLE, "%s", debug_buf);
+    LOGD(MODBUS_MOUDLE, "%s\n", debug_buf);
 #endif
 
     return status;
@@ -56,7 +57,7 @@ mb_status_t rtu_disassemble(mb_handler_t *handler)
     mb_status_t status = MB_SUCCESS;
     uint8_t    *recv_buf;
 #ifdef DEBUG
-    uint8_t     debug_buf[100];
+    uint8_t     debug_buf[256];
     uint8_t     debug_hex[6];
 #endif
 
@@ -64,17 +65,17 @@ mb_status_t rtu_disassemble(mb_handler_t *handler)
 
 #ifdef DEBUG
     uint32_t debug_len = 0;
-    LOGD(MODBUS_MOUDLE, "rev data len =%u ,data is :", (unsigned int)handler->mb_frame_length);
+    LOGD(MODBUS_MOUDLE, "rev data len =%u, data is :", (unsigned int)handler->mb_frame_length);
     memset(debug_buf, 0, sizeof(debug_buf));
     for (int i = 0; i < handler->mb_frame_length; i++) {
         debug_len += snprintf(debug_hex, sizeof(debug_hex),"0x%02x ", recv_buf[i]);
         if (debug_len >= (sizeof(debug_buf))) {
-            LOGD(MODBUS_MOUDLE, "disassemble debug buf is not enough");
+            LOGD(MODBUS_MOUDLE, "disassemble debug buf is not enough\n");
             break;
         }
         strncat(debug_buf, debug_hex, sizeof(debug_buf) - strlen(debug_buf) -1);
     }
-    LOGD(MODBUS_MOUDLE, "%s", debug_buf);
+    LOGD(MODBUS_MOUDLE, "%s\n", debug_buf);
 #endif
 
     if ((handler->mb_frame_length >= ADU_SER_LENGTH_MIN)
@@ -83,7 +84,7 @@ mb_status_t rtu_disassemble(mb_handler_t *handler)
         handler->pdu_length = handler->mb_frame_length - ADU_SER_PDU_OFF - ADU_SER_LENGTH_CRC;
         handler->pdu_offset = ADU_SER_PDU_OFF;
     } else {
-        LOGE(MODBUS_MOUDLE, "frame is too short or CRC error");
+        LOGE(MODBUS_MOUDLE, "frame is too short or CRC error\n");
         status = MB_RESPOND_FRAME_ERR;
     }
     return status;

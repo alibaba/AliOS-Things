@@ -275,10 +275,15 @@ static int codec_pcm_stream_read(pcm_stream_handler_t hdl, void *buf, unsigned i
             ret = data_dump_read(hdl, tempBuf, len * channel_num);
             for(i = 0; i < ret/frame_size; i++) {
                 for(j = 0; j < sample_bytes; j++) {
-                    /*  MIC阵列数据：MIC1_B1, MIC1_B0, MIC2_B1, MIC2_B0, MIC3_B1, MIC3_B0 ... */
+#if (BOARD_HAASEDUK1 == 1) // for audio expansion board
+                    ((char *)buf)[i * sample_bytes + j] = tempBuf[i * frame_size + j]; // MIC1
+                    // ((char *)buf)[i * sample_bytes + j] = tempBuf[i * frame_size + sample_bytes + j]; // MIC2
+                    // ((char *)buf)[i * sample_bytes + j] = tempBuf[(i+1)*frame_size - sample_bytes + j]; // MIC3*/
+#else
                     // ((char *)buf)[i * sample_bytes + j] = tempBuf[i * frame_size + j]; // MIC1
                     // ((char *)buf)[i * sample_bytes + j] = tempBuf[i * frame_size + sample_bytes + j]; // MIC2
                     ((char *)buf)[i * sample_bytes + j] = tempBuf[(i+1)*frame_size - sample_bytes + j]; // MIC3*/
+#endif
                 }
             }
             ret = ret / channel_num;

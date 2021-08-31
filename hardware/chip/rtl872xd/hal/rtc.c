@@ -268,7 +268,7 @@ int32_t hal_rtc_set_time(rtc_dev_t *rtc, const rtc_time_t *time)
 	timeinfo.tm_mon =time->month;
 	timeinfo.tm_year= time->year;
 
-	timeinfo.tm_yday = get_yday(time);
+	timeinfo.tm_yday = get_yday((rtc_time_t *)time);
 
 	RTC_TimeTypeDef RTC_TimeStruct;
 	

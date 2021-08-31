@@ -33,7 +33,7 @@
 #include "PinNames.h"
 #include "objects.h"
 #include "gpio_irq_api.h"
-
+#include "gpio_api.h"
 
 const static uint8_t gpio_remap[] =
 {
@@ -112,6 +112,8 @@ typedef struct
 } gpio_objs_t;
 
 static gpio_objs_t gpio_objs[GPIO_NUM_PINS];
+
+extern int sys_jtag_off();
 
 void platform_jtag_off(void)
 {

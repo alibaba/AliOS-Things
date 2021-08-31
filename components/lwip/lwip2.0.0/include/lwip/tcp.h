@@ -155,9 +155,9 @@ typedef void  (*tcp_err_fn)(void *arg, err_t err);
 typedef err_t (*tcp_connected_fn)(void *arg, struct tcp_pcb *tpcb, err_t err);
 
 #define TCP_DYNA_WND_MAX(pcb) \
-      (lwip_rcv_wnd_flags == WND_FLAGS_SMALL) ? TCP_SMALL_WND : \
+      ((lwip_rcv_wnd_flags == WND_FLAGS_SMALL) ? TCP_SMALL_WND : \
       ((lwip_rcv_wnd_flags == WND_FLAGS_LARGE) ? TCP_LARGE_WND : \
-       pcb->usr_rcv_wnd == 0 ? TCP_WND : pcb->usr_rcv_wnd)
+      ((pcb->usr_rcv_wnd == 0) ? TCP_WND : pcb->usr_rcv_wnd)))
 
 #if LWIP_WND_SCALE
 #define RCV_WND_SCALE(pcb, wnd) (((wnd) >> (pcb)->rcv_scale))

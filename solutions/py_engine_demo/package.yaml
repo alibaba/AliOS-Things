@@ -8,7 +8,7 @@ type: solution
 solution:
   cpu_id: cpu0
   # board_name: vexpress_a9
-  board_name: haas100
+  board_name: haaseduk1
 ## 第二部分：依赖信息
 #           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
 #           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
@@ -20,6 +20,7 @@ depends:
   - cli: master
   - osal_aos: master
   - haas100: master
+  - haaseduk1: master
   - haas200: master
   - py_engine: master
 

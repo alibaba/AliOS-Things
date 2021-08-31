@@ -52,7 +52,7 @@ void aos_maintask(void *arg)
     board_kinit_init(&kinit);
     aos_components_init(&kinit);
     board_detect();
-#ifdef ENABLE_FACTORY_TEST
+#if (ENABLE_FACTORY_TEST == 1)
     uint8_t image_version[22];
     sprintf(image_version, "VER: %s", BUILD_VERSION);
     printf("\r\n Enter HaaSEDUk1 factorytest model, Version : %s \r\n", image_version);

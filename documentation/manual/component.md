@@ -1,6 +1,6 @@
 @page component 组件介绍
 
-[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/manual/component.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/manual/component.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 组件(Component)是构成Alios Things的基本单元。从系统角度看，除了构建脚本和辅助工具外，一切都是组件；根据组件的应用范围，可以将组件划分为以下三类：
    - BSP组件：指的是./hardware目录下的arch、chip、board三大组件的集合。包含了芯片架构、芯片驱动、板级区别等。

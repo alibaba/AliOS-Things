@@ -1,6 +1,6 @@
 @page auto_demo 智能小车：用钉钉小程序通过HaaS100控制驱动电机示例
 
-[更正文档](https://gitee.com/alios-things/auto_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://g.alicdn.com/alios-things-3.3/doc/contribute_doc.html)
+[更正文档](https://gitee.com/alios-things/auto_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 # 1. 案例简介
 阿里在云栖大会上发布第一款机器人“小蛮驴”，瞬间激起千层浪。
@@ -343,10 +343,10 @@ let device = {
 
 ## 4.3 开发环境搭建、编译、烧入、运行
 ### 4.3.1 AliOS Things开发环境搭建
-开发环境的搭建请参考[《aos-studio使用说明之搭建开发环境》](https://g.alicdn.com/alios-things-3.3/doc/setup_env.html)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
+开发环境的搭建请参考[《AliOS Things集成开发环境使用说明之搭建开发环境》](https://help.aliyun.com/document_detail/302378.html)，其中详细的介绍了AliOS Things 3.3的IDE集成开发环境的搭建流程。
 
 ### 4.3.2 电动小车代码下载
-智能语音播放器的代码下载请参考 [《aos-studio使用说明之创建工程》](https://g.alicdn.com/alios-things-3.3/doc/create_project.html)，其中，
+智能语音播放器的代码下载请参考 [《AliOS Things集成开发环境使用说明之创建工程》](https://help.aliyun.com/document_detail/302379.html)，其中，
 > 选择解决方案: “电动小车案例”
 > 选择开发板: HaaS100
 
@@ -354,9 +354,9 @@ let device = {
 
 编译auto_demo的过程如下：
 
--- 编译固件可参考[《aos-studio使用说明之编译固件》](https://g.alicdn.com/alios-things-3.3/doc/build_project.html)。
+-- 编译固件可参考[《AliOS Things集成开发环境使用说明之编译固件》](https://help.aliyun.com/document_detail/302384.html)。
 
--- 烧录固件可参考[《aos-studio使用说明之烧录固件》](https://g.alicdn.com/alios-things-3.3/doc/burn_image.html)。
+-- 烧录固件可参考[《AliOS Things集成开发环境使用说明之烧录固件》](https://help.aliyun.com/document_detail/302383.html)。
 
 
 ### 4.3.4 运行

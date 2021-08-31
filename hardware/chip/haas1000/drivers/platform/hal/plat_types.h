@@ -15,9 +15,9 @@ extern "C" {
 #define __TCMDATA __attribute__((section(".tcmdata")))
 #define __RAMCODE __attribute__((section(".ramcode")))
 #define __RAMDATA __attribute__((section(".ramdata")))
-#define __PSRAMCODE 
+#define __PSRAMCODE
 #define __PSRAMDATA
-#define __PSRAMBSS 
+#define __PSRAMBSS
 #define __SRAM_EXT_BSS __attribute__((section(".sram_bss")))
 
 #ifdef RESTRICTED_RAM
@@ -155,8 +155,8 @@ typedef unsigned char  UINT8;
 typedef unsigned char  uint8;
 typedef unsigned short UINT16;
 typedef unsigned short uint16;
-typedef unsigned int   UINT32;                                                                                                                                          typedef unsigned int   uint32;                                                                                                                                                                             
-typedef unsigned int   uint32;   
+typedef unsigned int   UINT32;                                                                                                                                          typedef unsigned int   uint32;
+typedef unsigned int   uint32;
 
 typedef  signed char  INT8;
 typedef signed char int8;

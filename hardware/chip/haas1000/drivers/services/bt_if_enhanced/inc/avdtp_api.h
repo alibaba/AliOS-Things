@@ -154,7 +154,7 @@ typedef struct {
     btif_avdtp_codec_type_t codecType;
     uint8_t elemLen;
     uint8_t *elements;
-    uint8_t *pstreamflags; 
+    uint8_t *pstreamflags;
     bool discoverable;
 }__attribute__((packed)) btif_avdtp_codec_t ;
 
