@@ -25,6 +25,7 @@ depends:
   - cplusplus: rel_3.3.0
   - debug: rel_3.3.0
   - fatfs: rel_3.3.0
+  - sh1106: rel_3.3.0
 
 ## 第四部分：编译连接信息
 build_config:                            # <可选项> 编译配置项
