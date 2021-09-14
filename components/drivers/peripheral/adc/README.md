@@ -48,8 +48,14 @@ def_config:
 ```
 
 # API说明
+应用可以选择使用ADC VFS API或者原生的AOS ADC API。
 
-- 参考 [adc_device_api](https://g.alicdn.com/alios-things-3.3/doc/group__adc__device__api.html)
+- ADC VFS API 参考 [adc_device_api](https://g.alicdn.com/alios-things-3.3/doc/group__adc__device__api.html)
+- AOS ADC API 参考 [aos_adc_app_api](https://g.alicdn.com/alios-things-3.3/doc/group__aos__adc__app.html)
+
+芯片驱动对接
+
+- ADC驱动操作API 参考 [aos_adc_driver_api](https://g.alicdn.com/alios-things-3.3/doc/group__aos__adc__driver.html)
 
 # 使用示例
 
@@ -97,6 +103,7 @@ aos install adc
 source_file:
   - "src/*.c"
   - "example/adc_example.c"
+  - "example/aos_adc_example.c"
 ```
 
 ## 步骤5 编译固件
@@ -118,7 +125,7 @@ helloworld_demo案例的固件生成后，可参考[《AliOS Things集成开发�
 **CLI命令行输入：**
 ```shell
 
-adc_example # 执行adc示例
+adc_example # 执行adc vfs api 示例
 
 ```
 
@@ -126,6 +133,20 @@ adc_example # 执行adc示例
 ```shell
 
 vfs adc test success, ret:0
+
+```
+
+**CLI命令行输入：**
+```shell
+
+aos_adc_example # 执行aos adc api 示例
+
+```
+
+> 关键日志：
+```shell
+
+aos adc example test success!
 
 ```
 

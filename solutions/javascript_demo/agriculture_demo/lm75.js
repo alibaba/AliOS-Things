@@ -12,9 +12,14 @@
 */
 
 var i2c = require('i2c');
-var lm75 = i2c.open({
-  id: 'I2C0'
-});
+var lm75 =
+
+function lm75Init()
+{
+    lm75 = i2c.open({
+        id: 'I2C0'
+    });
+}
 
 function lm75tmpGet()
 {
@@ -34,3 +39,7 @@ function lm75tmpGet()
     return temp;
 }
 
+module.exports = {
+    lm75Init,
+    lm75tmpGet
+}

@@ -163,12 +163,15 @@ source_file:
 #  - aos/ota_port.c
   - CheckSumUtils.c
 
-  - csi_driver/iic/iic.c
+  - csi_driver/adc/adc.c
   - csi_driver/gpio/gpio.c
+  - csi_driver/iic/iic.c
+  - csi_driver/pwm/pwm.c
+  - csi_driver/spi/spi.c
   - csi_driver/spiflash/spiflash.c
+  - csi_driver/timer/timer.c
   - csi_driver/uart/uart.c
   - csi_driver/wdt/wdt.c
-  - csi_driver/timer/timer.c
 
   - hal/wifi_port.c ? <CONFIG_WIFI>
   - hal/adc.c
@@ -269,6 +272,7 @@ def_config:
   CONFIG_WIFI: 1
   MBEDTLS_CONFIG_CRYPTO_ECP: 1
   CONFIG_U_FLASH_CORE: 1
+  CONFIG_U_ADC_CORE: 1
 
   # __FPU_PRESENT: 1
   # CMSIS_DSP_LIB: 1

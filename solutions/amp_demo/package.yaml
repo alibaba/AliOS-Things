@@ -19,12 +19,14 @@ solution:
 depends:
   - cli: rel_3.3.0
   - osal_aos: rel_3.3.0
+  - amp: rel_3.3.0
+  - debug: rel_3.3.0
+
+# supported_boards 中记录当前组件能支持的所有板子
+supported_boards:
   - haas100: rel_3.3.0
   - haas200: rel_3.3.0
   - haaseduk1: rel_3.3.0
-  - amp: rel_3.3.0
-  - debug: rel_3.3.0
-  # - vexpress_a9: rel_3.3.0
 
 ## 第三部分：板级信息
 # hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段

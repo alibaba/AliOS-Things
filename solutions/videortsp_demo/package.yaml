@@ -3,3 +3,13 @@ version: rel_3.3.0                                    # <必选项> 组件版本
 description: Video RTSP stream demo example.        # <必选项> 建议至少20字以上
 type: solution                                      # <必选项> 组件类型，为：solution, chip, board, common
 tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
+
+solution:
+  cpu_id: cpu0
+  board_name: haas700
+
+# supported_boards 中记录当前组件能支持的所有板子
+supported_boards:
+  - haas700: rel_3.3.0
+
+hw_info:

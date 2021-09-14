@@ -1,36 +1,34 @@
 
 ## 第一部分： 基础信息
-name: ota_demo                                      # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                    # <必选项> 组件版本号
-description: 远程升级功能（OTA）的使用例程，用户可以通过此用例验证固件升级等功能;
-type: solution                                      # <必选项> 组件类型，为：solution, board, chip, arch, drv_core, drv_peripheral, drv_external_device, kernel, common, sdk, document
+name: haas_dev_demo                               # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: rel_3.3.0                                     # <必选项> 组件版本号
+description: 支持JavaScript和Python两套轻应用框架，用户可通过命令行切入所需运行环境    # <必选项> 建议至少20字以上
+type: solution                                      # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
+
+solution:
+  cpu_id: cpu0
+  board_name: haas100
 
 ## 第二部分：依赖信息
-#           指定该组件依赖的组件及版本，未来版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
-#           目前仅支持指定某一个版本，如 v1.0 与 ==v1.0
-#           依赖还可以包含条件，条件可以不定义(即false)；也可以是组件（该组件或其它组件）里的def_config里的宏，且取值为0(即false)，1(即true)
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
 # depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
-#   - minilibc: 'v7.2.0'
-#   - aos: 'v7.2.0 ? <ENABLE_AOS>'
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
 depends:
-  - ota: rel_3.3.0
-  - cjson: rel_3.3.0
+  - init: rel_3.3.0
   - cli: rel_3.3.0
-  - netmgr: rel_3.3.0
-  - lwip: rel_3.3.0
-  - netmgr: rel_3.3.0
-  - ulog: rel_3.3.0
-  - uservice: rel_3.3.0
-  - wifi: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - linksdk: rel_3.3.0
+  - osal_aos: rel_3.3.0
+  - amp: rel_3.3.0
+  - py_engine: rel_3.3.0
 
 # supported_boards 中记录当前组件能支持的所有板子
 supported_boards:
   - haas100: rel_3.3.0
   - haas200: rel_3.3.0
   - haaseduk1: rel_3.3.0
+  # - vexpress_a9: rel_3.3.0
 
 ## 第三部分：板级信息
 # hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段
@@ -86,9 +84,6 @@ supported_boards:
 #     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
 #     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
 #     toolchain_prefix: csky-abiv2-elf     # <可选项> 编译器前缀
-solution:
-  cpu_id: cpu0
-  board_name: haas100
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -113,20 +108,20 @@ solution:
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
   - "maintask.c"
-  - "otaappdemo.c"
+  - "haas_dev_demo.c"
 
 ## 第五部分：配置信息
-# def_config:                              # 组件的可配置项
+def_config:                              # 组件的可配置项
+    CLI_IOBOX_ENABLE : 1
+    MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN: 16384 # 增大SSL最大content size，避免播放URL异常
+    CONFIG_A7_DSP_ENABLE: 1                  # 使能HaaS100音频驱动开关
 #   CONFIG_DEBUG: y
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y
-def_config:
-  OTA_DEMO_CONFIG_TEST_LOOP: 1
-  CLI_IOBOX_ENABLE: 1        # 使能文件系统
 
 ## 第六部分：安装信息
 # install:
-#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于AOS SDK 安装目录
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
 #     source:                              # 安装源列表
 #      - src/*.h                           # 支持通配符，相对路径
 

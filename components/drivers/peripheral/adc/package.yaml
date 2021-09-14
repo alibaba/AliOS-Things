@@ -50,6 +50,8 @@ source_file:
 
 # ADC
   - src/adc_dev.c ? <CONFIG_U_ADC_DEV>
+  - src/adc.c ? <CONFIG_U_ADC_CORE>
+  - src/adc_csi.c ? <CONFIG_U_ADC_CORE>
 
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项

@@ -15,7 +15,6 @@ solution:
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - haaseduk1: rel_3.3.0
   - osal_aos: rel_3.3.0
   - cli: rel_3.3.0
   - ai_agent: rel_3.3.0
@@ -26,6 +25,10 @@ depends:
   - debug: rel_3.3.0
   - fatfs: rel_3.3.0
   - sh1106: rel_3.3.0
+
+# supported_boards 中记录当前组件能支持的所有板子
+supported_boards:
+  - haaseduk1: rel_3.3.0
 
 ## 第四部分：编译连接信息
 build_config:                            # <可选项> 编译配置项

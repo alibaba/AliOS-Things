@@ -15,7 +15,6 @@ solution:
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - haaseduk1: rel_3.3.0
   - linksdk: rel_3.3.0
   - mbedtls: rel_3.3.0
   - netmgr: rel_3.3.0
@@ -32,6 +31,10 @@ depends:
   - ble_netconfig: rel_3.3.0
   - debug: rel_3.3.0
   - sh1106: rel_3.3.0
+
+# supported_boards 中记录当前组件能支持的所有板子
+supported_boards:
+  - haaseduk1: rel_3.3.0
 
 def_config:
     CONFIG_A7_DSP_ENABLE: 1    # 必须：使能HaaSEDU K1音频驱动开关

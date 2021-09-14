@@ -17,13 +17,17 @@ solution:
 
 depends:                                       # 该组件依赖其他的组件
   - linksdk: rel_3.3.0
-  - haas100: rel_3.3.0
   - mbedtls: rel_3.3.0
   - netmgr: rel_3.3.0
   - lwip: rel_3.3.0
   - uservice: rel_3.3.0
   - wifi: rel_3.3.0
   - cli: rel_3.3.0
+
+# supported_boards 中记录当前组件能支持的所有板子
+supported_boards:
+  - haas100: rel_3.3.0
+
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项
   CLI_IOBOX_ENABLE: 1        # 使能文件系统

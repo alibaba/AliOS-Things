@@ -15,7 +15,6 @@ solution:
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - haas100: rel_3.3.0
   - netmgr: rel_3.3.0
   - osal_aos: rel_3.3.0
   - cli: rel_3.3.0
@@ -29,6 +28,10 @@ depends:
   - ili9341: rel_3.3.0
   - lwip: rel_3.3.0
   - wifi: rel_3.3.0
+
+# supported_boards 中记录当前组件能支持的所有板子
+supported_boards:
+  - haas100: rel_3.3.0
 
 # build_config:
 #   include:
