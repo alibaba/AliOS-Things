@@ -443,7 +443,7 @@ static vfs_dirent_t *fatfs_vfs_readdir(vfs_file_t *fp, vfs_dir_t *dir)
         return NULL;
     }
 
-    dp->cur_dirent.d_ino = 0;
+    memset(&dp->cur_dirent, 0, sizeof(vfs_dirent_t));
     if (dp->filinfo.fattrib & AM_DIR) {
         dp->cur_dirent.d_type = AM_DIR;
     }

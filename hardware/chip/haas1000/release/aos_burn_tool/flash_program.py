@@ -66,6 +66,24 @@ def save_config(config):
         configs['chip_haas1000'] = config
         write_json(config_file, configs)
 
+def check_uart(portnum, baudrate):
+    serialport = serial.Serial()
+    serialport.port = portnum
+    serialport.baudrate = baudrate
+    serialport.parity   = "N"
+    serialport.bytesize = 8
+    serialport.stopbits = 1
+    serialport.timeout  = 1
+
+    try:
+        serialport.open()
+    except Exception as e:
+        print("check_uart open serialport: %s error " % portnum)
+        return False
+
+    serialport.close()
+    return True
+
 def main():
     # step 1: get binary file
     needsave = False
@@ -87,6 +105,9 @@ def main():
             return
         else:
             needsave = True
+
+    while check_uart(myconfig["serialport"], myconfig['baudrate']) == False:
+        myconfig["serialport"] = miniterm.ask_for_port()
 
     print("serial port is %s" % myconfig["serialport"])
     print("the settings were restored in the file %s" % os.path.join(os.getcwd(), '.config_burn'))

@@ -19,12 +19,14 @@ solution:
 depends:
   - cli: master
   - osal_aos: master
+  - amp: master
+  - debug: master
+
+# supported_boards 中记录当前组件能支持的所有板子
+supported_boards:
   - haas100: master
   - haas200: master
   - haaseduk1: master
-  - amp: master
-  - debug: master
-  # - vexpress_a9: master
 
 ## 第三部分：板级信息
 # hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段

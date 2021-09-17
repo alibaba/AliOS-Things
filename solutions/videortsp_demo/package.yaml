@@ -8,4 +8,8 @@ solution:
   cpu_id: cpu0
   board_name: haas700
 
+# supported_boards 中记录当前组件能支持的所有板子
+supported_boards:
+  - haas700: master
+
 hw_info:

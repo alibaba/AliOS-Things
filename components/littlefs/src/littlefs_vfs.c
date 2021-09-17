@@ -696,12 +696,10 @@ static int32_t _lfs_init(void)
         g_lfs_manager[i]->part = _lfs_parttion[i];
 
         if (i == 0) {
-            g_lfs_manager[i]->part = HAL_PARTITION_LITTLEFS;
             g_lfs_manager[i]->mountpath = CONFIG_LFS_MOUNTPOINT;
         }
 #if defined(CONFIG_MULTI_FS)
         else {
-            g_lfs_manager[i]->part = HAL_PARTITION_LITTLEFS2;
             g_lfs_manager[i]->mountpath = CONFIG_LFS_MOUNTPOINT2;
         }
 #endif /* CONFIG_MULTI_FS */
