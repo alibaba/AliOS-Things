@@ -15,13 +15,16 @@ solution:
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - haas100: master
   - osal_aos: master
   - cli: master
   - cjson: master
   - uvoice: master
   - a2sa: master
   - ai_agent: master
+
+# supported_boards 中记录当前组件能支持的所有板子
+supported_boards:
+  - haas100: master
 
 # build_config:
 #   include:

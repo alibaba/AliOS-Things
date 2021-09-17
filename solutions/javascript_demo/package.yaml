@@ -5,12 +5,14 @@ version: master                                     # <必选项> 组件版本�
 description: javascript demo code                   # <必选项> 建议至少20字以上
 type: solution                                      # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
+# supported_boards 中记录当前组件能支持的所有板子
+supported_boards:
+  - haas100: master
+  - haas600: master
+  - haaseduk1: master
+
 solution:
   cpu_id: cpu0
   board_name: haas600
 
-hw_info: 
-
-
-
-
+hw_info:

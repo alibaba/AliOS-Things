@@ -19,17 +19,17 @@ depends:
   - init: master
   - cli: master
   - osal_aos: master
-  - haas100: master
-  - haaseduk1: master
-  - haas200: master
   - py_engine: master
 
-# build_config:
-#   include:
-
+# supported_boards 中记录当前组件能支持的所有板子
+supported_boards:
+  - haas100: master
+  - haas200: master
+  - haaseduk1: master
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
+  # prebuild_script: cp_solutions_res.py
 #   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
 #     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
 #   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
@@ -46,6 +46,7 @@ depends:
 #     - yyy                                #   -lyyy
 #   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
 #     - libs                               #   -Llibs
+
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件

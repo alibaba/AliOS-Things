@@ -22,6 +22,7 @@ mb_status_t mbmaster_main_type1_process(mb_handler_t *req_handler, uint8_t funct
         case FUNC_CODE_READ_DISCRETE_INPUTS:
             /* The modubs protocol limits the maximum number of reads */
             if ((quantity < 1) || (quantity > QUANTITY_MAX_FUNC01)) {
+                MB_MUTEX_UNLOCK(&req_handler->mb_mutex);
                 return MB_INVALID_PARAM;
             }
             status = pdu_type122_assemble(req_handler, function_code, start_addr, quantity);
@@ -30,6 +31,7 @@ mb_status_t mbmaster_main_type1_process(mb_handler_t *req_handler, uint8_t funct
         case FUNC_CODE_READ_INPUT_REGISTERS:
             /* The modubs protocol limits the maximum number of reads */
             if ((quantity < 1) || (quantity > QUANTITY_MAX_FUNC01)) {
+                MB_MUTEX_UNLOCK(&req_handler->mb_mutex);
                 return MB_INVALID_PARAM;
             }
             status = pdu_type122_assemble(req_handler, function_code, start_addr, quantity);
@@ -92,6 +94,7 @@ mb_status_t mbmaster_main_type2_process(mb_handler_t *req_handler, uint8_t funct
         case FUNC_CODE_WRITE_SINGLE_COIL:
             if ((register_value != 0) && (register_value != 0xFF00)) {
                 status = MB_INVALID_PARAM;
+                MB_MUTEX_UNLOCK(&req_handler->mb_mutex);
                 return status;
             }
             status = pdu_type122_assemble(req_handler, function_code, register_addr, register_value);
