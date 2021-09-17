@@ -10,3 +10,9 @@ supported_boards:
   - haas100: rel_3.3.0
   - haas600: rel_3.3.0
   - haaseduk1: rel_3.3.0
+
+solution:
+  cpu_id: cpu0
+  board_name: haas600
+
+hw_info:
