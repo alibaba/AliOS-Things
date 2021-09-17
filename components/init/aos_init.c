@@ -33,11 +33,6 @@
 #include "fatfs.h"
 #endif
 
-#ifdef TFTP_ENABLED
-#include "lwip/ip_addr.h"
-#include "lwip/apps/tftp.h"
-#endif
-
 #if AOS_COMP_DEBUG
 #include "aos/debug.h"
 #endif
@@ -126,53 +121,8 @@ static void udp_cmd(char *buf, int len, int argc, char **argv)
     close(sockfd);
 }
 
-#ifdef TFTP_ENABLED
-static void tftp_get_done(int error, int len)
-{
-    if (error == 0) {
-        aos_cli_printf("tftp client get succeed\r\n", len);
-    } else {
-        aos_cli_printf("tftp client get failed\r\n");
-    }
-}
-
-extern tftp_context_t client_ctx;
-void ota_get_done(int error, int len);
-static void tftp_cmd(char *buf, int len, int argc, char **argv)
-{
-    if (argc < 3) {
-        goto tftp_print_usage;
-    }
-
-    if (strncmp(argv[1], "server", 6) == 0) {
-        if (strncmp(argv[2], "start", 5) == 0) {
-            err_t err = tftp_server_start();
-            aos_cli_printf("tftp start server %s\r\n", err == ERR_OK ? "done" : "failed");
-            return;
-        } else if (strncmp(argv[2], "stop", 4) == 0) {
-            tftp_server_stop();
-            aos_cli_printf("tftp stop server done\r\n");
-            return;
-        }
-        goto tftp_print_usage;
-    } else if (strncmp(argv[1], "get", 3) == 0) {
-        ip_addr_t dst_addr;
-        ipaddr_aton(argc == 4 ? argv[2] : "10.0.0.2", &dst_addr);
-        tftp_client_get(&dst_addr, argv[argc - 1], &client_ctx, tftp_get_done);
-        return;
-    }
-
-tftp_print_usage:
-    aos_cli_printf("Usage: tftp server start/stop\r\n");
-    aos_cli_printf("       tftp get path/to/file\r\n");
-}
-#endif /* TFTP_ENABLED */
-
 struct cli_command  tcpip_cli_cmd[] = {
     /* net */
-#ifdef TFTP_ENABLED
-    {"tftp",        "tftp server/client control", tftp_cmd},
-#endif /* TFTP_ENABLED */
     {"udp",         "[ip] [port] [string data] send udp data", udp_cmd},
 };
 
