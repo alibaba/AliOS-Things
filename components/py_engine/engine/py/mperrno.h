@@ -30,7 +30,9 @@
 
 #if MICROPY_USE_INTERNAL_ERRNO
 
+// Modified bt HaaS begin
 #include <errno.h>
+// Modified bt HaaS end
 
 // MP_Exxx errno's are defined directly as numeric values
 // (Linux constants are used as a reference)
@@ -83,6 +85,7 @@
 #define MP_EHOSTUNREACH     (113) // No route to host
 #define MP_EALREADY         (114) // Operation already in progress
 #define MP_EINPROGRESS      (115) // Operation now in progress
+#define MP_ECANCELED        (125) // Operation canceled
 
 #else
 
@@ -138,6 +141,7 @@
 #define MP_EHOSTUNREACH     EHOSTUNREACH
 #define MP_EALREADY         EALREADY
 #define MP_EINPROGRESS      EINPROGRESS
+#define MP_ECANCELED        ECANCELED
 
 #endif
 

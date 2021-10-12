@@ -15,14 +15,14 @@
 
 #define MOD_STR "SYSTEM"
 
-extern const char *amp_jsapp_version_get(void);
+extern const char *aos_userjs_version_get(void);
 static JSClassID js_system_class_id;
 
 static JSValue native_module_versions(JSContext *ctx, JSValueConst this_val,
                                       int argc, JSValueConst *argv)
 {
     JSValue t = JS_NewObject(ctx);
-    const char *version = aos_get_system_version();
+    const char *version = aos_kernel_version_get();
 
     JS_SetPropertyStr(ctx, t, "module", JS_NewStringLen(ctx, version, strlen(version)));
     return t;
@@ -31,22 +31,39 @@ static JSValue native_module_versions(JSContext *ctx, JSValueConst this_val,
 static JSValue native_system_version(JSContext *ctx, JSValueConst this_val,
                                        int argc, JSValueConst *argv)
 {
-    const char *version = aos_get_system_version();
-    if (strlen(version) == 0)
-        version = "null";
+    const char *version =  aos_system_version_get();
 
     return JS_NewStringLen(ctx, version, strlen(version));
 }
 
-static JSValue native_system_app_version(JSContext *ctx, JSValueConst this_val,
+static JSValue native_system_userjs_version(JSContext *ctx, JSValueConst this_val,
                                            int argc, JSValueConst *argv)
 {
-//    const char *version = amp_jsapp_version_get();  /* App mgr is currently not enabled */
-    const char *version = "0.0.1";
-    if (strlen(version) == 0)
-        version = "null";
+   const char *version = aos_userjs_version_get();
+
     return JS_NewStringLen(ctx, version, strlen(version));
 }
+
+static JSValue native_get_system_info(JSContext *ctx, JSValueConst this_val,
+                                      int argc, JSValueConst *argv)
+{
+    JSValue t = JS_NewObject(ctx);
+    const char *userjs_version = aos_userjs_version_get();
+    const char *app_version = aos_app_version_get();
+    const char *kernel_version = aos_kernel_version_get();
+    const char *system_version = aos_system_version_get();
+    const char *build_time = aos_system_build_time();
+    const char *module_hardware = aos_hardware_version_get();
+
+    JS_SetPropertyStr(ctx, t, "userjsVersion", JS_NewStringLen(ctx, userjs_version, strlen(userjs_version)));
+    JS_SetPropertyStr(ctx, t, "appVersion", JS_NewStringLen(ctx, app_version, strlen(app_version)));
+    JS_SetPropertyStr(ctx, t, "kernelVersion", JS_NewStringLen(ctx, kernel_version, strlen(kernel_version)));
+    JS_SetPropertyStr(ctx, t, "systemVersion", JS_NewStringLen(ctx, system_version, strlen(system_version)));
+    JS_SetPropertyStr(ctx, t, "buildTime", JS_NewStringLen(ctx, build_time, strlen(build_time)));
+    JS_SetPropertyStr(ctx, t, "hardwareVersion", JS_NewStringLen(ctx, module_hardware, strlen(module_hardware)));
+    return t;
+}
+
 
 static JSValue native_system_platform(JSContext *ctx, JSValueConst this_val,
                                         int argc, JSValueConst *argv)
@@ -136,11 +153,13 @@ void module_system_register(void)
 
     system = JS_NewObject(ctx);
     JS_SetPropertyStr(ctx, system, "versions",
-                      JS_NewCFunction(ctx, native_module_versions, "verisons", 0));
+                      JS_NewCFunction(ctx, native_module_versions, "versions", 0));
     JS_SetPropertyStr(ctx, system, "version",
-                      JS_NewCFunction(ctx, native_system_version, "verison", 0));
+                      JS_NewCFunction(ctx, native_system_version, "version", 0));
     JS_SetPropertyStr(ctx, system, "appversion",
-                      JS_NewCFunction(ctx, native_system_app_version, "appverison", 0));
+                      JS_NewCFunction(ctx, native_system_userjs_version, "appversion", 0));
+    JS_SetPropertyStr(ctx, system, "getSystemInfo",
+                      JS_NewCFunction(ctx, native_get_system_info, "getSystemInfo", 0));
     JS_SetPropertyStr(ctx, system, "platform",
                       JS_NewCFunction(ctx, native_system_platform, "platform", 0));
     JS_SetPropertyStr(ctx, system, "uptime",

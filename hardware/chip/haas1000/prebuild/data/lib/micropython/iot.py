@@ -30,34 +30,51 @@ class Device(object):
 
     初始化物联网平台Device类，获取device实例
 
-    **入参**
+    :param data(dict): data字典的key信息如下
 
-    data类型是字典，字典的key信息如下
+        .. list-table::
 
-        - deviceName : 物联网平台上注册的设备名称，必选
-        - deviceSecret : 物联网平台上注册的设备秘钥，必选
-        - productKey : 物联网平台上注册的productKey，必选
-        - productSecret : 物联网平台上注册的productSecret，可选
-         - region : 默认值是cn-shanghai，可选
+            * - 属性
+              - 类型
+              - 是否必填
+              - 说明
+            * - deviceName
+              - 字符串
+              - Y
+              - 物联网平台上注册的设备名称
+            * - deviceSecret
+              - 字符串
+              - Y
+              - 物联网平台上注册的deviceSecret
+            * - productKey
+              - 字符串
+              - Y
+              - 物联网平台上注册的productKey      
+            * - productSecret
+              - 字符串
+              - 可选
+              - 物联网平台上注册的productSecret
+            * - region
+              - 字符串
+              - 可选
+              - 默认值是'cn-shanghai'    
 
+        使用示例::
 
+            import iot
 
-    使用示例::
-
-         import iot
-
-         productKey = "a1uTFk4xjko"
-         productSecret = "xxxxxxx"
-         deviceName  =    "mpy_001"
-         deviceSecret  =   "xxxxxxxxxxxxxxx"
-         key_info = {
-            'region' : 'cn-shanghai' ,
-            'productKey': productKey ,
-            'deviceName': deviceName ,
-            'deviceSecret': deviceSecret ,
-            'productSecret': productSecret
-         }
-         device = iot.Device(key_info)
+            productKey = "a1uTFk4xjko"
+            productSecret = "xxxxxxx"
+            deviceName  =    "mpy_001"
+            deviceSecret  =   "xxxxxxxxxxxxxxx"
+            key_info = {
+                'region' : 'cn-shanghai' ,
+                'productKey': productKey ,
+                'deviceName': deviceName ,
+                'deviceSecret': deviceSecret ,
+                'productSecret': productSecret
+            }
+            device = iot.Device(key_info) 
 
 
 
@@ -126,50 +143,55 @@ class Device(object):
         """
         通过这个函数，可以设置物联网平台各种事件的处理函数，函数接收两个参数分别是事件名称和事件处理函数
 
-        - 事件: 'connect'
+        :param event(str)): 需要注册的事件名称，类型是字符串
 
-        当iot设备连接到物联网平台的时候触发connect 事件
+            .. list-table::
 
-        事件处理函数示例::
+                * - 事件名称
+                  - 事件说明
+                * - connect
+                  - 当iot设备连接到物联网平台的时候触发'connect' 事件
+                * - disconnect
+                  - 当连接断开时，触发'disconnect'事件
+                * - props
+                  - 当iot云端下发属性设置时，触发'props'事件
+                * - service
+                  - 当iot云端调用设备service时，触发'service'事件
+                * - error
+                  - 当设备跟iot平台通信过程中遇到错误时，触发'error'事件
+
+        :param callback: 回调函数
+
+        使用示例::
 
             def on_connect():
                 print('linkkit is connected')
-
-        - 事件: 'disconnect'
-
-        当连接断开时，触发'disconnect'事件
-
-        事件处理函数示例::
+            
+            device.on('connect',on_connect)
 
             def on_disconnect():
                 print('linkkit is disconnected')
 
-        - 事件: 'props'
-
-        当iot云端下发属性设置时，触发props事件
-
-        事件处理函数示例::
+            device.on('disconnect',on_disconnect)
 
             def on_props(request):
                 print('clound req data is %s' %(request))
 
-        - 事件: 'service'
+            device.on('props',on_props)
 
-        当iot云端调用设备service时，触发service事件
-
-        事件处理函数示例::
 
             def on_service(id,request):
                 print('clound req id  is %d , req is %s' %(id,request))
 
-        - 事件: 'error'
+            device.on('service',on_service)
 
-        当设备跟iot平台通信过程中遇到错误时，触发error事件
-
-        事件处理函数示例::
 
             def on_error(err):
                 print('err msg is %s '%(err))
+
+            device.on('error',on_error)
+
+
         """
 
         # if not callable(callback):
@@ -224,14 +246,21 @@ class Device(object):
         """
         上报设备属性
 
-        **入参**
 
-        data类型是字典，字典的key信息如下
+        :param data(dict): 字典的key信息如下
 
-            - params : 必选，值是字典
+            .. list-table::
+
+                  * - 属性
+                    - 类型
+                    - 是否必填
+                    - 说明
+                  * - params
+                    - 字典
+                    - Y
+                    - 属性的值对应的是物联网平台的json数据                    
 
         使用示例::
-
 
             data = {
                 'params': {
@@ -239,7 +268,6 @@ class Device(object):
                 }
             }
             device.postProps(data)
-
 
         """
         if not isinstance(data, dict):
@@ -255,12 +283,22 @@ class Device(object):
         """
         上报设备的事件
 
-        **入参**
+        :param data(dict): 字典的key信息如下
 
-        data类型是字典，字典的key信息如下
+            .. list-table::
 
-            - params : 必选，值是字典
-            - id : 必选，事件名称，请参考物模型上定义的事件id
+                  * - 属性
+                    - 类型
+                    - 是否必填
+                    - 说明
+                  * - params
+                    - 字典
+                    - Y
+                    - 属性的值对应的是物联网平台的json数据       
+                  * - id
+                    - 字符串
+                    - Y
+                    - 事件名称，请参考物模型上定义的事件id                      
 
         使用示例::
 

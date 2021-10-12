@@ -1,11 +1,11 @@
 
 ## 第一部分： 基础信息
-name: haas100                                  # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+name: haas100                                      # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
 version: rel_3.3.0                                   # <必选项> 组件版本号
-description: YunVoice CPU0 board configure.         # <必选项> 建议至少20字以上
-type: board                                         # <必选项> 组件类型，为：solution, chip, board, common
+description: HaaS 100 board configure.             # <必选项> 建议至少20字以上
+type: board                                        # <必选项> 组件类型，为：solution, chip, board, common
 
-tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
+tag: 核心模块                                      # <可选项> 组件分类，缺省值： ''
 
 ## 第二部分：依赖信息
 #           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
@@ -14,8 +14,7 @@ tag: 核心模块                                       # <可选项> 组件分�
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - libc_stub: rel_3.3.0   
-  - armv7m: rel_3.3.0
+  - libc_stub: rel_3.3.0
   - haas1000: rel_3.3.0
   - init: rel_3.3.0
   - ulog: rel_3.3.0
@@ -67,7 +66,7 @@ source_file:
   - "drivers/ch395_spi.c"
   - drivers/ch395_cmd.c
   - drivers/ch395_lwip.c
-#cflags: -DCHIP_BEST2001 -DCHIP_HAS_UART=3 -DRESAMPLE_ANY_SAMPLE_RATE -DCHIP_HAS_TRANSQ -DRTOS=1 -DCQ_FUNC_ATTR= -DDEBUG=1 -DPERSIST_DATA_SECTION_SIZE=0x1000 
+#cflags: -DCHIP_BEST2001 -DCHIP_HAS_UART=3 -DRESAMPLE_ANY_SAMPLE_RATE -DCHIP_HAS_TRANSQ -DRTOS=1 -DCQ_FUNC_ATTR= -DDEBUG=1 -DPERSIST_DATA_SECTION_SIZE=0x1000
 #        -DSYSINFO_OS_VERSION="v3.1" -DSYSINFO_PRODUCT_MODEL="ALI_AOS_HAAS100" -DSYSINFO_DEVICE_NAME="HAAS100" -DSYSINFO_ARCH="Cortex-M4F" -DSYSINFO_MCU="mcu_haas1000" -DSYSINFO_BOARD="haas100" -DOS_CLOCK_NOMINAL=16000
 
 ## 第五部分：配置信息

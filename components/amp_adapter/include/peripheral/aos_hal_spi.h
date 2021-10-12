@@ -117,7 +117,7 @@ int32_t aos_hal_spi_init(spi_dev_t *spi);
  *
  * @return  0 : on success,  otherwise is error
  */
-int32_t aos_hal_spi_send(spi_dev_t *spi, const uint8_t *data, uint16_t size, uint32_t timeout);
+int32_t aos_hal_spi_send(spi_dev_t *spi, const uint8_t *data, uint32_t size, uint32_t timeout);
 
 /**
  * spi_recv
@@ -130,23 +130,22 @@ int32_t aos_hal_spi_send(spi_dev_t *spi, const uint8_t *data, uint16_t size, uin
  *
  * @return  0 : on success,  otherwise is error
  */
-int32_t aos_hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t timeout);
+int32_t aos_hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint32_t size, uint32_t timeout);
 
 
 /**
  * spi send data and recv
  *
  * @param[in]  spi      the spi device
- * @param[in]  tx_data  spi send data
+ * @param[in]  tx_data  spi send data, only 1 byte
  * @param[out] rx_data  spi recv data
- * @param[in]  size     spi data to be sent and recived
+ * @param[in]  rx_size  spi data to be recived
  * @param[in]  timeout  timeout in milisecond, set this value to HAL_WAIT_FOREVER
  *                      if you want to wait forever
  *
  * @return  0, on success,  otherwise is error
  */
-int32_t aos_hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint8_t *rx_data,
-                          uint16_t size, uint32_t timeout);
+int32_t aos_hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint8_t *rx_data, uint32_t rx_size, uint32_t timeout);
 
 /**
  * spi send data and then recv data

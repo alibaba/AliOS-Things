@@ -73,15 +73,12 @@ int timer_device_ioctl (file_t *f, int cmd, unsigned long arg) {
                 ret = hal_timer_init(timer_dev);
             } else {
                 ret = hal_timer_para_chg(timer_dev, *config);
-
-                /* restart it if enable timer reload function */
-                if (alarm->auto_reload) {
-                    hal_timer_stop(timer_dev);
-                    ret = hal_timer_start(timer_dev);
-                    vt->started = ret ? false : true;
-                    if (ret) {
-                        ddkc_err("restart timer failed， ret:%d\r\n", ret);
-                    }
+                /* restart it */
+                hal_timer_stop(timer_dev);
+                ret = hal_timer_start(timer_dev);
+                vt->started = ret ? false : true;
+                if (ret) {
+                    ddkc_err("restart timer failed， ret:%d\r\n", ret);
                 }
             }
 
@@ -92,16 +89,13 @@ int timer_device_ioctl (file_t *f, int cmd, unsigned long arg) {
 
         case IOC_TIMER_RELOAD:
             ddkc_dbg("IOC_TIMER_RELOAD\r\n");
-
             config = &timer_dev->config;
-            config->reload_mode = (arg ? TIMER_RELOAD_AUTO : TIMER_RELOAD_MANU);
             ret = hal_timer_para_chg(timer_dev, *config);
             if (ret) {
                 ddkc_err("start timer failed, ret:%d\r\n", ret);
             }
-
-            /* restart it if enable timer reload function */
-            if (arg && vt->started) {
+            /* restart it if it was started */
+            if (vt->started) {
                 hal_timer_stop(timer_dev);
                 ret = hal_timer_start(timer_dev);
                 vt->started = ret ? false : true;
@@ -110,7 +104,6 @@ int timer_device_ioctl (file_t *f, int cmd, unsigned long arg) {
                 }
             }
             break;
-
         case IOC_TIMER_IRQP_GET:
             ddkc_dbg("IOC_TIMER_IRQP_GET\r\n");
 

@@ -15,12 +15,12 @@ import platform
 
 
 home_path = os.path.expanduser("~")
-toolchain_path = os.path.join(home_path, ".aliot", "arm-none-eabi", "main", "bin")
-objcopy = os.path.join(toolchain_path, "arm-none-eabi-objcopy")
-nm = os.path.join(toolchain_path, "arm-none-eabi-nm")
-strip = os.path.join(toolchain_path, "arm-none-eabi-strip")
-cc_size = os.path.join(toolchain_path, "arm-none-eabi-size")
-objdump = os.path.join(toolchain_path, "arm-none-eabi-objdump")
+toolchain_path = os.path.join(home_path, ".aliot", "arm-ali-aoseabi", "main", "bin")
+objcopy = os.path.join(toolchain_path, "arm-ali-aoseabi-objcopy")
+nm = os.path.join(toolchain_path, "arm-ali-aoseabi-nm")
+strip = os.path.join(toolchain_path, "arm-ali-aoseabi-strip")
+cc_size = os.path.join(toolchain_path, "arm-ali-aoseabi-size")
+objdump = os.path.join(toolchain_path, "arm-ali-aoseabi-objdump")
 
 output_dir = os.getcwd()
 amebaz_dir = os.path.join(output_dir, "..", "..", "hardware", "chip", "rtl872xd")

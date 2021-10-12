@@ -56,6 +56,15 @@ typedef struct {
 } aos_audio_dev_t;
 
 /*
+ * Configure external pa control gpio.
+ *
+ * Return:
+ *   0 -- success or unsupport
+ *  -1 -- failed
+ */
+int aos_ext_pa_config(int gpio, int active_high, int delay_ms);
+
+/*
  * Set output volume.
  *
  * Return:
@@ -137,5 +146,15 @@ int aos_pcm_flush(aos_pcm_device_t *pcm);
  *
  */
 int aos_pcm_close(aos_pcm_device_t *pcm);
+
+/*
+ * pcm adapter init
+ *
+ * Return:
+ *   0 -- success
+ *  -1 -- failed
+ *
+ */
+int amp_pcm_init(void);
 
 #endif

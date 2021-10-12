@@ -38,7 +38,7 @@
 #endif
 
 #ifndef KV_CONFIG_TASK_STACK_SIZE
-#define KV_TASK_STACK_SIZE 1024
+#define KV_TASK_STACK_SIZE (4 * 1024)
 #else
 #define KV_TASK_STACK_SIZE KV_CONFIG_TASK_STACK_SIZE
 #endif

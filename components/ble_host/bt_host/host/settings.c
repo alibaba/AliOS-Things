@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <errno.h>
+#include <bt_errno.h>
 
 #include <ble_os.h>
 #include <settings/settings.h>

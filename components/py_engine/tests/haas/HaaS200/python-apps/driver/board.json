@@ -62,6 +62,12 @@
       "pull": "pullup",
       "intMode": "rising"
     },
+    "led0": {
+      "type": "GPIO",
+      "port": 36,
+      "dir": "output",
+      "pull": "pullup"
+    },
     "led1": {
       "type": "GPIO",
       "port": 34,
@@ -118,13 +124,15 @@
       "type": "SPI",
       "port": 0,
       "mode": "master",
-      "freq": 2000000
+      "freq": 2000000,
+      "polPha": 3
     },
     "SPI1": {
       "type": "SPI",
       "port": 1,
       "mode": "master",
-      "freq": 26000000
+      "freq": 26000000,
+      "polPha": 3
     },
     "oled_dc": {
       "type": "GPIO",

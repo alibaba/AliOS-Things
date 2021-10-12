@@ -5,34 +5,17 @@
 #include "amp_boot.h"
 
 static py_boot_cmd_t g_pyamp_boot_cmd[] = {
-    [AMP_BOOT_CMD_EXIT] = {
-        "cmd_exit"
-    },
-    [AMP_BOOT_CMD_QUERY_IMEI] = {
-        "cmd_query_imei"
-    },
-    [AMP_BOOT_CMD_QUERY_SEC] = {
-        "cmd_query_sec"
-    },
-    [AMP_BOOT_CMD_FLASH_SEC] = {
-        "cmd_flash_sec"
-    },
-    [AMP_BOOT_CMD_FLASH_JS] = {
-        "cmd_flash_js"
-    },
-    [AMP_BOOT_CMD_FILE_TRANSFER] = {
-        "cmd_file_transfer"
-    },
-    [AMP_BOOT_CMD_FLASH_KV] = {
-        "cmd_flash_kv"
-    }
+    [AMP_BOOT_CMD_EXIT] = { "cmd_exit" },           [AMP_BOOT_CMD_QUERY_IMEI] = { "cmd_query_imei" },
+    [AMP_BOOT_CMD_QUERY_SEC] = { "cmd_query_sec" }, [AMP_BOOT_CMD_FLASH_SEC] = { "cmd_flash_sec" },
+    [AMP_BOOT_CMD_FLASH_JS] = { "cmd_flash_js" },   [AMP_BOOT_CMD_FILE_TRANSFER] = { "cmd_file_transfer" },
+    [AMP_BOOT_CMD_FLASH_KV] = { "cmd_flash_kv" }
 };
 
 int pyamp_boot_get_cmd(int timeout_ms)
 {
-    int32_t cmd_id    = 0;
-    int32_t recv_len  = 0;
-    char cmd_buff[32] = {0};
+    int32_t cmd_id = 0;
+    int32_t recv_len = 0;
+    char cmd_buff[32] = { 0 };
 
     recv_len = pyamp_boot_uart_recv_line(cmd_buff, 32, timeout_ms);
     if (recv_len <= 0) {

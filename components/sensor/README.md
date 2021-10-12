@@ -82,7 +82,7 @@ def_config:
 组件使用示例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具，所以首先需要参考[《AliOS Things集成开发环境使用说明之搭建开发环境》](https://help.aliyun.com/document_detail/302378.html)，下载安装。
 待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
-## 步骤1 创建或打开工程
+## 1. 创建或打开工程
 
 **打开已有工程**
 
@@ -90,42 +90,24 @@ def_config:
 
 **创建新的工程**
 
-组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《AliOS Things集成开发环境使用说明之创建工程》](https://help.aliyun.com/document_detail/302379.html)。
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《AliOS Things集成开发环境使用说明之创建工程》](https://help.aliyun.com/document_detail/302379.html),硬件类型选择“haas edu k1”, 解决方案选择“ helloworld 简单示例”。
 
-## 步骤2 添加组件
+## 2. 添加组件
 
 案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
 
 ```yaml
 depends:
-  - cli: rel_3.3.0
-  - osal_aos: rel_3.3.0
-  - haaseduk1: rel_3.3.0
-  - sensor: rel_3.3.0
+  - init: master
+  - cli: master
+  - osal_aos: master
+  - haaseduk1: master
+  - sensor: master
 ```
+在执行编译步骤时，会自动下载 sensor 组件及依赖的相关组件，sensor组件源码被下载到了./components/sensor路径中。
 
-**选择要使用的开发板**
-> solutions/helloworld_demo/package.yaml 基础信息 solution 中配置要使用的开发板，默认是 haas100，如果使用 haaseduk1，修改如下
-```yaml
-solution:
-  cpu_id: cpu0
-  board_name: haaseduk1
-```
-
-## 步骤3 下载组件
-
-在已安装了  的开发环境工具栏中，选择Terminal -> New Terminal启动终端，并且默认工作路径为当前工程的workspace，此时在终端命令行中输入：
-
-```shell
-
-aos install sensor
-
-```
-
-上述命令执行成功后，组件源码则被下载到了./components/sensor路径中。
-
-## 步骤4 添加示例
-> components/sensor/package.yaml 配置信息 def_config 中添加要运行的 example 示例代码和 Sensor 设备驱动的宏。例如温湿度传感器 si7006 数据并在本地进行打印：
+## 3. 添加示例
+> solutions/helloworld_demo/package.yaml 配置信息 def_config 中添加要运行的 example 示例代码和 Sensor 设备驱动的宏。例如温湿度传感器 si7006 数据并在本地进行打印：
 
 ```yaml
 def_config:
@@ -134,21 +116,21 @@ def_config:
   AOS_SENSOR_TEMP_SI_SI7006: 1
 ```
 
-## 步骤5 编译固件
+## 4. 编译固件
 
 在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《AliOS Things集成开发环境使用说明之编译固件》](https://help.aliyun.com/document_detail/302384.html)。
 
-## 步骤6 烧录固件
+## 5. 烧录固件
 
 helloworld_demo案例的固件生成后，可参考[《AliOS Things集成开发环境使用说明之烧录固件》](https://help.aliyun.com/document_detail/302383.html)来烧录固件。
 
-## 步骤7 打开串口
+## 6. 打开串口
 
 固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《AliOS Things集成开发环境使用说明之查看日志》](https://help.aliyun.com/document_detail/302382.html)。
 
 当串口终端打开成功后，可在串口中输入help来查看已添加的测试命令。
 
-## 步骤8 测试示例
+## 7. 测试示例
 
 > CLI命令行输入：
 ```sh
@@ -169,16 +151,17 @@ Humidity value :
 
 以运行 linksdk_demo 为例，具体步骤如下：
 
-## 1. 选择要使用的开发板
-> solutions/linksdk_demo/package.yaml 基础信息 solution 中配置要使用的开发板，默认是 haas100，如果使用 haaseduk1，修改如下
-```yaml
-solution:
-  cpu_id: cpu0
-  board_name: haaseduk1
-```
+## 1. 创建或打开工程
+
+**打开已有工程**
+如果用于测试的案例工程已存在，可参考[《AliOS Things集成开发环境使用说明之打开工程》](https://help.aliyun.com/document_detail/302381.html)打开已有工程。
+
+**创建新的工程**
+
+组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择 linkkit_demo 案例。 linkkit_demo 案例相关的源代码下载可参考[《AliOS Things集成开发环境使用说明之创建工程》](https://help.aliyun.com/document_detail/302379.html),硬件类型选择“haas edu k1”, 解决方案选择“ WI-FI设备连接阿里云示例”。
 
 ## 2. 添加示例代码
-> 2.1 components/sensor/package.yaml 配置信息 def_config 中添加要运行的 example 示例代码和 Sensor 设备驱动的宏。例如温湿度传感器 si7006 数据并通过 linkkit 上传到云端：
+> 2.1 solutions/helloworld_demo/package.yaml 配置信息 def_config 中添加要运行的 example 示例代码和 Sensor 设备驱动的宏。例如温湿度传感器 si7006 数据并通过 linkkit 上传到云端：
 ```yaml
 def_config:
   AOS_SENSOR_CLOUD_DEMO_ENABLE: 1
@@ -236,23 +219,27 @@ int demo_main(int argc, char *argv[])
 }
 ```
 ## 3. 添加 sensor 组件
-> solutions/linksdk_demo/package.yaml 依赖信息 depends 中添加 sensor 组件
+> solutions/linksdk_demo/package.yaml 依赖信息 depends 末尾添加 sensor 组件
 ```yaml
 depends:
-  - linksdk: rel_3.3.0
-  - haaseduk1: rel_3.3.0
-  - sensor: rel_3.3.0
-  - mbedtls: rel_3.3.0
-  - netmgr: rel_3.3.0
+  - linksdk: master
+  - mbedtls: master
+  - netmgr: master
+  - lwip: master
+  - uservice: master
+  - wifi: master
+  - cli: master
+  - haaseduk1: master
+  - sensor: master
 ```
 
-## 4. 编译
-```sh
-cd solutions/linksdk_demo && aos make
-```
+## 4. 编译固件
+
+在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译 linkkit_demo 案例来生成固件了，具体编译方法可参考[《AliOS Things集成开发环境使用说明之编译固件》](https://help.aliyun.com/document_detail/302384.html)。
 
 ## 5. 烧录固件
-> 参考具体板子的快速开始文档。
+
+linkkit_demo 案例的固件生成后，可参考[《AliOS Things集成开发环境使用说明之烧录固件》](https://help.aliyun.com/document_detail/302383.html)来烧录固件。
 
 ## 6. 示例测试
 ### 设备联网

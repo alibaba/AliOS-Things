@@ -1,25 +1,24 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "py/runtime0.h"
-#include "py/nlr.h"
-#include "py/runtime.h"
-#include "py/mperrno.h"
-#include "py/mphal.h"
-#include "py/stream.h"
-#include "py/mperrno.h"
-
-#include "k_api.h"
 #include "HaasLog.h"
 #include "ak_common.h"
-#include "ak_vi.h"
 #include "ak_mem.h"
+#include "ak_vi.h"
+#include "k_api.h"
+#include "py/mperrno.h"
+#include "py/mphal.h"
+#include "py/nlr.h"
+#include "py/runtime.h"
+#include "py/runtime0.h"
+#include "py/stream.h"
 #include "videocommon.h"
 
 extern const mp_obj_type_t video_recorder_type;
 
-void video_recorder_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind)
+void video_recorder_print(const mp_print_t *print, mp_obj_t self_in,
+                          mp_print_kind_t kind)
 {
     mp_video_camera_obj_t *self = MP_OBJ_TO_PTR(self_in);
     mp_printf(print, "modName(%s)", self->mname);
@@ -28,7 +27,7 @@ void video_recorder_print(const mp_print_t *print, mp_obj_t self_in, mp_print_ki
 static mp_obj_t video_recorder_new(const mp_obj_type_t *type, size_t n_args,
                                    size_t n_kw, const mp_obj_t *args)
 {
-    mp_video_camera_obj_t* camera_obj = m_new_obj(mp_video_camera_obj_t);
+    mp_video_camera_obj_t *camera_obj = m_new_obj(mp_video_camera_obj_t);
 
     VIDEO_CAMERA_OBJ_CHK(camera_obj, MP_ENOMEM, "obj alloc fail");
 
@@ -71,19 +70,21 @@ static mp_obj_t video_recorder_open(size_t n_args, const mp_obj_t *args)
     if (camera_obj->frame == NULL) {
         camera_obj->frame = m_new_obj(isp_frame_t);
         if (camera_obj->frame) {
-            #if MICROPY_GC_CONSERVATIVE_CLEAR
+#if MICROPY_GC_CONSERVATIVE_CLEAR
             memset(camera_obj->frame, 0, sizeof(isp_frame_t));
-            #endif
+#endif
             camera_obj->camera_idx = camera_idx;
             camera_obj->frame_release = 0;
         }
         VIDEO_CAMERA_OBJ_INIT_CHK(camera_obj, MP_ENOMEM, "frame alloc failed");
-        py_rtsp_open(camera_obj->camera_idx, media_type, camera_obj->frame_rate, NULL);
+        py_rtsp_open(camera_obj->camera_idx, media_type, camera_obj->frame_rate,
+                     NULL);
     }
 
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(video_recorder_open_obj, 2, 3, video_recorder_open);
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(video_recorder_open_obj, 2, 3,
+                                           video_recorder_open);
 
 static mp_obj_t video_recorder_close(size_t n_args, const mp_obj_t *args)
 {
@@ -105,7 +106,8 @@ static mp_obj_t video_recorder_close(size_t n_args, const mp_obj_t *args)
 
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_VAR(video_recorder_close_obj, 1, video_recorder_close);
+static MP_DEFINE_CONST_FUN_OBJ_VAR(video_recorder_close_obj, 1,
+                                   video_recorder_close);
 
 static mp_obj_t video_recorder_pause(size_t n_args, const mp_obj_t *args)
 {
@@ -119,7 +121,8 @@ static mp_obj_t video_recorder_pause(size_t n_args, const mp_obj_t *args)
 
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_VAR(video_recorder_pause_obj, 1, video_recorder_pause);
+static MP_DEFINE_CONST_FUN_OBJ_VAR(video_recorder_pause_obj, 1,
+                                   video_recorder_pause);
 
 static mp_obj_t video_recorder_resume(size_t n_args, const mp_obj_t *args)
 {
@@ -134,7 +137,8 @@ static mp_obj_t video_recorder_resume(size_t n_args, const mp_obj_t *args)
 
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_VAR(video_recorder_resume_obj, 1, video_recorder_resume);
+static MP_DEFINE_CONST_FUN_OBJ_VAR(video_recorder_resume_obj, 1,
+                                   video_recorder_resume);
 
 static mp_obj_t video_recorder_start(size_t n_args, const mp_obj_t *args)
 {
@@ -149,7 +153,8 @@ static mp_obj_t video_recorder_start(size_t n_args, const mp_obj_t *args)
 
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_VAR(video_recorder_start_obj, 1, video_recorder_start);
+static MP_DEFINE_CONST_FUN_OBJ_VAR(video_recorder_start_obj, 1,
+                                   video_recorder_start);
 
 static mp_obj_t video_recorder_stop(size_t n_args, const mp_obj_t *args)
 {
@@ -164,7 +169,8 @@ static mp_obj_t video_recorder_stop(size_t n_args, const mp_obj_t *args)
 
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_VAR(video_recorder_stop_obj, 1, video_recorder_stop);
+static MP_DEFINE_CONST_FUN_OBJ_VAR(video_recorder_stop_obj, 1,
+                                   video_recorder_stop);
 
 static const mp_rom_map_elem_t video_recorder_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_Recorder) },
@@ -172,24 +178,25 @@ static const mp_rom_map_elem_t video_recorder_globals_table[] = {
     /* H265 or HEVC */
     { MP_OBJ_NEW_QSTR(MP_QSTR_HEVC), MP_ROM_INT(VIDEO_MEDIA_TYPE_HEVC) },
     /* recorder.start() */
-    { MP_ROM_QSTR(MP_QSTR_start),    MP_ROM_PTR(&video_recorder_start_obj) },
+    { MP_ROM_QSTR(MP_QSTR_start), MP_ROM_PTR(&video_recorder_start_obj) },
     /* recorder.stop() */
-    { MP_ROM_QSTR(MP_QSTR_stop),     MP_ROM_PTR(&video_recorder_stop_obj) },
+    { MP_ROM_QSTR(MP_QSTR_stop), MP_ROM_PTR(&video_recorder_stop_obj) },
     /* recorder.open(camera_idx, media_type)
      * recorder.open(url)
      */
-    { MP_ROM_QSTR(MP_QSTR_open),     MP_ROM_PTR(&video_recorder_open_obj) },
+    { MP_ROM_QSTR(MP_QSTR_open), MP_ROM_PTR(&video_recorder_open_obj) },
     /* recorder.close() */
-    { MP_ROM_QSTR(MP_QSTR_close),    MP_ROM_PTR(&video_recorder_close_obj) },
+    { MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&video_recorder_close_obj) },
     /* recorder.pause() */
-    { MP_ROM_QSTR(MP_QSTR_pause),    MP_ROM_PTR(&video_recorder_pause_obj) },
+    { MP_ROM_QSTR(MP_QSTR_pause), MP_ROM_PTR(&video_recorder_pause_obj) },
     /* recorder.resume() */
-    { MP_ROM_QSTR(MP_QSTR_resume),   MP_ROM_PTR(&video_recorder_resume_obj) },
+    { MP_ROM_QSTR(MP_QSTR_resume), MP_ROM_PTR(&video_recorder_resume_obj) },
 };
-static MP_DEFINE_CONST_DICT(video_recorder_globals, video_recorder_globals_table);
+static MP_DEFINE_CONST_DICT(video_recorder_globals,
+                            video_recorder_globals_table);
 
 const mp_obj_type_t video_recorder_type = {
-    .base = {&mp_type_type},
+    .base = { &mp_type_type },
     .name = MP_QSTR_Recorder,
     .print = video_recorder_print,
     .make_new = video_recorder_new,

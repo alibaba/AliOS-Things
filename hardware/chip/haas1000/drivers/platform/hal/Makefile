@@ -344,7 +344,7 @@ CFLAGS_hal_trace.o += -Iutils/crash_catcher/include -DCORE_DUMP
 endif
 
 ifeq ($(CHIP),haas1000)
-CFLAGS_hal_trace.o += -Iservices/transq_msg
+CFLAGS_hal_trace.o += -Iservices/transq_msg -Wno-implicit-function-declaration -fno-tree-loop-distribute-patterns
 endif
 
 ifneq ($(UART_FREQ),)

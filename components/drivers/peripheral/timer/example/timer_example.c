@@ -32,41 +32,40 @@ int vfs_timer_test(int id)
     snprintf(name, sizeof(name), "/dev/timer%d", id);
     fd = open(name, 0);
     ddkc_info("open %s %s, fd:%d\r\n", name, fd >= 0 ? "success" : "fail", fd);
-
     if (fd >= 0) {
         // correct parameters
         alarm.arg = &fd;
         alarm.cb = vfs_timer_handler;
         alarm.period = 1000000;
         alarm.auto_reload = true;
-
+        /*period*/
         ret = ioctl(fd, IOC_TIMER_IRQP_SET, (unsigned long)&alarm);
-
         ddkc_info("ioctl on IOC_TIMER_IRQP_SET %s, ret:%d\r\n", ret ? "fail" : "succeed", ret);
-
         ret = ioctl(fd, IOC_TIMER_CONTROL, (unsigned long)IO_TIMER_START);
         ddkc_info("start timer %s, ret:%d\r\n", ret ? "fail" : "succeed", ret);
         sleep(5);
-
-        ret = ioctl(fd, IOC_TIMER_RELOAD, (unsigned long)false);
-        ddkc_info("disable timer reload %s, ret:%d\r\n", ret ? "fail" : "succeed", ret);
-        sleep(3);
-
-        ret = ioctl(fd, IOC_TIMER_RELOAD, (unsigned long)true);
-        ddkc_info("enable timer reload %s, ret:%d\r\n", ret ? "fail" : "succeed", ret);
-        sleep(5);
-
         alarm.period = 500000;
         ret = ioctl(fd, IOC_TIMER_IRQP_SET, (unsigned long)&alarm);
         ddkc_info("ioctl on IOC_TIMER_IRQP_SET %s, ret:%d\r\n", ret ? "fail" : "succeed", ret);
         sleep(5);
-
         ret = ioctl(fd, IOC_TIMER_CONTROL, (unsigned long)IO_TIMER_STOP);
         ddkc_info("stop timer %s, ret:%d\r\n", ret ? "fail" : "succeed", ret);
-
         ret = ioctl(fd, IOC_TIMER_IRQP_GET, (unsigned long)&ralarm);
         ddkc_info("ioctl on IOC_TIMER_IRQP_GET %s, ret:%d\r\n", ret ? "fail" : "succeed", ret);
-
+        /*oneshot*/
+        alarm.auto_reload = false;
+        ret = ioctl(fd, IOC_TIMER_IRQP_SET, (unsigned long)&alarm);
+        ddkc_info("ioctl on IOC_TIMER_IRQP_SET %s, ret:%d\r\n", ret ? "fail" : "succeed", ret);
+        ret = ioctl(fd, IOC_TIMER_CONTROL, (unsigned long)IO_TIMER_START);
+        ddkc_info("start timer %s, ret:%d\r\n", ret ? "fail" : "succeed", ret);
+        sleep(5);
+        ret = ioctl(fd, IOC_TIMER_RELOAD, (unsigned long)0);
+        ddkc_info("reload timer %s, ret:%d\r\n", ret ? "fail" : "succeed", ret);
+        sleep(5);
+        ret = ioctl(fd, IOC_TIMER_CONTROL, (unsigned long)IO_TIMER_STOP);
+        ddkc_info("stop timer %s, ret:%d\r\n", ret ? "fail" : "succeed", ret);
+        ret = ioctl(fd, IOC_TIMER_IRQP_GET, (unsigned long)&ralarm);
+        ddkc_info("ioctl on IOC_TIMER_IRQP_GET %s, ret:%d\r\n", ret ? "fail" : "succeed", ret);
         ddkc_info("ralarm period:%ld, cb:%p, arg:%p, auto_reload:%d\r\n",
                ralarm.period, ralarm.cb, ralarm.arg, ralarm.auto_reload);
 

@@ -62,7 +62,7 @@ static void timer_action(void *arg)
             amp_warn(MOD_STR, "timer wrap handle has be cleared");
             return;
         }
-        t->magic = 0;
+        // t->magic = 0;
         clear_timer(t);
     }
 }

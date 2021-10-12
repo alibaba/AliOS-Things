@@ -6,6 +6,7 @@
 #include "aos/vfs.h"
 #include "amp_platform.h"
 #include "amp_config.h"
+#include "amp_memory.h"
 #include "aos_system.h"
 #include "aos_fs.h"
 #include "aos_tcp.h"
@@ -17,9 +18,9 @@
 #include "mbedtls/md5.h"
 
 #ifdef LINUXOSX
-#define OTA_BUFFER_MAX_SIZE 8192
+    #define OTA_BUFFER_MAX_SIZE 8192
 #else
-#define OTA_BUFFER_MAX_SIZE 1536
+    #define OTA_BUFFER_MAX_SIZE 1536
 #endif
 #define HTTP_HEADER                      \
     "GET /%s HTTP/1.1\r\nAccept:*/*\r\n" \
@@ -45,7 +46,7 @@ typedef struct {
 static write_js_cb_t jspackcb = NULL;
 static JSEPACK_HEADER header;
 static JSEPACK_FILE fileheader;
-static int32_t jspacksize = 0;
+static int jspacksize = 0;
 
 static int32_t jspackfile_offset;
 static int32_t jspackfile_header_offset;
@@ -56,11 +57,8 @@ static int32_t jspack_found_error = 0;
 #define MOD_STR "APP_MGR"
 #define JSEPACK_BLOCK_SIZE (2 * 1024)
 
-static uint8_t *jspackdst_buf = NULL;
-
-static char app_version[32] = {0};
-
-extern void jsengine_exit();
+extern void jsengine_exit(void);
+extern int aos_rmdir_r(const char *path);
 
 void apppack_init(write_js_cb_t cb)
 {
@@ -72,30 +70,26 @@ void apppack_init(write_js_cb_t cb)
     jspackfile_count         = 0;
     jspack_found_error       = 0;
 
-    jspackdst_buf = aos_malloc(JSEPACK_BLOCK_SIZE);
 
     /* remove all js file */
     aos_rmdir_r(AMP_FS_ROOT_DIR);
     aos_mkdir(AMP_FS_ROOT_DIR);
 }
 
-void apppack_final()
+void apppack_final(void)
 {
     jspackcb = NULL;
-    aos_free(jspackdst_buf);
-    jspackdst_buf = NULL;
     jspack_done   = 1;
 }
 
 static amp_md5_context g_ctx;
-static uint8_t digest[16]      = {0};
+static uint8_t digest[16] = {0};
 static int32_t app_file_offset = 0;
 
 static void jspackoutput(const char *filename, const uint8_t *md5,
                          int32_t file_size, int32_t type, int32_t offset,
                          uint8_t *buf, int32_t buf_len)
 {
-    int i;
     int outsize;
 
     if (offset == 0) {
@@ -109,8 +103,7 @@ static void jspackoutput(const char *filename, const uint8_t *md5,
     if (buf_len > 0) {
         outsize = buf_len;
         if (jspackcb) {
-            jspackcb(filename, file_size, type, app_file_offset, buf, outsize,
-                     0);
+            jspackcb(filename, file_size, type, app_file_offset, buf, outsize, 0);
         }
 
         app_file_offset += outsize;
@@ -161,14 +154,14 @@ static void jspackoutput(const char *filename, const uint8_t *md5,
 #define JSEPACK_HEADER_SIZE 8  /* sizeof(JSEPACK_HEADER) */
 #define JSEPACK_FILE_HEADER 24 /* sizeof(JSEPACK_FILE)  exclude filename */
 static uint32_t g_file_header_size = 24 + 1;
-static uint8_t *g_file_name        = NULL;
+static char *g_file_name        = NULL;
 
 /* report process state */
-void apppack_post_process_state()
+void apppack_post_process_state(void)
 {
     char msg[128];
     if (jspacksize >= JSEPACK_HEADER_SIZE) {
-        sprintf(msg, "%d/%d", jspacksize, header.pack_size);
+        sprintf(msg, "%d/%lu", jspacksize, header.pack_size);
     }
 }
 
@@ -434,13 +427,13 @@ int apppack_download(char *url, download_js_cb_t func)
     int nbytes          = 0;
     int send            = 0;
     int totalsend       = 0;
-    uint32_t breakpoint = 0;
     int size            = 0;
     int header_found    = 0;
     char *pos           = 0;
     int file_size       = 0;
     char *host_file     = NULL;
     char *host_addr     = NULL;
+    char script_dir[128] = {0};
 
     amp_warn(MOD_STR, "url = %s", url);
 
@@ -450,14 +443,14 @@ int apppack_download(char *url, download_js_cb_t func)
         return OTA_DOWNLOAD_INIT_FAIL;
     }
 
-    char *http_buffer = aos_malloc(OTA_BUFFER_MAX_SIZE);
+    char *http_buffer = amp_malloc(OTA_BUFFER_MAX_SIZE);
 
     amp_warn(MOD_STR, "http_buffer = %p", http_buffer);
     http_gethost_info(url, &host_addr, &host_file, &port);
 
     if (host_file == NULL || host_addr == NULL) {
         ret = OTA_DOWNLOAD_INIT_FAIL;
-        aos_free(http_buffer);
+        amp_free(http_buffer);
 
         return ret;
     }
@@ -468,12 +461,11 @@ int apppack_download(char *url, download_js_cb_t func)
     if (sockfd < 0) {
         amp_warn(MOD_STR, "upgrade_socket_connect error");
         ret = OTA_DOWNLOAD_CON_FAIL;
-        aos_free(http_buffer);
+        amp_free(http_buffer);
 
         return ret;
     }
 
-    breakpoint = 0;
     sprintf(http_buffer, HTTP_HEADER, host_file, host_addr, port);
 
     send      = 0;
@@ -484,7 +476,7 @@ int apppack_download(char *url, download_js_cb_t func)
 
     while (totalsend < nbytes) {
         send = aos_tcp_write(sockfd, http_buffer + totalsend,
-                               nbytes - totalsend, 3000);
+                             nbytes - totalsend, 3000);
         if (send == -1) {
             amp_warn(MOD_STR, "send error!%s", strerror(errno));
             ret = OTA_DOWNLOAD_REQ_FAIL;
@@ -498,14 +490,17 @@ int apppack_download(char *url, download_js_cb_t func)
 #ifdef LINUXOSX /* clean the root direcoty when user update app */
     be_osal_rmdir(JSE_FS_ROOT_DIR);
 #else
-    char script_dir[128] = {0};
 
     snprintf(script_dir, 128, AMP_APP_INDEX_JS);
     aos_remove(script_dir);
 #endif
 
     memset(http_buffer, 0, OTA_BUFFER_MAX_SIZE);
-    while ((nbytes = aos_tcp_read(sockfd, http_buffer, OTA_BUFFER_MAX_SIZE - 1, 3000)) != 0) {
+    while (1) {
+        nbytes = aos_tcp_read(sockfd, http_buffer, OTA_BUFFER_MAX_SIZE - 1, 3000);
+        if (nbytes == 0) {
+            break;
+        }
         if (nbytes < 0) {
             amp_warn(MOD_STR, "upgrade_socket_recv nbytes < 0");
             if (errno != EINTR) {
@@ -536,6 +531,9 @@ int apppack_download(char *url, download_js_cb_t func)
                 int len      = pos - http_buffer;
                 header_found = 1;
                 size         = nbytes - len;
+                if (size <= 0) {
+                    break;
+                }
                 func((uint8_t *)pos, size);
 
                 if (size == file_size) {
@@ -575,7 +573,7 @@ DOWNLOAD_END:
     aos_tcp_destroy(sockfd);
     amp_debug(MOD_STR, "upgrade_socket_close, sockfd: %d ", sockfd);
     amp_debug(MOD_STR, "http_buffer free :%p", http_buffer);
-    aos_free(http_buffer);
+    amp_free(http_buffer);
     amp_debug(MOD_STR, "http_buffer free done");
     return ret;
 }
@@ -688,20 +686,25 @@ static void download_work(void *arg)
     return;
 }
 
-void app_js_restart()
+int32_t app_js_restart()
 {
+    int32_t ret = -1;
     aos_task_t restart_task;
+
     amp_debug(MOD_STR, "amp restart task will create");
-    if (aos_task_new_ext(&restart_task, "amp_restart", be_jse_task_restart_entrance, NULL, JSENGINE_TASK_STACK_SIZE, AOS_DEFAULT_APP_PRI) != 0) {
+    ret = aos_task_new_ext(&restart_task, "amp_restart", be_jse_task_restart_entrance, NULL, JSENGINE_TASK_STACK_SIZE, AOS_DEFAULT_APP_PRI);
+    if (ret != 0) {
         amp_warn(MOD_STR, "jse osal task failed!");
+        return ret;
     }
-    return;
+
+    return ret;
 }
 
 void app_js_stop()
 {
     amp_task_exit_call(NULL, NULL);
-    amp_warn(MOD_STR, "waiting jse taks exit completely\n");
+    amp_warn(MOD_STR, "waiting jse task exit completely\n");
     aos_sem_wait(&jse_task_exit_sem, AOS_WAIT_FOREVER);
     aos_msleep(50);
     amp_debug(MOD_STR, "amp task exit completely\n");
@@ -729,7 +732,7 @@ int apppack_upgrade(char *url)
         }
 
     } else {
-        aos_free(url);
+        amp_free(url);
         amp_warn(MOD_STR, "apppack upgrading...");
     }
 
@@ -750,7 +753,7 @@ int upgrade_simulator_reply(uint8_t *buf, int32_t buf_len)
     sprintf(msg, "%d/%d", total_recv, upgrade_file_size);
 
     if (((total_recv - last_buf_len) > OTA_BUFFER_MAX_SIZE * 2) ||
-        total_recv >= upgrade_file_size) {
+            total_recv >= upgrade_file_size) {
         amp_debug(MOD_STR, "upgrade_simulator_reply lastbuf=%d %s", last_buf_len,
                   msg);
         if (total_recv == upgrade_file_size) {
@@ -768,8 +771,8 @@ static void upgrade_simulator_work(upgrade_image_param_t *arg)
     amp_warn(MOD_STR, "url=%s ,size=%d", (char *)arg->url, arg->file_size);
     ret = apppack_download((char *)arg->url, upgrade_simulator_reply);
     upgrading_mutex = 0;
-    aos_free(arg);
-    aos_free(arg->url);
+    amp_free(arg);
+    amp_free(arg->url);
     if (ret == OTA_DOWNLOAD_FINISH) {
         amp_warn(MOD_STR, "Upgrade app success");
         jse_osal_delay(200);
@@ -797,25 +800,13 @@ int simulator_upgrade(upgrade_image_param_t *p_info)
         }
 
     } else {
-        aos_free(p_info);
+        amp_free(p_info);
         amp_warn(MOD_STR, "simulator_upgrading...");
     }
 
     return 0;
 }
 #endif
-
-void amp_app_version_set(char *version)
-{
-    if (!version)
-        return;
-    snprintf(app_version, sizeof(app_version), "%s", version);
-}
-
-const char *amp_jsapp_version_get(void)
-{
-    return app_version;
-}
 
 /*
 max length 192

@@ -167,123 +167,124 @@ struct termios {
 #define TCOFLUSH    0x02            /* flush untransmitted output */
 #define TCIOFLUSH   0x03            /* flush both */
 
-#define cfmakeraw(termios) \
+#define cfmakeraw(t) \
     do { \
-        (termios)->c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | \
-                                INLCR | IGNCR | ICRNL | IXON); \
-        (termios)->c_oflag &= ~OPOST; \
-        (termios)->c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN); \
-        (termios)->c_cflag &= ~(CSIZE | PARENB); \
-        (termios)->c_cflag |= CS8; \
+        struct termios *_t = (t); \
+        _t->c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON); \
+        _t->c_oflag &= ~OPOST; \
+        _t->c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN); \
+        _t->c_cflag &= ~(CSIZE | PARENB | PARODD); \
+        _t->c_cflag |= CS8; \
     } while (0)
 
-#define cfsetspeed(termios, speed) \
+#define cfsetspeed(t, speed) \
     ({ \
+        struct termios *_t = (t); \
         tcflag_t flag; \
         int ret = 0; \
         switch (speed) { \
-            case 0: \
-                flag = B0; \
-                break; \
-            case 50: \
-                flag = B50; \
-                break; \
-            case 75: \
-                flag = B75; \
-                break; \
-            case 110: \
-                flag = B110; \
-                break; \
-            case 134: \
-                flag = B134; \
-                break; \
-            case 150: \
-                flag = B150; \
-                break; \
-            case 200: \
-                flag = B200; \
-                break; \
-            case 300: \
-                flag = B300; \
-                break; \
-            case 600: \
-                flag = B600; \
-                break; \
-            case 1200: \
-                flag = B1200; \
-                break; \
-            case 1800: \
-                flag = B1800; \
-                break; \
-            case 2400: \
-                flag = B2400; \
-                break; \
-            case 4800: \
-                flag = B4800; \
-                break; \
-            case 9600: \
-                flag = B9600; \
-                break; \
-            case 19200: \
-                flag = B19200; \
-                break; \
-            case 38400: \
-                flag = B38400; \
-                break; \
-            case 57600: \
-                flag = B57600; \
-                break; \
-            case 115200: \
-                flag = B115200; \
-                break; \
-            case 230400: \
-                flag = B230400; \
-                break; \
-            case 460800: \
-                flag = B460800; \
-                break; \
-            case 500000: \
-                flag = B500000; \
-                break; \
-            case 576000: \
-                flag = B576000; \
-                break; \
-            case 921600: \
-                flag = B921600; \
-                break; \
-            case 1000000: \
-                flag = B1000000; \
-                break; \
-            case 1152000: \
-                flag = B1152000; \
-                break; \
-            case 1500000: \
-                flag = B1500000; \
-                break; \
-            case 2000000: \
-                flag = B2000000; \
-                break; \
-            case 2500000: \
-                flag = B2500000; \
-                break; \
-            case 3000000: \
-                flag = B3000000; \
-                break; \
-            case 3500000: \
-                flag = B3500000; \
-                break; \
-            case 4000000: \
-                flag = B4000000; \
-                break; \
-            default: \
-                ret = -1; \
-                break; \
+        case 0: \
+            flag = B0; \
+            break; \
+        case 50: \
+            flag = B50; \
+            break; \
+        case 75: \
+            flag = B75; \
+            break; \
+        case 110: \
+            flag = B110; \
+            break; \
+        case 134: \
+            flag = B134; \
+            break; \
+        case 150: \
+            flag = B150; \
+            break; \
+        case 200: \
+            flag = B200; \
+            break; \
+        case 300: \
+            flag = B300; \
+            break; \
+        case 600: \
+            flag = B600; \
+            break; \
+        case 1200: \
+            flag = B1200; \
+            break; \
+        case 1800: \
+            flag = B1800; \
+            break; \
+        case 2400: \
+            flag = B2400; \
+            break; \
+        case 4800: \
+            flag = B4800; \
+            break; \
+        case 9600: \
+            flag = B9600; \
+            break; \
+        case 19200: \
+            flag = B19200; \
+            break; \
+        case 38400: \
+            flag = B38400; \
+            break; \
+        case 57600: \
+            flag = B57600; \
+            break; \
+        case 115200: \
+            flag = B115200; \
+            break; \
+        case 230400: \
+            flag = B230400; \
+            break; \
+        case 460800: \
+            flag = B460800; \
+            break; \
+        case 500000: \
+            flag = B500000; \
+            break; \
+        case 576000: \
+            flag = B576000; \
+            break; \
+        case 921600: \
+            flag = B921600; \
+            break; \
+        case 1000000: \
+            flag = B1000000; \
+            break; \
+        case 1152000: \
+            flag = B1152000; \
+            break; \
+        case 1500000: \
+            flag = B1500000; \
+            break; \
+        case 2000000: \
+            flag = B2000000; \
+            break; \
+        case 2500000: \
+            flag = B2500000; \
+            break; \
+        case 3000000: \
+            flag = B3000000; \
+            break; \
+        case 3500000: \
+            flag = B3500000; \
+            break; \
+        case 4000000: \
+            flag = B4000000; \
+            break; \
+        default: \
+            ret = -1; \
+            break; \
         } \
         if (ret) { \
             errno = EINVAL; \
         } else { \
-            (termios)->c_cflag &= ~CBAUD; \
-            (termios)->c_cflag |= flag; \
+            _t->c_cflag &= ~CBAUD; \
+            _t->c_cflag |= flag; \
         } \
         ret; \
     })

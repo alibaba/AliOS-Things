@@ -1,38 +1,34 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 
-#include "py/runtime0.h"
+#include "HaasLog.h"
+#include "ak_common.h"
+#include "ak_common_video.h"
+#include "ak_log.h"
+#include "ak_mem.h"
+#include "ak_thread.h"
+#include "ak_venc.h"
+#include "ak_vi.h"
+#include "ak_vpss.h"
+#include "camera_ioctl.h"
+#include "dev_info.h"
+#include "minIni.h"
+#include "os_drv.h"
+#include "py/mperrno.h"
+#include "py/mphal.h"
 #include "py/nlr.h"
 #include "py/objlist.h"
 #include "py/objstr.h"
 #include "py/runtime.h"
-#include "py/mperrno.h"
-#include "py/mphal.h"
+#include "py/runtime0.h"
 #include "py/stream.h"
-#include "py/mperrno.h"
-
 #include "usb_s_uvc_ioctl.h"
-#include "dev_info.h"
-
-#include "ak_thread.h"
-#include "ak_common.h"
-#include "ak_log.h"
-#include "ak_common_video.h"
-#include "ak_venc.h"
-#include "minIni.h"
-#include "ak_vpss.h"
-#include "ak_vi.h"
-#include "camera_ioctl.h"
-#include "ak_mem.h"
-
-#include "os_drv.h"
-#include "HaasLog.h"
 #include "videocommon.h"
 
-#define ISP_USE_DMA   (0)
-#define ISP_CFG_FILE  "/etc/config/anyka_app.ini"
+#define ISP_USE_DMA  (0)
+#define ISP_CFG_FILE "/etc/config/anyka_app.ini"
 
 struct camera_ctx_t {
     int main_width;
@@ -55,11 +51,12 @@ static struct camera_ctx_t cctx = {
 #if ISP_USE_DMA
 static int dma_pool_init(void)
 {
-    int vi_dma_size = 14336;    //18406, unit in KB
-    int venc_dma_size = 12288;  //12000, unit in KB
+    int vi_dma_size = 14336;    // 18406, unit in KB
+    int venc_dma_size = 12288;  // 12000, unit in KB
     int osd_dma_size = 300 << 10;
 
-    ak_mem_dma_pool_create(MODULE_ID_VI, vi_dma_size << 10);  /* 300KB left for OSD and audio*/
+    ak_mem_dma_pool_create(MODULE_ID_VI,
+                           vi_dma_size << 10); /* 300KB left for OSD and audio*/
     ak_mem_dma_pool_create(MODULE_ID_VENC, venc_dma_size << 10);
     ak_mem_dma_pool_create(MODULE_ID_OSD, osd_dma_size);
     ak_mem_dma_pool_activate();
@@ -68,7 +65,7 @@ static int dma_pool_init(void)
 }
 #endif
 
-static int get_isp_cfg_path(int dev,char *buf, int size)
+static int get_isp_cfg_path(int dev, char *buf, int size)
 {
     if (dev) {
         ini_gets("isp_cfg", "isp_path_b", 0, buf, size, ISP_CFG_FILE);
@@ -82,9 +79,10 @@ static int get_isp_cfg_path(int dev,char *buf, int size)
 static int get_isp_ae_init_para(struct vpss_isp_ae_init_info *ae_init_info)
 {
     ae_init_info->d_gain = ini_getl("isp_cfg", "d_gain", 0, ISP_CFG_FILE);
-    ae_init_info->a_gain = ini_getl("isp_cfg", "a_gain", 0 , ISP_CFG_FILE);
-    ae_init_info->exp_time =ini_getl("isp_cfg", "exp_time", 0, ISP_CFG_FILE);
-    ae_init_info->isp_d_gain = ini_getl("isp_cfg", "isp_d_gain", 0, ISP_CFG_FILE);
+    ae_init_info->a_gain = ini_getl("isp_cfg", "a_gain", 0, ISP_CFG_FILE);
+    ae_init_info->exp_time = ini_getl("isp_cfg", "exp_time", 0, ISP_CFG_FILE);
+    ae_init_info->isp_d_gain =
+        ini_getl("isp_cfg", "isp_d_gain", 0, ISP_CFG_FILE);
 
     return 0;
 }
@@ -145,7 +143,7 @@ static int vi_para_init(int camera_idx, int frame_rate)
     struct vpss_isp_ae_init_info ae_init_info;
     ak_vpss_get_sensor_ae_info(camera_idx, &ae_init_info);
     if (ae_init_info.exp_time == 0) {
-        //load init ae info
+        // load init ae info
         get_isp_ae_init_para(&ae_init_info);
     }
     // set ae info to isp
@@ -158,7 +156,7 @@ static int vi_para_init(int camera_idx, int frame_rate)
         ircut_level = 1;
     }
 
-    const char *ircut_dev[2] = {"/dev/ircut", "/dev/ircut1"};
+    const char *ircut_dev[2] = { "/dev/ircut", "/dev/ircut1" };
     int fd = open(ircut_dev[camera_idx], O_RDWR);
     camera_set_ircut(fd, ircut_level);
     close(fd);
@@ -170,7 +168,8 @@ static int vi_para_init(int camera_idx, int frame_rate)
      */
     RECTANGLE_S res;  // max sensor resolution
     if (ak_vi_get_sensor_resolution(camera_idx, &res) != 0) {
-        LOG_E("%s, get vi dev(%d) sensor resolution fail\n", __func__, camera_idx);
+        LOG_E("%s, get vi dev(%d) sensor resolution fail\n", __func__,
+              camera_idx);
         ak_vi_close(camera_idx);
         return -1;
     }
@@ -188,7 +187,7 @@ static int vi_para_init(int camera_idx, int frame_rate)
     dev_attr.crop.height = res.height;
     dev_attr.max_width = cctx.main_width;
     dev_attr.max_height = cctx.main_height;
-    dev_attr.data_type  = data_type;
+    dev_attr.data_type = data_type;
     dev_attr.sub_max_width = cctx.sub_width;
     dev_attr.sub_max_height = cctx.sub_height;
     dev_attr.frame_rate = frame_rate;
@@ -202,7 +201,7 @@ static int vi_para_init(int camera_idx, int frame_rate)
     /*
      * step 5: set channel attribute
      */
-    //ak_print_normal_ex(MODULE_ID_VI, "vi device set main channel\n");
+    // ak_print_normal_ex(MODULE_ID_VI, "vi device set main channel\n");
     VI_CHN_ATTR chn_attr;
     memset(&chn_attr, 0, sizeof(chn_attr));
     chn_attr.chn_id = VIDEO_CHN0;
@@ -255,11 +254,12 @@ int py_video_camera_open(int camera_idx, int frame_rate)
         memset(&config, 0, sizeof(config));
         config.mem_trace_flag = SDK_RUN_NORMAL;
 
-        if (ak_sdk_init(&config) != 0) break;
+        if (ak_sdk_init(&config) != 0)
+            break;
 
         /* LOG_LEVEL_NORMAL for debug */
-        //ak_print_set_level(MODULE_ID_ALL, LOG_LEVEL_ERROR);
-        //ak_print_set_syslog_level(MODULE_ID_ALL, LOG_LEVEL_ERROR);
+        // ak_print_set_level(MODULE_ID_ALL, LOG_LEVEL_ERROR);
+        // ak_print_set_syslog_level(MODULE_ID_ALL, LOG_LEVEL_ERROR);
         ak_print_set_level(MODULE_ID_ALL, LOG_LEVEL_NORMAL);
         ak_print_set_syslog_level(MODULE_ID_ALL, LOG_LEVEL_NORMAL);
 
@@ -267,7 +267,8 @@ int py_video_camera_open(int camera_idx, int frame_rate)
         dma_pool_init();
 #endif
 
-        if (vi_para_init(camera_idx, frame_rate) != 0) break;
+        if (vi_para_init(camera_idx, frame_rate) != 0)
+            break;
 
         if (ak_vi_enable_dev(camera_idx) != 0) {
             ak_vi_disable_chn(VIDEO_CHN0);
@@ -324,17 +325,19 @@ int py_video_camera_frame_release(isp_frame_t *frame)
     return 0;
 }
 
-static int save_data(const char *path, const char *extension, char *buf, unsigned int len)
+static int save_data(const char *path, const char *extension, char *buf,
+                     unsigned int len)
 {
     FILE *fd = NULL;
     struct ak_date date;
-    char time_str[32] = {0};
-    char file_path[64] = {0};
+    char time_str[32] = { 0 };
+    char file_path[64] = { 0 };
 
     /* construct file name */
     ak_get_localdate(&date);
     ak_date_to_string(&date, time_str);
-    snprintf(file_path, sizeof(file_path), "/mnt/sdcard/%s_%s.%s", path, time_str, extension);
+    snprintf(file_path, sizeof(file_path), "/mnt/sdcard/%s_%s.%s", path,
+             time_str, extension);
 
     /*
      * open appointed file to save YUV data
@@ -379,9 +382,12 @@ int py_video_camera_config_set(int width, int height, int media_type)
 
 int py_video_camera_config_get(int *width, int *height, int *media_type)
 {
-    if (width) *width = cctx.main_width;
-    if (height) *height = cctx.main_height;
-    if (media_type) *media_type = cctx.media_type;
+    if (width)
+        *width = cctx.main_width;
+    if (height)
+        *height = cctx.main_height;
+    if (media_type)
+        *media_type = cctx.media_type;
 
     return 0;
 }
@@ -393,15 +399,18 @@ int py_video_camera_save(isp_frame_t *frame, int pic_type, const char *path)
     if (pic_type != VIDEO_MEDIA_TYPE_YUV) {
         struct video_stream video_str;
         if (cctx.codec < 0) {
-            cctx.codec = py_venc_init(cctx.main_width, cctx.main_height, 1, pic_type);
+            cctx.codec =
+                py_venc_init(cctx.main_width, cctx.main_height, 1, pic_type);
             if (cctx.codec < 0) {
                 LOG_E("%s, open venc fail, fd:%d\n", __func__, cctx.codec);
-                return -1;;
+                return -1;
+                ;
             }
         }
 
         memset(&video_str, 0, sizeof(video_str));
-        ret = ak_venc_encode_frame(cctx.codec, frame->vi_frame.data, frame->vi_frame.len, NULL, &video_str);
+        ret = ak_venc_encode_frame(cctx.codec, frame->vi_frame.data,
+                                   frame->vi_frame.len, NULL, &video_str);
         if (ret) {
             ak_venc_close(cctx.codec);
             cctx.codec = -1;

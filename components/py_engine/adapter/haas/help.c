@@ -31,7 +31,8 @@
 const char haas_help_text[] =
     "Welcome to MicroPython on the HaaS!\r\n"
     "\r\n"
-    "For generic online docs please visit https://g.alicdn.com/HaaSAI/PythonDoc/quickstart/index.html\r\n"
+    "For generic online docs please visit "
+    "https://g.alicdn.com/HaaSAI/PythonDoc/quickstart/index.html\r\n"
     "\r\n"
     "Control commands:\r\n"
     "  CTRL-A        -- on a blank line, enter raw REPL mode\r\n"
@@ -41,5 +42,4 @@ const char haas_help_text[] =
     "  CTRL-E        -- on a blank line, enter paste mode\r\n"
     "\r\n"
     "For further help on a specific object, type help(obj)\r\n"
-    "For a list of available modules, type help('modules')\r\n"
-;
+    "For a list of available modules, type help('modules')\r\n";

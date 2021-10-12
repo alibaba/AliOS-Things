@@ -155,7 +155,7 @@ STATIC mp_obj_t machine_timer_init_helper(machine_timer_obj_t *self,
                      allowed_args, args);
 
     if (self == NULL || self->device == NULL) {
-        LOGE(LOG_TAG, "%s: hal_timer_init failed \n", __func__);
+        LOGE(LOG_TAG, "%s: hal_timer_init failed\n", __func__);
         return mp_const_none;
     }
 

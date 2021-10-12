@@ -29,6 +29,28 @@ int aos_fs_init();
 
 int aos_rmdir_r(const char *path);
 
+/**
+ * @brief get file system used size in bytes;
+ *
+ * @return      fs used size in bytes; negative if failed.
+ */
+int aos_fs_usedsize(void);
+
+/**
+ * @brief get file system free size in bytes;
+ *
+ * @return      fs free size in bytes; negative if failed.
+ */
+int aos_fs_freesize(void);
+
+/**
+ * @brief       kv componment(key-value) initialize
+ *
+ * @return      0: success, -1: failed
+ */
+int aos_fs_type(unsigned int mode);
+
+
 #if defined(__cplusplus)
 }
 #endif

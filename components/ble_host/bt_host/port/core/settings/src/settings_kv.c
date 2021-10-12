@@ -10,7 +10,7 @@
 #include <ble_os.h>
 
 #include <aos/kv.h>
-#include <errno.h>
+#include <bt_errno.h>
 #include "settings/settings.h"
 #include "settings/settings_kv.h"
 #include "settings_priv.h"
@@ -64,7 +64,7 @@ static ssize_t _settings_kv_read_cb(void *cb_arg, void *data, size_t len)
 
     BT_DBG("cb_arg %p, read_arg->val %p, read_arg->val_size %d, data %p, len %d", cb_arg, read_arg?read_arg->val:0,
         read_arg?read_arg->val_size:0, data, len);
-    
+
     if (data && read_arg && read_arg->val && read_arg->val_size && len >= read_arg->val_size)
     {
        read_len = len > read_arg->val_size? read_arg->val_size : len;
@@ -130,7 +130,7 @@ static int settings_kv_save(struct settings_store *cs, const char *name,
         return -EIO;
     }
 
-    BT_DBG("setting update %s, %s", name, value);
+    printf("setting update %s, %s\n", name, value);
 
     return 0;
 }

@@ -164,15 +164,26 @@ def run_micropython(pyb, args, test_file, is_special=False):
 
     else:
         # run on pyboard
-        pyb.enter_raw_repl()
-        try:
-            output_mupy = pyb.execfile(test_file)
-        except pyboard.PyboardError as e:
-            had_crash = True
-            if not is_special and e.args[0] == 'exception':
-                output_mupy = e.args[1] + e.args[2] + b'CRASH'
-            else:
-                output_mupy = b'CRASH'
+        if (args.target == 'haas100'):
+            pyb.enter_raw_repl()
+            try:
+                output_mupy = pyb.execfile(test_file)
+            except haasboard.HaaSboardError as e:
+                had_crash = True
+                if not is_special and e.args[0] == 'exception':
+                    output_mupy = e.args[1] + e.args[2] + b'CRASH'
+                else:
+                    output_mupy = b'CRASH'
+        else:
+            pyb.enter_raw_repl()
+            try:
+                output_mupy = pyb.execfile(test_file)
+            except pyboard.PyboardError as e:
+                had_crash = True
+                if not is_special and e.args[0] == 'exception':
+                    output_mupy = e.args[1] + e.args[2] + b'CRASH'
+                else:
+                    output_mupy = b'CRASH'
 
     # canonical form for all ports/platforms is to use \n for end-of-line
     output_mupy = output_mupy.replace(b'\r\n', b'\n')
@@ -637,11 +648,18 @@ the last matching regex is used:
     if args.target in LOCAL_TARGETS or args.list_tests:
         pyb = None
     elif args.target in EXTERNAL_TARGETS:
-        global pyboard
-        sys.path.append(base_path('../engine/tools'))
-        import pyboard
-        pyb = pyboard.Pyboard(args.device, args.baudrate, args.user, args.password)
-        pyb.enter_raw_repl()
+        if (args.target == 'haas100'):
+            global haasboard
+            sys.path.append(base_path('../engine/tools'))
+            import haasboard
+            pyb = haasboard.HaaSboard(args.device, args.baudrate, args.user, args.password)
+            pyb.enter_raw_repl()
+        else:
+            global pyboard
+            sys.path.append(base_path('../engine/tools'))
+            import pyboard
+            pyb = pyboard.Pyboard(args.device, args.baudrate, args.user, args.password)
+            pyb.enter_raw_repl()
     else:
         raise ValueError('target must be one of %s' % ", ".join(LOCAL_TARGETS + EXTERNAL_TARGETS))
 

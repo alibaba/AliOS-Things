@@ -1,17 +1,8 @@
-
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-
-#include "amp_config.h"
-#include "amp_defines.h"
-#include "aos_system.h"
-#include "amp_boot_recovery.h"
-#include "amp_boot_uart.h"
+#include "amp_boot.h"
 
 #define MOD_STR "AMP_YMODEM"
 #define YMODEM_OK          0
@@ -168,7 +159,7 @@ int ymodem_data_head_parse(unsigned char data_type)
 
     amp_debug(MOD_STR, "ymodem_data_head_parse\n");
     buf_len = ((YMODEM_SOH == data_type) ? SOH_DATA_LEN : STX_DATA_LEN) + 4;
-    buffer  = aos_malloc(buf_len);
+    buffer  = amp_malloc(buf_len);
     memset(buffer, 0, buf_len);
     /* SOH HEAD */
     value = ymodem_recv_bytes(buffer, buf_len, UART_RECV_TIMEOUT);
@@ -214,7 +205,7 @@ int ymodem_data_head_parse(unsigned char data_type)
     amp_debug(MOD_STR, "get file size:%d\n", ymodem_flash_size);
 
 err_exit:
-    aos_free(buffer);
+    amp_free(buffer);
     return ret;
 }
 
@@ -227,7 +218,7 @@ int ymodem_data_parse(unsigned char data_type)
     unsigned char *buffer = NULL;
 
     buf_len = ((YMODEM_SOH == data_type) ? SOH_DATA_LEN : STX_DATA_LEN) + 4;
-    buffer = aos_malloc(buf_len);
+    buffer = amp_malloc(buf_len);
     memset(buffer, 0, buf_len);
 
     amp_debug(MOD_STR, "ymodem_data_parse\n");
@@ -254,7 +245,7 @@ int ymodem_data_parse(unsigned char data_type)
     ret = YMODEM_OK;
 
 err_exit :
-    aos_free(buffer);
+    amp_free(buffer);
     return ret;
 }
 
@@ -353,9 +344,7 @@ int ymodem_upgrade(void (*func)(unsigned char *, int))
 {
     int    i = 0;
     int  ret = 0;
-    int flag = 0;
     unsigned char c   = 0;
-    char buf[YMODEM_MAX_CHAR_NUM];
 
     ymodem_write = func;
 

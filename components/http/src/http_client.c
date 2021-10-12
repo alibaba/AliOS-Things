@@ -185,31 +185,68 @@ static const char *boundary = "----WebKitFormBoundarypNjgoVtFRlzPquKE";
 static int httpclient_send_header(httpclient_t *client, const char *url, int method, httpclient_data_t *client_data)
 {
     char scheme[8] = {0};
-    char host[HTTPCLIENT_MAX_HOST_LEN] = {0};
-    char path[HTTPCLIENT_MAX_URL_LEN] = {0};
+    char *host = NULL;
+    char *path = NULL;
+    int host_size = HTTPCLIENT_MAX_HOST_LEN;
+    int path_size = HTTPCLIENT_MAX_URL_LEN;
     int len, formdata_len;
     int total_len = 0;
-    char send_buf[HTTPCLIENT_SEND_BUF_SIZE] = {0};
-    char buf[HTTPCLIENT_SEND_BUF_SIZE] = {0};
+    char *send_buf = NULL;
+    char *buf = NULL;
+    int send_buf_size = HTTPCLIENT_SEND_BUF_SIZE;
+    int buf_size = HTTPCLIENT_SEND_BUF_SIZE;
     char *meth = (method == HTTP_GET) ? "GET" : (method == HTTP_POST) ? "POST" : (method == HTTP_PUT) ? "PUT" : (method == HTTP_DELETE) ? "DELETE" : (method == HTTP_HEAD) ? "HEAD" : "";
     int ret, port;
 
+    host = (char *) malloc(host_size);
+    if (!host) {
+        http_err("host malloc failed");
+        ret = HTTP_ENOBUFS;
+        goto exit;
+    }
+    memset(host, 0, host_size);
+
+    path = (char *) malloc(path_size);
+    if (!path) {
+        http_err("path malloc failed");
+        ret = HTTP_ENOBUFS;
+        goto exit;
+    }
+    memset(path, 0, path_size);
+
+    send_buf = (char *) malloc(send_buf_size);
+    if (!send_buf) {
+        http_err("send_buf malloc failed");
+        ret = HTTP_ENOBUFS;
+        goto exit;
+    }
+    memset(send_buf, 0, send_buf_size);
+
+    buf = (char *) malloc(buf_size);
+    if (!buf) {
+        http_err("buf malloc failed");
+        ret = HTTP_ENOBUFS;
+        goto exit;
+    }
+    memset(buf, 0, buf_size);
+
     /* First we need to parse the url (http[s]://host[:port][/[path]]) */
-    int res = httpclient_parse_url(url, scheme, sizeof(scheme), host, sizeof(host), &(port), path, sizeof(path));
+    int res = httpclient_parse_url(url, scheme, sizeof(scheme), host, host_size, &(port), path, path_size);
     if (res != HTTP_SUCCESS) {
         http_err("httpclient_parse_url returned %d", res);
-        return res;
+        ret = res;
+        goto exit;
     }
 
     /* Send request */
-    memset(send_buf, 0, HTTPCLIENT_SEND_BUF_SIZE);
     len = 0 ; /* Reset send buffer */
 
-    snprintf(buf, sizeof(buf), "%s %s HTTP/1.1\r\nUser-Agent: AliOS-HTTP-Client/2.1\r\nCache-Control: no-cache\r\nConnection: close\r\nHost: %s\r\n", meth, path, host); /* Write request */
+    snprintf(buf, buf_size, "%s %s HTTP/1.1\r\nUser-Agent: AliOS-HTTP-Client/2.1\r\nCache-Control: no-cache\r\nConnection: close\r\nHost: %s\r\n", meth, path, host); /* Write request */
     ret = httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
     if (ret) {
         http_err("Could not write request");
-        return HTTP_ECONN;
+        ret = HTTP_ECONN;
+        goto exit;
     }
 
     /* Send all headers */
@@ -225,29 +262,29 @@ static int httpclient_send_header(httpclient_t *client, const char *url, int met
     if ((formdata_len = httpclient_formdata_len(client_data)) > 0) {
         total_len += formdata_len;
 
-        memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "Accept: */*\r\n");
+        memset(buf, 0, buf_size);
+        snprintf(buf, buf_size, "Accept: */*\r\n");
         httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
 
         if (client_data->post_content_type != NULL)  {
-            memset(buf, 0, sizeof(buf));
-            snprintf(buf, sizeof(buf), "Content-Type: %s\r\n", client_data->post_content_type);
+            memset(buf, 0, buf_size);
+            snprintf(buf, buf_size, "Content-Type: %s\r\n", client_data->post_content_type);
             httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
         } else {
-            memset(buf, 0, sizeof(buf));
-            snprintf(buf, sizeof(buf), "Content-Type: multipart/form-data; boundary=%s\r\n", boundary);
+            memset(buf, 0, buf_size);
+            snprintf(buf, buf_size, "Content-Type: multipart/form-data; boundary=%s\r\n", boundary);
             httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
         }
 
         total_len += strlen(boundary) + 8;
-        snprintf(buf, sizeof(buf), "Content-Length: %d\r\n", total_len);
+        snprintf(buf, buf_size, "Content-Length: %d\r\n", total_len);
         httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
     } else if ( client_data->post_buf != NULL ) {
-        snprintf(buf, sizeof(buf), "Content-Length: %d\r\n", client_data->post_buf_len);
+        snprintf(buf, buf_size, "Content-Length: %d\r\n", client_data->post_buf_len);
         httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
 
         if (client_data->post_content_type != NULL)  {
-            snprintf(buf, sizeof(buf), "Content-Type: %s\r\n", client_data->post_content_type);
+            snprintf(buf, buf_size, "Content-Type: %s\r\n", client_data->post_content_type);
             httpclient_get_info(client, send_buf, &len, buf, strlen(buf));
         }
     } else {
@@ -263,9 +300,12 @@ static int httpclient_send_header(httpclient_t *client, const char *url, int met
     if (client->is_http == false) {
         if (http_ssl_send_wrapper(client, send_buf, len) != len) {
             http_err("SSL_write failed");
-            return HTTP_EUNKOWN;
+            ret = HTTP_EUNKOWN;
+            goto exit;
         }
-        return HTTP_SUCCESS;
+
+        ret = HTTP_SUCCESS;
+        goto exit;
     }
 #endif
 
@@ -274,13 +314,38 @@ static int httpclient_send_header(httpclient_t *client, const char *url, int met
         http_debug("Written %d bytes, socket = %d", ret, client->socket);
     } else if ( ret == 0 ) {
         http_err("ret == 0,Connection was closed by server");
-        return HTTP_ECLSD; /* Connection was closed by server */
+        ret = HTTP_ECLSD;
+        goto exit; /* Connection was closed by server */
     } else {
         http_err("Connection error (send returned %d)", ret);
-        return HTTP_ECONN;
+        ret = HTTP_ECONN;
+        goto exit;
     }
 
-    return HTTP_SUCCESS;
+    ret = HTTP_SUCCESS;
+
+exit:
+    if (host) {
+        free(host);
+        host = NULL;
+    }
+
+    if (path) {
+        free(path);
+        path = NULL;
+    }
+
+    if (send_buf) {
+        free(send_buf);
+        send_buf = NULL;
+    }
+
+    if (buf) {
+        free(buf);
+        buf = NULL;
+    }
+
+    return ret;
 }
 
 static int httpclient_send_userdata(httpclient_t *client, httpclient_data_t *client_data)
@@ -658,15 +723,34 @@ static int httpclient_response_parse(httpclient_t *client, char *data, int len, 
 HTTPC_RESULT httpclient_conn(httpclient_t *client, const char *url)
 {
     int ret = HTTP_ECONN;
-    char host[HTTPCLIENT_MAX_HOST_LEN] = {0};
+    char *host = NULL;
     char scheme[8] = {0};
-    char path[HTTPCLIENT_MAX_URL_LEN] = {0};
+    char *path = NULL;
+    int host_size = HTTPCLIENT_MAX_HOST_LEN;
+    int path_size = HTTPCLIENT_MAX_URL_LEN;
+
+    host = (char *) malloc(host_size);
+    if (!host) {
+        http_err("host malloc failed");
+        ret = HTTP_ENOBUFS;
+        goto exit;
+    }
+    memset(host, 0, host_size);
+
+    path = (char *) malloc(path_size);
+    if (!path) {
+        http_err("path malloc failed");
+        ret = HTTP_ENOBUFS;
+        goto exit;
+    }
+    memset(path, 0, path_size);
 
     /* First we need to parse the url (http[s]://host[:port][/[path]]) */
-    int res = httpclient_parse_url(url, scheme, sizeof(scheme), host, sizeof(host), &(client->remote_port), path, sizeof(path));
+    int res = httpclient_parse_url(url, scheme, sizeof(scheme), host, host_size, &(client->remote_port), path, path_size);
     if (res != HTTP_SUCCESS) {
         http_err("httpclient_parse_url returned %d", res);
-        return (HTTPC_RESULT)res;
+        ret = res;
+        goto exit;
     }
 
     // http or https
@@ -696,6 +780,18 @@ HTTPC_RESULT httpclient_conn(httpclient_t *client, const char *url)
         ret = http_ssl_conn_wrapper(client, host);
     }
 #endif
+
+
+exit:
+    if (host) {
+        free(host);
+        host = NULL;
+    }
+
+    if (path) {
+        free(path);
+        path = NULL;
+    }
 
     http_debug("httpclient_conn() result:%d, client:%p", ret, client);
     return (HTTPC_RESULT)ret;
@@ -728,11 +824,26 @@ HTTPC_RESULT httpclient_recv(httpclient_t *client, httpclient_data_t *client_dat
     int reclen = 0;
     int ret = HTTP_ECONN;
     // TODO: header format:  name + value must not bigger than HTTPCLIENT_CHUNK_SIZE.
-    char buf[HTTPCLIENT_CHUNK_SIZE] = {0};
+    char *buf = NULL;
+
+    if (client_data->header_buf_len < HTTPCLIENT_CHUNK_SIZE ||
+        client_data->response_buf_len < HTTPCLIENT_CHUNK_SIZE) {
+        http_err("Error: header buffer or response buffer should not less than %d!", HTTPCLIENT_CHUNK_SIZE);
+        ret = HTTP_EARG;
+        goto exit;
+    }
+
+    buf = (char *) malloc(HTTPCLIENT_CHUNK_SIZE);
+    if (!buf) {
+        http_err("Malloc failed socket fd %d!", client->socket);
+        ret = HTTP_ENOBUFS;
+        goto exit;
+    }
+    memset(buf, 0, HTTPCLIENT_CHUNK_SIZE);
 
     if (client->socket < 0) {
         http_err("Invalid socket fd %d!", client->socket);
-        return (HTTPC_RESULT)ret;
+        goto exit;
     }
 
     if (client_data->is_more) {
@@ -741,7 +852,7 @@ HTTPC_RESULT httpclient_recv(httpclient_t *client, httpclient_data_t *client_dat
     } else {
         ret = httpclient_recv_data(client, buf, 1, HTTPCLIENT_CHUNK_SIZE - 1, &reclen);
         if (ret != HTTP_SUCCESS && ret != HTTP_ECLSD) {
-            return (HTTPC_RESULT)ret;
+            goto exit;
         }
 
         buf[reclen] = '\0';
@@ -753,6 +864,13 @@ HTTPC_RESULT httpclient_recv(httpclient_t *client, httpclient_data_t *client_dat
     }
 
     http_debug("httpclient_recv_data() result:%d, client:%p", ret, client);
+
+exit:
+    if (buf) {
+        free(buf);
+        buf = NULL;
+    }
+
     return (HTTPC_RESULT)ret;
 }
 
@@ -814,6 +932,11 @@ HTTPC_RESULT httpclient_prepare(httpclient_data_t *client_data, int header_size,
 
     if (!client_data)
         return HTTP_EUNKOWN;
+
+    if (header_size < HTTPCLIENT_CHUNK_SIZE || resp_size < HTTPCLIENT_CHUNK_SIZE) {
+        http_err("Error: header buffer or response buffer should not less than %d!", HTTPCLIENT_CHUNK_SIZE);
+        return HTTP_EARG;
+    }
 
     memset(client_data, 0, sizeof(httpclient_data_t));
 

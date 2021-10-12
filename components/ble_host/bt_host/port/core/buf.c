@@ -7,7 +7,7 @@
  */
 
 #include <stdio.h>
-#include <errno.h>
+#include <bt_errno.h>
 #include <stddef.h>
 #include <string.h>
 #include <ble_os.h>

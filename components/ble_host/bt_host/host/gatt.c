@@ -8,7 +8,7 @@
 
 #include <ble_os.h>
 #include <string.h>
-#include <errno.h>
+#include <bt_errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <atomic.h>
@@ -1011,7 +1011,7 @@ static void ccc_delayed_store(struct k_work *work)
 }
 #endif
 
-static const struct bt_gatt_service_static *_bt_gatt_service_static[] = 
+static const struct bt_gatt_service_static *_bt_gatt_service_static[] =
 {
     &_2_gap_svc,
     &_1_gatt_svc,
@@ -4756,14 +4756,14 @@ int bt_gatt_settings_init()
         /* Only register the ccc_set settings handler when not loading on-demand */
         SETTINGS_HANDLER_DEFINE(bt_ccc, "bt/ccc", NULL, ccc_set, NULL, NULL);
 #endif /* CONFIG_BT_SETTINGS_CCC_LAZY_LOADING */
-    
+
 #if defined(CONFIG_BT_GATT_SERVICE_CHANGED)
         SETTINGS_HANDLER_DEFINE(bt_sc, "bt/sc", NULL, sc_set, sc_commit, NULL);
 #endif
-    
+
 #if defined(CONFIG_BT_GATT_CACHING)
         SETTINGS_HANDLER_DEFINE(bt_cf, "bt/cf", NULL, cf_set, NULL, NULL);
-    
+
         SETTINGS_HANDLER_DEFINE(bt_hash, "bt/hash", NULL, db_hash_set,
                            db_hash_commit, NULL);
 #endif

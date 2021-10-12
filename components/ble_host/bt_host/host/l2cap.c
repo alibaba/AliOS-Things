@@ -8,7 +8,7 @@
 
 #include <ble_os.h>
 #include <string.h>
-#include <errno.h>
+#include <bt_errno.h>
 #include <atomic.h>
 #include <misc/byteorder.h>
 #include <misc/util.h>
@@ -2345,6 +2345,7 @@ void bt_l2cap_init(void)
 	if (IS_ENABLED(CONFIG_BT_BREDR)) {
 		bt_l2cap_br_init();
 	}
+
 }
 
 #if defined(CONFIG_BT_L2CAP_DYNAMIC_CHANNEL)

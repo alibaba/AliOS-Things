@@ -95,7 +95,7 @@ static JSValue native_fs_read(JSContext *ctx, JSValueConst this_val,
 
     fp = aos_open(path, O_RDONLY);
     if (fp < 0) {
-        amp_warn(MOD_STR, "be_osal_open failed\n");
+        amp_warn(MOD_STR, "aos_open %s failed\n", path);
         goto out;
     }
 

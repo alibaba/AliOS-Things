@@ -8,6 +8,30 @@
 
 #include "internal/pthread.h"
 
+typedef struct key_value {
+    pthread_t  thread;
+    const uint32_t  *value;
+} key_value_t;
+
+typedef struct pthread_key_value {
+    key_value_t key_value;
+
+    struct pthread_key_value *next;
+} pthread_key_value_t;
+
+typedef struct pthread_key_value_head {
+    void (*fun)(void *);
+
+    pthread_key_value_t *next;
+} pthread_key_value_head_t;
+
+typedef struct pthread_key_list_s {
+    pthread_key_t            key_num;
+    pthread_key_value_head_t head;
+
+    struct pthread_key_list_s *next;
+} pthread_key_list_t;
+
 pthread_key_list_t pthread_key_list_head;
 pthread_mutex_t g_pthread_key_lock = PTHREAD_MUTEX_INITIALIZER;
 

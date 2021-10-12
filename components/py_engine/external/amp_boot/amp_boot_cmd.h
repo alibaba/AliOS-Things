@@ -22,8 +22,8 @@ typedef struct {
     char cmd_str[32];
 } py_boot_cmd_t;
 
-int py_boot_get_cmd(int timeout_ms);
-void py_boot_cmd_begin(int cmd);
-void py_boot_cmd_end(int cmd);
+int pyamp_boot_get_cmd(int timeout_ms);
+void pyamp_boot_cmd_begin(int cmd);
+void pyamp_boot_cmd_end(int cmd);
 
 #endif

@@ -1,28 +1,26 @@
+#include "ak_rtsp.h"
+
+#include <fcntl.h>
 #include <kernel.h>
 #include <stdlib.h>
-#include <sys/time.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
-#include "ak_thread.h"
-#include "ak_common.h"
-
-#include "ak_common_video.h"
-
-#include "ak_vi.h"
-#include "ak_venc.h"
-#include "dev_info.h"
-#include "ak_log.h"
-#include "ak_rtsp.h"
-#include "ak_vpss.h"
-#include "ak_video.h"
-#include "ak_mem.h"
-
 #include <sys/ioctl.h>
-#include "camera_ioctl.h"
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+
 #include "HaasLog.h"
+#include "ak_common.h"
+#include "ak_common_video.h"
+#include "ak_log.h"
+#include "ak_mem.h"
+#include "ak_thread.h"
+#include "ak_venc.h"
+#include "ak_vi.h"
+#include "ak_video.h"
+#include "ak_vpss.h"
+#include "camera_ioctl.h"
+#include "dev_info.h"
 #include "videocommon.h"
 
 #define RTSP_STREAM_TASK_STACK_SIZE (32 * 1024)
@@ -57,9 +55,9 @@ struct rtsp_ctrl {
 };
 
 /******************************************************
-*                    Global Variables
-******************************************************/
-static struct  rtsp_ctrl g_rtsp_ctrl = {
+ *                    Global Variables
+ ******************************************************/
+static struct rtsp_ctrl g_rtsp_ctrl = {
     .fps = RTSP_DEFAULT_FPS,
     .camera_idx = -1,
     .media_type = VIDEO_MEDIA_TYPE_H264,
@@ -70,10 +68,11 @@ static struct  rtsp_ctrl g_rtsp_ctrl = {
 
 /*
  * @note: there are two channel concept.
- *        vi-channel refers to video data stream, one vi device has two related vi-channels.
- *        rtsp-channel refers to rtsp send data stream, rtsp module has two rtsp-channel,
- *        they are defined in <enum rtsp_chunnel_type> in "ak_rtsp.h"
- *        since there are two vi devices(sensor), we have 4 vi-channels, 2 rtsp-channel total.
+ *        vi-channel refers to video data stream, one vi device has two related
+ * vi-channels. rtsp-channel refers to rtsp send data stream, rtsp module has
+ * two rtsp-channel, they are defined in <enum rtsp_chunnel_type> in "ak_rtsp.h"
+ *        since there are two vi devices(sensor), we have 4 vi-channels, 2
+ * rtsp-channel total.
  *
  * @rtsp_video_thread: get vi stream and send to rtsp
  * @param args[in]:  rtsp channel which thread will relate to
@@ -89,9 +88,9 @@ static void *rtsp_video_thread(void *arg)
     enum rtsp_frame_type frame_type;
     char ifram_force = 1;
 
-    struct video_stream stream = {0};
+    struct video_stream stream = { 0 };
     unsigned long long gop_size = 0;
-    unsigned  max_size = 0;
+    unsigned max_size = 0;
     struct ak_timeval pre_tv;
     struct ak_timeval cur_tv;
 
@@ -99,7 +98,7 @@ static void *rtsp_video_thread(void *arg)
     int height = CAMERA_SUB_CHN_DEFAULT_HEIGHT;
 
     FILE *save_fp = NULL;
-    char save_file[96] = {0};
+    char save_file[96] = { 0 };
 
     ak_thread_set_name(self->thread_name);
 
@@ -107,7 +106,8 @@ static void *rtsp_video_thread(void *arg)
         py_video_camera_config_get(&width, &height, NULL);
     }
 
-    venc_handle = py_venc_init(width, height, g_rtsp_ctrl.fps, g_rtsp_ctrl.media_type);
+    venc_handle =
+        py_venc_init(width, height, g_rtsp_ctrl.fps, g_rtsp_ctrl.media_type);
     if (venc_handle < 0) {
         LOG_E("video encode open failed!\n");
         goto exit_thread;
@@ -136,7 +136,7 @@ static void *rtsp_video_thread(void *arg)
 
                     ret = ak_app_video_bind_chn(&Schn, &Dchn, &param);
                     if (ret != AK_SUCCESS) {
-                        LOG_E("ak_app_video_bind_chn failed [%d]\n",ret);
+                        LOG_E("ak_app_video_bind_chn failed [%d]\n", ret);
                         goto exit_venc;
                     }
 
@@ -162,7 +162,7 @@ static void *rtsp_video_thread(void *arg)
                         if (NULL != save_fp) {
                             fclose(save_fp);
                             save_fp = NULL;
-                            count ++;
+                            count++;
                         }
                     }
                 } else {
@@ -174,11 +174,13 @@ static void *rtsp_video_thread(void *arg)
             if (g_rtsp_ctrl.save_path) {
                 if (NULL == save_fp) {
                     snprintf(save_file, sizeof(save_file), "%s/chn%d_%d.%s",
-                            g_rtsp_ctrl.save_path, self->rtsp_channel, count,
-                            g_rtsp_ctrl.media_type == VIDEO_MEDIA_TYPE_H264 ? "h264" : "hevc");
+                             g_rtsp_ctrl.save_path, self->rtsp_channel, count,
+                             g_rtsp_ctrl.media_type == VIDEO_MEDIA_TYPE_H264
+                                 ? "h264"
+                                 : "hevc");
                     save_fp = fopen(save_file, "w+");
                     if (save_fp == NULL) {
-                        LOG_E( "fopen %s failed\n", save_file);
+                        LOG_E("fopen %s failed\n", save_file);
                         return NULL;
                     }
                 }
@@ -190,13 +192,14 @@ static void *rtsp_video_thread(void *arg)
                 /* send stream */
                 if (FRAME_TYPE_I == stream.frame_type) {
                     frame_type = RTSP_IFRAME;
-                } else if(FRAME_TYPE_P == stream.frame_type) {
+                } else if (FRAME_TYPE_P == stream.frame_type) {
                     frame_type = RTSP_PFRAME;
                 }
 
-                ret = ak_rtsp_send_stream(self->rtsp_channel, frame_type, stream.data, stream.len, stream.ts);
+                ret = ak_rtsp_send_stream(self->rtsp_channel, frame_type,
+                                          stream.data, stream.len, stream.ts);
                 if (ret < 0) {
-                    LOG_E("ak_rtsp_send_stream fail %d \n", ret);
+                    LOG_E("ak_rtsp_send_stream fail %d\n", ret);
                 }
 
                 if (g_rtsp_ctrl.save_path) {
@@ -233,10 +236,11 @@ static int rtsp_create_monitor_thread()
     /* start rtsp_control, create two video threads for two RTSP channels */
     struct rtsp_video_thread_attr *attr;
 
-    if (g_rtsp_ctrl.attr != NULL) return 0;
+    if (g_rtsp_ctrl.attr != NULL)
+        return 0;
 
-    attr = (struct rtsp_video_thread_attr *)
-            malloc(sizeof(struct rtsp_video_thread_attr) * RTSP_CHAN_NUM_MAX);
+    attr = (struct rtsp_video_thread_attr *)malloc(
+        sizeof(struct rtsp_video_thread_attr) * RTSP_CHAN_NUM_MAX);
     if (NULL == attr) {
         LOG_E("malloc video thread attr failed.\n");
         return -1;
@@ -246,16 +250,19 @@ static int rtsp_create_monitor_thread()
     attr[RTSP_CHUNNEL_0].thread_name = "rtsp_main_video";
     attr[RTSP_CHUNNEL_0].vi_channel_id = VIDEO_CHN_MAIN;
     attr[RTSP_CHUNNEL_0].rtsp_channel = RTSP_CHUNNEL_0;
-    g_rtsp_ctrl.chan_state[RTSP_CHUNNEL_0] = RTSP_STATE_WORK;    //open audio rtsp main chan(defaut main chan)
+    g_rtsp_ctrl.chan_state[RTSP_CHUNNEL_0] =
+        RTSP_STATE_WORK;  // open audio rtsp main chan(defaut main chan)
 
     // build sub channel thread attribute
     attr[RTSP_CHUNNEL_1].thread_name = "rtsp_sub_video";
     attr[RTSP_CHUNNEL_1].vi_channel_id = VIDEO_CHN_SUB;
     attr[RTSP_CHUNNEL_1].rtsp_channel = RTSP_CHUNNEL_1;
-    g_rtsp_ctrl.chan_state[RTSP_CHUNNEL_1] = RTSP_STATE_WORK;    //open video rtsp sub  chan for double chan use
+    g_rtsp_ctrl.chan_state[RTSP_CHUNNEL_1] =
+        RTSP_STATE_WORK;  // open video rtsp sub  chan for double chan use
 
     if (ak_thread_create(&attr[RTSP_CHUNNEL_0].thread_id, rtsp_video_thread,
-            &attr[RTSP_CHUNNEL_0], RTSP_STREAM_TASK_STACK_SIZE, RTSP_THREAD_PRIORITY) != 0) {
+                         &attr[RTSP_CHUNNEL_0], RTSP_STREAM_TASK_STACK_SIZE,
+                         RTSP_THREAD_PRIORITY) != 0) {
         g_rtsp_ctrl.chan_state[RTSP_CHUNNEL_0] = RTSP_STATE_CLOSE;
         g_rtsp_ctrl.chan_state[RTSP_CHUNNEL_1] = RTSP_STATE_CLOSE;
         free(attr);
@@ -265,7 +272,8 @@ static int rtsp_create_monitor_thread()
 
     /* start sub video */
     if (ak_thread_create(&attr[RTSP_CHUNNEL_1].thread_id, rtsp_video_thread,
-            &attr[RTSP_CHUNNEL_1], RTSP_STREAM_TASK_STACK_SIZE, RTSP_THREAD_PRIORITY) != 0) {
+                         &attr[RTSP_CHUNNEL_1], RTSP_STREAM_TASK_STACK_SIZE,
+                         RTSP_THREAD_PRIORITY) != 0) {
         g_rtsp_ctrl.chan_state[RTSP_CHUNNEL_0] = RTSP_STATE_CLOSE;
         g_rtsp_ctrl.chan_state[RTSP_CHUNNEL_1] = RTSP_STATE_CLOSE;
         ak_thread_join(attr[RTSP_CHUNNEL_0].thread_id);

@@ -105,7 +105,7 @@ int32_t aos_hal_flash_init(hal_partition_t in_partition);
  *
  * @return  0: On success， otherwise is error
  */
-int32_t aos_hal_flash_info_get(hal_partition_t in_partition, hal_logic_partition_t *partition);
+int32_t aos_hal_flash_info_get(hal_partition_t in_partition, hal_logic_partition_t **partition);
 
 /**
  * Get the information of all the flash partitions

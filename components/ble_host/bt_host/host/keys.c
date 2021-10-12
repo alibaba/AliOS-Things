@@ -29,7 +29,7 @@
 #include "smp.h"
 #include "settings.h"
 #include "keys.h"
-#include "errno.h"
+#include "bt_errno.h"
 
 static struct bt_keys key_pool[CONFIG_BT_MAX_PAIRED];
 

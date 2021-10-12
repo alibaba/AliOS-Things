@@ -57,9 +57,7 @@ def_config:
 ```
 
 # API说明
-@ref mpy_run
-@ref mpy_init
-@ref mpy_deinit
+无
 
 # 使用示例
 

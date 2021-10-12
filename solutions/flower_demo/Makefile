@@ -12,7 +12,7 @@ startup: all
 
 all:
 	@echo "Build Solution by $(BOARD) "
-	$(CPRE) scons $(VERB) --board=$(BOARD) -j4
+	$(CPRE) scons $(VERB) --board=$(BOARD) $(MULTITHREADS) $(MAKEFLAGS)
 	@echo YoC SDK Done
 
 	@echo [INFO] Create bin files
@@ -32,6 +32,6 @@ sdk:
 
 .PHONY:clean
 clean:
-	$(CPRE) scons -c
+	$(CPRE) scons -c --board=$(BOARD)
 	$(CPRE) find . -name "*.[od]" -delete
 	$(CPRE) rm -rf aos_sdk aos.elf aos.map binary generated out

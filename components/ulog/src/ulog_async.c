@@ -12,17 +12,19 @@
 #include "ulog_ring_fifo.h"
 #include "aos/kernel.h"
 #include "k_config.h"
-#ifdef ULOG_POP_CLOUD_ENABLE
+#if ULOG_POP_CLOUD_ENABLE
 #include "uagent.h"
 #endif
+
+#define SUB_FUNC_MAX_NUM  2
 
 static aos_task_t ulog_routine;
 
 typedef void(*on_ulog_man_service)(const uint32_t, const uint32_t);
 
 typedef struct {
-    char*                func_mark;
-    char*                sub_func_mark[2];
+    char                 *func_mark;
+    char                 *sub_func_mark[SUB_FUNC_MAX_NUM];
     on_ulog_man_service  handler;
 } ulog_man_handler_service_t;
 
@@ -116,30 +118,64 @@ void ulog_async_init()
 
 void ulog_man_handler(const char* raw_str)
 {
-    if (raw_str != NULL) {
-        const int8_t man_handler_service_size = sizeof(ulog_man_handler_service) / sizeof(ulog_man_handler_service_t);
-        int8_t i = 0;
-        for (; i < man_handler_service_size; i++) {
-            if (0 == strncmp(ulog_man_handler_service[i].func_mark, raw_str, strlen(ulog_man_handler_service[i].func_mark))) {
-                const char* p = &raw_str[strlen(ulog_man_handler_service[i].func_mark)];
-                if (p[0] == ' ') {
-                    uint32_t param[2] = { -1, -1 };
-                    uint8_t j = 0;
+    const int8_t man_handler_service_size = sizeof(ulog_man_handler_service) / sizeof(ulog_man_handler_service_t);
+    int8_t i = 0;
+    uint8_t j = 0;
+    int func_len = 0;
+    int subfunc_len = 0;
+    unsigned short data_len = 0;
+    uint32_t param[SUB_FUNC_MAX_NUM] = { -1, -1 };
+    char *p = NULL;
+    char *val_str = NULL;
 
-                    for (; j < 2; j++) {
-                        char * q = NULL;
-                        if (NULL != (q = strstr(&p[1], ulog_man_handler_service[i].sub_func_mark[j]))) {
-                            char* val_str = &q[strlen(ulog_man_handler_service[i].sub_func_mark[j]) + 1];
+    if (raw_str == NULL) {
+        return ;
+    }
+
+    data_len = strlen(raw_str);
+
+    for (; i < man_handler_service_size; i++) {
+        func_len =  strlen(ulog_man_handler_service[i].func_mark);
+        if (0 == strncmp(ulog_man_handler_service[i].func_mark, raw_str, func_len)) {
+            /*
+            printf("%s %d find ulog func mark %s \r\n", __FILE__, __LINE__, ulog_man_handler_service[i].func_mark);
+            */
+            p = &raw_str[func_len];
+            if (p[0] == ' ') {
+                for (; j < SUB_FUNC_MAX_NUM; j++) {
+                    subfunc_len = strlen(ulog_man_handler_service[i].sub_func_mark[j]);
+                    if (strncmp(&p[1], ulog_man_handler_service[i].sub_func_mark[j], subfunc_len) == 0) {
+                        /*
+                        printf("%s %d find ulog sub func mark %s \r\n", __FILE__, __LINE__, ulog_man_handler_service[i].sub_func_mark[j]);
+                        */
+                        if (data_len > strlen(ulog_man_handler_service[i].func_mark) + 1 + subfunc_len + 1) {
+                            /*jump off the space and the '='*/
+                            val_str = &p[subfunc_len + 1 + 1];
                             param[j] = strtoul(val_str, NULL, 10);
+                            /*
+                            printf("%s %d find ulog sub func mark %s param value %s param %d \r\n", __FILE__, __LINE__,
+                                        ulog_man_handler_service[i].sub_func_mark[j], val_str, param[j]);
+                            */
+                        } else {
+                            /*there is no param for this cmd ,set true */
+                            param[j] = 1;
+                            /*
+                            printf("%s %d find ulog sub func mark %s param %d \r\n", __FILE__, __LINE__,
+                                        ulog_man_handler_service[i].sub_func_mark[j], param[j]);
+                            */
                         }
                     }
-                    if ((param[0] != -1 || param[1] != -1) && (ulog_man_handler_service[i].handler != NULL)) {
-                        ulog_man_handler_service[i].handler(param[0], param[1]);
-                    }
                 }
-                break;
+                if ((param[0] != -1 || param[1] != -1) && (ulog_man_handler_service[i].handler != NULL)) {
+                    /*
+                    printf("%s %d find ulog man handler %d param0 %d param1 %d\r\n", __FILE__, __LINE__, i, param[0], param[1]);
+                    */
+                    ulog_man_handler_service[i].handler(param[0], param[1]);
+                }
             }
+            break;
         }
     }
+
 }
 

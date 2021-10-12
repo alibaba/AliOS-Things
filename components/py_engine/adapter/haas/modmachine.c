@@ -24,23 +24,24 @@
  * THE SOFTWARE.
  */
 
+#include "modmachine.h"
+
 #include <stdio.h>
 #include <string.h>
 
-#include "modmachine.h"
-#include "py/gc.h"
-#include "py/runtime.h"
-#include "py/objstr.h"
-#include "py/mperrno.h"
-#include "py/mphal.h"
-#include "extmod/machine_mem.h"
-#include "extmod/machine_signal.h"
-#include "extmod/machine_pulse.h"
 #include "extmod/machine_i2c.h"
+#include "extmod/machine_mem.h"
+#include "extmod/machine_pulse.h"
+#include "extmod/machine_signal.h"
 #include "extmod/machine_spi.h"
-#include "lib/utils/pyexec.h"
 #include "extmod/vfs.h"
 #include "gccollect.h"
+#include "shared/runtime/pyexec.h"
+#include "py/gc.h"
+#include "py/mperrno.h"
+#include "py/mphal.h"
+#include "py/objstr.h"
+#include "py/runtime.h"
 // #include "irq.h"
 // #include "rng.h"
 // #include "pin.h"
@@ -61,25 +62,30 @@
 #define HAAS_RESET_WDT       (3)
 #define HAAS_RESET_DEEPSLEEP (4)
 
-STATIC uint32_t reset_cause;
+STATIC mp_uint_t reset_cause;
 
-void machine_init(void) {
-    
+void machine_init(void)
+{
 }
 
-void machine_deinit(void) {
+void machine_deinit(void)
+{
     // we are doing a soft-reset so change the reset_cause
     reset_cause = HAAS_RESET_SOFT;
 }
 
 // machine.info([dump_alloc_table])
 // Print out lots of information about the board.
-STATIC mp_obj_t machine_info(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t machine_info(size_t n_args, const mp_obj_t *args)
+{
     // qstr info
     {
         size_t n_pool, n_qstr, n_str_data_bytes, n_total_bytes;
         qstr_pool_info(&n_pool, &n_qstr, &n_str_data_bytes, &n_total_bytes);
-        printf("qstr:\n  n_pool=%u\n  n_qstr=%u\n  n_str_data_bytes=%u\n  n_total_bytes=%u\n", n_pool, n_qstr, n_str_data_bytes, n_total_bytes);
+        printf(
+            "qstr:\n  n_pool=%u\n  n_qstr=%u\n  n_str_data_bytes=%u\n  "
+            "n_total_bytes=%u\n",
+            n_pool, n_qstr, n_str_data_bytes, n_total_bytes);
     }
 
     // GC info
@@ -89,25 +95,27 @@ STATIC mp_obj_t machine_info(size_t n_args, const mp_obj_t *args) {
         printf("GC:\n");
         printf("  %u total\n", info.total);
         printf("  %u : %u\n", info.used, info.free);
-        printf("  1=%u 2=%u m=%u\n", info.num_1block, info.num_2block, info.max_block);
+        printf("  1=%u 2=%u m=%u\n", info.num_1block, info.num_2block,
+               info.max_block);
     }
 
     // free space on flash
     {
-        #if MICROPY_VFS_FAT
-        for (mp_vfs_mount_t *vfs = MP_STATE_VM(vfs_mount_table); vfs != NULL; vfs = vfs->next) {
+#if MICROPY_VFS_FAT
+        for (mp_vfs_mount_t *vfs = MP_STATE_VM(vfs_mount_table); vfs != NULL;
+             vfs = vfs->next) {
             if (strncmp("/flash", vfs->str, vfs->len) == 0) {
                 // assumes that it's a FatFs filesystem
                 fs_user_mount_t *vfs_fat = MP_OBJ_TO_PTR(vfs->obj);
                 DWORD nclst;
                 f_getfree(&vfs_fat->fatfs, &nclst);
-                printf("LFS free: %u bytes\n", (uint)(nclst * vfs_fat->fatfs.csize * 512));
+                printf("LFS free: %u bytes\n",
+                       (uint)(nclst * vfs_fat->fatfs.csize * 512));
                 break;
             }
         }
-        #endif
+#endif
     }
-
 
     if (n_args == 1) {
         // arg given means dump gc allocation table
@@ -119,39 +127,45 @@ STATIC mp_obj_t machine_info(size_t n_args, const mp_obj_t *args) {
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_info_obj, 0, 1, machine_info);
 
 // Returns a string of 12 bytes (96 bits), which is the unique ID for the MCU.
-STATIC mp_obj_t machine_unique_id(void) {
+STATIC mp_obj_t machine_unique_id(void)
+{
     byte *id = (byte *)(0x1ffff7ac);
     return mp_obj_new_bytes(id, 12);
 }
 MP_DEFINE_CONST_FUN_OBJ_0(machine_unique_id_obj, machine_unique_id);
 
 // Resets the pyboard in a manner similar to pushing the external RESET button.
-STATIC mp_obj_t machine_reset(void) {
+STATIC mp_obj_t machine_reset(void)
+{
     aos_reboot();
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_0(machine_reset_obj, machine_reset);
 
-STATIC mp_obj_t machine_soft_reset(void) {
+STATIC mp_obj_t machine_soft_reset(void)
+{
     pyexec_system_exit = PYEXEC_FORCED_EXIT;
     mp_raise_type(&mp_type_SystemExit);
 }
 MP_DEFINE_CONST_FUN_OBJ_0(machine_soft_reset_obj, machine_soft_reset);
 
 // Activate the bootloader without BOOT* pins.
-STATIC NORETURN mp_obj_t machine_bootloader(size_t n_args, const mp_obj_t *args) {
+STATIC NORETURN mp_obj_t machine_bootloader(size_t n_args, const mp_obj_t *args)
+{
     return mp_const_none;
 }
-MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_bootloader_obj, 0, 1, machine_bootloader);
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_bootloader_obj, 0, 1,
+                                    machine_bootloader);
 
 // get or set the MCU frequencies
-STATIC mp_obj_t machine_freq(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t machine_freq(size_t n_args, const mp_obj_t *args)
+{
     if (n_args == 0) {
         // get
         mp_obj_t tuple[] = {
-            mp_obj_new_int(/*HAL_RCC_GetSysClockFreq()*/0),
-            mp_obj_new_int(/*HAL_RCC_GetHCLKFreq()*/0),
-            mp_obj_new_int(/*HAL_RCC_GetPCLK1Freq()*/0),
+            mp_obj_new_int(/*HAL_RCC_GetSysClockFreq()*/ 0),
+            mp_obj_new_int(/*HAL_RCC_GetHCLKFreq()*/ 0),
+            mp_obj_new_int(/*HAL_RCC_GetPCLK1Freq()*/ 0),
         };
         return mp_obj_new_tuple(MP_ARRAY_SIZE(tuple), tuple);
     } else {
@@ -184,56 +198,67 @@ MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_freq_obj, 0, 4, machine_freq);
 // idle()
 // This executies a wfi machine instruction which reduces power consumption
 // of the MCU until an interrupt occurs, at which point execution continues.
-STATIC mp_obj_t machine_idle(void) {
+STATIC mp_obj_t machine_idle(void)
+{
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_0(machine_idle_obj, machine_idle);
 
-STATIC mp_obj_t machine_lightsleep(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t machine_lightsleep(size_t n_args, const mp_obj_t *args)
+{
     if (n_args != 0) {
-        mp_obj_t args2[2] = {MP_OBJ_NULL, args[0]};
+        mp_obj_t args2[2] = { MP_OBJ_NULL, args[0] };
     }
     return mp_const_none;
 }
-MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_lightsleep_obj, 0, 1, machine_lightsleep);
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_lightsleep_obj, 0, 1,
+                                    machine_lightsleep);
 
-STATIC mp_obj_t machine_deepsleep(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t machine_deepsleep(size_t n_args, const mp_obj_t *args)
+{
     if (n_args != 0) {
-        mp_obj_t args2[2] = {MP_OBJ_NULL, args[0]};
+        mp_obj_t args2[2] = { MP_OBJ_NULL, args[0] };
     }
     return mp_const_none;
 }
-MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_deepsleep_obj, 0, 1, machine_deepsleep);
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_deepsleep_obj, 0, 1,
+                                    machine_deepsleep);
 
-STATIC mp_obj_t machine_reset_cause(void) {
+STATIC mp_obj_t machine_reset_cause(void)
+{
     return MP_OBJ_NEW_SMALL_INT(reset_cause);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(machine_reset_cause_obj, machine_reset_cause);
 
 // Return a 30-bit hardware generated random number.
-STATIC mp_obj_t machine_rng(void) {
+STATIC mp_obj_t machine_rng(void)
+{
     return mp_obj_new_int(aos_rand());
 }
 MP_DEFINE_CONST_FUN_OBJ_0(machine_rng_obj, machine_rng);
 
-STATIC mp_obj_t machine_disable_irq(void) {
-    uint32_t state = MICROPY_BEGIN_ATOMIC_SECTION();
+STATIC mp_obj_t machine_disable_irq(void)
+{
+    mp_uint_t state = MICROPY_BEGIN_ATOMIC_SECTION();
     return mp_obj_new_int(state);
 }
 MP_DEFINE_CONST_FUN_OBJ_0(machine_disable_irq_obj, machine_disable_irq);
 
-STATIC mp_obj_t machine_enable_irq(mp_obj_t state_in) {
-    uint32_t state = mp_obj_get_int(state_in);
+STATIC mp_obj_t machine_enable_irq(mp_obj_t state_in)
+{
+    mp_uint_t state = mp_obj_get_int(state_in);
     MICROPY_END_ATOMIC_SECTION(state);
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_1(machine_enable_irq_obj, machine_enable_irq);
 
-STATIC mp_obj_t machine_wake_reason(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+STATIC mp_obj_t machine_wake_reason(size_t n_args, const mp_obj_t *pos_args,
+                                    mp_map_t *kw_args)
+{
     return MP_OBJ_NEW_SMALL_INT(0);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(machine_wake_reason_obj, 0,  machine_wake_reason);
-
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(machine_wake_reason_obj, 0,
+                                  machine_wake_reason);
 
 STATIC const mp_rom_map_elem_t machine_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_machine) },
@@ -253,8 +278,9 @@ STATIC const mp_rom_map_elem_t machine_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_sleep), MP_ROM_PTR(&machine_lightsleep_obj) },
     { MP_ROM_QSTR(MP_QSTR_lightsleep), MP_ROM_PTR(&machine_lightsleep_obj) },
     { MP_ROM_QSTR(MP_QSTR_deepsleep), MP_ROM_PTR(&machine_deepsleep_obj) },
-    { MP_ROM_QSTR(MP_QSTR_time_pulse_us), MP_ROM_PTR(&machine_time_pulse_us_obj) },
-    
+    { MP_ROM_QSTR(MP_QSTR_time_pulse_us),
+      MP_ROM_PTR(&machine_time_pulse_us_obj) },
+
     { MP_ROM_QSTR(MP_QSTR_disable_irq), MP_ROM_PTR(&machine_disable_irq_obj) },
     { MP_ROM_QSTR(MP_QSTR_enable_irq), MP_ROM_PTR(&machine_enable_irq_obj) },
 
@@ -265,7 +291,7 @@ STATIC const mp_rom_map_elem_t machine_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_Signal), MP_ROM_PTR(&machine_signal_type) },
 
     { MP_ROM_QSTR(MP_QSTR_ADC), MP_ROM_PTR(&machine_adc_type) },
-#if MICROPY_PY_MACHINE_HW_PWM
+#if MICROPY_PY_MACHINE_DAC
     { MP_ROM_QSTR(MP_QSTR_DAC), MP_ROM_PTR(&machine_dac_type) },
 #endif
     { MP_ROM_QSTR(MP_QSTR_I2C), MP_ROM_PTR(&machine_hw_i2c_type) },
@@ -301,7 +327,8 @@ STATIC const mp_rom_map_elem_t machine_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_IDLE), MP_ROM_INT(PWR_MODE_ACTIVE) },
     { MP_ROM_QSTR(MP_QSTR_SLEEP), MP_ROM_INT(PWR_MODE_LPDS) },
     { MP_ROM_QSTR(MP_QSTR_DEEPSLEEP), MP_ROM_INT(PWR_MODE_HIBERNATE) },
-    { MP_ROM_QSTR(MP_QSTR_POWER_ON), MP_ROM_INT(SLP_PWRON_RESET) }, // legacy constant
+    { MP_ROM_QSTR(MP_QSTR_POWER_ON),
+      MP_ROM_INT(SLP_PWRON_RESET) },  // legacy constant
     { MP_ROM_QSTR(MP_QSTR_PWRON_RESET), MP_ROM_INT(SLP_PWRON_RESET) },
     { MP_ROM_QSTR(MP_QSTR_HARD_RESET), MP_ROM_INT(SLP_HARD_RESET) },
     { MP_ROM_QSTR(MP_QSTR_WDT_RESET), MP_ROM_INT(SLP_WDT_RESET) },
@@ -312,7 +339,8 @@ STATIC const mp_rom_map_elem_t machine_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_RTC_WAKE), MP_ROM_INT(SLP_WAKED_BY_RTC) },
 };
 
-STATIC MP_DEFINE_CONST_DICT(machine_module_globals, machine_module_globals_table);
+STATIC MP_DEFINE_CONST_DICT(machine_module_globals,
+                            machine_module_globals_table);
 
 const mp_obj_module_t mp_module_machine = {
     .base = { &mp_type_module },

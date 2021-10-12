@@ -1017,10 +1017,12 @@ SECTIONS
   PROVIDE_HIDDEN (__init_array_end = .);
   PROVIDE(__ctors_end__ = .);
   . = ALIGN(4);
+  PROVIDE(__dtors_start__ = .);
   PROVIDE_HIDDEN (__fini_array_start = .);
   KEEP(*(SORT(.fini_array.*)))
   KEEP(*(.fini_array))
   PROVIDE_HIDDEN (__fini_array_end = .);
+  PROVIDE(__dtors_end__ = .);
   KEEP(*(.jcr*))
   . = ALIGN(4);
   *(*.got*)

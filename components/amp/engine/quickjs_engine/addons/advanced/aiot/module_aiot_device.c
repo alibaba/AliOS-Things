@@ -30,7 +30,7 @@ JSClassID js_aiot_device_class_id;
 ota_service_t g_aiot_device_appota_service;
 static ota_store_module_info_t module_info[3];
 
-// extern const char *amp_jsapp_version_get(void);
+// extern const char *aos_userjs_version_get(void);
 
 typedef struct {
     iot_device_handle_t *iot_device_handle;
@@ -72,54 +72,6 @@ static char *__amp_strdup(char *src)
     dst[len] = '\0';
     return dst;
 }
-
-// static int user_jsapp_ota_triger_cb(void* pctx, char *ver, char *module_name)
-// {
-//     int ret = OTA_TRANSPORT_PAR_FAIL;
-//     ota_service_t *ota_svc = (ota_service_t *)pctx;
-
-//     amp_error(MOD_STR, "user_jsapp_ota_triger_cb IS CALLED");
-//     if ((ota_svc == NULL) || (ver == NULL) || (module_name == NULL)) {
-//         return ret;
-//     }
-//     if (strncmp(module_name, "default", strlen(module_name)) == 0) {
-//         char *current_ver = NULL;
-//         current_ver = amp_jsapp_version_get();
-//         if (current_ver == NULL) {
-//             return ret;
-//         }
-//         ret = 0;
-//         if (strncmp(ver, current_ver, strlen(ver)) <= 0) {
-//             ret = OTA_TRANSPORT_VER_FAIL;
-//             amp_error(MOD_STR, "user ota version too old!");
-//         } else {
-//             if (ota_svc->feedback_func.on_user_event_cb != NULL) {
-//                 ota_svc->feedback_func.on_user_event_cb(OTA_EVENT_UPGRADE_TRIGGER, 0, ota_svc->feedback_func.param);
-//             } else {
-//                 ret = OTA_TRANSPORT_PAR_FAIL;
-//                 amp_error(MOD_STR, "user ota trigger cb is NULL!");
-//             }
-//         }
-//     } else {
-//         int ret = OTA_TRANSPORT_PAR_FAIL;
-//         char current_amp_ver[64];
-//         memset(current_amp_ver, 0x00, sizeof(current_amp_ver));
-//         amp_app_version_get(current_amp_ver);
-//         ret = 0;
-//         if (strncmp(ver, current_amp_ver, strlen(ver)) <= 0) {
-//             ret = OTA_TRANSPORT_VER_FAIL;
-//             amp_error(MOD_STR, "system ota version too old!");
-//         } else {
-//             if (ota_svc->feedback_func.on_user_event_cb != NULL) {
-//                 ota_svc->feedback_func.on_user_event_cb(OTA_EVENT_UPGRADE_TRIGGER, 0, ota_svc->feedback_func.param);
-//             } else {
-//                 ret = OTA_TRANSPORT_PAR_FAIL;
-//                 amp_error(MOD_STR, "user ota trigger cb is NULL!");
-//             }
-//         }
-//     }
-//     return ret;
-// }
 
 static void aiot_device_notify(void *pdata)
 {
@@ -366,10 +318,40 @@ exit:
     amp_free(param);
 }
 
+
+static void aiot_connect_event(iot_device_handle_t *iot_device_handle)
+{
+    int res = 0;
+
+    if (iot_device_handle->dm_handle != NULL) {
+        amp_warn(MOD_STR, "dm_handle is already initialized");
+        return;
+    }
+
+    /* device model service */
+    iot_device_handle->dm_handle = aiot_dm_init();
+    if (iot_device_handle->dm_handle == NULL) {
+        amp_debug(MOD_STR, "aiot_dm_init failed");
+        return;
+    }
+
+    /* 配置MQTT实例句柄 */
+    aiot_dm_setopt(iot_device_handle->dm_handle, AIOT_DMOPT_MQTT_HANDLE, iot_device_handle->mqtt_handle);
+    /* 配置消息接收处理回调函数 */
+    aiot_dm_setopt(iot_device_handle->dm_handle, AIOT_DMOPT_RECV_HANDLER, (void *)aiot_app_dm_recv_handler);
+    /* 配置回调函数参数 */
+    aiot_dm_setopt(iot_device_handle->dm_handle, AIOT_DMOPT_USERDATA, iot_device_handle);
+
+    /* app device active info report */
+    res = amp_app_devinfo_report(iot_device_handle->mqtt_handle);
+    if (res < STATE_SUCCESS) {
+        amp_debug(MOD_STR, "device active info report failed");
+    }
+}
+
 static void aiot_mqtt_message_cb(iot_mqtt_message_t *message, void *userdata)
 {
     iot_mqtt_userdata_t *udata = (iot_mqtt_userdata_t *)userdata;
-    iot_device_handle_t *iot_device_handle;
     device_notify_param_t *param;
 
     if (!message || !udata)
@@ -384,7 +366,6 @@ static void aiot_mqtt_message_cb(iot_mqtt_message_t *message, void *userdata)
     }
     memset(param, 0, sizeof(device_notify_param_t));
     param->iot_device_handle = (iot_device_handle_t *)udata->handle;
-
     param->option = message->option;
     param->js_cb_ref = param->iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_CREATE_DEV_REF];
     param->cb_type = AIOT_DEV_JSCALLBACK_CREATE_DEV_REF;
@@ -393,6 +374,7 @@ static void aiot_mqtt_message_cb(iot_mqtt_message_t *message, void *userdata)
         switch (message->event.type) {
         case AIOT_MQTTEVT_CONNECT:
         case AIOT_MQTTEVT_RECONNECT:
+            aiot_connect_event(param->iot_device_handle);
         case AIOT_MQTTEVT_DISCONNECT:
             param->ret_code = message->event.code;
             param->event_type = message->event.type;
@@ -446,6 +428,7 @@ static void aiot_device_connect(void *pdata)
         amp_error(MOD_STR, "alloc mqtt userdata fail");
         return;
     }
+    memset(userdata, 0, sizeof(iot_mqtt_userdata_t));
 
     userdata->callback = aiot_mqtt_message_cb;
     userdata->handle = iot_device_handle;
@@ -460,28 +443,6 @@ static void aiot_device_connect(void *pdata)
 
     g_iot_conn_flag = 1;
     iot_device_handle->res = res;
-
-    /* device model service */
-    iot_device_handle->dm_handle = aiot_dm_init();
-    if (iot_device_handle->dm_handle == NULL) {
-        amp_debug(MOD_STR, "aiot_dm_init failed");
-        amp_free(userdata);
-        amp_free(iot_device_handle);
-        return;
-    }
-
-    /* 配置MQTT实例句柄 */
-    aiot_dm_setopt(iot_device_handle->dm_handle, AIOT_DMOPT_MQTT_HANDLE, iot_device_handle->mqtt_handle);
-    /* 配置消息接收处理回调函数 */
-    aiot_dm_setopt(iot_device_handle->dm_handle, AIOT_DMOPT_RECV_HANDLER, (void *)aiot_app_dm_recv_handler);
-    /* 配置回调函数参数 */
-    aiot_dm_setopt(iot_device_handle->dm_handle, AIOT_DMOPT_USERDATA, iot_device_handle);
-
-    /* app device active info report */
-    res = amp_app_devinfo_report(iot_device_handle->mqtt_handle);
-    if (res < STATE_SUCCESS) {
-        amp_debug(MOD_STR, "device active info report failed");
-    }
 
     while (!g_iot_close_flag){
         aos_msleep(1000);
@@ -577,6 +538,7 @@ static JSValue native_aiot_create_device(JSContext *ctx, JSValueConst this_val,i
         amp_error(MOD_STR, "allocate memory failed\n");
         goto out;
     }
+    memset(iot_device_handle, 0, sizeof(iot_device_handle_t));
 
     for (int i = 0; i < AIOT_DEV_JSCALLBACK_INVALID_CODE; i++) {
         iot_device_handle->js_cb_ref[i] = JS_UNDEFINED;
@@ -618,7 +580,7 @@ static JSValue native_aiot_get_ntp_time(JSContext *ctx, JSValueConst this_val,in
 {
     int res = -1;
     iot_device_handle_t *iot_device_handle = NULL;
-    amp_error(MOD_STR, "native_aiot_get_ntp_time called");
+    amp_debug(MOD_STR, "native_aiot_get_ntp_time called");
     iot_device_handle = JS_GetOpaque2(ctx, this_val, js_aiot_device_class_id);
     if (!iot_device_handle) {
         amp_warn(MOD_STR, "parameter must be handle");
@@ -762,11 +724,8 @@ static JSValue native_aiot_postProps(JSContext *ctx, JSValueConst this_val,int a
         amp_warn(MOD_STR, "parameter must be handle");
         goto out;
     }
-
-    // JSValue payload = JS_GetPropertyStr(ctx, argv[0], "payload");
     JSValue payload = argv[0];
 
-    // const char* payload_str = NULL;
     JSValue jjson = JS_UNDEFINED;
     if (!JS_IsUndefined(payload)) {
         if (JS_VALUE_GET_TAG(payload) != JS_TAG_STRING) {
@@ -861,7 +820,7 @@ static JSValue native_aiot_publish(JSContext *ctx, JSValueConst this_val,int arg
     JS_ToInt32(ctx,&qos, val);
     JS_FreeValue(ctx,val);
 
-    iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_PUBLISH_REF] = JS_DupValue(ctx, argv[1]);
+    // iot_device_handle->js_cb_ref[AIOT_DEV_JSCALLBACK_PUBLISH_REF] = JS_DupValue(ctx, argv[1]);
 
     amp_debug(MOD_STR, "publish topic: %s, payload: %s, qos is: %d", topic, payload, qos);
 
@@ -958,28 +917,16 @@ static void module_iot_source_clean(void)
 
     if (g_iot_conn_flag) {
         g_iot_close_flag = 1;
-        aos_sem_wait(&g_iot_close_sem, 5100);
+        aos_sem_wait(&g_iot_close_sem, 8000);
         g_iot_close_flag = 0;
         aos_msleep(10);
     }
 
     g_iot_clean_flag = 1;
 }
-
-/*************************************************************************************
- * Function:    native_aiot_close
- * Description: js native addon for
- *            UDP.close(sock_id)
- * Called by:   js api
- * Input:       sock_id: interger
- *
- * Output:      return 0 when UDP.close call ok
- *            return error number UDP.close call fail
- **************************************************************************************/
 static JSValue native_aiot_close(JSContext *ctx, JSValueConst this_val,int argc, JSValueConst *argv)
 {
     module_iot_source_clean();
-
     return JS_NewInt32(ctx,0);
 }
 
@@ -998,8 +945,7 @@ static const JSCFunctionListEntry js_aiot_device_funcs[] = {
     JS_CFUNC_DEF("getNtpTime", 2,  native_aiot_get_ntp_time),
     JS_CFUNC_DEF("register", 2,    native_aiot_dynreg),
     JS_CFUNC_DEF("onService", 2,   native_aiot_onService),
-    JS_CFUNC_DEF("end",     2,     native_aiot_close),
-
+    JS_CFUNC_DEF("close",     2,     native_aiot_close),
 };
 
 static int js_aiot_device_init(JSContext *ctx, JSModuleDef *m)

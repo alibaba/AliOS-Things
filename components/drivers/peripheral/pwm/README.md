@@ -1,34 +1,43 @@
 @page pwm pwm
 
-**[更正文档](https://gitee.com/alios-things/pwm/edit/rel_3.3.0/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://help.aliyun.com/document_detail/302301.html)**
+[更正文档](https://gitee.com/alios-things/adc/edit/rel_3.3.0/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 # 概述
-> PWM VFS驱动子系统，该驱动的目的是给应用或组件提供通过VFS形式（open/close/ioctl）访问PWM控制器驱动对上层提供服务的接口。
-> 该组件初始化过程中，会根据hardware/chip/<chip_name>/package.yaml中定义的CONFIG_PWM_NUM来依此创建如下名称的设备节点：
+PWM（ Pulse Width Modulation），即脉冲宽度调制，是利用微处理器的数字输出来对模拟电路进行控制的一种技术。
+该组件是PWM VFS驱动子系统，给应用或组件提供通过VFS形式（open/close/ioctl）访问PWM控制器驱动对上层提供服务的接口。该组件初始化过程中，会根据hardware/chip/<chip_name>/package.yaml中定义的CONFIG_PWM_NUM来依此创建如下名称的设备节点：
 
 * /dev/pwm0
 * /dev/pwm1
 * ...
 * /dev/pwm[CONFIG_PWM_NUM - 1]
 
-> PWM VFS驱动子系统内部会将open/close/ioctl请求转换成对应硬件的HAL层接口调用，通过HAL层接口控制主控芯片的PWM控制器的参数（频率、占空比等）的设定或发起PWM输出波形请求。
+组件支持以下功能：
+- 输出不同频率和占空比的方波
 
 ## 版权信息
 > Apache license v2.0
 
 ## 目录结构
 ```tree
-│── src
-│   └── pwm_dev.c      # PWM VFS驱动程序源代码
-├── example            # PWM VFS驱动程序使用案例
-│   └── pwm_example.c  # 通过PWM VFS接口进行PWM通信的案例文件
-├── include            # PWM驱动子系统对外提供头文件目录
-│   ├── aos
-│   │   └── hal
-│   │       └── pwm.h  # AOS HAL API头文件声明，本文件中的API是给厂商对接HAL API的原型声明
-│   └── vfsdev
-│       └── pwm_dev.h  # PWM VFS驱动子系统对应用/组件提供的接口声明文件
-└── package.yaml       # PWM VFS驱动子系统的组件配置文件
+pwm/
+├── README.md
+├── example
+│   ├── aos_pwm_example.c
+│   └── pwm_example.c
+├── include
+│   ├── aos
+│   │   ├── hal
+│   │   │   └── pwm.h
+│   │   ├── pwm.h
+│   │   ├── pwm_core.h
+│   │   └── pwm_csi.h
+│   └── vfsdev
+│       └── pwm_dev.h
+├── package.yaml
+└── src
+    ├── pwm.c
+    ├── pwm_csi.c
+    └── pwm_dev.c
 
 ```
 
@@ -37,68 +46,25 @@
 * vfs      # VFS API抽象库
 
 # 常用配置
-> 本组件可以通过CONFIG_PWM_NUM配置对上层提供设备节点的数量，CONFIG_PWM_NUM代表芯片内部的PWM控制器的数量。
-> CONFIG_PWM_NUM默认是在hardware/chip/<chip_name>/package.yaml中的**define**节点进行配置。
-> 如果没有定义CONFIG_PWM_NUM，则代码中会定义默认对外输出的设备节点数量。
+本组件可以通过CONFIG_PWM_NUM配置对上层提供设备节点的数量，CONFIG_PWM_NUM代表芯片内部的PWM控制器的数量。
+CONFIG_PWM_NUM默认是在hardware/chip/<chip_name>/package.yaml中的**def_config**节点进行配置。
+如果没有定义CONFIG_PWM_NUM，则代码中会定义默认对外输出的设备节点数量。
+
 > 设备节点数量: 默认4个, 如需修改，在hardware/chip/<chip_name>/package.yaml中修改CONFIG_PWM_NUM配置
-```sh
-define:
+```yaml
+def_config:
   CONFIG_PWM_NUM: 2
 ```
 
 # API说明
-## 打开设备节点
-```c
-int open(const char *pathname, int flags);
-```
+应用可以选择使用PWM VFS API或者原生的AOS PWM API。
 
-|args                                    |description|
-|:-----                                  |:----|
-|pathname                                |PWM控制器外设VFS路径|
-|flags                                   |目前固定为0值|
+- PWM VFS API 参考 [adc_device_api](https://g.alicdn.com/alios-things-3.3/doc/group__adc__device__api.html)
+- AOS PWM API 参考 [aos_adc_app_api](https://g.alicdn.com/alios-things-3.3/doc/group__aos__adc__app.html)
 
-兼容POSIX标准的open接口。其中参数*pathname*为*/dev/pwm*加pwm控制器序号，例如*/dev/pwm0*。
+芯片驱动对接
 
-## 关闭设备节点
-```c
-int close(int fd);
-```
-兼容POSIX标准的close接口。
-
-## PWM 参数设置
-### PWM频率设定
-在开启PWM控制器输出PWM波形之前需先设定PWM频率参数
-```c
-int ioctl(int fd, IOC_PWM_FREQ, unsigned long arg);
-
-//arg为目标PWM的频率
-// 假如设置PWM波形频率为100
-ioctl (fd, IOC_PWM_FREQ, 100);
-```
-
-### PWM占空比设定
-在开启PWM控制器输出PWM波形之前需先设定PWM占空比参数
-```c
-int ioctl(int fd, IOC_PWM_DUTY_CYCLE, unsigned long arg);
-
-//arg为指向PWM占空比的指针
-// 假如设置PWM波形占空比为0.5
-double duty_cycle = 0.5;
-ioctl (fd, IOC_PWM_DUTY_CYCLE, &duty_cycle);
-```
-
-### 控制PWM开始/停止输出波形
-
-```c
-int ioctl(int fd, int cmd, unsigned long arg);
-//arg传入0即可
-```
-其中cmd取值及其意义说明如下：
-
-|cmd            |功能         |
-|:-----         |:----        |
-|IOC_PWM_ON     |开始输出PWM波形|
-|IOC_PWM_OFF    |停止输出PWM波形|
+- PWM驱动操作API 参考 [aos_adc_driver_api](https://g.alicdn.com/alios-things-3.3/doc/group__aos__adc__driver.html)
 
 # 使用示例
 
@@ -116,15 +82,14 @@ int ioctl(int fd, int cmd, unsigned long arg);
 组件的示例代码可以通过编译链接到AliOS Things的任意案例（solution）来运行，这里选择helloworld_demo案例。helloworld_demo案例相关的源代码下载可参考[《AliOS Things集成开发环境使用说明之创建工程》](https://help.aliyun.com/document_detail/302379.html)。
 
 ## 步骤2 添加组件
-> 如果芯片内部含有PWM控制器，则芯片厂在操作系统对接的时候已经将PWM组件添加在了芯片级别配置文件“hardware/chip/<chip_name>/package.yaml”中，此配置主要包含“设置组件依赖关系”及“设置芯片内部所含PWM控制器数量”两个配置。
-```yaml
-# 设置组件依赖关系
-depends:
-  - pwm: rel_3.3.0
 
-# 设置芯片内部所含PWM控制器数量
-define:
-  CONFIG_PWM_NUM: 2
+案例下载完成后，需要在helloworld_demo组件的package.yaml中添加对组件的依赖：
+
+```yaml
+
+depends:
+  - pwm: rel_3.3.0          # helloworld_demo中引入pwm组件
+
 ```
 
 ## 步骤3 下载组件
@@ -141,16 +106,13 @@ aos install pwm
 
 ## 步骤4 添加示例
 
-在pwm组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/pwm/tree/rel_3.3.0/example)：
+在pwm组件的package.yaml中添加[example示例代码](https://gitee.com/alios-things/adc/tree/rel_3.3.0/example)：
 
 ```yaml
 source_file:
-
-PWM device driver
-#PWM VFS driver
-  - src/pwm_dev.c ? <CONFIG_U_PWM_DEV>
-#PWM VFS driver example
-- example/pwm_example.c ? <CONFIG_U_PWM_DEV>
+  - "src/*.c"
+  - "example/pwm_example.c"
+  - "example/aos_pwm_example.c"
 ```
 
 ## 步骤5 编译固件
@@ -171,19 +133,33 @@ helloworld_demo案例的固件生成后，可参考[《AliOS Things集成开发�
 
 **CLI命令行输入：**
 ```shell
-pwm_output <channel id> <freqency> <period, in unit of s>
-# 如向PWM通道0输出频率为100，占空比为0.5(pwm_example.c中固定参数)的波形，持续时间3秒
-pwm_output 0 100 3
+
+pwm_example # 执行pwm vfs api 示例
+
 ```
 
-> 关键日志
+> 关键日志：
 ```shell
+
 pwm comp output test success!
+
+```
+
+**CLI命令行输入：**
+```shell
+
+aos_pwm_example # 执行aos pwm api 示例
+
+```
+
+> 关键日志：
+```shell
+
+aos_pwm_test success
 ```
 
 # 注意事项
-> PWM是总线类型的bus，进行pwm组件输出测试，测试结果可以通过示波器进行量测或通过外拐有声光效果的元器件（比如LED，蜂鸣器）观察不同的声光效果。
+无
 
 # FAQ
-> 无
-
+无

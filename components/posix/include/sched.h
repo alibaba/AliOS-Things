@@ -3,12 +3,16 @@
  * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
 
-#ifndef __POSIX_SCHED_H
-#define __POSIX_SCHED_H
+#ifndef _SCHED_H
+#define _SCHED_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 #include <sys/types.h>
-#include <time.h>
+#include <sys/timespec.h>
 
 /* The scheduling policy */
 #define SCHED_OTHER 0
@@ -21,10 +25,6 @@ struct sched_param {
     uint64_t slice;          /* time slice in SCHED_RR mode (ms) */
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 int sched_yield(void);
 int sched_setscheduler(pid_t pid, int policy, const struct sched_param *param);
 int sched_get_priority_min(int policy);
@@ -35,4 +35,4 @@ int sched_rr_get_interval(pid_t pid, struct timespec *interval);
 }
 #endif
 
-#endif /*__POSIX_SCHED_H*/
+#endif /*_SCHED_H*/

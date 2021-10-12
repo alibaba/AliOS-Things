@@ -183,7 +183,7 @@ void *amp_memmgt_realloc(void *ptr, unsigned int size, unsigned int lr, int ptno
 
     if (size == 0) {
         amp_memmgt_free(ptr, lr, ptno);
-        return ptr;
+        return NULL;
     }
 
     if(NULL == g_mem_config.realloc_fn) {

@@ -91,6 +91,7 @@ int32_t repl_printf(const char *buffer, ...)
 int aos_repl_write(char *str)
 {
     repl_printf("%s", str);
+    return 0;
 }
 
 static int32_t repl_init(void)

@@ -140,7 +140,7 @@ CFLAGS_IMAGE +=
 LDFLAGS_IMAGE +=
 
 C_ONLY_FLAGS    := -std=gnu11
-C++_ONLY_FLAGS  := -std=gnu++11
+C++_ONLY_FLAGS  := -std=gnu++11 -fno-exceptions -fno-enforce-eh-specs  -fno-use-cxa-atexit -fno-threadsafe-statics
 
 CFLAGS_IMAGE += -u _printf_float -u _scanf_float
 

@@ -132,12 +132,16 @@ void mp_reader_new_file_from_fd(mp_reader_t *reader, int fd, bool close_fd) {
     reader->close = mp_reader_posix_close;
 }
 
+// Modified bt HaaS begin
+
 // As HaaS set MICROPY_READER_POSIX and unset MICROPY_READER_VFS, 
 // no module supply mp_reader_new_file function. 
 // We remove '!' here to make sure mp_reader_new_file defined
 
 // #if !MICROPY_VFS_POSIX
 #if MICROPY_VFS_POSIX
+// Modified bt HaaS end
+
 // If MICROPY_VFS_POSIX is defined then this function is provided by the VFS layer
 void mp_reader_new_file(mp_reader_t *reader, const char *filename) {
     MP_THREAD_GIL_EXIT();

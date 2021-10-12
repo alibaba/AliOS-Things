@@ -15,7 +15,7 @@ static int boot_part               = HAL_PARTITION_OTA_TEMP;
 static ota_crc16_ctx  ctx          = {0};
 
 OTA_WEAK int ota_hal_init(ota_boot_param_t *param)
-{   
+{
     int ret = OTA_INIT_FAIL;
     if(param != NULL) {
         ret = 0;
@@ -23,7 +23,7 @@ OTA_WEAK int ota_hal_init(ota_boot_param_t *param)
         hal_logic_partition_t *p_part_info;
         p_part_info = &part_info;
         memset(p_part_info, 0, sizeof(hal_logic_partition_t));
-        ret = aos_hal_flash_info_get(boot_part, p_part_info);
+        ret = aos_hal_flash_info_get(boot_part, &p_part_info);
         if(ret != 0 || param->len == 0) {
             ret = OTA_INIT_FAIL;
         }
@@ -39,7 +39,7 @@ OTA_WEAK int ota_hal_init(ota_boot_param_t *param)
                 unsigned int off = 0;
                 unsigned int block_size = 0;
                 while(len > 0) {
-                    block_size = (len > OTA_FLASH_BLOCK_SIZE)? OTA_FLASH_BLOCK_SIZE: len; 
+                    block_size = (len > OTA_FLASH_BLOCK_SIZE) ? OTA_FLASH_BLOCK_SIZE : len;
                     ret = aos_hal_flash_erase(boot_part, ota_receive_total_len + off, block_size);
                     if(ret < 0) {
                         ret = OTA_INIT_FAIL;
@@ -161,8 +161,8 @@ OTA_WEAK int ota_hal_boot(ota_boot_param_t *param)
     hal_logic_partition_t *p_app_info = &app_info;
     memset(p_ota_info, 0, sizeof(hal_logic_partition_t));
     memset(p_app_info, 0, sizeof(hal_logic_partition_t));
-    aos_hal_flash_info_get(boot_part, p_ota_info);
-    aos_hal_flash_info_get(HAL_PARTITION_APPLICATION, p_app_info);
+    aos_hal_flash_info_get(boot_part, &p_ota_info);
+    aos_hal_flash_info_get(HAL_PARTITION_APPLICATION, &p_app_info);
     if(param != NULL) {
         if(param->crc == 0 || param->crc == 0xffff) {
             OTA_LOG_I("calculate image crc");

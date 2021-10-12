@@ -41,20 +41,19 @@ void on_update_syslog_watcher_addr(const uint32_t ip_nl, const uint32_t port)
         memset(syslog_watcher_addr, 0, sizeof(struct sockaddr_in));
         syslog_watcher_addr->sin_family = AF_INET;
 
-        if (0 != (port & 0xFFFF)) {
+        if (0xFFFF != (port & 0xFFFF)) {
             syslog_watcher_port = port;
             SESSION_UDP_INFO("ulog port %d\n", syslog_watcher_port);
         }
         syslog_watcher_addr->sin_port = syslog_watcher_port;
 
-        if (0 != ip_nl) {
+        if (-1 != ip_nl && 0 != ip_nl) {
             syslog_watcher_ip_nl = ip_nl;
             SESSION_UDP_INFO("ulog ip %s\n", inet_ntoa(*(struct in_addr *)(&syslog_watcher_ip_nl)));
         }
         syslog_watcher_addr->sin_addr.s_addr = syslog_watcher_ip_nl;
-
-        syslog_watcher_fd = socket(AF_INET, SOCK_DGRAM, 0);
-        SESSION_UDP_INFO("ulog socket %d\n", syslog_watcher_fd);
+        SESSION_UDP_INFO("ulog udp ip %s ort %d \r\n", inet_ntoa(*(struct in_addr *)(&syslog_watcher_addr->sin_addr.s_addr)),
+                                syslog_watcher_addr->sin_port);
     }
 }
 
@@ -70,9 +69,30 @@ void on_update_syslog_watcher_addr(const uint32_t ip_nl, const uint32_t port)
 */
 void on_tcpip_service_on(const uint32_t on, const uint32_t off)
 {
-    if (on^off) {
-        tcpip_service_on = on ? true : false;
-        SESSION_UDP_INFO("ulog tcpip service %d\n", tcpip_service_on);
+    if (on == -1 && off == 1) {
+        /*means turn off syslog pop out*/
+        tcpip_service_on = false;
+        if (syslog_watcher_fd != -1) {
+            close(syslog_watcher_fd);
+            syslog_watcher_fd = -1;
+        }
+    } else if (on == 1 && off == -1) {
+        /*means turn on syslog pop out*/
+        if (NULL == syslog_watcher_addr) {
+            SESSION_UDP_INFO("fail to turn on syslog pop out for syslog server ip info haven't set yet\n");
+            return;
+        }
+
+        if (syslog_watcher_fd != -1) {
+            SESSION_UDP_INFO("syslog pop out have already started socket\n");
+        } else {
+            syslog_watcher_fd = socket(AF_INET, SOCK_DGRAM, 0);
+            SESSION_UDP_INFO("ulog sys log socket %d\n", syslog_watcher_fd);
+        }
+
+        tcpip_service_on = true;
+    } else {
+        SESSION_UDP_INFO("ulog sys log start invalid param on %d, off %d\n", on, off);
     }
 }
 
@@ -87,15 +107,8 @@ void on_tcpip_service_on(const uint32_t on, const uint32_t off)
 int32_t pop_out_on_udp(const char* data, const uint16_t len)
 {
     int32_t ret = -1;
-    if (tcpip_service_on && syslog_watcher_addr != NULL) {
-
-        if (syslog_watcher_fd == -1) {
-            syslog_watcher_fd = socket(AF_INET, SOCK_DGRAM, 0);
-        }
-
-        if (syslog_watcher_fd >= 0) {
-            ret = sendto(syslog_watcher_fd, data, len, 0, (struct sockaddr*)syslog_watcher_addr, sizeof(struct sockaddr));
-        }
+    if (tcpip_service_on && syslog_watcher_fd >= 0) {
+        ret = sendto(syslog_watcher_fd, data, len, 0, (struct sockaddr *)syslog_watcher_addr, sizeof(struct sockaddr));
     }
     return ret;
 }
@@ -104,25 +117,31 @@ void update_net_cli(const char cmd, const char* param)
 {
     struct in_addr  listen_addr;
     uint16_t listen_port = 0x0;
+    char buf[24] = {0};
     if (param != NULL) {
         switch (cmd) {
         case 'a': {
             inet_aton(param, &listen_addr);
-            char buf[24];
-            snprintf(buf, 24, "listen ip=%d", listen_addr.s_addr);
-
+            snprintf(buf, 24, "listen ip=%u", listen_addr.s_addr);
+            SESSION_UDP_INFO("%s %d ulog set syslog server ip addr %s \r\n", __FILE__, __LINE__, buf);
             ulog_man(buf);
         }
         break;
 
         case 'p': {
             listen_port = strtoul(param, NULL, 10);
-            char buf[24];
             snprintf(buf, 24, "listen port=%d", listen_port);
+            SESSION_UDP_INFO("%s %d ulog set syslog server ip port %s \r\n", __FILE__, __LINE__, buf);
             ulog_man(buf);
         }
         break;
 
+        case 'n': {
+            snprintf(buf, 24, "tcpip %s", param);
+            SESSION_UDP_INFO("%s %d ulog set network swtich %s \r\n", __FILE__, __LINE__, buf);
+            ulog_man(buf);
+        }
+        break;
         default:
             break;
         }

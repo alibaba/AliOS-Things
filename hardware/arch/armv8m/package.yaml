@@ -1,10 +1,10 @@
 
 
 ## 第一部分： 基础信息
-name: armv8m                                          # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                     # <必选项> 组件版本号
+name: armv8m                                        # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: rel_3.3.0                                    # <必选项> 组件版本号
 description: arch for armv8m
-type: arch                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
+type: arch                                          # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
 tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
 keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要

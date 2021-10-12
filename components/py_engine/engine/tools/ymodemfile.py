@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
+# Add by HaaS
+# version = 1.1.1
+
 """
 MIT License
 
@@ -23,7 +26,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import os, sys, math, time, string, struct
+import os, sys, math, time, string, re, struct
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(filename)s[line:%(lineno)d]: %(message)s')
+
 
 # ymodem data header byte
 SOH = b'\x01'
@@ -140,10 +148,11 @@ class YModemfile(object):
             file_size = os.path.getsize(file_path)
             file_sent = self.send(file_stream, file_name, file_size, retry, callback)
         except IOError as e:
-            print(str(e))
+            logging.debug(str(e))
         finally:
             file_stream.close()
 
+        print("***** File tranfer succeeded *****")
         print("File: " + file_name)
         print("Size: " + str(file_sent) + "Bytes")
         return file_sent
@@ -154,7 +163,7 @@ class YModemfile(object):
             c = self.getc(1)
             if c:
                 if c == ch:
-                    print("<<< " + hex(ord(ch)))
+                    logging.debug("<<< " + hex(ord(ch)))
                     break
                 elif c == CAN:
                     if cancel_count == 2:
@@ -162,9 +171,16 @@ class YModemfile(object):
                     else:
                         cancel_count += 1
                 else:
-                    # print("Expected " + hex(ord(ch)) + ", but got " + hex(ord(c)))
-                    print("Expected " + hex(ord(ch)) + ", but got " + str(c))
+                    # logging.debug("Expected " + hex(ord(ch)) + ", but got " + hex(ord(c)))
+                    logging.debug("Expected " + hex(ord(ch)) + ", but got " + str(c))
         return 0
+
+    def received_data_found(self, pattern, buff):
+        matcher = re.compile(pattern)
+        if matcher.search(buff):
+            return True
+
+        return False
 
     def send(self, data_stream, data_name, data_size, retry=20, callback=None):
         packet_size = 1024
@@ -196,7 +212,7 @@ class YModemfile(object):
         self.st.inc_sent_packets()
         # data_in_hexstring = "".join("%02x" % b for b in data_for_send)
         print("Packet 0 >>>")
-        # print(str(data_for_send))
+        # logging.debug(str(data_for_send))
         # [<<< ACK]
         # [<<< CRC]
         self.wait_for_next(ACK)
@@ -211,7 +227,7 @@ class YModemfile(object):
             data = data_stream.read(packet_size)
 
             if not data:
-                print('EOF')
+                logging.debug('EOF')
                 break
 
             extracted_data_bytes = len(data)
@@ -229,12 +245,12 @@ class YModemfile(object):
                 self.putc(data_for_send)
                 self.st.inc_sent_packets()
                 print("Packet " + str(sequence) + " >>>")
-                # print(str(data_for_send))
-                time.sleep(0.1)
+                # logging.debug(str(data_for_send))
+                # time.sleep(0.1)
                 c = self.getc(1)
-                # print(str(c))
+                # logging.debug(str(c))
                 if c == ACK:
-                    print("<<< ACK")
+                    logging.debug("<<< ACK")
                     self.st.inc_valid_sent_packets()
                     self.st.add_valid_sent_bytes(extracted_data_bytes)
                     error_count = 0
@@ -242,22 +258,32 @@ class YModemfile(object):
                 elif c == NAK:
                     error_count += 1
                     self.st.inc_missing_sent_packets()
-                    print("RETRY NAK" + str(error_count))
+                    logging.debug("RETRY NAK" + str(error_count))
 
                     if error_count > retry:
                         self.abort()
-                        print('send error: NAK received, aborting')
+                        print("")
+                        print("***** File transfer failed . NAK received aborting *****")
+                        print("")
                         return -2
                 else:
                     # c = self.getc(120)
-                    print(str(c))
+                    logging.debug(str(c))
+                    error_message = self.getc(128)
+                    no_space_flag = self.received_data_found(b'No more free space', error_message)
+                    if no_space_flag:
+                        print("***** No more free space . aborting *****")
+                        return -2
+
                     error_count += 1
                     self.st.inc_missing_sent_packets()
-                    print("RETRY " + str(error_count))
+                    logging.debug("RETRY " + str(error_count))
 
                     if error_count > retry:
                         self.abort()
-                        print('send error. aborting')
+                        print("")
+                        print("***** File transfer failed . aborting *****")
+                        print("")
                         return -2
 
             sequence = (sequence + 1) % 0x100
@@ -267,10 +293,10 @@ class YModemfile(object):
         # [EOT >>>]
         # [<<< ACK]
         self.putc(EOT)
-        print(">>> EOT")
+        logging.debug(">>> EOT")
         self.wait_for_next(NAK)
         self.putc(EOT)
-        print(">>> EOT")
+        logging.debug(">>> EOT")
         self.wait_for_next(ACK)
 
         # [<<< CRC]
@@ -286,7 +312,10 @@ class YModemfile(object):
         data_for_send = header + data.encode() + checksum
         self.putc(data_for_send)
         self.st.inc_sent_packets()
-        print("Packet End >>>")
+        logging.debug("Packet End >>>")
+        print("")
+        print("***** File transfer completed *****")
+        print("")
 
         self.wait_for_next(ACK)
 
@@ -305,7 +334,7 @@ class YModemfile(object):
                     else:
                         cancel_count += 1
                 else:
-                    print("Expected 0x01(SOH)/0x02(STX)/0x18(CAN), but got " + hex(ord(c)))
+                    logging.debug("Expected 0x01(SOH)/0x02(STX)/0x18(CAN), but got " + hex(ord(c)))
 
     def wait_for_eot(self):
         eot_count = 0
@@ -315,23 +344,23 @@ class YModemfile(object):
                 if c == EOT:
                     eot_count += 1
                     if eot_count == 1:
-                        print("EOT >>>")
+                        logging.debug("EOT >>>")
                         self.putc(NAK)
-                        print("<<< NAK")
+                        logging.debug("<<< NAK")
                     elif eot_count == 2:
-                        print("EOT >>>")
+                        logging.debug("EOT >>>")
                         self.putc(ACK)
-                        print("<<< ACK")
+                        logging.debug("<<< ACK")
                         self.putc(CRC)
-                        print("<<< CRC")
+                        logging.debug("<<< CRC")
                         break
                 else:
-                    print("Expected 0x04(EOT), but got " + hex(ord(c)))
+                    logging.debug("Expected 0x04(EOT), but got " + hex(ord(c)))
 
     def recv_file(self, root_path, callback=None):
         while True:
             self.putc(CRC)
-            print("<<< CRC")
+            logging.debug("<<< CRC")
             c = self.getc(1)
             if c:
                 if c == SOH:
@@ -341,7 +370,7 @@ class YModemfile(object):
                     packet_size = 1024
                     break
                 else:
-                    print("Expected 0x01(SOH)/0x02(STX)/0x18(CAN), but got " + hex(ord(c)))
+                    logging.debug("Expected 0x01(SOH)/0x02(STX)/0x18(CAN), but got " + hex(ord(c)))
 
         IS_FIRST_PACKET = True
         FIRST_PACKET_RECEIVED = False
@@ -387,15 +416,15 @@ class YModemfile(object):
                         # [<<< ACK]
                         # [<<< CRC]
                         if seq == 0 and not FIRST_PACKET_RECEIVED and not WAIT_FOR_END_PACKET:
-                            print("Packet 0 >>>")
+                            logging.debug("Packet 0 >>>")
                             self.putc(ACK)
-                            print("<<< ACK")
+                            logging.debug("<<< ACK")
                             self.putc(CRC)
-                            print("<<< CRC")
+                            logging.debug("<<< CRC")
                             file_name_bytes, data_size_bytes = (data[:-2]).rstrip(self.header_pad).split(self.header_pad)
                             file_name = bytes.decode(file_name_bytes)
                             data_size = bytes.decode(data_size_bytes)
-                            print("TASK: " + file_name + " " + data_size + "Bytes")
+                            logging.debug("TASK: " + file_name + " " + data_size + "Bytes")
                             self.rt.set_task_name(file_name)
                             self.rt.set_task_size(int(data_size))
                             file_stream = open(os.path.join(root_path, file_name), 'wb+')
@@ -407,7 +436,7 @@ class YModemfile(object):
                         # [<<< ACK]
                         elif not WAIT_FOR_END_PACKET:
                             self.rt.inc_valid_received_packets()
-                            print("Packet " + str(sequence) + " >>>")
+                            logging.debug("Packet " + str(sequence) + " >>>")
                             valid_data = data[:-2]
                             # last data packet
                             if self.rt.get_valid_received_packets() == self.rt.get_task_packets():
@@ -416,20 +445,20 @@ class YModemfile(object):
                             self.rt.add_valid_received_bytes(len(valid_data))
                             file_stream.write(valid_data)
                             self.putc(ACK)
-                            print("<<< ACK")
+                            logging.debug("<<< ACK")
 
                             sequence = (sequence + 1) % 0x100
 
                         # final packet
                         # [<<< ACK]
                         else:
-                            print("Packet End >>>")
+                            logging.debug("Packet End >>>")
                             self.putc(ACK)
-                            print("<<< ACK")
+                            logging.debug("<<< ACK")
                             break
         file_stream.close()
-        print("File: " + self.rt.get_task_name())
-        print("Size: " + str(self.rt.get_task_size()) + "Bytes")
+        logging.debug("File: " + self.rt.get_task_name())
+        logging.debug("Size: " + str(self.rt.get_task_size()) + "Bytes")
         return self.rt.get_valid_received_bytes()
 
     # Header byte

@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "py_defines.h"
 #include "aos_system.h"
+#include "py_defines.h"
 
 #define MOD_STR "AMP_UTILS"
 
@@ -118,9 +118,8 @@ int py_version_get(char *version)
 {
     const char *amp_version_fmt = "amp-v%s-g%s-%s-%s";
 
-    aos_snprintf(version, AMP_VERSION_LENGTH, amp_version_fmt, \
-                                  AMP_VERSION_NUMBER, AMP_GIT_COMMIT, AMP_MODULE_HARDWARE, \
-                                  AMP_MODULE_SOFTWARE);
+    aos_snprintf(version, AMP_VERSION_LENGTH, amp_version_fmt, AMP_VERSION_NUMBER, AMP_GIT_COMMIT, AMP_MODULE_HARDWARE,
+                 AMP_MODULE_SOFTWARE);
     return 0;
 }
 

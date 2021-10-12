@@ -396,6 +396,8 @@ int ota_download_start(char *url, unsigned int url_len, report_func repot_func, 
         return ret;
     }
     for (j = OTA_DOWNLOAD_RETRY_CNT; (j > 0) && (ret < 0); j--) {
+        memset(&client_data, 0, sizeof(client_data));
+        memset(&client, 0 , sizeof(client));
         ret = ota_httpc_settings_init(&client, &client_data);
         if (ret < 0) {
             ret = OTA_DOWNLOAD_INIT_FAIL;
@@ -437,6 +439,7 @@ int ota_download_start(char *url, unsigned int url_len, report_func repot_func, 
                     ota_header_found = true;
                     if (0 == httpclient_get_response_header_value(client_data.header_buf, "Content-Length", (int *)&val_pos, (int *)&val_len)) {
                         sscanf(client_data.header_buf + val_pos, "%d", &ota_file_size);
+                        printf("ota_file_size %d\r\n", ota_file_size);
                     }
                 }
                 ret = ota_write(&offset, client_data.response_buf, client_data.content_block_len);
@@ -446,7 +449,7 @@ int ota_download_start(char *url, unsigned int url_len, report_func repot_func, 
                 }
                 ota_rx_size += client_data.content_block_len;
                 ota_msleep(5);
-                off_size = ota_rx_size;
+                off_size += client_data.content_block_len;
                 OTA_LOG_I("recv size = %d, has recv size = %d\r\n", client_data.content_block_len, off_size);
                 if (ota_file_size) {
                     percent = ((long)(ota_rx_size >> 6) * 100) / (long)(ota_file_size >> 6);

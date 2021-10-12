@@ -2,8 +2,12 @@
  * Copyright (C) 2021 Alibaba Group Holding Limited
  */
 
-#ifndef __POLL_H
-#define __POLL_H
+#ifndef _POLL_H
+#define _POLL_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifndef POLLIN
 #define POLLIN     0x001
@@ -23,14 +27,10 @@ struct pollfd {
     short revents; /* returned events */
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 int poll(struct pollfd fds[], nfds_t nfds, int timeout);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /*__POLL_H*/
+#endif /*_POLL_H*/

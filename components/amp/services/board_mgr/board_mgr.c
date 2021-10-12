@@ -58,7 +58,7 @@ typedef struct page_entry
 }page_entry_t;
 #endif
 
-extern void amp_app_version_set(char *version);
+extern void aos_userjs_version_set(char *version);
 
 static board_mgr_t g_board_mgr = {0, NULL};
 
@@ -84,6 +84,9 @@ static void board_set_gpio_default(gpio_dev_t *gpio_device)
 
     gpio_device->port = -1;
     gpio_device->config = OUTPUT_PUSH_PULL;
+    gpio_device->gpioc = NULL;
+    gpio_device->gpioc_index = 0;
+    gpio_device->pin_index = 0;
     priv->irq_mode = 0;
     priv->js_cb_ref = 0;
     priv->reserved = NULL;
@@ -109,7 +112,8 @@ static int8_t board_parse_gpio(cJSON *gpio, char *id)
     }
     while (index < size)
     {
-        if ((priv = (gpio_params_t *)aos_calloc(1, sizeof(gpio_params_t))) == NULL) {
+        priv = (gpio_params_t *)amp_calloc(1, sizeof(gpio_params_t));
+        if (priv == NULL) {
             amp_error(MOD_STR, "malloc failed");
             return (-1);
         }
@@ -153,19 +157,31 @@ static int8_t board_parse_gpio(cJSON *gpio, char *id)
 
             else if  (strcmp(dir->valuestring, GPIO_DIR_IRQ) == 0) {
                 *config = IRQ_MODE;
+
+                if (strcmp(GPIO_PULL_DOWN, pull->valuestring) == 0)
+                    *config = INPUT_PULL_DOWN;
+                else if (strcmp(GPIO_PULL_UP, pull->valuestring) == 0)
+                    *config = INPUT_PULL_UP;
+                else if (strcmp(GPIO_PULL_OPEN, pull->valuestring) == 0)
+                    *config = INPUT_HIGH_IMPEDANCE;
+
                 if (strcmp(GPIO_INT_RISING, intMode->valuestring) == 0)
                     priv->irq_mode = IRQ_TRIGGER_RISING_EDGE;
                 else if (strcmp(GPIO_INT_FALLING, intMode->valuestring) == 0)
                     priv->irq_mode = IRQ_TRIGGER_FALLING_EDGE;
                 else if (strcmp(GPIO_INT_BOTH, intMode->valuestring) == 0)
                     priv->irq_mode = IRQ_TRIGGER_BOTH_EDGES;
+                else if (strcmp(GPIO_INT_HIGH_LEVEL, intMode->valuestring) == 0)
+                    priv->irq_mode = IRQ_TRIGGER_LEVEL_HIGH;
+                else if (strcmp(GPIO_INT_LOW_LEVEL, intMode->valuestring) == 0)
+                    priv->irq_mode = IRQ_TRIGGER_LEVEL_LOW;
             }
 
             else if  (strcmp(dir->valuestring, GPIO_DIR_ANALOG) == 0) {
                 *config = ANALOG_MODE;
             }
         }
-        gpio_dev_t *new_gpio = aos_calloc(1, sizeof(*new_gpio));
+        gpio_dev_t *new_gpio = amp_calloc(1, sizeof(*new_gpio));
         if (NULL == new_gpio)
         {
             continue;
@@ -180,14 +196,14 @@ static int8_t board_parse_gpio(cJSON *gpio, char *id)
         }
         if (NULL != gpio_id)
         {
-            aos_free(gpio_id);
+            amp_free(gpio_id);
             gpio_id = NULL;
         }
         if (NULL != new_gpio)
         {
-            aos_free(new_gpio);
+            amp_free(new_gpio);
             new_gpio = NULL;
-            aos_free(priv);
+            amp_free(priv);
             priv = NULL;
         }
     }
@@ -320,7 +336,7 @@ static int8_t board_parse_uart(cJSON *uart, char *id)
                 config->parity = EVEN_PARITY;
             }
         }
-        uart_dev_t *new_uart = aos_calloc(1, sizeof(*new_uart));
+        uart_dev_t *new_uart = amp_calloc(1, sizeof(*new_uart));
         if (NULL == new_uart)
         {
             continue;
@@ -336,12 +352,12 @@ static int8_t board_parse_uart(cJSON *uart, char *id)
         }
         if (NULL != uart_id)
         {
-            aos_free(uart_id);
+            amp_free(uart_id);
             uart_id = NULL;
         }
         if (NULL != new_uart)
         {
-            aos_free(new_uart);
+            amp_free(new_uart);
             new_uart = NULL;
         }
     }
@@ -434,7 +450,7 @@ static int8_t board_parse_i2c(cJSON *i2c, char *id)
             config->dev_addr = temp->valueint;
         }
 
-        i2c_dev_t *new_i2c = aos_calloc(1, sizeof(*new_i2c));
+        i2c_dev_t *new_i2c = amp_calloc(1, sizeof(*new_i2c));
         if (NULL == new_i2c)
         {
             continue;
@@ -449,12 +465,12 @@ static int8_t board_parse_i2c(cJSON *i2c, char *id)
         }
         if (NULL != i2c_id)
         {
-            aos_free(i2c_id);
+            amp_free(i2c_id);
             i2c_id = NULL;
         }
         if (NULL != new_i2c)
         {
-            aos_free(new_i2c);
+            amp_free(new_i2c);
             new_i2c = NULL;
         }
     }
@@ -538,7 +554,7 @@ static int8_t board_parse_spi(cJSON *spi, char *id)
             config->freq = temp->valueint;
         }
 
-        spi_dev_t *new_spi = aos_calloc(1, sizeof(*new_spi));
+        spi_dev_t *new_spi = amp_calloc(1, sizeof(*new_spi));
         if (NULL == new_spi)
         {
             continue;
@@ -553,12 +569,12 @@ static int8_t board_parse_spi(cJSON *spi, char *id)
         }
         if (NULL != spi_id)
         {
-            aos_free(spi_id);
+            amp_free(spi_id);
             spi_id = NULL;
         }
         if (NULL != new_spi)
         {
-            aos_free(new_spi);
+            amp_free(new_spi);
             new_spi = NULL;
         }
     }
@@ -670,7 +686,7 @@ static int8_t board_parse_can(cJSON *can, char *id)
             }
         }
 
-        can_dev_t *new_can = aos_calloc(1, sizeof(*new_can));
+        can_dev_t *new_can = amp_calloc(1, sizeof(*new_can));
         if (NULL == new_can)
         {
             continue;
@@ -685,12 +701,12 @@ static int8_t board_parse_can(cJSON *can, char *id)
         }
         if (NULL != can_id)
         {
-            aos_free(can_id);
+            amp_free(can_id);
             can_id = NULL;
         }
         if (NULL != new_can)
         {
-            aos_free(new_can);
+            amp_free(new_can);
             new_can = NULL;
         }
     }
@@ -742,7 +758,7 @@ static int8_t board_parse_pwm(cJSON *pwm, char *id)
             continue;
         }
         board_set_pwm_default(&device);
-        pwm_dev_t *new_pwm = aos_calloc(1, sizeof(*new_pwm));
+        pwm_dev_t *new_pwm = amp_calloc(1, sizeof(*new_pwm));
         if (NULL == new_pwm)
         {
             continue;
@@ -758,12 +774,12 @@ static int8_t board_parse_pwm(cJSON *pwm, char *id)
 
         if (NULL != pwm_id)
         {
-            aos_free(pwm_id);
+            amp_free(pwm_id);
             pwm_id = NULL;
         }
         if (NULL != new_pwm)
         {
-            aos_free(new_pwm);
+            amp_free(new_pwm);
             new_pwm = NULL;
         }
     }
@@ -821,7 +837,7 @@ static int8_t board_parse_adc(cJSON *adc, char *id)
             config->sampling_cycle = temp->valueint;
         }
 
-        adc_dev_t *new_adc = aos_calloc(1, sizeof(*new_adc));
+        adc_dev_t *new_adc = amp_calloc(1, sizeof(*new_adc));
         if (NULL == new_adc)
         {
             continue;
@@ -837,12 +853,12 @@ static int8_t board_parse_adc(cJSON *adc, char *id)
 
         if (NULL != adc_id)
         {
-            aos_free(adc_id);
+            amp_free(adc_id);
             adc_id = NULL;
         }
         if (NULL != new_adc)
         {
-            aos_free(new_adc);
+            amp_free(new_adc);
             new_adc = NULL;
         }
     }
@@ -967,7 +983,7 @@ static int8_t board_parse_timer(cJSON *timer, char *id)
             continue;
         }
         board_set_timer_default(&device);
-        timer_dev_t *new_timer = aos_calloc(1, sizeof(*new_timer));
+        timer_dev_t *new_timer = amp_calloc(1, sizeof(*new_timer));
         if (NULL == new_timer)
         {
             continue;
@@ -983,12 +999,12 @@ static int8_t board_parse_timer(cJSON *timer, char *id)
 
         if (NULL != timer_id)
         {
-            aos_free(timer_id);
+            amp_free(timer_id);
             timer_id = NULL;
         }
         if (NULL != new_timer)
         {
-            aos_free(new_timer);
+            amp_free(new_timer);
             new_timer = NULL;
         }
     }
@@ -1029,7 +1045,7 @@ static int8_t board_parse_audio(cJSON *audio, char *id)
         {
             continue;
         }
-        aos_audio_dev_t *new_audio = aos_calloc(1, sizeof(aos_audio_dev_t));
+        aos_audio_dev_t *new_audio = amp_calloc(1, sizeof(aos_audio_dev_t));
         if (NULL == new_audio)
         {
             continue;
@@ -1147,12 +1163,12 @@ static int8_t board_parse_audio(cJSON *audio, char *id)
 
         if (NULL != audio_id)
         {
-            aos_free(audio_id);
+            amp_free(audio_id);
             audio_id = NULL;
         }
         if (NULL != new_audio)
         {
-            aos_free(new_audio);
+            amp_free(new_audio);
             new_audio = NULL;
         }
     }
@@ -1179,7 +1195,8 @@ static char *board_get_json_buff(const char *json_path)
     }
     // amp_debug(MOD_STR, "jse_lseek");
     len = aos_lseek(json_fd, 0, HAL_SEEK_END);
-    json_data = aos_calloc(1, sizeof(char) * (len + 1));
+    amp_warn(MOD_STR, "%s len %u", json_path, len);
+    json_data = amp_calloc(1, sizeof(char) * (len + 1));
     if (NULL == json_data)
     {
         aos_close(json_fd);
@@ -1314,7 +1331,7 @@ static int32_t board_parse_json_buff(const char *json_buff)
             amp_debug(MOD_STR, "get page:%s", page->valuestring);
 
             /* add page to dlink */
-            page_entry_t *page_entry = aos_malloc(sizeof(page_entry_t));
+            page_entry_t *page_entry = amp_malloc(sizeof(page_entry_t));
             page_entry->page = strdup(page->valuestring); /* don't forget to free */
             dlist_add_tail(&page_entry->node, &g_pages_list);
         }
@@ -1407,7 +1424,9 @@ static int32_t board_parse_json_buff(const char *json_buff)
         }
 
         amp_debug(MOD_STR, "get app version is: %s", version->valuestring);
-        amp_app_version_set(version->valuestring);
+#ifndef HAASUI_AMP_BUILD
+        aos_userjs_version_set(version->valuestring);
+#endif
     }
     else {
         amp_debug(MOD_STR, "No version info in app.json");
@@ -1463,12 +1482,12 @@ static int8_t board_add_new_item(addon_module_m module, char *name_id,
     {
         return (-1);
     }
-    board_item_t *new_item = aos_calloc(1, sizeof(*new_item));
+    board_item_t *new_item = amp_calloc(1, sizeof(*new_item));
     if (NULL == new_item)
     {
         return (-1);
     }
-    void *addr = aos_realloc(
+    void *addr = amp_realloc(
         mgr_handle->item, sizeof(board_item_t *) * (mgr_handle->item_size + 1));
     if (NULL == addr)
     {
@@ -1488,7 +1507,7 @@ static int8_t board_add_new_item(addon_module_m module, char *name_id,
 out:
     if (NULL != new_item)
     {
-        aos_free(new_item);
+        amp_free(new_item);
         new_item = NULL;
     }
     return (-1);
@@ -1590,7 +1609,7 @@ int32_t board_mgr_init(const char *json_path)
     }
     // return 0;
     ret = board_parse_json_buff(json);
-    aos_free(json);
+    amp_free(json);
     json = NULL;
 
     return ret;
@@ -1631,7 +1650,7 @@ int8_t board_load_drivers(const char *driver)
     {
         return (-1);
     }
-    new_driver = aos_calloc(1, sizeof(char) * (index - driver + 16));
+    new_driver = amp_calloc(1, sizeof(char) * (index - driver + 16));
     if (NULL == new_driver)
     {
         return (-1);
@@ -1652,12 +1671,12 @@ int8_t board_load_drivers(const char *driver)
 out:
     if (NULL != new_driver)
     {
-        aos_free(new_driver);
+        amp_free(new_driver);
         new_driver = NULL;
     }
     if (NULL != json)
     {
-        aos_free(json);
+        amp_free(json);
         json = NULL;
     }
     return (ret);

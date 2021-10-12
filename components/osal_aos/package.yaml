@@ -44,11 +44,13 @@ depends:
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 build_config:
   cflag: -Wall -Werror
+  internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+    - rhino/include
   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
     - include                              #        include 只能是该软件包下的目录，不能使用外部目录
 source_file:
   - common.c
-  - rhino.c
+  - rhino/*c
 #  - example/event_example.c
 #  - example/mem_example.c
 #  - example/mutex_example.c

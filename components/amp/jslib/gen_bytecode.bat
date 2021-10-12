@@ -7,7 +7,7 @@
 .\qjsc.exe -c -m -M events -M BT_HOST -N jslib_bt_host -o bytecode\jslib_bt_host.c src\bt_host.js
 .\qjsc.exe -c -m -M REPL -M os -M std -N jslib_repl -o bytecode\jslib_repl.c src\repl.js
 .\qjsc.exe -c -m -M events -M UART -N jslib_uart -o bytecode\jslib_uart.c src\uart.js
-.\qjsc.exe -c -m -M events -M FS -N jslib_fs -o bytecode\jslib_fs.c src\fs.j
+.\qjsc.exe -c -m -M events -M FS -N jslib_fs -o bytecode\jslib_fs.c src\fs.js
 .\qjsc.exe -c -m -M events -M AUDIOPLAYER -N jslib_audioplayer -o bytecode\jslib_audioplayer.c src\audioplayer.js
 .\qjsc.exe -c -m -M kv -N jslib_device -o bytecode\jslib_device.c src\device.js
 .\qjsc.exe -c -m -M events -M NETMGR -N jslib_netmgr -o bytecode\jslib_netmgr.c src\netmgr.js

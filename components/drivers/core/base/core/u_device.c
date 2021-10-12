@@ -105,7 +105,7 @@ int u_device_add(struct u_device *dev) {
 		return -EINVAL;
 	}
 
-	if (!dev->bus->name || (dev->id > MAX_DEV_ID_DIGS)){
+	if (!dev->bus->name || (dev->id >= MAX_DEV_ID_NUM)){
 		ddkc_err("invalid bus name:%p or dev->id:%d\r\n", dev->bus->name, dev->id);
 		return -EINVAL;
 	}

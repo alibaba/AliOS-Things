@@ -10,7 +10,7 @@
  */
 
 #include <ble_os.h>
-#include <errno.h>
+#include <bt_errno.h>
 #include <atomic.h>
 #include <misc/util.h>
 

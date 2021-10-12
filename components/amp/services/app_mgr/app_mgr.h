@@ -24,10 +24,10 @@ void apppack_init(write_js_cb_t cb);
 
 int apppack_update(uint8_t *ptr, int size);
 
-void apppack_final();
+void apppack_final(void);
 
 /* report process state to webIDE */
-void apppack_post_process_state();
+void apppack_post_process_state(void);
 
 /* get apppack from URL */
 typedef int (*download_js_cb_t)(uint8_t *buf, int32_t buf_len);
@@ -47,5 +47,9 @@ int simulator_upgrade(upgrade_image_param_t *p_info);
 #endif
 
 int app_mgr_open_file(const char *targetname);
+
+void app_js_stop(void);
+
+int32_t app_js_restart(void);
 
 #endif /* APP_MGR_H */

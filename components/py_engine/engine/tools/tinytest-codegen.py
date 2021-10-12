@@ -99,6 +99,9 @@ exclude_tests = (
     "misc/sys_settrace_loop.py",
     "misc/sys_settrace_generator.py",
     "misc/sys_settrace_features.py",
+    # don't have f-string
+    "basics/string_fstring.py",
+    "basics/string_fstring_debug.py",
 )
 
 output = []
@@ -108,9 +111,12 @@ argparser = argparse.ArgumentParser(
     description="Convert native MicroPython tests to tinytest/upytesthelper C code"
 )
 argparser.add_argument("--stdin", action="store_true", help="read list of tests from stdin")
+argparser.add_argument("--exclude", action="append", help="exclude test by name")
 args = argparser.parse_args()
 
 if not args.stdin:
+    if args.exclude:
+        exclude_tests += tuple(args.exclude)
     for group in test_dirs:
         tests += [test for test in glob("{}/*.py".format(group)) if test not in exclude_tests]
 else:

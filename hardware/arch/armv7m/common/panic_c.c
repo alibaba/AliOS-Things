@@ -28,6 +28,8 @@ typedef struct
     int PC;         // Program Counter (PC)
     int xPSR;       // Program Status Registers
     int SP;         // Stack Pointer
+    int MSP;
+    int PSP;
     int EXC_RETURN; // Exception Return
     int EXC_NUMBER; // Exception Num
     int PRIMASK;    // Interrupt Mask
@@ -43,6 +45,10 @@ typedef struct
     int BFAR;
     int AFSR;
 } FAULT_REGS;
+
+#if DEBUG_PANIC_CONTEXT_IN_STACK > 0
+PANIC_CONTEXT g_panic_contex;
+#endif
 
 void panicGetCtx(void *context, char **pPC, char **pLR, int **pSP)
 {
@@ -77,6 +83,8 @@ void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...))
                          "PC     "
                          "xPSR   "
                          "SP     "
+                         "MSP    "
+                         "PSP    "
                          "EXC_RET"
                          "EXC_NUM"
                          "PRIMASK"

@@ -21,6 +21,8 @@ depends:
     - rhino: rel_3.3.0 #v7.4-dev
 # - aos: rel_3.3.0 #v7.4-dev
     - osal_aos: rel_3.3.0
+    - ulog: rel_3.3.0
+    - debug: rel_3.3.0
 
 ## 第三部分：板级信息
 # hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段
@@ -100,6 +102,7 @@ build_config:
     - bt_host/port/core/settings/include
     - include
     - bt_host/include
+
       #    - bt_host/hci_driver
   include:
     - include
@@ -109,6 +112,7 @@ build_config:
     - ble_profiles/include
     - bt_crypto/tinycrypt/include
     - bt_crypto/include
+    - bt_host/port/aos/include
       #    - bt_host/hci_driver
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
@@ -203,6 +207,9 @@ def_config:
     CONFIG_BT_GATT_CLIENT: 1
     CONFIG_BT_CENTRAL: 1
     CONFIG_BT_PERIPHERAL: 1
+    CONFIG_BT_TINYCRYPT_ECC: 1
+    CONFIG_BT_DEBUG_HCI_CORE: 1
+
 
 ## 第六部分：安装信息
 # install:

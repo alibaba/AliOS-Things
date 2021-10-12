@@ -14,6 +14,8 @@
 #define KV_VAL_LENGTH       32
 
 #define DEV_WIFI_NAME "/dev/wifi0"
+#define DEV_ETH_NAME "/dev/eth0"
+#define DEV_ETH_FD   254
 
 struct hdl_info;
 typedef struct hdl_info {
@@ -120,7 +122,7 @@ static netmgr_hdl_t  get_hdl_by_name(const char* file_name)
     }
 }
 
-static netmgr_type_t  get_hdl_type(netmgr_hdl_t hdl)
+netmgr_type_t  get_hdl_type(netmgr_hdl_t hdl)
 {
     hdl_info_t* cur;
     int found = 0;
@@ -148,7 +150,17 @@ static netmgr_type_t  get_hdl_type(netmgr_hdl_t hdl)
 void netmgr_wifi_cli_register(void);
 int netmgr_service_init(utask_t *task)
 {
-    return netmgr_add_dev(DEV_WIFI_NAME);
+    int ret = -1;
+
+    slist_init(&g_hdl_list_head);
+
+    /* init wifi instance */
+    netmgr_add_dev(DEV_WIFI_NAME);
+
+    /* init ethernet instance */
+    ret = netmgr_add_dev(DEV_ETH_NAME);
+
+    return ret;
 }
 
 /**
@@ -170,31 +182,36 @@ void netmgr_service_deinit()
     }
 }
 
-int netmgr_add_dev(const char* name)
+int netmgr_add_dev(const char *name)
 {
     int fd;
+
+    if ((get_hdl_by_name(name) > 0)) {
+        printf("dev %s is already add\n", name);
+        return -1;
+    }
+
+    if (strcmp(name, DEV_ETH_NAME) == 0) {
+        add_hdl_info(DEV_ETH_FD, (char *)name, NETMGR_TYPE_ETH);
+        netmgr_eth_init(DEV_ETH_FD);
+        return 0;
+    }
 
     fd = open(name, O_RDWR);
     if(fd >= 0) {
         if(strcmp(name, DEV_WIFI_NAME) == 0) {
             int ret;
-
-            if(get_hdl_by_name(name) < 0) {
-                netmgr_wifi_cli_register();
-                slist_init(&g_hdl_list_head);
-                ret = add_hdl_info(fd, (char *)name, NETMGR_TYPE_WIFI);
-                if(ret != 0) {
-                    close(fd);
-                    return -1;
-                }
-            } else {
-                printf("dev %s is already add\n", name);
+            netmgr_wifi_cli_register();
+            ret = add_hdl_info(fd, (char *)name, NETMGR_TYPE_WIFI);
+            if (ret != 0) {
+                close(fd);
+                return -1;
             }
             netmgr_wifi_init(fd);
             return 0;
         } else {
             close(fd);
-            printf("dev %s is not support, only support %s\n", name, DEV_WIFI_NAME);
+            printf("dev %s is not support, only support ETH or WIFI\n", name);
             return -1;
         }
     } else {
@@ -218,6 +235,8 @@ int netmgr_set_ifconfig(netmgr_hdl_t hdl, netmgr_ifconfig_info_t* info)
                 netmgr_wifi_set_ip_mode(NETMGR_WIFI_IP_MODE_STATIC);
             }
             return netmgr_wifi_set_static_ip_stat(info->ip_addr, info->mask, info->gw, info->dns_server);
+        } else if (get_hdl_type(hdl) == NETMGR_TYPE_ETH) {
+            return netmgr_eth_set_ifconfig(info);
         }
     }
     return -1;
@@ -235,6 +254,8 @@ int netmgr_get_ifconfig(netmgr_hdl_t hdl, netmgr_ifconfig_info_t* info)
                 info->dhcp_en = false;
             }
             return netmgr_wifi_get_ip_stat(info->ip_addr, info->mask, info->gw, info->dns_server, info->mac, &info->rssi);
+        } else if (get_hdl_type(hdl) == NETMGR_TYPE_ETH) {
+            return netmgr_eth_get_ip_stat(info->ip_addr, info->mask, info->gw, info->dns_server, info->dhcp_en);
         }
     }
 
@@ -283,7 +304,9 @@ int netmgr_del_config(netmgr_hdl_t hdl, netmgr_del_config_t* config)
 netmgr_conn_state_t netmgr_get_state(netmgr_hdl_t hdl)
 {
     if(get_hdl_type(hdl) == NETMGR_TYPE_WIFI) {
-        return netmgr_wifi_get_wifi_state(hdl);
+        return netmgr_wifi_get_wifi_state();
+    } else if (get_hdl_type(hdl) == NETMGR_TYPE_ETH) {
+        return netmgr_eth_get_stat();
     } else {
         return CONN_STATE_UNKNOWN;
     }

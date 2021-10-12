@@ -6,8 +6,9 @@
 #define _PTHREAD_H
 
 #include <stdint.h>
-#include <time.h>
-#include <sched.h> /* only for be compatible with toolchain 7.3.1.*/
+#include <stddef.h>
+#include <sys/timespec.h>
+#include <sched.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -97,30 +98,6 @@ typedef struct pthread_cond {
 
 /********* Thread Specific Data *********/
 typedef int pthread_key_t;
-
-typedef struct key_value {
-    pthread_t  thread;
-    const uint32_t  *value;
-} key_value_t;
-
-typedef struct pthread_key_value {
-    key_value_t key_value;
-
-    struct pthread_key_value *next;
-} pthread_key_value_t;
-
-typedef struct pthread_key_value_head {
-    void (*fun)(void*);
-
-    pthread_key_value_t *next;
-} pthread_key_value_head_t;
-
-typedef struct pthread_key_list_s {
-    pthread_key_t            key_num;
-    pthread_key_value_head_t head;
-
-    struct pthread_key_list_s *next;
-} pthread_key_list_t;
 
 int       pthread_atfork(void (*prepare)(void), void (*parent)(void), void (*child)(void));
 int       pthread_create(pthread_t *thread, const pthread_attr_t *attr,
