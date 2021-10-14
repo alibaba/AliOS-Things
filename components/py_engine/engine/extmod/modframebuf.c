@@ -23,15 +23,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
+// Modified bt HaaS begin
 #include <stdio.h>
 #include <string.h>
 
 #include "py/runtime.h"
 
+#include "py/objstr.h"
+
+#include "ulog/ulog.h"
+
 #if MICROPY_PY_FRAMEBUF
 
 #include "./font_petme128_8x8.h"
+
+#define LOG_TAG "MOD_FRAMEBUF"
+
 
 typedef struct _mp_obj_framebuf_t {
     mp_obj_base_t base;
@@ -40,6 +47,14 @@ typedef struct _mp_obj_framebuf_t {
     uint16_t width, height, stride;
     uint8_t format;
 } mp_obj_framebuf_t;
+
+typedef struct {
+    char *font_path;
+    FILE* fp;
+    unsigned char font_height;
+    unsigned char font_width;
+    unsigned char is_cn;
+} font_t;
 
 // #if !MICROPY_ENABLE_DYNRUNTIME
 STATIC const mp_obj_type_t mp_type_framebuf;
@@ -63,6 +78,39 @@ typedef struct _mp_framebuf_p_t {
 #define FRAMEBUF_GS8      (6)
 #define FRAMEBUF_MHLSB    (3)
 #define FRAMEBUF_MHMSB    (4)
+
+// constants for fonts
+// 支持中英文 12-32
+#define FONT_ASC8_8 (808)
+#define FONT_ASC12_8 (1208)
+#define FONT_PATH_ASC12_8 "/data/font/ASC12_8"
+#define FONT_ASC16_8 (1608)
+#define FONT_PATH_ASC16_8 "/data/font/ASC16_8"
+#define FONT_ASC24_12 (2412)
+#define FONT_PATH_ASC24_12 "/data/font/ASC24_12"
+#define FONT_ASC32_16 (3216)
+#define FONT_PATH_ASC32_16 "/data/font/ASC32_16"
+// #define FONT_ASC48_24 (48)
+// #define FONT_PATH_ASC48_24 "./font/ASC48_24"
+#define FONT_HZK12 (1212)
+#define FONT_PATH_HZK12 "/data/font/HZK12"
+#define FONT_HZK16 (1616)
+#define FONT_PATH_HZK16 "/data/font/HZK16"
+#define FONT_HZK24 (2424)
+#define FONT_PATH_HZK24 "/data/font/HZK24"
+#define FONT_HZK32 (3232)
+#define FONT_PATH_HZK32 "/data/font/HZK32"
+
+static font_t ASC8_8 = {NULL, NULL, 8, 8, 0};
+static font_t ASC12_8 = {FONT_PATH_ASC12_8, NULL, 12, 8, 0};
+static font_t ASC16_8 = {FONT_PATH_ASC16_8, NULL, 16, 8, 0};
+static font_t ASC24_12 = {FONT_PATH_ASC24_12, NULL, 24, 12, 0};
+static font_t ASC32_16 = {FONT_PATH_ASC32_16, NULL, 32, 16, 0};
+
+static font_t HZK12 = {FONT_PATH_HZK12, NULL, 12, 12, 1};
+static font_t HZK16 = {FONT_PATH_HZK16, NULL, 16, 16, 1};
+static font_t HZK24 = {FONT_PATH_HZK24, NULL, 24, 24, 1};
+static font_t HZK32 = {FONT_PATH_HZK32, NULL, 32, 32, 1};
 
 // Functions for MHLSB and MHMSB
 
@@ -557,43 +605,348 @@ STATIC mp_obj_t framebuf_scroll(mp_obj_t self_in, mp_obj_t xstep_in, mp_obj_t ys
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_3(framebuf_scroll_obj, framebuf_scroll);
 
-STATIC mp_obj_t framebuf_text(size_t n_args, const mp_obj_t *args) {
-    // extract arguments
-    mp_obj_framebuf_t *self = MP_OBJ_TO_PTR(args[0]);
-    const char *str = mp_obj_str_get_str(args[1]);
-    mp_int_t x0 = mp_obj_get_int(args[2]);
-    mp_int_t y0 = mp_obj_get_int(args[3]);
-    mp_int_t col = 1;
-    if (n_args >= 5) {
-        col = mp_obj_get_int(args[4]);
+STATIC unsigned char hz_get_mat(font_t* font, char * chr, unsigned char * mat) {
+
+    unsigned char font_width;
+    if(font == &HZK12){
+        font_width = 16;
+    }else{
+        font_width = font->font_width;
     }
 
-    // loop over chars
-    for (; *str; ++str) {
-        // get char and make sure its in range of font
-        int chr = *(uint8_t *)str;
-        if (chr < 32 || chr > 127) {
-            chr = 127;
+    unsigned char size = font->font_height;
+    unsigned char offset_step = (font->font_height * font_width / 8);
+    unsigned long offset = 0;
+
+	int t1 = (int) (*(chr) & 0xff);
+	int t2 = (int) (*(chr + 1) & 0xff);
+    
+    if (t1 > 0xa0) {
+        if (size == 40 || size == 48) {
+            offset = ((t1 - 0xa1 - 0x0f) * 94 + (t2 - 0xa1)) * offset_step;
+        } else if (size == 12 || size == 16 || size == 24 || size == 32) {
+            offset = ((t1 - 0xa1) * 94 + (t2 - 0xa1)) * offset_step;
         }
-        // get char data
-        const uint8_t *chr_data = &font_petme128_8x8[(chr - 32) * 8];
-        // loop over char data
-        for (int j = 0; j < 8; j++, x0++) {
-            if (0 <= x0 && x0 < self->width) { // clip x
-                uint vline_data = chr_data[j]; // each byte is a column of 8 pixels, LSB at top
-                for (int y = y0; vline_data; vline_data >>= 1, y++) { // scan over vertical column
-                    if (vline_data & 1) { // only draw if pixel set
-                        if (0 <= y && y < self->height) { // clip y
-                            setpixel(self, x0, y, col);
+    } else {
+        offset = (t1 + 156 - 1) * offset_step;
+    }
+
+    if(font->fp == NULL){
+        font->fp = fopen(font->font_path , "rb");
+        if(font->fp == NULL){
+            LOGE(LOG_TAG,"error no font file %s\n", font->font_path);
+            memset(mat, 0, offset_step);
+            return 0;
+        }
+    }
+
+    fseek(font->fp, offset, SEEK_SET); 
+	fread(mat, offset_step, 1, font->fp);
+
+    return 1;
+}
+
+STATIC void hz_print_mat(mp_obj_framebuf_t *self, mp_int_t x, mp_int_t y, mp_int_t col, font_t* font, unsigned char * mat, mp_int_t zoom) {
+    char key[] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
+    if (font->font_height == 40 || font->font_height == 48) {
+        for (int i = 0; i < font->font_height; i++) {
+            for (int j = 0; j < font->font_width; j++) {
+                int index = i * font->font_width + j;
+                int flag = mat[index / 8] & key[index % 8];
+                if(flag > 0){
+                    for(int r = 0; r < zoom; r++) {
+                        setpixel(self, x + j * zoom + r, y + i * zoom, col);
+                        for(int r = 0; r < zoom; r++) {
+                            setpixel(self, x + j * zoom, y + i * zoom + r, col);
+                        }
+                    }
+                }
+            }
+        }
+    } else if (font->font_height == 16 || font->font_height == 24 || font->font_height == 32) {
+        for (int i = 0; i < font->font_height; i++) {
+            for (int j = 0; j < font->font_width; j++) {
+                int index = j * font->font_width + i;
+                int flag = mat[index / 8] & key[index % 8];
+                if(flag > 0){
+                    for(int r = 0; r < zoom; r++) {
+                        setpixel(self, x + j * zoom + r, y + i * zoom, col);
+                        for(int r = 0; r < zoom; r++) {
+                            setpixel(self, x + j * zoom, y + i * zoom + r, col);
+                        }
+                    }
+                }
+            }
+        }
+    } else if (font->font_height == 12) {
+        for (int i = 0; i < 12; i++) {
+            for (int j = 0; j < 12; j++) {
+                int index = j * 16 + i;
+                int flag = mat[index / 8] & key[index % 8];
+                if(flag > 0){
+                    for(int r = 0; r < zoom; r++) {
+                        setpixel(self, x + j * zoom + r, y + i * zoom, col);
+                        for(int r = 0; r < zoom; r++) {
+                            setpixel(self, x + j * zoom, y + i * zoom + r, col);
                         }
                     }
                 }
             }
         }
     }
+}
+
+STATIC unsigned char asc_get_mat(font_t* font, char * chr, unsigned char * mat){
+    int ascii = (int) (*chr);
+    if (ascii > 127 || ascii < 32) {
+        LOGE(LOG_TAG,"error : input char is invaild!");
+        return;
+    }
+
+    unsigned char offset_step = (font->font_width * font->font_height / 8);
+    long offset = (ascii - 32) *  offset_step;
+
+    if(font->fp == NULL){
+        font->fp = fopen(font->font_path , "rb");
+        if(font->fp == NULL){
+            LOGE(LOG_TAG,"error no font file %s\n", font->font_path);
+            memset(mat, 0, offset_step);
+            return 0;
+        }
+    }
+
+    fseek(font->fp, offset, SEEK_SET); 
+	fread(mat, offset_step, 1, font->fp);
+
+    return 1;
+}
+
+STATIC void asc_print_mat(mp_obj_framebuf_t *self, mp_int_t x, mp_int_t y, mp_int_t col, font_t* font, unsigned char * mat, mp_int_t zoom) {
+    char key[] = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
+    if (font->font_height == 12 || font->font_height == 48) {
+		for (int i = 0; i < font->font_height; i++) {
+			for (int j = 0; j < font->font_width; j++) {
+				int index = i * font->font_width + j;
+				int flag = mat[index / 8] & key[index % 8];
+                if(flag > 0){
+                    for(int r = 0; r < zoom; r++) {
+                        setpixel(self, x + j * zoom + r, y + i * zoom, col);
+                        for(int r = 0; r < zoom; r++) {
+                            setpixel(self, x + j * zoom, y + i * zoom + r, col);
+                        }
+                    }
+                }
+			}
+		}
+		} else {
+		for (int i = 0; i < font->font_height; i++) {
+			for (int j = 0; j < font->font_width; j++) {
+					int index = j * font->font_height + i;
+				int flag = mat[index / 8] & key[index % 8];
+                if(flag > 0){
+                    for(int r = 0; r < zoom; r++) {
+                        setpixel(self, x + j * zoom + r, y + i * zoom, col);
+                        for(int r = 0; r < zoom; r++) {
+                            setpixel(self, x + j * zoom, y + i * zoom + r, col);
+                        }
+                    }
+                }
+			}
+		}
+	}
+}
+
+STATIC mp_obj_t framebuf_text_helper(mp_obj_framebuf_t *self, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    // extract arguments
+    enum { ARG_s, ARG_x, ARG_y, ARG_c, ARG_size, ARG_zoom, ARG_space, ARG_font};
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_s, MP_ARG_OBJ | MP_ARG_REQUIRED, {.u_obj = MP_ROM_NONE}},
+        { MP_QSTR_x, MP_ARG_INT | MP_ARG_REQUIRED, {.u_int = 0}},
+        { MP_QSTR_y, MP_ARG_INT | MP_ARG_REQUIRED, {.u_int = 0}},
+        { MP_QSTR_c, MP_ARG_INT, {.u_int = 1}},
+        { MP_QSTR_size, MP_ARG_INT | MP_ARG_KW_ONLY, {.u_int = -1}},
+        { MP_QSTR_zoom, MP_ARG_INT | MP_ARG_KW_ONLY, {.u_int = 1}},
+        { MP_QSTR_space, MP_ARG_INT | MP_ARG_KW_ONLY, {.u_int = 0}},
+        { MP_QSTR_font, MP_ARG_INT | MP_ARG_KW_ONLY, {.u_int = -1}},
+    };
+
+    // parse args
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+
+    mp_int_t x0 = args[ARG_x].u_int;
+    mp_int_t y0 = args[ARG_y].u_int;
+    mp_int_t font = args[ARG_font].u_int;
+    mp_int_t size = args[ARG_size].u_int;
+    mp_int_t col = args[ARG_c].u_int;
+    mp_int_t space = args[ARG_space].u_int;
+    mp_int_t zoom = args[ARG_zoom].u_int;
+
+    mp_check_self(mp_obj_is_str_or_bytes(args[ARG_s].u_obj));
+    GET_STR_DATA_LEN(args[ARG_s].u_obj, str, str_len);
+
+    if(str_len == 0)
+        return mp_const_none;
+
+    font_t *cn_font;
+    font_t *en_font;
+
+    if(font != -1){
+        switch (font)
+        {
+        case FONT_ASC8_8:
+            cn_font = NULL;
+            en_font = NULL;
+            break;
+
+        case FONT_ASC12_8:
+            cn_font = NULL;
+            en_font = &ASC12_8;
+            break;
+        case FONT_ASC16_8:
+            cn_font = NULL;
+            en_font = &ASC16_8;
+            break;
+        case FONT_ASC24_12:
+            cn_font = NULL;
+            en_font = &ASC24_12;
+            break;
+        case FONT_ASC32_16:
+            cn_font = NULL;
+            en_font = &ASC32_16;
+            break;
+
+        case FONT_HZK12:
+            cn_font = &HZK12;
+            en_font = NULL;
+            break;
+        case FONT_HZK16:
+            cn_font = &HZK16;
+            en_font = NULL;
+            break;
+        case FONT_HZK24:
+            cn_font = &HZK24;
+            en_font = NULL;
+            break;
+        case FONT_HZK32:
+            cn_font = &HZK32;
+            en_font = NULL;
+            break;
+        default:
+            LOGE(LOG_TAG,"error wrong font\n");
+            break;
+        }
+    }
+
+    if(size != -1){
+        switch(size){
+        case 8:
+            cn_font = NULL;
+            en_font = NULL;
+            break;
+        case 12:
+            cn_font = &HZK12;
+            en_font = &ASC12_8;
+            break;
+        case 16:
+            cn_font = &HZK16;
+            en_font = &ASC16_8;
+            break;
+        case 24:
+            cn_font = &HZK24;
+            en_font = &ASC24_12;
+            break;
+        case 32:
+            cn_font = &HZK32;
+            en_font = &ASC32_16;
+            break;
+        default:
+            LOGE(LOG_TAG,"error wrong size. only support 12 16 24 32\n");
+        }
+    }
+
+    if(font == -1 && size == -1){
+        cn_font = &HZK12;
+        en_font = &ASC8_8;
+    }
+
+    int x = x0;
+
+    // loop over chars
+    for (int i=0; *(str+i); ++i) {
+        int chr = *(uint8_t *)(str+i);
+        if(chr > 127){
+            // cn
+            if(cn_font == NULL){
+                LOGE(LOG_TAG,"error wrong chr. no cn font selected\n");
+                continue;
+            }
+
+            unsigned char * chr_data;
+
+            if(cn_font == &HZK12){
+                chr_data = (unsigned char *)malloc(16 * cn_font->font_height/8);
+            }else{
+                chr_data = (unsigned char *)malloc(cn_font->font_width*cn_font->font_height/8);
+            }
+            
+            if(hz_get_mat(cn_font, str+i, chr_data))
+                hz_print_mat(self, x, y0, col, cn_font, chr_data, zoom);
+            ++i;
+            x += cn_font->font_width * zoom + space;
+            free(chr_data);
+        }
+        if (chr >= 32 && chr <= 127) {
+            // en
+            if (en_font == &ASC8_8) {
+                // get char data
+                const uint8_t *chr_data = &font_petme128_8x8[(chr - 32) * 8];
+            
+                for (int j = 0; j < 8; j++, x++) {
+                    if (0 <= x && x < self->width) {
+                        uint vline_data = chr_data[j];
+                        for (int y = y0; vline_data; vline_data >>= 1, y++) {
+                            if (vline_data & 1) {
+                                if (0 <= y && y < self->height) {
+                                    setpixel(self, x, y, col);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                x += space;
+ 
+            }else if(en_font== NULL){
+                LOGE(LOG_TAG,"error wrong chr. no en font selected\n");
+                continue;
+            }else{
+                unsigned char * chr_data = (unsigned char *)malloc(cn_font->font_width*cn_font->font_height/8);
+                if(asc_get_mat(en_font, str+i, chr_data))
+                    asc_print_mat(self, x, y0, col, en_font, chr_data, zoom);
+                x += en_font->font_width * zoom + space;
+                free(chr_data);
+            }
+        }
+    }
+
+    if(cn_font && cn_font->fp){
+        fclose(cn_font->fp);
+        cn_font->fp = NULL;
+    }
+    if(en_font && en_font->fp){
+        fclose(en_font->fp);
+        en_font->fp = NULL;
+    }
+
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(framebuf_text_obj, 4, 5, framebuf_text);
+
+STATIC mp_obj_t framebuf_text(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
+    framebuf_text_helper(args[0], n_args - 1, args + 1, kw_args);
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_KW(framebuf_text_obj, 1, framebuf_text);
 
 // #if !MICROPY_ENABLE_DYNRUNTIME
 STATIC const mp_rom_map_elem_t framebuf_locals_dict_table[] = {
@@ -654,6 +1007,17 @@ STATIC const mp_rom_map_elem_t framebuf_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_GS8), MP_ROM_INT(FRAMEBUF_GS8) },
     { MP_ROM_QSTR(MP_QSTR_MONO_HLSB), MP_ROM_INT(FRAMEBUF_MHLSB) },
     { MP_ROM_QSTR(MP_QSTR_MONO_HMSB), MP_ROM_INT(FRAMEBUF_MHMSB) },
+
+    { MP_ROM_QSTR(MP_QSTR_ASC8_8), MP_ROM_INT(FONT_ASC8_8) },
+    { MP_ROM_QSTR(MP_QSTR_ASC12_8), MP_ROM_INT(FONT_ASC12_8) },
+    { MP_ROM_QSTR(MP_QSTR_ASC16_8), MP_ROM_INT(FONT_ASC16_8) },
+    { MP_ROM_QSTR(MP_QSTR_ASC24_12), MP_ROM_INT(FONT_ASC24_12) },
+    { MP_ROM_QSTR(MP_QSTR_ASC32_16), MP_ROM_INT(FONT_ASC32_16) },
+    
+    { MP_ROM_QSTR(MP_QSTR_HZK12), MP_ROM_INT(FONT_HZK12) },
+    { MP_ROM_QSTR(MP_QSTR_HZK16), MP_ROM_INT(FONT_HZK16) },
+    { MP_ROM_QSTR(MP_QSTR_HZK24), MP_ROM_INT(FONT_HZK24) },
+    { MP_ROM_QSTR(MP_QSTR_HZK32), MP_ROM_INT(FONT_HZK32) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(framebuf_module_globals, framebuf_module_globals_table);
@@ -665,3 +1029,5 @@ const mp_obj_module_t mp_module_framebuf = {
 // #endif
 
 #endif // MICROPY_PY_FRAMEBUF
+
+// Modified bt HaaS end

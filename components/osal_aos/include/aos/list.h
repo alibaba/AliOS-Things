@@ -331,10 +331,10 @@ static inline void slist_init(slist_t *head)
 * @param[in]  type    the type of the struct this is embedded in.
 * @param[in]  member  the name of the slist_t within the struct.
 */
-#define slist_for_each_entry(queue, node, type, member)        \
-        for (node = (queue)->next? aos_container_of((queue)->next, type, member) : NULL; \
-            node;                                        \
-            node = node->member.next ? aos_container_of(node->member.next, type, member) : NULL)
+#define slist_for_each_entry(queue, node, type, member)            \
+        for (node = aos_container_of((queue)->next, type, member); \
+            (uintptr_t)node + aos_offsetof(type, member) != 0;     \
+            node = aos_container_of(node->member.next, type, member))
 
 /*
  * Iterate over list of given type safe against removal of list entry.
@@ -348,7 +348,7 @@ static inline void slist_init(slist_t *head)
 #define slist_for_each_entry_safe(queue, tmp, node, type, member)  \
         for (node = aos_container_of((queue)->next, type, member), \
             tmp = (queue)->next ? (queue)->next->next : NULL;      \
-            &node->member;                                         \
+            (uintptr_t)node + aos_offsetof(type, member) != 0;     \
             node = aos_container_of(tmp, type, member), tmp = tmp ? tmp->next : tmp)
 
 /*

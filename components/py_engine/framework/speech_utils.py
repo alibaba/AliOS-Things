@@ -205,9 +205,9 @@ def download_resource_file(on_request,resDir):
     response = json.loads(cb_data)
     format = response['format']
     size = response['size']
-    format = response['format']
     audio = response['audios'][0]
     id = audio['id']
+    format = audio['format']
     path = toneDir +id+'.'+format
     print('************ begin to download: ' + path)
     d_data = {
@@ -218,8 +218,7 @@ def download_resource_file(on_request,resDir):
     def d_cb(data):
         global on_download
         on_download = True
-
-    uos.remove(path)
+    
     http.download(d_data,d_cb)
 
     while True:

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <errno.h>
+#include <bt_errno.h>
 #include <ble_os.h>
 //#include <aos/osal_debug.h>
 #include <aos/kernel.h>

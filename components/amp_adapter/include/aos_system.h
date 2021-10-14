@@ -10,8 +10,8 @@ extern "C" {
 #endif
 
 #include "stdarg.h"
-#include "aos/kernel.h"
 #include "ulog/ulog.h"
+#include "aos/kernel.h"
 
 /* log system operation wrapper */
 #define amp_debug(mod, fmt, ...)     LOGD(mod, fmt, ##__VA_ARGS__)

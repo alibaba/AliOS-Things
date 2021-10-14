@@ -240,6 +240,7 @@ SECTIONS
   *:ftp_client.o(.text*)
   *:port_s.o(.text*)
   *:k_*.o(.text*)
+  *:debug_*.o(.text*)
   *:flash.o(.text*)
 /*
 		*:k_buf_queue.o(.text*)
@@ -326,6 +327,7 @@ SECTIONS
         *:cmsis*.o(.data*)
         *:list.o(.data*)
   *:k_*.o(.data*)
+  *:debug_*.o(.data*)
   *:mcu_slave_init.o(.data*)
   *:dsp_code_decom.o(.data*)
   *:lzma_decode.o(.data*)
@@ -454,6 +456,7 @@ SECTIONS
   *:list.o(.bss*)
   *:memp*.o(.bss*)
   *:k_*.o(.bss*)
+  *:debug_*.o(.bss*)
   *:mcu_slave_init.o(.bss*)
   *:dsp_code_decom.o(.bss*)
   *:lzma_decode.o(.bss*)
@@ -1301,10 +1304,12 @@ SECTIONS
   PROVIDE(__ctors_end__ = .);
   . = ALIGN(4);
   /* finit data */
+  PROVIDE(__dtors_start__ = .);
   PROVIDE_HIDDEN (__fini_array_start = .);
   KEEP(*(SORT(.fini_array.*)))
   KEEP(*(.fini_array))
   PROVIDE_HIDDEN (__fini_array_end = .);
+  PROVIDE(__dtors_end__ = .);
   KEEP(*(.jcr*))
   /* All data end */
   . = ALIGN(4);

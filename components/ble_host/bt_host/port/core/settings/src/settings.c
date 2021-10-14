@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include <errno.h>
+#include <bt_errno.h>
 #include <ble_os.h>
 #include "settings/settings.h"
 #include "settings_priv.h"

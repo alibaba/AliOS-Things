@@ -195,6 +195,10 @@
 #define RHINO_CONFIG_CPU_USAGE_STATS         0
 #endif
 
+#ifndef RHINO_CONFIG_NEWLIBC_REENT
+#define RHINO_CONFIG_NEWLIBC_REENT           1
+#endif
+
 #if (RHINO_CONFIG_SCHED_CFS >= 1)
 #if (RHINO_CONFIG_PRI_MAX != 141)
 #error "RHINO_CONFIG_SCHED_CFS priority set error"

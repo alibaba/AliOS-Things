@@ -190,12 +190,12 @@ int aos_fcntl(int fd, int cmd, int val)
 
 long aos_pathconf(const char *path, int name)
 {
-    return vfs_pathconf(path, name);
+    return _vfs_to_aos_res(vfs_pathconf(path, name));
 }
 
 long aos_fpathconf(int fh, int name)
 {
-    return vfs_fpathconf(fh, name);
+    return _vfs_to_aos_res(vfs_fpathconf(fh, name));
 }
 
 int aos_utime(const char *path, const struct aos_utimbuf *times)

@@ -335,10 +335,9 @@ extern const osThreadDef_t os_thread_def_##name
 #else                            // define the object
 #define osThreadDef(name, priority, instances, stacksz, task_name)  \
 cpu_stack_t os_thread_stack_##name[stacksz/sizeof(cpu_stack_t)];\
-ktask_t os_thread_task_##name;\
 const osThreadDef_t os_thread_def_##name = \
 { (char *)(task_name), (os_pthread)(name), (osPriority)(priority), (uint32_t)(instances), (stacksz), \
-(0), &(os_thread_task_##name), (os_thread_stack_##name)}
+(0), NULL, (os_thread_stack_##name)}
 #endif
 
 /// Access a Thread definition.

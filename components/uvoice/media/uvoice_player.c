@@ -1695,6 +1695,12 @@ static int player_complete(void)
     }
 
     os_mutex_unlock(player->lock);
+
+    if (player_clr_source()) {
+        M_LOGE("clr source failed !\n");
+        return -1;
+    }
+
     return 0;
 }
 
@@ -1910,6 +1916,12 @@ static int player_stop(void)
     }
 
     os_mutex_unlock(player->lock);
+
+    if (player_clr_source()) {
+        M_LOGE("clr source failed !\n");
+        return -1;
+    }
+
     return 0;
 }
 

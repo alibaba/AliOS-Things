@@ -3,6 +3,7 @@
  */
 
 #include <drv/pwm.h>
+#include <aos/pwm_csi.h>
 #include "device.h"
 #include "objects.h"
 #include "pinmap.h"
@@ -38,7 +39,6 @@ const u32 csi_pin2chan[18][2] = {
 RTIM_TypeDef *CSI_PWM_TIM[2] = { TIM5, TIMM05 };
 
 u8 csi_km4_ch_start[18] = { 0 };
-u8 csi_prescaler = 0;
 
 csi_error_t csi_pwm_init(csi_pwm_t *pwm, uint32_t idx)
 {
@@ -46,18 +46,10 @@ csi_error_t csi_pwm_init(csi_pwm_t *pwm, uint32_t idx)
         return CSI_ERROR;
 
     if (idx != 0) {
-        printf("ERROR: pwm idx should be 0\n");
         return CSI_ERROR;
     }
     pwm->priv = (TIM_CCInitTypeDef *)malloc(sizeof(TIM_CCInitTypeDef));
     pwm->dev.idx = idx << BIT_PWM_TIM_IDX_SHIFT;
-
-    RTIM_TimeBaseInitTypeDef TIM_InitStruct;
-    RTIM_TimeBaseStructInit(&TIM_InitStruct);
-    TIM_InitStruct.TIM_Idx = PWM_TIMER;
-
-    RTIM_TimeBaseInit(CSI_PWM_TIM[idx], &TIM_InitStruct, TIMER5_IRQ, NULL, (u32)&TIM_InitStruct);
-    RTIM_Cmd(CSI_PWM_TIM[idx], ENABLE);
 
     return CSI_OK;
 }
@@ -94,9 +86,9 @@ csi_error_t csi_pwm_out_config(csi_pwm_t *pwm, uint32_t channel, uint32_t period
     float pulse, value, dc;
     uint8_t pwm_tim_idx = pwm->dev.idx >> BIT_PWM_TIM_IDX_SHIFT;
     TIM_CCInitTypeDef *TIM_CCInitStruct = (TIM_CCInitTypeDef *)pwm->priv;
+    u32 csi_prescaler = 0;
 
     if (channel > 18) {
-        printf("ERROR: pwm channel should be 0~17\n");
         return CSI_ERROR;
     }
 
@@ -115,13 +107,27 @@ csi_error_t csi_pwm_out_config(csi_pwm_t *pwm, uint32_t channel, uint32_t period
     csi_km4_ch_start[channel] = 1;
 
     tmp = period_us * 40 / (csi_prescaler + 1);
-
+    /*
+     *  psr is 8bits
+    */
     if (tmp > 0x10000) {
         csi_prescaler = period_us * 40 / 0x10000;
+        if (csi_prescaler > 0xff) {
+            csi_prescaler = 0xff;
+        }
         RTIM_PrescalerConfig(CSI_PWM_TIM[pwm_tim_idx], csi_prescaler, TIM_PSCReloadMode_Update);
     }
+    /*
+     *     arr is 16bits
+    */
 
+    /*
+     * 40M oscilator  range:2HZ-2KHZ?
+    */
     arr = period_us * 40 / (csi_prescaler + 1) - 1;
+    if (arr > 0xffff) {
+        arr = 0xffff;
+    }
     RTIM_ChangePeriod(CSI_PWM_TIM[pwm_tim_idx], arr);
 
     ccrx = (u32)((period_us - pulse_width_us) * 40 / (csi_prescaler + 1)) & 0x0000ffff;
@@ -131,13 +137,12 @@ csi_error_t csi_pwm_out_config(csi_pwm_t *pwm, uint32_t channel, uint32_t period
         RTIM_CCxPolarityConfig(CSI_PWM_TIM[pwm_tim_idx], TIM_CCPolarity_Low, channel);
     else
         RTIM_CCxPolarityConfig(CSI_PWM_TIM[pwm_tim_idx], TIM_CCPolarity_High, channel);
-
     return CSI_OK;
 }
 
 csi_error_t csi_pwm_out_start(csi_pwm_t *pwm, uint32_t channel)
 {
-    uint32_t pwm_chan = pwm->dev.idx & (~BIT_PWM_TIM_IDX_FLAG);
+    uint32_t pwm_chan = channel;
     uint8_t pwm_tim_idx = pwm->dev.idx >> BIT_PWM_TIM_IDX_SHIFT;
 
     RTIM_CCxCmd(CSI_PWM_TIM[pwm_tim_idx], pwm_chan, TIM_CCx_Enable);
@@ -146,8 +151,34 @@ csi_error_t csi_pwm_out_start(csi_pwm_t *pwm, uint32_t channel)
 
 void csi_pwm_out_stop(csi_pwm_t *pwm, uint32_t channel)
 {
-    uint32_t pwm_chan = pwm->dev.idx & (~BIT_PWM_TIM_IDX_FLAG);
+    uint32_t pwm_chan = channel;
     uint8_t pwm_tim_idx = pwm->dev.idx >> BIT_PWM_TIM_IDX_SHIFT;
 
     RTIM_CCxCmd(CSI_PWM_TIM[pwm_tim_idx], pwm_chan, TIM_CCx_Disable);
 }
+static int pwm_csi_init(void)
+{
+    csi_error_t ret;
+    static aos_pwm_csi_t pwm_csi_dev[CONFIG_PWM_NUM];
+    int idx = 0, i;
+    RTIM_TimeBaseInitTypeDef TIM_InitStruct;
+    RTIM_TimeBaseStructInit(&TIM_InitStruct);
+    TIM_InitStruct.TIM_Idx = PWM_TIMER;
+    RTIM_TimeBaseInit(CSI_PWM_TIM[idx], &TIM_InitStruct, TIMER5_IRQ, NULL, (u32)&TIM_InitStruct);
+    RTIM_Cmd(CSI_PWM_TIM[idx], ENABLE);
+    for (i = 0; i < CONFIG_PWM_NUM; i++) {
+        ret = csi_pwm_init(&(pwm_csi_dev[i].csi_pwm), idx);
+        pwm_csi_dev[i].csi_pwm.dev.idx |= (i) & (~BIT_PWM_TIM_IDX_FLAG);
+        if (ret != CSI_OK) {
+            return ret;
+        }
+        pwm_csi_dev[i].aos_pwm.dev.id = i;
+        ret =  aos_pwm_csi_register(&(pwm_csi_dev[i]));
+        if  (ret != CSI_OK) {
+            return ret;
+        }
+    }
+    return 0;
+}
+
+LEVEL1_DRIVER_ENTRY(pwm_csi_init)

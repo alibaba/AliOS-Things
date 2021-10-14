@@ -20,7 +20,7 @@ AUDIO_SRC := \
     modules/audio/uvoicetts.c
 
 BLECONFIG_SRC := \
-    modules/ble_netconfig/modblenetconfig.c
+    modules/ble/modble.c
 
 DRIVER_SRC := \
     modules/driver/adc.c \
@@ -41,11 +41,6 @@ DRIVER_SRC := \
     modules/driver/uart.c  \
     modules/driver/und.c  \
     modules/driver/wdt.c
-
-ifeq ($(py_build_kv), y)
-DRIVER_SRC += modules/driver/kv.c
-GLOBAL_CFLAGS += -DPY_BUILD_KV=1
-endif
 
 LK_SRC := \
     modules/linksdk/modlinkkit.c  \
@@ -85,6 +80,9 @@ UCAMERA_SRC := \
 
 ULOG_SRC := \
     modules/ulog/modlog.c
+
+KV_SRC := \
+    modules/kv/modkv.c
 
 VIDEO_SRC := \
     modules/video/ak_camera.c  \
@@ -289,6 +287,16 @@ $(NAME)_SOURCES += $(ULOG_SRC)
 GLOBAL_CFLAGS += -DPY_BUILD_ULOG=1
 endif
 
+ifeq ($(py_build_kv), y)
+$(NAME)_SOURCES += $(KV_SRC)
+GLOBAL_CFLAGS += -DPY_BUILD_KV=1
+endif
+
+ifeq ($(py_build_system), y)
+$(NAME)_SOURCES += $(SYSTEM_SRC)
+GLOBAL_CFLAGS += -DPY_BUILD_SYSTEM=1
+endif
+
 ifeq ($(py_build_video), y)
 $(NAME)_SOURCES += $(VIDEO_SRC)
 GLOBAL_CFLAGS += -DPY_BUILD_VIDEO=1
@@ -302,7 +310,7 @@ $(NAME)_INCLUDES += \
     adapter/ \
     adapter/haas/ \
     modules/audio/ \
-    modules/ble_netconfig/ \
+    modules/ble/ \
     modules/driver/ \
     modules/linksdk/ \
     modules/minicv/ \
@@ -315,6 +323,7 @@ $(NAME)_INCLUDES += \
     modules/sntp/ \
     modules/ucamera/ \
     modules/ulog/ \
+    modules/kv/ \
     engine/ \
     engine/drivers/ \
     engine/extmod/ \

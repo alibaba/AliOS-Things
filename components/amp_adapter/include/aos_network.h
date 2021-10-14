@@ -137,7 +137,7 @@ int aos_get_locator_info(aos_locator_info_t *locator_info);
  *
  * @return      0: success, -1: failed
  */
-int aos_get_neighbor_locator_info(void (*cb)(aos_locator_info_t*, int));
+int aos_get_neighbor_locator_info(void (*cb)(aos_locator_info_t *, int));
 
 /**
  * @brief       file close
@@ -190,8 +190,7 @@ int aos_get_netshareconfig(aos_sharemode_info_t *share_mode_info);
  *
  * @return      0: success, -1: failed
  */
-int aos_set_netshareconfig(int ucid, int auth_type,
-                           aos_sharemode_info_t *share_mode_info);
+int aos_set_netshareconfig(int ucid, int auth_type, aos_sharemode_info_t *share_mode_info);
 
 int aos_location_access_wifi_info(aos_wifi_info_t *wifi_info);
 

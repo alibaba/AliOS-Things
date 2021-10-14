@@ -4,11 +4,39 @@
 
 #include "stdint.h"
 #include "stdint.h"
+#include "aiot_mqtt_api.h"
 #include "quickjs.h"
 
+enum MODULE_NAME_E {
+    HAAS600_EC100Y = 0,
+    HAAS600_EC600S,
+    HAAS600_EC600N,
+    HAAS600_EC600U,
+    HAAS600_N58,
+    HAAS600_N715,
+    HAAS510_EC600S,
+    HAAS531_L610CN,
+    HAAS610_L610CN,
+    HAAS632_LT32V,
+    HAAS100_HAAS1000,
+    HAASEDUK1_HAAS1000,
+    HAAS200_RTL8723DM,
+    MODULE_NAME_LIMIT = 0xFFF
+};
+
+enum PRODUCT_NAME_E {
+    KIT = 0,
+    CLOUD_SPEAKER,
+    CHARGER,
+    PRINTER,
+    DTU,
+    RTU,
+    PRODUCT_NAME_LIMIT = 0xFFF
+};
+
 /* device active info report */
-#define APPLICATION "soundbox"                  // product of application
-#define MODULE_NAME aos_get_platform_type()     // module type
+#define PRODUCT_NAME (product_name[PRODUCT_ID])
+#define MODULE_NAME  (module_name[MODULE_ID])
 
 #ifndef countof
 #define countof(x) (sizeof(x) / sizeof((x)[0]))
@@ -16,12 +44,12 @@
 
 /* device info report format */
 #define DEVICE_INFO_UPDATE_FMT \
-        "[" \
+        ("[" \
             "{\"attrKey\":\"SYS_SDK_LANGUAGE\",\"attrValue\":\"C\",\"domain\":\"SYSTEM\"}" \
             "{\"attrKey\":\"SYS_LP_SDK_VERSION\",\"attrValue\":\"aos-r-3.0.0\",\"domain\":\"SYSTEM\"}" \
             "{\"attrKey\":\"SYS_PARTNER_ID\",\"attrValue\":\"AliOS Things Team\",\"domain\":\"SYSTEM\"}" \
-            "{\"attrKey\":\"SYS_MODULE_ID\",\"attrValue\":\"haas-amp-%s@%s\",\"domain\":\"SYSTEM\"}" \
-        "]"
+            "{\"attrKey\":\"SYS_MODULE_ID\",\"attrValue\":\"%s@AMP-%s\",\"domain\":\"SYSTEM\"}" \
+        "]")
 
 typedef enum {
     AIOT_MQTT_CONNECT,
@@ -88,61 +116,20 @@ typedef enum {
  * @brief subdev模块内部发生值得用户关注的状态变化时, 通知用户的事件类型
  */
 typedef enum {
-    /**
-     * @brief 非法的应答报文
-     */
-    AIOT_SUBDEV_JSCALLBACK_INVALID_REF,
-    /**
-     * @brief 应答报文的id字段非法
-     */
-    AIOT_SUBDEV_JSCALLBACK_CREATE_GATEWAY_REF,
-    /**
-     * @brief 应答报文的id字段非法
-     */
     AIOT_SUBDEV_JSCALLBACK_ADD_TOPO_REF,
-    /**
-     * @brief 应答报文的id字段非法
-     */
-    AIOT_SUBDEV_JSCALLBACK_GET_TOPO_REF,
-    /**
-     * @brief 应答报文的id字段非法
-     */
     AIOT_SUBDEV_JSCALLBACK_REMOVE_TOPO_REF,
-    /**
-     * @brief 应答报文的id字段非法
-     */
+    AIOT_SUBDEV_JSCALLBACK_GET_TOPO_REF,
     AIOT_SUBDEV_JSCALLBACK_LOGIN_REF,
-    /**
-     * @brief 应答报文的id字段非法
-     */
     AIOT_SUBDEV_JSCALLBACK_LOGOUT_REF,
-    /**
-     * @brief 应答报文的id字段非法
-     */
-    AIOT_SUBDEV_JSCALLBACK_ON_MQTT_MESSAGE_REF,
-    /**
-     * @brief 应答报文的code字段非法
-     */
     AIOT_SUBDEV_JSCALLBACK_REGISTER_SUBDEV_REF,
-    /**
-     * @brief 应答报文的id字段非法
-     */
+    AIOT_SUBDEV_JSCALLBACK_REGISTER_PRODUCT_REF,
+    AIOT_SUBDEV_JSCALLBACK_CHANGE_TOPO_REF,
+    AIOT_SUBDEV_JSCALLBACK_CREATE_GATEWAY_REF,
+    AIOT_SUBDEV_JSCALLBACK_ON_MQTT_MESSAGE_REF,
     AIOT_SUBDEV_JSCALLBACK_SUBSCRIBE_REF,
-
-    /**
-     * @brief 应答报文的id字段非法
-     */
     AIOT_SUBDEV_JSCALLBACK_UNSUBSCRIBE_REF,
-
-    /**
-     * @brief 应答报文的id字段非法
-     */
     AIOT_SUBDEV_JSCALLBACK_PUBLISH_REF,
-
-    /**
-     * @brief 应答报文的code字段非法
-     */
-    AIOT_SUBDEV_JSCALLBACK_INVALID_CODE
+    AIOT_SUBDEV_JSCALLBACK_INVALID_REF
 } aiot_subdev_jscallback_type_t;
 
 typedef struct iot_device_hanlde{
@@ -158,7 +145,7 @@ typedef struct iot_gateway_handle{
     void *mqtt_handle;
     void *dm_handle;
     void *subdev_handle;
-    JSValue js_cb_ref[AIOT_SUBDEV_JSCALLBACK_INVALID_CODE];
+    JSValue js_cb_ref[AIOT_SUBDEV_JSCALLBACK_INVALID_REF];
     uint16_t keepaliveSec;
 }iot_gateway_handle_t;
 
@@ -173,11 +160,15 @@ typedef struct iot_gateway_response{
 
 typedef struct {
     aiot_mqtt_recv_type_t type;
+    uint8_t qos;
     int code;
     int topic_len;
     int payload_len;
     char *topic;
     char *payload;
+    int32_t res;
+    uint8_t max_qos;
+    uint16_t packet_id;
 } iot_mqtt_recv_t;
 
 typedef struct {

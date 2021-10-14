@@ -806,7 +806,7 @@ KBUILD_CPPFLAGS += -DCFG_PWM_ENABLE
 endif
 
 ifeq ($(RHINO_MM_DEBUG),1)
-KBUILD_CPPFLAGS += -DRHINO_CONFIG_MM_DEBUG=1 -DDEBUG_CONFIG_AOS_TRACE=1
+KBUILD_CPPFLAGS += -DRHINO_CONFIG_MM_DEBUG=0 -DDEBUG_CONFIG_AOS_TRACE=1
 endif
 
 SH_IOT_USED_SPI0_DMA ?= 1
@@ -815,9 +815,20 @@ ifeq ($(SH_IOT_USED_SPI0_DMA),1)
 KBUILD_CPPFLAGS += -DUSED_SPI0_DMA
 endif
 
+# aos3.3 yaml configs
+KBUILD_CPPFLAGS += -DRHINO_CONFIG_MM_TLF=1 \
+                   -DRHINO_CONFIG_MM_MINISIZEBIT=6 \
+                   -DRHINO_CONFIG_MM_MAXMSIZEBIT=28 \
+                   -DRHINO_CONFIG_MM_QUICK=0 \
+                   -DRHINO_CONFIG_MM_REGION_MUTEX=0 \
+                   -DRHINO_CONFIG_MM_BLK=0 \
+                   -DRHINO_CONFIG_MM_BLK_SIZE=32 \
+                   -DRHINO_CONFIG_MM_TLF_BLK_SIZE=1024 \
+                   -DRHINO_CONFIG_MM_TRACE_LVL=0
+
 KBUILD_CPPFLAGS += -DA7_LASTWORD_REGION_LEN=0x4000
 
 C_ONLY_FLAGS    := -std=gnu11
-C++_ONLY_FLAGS  := -std=gnu++11 -fno-rtti
+C++_ONLY_FLAGS  := -std=gnu++11 -fno-rtti -fno-exceptions -fno-enforce-eh-specs  -fno-use-cxa-atexit -fno-threadsafe-statics
 
 LDFLAGS_IMAGE += --wrap malloc --wrap calloc --wrap free --wrap realloc --wrap snprintf

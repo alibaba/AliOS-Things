@@ -5,10 +5,9 @@
 #include <stdint.h>
 #include <string.h>
 #include <errno.h>
-#include <sys/time.h>
+#include <time.h>
 #include <pthread.h>
 #include <aos/kernel.h>
-#include <posix/timer.h>
 
 #include "internal/pthread.h"
 
@@ -67,6 +66,12 @@ int pthread_cond_broadcast(pthread_cond_t *cond)
     int i           = 0;
     int num_waiting = 0;
 
+    if (cond == NULL)
+        return EINVAL;
+
+    if (cond->flag != PTHREAD_DYN_INIT)
+        return 0;
+
     /* If there are waiting threads not already signalled, then
      * signal the condition and wait for the thread to respond.
      */
@@ -95,6 +100,12 @@ int pthread_cond_broadcast(pthread_cond_t *cond)
 
 int pthread_cond_signal(pthread_cond_t *cond)
 {
+    if (cond == NULL)
+        return EINVAL;
+
+    if (cond->flag != PTHREAD_DYN_INIT)
+        return 0;
+
     /* If there are waiting threads not already signalled, then
      * signal the condition and wait for the thread to respond.
      */
@@ -114,6 +125,13 @@ int pthread_cond_signal(pthread_cond_t *cond)
 static int pthread_cond_timedwait_ms(pthread_cond_t *cond, pthread_mutex_t *mutex, int64_t ms)
 {
     int ret = 0;
+
+    if (cond->flag == PTHREAD_STATIC_INIT) {
+        /* The cond is inited by PTHREAD_COND_INITIALIZER*/
+        ret = pthread_cond_init(cond, NULL);
+        if (ret != 0)
+            return ret;
+    }
 
     /* Obtain the protection mutex, and increment the number of waiters.
      * This allows the signal mechanism to only perform a signal if there

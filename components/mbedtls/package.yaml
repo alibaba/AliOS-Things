@@ -127,6 +127,7 @@ source_file:
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项
     #MBEDTLS_CONFIG_USER_FILE
+    MBEDTLS_CIPHER_MODE_CFB: 1
 
 ## 第六部分：安装信息
 # install:

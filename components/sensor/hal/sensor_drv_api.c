@@ -271,7 +271,7 @@ int32_t sensor_i2c_write(i2c_dev_t *i2c, uint16_t reg, uint8_t *data,
     return ret;
 }
 
-int32_t sensor_i2c_master_send(i2c_dev_t *i2c, uint8_t *data,
+int32_t sensor_drv_i2c_master_send(i2c_dev_t *i2c, uint8_t *data,
                          uint16_t size, uint32_t timeout)
 {
     int32_t ret = 0;
@@ -288,7 +288,7 @@ int32_t sensor_i2c_master_send(i2c_dev_t *i2c, uint8_t *data,
     return ret;
 }
 
-int32_t sensor_i2c_master_recv(i2c_dev_t *i2c, uint8_t *data,
+int32_t sensor_drv_i2c_master_recv(i2c_dev_t *i2c, uint8_t *data,
                          uint16_t size, uint32_t timeout)
 {
     int32_t ret = 0;

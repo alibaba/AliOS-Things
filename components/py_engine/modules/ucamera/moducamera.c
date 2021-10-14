@@ -1,15 +1,15 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
+#include "k_api.h"
+#include "py/builtin.h"
 #include "py/mperrno.h"
 #include "py/obj.h"
 #include "py/runtime.h"
-#include "py/builtin.h"
-#include "k_api.h"
-#include "wifi_camera.h"
 #include "ucamera_service.h"
 #include "ulog/ulog.h"
+#include "wifi_camera.h"
 
 #define LOG_TAG "MOD_UCAMERA"
 
@@ -17,9 +17,9 @@ STATIC mp_obj_t obj_init(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    if (n_args < 2)
-    {
-        LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
+    if (n_args < 2) {
+        LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__,
+             n_args);
         return mp_const_none;
     }
 
@@ -37,16 +37,15 @@ STATIC mp_obj_t obj_init(size_t n_args, const mp_obj_t *args)
     }
     return mp_obj_new_int(ret);
 }
-
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(ucamera_obj_init, 0, obj_init);
 
 STATIC mp_obj_t obj_saveFrameToJpeg(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    if (n_args < 1)
-    {
-        LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
+    if (n_args < 1) {
+        LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__,
+             n_args);
         return mp_const_none;
     }
 
@@ -71,7 +70,8 @@ STATIC mp_obj_t obj_saveFrameToJpeg(size_t n_args, const mp_obj_t *args)
     }
     return mp_obj_new_int(ret);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(ucamera_obj_saveFrameToJpeg, 0, obj_saveFrameToJpeg);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(ucamera_obj_saveFrameToJpeg, 0,
+                                   obj_saveFrameToJpeg);
 
 STATIC mp_obj_t obj_uninit(size_t n_args, const mp_obj_t *args)
 {
@@ -87,15 +87,16 @@ STATIC mp_obj_t obj_uninit(size_t n_args, const mp_obj_t *args)
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(ucamera_obj_uninit, 0, obj_uninit);
 
 STATIC const mp_rom_map_elem_t ucamera_locals_dict_table[] = {
-    {MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_UCamera)},
-    {MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&ucamera_obj_init)},
-    {MP_ROM_QSTR(MP_QSTR_uninit), MP_ROM_PTR(&ucamera_obj_uninit)},
-    {MP_ROM_QSTR(MP_QSTR_saveFrameToJpeg), MP_ROM_PTR(&ucamera_obj_saveFrameToJpeg)},
+    { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_UCamera) },
+    { MP_ROM_QSTR(MP_QSTR_init), MP_ROM_PTR(&ucamera_obj_init) },
+    { MP_ROM_QSTR(MP_QSTR_uninit), MP_ROM_PTR(&ucamera_obj_uninit) },
+    { MP_ROM_QSTR(MP_QSTR_saveFrameToJpeg),
+      MP_ROM_PTR(&ucamera_obj_saveFrameToJpeg) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(ucamera_locals_dict, ucamera_locals_dict_table);
 
 const mp_obj_module_t ucamera_module = {
-    .base = {&mp_type_module},
+    .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&ucamera_locals_dict,
 };

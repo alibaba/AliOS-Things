@@ -1,0 +1,101 @@
+## 第一部分： 基础信息
+name: genie_mesh_light_ctl
+version: master  #v7.4.4
+description: YoC genie_mesh_light_ctl SDK
+type: solution
+
+solution:
+  cpu_id: cpu0
+  board_name: haas200
+## 第二部分：依赖信息
+
+# 指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+
+# 未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# sdk_chip:
+#   - sdk_chip_TG7120B: v7.4.4
+#   - sdk_chip_TG7121B: v7.4.4
+depends:
+  - init: master
+  - cli: master
+  - osal_aos: master
+#  - drv_light: v7.4.3
+  - genie_service: master   #v7.4.4
+#  - sdk_chip_TG7120B: v7.4.4
+  - haas200: master
+  - ulog: master
+
+# ## 第三部分：板级信息
+# hw_info:
+#   cpu_id: cpu0
+#   cpu_name: ""
+#   vendor_name: ""
+#   chip_name: ""
+#   board_name: ""
+#   ld_script: ""
+#   flash_program: ""
+#   mkflash_script: mkflash.sh
+# ## 第四部分：编译连接信息
+# build_config:
+#   include:
+#     - app/include
+#   internal_include: ~
+#   cflag: -Os  -g
+#   cxxflag: -Os  -g
+#   asmflag: ""
+#   define: ~
+#   libs: ~
+#   libpath: ~
+# 源文件
+source_file:
+  - app/src/maintask.c
+  - light_ctl/*.c
+
+# yoc_version: ""
+# keywords: ~
+# author: ""
+# license: ""
+
+## 第五部分：配置信息
+def_config:
+##mesh func config
+#  CONFIG_BT_MESH_GATT_PROXY: 0
+#  CONFIG_BT_MESH_PB_GATT: 0
+  CONFIG_BT_MESH_RELAY: 1
+
+##mesh model config
+  CONFIG_MESH_MODEL_CTL_SRV: 1
+  CONFIG_MESH_MODEL_GEN_ONOFF_SRV: 1
+  CONFIG_MESH_MODEL_LIGHTNESS_SRV: 1
+  CONFIG_MESH_MODEL_SCENE_SRV: 1
+  CONFIG_MESH_MODEL_TRANS: 1
+  CONFIG_MESH_MODEL_VENDOR_SRV: 1
+
+##genie mesh config
+  #CONFIG_GENERAL_CLI_CMD: 1
+  CONFIG_GENIE_RESET_BY_REPEAT: 1
+  CONFIG_GENIE_SW_RESET_PROV: 1
+  MESH_MODEL_VENDOR_TIMER: 1
+  CONFIG_UART_RECV_BUF_SIZE: 128
+
+  #CONFIG_BT_MESH_CTRL_RELAY: 1
+  #GENIE_ULTRA_PROV: 1
+
+  CONFIG_BT_DEVICE_NAME: "GenieLight"
+  PROJECT_SW_VERSION: 0x00010101
+
+## genie lpm support
+  #CONFIG_PM_SLEEP: 1
+  #CONFIG_GENIE_MESH_GLP: 1
+
+##debug config
+  #CONFIG_LOGMACRO_SILENT: 1
+  #CONFIG_BT_DEBUG_LOG: 1
+  CONFIG_BT_MESH_DEBUG: 1
+  MESH_DEBUG_PROV: 1
+  MESH_DEBUG_TX: 1
+  MESH_DEBUG_RX: 1
+
+# link_config:
+#   path: ~
+#   library: ~

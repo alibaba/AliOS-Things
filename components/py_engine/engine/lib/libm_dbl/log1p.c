@@ -69,7 +69,7 @@ Lg7 = 1.479819860511658591e-01;  /* 3FC2F112 DF3E5244 */
 double log1p(double x)
 {
 	union {double f; uint64_t i;} u = {x};
-	double_t hfsq,f=0.0f,c=0.0f,s,z,R,w,t1,t2,dk;
+	double_t hfsq,f,c,s,z,R,w,t1,t2,dk;
 	uint32_t hx,hu;
 	int k;
 

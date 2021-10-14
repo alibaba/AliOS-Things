@@ -2,7 +2,10 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include "mqueue.h"
+/* TODO: replace krhino apis with aos apis. */
+
+#include <mqueue.h>
+#include <k_api.h>
 
 mqd_t mq_open(const char *name, int oflag, ...)
 {
@@ -68,7 +71,7 @@ ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len,
     *msg_prio = 0;
 
     ticks = abs_timeout->tv_sec * RHINO_CONFIG_TICKS_PER_SECOND +
-            (abs_timeout->tv_nsec * RHINO_CONFIG_TICKS_PER_SECOND) / NANOSECONDS_PER_SECOND;
+            (abs_timeout->tv_nsec * RHINO_CONFIG_TICKS_PER_SECOND) / 1000000000LL;
 
     ret = krhino_buf_queue_recv(mqdes, ticks, msg_ptr, &msg_size);
     if (ret != RHINO_SUCCESS) {

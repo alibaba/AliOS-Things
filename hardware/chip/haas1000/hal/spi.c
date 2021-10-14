@@ -53,7 +53,7 @@ static spi_ctx_obj_t spi_ctx[2] =
 		.spi_pin_DIO = HAL_IOMUX_PIN_P0_7,
 		.spi_fun_DI0 = HAL_IOMUX_FUNC_SPI_DI0,
 		.spi_fun_CLK = HAL_IOMUX_FUNC_SPI_CLK,
-		.spi_fun_CS0 = HAL_IOMUX_FUNC_SPI_CS0,
+        .spi_fun_CS0 = HAL_IOMUX_FUNC_AS_GPIO,
 		.spi_fun_DIO = HAL_IOMUX_FUNC_SPI_DIO,
 		.spi_dma_semaphore = NULL,
 		.spi_mutex_id = 0,
@@ -72,7 +72,7 @@ static spi_ctx_obj_t spi_ctx[2] =
 		.spi_pin_DIO = HAL_IOMUX_PIN_P3_5,
 		.spi_fun_DI0 = HAL_IOMUX_FUNC_SPILCD_DI0,
 		.spi_fun_CLK = HAL_IOMUX_FUNC_SPILCD_CLK,
-		.spi_fun_CS0 = HAL_IOMUX_FUNC_SPILCD_CS0,
+        .spi_fun_CS0 = HAL_IOMUX_FUNC_AS_GPIO,
 		.spi_fun_DIO = HAL_IOMUX_FUNC_SPILCD_DIO,
 		.spi_dma_semaphore = NULL,
 		.spi_mutex_id = 0,
@@ -470,7 +470,7 @@ OUT:
  *
  * @return  0, on success;  EIO : if the SPI device could not be initialised
  */
-//Half duplex send+recev
+// Half duplex send+recv
 int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data,
 						  uint8_t *rx_data, uint16_t rx_size, uint32_t timeout)
 {
@@ -497,6 +497,10 @@ int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data,
 		free(cmd);
 		return -2;
 	}
+    /*if cs use as gpio, pull down cs at first*/
+    if (spi_ctx[spi->port].spi_fun_CS0 == HAL_IOMUX_FUNC_AS_GPIO) {
+        hal_gpio_pin_set_dir(spi_ctx[spi->port].spi_pin_CS0, HAL_GPIO_DIR_OUT, 0);
+    }
 	hal_cache_sync(HAL_CACHE_ID_D_CACHE); //PSRAM must sync cache to memory when used dma
 	if (spi->config.t_mode == SPI_TRANSFER_DMA)
 	{
@@ -537,6 +541,10 @@ int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data,
 		}
 	} while (len);
 OUT:
+    /*if cs use as gpio, pull pull up cs at the end*/
+    if (spi_ctx[spi->port].spi_fun_CS0 == HAL_IOMUX_FUNC_AS_GPIO) {
+        hal_gpio_pin_set_dir(spi_ctx[spi->port].spi_pin_CS0, HAL_GPIO_DIR_OUT, 1);
+    }
 	osMutexRelease(spi_ctx[spi->port].spi_mutex_id);
 	free(cmd);
 	return ret;

@@ -56,7 +56,7 @@ typedef struct _mp_obj_thread_lock_t {
 STATIC mp_obj_thread_lock_t *mp_obj_new_thread_lock(void) {
     mp_obj_thread_lock_t *self = m_new_obj(mp_obj_thread_lock_t);
     self->base.type = &mp_type_thread_lock;
-    mp_thread_mutex_init(&(self->mutex));
+    mp_thread_mutex_init(&self->mutex);
     self->locked = false;
     return self;
 }
@@ -69,7 +69,7 @@ STATIC mp_obj_t thread_lock_acquire(size_t n_args, const mp_obj_t *args) {
         // TODO support timeout arg
     }
     MP_THREAD_GIL_EXIT();
-    int ret = mp_thread_mutex_lock(&(self->mutex), wait);
+    int ret = mp_thread_mutex_lock(&self->mutex, wait);
     MP_THREAD_GIL_ENTER();
     if (ret == 0) {
         return mp_const_false;
@@ -89,7 +89,7 @@ STATIC mp_obj_t thread_lock_release(mp_obj_t self_in) {
     }
     self->locked = false;
     MP_THREAD_GIL_EXIT();
-    mp_thread_mutex_unlock(&(self->mutex));
+    mp_thread_mutex_unlock(&self->mutex);
     MP_THREAD_GIL_ENTER();
     return mp_const_none;
 }
@@ -171,6 +171,12 @@ STATIC void *thread_entry(void *args_in) {
     mp_pystack_init(mini_pystack, &mini_pystack[128]);
     #endif
 
+    // The GC starts off unlocked on this thread.
+
+    // ts.gc_lock_depth = 0;
+
+    ts.mp_pending_exception = MP_OBJ_NULL;
+
     // set locals and globals from the calling context
     mp_locals_set(args->dict_locals);
     mp_globals_set(args->dict_globals);
@@ -181,7 +187,6 @@ STATIC void *thread_entry(void *args_in) {
     mp_thread_start();
 
     // TODO set more thread-specific state here:
-    //  mp_pending_exception? (root pointer)
     //  cur_exception (root pointer)
 
     DEBUG_printf("[thread] start ts=%p args=%p stack=%p\n", &ts, &args, MP_STATE_THREAD(stack_top));

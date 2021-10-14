@@ -31,8 +31,7 @@ extern "C" {
  * @param[in]  type    the type of the struct this is embedded in.
  * @param[in]  member  the name of the variable within the struct.
  */
-#define amp_container_of(ptr, type, member) \
-        ((type *)((char *)(ptr) - amp_offsetof(type, member)))
+#define amp_container_of(ptr, type, member) ((type *)((char *)(ptr)-amp_offsetof(type, member)))
 
 /* for double link list */
 typedef struct dlist_s {
@@ -63,8 +62,7 @@ static inline void __dlist_add(dlist_t *node, dlist_t *prev, dlist_t *next)
  * @param[in]  type    the type of the struct this is embedded in.
  * @param[in]  member  the name of the dlist_t within the struct.
  */
-#define dlist_entry(addr, type, member) \
-        ((type *)((long)addr - amp_offsetof(type, member)))
+#define dlist_entry(addr, type, member) ((type *)((long)addr - amp_offsetof(type, member)))
 
 /*
  * add one node just behind specified node.
@@ -81,7 +79,8 @@ static inline void dlist_add(dlist_t *node, dlist_t *queue)
  * add one node just before specified node.
  *
  * @param[in]  node    the data node to be inserted.
- * @param[in]  queue   the specified next node before which new node should be inserted.
+ * @param[in]  queue   the specified next node before which new node should be
+ * inserted.
  */
 static inline void dlist_add_tail(dlist_t *node, dlist_t *queue)
 {
@@ -140,7 +139,10 @@ static inline int dlist_empty(const dlist_t *head)
  *
  * @param[in]  list  the list to be inited.
  */
-#define AMP_DLIST_INIT(list) {&(list), &(list)}
+#define AMP_DLIST_INIT(list) \
+    { \
+        &(list), &(list) \
+    }
 
 /*
  * Get the first element from a list
@@ -166,8 +168,7 @@ static inline int dlist_empty(const dlist_t *head)
  * @param[in]  n     another &struct dlist_t to use as temporary storage.
  * @param[in]  head  he head for your list.
  */
-#define dlist_for_each_safe(pos, n, head) \
-        for (pos = (head)->next, n = pos->next; pos != (head); pos = n, n = pos->next)
+#define dlist_for_each_safe(pos, n, head) for (pos = (head)->next, n = pos->next; pos != (head); pos = n, n = pos->next)
 
 /*
  * Iterate over list of given type.
@@ -177,10 +178,9 @@ static inline int dlist_empty(const dlist_t *head)
  * @param[in]  type    the type of the struct this is embedded in.
  * @param[in]  member  the name of the dlist_t within the struct.
  */
-#define dlist_for_each_entry(queue, node, type, member)            \
-        for (node = amp_container_of((queue)->next, type, member); \
-            &node->member != (queue);                              \
-            node = amp_container_of(node->member.next, type, member))
+#define dlist_for_each_entry(queue, node, type, member) \
+    for (node = amp_container_of((queue)->next, type, member); &node->member != (queue); \
+         node = amp_container_of(node->member.next, type, member))
 
 /*
  * Iterate over list of given type safe against removal of list entry.
@@ -191,11 +191,9 @@ static inline int dlist_empty(const dlist_t *head)
  * @param[in]  type    the type of the struct this is embedded in.
  * @param[in]  member  the name of the dlist_t within the struct.
  */
-#define dlist_for_each_entry_safe(queue, n, node, type, member)    \
-        for (node = amp_container_of((queue)->next, type, member), \
-            n = (queue)->next ? (queue)->next->next : NULL;        \
-            &node->member != (queue);                              \
-            node = amp_container_of(n, type, member), n = n ? n->next : NULL)
+#define dlist_for_each_entry_safe(queue, n, node, type, member) \
+    for (node = amp_container_of((queue)->next, type, member), n = (queue)->next ? (queue)->next->next : NULL; \
+         &node->member != (queue); node = amp_container_of(n, type, member), n = n ? n->next : NULL)
 
 /*
  * Get the struct for this entry.
@@ -214,9 +212,8 @@ static inline int dlist_empty(const dlist_t *head)
  * @param[in]  type    the type of the struct this is embedded in.
  */
 #define dlist_for_each_entry_reverse(pos, head, member, type) \
-        for (pos = list_entry((head)->prev, type, member);    \
-            &pos->member != (head);                           \
-            pos = list_entry(pos->member.prev, type, member))
+    for (pos = list_entry((head)->prev, type, member); &pos->member != (head); \
+         pos = list_entry(pos->member.prev, type, member))
 
 /*
  * Get the list length.
@@ -242,7 +239,10 @@ static inline int dlist_entry_number(dlist_t *queue)
  *
  * @param[in]  name  the list to be initialized.
  */
-#define AMP_DLIST_HEAD_INIT(name) {&(name), &(name)}
+#define AMP_DLIST_HEAD_INIT(name) \
+    { \
+        &(name), &(name) \
+    }
 
 /*
  * Initialise the list.
@@ -324,16 +324,16 @@ static inline void slist_init(slist_t *head)
 }
 
 /*
-* Iterate over list of given type.
-*
-* @param[in]  queue   he head for your list.
-* @param[in]  node    the type * to use as a loop cursor.
-* @param[in]  type    the type of the struct this is embedded in.
-* @param[in]  member  the name of the slist_t within the struct.
-*/
+ * Iterate over list of given type.
+ *
+ * @param[in]  queue   he head for your list.
+ * @param[in]  node    the type * to use as a loop cursor.
+ * @param[in]  type    the type of the struct this is embedded in.
+ * @param[in]  member  the name of the slist_t within the struct.
+ */
 #define slist_for_each_entry(queue, node, type, member)            \
         for (node = amp_container_of((queue)->next, type, member); \
-            &node->member;                                         \
+            (uintptr_t)node + amp_offsetof(type, member) != 0;     \
             node = amp_container_of(node->member.next, type, member))
 
 /*
@@ -348,7 +348,7 @@ static inline void slist_init(slist_t *head)
 #define slist_for_each_entry_safe(queue, tmp, node, type, member)  \
         for (node = amp_container_of((queue)->next, type, member), \
             tmp = (queue)->next ? (queue)->next->next : NULL;      \
-            &node->member;                                         \
+            (uintptr_t)node + amp_offsetof(type, member) != 0;     \
             node = amp_container_of(tmp, type, member), tmp = tmp ? tmp->next : tmp)
 
 /*
@@ -356,7 +356,10 @@ static inline void slist_init(slist_t *head)
  *
  * @param[in]  name  the list to be initialized.
  */
-#define AMP_SLIST_HEAD_INIT(name) {0}
+#define AMP_SLIST_HEAD_INIT(name) \
+    { \
+        0 \
+    }
 
 /*
  * Initialise the list.
@@ -372,16 +375,15 @@ static inline void slist_init(slist_t *head)
  * @param[in]  type    the type of the struct this is embedded in.
  * @param[in]  member  the name of the slist_t within the struct.
  */
-#define slist_entry(addr, type, member) \
-        (addr ? (type *)((long)addr - amp_offsetof(type, member)) : (type *)addr)
+#define slist_entry(addr, type, member) (addr ? (type *)((long)addr - amp_offsetof(type, member)) : (type *)addr)
 
 /*
-* Get the first element from a list.
-*
-* @param[in]  ptr     the list head to take the element from.
-* @param[in]  type    the type of the struct this is embedded in.
-* @param[in]  member  the name of the slist_t within the struct.
-*/
+ * Get the first element from a list.
+ *
+ * @param[in]  ptr     the list head to take the element from.
+ * @param[in]  type    the type of the struct this is embedded in.
+ * @param[in]  member  the name of the slist_t within the struct.
+ */
 #define slist_first_entry(ptr, type, member) slist_entry((ptr)->next, type, member)
 
 /*

@@ -57,6 +57,7 @@ source_file:
   - src/netmgr_service.c
   - src/netmgr_wifi.c
   - src/netmgr_conn.c
+  - src/netmgr_ethernet.c
   - src/string_convert.c
   - activation/*.c ? <AOS_COMP_ACTIVATION>
 #  - example/*.c

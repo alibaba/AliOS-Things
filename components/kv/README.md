@@ -57,7 +57,7 @@ def_config:
 def_config:
   KV_CONFIG_TASK_PRIORITY: 31
 ```
-> kv 资源回收任务栈大小，默认1024，可修改yaml配置如：
+> kv 资源回收任务栈大小，默认4KB，可修改yaml配置如:
 ```yaml
 def_config:
   KV_CONFIG_TASK_STACK_SIZE: 2048

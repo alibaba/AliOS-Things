@@ -3,7 +3,7 @@
  */
 
 #include <common/log.h>
-#include "errno.h"
+#include "bt_errno.h"
 
 struct k_work_q g_work_queue;
 

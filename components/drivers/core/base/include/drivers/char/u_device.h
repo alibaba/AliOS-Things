@@ -21,6 +21,7 @@ struct u_device_private;
 
 /* valid device id: [0, 9999), this should be very enough */
 #define MAX_DEV_ID_DIGS 4
+#define MAX_DEV_ID_NUM 9999
 
 /**
  * struct u_device_private - device private information

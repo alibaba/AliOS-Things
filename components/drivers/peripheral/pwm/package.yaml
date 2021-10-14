@@ -49,10 +49,10 @@ build_config:
 source_file:
 
 # PWM
-# PWM VFS driver
   - src/pwm_dev.c ? <CONFIG_U_PWM_DEV>
-
-# PWM VFS example driver
+  - src/pwm.c ? <CONFIG_U_PWM_CORE>
+  - src/pwm_csi.c ? <CONFIG_U_PWM_CORE>
+#  - example/aos_pwm_example.c ? <CONFIG_U_PWM_CORE>
 #  - example/pwm_example.c ? <CONFIG_U_PWM_DEV>
 
 ## 第五部分：配置信息
@@ -60,9 +60,6 @@ source_file:
 #   CONFIG_DEBUG: y
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y
-def_config:
-  CONFIG_U_PWM_DEV: 1                      # PWM device node named witch "/dev/pwm[x]"
-  CONFIG_U_PWM_CORE: 0                     # PWM subsys AOS API driver
 
 ## 第六部分：安装信息
 # install:

@@ -5,6 +5,8 @@
 #ifndef __AOS_TTS_H__
 #define __AOS_TTS_H__
 
+#include "aos_pcm.h"
+
 typedef enum {
     TEXT_ENCODE_TYPE_UTF8 = 1,
     TEXT_ENCODE_TYPE_GBK,
@@ -19,7 +21,6 @@ typedef enum {
     AOS_TTS_EVENT_PLAY_FAIL,
     AOS_TTS_EVENT_PLAY_INTERRUPT,
 } aos_tts_event_t;
-
 
 /**
  * TTS playback interface

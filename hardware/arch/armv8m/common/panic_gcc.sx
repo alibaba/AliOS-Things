@@ -3,7 +3,7 @@
 @******************************************************************************
 @                                 EQUATES
 @******************************************************************************
-.equ CONTEXT_REGION, 88   @bigger than sizeof(PANIC_CONTEXT)
+.equ PANIC_CONTEXT_SIZE, 96   @bigger than sizeof(PANIC_CONTEXT)
 
 @******************************************************************************
 @                        CODE GENERATION DIRECTIVES
@@ -19,6 +19,7 @@
 @******************************************************************************
 .extern panicHandler
 .extern g_crash_steps
+.extern g_panic_contex
 .extern _first_task_restore
 .extern panicRestoreCheck
 
@@ -74,15 +75,20 @@ double_panic_entry:
 
 first_panic:
     @R0 as PANIC_CONTEXT
-    SUB     R0, SP, #CONTEXT_REGION
+#if DEBUG_PANIC_CONTEXT_IN_STACK > 0
+    LDR     R0, =g_panic_contex
+#else
+    SUB     R0, SP, #PANIC_CONTEXT_SIZE
+    MOV     SP, R0
+#endif
 
     @R1 as CONTEXT saved by hardware
     MRS     R1, PSP
     AND     R2, LR, #4          @EXC_RETURN:bit2, 0 MSP, 1 PSP
     CBNZ    R2, context_save
     MRS     R1, MSP
-context_save:
 
+context_save:
     ADD     R2, R0, #16
     STM     R2!,{R4-R11}        @ctx save, R4~R11
 
@@ -91,7 +97,7 @@ context_save:
 
     STM     R2!,{R8-R11}        @ctx save, R12 LR PC xPSR
 
-    @xPSR[9] and EXC_RETURN[4] to determine whether 
+    @xPSR[9] and EXC_RETURN[4] to determine whether
     @the previous top-of-stack was at offset 0x20, 0x24, 0x68, or0x6C
     ADD     R4, R1, #0x20
 #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
@@ -106,6 +112,12 @@ check_aligner:
     ADD     R4, R4, #0x4
 sp_save:
     STM     R2!,{R4}            @ctx save, SP
+
+    MRS     R4, MSP
+    STM     R2!,{R4}            @ctx save, MSP
+
+    MRS     R4, PSP
+    STM     R2!,{R4}            @ctx save, PSP
 
     MOV     R4, LR
     STM     R2!,{R4}            @ctx save, EXC_RETURN
@@ -126,23 +138,17 @@ sp_save:
     STR     R0, [R1, #0]
     LDR     R0, =panic_entry
     STR     R0, [R1, #24]
-    LDR     R0, [R1, #28]
+    LDR     R0, [R1, #28]       @set thumb mode
     ORR     R0, R0, #0x1000000
-    STR     R0, [R1, #28]       @set thumb mode
-    CPSID   I
+    STR     R0, [R1, #28]
     BX      LR
 
 panic_entry:
-#if DEBUG_PANIC_PRT_INT
+    @set sp to msp
     MRS     R1, CONTROL
-    MOVS    R2, #2
-    BICS    R1, R2
+    BIC     R1, #2
     MSR     CONTROL, R1
     ISB
-    @printf use interrupt, so here enable it
-    CPSIE   I
-#endif
-    MOV     SP, R0
     BL      panicHandler
     B       .
 

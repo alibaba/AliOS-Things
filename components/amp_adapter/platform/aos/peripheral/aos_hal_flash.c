@@ -6,7 +6,7 @@
 
 #include "aos_hal_flash.h"
 
-int32_t aos_hal_flash_info_get(hal_partition_t in_partition, hal_logic_partition_t *partition)
+int32_t aos_hal_flash_info_get(hal_partition_t in_partition, hal_logic_partition_t **partition)
 {
     return 0;
 }

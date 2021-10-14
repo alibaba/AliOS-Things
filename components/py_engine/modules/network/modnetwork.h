@@ -3,8 +3,8 @@
 
 #include "lwip/ip_addr.h"
 
-#define NETWORK_SSID_MAX_LEN    (32)
-#define NETWORK_PASSWD_MAX_LEN  (64)
+#define NETWORK_SSID_MAX_LEN   (32)
+#define NETWORK_PASSWD_MAX_LEN (64)
 
 typedef struct network_wifi_info {
     char ssid[NETWORK_SSID_MAX_LEN + 1];

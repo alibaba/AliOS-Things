@@ -71,7 +71,7 @@ static int drv_temp_si_si7006_read(void *buf, size_t len)
     uint8_t  reg = SI7006_MEAS_TEMP_NO_MASTER_MODE;
 
     // hal_i2c_master_send(&SI7006_ctx, SI7006_ctx.config.dev_addr, &reg, 1, 1000);
-    ret = sensor_i2c_master_send(&SI7006_ctx, &reg, 1, 1000);
+    ret = sensor_drv_i2c_master_send(&SI7006_ctx, &reg, 1, 1000);
     if (ret < 0) {
         LOG("%s Error on i2c master send\n", SENSOR_STR);
         return -1;
@@ -79,7 +79,7 @@ static int drv_temp_si_si7006_read(void *buf, size_t len)
 
     aos_msleep(30);
     // hal_i2c_master_recv(&SI7006_ctx, SI7006_ctx.config.dev_addr, read_data, 2, 1000);
-    ret = sensor_i2c_master_recv(&SI7006_ctx, read_data, 2, 1000);
+    ret = sensor_drv_i2c_master_recv(&SI7006_ctx, read_data, 2, 1000);
     if (ret < 0) {
         LOG("%s Error on i2c master recv\n", SENSOR_STR);
         return -1;
@@ -196,7 +196,7 @@ static int drv_humi_si_si7006_read(void *buf, size_t len)
     //printf("\n enter %s : %d\n", __func__, __LINE__);
 
     // hal_i2c_master_send(&SI7006_ctx, SI7006_ctx.config.dev_addr, &reg, 1, 1000);
-    ret = sensor_i2c_master_send(&SI7006_ctx, &reg, 1, 1000);
+    ret = sensor_drv_i2c_master_send(&SI7006_ctx, &reg, 1, 1000);
     if (ret < 0) {
         LOG("%s Error on i2c master send\n", SENSOR_STR);
         return -1;
@@ -204,7 +204,7 @@ static int drv_humi_si_si7006_read(void *buf, size_t len)
     aos_msleep(30);
 
     // hal_i2c_master_recv(&SI7006_ctx, SI7006_ctx.config.dev_addr, read_data, 2, 1000);
-    ret = sensor_i2c_master_recv(&SI7006_ctx, read_data, 2, 1000);
+    ret = sensor_drv_i2c_master_recv(&SI7006_ctx, read_data, 2, 1000);
     if (ret < 0) {
         LOG("%s Error on i2c master recv\n", SENSOR_STR);
         return -1;

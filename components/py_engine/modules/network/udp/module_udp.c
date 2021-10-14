@@ -2,21 +2,21 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "board_config.h"
 #include "amp_platform.h"
-#include "aos_system.h"
-#include "amp_utils.h"
 #include "amp_task.h"
-#include "py_defines.h"
+#include "amp_utils.h"
+#include "aos_system.h"
 #include "aos_udp.h"
 #include "be_inl.h"
+#include "board_config.h"
+#include "py_defines.h"
 
 #ifndef INET_ADDRSTRLEN
 #define INET_ADDRSTRLEN 16
 #endif
 
-#define MOD_STR "UDP"
-#define MAX_UDP_RECV_LEN 256
+#define MOD_STR              "UDP"
+#define MAX_UDP_RECV_LEN     256
 #define MAX_UDP_RECV_TIMEOUT 200
 
 typedef struct {
@@ -97,7 +97,7 @@ out:
  **************************************************************************************/
 static duk_ret_t native_udp_bind(duk_context *ctx)
 {
-    int ret  = -1;
+    int ret = -1;
     int port = 0;
     int sock_id;
 
@@ -134,7 +134,7 @@ out:
 static void udp_send_notify(void *pdata)
 {
     udp_send_notify_param_t *p = (udp_send_notify_param_t *)pdata;
-    duk_context *ctx           = be_get_context();
+    duk_context *ctx = be_get_context();
     be_push_ref(ctx, p->js_cb_ref);
     duk_push_int(ctx, p->ret);
     if (duk_pcall(ctx, 1) != DUK_EXEC_SUCCESS) {
@@ -153,7 +153,7 @@ static void udp_send_notify(void *pdata)
  **************************************************************************************/
 static int udp_send_routine(udp_send_param_t *send_param)
 {
-    int ret                      = -1;
+    int ret = -1;
     int sock_id;
     udp_options_t udp_options;
     udp_send_notify_param_t *p;
@@ -161,8 +161,9 @@ static int udp_send_routine(udp_send_param_t *send_param)
     sock_id = send_param->sock_id;
     memcpy(&udp_options, &(send_param->options), sizeof(udp_options_t));
 
-    ret = aos_udp_sendto(sock_id, &udp_options, send_param->msg, send_param->msg_len, 0);
-    p   = aos_calloc(1, sizeof(udp_send_notify_param_t));
+    ret = aos_udp_sendto(sock_id, &udp_options, send_param->msg,
+                         send_param->msg_len, 0);
+    p = aos_calloc(1, sizeof(udp_send_notify_param_t));
     if (!p) {
         amp_warn(MOD_STR, "allocate memory failed");
         be_unref(ctx, send_param->js_cb_ref);
@@ -170,7 +171,7 @@ static int udp_send_routine(udp_send_param_t *send_param)
     }
 
     p->js_cb_ref = send_param->js_cb_ref;
-    p->ret       = ret;
+    p->ret = ret;
     py_task_schedule_call(udp_send_notify, p);
     ret = 0;
 
@@ -203,7 +204,8 @@ static duk_ret_t native_udp_sendto(duk_context *ctx)
 
     if (!duk_is_number(ctx, 0) || !duk_is_object(ctx, 1) ||
         !duk_is_function(ctx, 2)) {
-        amp_warn(MOD_STR, "parameter must be (number, object, array, function)");
+        amp_warn(MOD_STR,
+                 "parameter must be (number, object, array, function)");
         goto out;
     }
 
@@ -242,7 +244,7 @@ static duk_ret_t native_udp_sendto(duk_context *ctx)
     }
 
     msg_len = duk_get_length(ctx, -1);
-    msg     = (char *)aos_calloc(1, msg_len + 1);
+    msg = (char *)aos_calloc(1, msg_len + 1);
     if (!msg) {
         amp_warn(MOD_STR, "allocate memory failed");
         goto out;
@@ -275,11 +277,12 @@ static duk_ret_t native_udp_sendto(duk_context *ctx)
     send_param->sock_id = sock_id;
     duk_dup(ctx, 2);
     send_param->js_cb_ref = be_ref(ctx);
-    send_param->msg       = msg;
-    send_param->msg_len   = msg_len;
+    send_param->msg = msg;
+    send_param->msg_len = msg_len;
     memcpy(&(send_param->options), &options, sizeof(udp_options_t));
 
-    amp_debug(MOD_STR, "sockid:%d ip:%s port:%d msg:%s msg_len:%d", sock_id, options.ip, options.port, msg, msg_len);
+    amp_debug(MOD_STR, "sockid:%d ip:%s port:%d msg:%s msg_len:%d", sock_id,
+              options.ip, options.port, msg, msg_len);
 
     udp_send_routine(send_param);
 
@@ -290,12 +293,12 @@ out:
 
 static void udp_recv_notify(void *pdata)
 {
-    int i                      = 0;
+    int i = 0;
     udp_recv_notify_param_t *p = (udp_recv_notify_param_t *)pdata;
-    duk_context *ctx           = be_get_context();
+    duk_context *ctx = be_get_context();
     be_push_ref(ctx, p->js_cb_ref);
     int arr_idx = duk_push_array(ctx);
-    if(p->recv_len > 0) {
+    if (p->recv_len > 0) {
         for (i = 0; i < p->recv_len; i++) {
             duk_push_int(ctx, p->buf[i]);
             duk_put_prop_index(ctx, arr_idx, i);
@@ -312,7 +315,7 @@ static void udp_recv_notify(void *pdata)
     }
     duk_pop(ctx);
     duk_gc(ctx, 0);
-    if(p->recv_len < 0) {
+    if (p->recv_len < 0) {
         be_unref(ctx, p->js_cb_ref);
         aos_free(p);
     }
@@ -342,10 +345,11 @@ static void udp_recv_routine(void *arg)
     }
 
     g_udp_recv_flag = 1;
-    while(1) {
-        p->recv_len = aos_udp_recvfrom(sock_id, &addr_info, p->buf, sizeof(p->buf), MAX_UDP_RECV_TIMEOUT);
+    while (1) {
+        p->recv_len = aos_udp_recvfrom(sock_id, &addr_info, p->buf,
+                                       sizeof(p->buf), MAX_UDP_RECV_TIMEOUT);
         strcpy(p->src_ip, addr_info.addr);
-        p->src_port  = addr_info.port;
+        p->src_port = addr_info.port;
         p->js_cb_ref = recv_param->js_cb_ref;
 
         if (p->recv_len > 0) {
@@ -392,7 +396,7 @@ out:
  **************************************************************************************/
 static duk_ret_t native_udp_recvfrom(duk_context *ctx)
 {
-    int ret     = -1;
+    int ret = -1;
     int sock_id = 0;
     aos_task_t udp_recv_task;
     udp_recv_param_t *recv_param;
@@ -419,7 +423,9 @@ static duk_ret_t native_udp_recvfrom(duk_context *ctx)
     duk_dup(ctx, 1);
     recv_param->js_cb_ref = be_ref(ctx);
 
-    ret = aos_task_new_ext(&udp_recv_task, "amp udp recv task", udp_recv_routine, recv_param, 1024 * 4, ADDON_TSK_PRIORRITY);
+    ret =
+        aos_task_new_ext(&udp_recv_task, "amp udp recv task", udp_recv_routine,
+                         recv_param, 1024 * 4, ADDON_TSK_PRIORRITY);
     if (ret != 0) {
         amp_debug(MOD_STR, "udp recv task create faild");
         goto out;
@@ -442,7 +448,7 @@ out:
  **************************************************************************************/
 static duk_ret_t native_udp_close_socket(duk_context *ctx)
 {
-    int ret     = -1;
+    int ret = -1;
     int sock_id = 0;
 
     if (!duk_is_number(ctx, 0)) {
@@ -490,10 +496,10 @@ void module_udp_register(void)
     duk_push_object(ctx);
 
     AMP_ADD_FUNCTION("createSocket", native_udp_create_socket, 0);
-    AMP_ADD_FUNCTION("bind",         native_udp_bind, 2);
-    AMP_ADD_FUNCTION("sendto",       native_udp_sendto, 3);
-    AMP_ADD_FUNCTION("recvfrom",     native_udp_recvfrom, 2);
-    AMP_ADD_FUNCTION("close",        native_udp_close_socket, 1);
+    AMP_ADD_FUNCTION("bind", native_udp_bind, 2);
+    AMP_ADD_FUNCTION("sendto", native_udp_sendto, 3);
+    AMP_ADD_FUNCTION("recvfrom", native_udp_recvfrom, 2);
+    AMP_ADD_FUNCTION("close", native_udp_close_socket, 1);
 
     duk_put_prop_string(ctx, -2, "UDP");
 }

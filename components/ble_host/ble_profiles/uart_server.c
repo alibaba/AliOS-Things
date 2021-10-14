@@ -2,7 +2,7 @@
 #include <aos/kernel.h>
 //#include <aos/osal_debug.h>
 #include <aos/ble.h>
-#include <errno.h>
+#include <bt_errno.h>
 #include "yoc/uart_server.h"
 
 

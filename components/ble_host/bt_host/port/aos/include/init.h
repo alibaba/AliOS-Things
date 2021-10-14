@@ -8,7 +8,7 @@
 #ifndef _INIT_H_
 #define _INIT_H_
 
-#include <device.h>
+#include <bt_device.h>
 // #include <toolchain.h>
 
 #ifdef __cplusplus

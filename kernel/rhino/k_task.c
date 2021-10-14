@@ -796,6 +796,22 @@ kstat_t krhino_task_del(ktask_t *task)
     res_free_t *res_free;
 #endif
 
+#if (RHINO_CONFIG_NEWLIBC_REENT > 0)
+    krhino_sched_disable();
+    if (task == NULL) {
+        cur_cpu_num = cpu_cur_get();
+        task = g_active_task[cur_cpu_num];
+    }
+    if (task->newlibc_reent != NULL) {
+        /* Reclaiming reent may takes few long time as it may flush io,
+        * so don't disable interrupt. */
+        _reclaim_reent(task->newlibc_reent);
+        krhino_mm_free(task->newlibc_reent);
+        task->newlibc_reent = NULL;
+    }
+    krhino_sched_enable();
+#endif
+
     RHINO_CRITICAL_ENTER();
 
     cur_cpu_num = cpu_cur_get();
@@ -890,6 +906,22 @@ kstat_t krhino_task_dyn_del(ktask_t *task)
     kstat_t     ret;
     uint8_t     cur_cpu_num;
     res_free_t *res_free;
+
+#if (RHINO_CONFIG_NEWLIBC_REENT > 0)
+    krhino_sched_disable();
+    if (task == NULL) {
+        cur_cpu_num = cpu_cur_get();
+        task = g_active_task[cur_cpu_num];
+    }
+    if (task->newlibc_reent != NULL) {
+        /* Reclaiming reent may takes few long time as it may flush io,
+        * so don't disable interrupt. */
+        _reclaim_reent(task->newlibc_reent);
+        krhino_mm_free(task->newlibc_reent);
+        task->newlibc_reent = NULL;
+    }
+    krhino_sched_enable();
+#endif
 
     RHINO_CRITICAL_ENTER();
 

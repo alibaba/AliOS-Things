@@ -11,21 +11,20 @@ This file provides example entry.
 #define PY_ENGINE_EXAMPLE_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif /* __cplusplus */
 
 typedef struct {
-    int argc;
-    char **argv;
+    int32_t argc;
+    int8_t **argv;
     bool is_repl_mode;
 } mpy_thread_args;
 
-int mpy_run(int argc, char **argv);
-int mpy_init(mpy_thread_args *args);
-int mpy_deinit(void);
+int32_t mpy_run(int32_t argc, int8_t **argv);
+int32_t mpy_init(mpy_thread_args *args);
+int32_t mpy_deinit(void);
 
-void haas_main(int argc, char **argv);
+void haas_main(int32_t argc, int8_t **argv);
 
 #ifdef __cplusplus
 }

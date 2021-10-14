@@ -9,7 +9,6 @@
 #include <semaphore.h>
 #include <aos/kernel.h>
 #include <aos/errno.h>
-#include <posix/timer.h>
 
 #define SEM_NAME_MAX 1024
 

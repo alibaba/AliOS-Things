@@ -9,9 +9,9 @@
 #include "amp_task.h"
 #include "amp_list.h"
 
-#define MOD_STR "AMP_TASK"
-#define AMP_MSGQ_WAITIME (2000)
-#define AMP_MSGQ_MAX_NUM 10
+#define MOD_STR                 "AMP_TASK"
+#define AMP_MSGQ_WAITIME        (2000)
+#define AMP_MSGQ_MAX_NUM        64
 
 typedef struct {
     dlist_t node;
@@ -21,15 +21,16 @@ typedef struct {
 static dlist_t g_sources_list = AMP_DLIST_HEAD_INIT(g_sources_list);
 
 static aos_queue_t amp_task_mq = NULL; /* JSEngine message queue */
-static aos_mutex_t amp_task_mutex = NULL; /* JSEngine mutex */
+static aos_mutex_t amp_task_mutex   = NULL; /* JSEngine mutex */
+
+static void (*g_task_msg_notify)(int (*msg_handler)(void));
 
 void amp_module_free(void)
 {
     amp_source_node_t *source_node;
     dlist_t *temp;
 
-    dlist_for_each_entry_safe(&g_sources_list, temp, source_node, amp_source_node_t, node)
-    {
+    dlist_for_each_entry_safe(&g_sources_list, temp, source_node, amp_source_node_t, node) {
         source_node->callback();
         dlist_del(&source_node->node);
         amp_free(source_node);
@@ -76,6 +77,11 @@ int32_t amp_task_yield(uint32_t timeout)
     }
 
     return 0;
+}
+
+static int amp_task_yield_nowait(void)
+{
+    return amp_task_yield(0);
 }
 
 static void amp_task_timer_cb_handler(void *timer, void *arg)
@@ -156,7 +162,16 @@ int32_t amp_task_schedule_call(amp_engine_call_t call, void *arg)
         return -1;
     }
     aos_queue_send(&amp_task_mq, p_param, sizeof(amp_task_msg_t));
+#ifdef HAASUI_AMP_BUILD
+    if (g_task_msg_notify)
+        g_task_msg_notify(amp_task_yield_nowait);
+#endif
     return 0;
+}
+
+void amp_task_msg_register(void (*msg_notify)(int (*msg_handler)(void)))
+{
+    g_task_msg_notify = msg_notify;
 }
 
 int32_t amp_task_exit_call(amp_engine_call_t call, void *arg)

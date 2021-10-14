@@ -2,7 +2,7 @@
 #define INCLUDED_MPHALPORT_H
 
 #include "py/ringbuf.h"
-#include "lib/utils/interrupt_char.h"
+#include "shared/runtime/interrupt_char.h"
 
 typedef uint32_t cpu_stack_t;
 

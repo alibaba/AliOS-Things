@@ -27,6 +27,8 @@ extern const char *ali_ca_cert;
 
 uint8_t g_app_mqtt_process_thread_running = 0;
 uint8_t g_app_mqtt_recv_thread_running = 0;
+uint8_t g_app_mqtt_process_thread_exit = 0;
+uint8_t g_app_mqtt_recv_thread_exit = 0;
 
 static char *__amp_strdup(char *src, int len)
 {
@@ -51,6 +53,7 @@ void aiot_app_mqtt_process_thread(void *args)
 {
     int32_t res = STATE_SUCCESS;
 
+    g_app_mqtt_process_thread_exit = 0;
     while (g_app_mqtt_process_thread_running) {
         res = aiot_mqtt_process(args);
         if (res == STATE_USER_INPUT_EXEC_DISABLED) {
@@ -58,6 +61,7 @@ void aiot_app_mqtt_process_thread(void *args)
         }
         aos_msleep(1000);
     }
+    g_app_mqtt_process_thread_exit = 1;
     aos_task_exit(0);
     return;
 }
@@ -67,6 +71,7 @@ void aiot_app_mqtt_recv_thread(void *args)
 {
     int32_t res = STATE_SUCCESS;
 
+    g_app_mqtt_recv_thread_exit = 0;
     while (g_app_mqtt_recv_thread_running) {
         res = aiot_mqtt_recv(args);
         if (res < STATE_SUCCESS) {
@@ -76,6 +81,7 @@ void aiot_app_mqtt_recv_thread(void *args)
             aos_msleep(1000);
         }
     }
+    g_app_mqtt_recv_thread_exit = 1;
     aos_task_exit(0);
     return;
 }
@@ -83,7 +89,17 @@ void aiot_app_mqtt_recv_thread(void *args)
 /* MQTT默认消息处理回调, 当SDK从服务器收到MQTT消息时, 且无对应用户回调处理时被调用 */
 void aiot_app_mqtt_recv_handler(void *handle, const aiot_mqtt_recv_t *packet, void *userdata)
 {
-    void (*callback)(void *userdata) = (void (*)(void *))userdata;
+    iot_mqtt_userdata_t *udata = (iot_mqtt_userdata_t *)userdata;
+    if (!udata || !udata->callback) {
+        amp_error(MOD_STR, "mqtt_recv_handler userdata is null! recv type is %d!", packet->type);
+        return;
+    }
+
+    iot_mqtt_message_t message;
+    memset(&message, 0, sizeof(iot_mqtt_message_t));
+    message.option = AIOT_MQTTOPT_RECV_HANDLER;
+    message.recv.type = packet->type;
+    message.recv.code = AIOT_MQTT_MESSAGE;
 
     switch (packet->type) {
         case AIOT_MQTTRECV_HEARTBEAT_RESPONSE: {
@@ -96,6 +112,18 @@ void aiot_app_mqtt_recv_handler(void *handle, const aiot_mqtt_recv_t *packet, vo
             amp_debug(MOD_STR, "suback, res: -0x%04X, packet id: %d, max qos: %d",
                    -packet->data.sub_ack.res, packet->data.sub_ack.packet_id, packet->data.sub_ack.max_qos);
             /* TODO: 处理服务器对订阅请求的回应, 一般不处理 */
+            message.recv.res = packet->data.sub_ack.res;
+            message.recv.max_qos = packet->data.sub_ack.max_qos;
+            message.recv.packet_id = packet->data.sub_ack.packet_id;
+            udata->callback(&message, udata);
+        }
+        break;
+
+        case AIOT_MQTTRECV_UNSUB_ACK: {
+            amp_debug(MOD_STR, "unsuback, packet id: %d", packet->data.unsub_ack.packet_id);
+            /* 处理服务器对取消订阅请求的回应, 一般不处理 */
+            message.recv.packet_id = packet->data.unsub_ack.packet_id;
+            udata->callback(&message, udata);
         }
         break;
 
@@ -103,21 +131,14 @@ void aiot_app_mqtt_recv_handler(void *handle, const aiot_mqtt_recv_t *packet, vo
             amp_debug(MOD_STR, "pub, qos: %d, topic: %.*s", packet->data.pub.qos, packet->data.pub.topic_len, packet->data.pub.topic);
             amp_debug(MOD_STR, "pub, payload: %.*s", packet->data.pub.payload_len, packet->data.pub.payload);
             /* TODO: 处理服务器下发的业务报文 */
-            iot_mqtt_userdata_t *udata = (iot_mqtt_userdata_t *)userdata;
-            iot_mqtt_message_t message;
-            memset(&message, 0, sizeof(iot_mqtt_message_t));
-            if (udata && udata->callback) {
-                message.option = AIOT_MQTTOPT_RECV_HANDLER;
-                message.recv.type = packet->type;
-                message.recv.code = AIOT_MQTT_MESSAGE;
-                message.recv.topic = __amp_strdup(packet->data.pub.topic, packet->data.pub.topic_len);
-                message.recv.payload = __amp_strdup(packet->data.pub.payload, packet->data.pub.payload_len);
-                message.recv.topic_len = packet->data.pub.topic_len;
-                message.recv.payload_len = packet->data.pub.payload_len;
-                udata->callback(&message, udata);
-                amp_free(message.recv.topic);
-                amp_free(message.recv.payload);
-            }
+            message.recv.qos = packet->data.pub.qos;
+            message.recv.topic = __amp_strdup(packet->data.pub.topic, packet->data.pub.topic_len);
+            message.recv.payload = __amp_strdup(packet->data.pub.payload, packet->data.pub.payload_len);
+            message.recv.topic_len = packet->data.pub.topic_len;
+            message.recv.payload_len = packet->data.pub.payload_len;
+            udata->callback(&message, udata);
+            amp_free(message.recv.topic);
+            amp_free(message.recv.payload);
         }
         break;
 
@@ -242,12 +263,12 @@ int32_t aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_userdat
 
     /* 创建1个MQTT客户端实例并内部初始化默认参数 */
     mqtt_handle = aiot_mqtt_init();
-
     if (mqtt_handle == NULL) {
         amp_debug(MOD_STR, "aiot_mqtt_init failed");
         amp_free(mqtt_handle);
         return -1;
     }
+    *handle = mqtt_handle;
 
     /* TODO: 如果以下代码不被注释, 则例程会用TCP而不是TLS连接云平台 */
     {
@@ -314,7 +335,6 @@ int32_t aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_userdat
     }
     amp_debug(MOD_STR, "app mqtt rec start");
 
-    *handle = mqtt_handle;
  #ifdef AOS_COMP_UAGENT
     res = uagent_mqtt_client_set(mqtt_handle);
     if (res != 0) {
@@ -334,11 +354,19 @@ int32_t aiot_mqtt_client_stop(void **handle)
 {
     int32_t res = STATE_SUCCESS;
     void *mqtt_handle = NULL;
+    int cnt = 30;
 
     mqtt_handle = *handle;
 
     g_app_mqtt_process_thread_running = 0;
     g_app_mqtt_recv_thread_running = 0;
+
+    while (cnt-- > 0) {
+        if (g_app_mqtt_recv_thread_exit && g_app_mqtt_process_thread_exit) {
+            break;
+        }
+        aos_msleep(200);
+    }
 
     /* 断开MQTT连接 */
     res = aiot_mqtt_disconnect(mqtt_handle);

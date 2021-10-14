@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <ble_os.h>
-#include <errno.h>
+#include <bt_errno.h>
 #include <atomic.h>
 #include <misc/byteorder.h>
 #include <misc/util.h>

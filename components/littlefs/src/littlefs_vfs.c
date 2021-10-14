@@ -721,16 +721,6 @@ static int32_t _lfs_init(void)
 
         /* Set LFS default config */
         g_lfs_manager[i]->config = &default_cfg[i];
-        g_lfs_manager[i]->config->read_buffer = \
-            lfs_malloc(default_cfg[i].read_size);
-        g_lfs_manager[i]->config->prog_buffer = \
-            lfs_malloc(default_cfg[i].prog_size);
-        g_lfs_manager[i]->config->lookahead_buffer = \
-            lfs_malloc(default_cfg[i].lookahead_size);
-        LFS_ASSERT(default_cfg[i].read_buffer);
-        LFS_ASSERT(default_cfg[i].prog_buffer);
-        LFS_ASSERT(default_cfg[i].lookahead_buffer);
-
     #if LITTLEFS_USING_MTD
         g_lfs_manager[i]->config->context = aos_mtd_open(mtd_part[i]);
     #else
@@ -748,6 +738,17 @@ static int32_t _lfs_init(void)
         default_cfg[i].block_count = littlefs_mtd_get_block_cnt(g_lfs_manager[i]->config);
         default_cfg[i].lookahead_size = GET_LOOKAHEAD_SIZE(default_cfg[i].block_count);
         default_cfg[i].cache_size = default_cfg[i].prog_size;
+
+        g_lfs_manager[i]->config->read_buffer = \
+           lfs_malloc(default_cfg[i].read_size);
+        g_lfs_manager[i]->config->prog_buffer = \
+            lfs_malloc(default_cfg[i].prog_size);
+        g_lfs_manager[i]->config->lookahead_buffer = \
+            lfs_malloc(default_cfg[i].lookahead_size);
+        LFS_ASSERT(default_cfg[i].read_buffer);
+        LFS_ASSERT(default_cfg[i].prog_buffer);
+        LFS_ASSERT(default_cfg[i].lookahead_buffer);
+
 
     #ifdef AOS_COMP_NFTL
         default_cfg[i].block_cycles = -1;
@@ -1060,6 +1061,7 @@ static int32_t lfs_vfs_statfs(vfs_file_t *fp, const char *path, vfs_statfs_t *sf
         sfs->f_bfree = g_lfs_manager[idx]->config->block_count - block_used;
         sfs->f_bavail = sfs->f_bfree;
         sfs->f_files = 1024;
+        ret = 0;
     }
 
     return ret;

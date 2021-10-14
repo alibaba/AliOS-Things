@@ -173,5 +173,14 @@ int aos_charger_current_get(int *current);
  */
 int aos_charger_switch_set(int enable);
 
+/**
+ * Register charger state notify
+ *
+ * @param[in] charger state notify callback (state: 0 - disconnect, 1 - connect)
+ *
+ * @return  0 : on success, negative number : if an error occurred with any step
+ */
+int aos_charger_state_notify_register(void (*cb)(int state));
+
 #endif /* AOS_PM_H */
 

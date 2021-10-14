@@ -79,6 +79,21 @@
 
 # Release Note
 
+## 2021-10-12
+- JavaScript轻应用：IoT-Device修复publish内存泄漏问题、优化物模型初始化流程；IoT-Gateway增加NTP时间获取功能、完善拓扑管理、子设备注册和登陆登出等API；新增以太网配网功能，支持静态IP配网；新增UDP功能；更新JS轻应用版本信息获取接口；修复setTimeout、SPI的write问题等
+- python轻应用：micropython引擎升级到V1.17；API对齐HaaS轻应用接口标准；新增BLE支持；GPIO适配层重构；封装Python视觉AI接口
+- components：新增linkkit、ble_mesh、genie_service组件用于天猫精灵IoT生态的接入；
+- ucloud_ai：增加车牌识别和人体检测接口
+- solutions：根据系统性能决定-j线程数量提升编译速度;新增linkkit_genie_demo案例：基于HaaS200通过Wi-Fi接入天猫精灵IoT生态的案例；新增genie_mesh_demo案例：基于HaaS200实现可被天猫精灵连接的ble mesh
+- posix：头文件标准化
+- libc_stub：支持libc多线程
+- rhino：支持libc多线程
+- http：修复因为http buffer大小更新导致ota栈溢出问题
+- ota：修复ota断点续传失效问题
+- driver：新增PWM AOS接口；修复UART发送数据流中间会有过长的间隔的问题。
+
+*特别感谢为本期迭代提出宝贵意见和建议的开发者：陈文源、莫学良等*
+
 ## 2021-08-26
 - JavaScript轻应用：修改http对接问题、支持tcp及mqtt组件、新增智慧农业样板间示例代码等
 - python轻应用：增加智能对话机器人python接口、增加token获取接口

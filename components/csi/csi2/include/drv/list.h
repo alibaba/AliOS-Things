@@ -286,10 +286,10 @@ static inline slist_t *slist_next(slist_t *n)
   \param[in]   queue     The head for your list
   \return      None
 */
-#define slist_for_each_entry(queue, node, type, member)        \
-    for (node = aos_container_of((queue)->next, type, member); \
-         &node->member;                                        \
-         node = aos_container_of(node->member.next, type, member))
+#define slist_for_each_entry(queue, node, type, member)            \
+        for (node = aos_container_of((queue)->next, type, member); \
+            (uintptr_t)node + aos_offsetof(type, member) != 0;     \
+            node = aos_container_of(node->member.next, type, member))
 
 /**
  \brief       Iterate over list of given type safe against removal of list entry
@@ -300,11 +300,11 @@ static inline slist_t *slist_next(slist_t *n)
  \param[in]   member    The name of the slist_t within the struct
  \return      None
 */
-#define slist_for_each_entry_safe(queue, tmp, node, type, member) \
-    for (node = aos_container_of((queue)->next, type, member),    \
-         tmp = (queue)->next ? (queue)->next->next : NULL;        \
-         &node->member;                                           \
-         node = aos_container_of(tmp, type, member), tmp = tmp ? tmp->next : tmp)
+#define slist_for_each_entry_safe(queue, tmp, node, type, member)  \
+        for (node = aos_container_of((queue)->next, type, member), \
+            tmp = (queue)->next ? (queue)->next->next : NULL;      \
+            (uintptr_t)node + aos_offsetof(type, member) != 0;     \
+            node = aos_container_of(tmp, type, member), tmp = tmp ? tmp->next : tmp)
 
 /**
  \brief       Initialise the list

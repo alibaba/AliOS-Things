@@ -14,4 +14,6 @@
 ./qjsc_macos -c -m -M events -M NETWORK -M NETMGR -M CELLULAR -N jslib_network -o bytecode/jslib_network.c src/network.js
 ./qjsc_macos -c -m -M MQTT -M events -N jslib_mqtt -o bytecode/jslib_mqtt.c src/mqtt.js
 ./qjsc_macos -c -m -M events -M TCP -N jslib_tcp -o bytecode/jslib_tcp.c src/tcp.js
+./qjsc_macos -c -m -M events -M UDP -N jslib_udp -o bytecode/jslib_udp.c src/udp.js
 ./qjsc_macos -c -m -M NETWORK -M NETMGR -M CELLULAR -N jslib_location -o bytecode/jslib_location.c src/location.js
+./qjsc_macos -c -m -M events -M SPI -N jslib_spi -o bytecode/jslib_spi.c src/spi.js

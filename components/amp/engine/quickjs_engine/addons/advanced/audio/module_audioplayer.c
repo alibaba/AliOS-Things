@@ -749,11 +749,16 @@ JSModuleDef *js_init_module_audio(JSContext *ctx, const char *module_name)
     return m;
 }
 
+
 void module_audio_register(void)
 {
     audio_player_t *audioplayer;
 
     uvoice_init();
+    // init audio codec
+    extern int audio_install_codec_driver();
+    audio_install_codec_driver();
+
     comb_init();
 
     audioplayer = aos_malloc(sizeof(audio_player_t));

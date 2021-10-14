@@ -2,13 +2,13 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include <string.h>
 #include <stdarg.h>
+#include <string.h>
 
-#include "board_config.h"
-#include "aos_system.h"
 #include "aos_network.h"
+#include "aos_system.h"
 #include "be_inl.h"
+#include "board_config.h"
 
 #define MOD_STR "CELLULAR"
 
@@ -30,7 +30,7 @@ static int g_js_cb_ref = 0;
  **************************************************************************************/
 static duk_ret_t native_cellular_get_simInfo(duk_context *ctx)
 {
-    int ret     = -1;
+    int ret = -1;
     amp_sim_info_t sim_info;
 
     memset(&sim_info, 0, sizeof(sim_info));
@@ -43,8 +43,8 @@ static duk_ret_t native_cellular_get_simInfo(duk_context *ctx)
 
     duk_push_object(ctx);
 
-    AMP_ADD_STRING("imsi",  sim_info.imsi);
-    AMP_ADD_STRING("imei",  sim_info.imei);
+    AMP_ADD_STRING("imsi", sim_info.imsi);
+    AMP_ADD_STRING("imei", sim_info.imei);
     AMP_ADD_STRING("iccid", sim_info.iccid);
 
     return 1;
@@ -66,7 +66,7 @@ out:
  **************************************************************************************/
 static duk_ret_t native_cellular_get_locatorInfo(duk_context *ctx)
 {
-    int ret     = -1;
+    int ret = -1;
     amp_locator_info_t locator_info;
 
     memset(&locator_info, 0, sizeof(locator_info));
@@ -79,11 +79,11 @@ static duk_ret_t native_cellular_get_locatorInfo(duk_context *ctx)
 
     duk_push_object(ctx);
 
-    AMP_ADD_INT("cellid",   locator_info.cellid);
-    AMP_ADD_INT("lac",      locator_info.lac);
-    AMP_ADD_STRING("mcc",   locator_info.mcc);
-    AMP_ADD_STRING("mnc",   locator_info.mnc);
-    AMP_ADD_INT("signal",   locator_info.signal);
+    AMP_ADD_INT("cellid", locator_info.cellid);
+    AMP_ADD_INT("lac", locator_info.lac);
+    AMP_ADD_STRING("mcc", locator_info.mcc);
+    AMP_ADD_STRING("mnc", locator_info.mnc);
+    AMP_ADD_INT("signal", locator_info.signal);
 
     return 1;
 
@@ -104,7 +104,7 @@ out:
  **************************************************************************************/
 void cellInfo_receive_callback(amp_locator_info_t *locator_info, int cell_num)
 {
-    int ret     = -1;
+    int ret = -1;
     int i;
 
     duk_context *ctx = be_get_context();
@@ -113,10 +113,10 @@ void cellInfo_receive_callback(amp_locator_info_t *locator_info, int cell_num)
     for (i = 0; i < cell_num; i++) {
         duk_push_object(ctx);
 
-        AMP_ADD_INT("cellid",   locator_info[i].cellid);
-        AMP_ADD_INT("lac",      locator_info[i].lac);
-        AMP_ADD_STRING("mcc",   locator_info[i].mcc);
-        AMP_ADD_STRING("mnc",   locator_info[i].mnc);
+        AMP_ADD_INT("cellid", locator_info[i].cellid);
+        AMP_ADD_INT("lac", locator_info[i].lac);
+        AMP_ADD_STRING("mcc", locator_info[i].mcc);
+        AMP_ADD_STRING("mnc", locator_info[i].mnc);
 
         duk_put_prop_index(ctx, arr_idx, i);
     }
@@ -128,7 +128,7 @@ void cellInfo_receive_callback(amp_locator_info_t *locator_info, int cell_num)
 
 static duk_ret_t native_cellular_neighborCellInfo(duk_context *ctx)
 {
-    int ret     = -1;
+    int ret = -1;
     // int i,cellnum = 0;
 
     // if (!duk_is_function(ctx, 0)) {
@@ -154,7 +154,7 @@ out:
 
 static duk_ret_t native_cellular_getStatus(duk_context *ctx)
 {
-    int ret     = -1;
+    int ret = -1;
 
     ret = aos_get_network_status();
     if (ret != 1) {
@@ -169,9 +169,9 @@ out:
 
 static void network_status_notify(void *pdata)
 {
-    int i                      = 0;
+    int i = 0;
     network_status_notify_param_t *p = (network_status_notify_param_t *)pdata;
-    duk_context *ctx           = be_get_context();
+    duk_context *ctx = be_get_context();
 
     be_push_ref(ctx, p->js_cb_ref);
     duk_push_int(ctx, p->status);
@@ -186,7 +186,8 @@ static void network_status_notify(void *pdata)
 static void network_status_callback(int status, void *args)
 {
     int js_cb_ref = (int)args;
-    network_status_notify_param_t *p = aos_calloc(1, sizeof(network_status_notify_param_t));
+    network_status_notify_param_t *p =
+        aos_calloc(1, sizeof(network_status_notify_param_t));
     if (!p) {
         amp_warn(MOD_STR, "allocate memory failed");
         duk_context *ctx = be_get_context();
@@ -202,7 +203,7 @@ static void network_status_callback(int status, void *args)
 
 static duk_ret_t native_cellular_onconnect(duk_context *ctx)
 {
-    int ret     = -1;
+    int ret = -1;
     int js_cb_ref;
 
     if (!duk_is_function(ctx, 0)) {
@@ -260,7 +261,7 @@ out:
 
 static duk_ret_t native_get_netshare_config(duk_context *ctx)
 {
-    int ret     = -1;
+    int ret = -1;
     amp_sharemode_info_t *share_mode_info;
 
     share_mode_info = aos_malloc(sizeof(amp_sharemode_info_t));
@@ -278,13 +279,13 @@ static duk_ret_t native_get_netshare_config(duk_context *ctx)
 
     duk_push_object(ctx);
 
-    AMP_ADD_INT("action",  share_mode_info->action);
-    AMP_ADD_INT("auto_connect",  share_mode_info->auto_connect);
+    AMP_ADD_INT("action", share_mode_info->action);
+    AMP_ADD_INT("auto_connect", share_mode_info->auto_connect);
     AMP_ADD_STRING("apn", share_mode_info->apn);
-    AMP_ADD_STRING("username",   share_mode_info->username);
-    AMP_ADD_STRING("password",      share_mode_info->password);
-    AMP_ADD_INT("ip_type",   share_mode_info->ip_type);
-    AMP_ADD_INT("share_mode",   share_mode_info->share_mode);
+    AMP_ADD_STRING("username", share_mode_info->username);
+    AMP_ADD_STRING("password", share_mode_info->password);
+    AMP_ADD_INT("ip_type", share_mode_info->ip_type);
+    AMP_ADD_INT("share_mode", share_mode_info->share_mode);
 
     aos_free(share_mode_info);
     return 1;
@@ -299,12 +300,11 @@ out:
 
 static duk_ret_t native_set_netshare_config(duk_context *ctx)
 {
-    int ret     = -1;
+    int ret = -1;
     amp_sharemode_info_t *share_mode_info;
 
     /* check paramters */
-    if (!duk_is_object(ctx, 0))
-    {
+    if (!duk_is_object(ctx, 0)) {
         amp_warn(MOD_STR, "parameter must be object\n");
         goto out;
     }
@@ -327,9 +327,12 @@ static duk_ret_t native_set_netshare_config(duk_context *ctx)
     //     amp_warn(MOD_STR,
     //         "Parameter 1 must be an object like {host: string, "
     //         "port: uint, client_id: string, username: string, "
-    //         "password: string, keepalive_interval: uint} %d %d %d %d %d %d %d %d %d", duk_is_number(ctx, -8), duk_is_number(ctx, -7),
-    //         duk_is_number(ctx, -6), duk_is_string(ctx, -5), duk_is_string(ctx, -4), duk_is_string(ctx, -3), duk_is_string(ctx, -2),
-    //         duk_is_boolean(ctx, -2), duk_is_number(ctx, -1));
+    //         "password: string, keepalive_interval: uint} %d %d %d %d %d %d %d
+    //         %d %d", duk_is_number(ctx, -8), duk_is_number(ctx, -7),
+    //         duk_is_number(ctx, -6), duk_is_string(ctx, -5),
+    //         duk_is_string(ctx, -4), duk_is_string(ctx, -3),
+    //         duk_is_string(ctx, -2), duk_is_boolean(ctx, -2),
+    //         duk_is_number(ctx, -1));
     //     // duk_pop_n(ctx, 8);
     //     // goto out;
     // }
@@ -378,15 +381,16 @@ void module_cellular_register(void)
 
     duk_push_object(ctx);
 
-    AMP_ADD_FUNCTION("getSimInfo",          native_cellular_get_simInfo, 0);
-    AMP_ADD_FUNCTION("getLocatorInfo",      native_cellular_get_locatorInfo, 0);
-    AMP_ADD_FUNCTION("getStatus",           native_cellular_getStatus, 0);
-    AMP_ADD_FUNCTION("onConnect",           native_cellular_onconnect, 1);
-    AMP_ADD_FUNCTION("getNeighborCellInfo", native_cellular_neighborCellInfo, 0);
-    AMP_ADD_FUNCTION("getNetSharemode",     native_get_netshare_mode, 0);
-    AMP_ADD_FUNCTION("setNetSharemode",     native_set_netshare_mode, 1);
-    AMP_ADD_FUNCTION("getNetShareconfig",   native_get_netshare_config, 0);
-    AMP_ADD_FUNCTION("setNetShareconfig",   native_set_netshare_config, 1);
+    AMP_ADD_FUNCTION("getSimInfo", native_cellular_get_simInfo, 0);
+    AMP_ADD_FUNCTION("getLocatorInfo", native_cellular_get_locatorInfo, 0);
+    AMP_ADD_FUNCTION("getStatus", native_cellular_getStatus, 0);
+    AMP_ADD_FUNCTION("onConnect", native_cellular_onconnect, 1);
+    AMP_ADD_FUNCTION("getNeighborCellInfo", native_cellular_neighborCellInfo,
+                     0);
+    AMP_ADD_FUNCTION("getNetSharemode", native_get_netshare_mode, 0);
+    AMP_ADD_FUNCTION("setNetSharemode", native_set_netshare_mode, 1);
+    AMP_ADD_FUNCTION("getNetShareconfig", native_get_netshare_config, 0);
+    AMP_ADD_FUNCTION("setNetShareconfig", native_set_netshare_config, 1);
 
     duk_put_prop_string(ctx, -2, "CELLULAR");
 }

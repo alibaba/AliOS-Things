@@ -1,0 +1,45 @@
+
+#ifndef __GENIE_BIN_CMDS_H__
+#define __GENIE_BIN_CMDS_H__
+
+#define GENIE_BIN_OPCODE_DATA (0xFF00)
+#define GENIE_BIN_OPCODE_CMD (0xFE00)
+#define GENIE_BIN_OPCODE_ERR (0x5555)
+
+#define GENIE_BIN_MIN_DATA_LEN (5)
+#define GENIE_BLE_MAC_LEN (6)
+
+#define GENIE_BINARY_CMD_TOTAL_LEN_ERR (0x01)
+#define GENIE_BINARY_CMD_DATA_LEN_ERR (0x02)
+#define GENIE_BINARY_CMD_CRC_ERR (0x03)
+#define GENIE_BINARY_CMD_GET_RSSI_INPUT_ERR (0x04)
+#define GENIE_BINARY_CMD_GET_RSSI_BLE_ERR (0x05)
+#define GENIE_BINARY_CMD_GET_RSSI_MAC_NOT_MATCH_ERR (0x06)
+#define GENIE_BINARY_CMD_UPDATE_GROUP_ADDR_LEN_ERR (0x07)
+#define GENIE_BINARY_CMD_UPDATE_GROUP_ADDR_INVALID_ERR (0x08)
+#define GENIE_BINARY_CMD_UPDATE_GROUP_ADDR_FLASH_ERR (0x09)
+#define GENIE_BINARY_CMD_START_FACTORY_ERR (0x0A)
+
+#define GENIE_BINARY_CMD_TRANSPARENT_ERR (0x80)
+
+#define GENIE_BINARY_CMD_UNKNOW_ERR (0xFF)
+
+typedef enum _genie_control_cmd
+{
+    GENIE_CTL_MESH_ADV = 0x01,
+    GENIE_CTL_CLEAR_PROV_INFO = 0x02,
+    GENIE_CTL_DEVIE_INFO_AND_EVENT = 0x03, //This is device update info
+    GENIE_CTL_TEST_MODE = 0x04,
+    GENIE_CTL_DEVICE_INFO = 0x05, //This is MCU command
+    GENIE_CTL_REBOOT_DEVICE = 0x06,
+    GENIE_CTL_UPDATE_GROUP_ADDR = 0x07,
+    GENIE_CTL_UPDATE_GROUP_ADDR_RESPONSE = 0x08,
+    GENIE_CTL_GET_GROUP_ADDR = 0x09,
+    GENIE_CTL_GET_GOURP_ADDR_RESPONSE = 0x0A,
+    GENIE_CTL_FACTORY_TEST = 0x0B,
+    GENIE_CTL_SWITCH_DEBUG = 0x0C
+} genie_control_cmd;
+
+extern int genie_bin_cmd_handle_event(genie_event_e event, void *p_arg);
+extern void genie_bin_cmds_send_data_to_mcu(uint8_t *p_data, uint8_t len);
+#endif

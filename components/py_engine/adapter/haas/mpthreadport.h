@@ -28,14 +28,25 @@
 #ifndef MICROPY_INCLUDED_MPTHREADPORT_H
 #define MICROPY_INCLUDED_MPTHREADPORT_H
 
+#include <stdint.h>
+#include "py/mpconfig.h"
+
 typedef struct _mp_thread_mutex_t {
-    void* k_mutex;
+    void *k_mutex;
 } mp_thread_mutex_t;
 
-void mp_thread_init(void *stack, uint32_t stack_len);
+#ifdef AOS_BOARD_HAAS700
+#define mp_task_t           (aos_task_t *)
+#define mp_task_struct_size (sizeof(aos_task_t))
+#else
+#define mp_task_t           aos_task_t
+#define mp_task_struct_size (sizeof(aos_task_t))
+#endif
+
+void mp_thread_init(void *stack, mp_uint_t stack_len);
 #if MICROPY_ENABLE_GC
 void mp_thread_gc_others(void);
 #endif
 void mp_thread_deinit(void);
 
-#endif // MICROPY_INCLUDED_MPTHREADPORT_H
+#endif  // MICROPY_INCLUDED_MPTHREADPORT_H
