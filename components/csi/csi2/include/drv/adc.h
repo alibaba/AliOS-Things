@@ -146,12 +146,29 @@ uint32_t csi_adc_freq_div(csi_adc_t *adc, uint32_t div);
 int32_t csi_adc_read(csi_adc_t *adc);
 
 /**
+  \brief       Receiving converted voltage(unit:mV) from ADC receiver
+  \param[in]   handle    ADC handle to operate
+  \return      If read successful, this function shall return the voltage(unit:mV)
+               otherwise, the function shall return error code
+*/
+int32_t csi_adc_read_voltage(csi_adc_t *adc);
+
+/**
   \brief       Get ADC state
   \param[in]   adc      ADC handle to operate
   \param[in]   state    ADC state
   \return      Error code \ref csi_error_t
 */
 csi_error_t csi_adc_get_state(csi_adc_t *adc, csi_state_t *state);
+
+/**
+  \brief       Get ADC range
+  \param[in]   adc      ADC handle to operate
+  \param[in]   ch_id    Channel id
+  \param[out]  range    ADC range
+  \return      Error code \ref csi_error_t
+*/
+csi_error_t csi_adc_get_range(csi_adc_t *adc, uint8_t ch_id, uint32_t *range);
 
 /**
   \brief       Attach the callback handler to adc

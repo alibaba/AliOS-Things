@@ -7,22 +7,22 @@ A7_PROJECT_NAME=kws
 
 echo "***************************** get option $1 $2 $3 ***************************"
 
-COM_OPT="make T=haas1000_normalization PSRAM_ENABLE=1 ALIOS_THINGS_RELEASE=1 CONTRA_EN=1 MARIE_EN=1 USB_SLEEP_TEST=1 SUPPORT_IR=1 -j8"
-COM_OPT_A7="A7_PROJECT=$A7_PROJECT_NAME A7_DSP_ENABLE=1 PSRAMUHS_ENABLE=1"
+COM_OPT="make T=haas1000_normalization PSRAM_ENABLE=1 ALIOS_THINGS_RELEASE=1 CONTRA_EN=1 MARIE_EN=1 USB_SLEEP_TEST=1 SUPPORT_IR=1 -j8 "
+COM_OPT_A7=" A7_PROJECT=$A7_PROJECT_NAME A7_DSP_ENABLE=1 PSRAMUHS_ENABLE=1 "
 
 # build cmd define
 #make_a7="make T=haas1000_a7 -j8 A7_ALI_LIB=1 KERNEL=RHINO $1 $2 $3"
 if [[ "$1" == "SDK=1" ]]; then
-make_a7="make T=haas1000_a7 A7_PROJECT=$A7_PROJECT_NAME A7_ALI_LIB=1 -j8 $1 $2 $3"
+make_a7="make T=haas1000_a7 A7_PROJECT=$A7_PROJECT_NAME A7_ALI_LIB=1 -j8 $1 $2 $3 "
 else
-make_a7="make T=haas1000_a7 A7_PROJECT=$A7_PROJECT_NAME -j8 $1 $2 $3"
+make_a7="make T=haas1000_a7 A7_PROJECT=$A7_PROJECT_NAME -j8 $1 $2 $3 "
 fi
-make_contra_mm_debug="$COM_OPT RF_USE_SP3T=0 RHINO_MM_DEBUG=1 $1 $2 $3"
-make_contra_sp3t="$COM_OPT RF_USE_SP3T=0 $1 $2 $3"
+make_contra_mm_debug="$COM_OPT RF_USE_SP3T=0 RHINO_MM_DEBUG=1 $1 $2 $3 "
+make_contra_sp3t="$COM_OPT RF_USE_SP3T=0 $1 $2 $3 "
 if [[ "$1" == "SDK=1" ]]; then
-make_contra_psram_link="$COM_OPT OTA_CODE_OFFSET=0x2A000 scripts/link $1 $2 $3"
+make_contra_psram_link="$COM_OPT OTA_CODE_OFFSET=0x2A000 scripts/link $1 $2 $3 "
 else
-make_contra_psram_link="$COM_OPT OTA_CODE_OFFSET=0 scripts/link $1 $2 $3"
+make_contra_psram_link="$COM_OPT OTA_CODE_OFFSET=0 scripts/link $1 $2 $3 "
 fi
 
 # #del tmp_build.info
@@ -44,14 +44,14 @@ function build_result()
 }
 
 CRTDIR=$(pwd)
-if [ -d "$HOME/.aliot/arm-none-eabi" ];then
-   export PATH=$HOME/.aliot/arm-none-eabi/main/bin:$PATH
+if [ -d "$HOME/.aliot/arm-ali-aoseabi" ];then
+   export PATH=$HOME/.aliot/arm-ali-aoseabi/main/bin:$PATH
 fi
 
 if [ -d "../shenmulite/build/compiler" ];then
    export PATH=$CRTDIR/../shenmulite/build/compiler/gcc-arm-none-eabi/Linux64/bin:$PATH
 fi
-arm-none-eabi-gcc -v
+arm-ali-aoseabi-gcc -v
 
 # clear out/
 rm -rf out

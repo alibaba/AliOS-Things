@@ -2,19 +2,20 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "amp_platform.h"
-#include "aos_system.h"
-#include "py_defines.h"
 #include "app_message.h"
-#include "aos_network.h"
-#include "aos/kv.h"
+
+#include "aiot_mqtt_api.h"
 #include "aiot_state_api.h"
 #include "aiot_sysdep_api.h"
-#include "aiot_mqtt_api.h"
+#include "amp_platform.h"
+#include "aos/kv.h"
+#include "aos_network.h"
+#include "aos_system.h"
+#include "py_defines.h"
 //#include "aiot_das_api.h"
-#include "aiot_ntp_api.h"
-#include "aiot_dm_api.h"
 #include "aiot_devinfo_api.h"
+#include "aiot_dm_api.h"
+#include "aiot_ntp_api.h"
 #include "app_mgr.h"
 #include "cJSON.h"
 
@@ -22,11 +23,11 @@
 
 int pyamp_upgrading = 0;
 int pyamp_device_token_verify_rejected = 0;
-char pyamp_file_url[300] = {0};
+char pyamp_file_url[300] = { 0 };
 
 /* ntp timestamp */
-int64_t pyamp_g_ntp_time = 0;
-int64_t pyamp_g_up_time = 0;
+// int64_t pyamp_g_ntp_time = 0;
+// int64_t pyamp_g_up_time = 0;
 
 int32_t pyamp_update_file(const char *payload)
 {
@@ -34,23 +35,19 @@ int32_t pyamp_update_file(const char *payload)
     cJSON *root = NULL, *params = NULL, *url = NULL;
 
     root = cJSON_Parse(payload);
-    if (root == NULL || !cJSON_IsObject(root))
-    {
+    if (root == NULL || !cJSON_IsObject(root)) {
         amp_debug(MOD_STR, "JSON Parse Error");
         return ret;
     }
     params = cJSON_GetObjectItem(root, "params");
-    if (params == NULL || !cJSON_IsObject(params))
-    {
+    if (params == NULL || !cJSON_IsObject(params)) {
         amp_debug(MOD_STR, "JSON Parse Error");
         cJSON_Delete(root);
         return ret;
     }
-    do
-    {
+    do {
         url = cJSON_GetObjectItem(params, "url");
-        if (url == NULL || !cJSON_IsString(url))
-        {
+        if (url == NULL || !cJSON_IsString(url)) {
             amp_debug(MOD_STR, "JSON Parse Error");
             cJSON_Delete(root);
             return ret;
@@ -58,8 +55,7 @@ int32_t pyamp_update_file(const char *payload)
 
         strcpy(pyamp_file_url, url->valuestring);
         // amp_debug(MOD_STR, "get url: %s", url->valuestring);
-        if (pyamp_upgrading)
-        {
+        if (pyamp_upgrading) {
             amp_debug(MOD_STR, "pyamp_upgrading.........");
             return ret;
         }
@@ -74,27 +70,24 @@ int32_t pyamp_update_file(const char *payload)
 int32_t pyamptoken_verify(const char *payload)
 {
     int32_t ret = -1;
-    char token_flag[AMP_DEVICE_TOKEN_LENGTH] = {0};
+    char token_flag[AMP_DEVICE_TOKEN_LENGTH] = { 0 };
     int token_len = AMP_DEVICE_TOKEN_LENGTH;
     cJSON *root = NULL, *params = NULL, *token = NULL;
 
     root = cJSON_Parse(payload);
-    if (root == NULL || !cJSON_IsObject(root))
-    {
+    if (root == NULL || !cJSON_IsObject(root)) {
         amp_debug(MOD_STR, "JSON Parse Error");
         return ret;
     }
     params = cJSON_GetObjectItem(root, "params");
-    if (params == NULL || !cJSON_IsObject(params))
-    {
+    if (params == NULL || !cJSON_IsObject(params)) {
         amp_debug(MOD_STR, "JSON Parse Error");
         cJSON_Delete(root);
         return ret;
     }
 
     token = cJSON_GetObjectItem(params, "token");
-    if (token == NULL || !cJSON_IsString(token))
-    {
+    if (token == NULL || !cJSON_IsString(token)) {
         amp_debug(MOD_STR, "JSON Parse Error");
         cJSON_Delete(root);
         return ret;
@@ -102,8 +95,7 @@ int32_t pyamptoken_verify(const char *payload)
     // strcpy(pyamp_file_url, token->valuestring);
     amp_debug(MOD_STR, "get token flag is: %s", token->valuestring);
     aos_kv_set(AMP_DEVICE_TOKEN_VERIFY_FLAG, token->valuestring, strlen(token->valuestring), 1);
-    if (strcmp(token->valuestring, "rejected") == 0)
-    {
+    if (strcmp(token->valuestring, "rejected") == 0) {
         amp_debug(MOD_STR, "token verify failed, destroy pclient");
         pyamp_device_token_verify_rejected = 1;
     }
@@ -115,11 +107,11 @@ int32_t pyamptoken_verify(const char *payload)
 
 void pyamp_putfile_message_handler(void *handle, const aiot_mqtt_recv_t *packet, void *userdata)
 {
-    switch (packet->type)
-    {
+    switch (packet->type) {
     case AIOT_MQTTRECV_PUB:
         /* print topic name and topic message */
-        amp_debug(MOD_STR, "pub, qos: %d, len: %d, topic: %s  \r\n", packet->data.pub.qos, packet->data.pub.topic_len, packet->data.pub.topic);
+        amp_debug(MOD_STR, "pub, qos: %d, len: %d, topic: %s  \r\n", packet->data.pub.qos, packet->data.pub.topic_len,
+                  packet->data.pub.topic);
         amp_debug(MOD_STR, "pub, len: %d, payload: %s  \r\n", packet->data.pub.payload_len, packet->data.pub.payload);
         pyamp_update_file(packet->data.pub.payload);
         break;
@@ -130,11 +122,11 @@ void pyamp_putfile_message_handler(void *handle, const aiot_mqtt_recv_t *packet,
 
 void pyamp_verify_message_handler(void *handle, const aiot_mqtt_recv_t *packet, void *userdata)
 {
-    switch (packet->type)
-    {
+    switch (packet->type) {
     case AIOT_MQTTRECV_PUB:
         /* print topic name and topic message */
-        amp_debug(MOD_STR, "pub, qos: %d, len: %d, topic: %.*s", packet->data.pub.qos, packet->data.pub.topic_len, packet->data.pub.topic);
+        amp_debug(MOD_STR, "pub, qos: %d, len: %d, topic: %.*s", packet->data.pub.qos, packet->data.pub.topic_len,
+                  packet->data.pub.topic);
         amp_debug(MOD_STR, "pub, len: %d, payload: %.*s", packet->data.pub.payload_len, packet->data.pub.payload);
         pyamptoken_verify(packet->data.pub.payload);
         break;
@@ -148,8 +140,8 @@ static int32_t topic_subscribe(void *mqtt_handle, const char *fmt, void *callbac
     int res = STATE_SUCCESS;
     int topic_len = 0;
     char *topic = NULL;
-    char amp_internal_productkey[IOTX_PRODUCT_KEY_LEN] = {0};
-    char amp_internal_devicename[IOTX_DEVICE_NAME_LEN] = {0};
+    char amp_internal_productkey[IOTX_PRODUCT_KEY_LEN] = { 0 };
+    char amp_internal_devicename[IOTX_DEVICE_NAME_LEN] = { 0 };
     int productkey_len = IOTX_PRODUCT_KEY_LEN;
     int devicename_len = IOTX_DEVICE_NAME_LEN;
 
@@ -158,8 +150,7 @@ static int32_t topic_subscribe(void *mqtt_handle, const char *fmt, void *callbac
 
     topic_len = strlen(fmt) + strlen(amp_internal_productkey) + strlen(amp_internal_devicename) + 1;
     topic = aos_malloc(topic_len);
-    if (topic == NULL)
-    {
+    if (topic == NULL) {
         amp_debug(MOD_STR, "memory not enough");
         return -1;
     }
@@ -167,8 +158,7 @@ static int32_t topic_subscribe(void *mqtt_handle, const char *fmt, void *callbac
     aos_snprintf(topic, topic_len, fmt, amp_internal_productkey, amp_internal_devicename);
 
     res = aiot_mqtt_sub(mqtt_handle, topic, callback, 0, NULL);
-    if (res < STATE_SUCCESS)
-    {
+    if (res < STATE_SUCCESS) {
         amp_debug(MOD_STR, "subscribe failed");
         aos_free(topic);
         return -1;
@@ -183,8 +173,8 @@ static int32_t topic_publish(void *handle, const char *fmt, char *payload)
     int res = STATE_SUCCESS;
     char *topic = NULL;
     int topic_len = 0;
-    char amp_internal_productkey[IOTX_PRODUCT_KEY_LEN] = {0};
-    char amp_internal_devicename[IOTX_DEVICE_NAME_LEN] = {0};
+    char amp_internal_productkey[IOTX_PRODUCT_KEY_LEN] = { 0 };
+    char amp_internal_devicename[IOTX_DEVICE_NAME_LEN] = { 0 };
     int productkey_len = IOTX_PRODUCT_KEY_LEN;
     int devicename_len = IOTX_DEVICE_NAME_LEN;
 
@@ -193,8 +183,7 @@ static int32_t topic_publish(void *handle, const char *fmt, char *payload)
 
     topic_len = strlen(fmt) + strlen(amp_internal_productkey) + strlen(amp_internal_devicename) + 1;
     topic = aos_malloc(topic_len);
-    if (topic == NULL)
-    {
+    if (topic == NULL) {
         amp_debug(MOD_STR, "memory not enough");
         return -1;
     }
@@ -202,8 +191,7 @@ static int32_t topic_publish(void *handle, const char *fmt, char *payload)
     aos_snprintf(topic, topic_len, fmt, amp_internal_productkey, amp_internal_devicename);
 
     res = aiot_mqtt_pub(handle, topic, payload, strlen(payload), 0);
-    if (res < STATE_SUCCESS)
-    {
+    if (res < STATE_SUCCESS) {
         amp_debug(MOD_STR, "publish failed, res = %d", res);
         aos_free(topic);
         return -1;
@@ -221,15 +209,13 @@ int32_t pyamp_internal_service_subscribe(void *mqtt_handle)
     const char *verify_fmt = "/sys/%s/%s/thing/service/verify";
 
     res = topic_subscribe(mqtt_handle, update_fmt, pyamp_putfile_message_handler);
-    if (res < STATE_SUCCESS)
-    {
+    if (res < STATE_SUCCESS) {
         amp_debug(MOD_STR, "subscribe update topic failed");
         return -1;
     }
 
     res = topic_subscribe(mqtt_handle, verify_fmt, pyamp_verify_message_handler);
-    if (res < STATE_SUCCESS)
-    {
+    if (res < STATE_SUCCESS) {
         amp_debug(MOD_STR, "subscribe update topic failed");
         return -1;
     }
@@ -241,14 +227,13 @@ int32_t pyamp_internal_service_subscribe(void *mqtt_handle)
 int32_t pyamp_internal_service_publish(void *mqtt_handle)
 {
     int res = 0;
-    char token_content[AMP_DEVICE_TOKEN_LENGTH] = {0};
+    char token_content[AMP_DEVICE_TOKEN_LENGTH] = { 0 };
     int token_len = AMP_DEVICE_TOKEN_LENGTH;
     const char *verify_fmt = "/sys/%s/%s/thing/event/property/post";
     char *payload = NULL;
 
     payload = aos_malloc(128);
-    if (payload == NULL)
-    {
+    if (payload == NULL) {
         amp_debug(MOD_STR, "memory not enough");
         return -1;
     }
@@ -257,8 +242,7 @@ int32_t pyamp_internal_service_publish(void *mqtt_handle)
     aos_snprintf(payload, 128, PROP_POST_FORMAT_TOKEN, token_content);
 
     res = topic_publish(mqtt_handle, verify_fmt, payload);
-    if (res < STATE_SUCCESS)
-    {
+    if (res < STATE_SUCCESS) {
         amp_debug(MOD_STR, "publish failed");
         aos_free(payload);
         return -1;
@@ -301,23 +285,18 @@ int32_t amp_das_service(void *mqtt_handle)
 
 static void aiot_ntp_recv_handler(void *handle, const aiot_ntp_recv_t *packet, void *userdata)
 {
-    switch (packet->type)
-    {
+    switch (packet->type) {
     case AIOT_NTPRECV_LOCAL_TIME:
         /* print topic name and topic message */
-        amp_debug(MOD_STR, "year: %d, month: %d, day: %d, hour: %d, min: %d, sec: %d, msec: %d, timestamp: %d",
-                packet->data.local_time.year,
-                packet->data.local_time.mon,
-                packet->data.local_time.day,
-                packet->data.local_time.hour,
-                packet->data.local_time.min,
-                packet->data.local_time.sec,
-                packet->data.local_time.msec,
-                packet->data.local_time.timestamp
-        );
+        amp_debug(MOD_STR,
+                  "year: %d, month: %d, day: %d, hour: %d, min: %d, sec: "
+                  "%d, msec: %d, timestamp: %d",
+                  packet->data.local_time.year, packet->data.local_time.mon, packet->data.local_time.day,
+                  packet->data.local_time.hour, packet->data.local_time.min, packet->data.local_time.sec,
+                  packet->data.local_time.msec, packet->data.local_time.timestamp);
 
-        pyamp_g_ntp_time = packet->data.local_time.timestamp;
-        pyamp_g_up_time = aos_now_ms();
+        // pyamp_g_ntp_time = packet->data.local_time.timestamp;
+        // pyamp_g_up_time = aos_now_ms();
 
         break;
     default:
@@ -327,8 +306,7 @@ static void aiot_ntp_recv_handler(void *handle, const aiot_ntp_recv_t *packet, v
 
 static void aiot_ntp_event_handler(void *handle, const aiot_ntp_event_t *event, void *userdata)
 {
-    switch (event->type)
-    {
+    switch (event->type) {
     case AIOT_NTPEVT_INVALID_RESPONSE:
         /* print topic name and topic message */
         amp_debug(MOD_STR, "ntp receive data invalid");
@@ -433,15 +411,8 @@ int32_t pyamp_location_service(void *mqtt_handle)
     }
 
     /* bts info format */
-    res = snprintf(bts,
-                    64,
-                    "%s,%s,%d,%d,%d",
-                    locator_info.mcc,
-                    locator_info.mnc,
-                    locator_info.lac,
-                    locator_info.cellid,
-                    locator_info.signal
-                    );
+    res = snprintf(bts, 64, "%s,%s,%d,%d,%d", locator_info.mcc, locator_info.mnc, locator_info.lac, locator_info.cellid,
+                   locator_info.signal);
     if (res < STATE_SUCCESS) {
         amp_debug(MOD_STR, "lbs info generate failed");
         aos_free(bts);
@@ -457,12 +428,7 @@ int32_t pyamp_location_service(void *mqtt_handle)
     }
 
     /* lbs info format */
-    res = snprintf(lbs_info,
-                    64,
-                    LBS_INFO_FMT,
-                    bts,
-                    bts
-                    );
+    res = snprintf(lbs_info, 64, LBS_INFO_FMT, bts, bts);
     if (res < STATE_SUCCESS) {
         amp_debug(MOD_STR, "lbs info generate failed");
         aos_free(lbs_info);
@@ -497,8 +463,8 @@ int32_t pyamp_devinfo_report_service(void *mqtt_handle)
     aiot_devinfo_msg_t *devinfo = NULL;
     char *msg = NULL;
     int32_t msg_len = 0;
-    char product_key[IOTX_PRODUCT_KEY_LEN] = {0};
-    char device_name[IOTX_DEVICE_NAME_LEN] = {0};
+    char product_key[IOTX_PRODUCT_KEY_LEN] = { 0 };
+    char device_name[IOTX_DEVICE_NAME_LEN] = { 0 };
     int productkey_len = IOTX_PRODUCT_KEY_LEN;
     int devicename_len = IOTX_DEVICE_NAME_LEN;
 
@@ -527,12 +493,7 @@ int32_t pyamp_devinfo_report_service(void *mqtt_handle)
     memset(msg, 0, msg_len);
 
     /* devinfo update message */
-    res = snprintf(msg,
-                       msg_len,
-                       DEVICE_INFO_UPDATE_FMT,
-                       APPLICATION,
-                       MODULE_NAME
-                      );
+    res = snprintf(msg, msg_len, DEVICE_INFO_UPDATE_FMT, APPLICATION, MODULE_NAME);
     if (res <= 0) {
         amp_debug(MOD_STR, "topic msg generate err");
         aos_free(msg);

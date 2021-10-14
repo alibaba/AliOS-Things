@@ -1,55 +1,41 @@
 /*
- * This file is part of the MicroPython project, http://micropython.org/
- *
- * The MIT License (MIT)
- *
- * Copyright (c) 2019 Damien P. George
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
 
-#include "py/runtime.h"
-#include "py/mphal.h"
-#include "py/mperrno.h"
+#include "aos_hal_i2c.h"
 #include "extmod/machine_i2c.h"
 #include "modmachine.h"
-
-#include "aos_hal_i2c.h"
+#include "py/mperrno.h"
+#include "py/mphal.h"
+#include "py/runtime.h"
 #include "ulog/ulog.h"
 
-#if MICROPY_PY_MACHINE
+#if MICROPY_PY_MACHINE_I2C
 
 #define LOG_TAG "machine_hw_i2c"
 
-typedef enum{
-    I2C_NUM_0 = 0,  /*!< I2C port 0 */
-    I2C_NUM_1 ,     /*!< I2C port 1 */
+#define MI2C_CHECK_PARAMS()                                                      \
+    machine_hw_i2c_obj_t *self = (machine_hw_i2c_obj_t *)MP_OBJ_TO_PTR(self_in); \
+    do {                                                                         \
+        if (self == NULL) {                                                      \
+            mp_raise_OSError(MP_EINVAL);                                         \
+            return mp_const_none;                                                \
+        }                                                                        \
+    } while (0)
+
+#define I2C_0_DEFAULT_SCL      (18)
+#define I2C_0_DEFAULT_SDA      (19)
+
+#define I2C_1_DEFAULT_SCL      (20)
+#define I2C_1_DEFAULT_SDA      (21)
+
+#define I2C_DEFAULT_TIMEOUT_US (10000)
+
+typedef enum {
+    I2C_NUM_0 = 0, /*!< I2C port 0 */
+    I2C_NUM_1,     /*!< I2C port 1 */
     I2C_NUM_MAX
 } i2c_port_t;
-
-#define I2C_0_DEFAULT_SCL (18)
-#define I2C_0_DEFAULT_SDA (19)
-
-#define I2C_1_DEFAULT_SCL (20)
-#define I2C_1_DEFAULT_SDA (21)
-
-#define I2C_DEFAULT_TIMEOUT_US (1000 * 10) // 10ms
 
 typedef struct _machine_hw_i2c_obj_t {
     mp_obj_base_t base;
@@ -57,44 +43,50 @@ typedef struct _machine_hw_i2c_obj_t {
     uint16_t scl : 8;
     uint16_t sda : 8;
     i2c_dev_t dev;
-    uint32_t timeout;
+    mp_uint_t timeout;
 } machine_hw_i2c_obj_t;
 
 STATIC machine_hw_i2c_obj_t machine_hw_i2c_obj[I2C_NUM_MAX];
 
-int machine_hw_i2c_transfer(mp_obj_base_t *self_in, uint16_t addr, size_t n, mp_machine_i2c_buf_t *bufs, unsigned int flags) {
-    machine_hw_i2c_obj_t *self = MP_OBJ_TO_PTR(self_in);
+mp_int_t mp_machine_hw_i2c_init(mp_obj_base_t *self_in, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args)
+{
+    MI2C_CHECK_PARAMS();
     i2c_dev_t *dev = &self->dev;
-    int32_t ret = -1;
-    uint32_t timeout = self->timeout;
+    mp_int_t ret = -1;
+    mp_uint_t timeout = self->timeout;
     uint8_t mode = dev->config.mode;
-    
+
+    return aos_hal_i2c_init(dev);
+}
+
+mp_int_t mp_machine_hw_i2c_deinit(mp_obj_base_t *self_in)
+{
+    MI2C_CHECK_PARAMS();
+    i2c_dev_t *dev = &self->dev;
+    return aos_hal_i2c_finalize(dev);
+}
+
+mp_int_t mp_machine_hw_i2c_transfer(mp_obj_base_t *self_in, uint16_t addr, size_t n, mp_machine_i2c_buf_t *bufs,
+                                    unsigned int flags)
+{
+    MI2C_CHECK_PARAMS();
+    i2c_dev_t *dev = &self->dev;
+    mp_int_t ret = -1;
+    mp_uint_t timeout = self->timeout;
+    uint8_t mode = dev->config.mode;
+
     int data_len = 0;
     for (; n--; ++bufs) {
         if (flags & MP_MACHINE_I2C_FLAG_READ) {
-            if(mode == I2C_MODE_MASTER) {
-                ret = aos_hal_i2c_master_recv(dev, addr, bufs->buf, bufs->len, timeout);
-                for(int k=0; k<bufs->len; k++) {
-                    LOGD(LOG_TAG, "data = 0x%2x\n",  bufs->buf[k]);
-                }
-            } else {
-                ret = aos_hal_i2c_slave_recv(dev, bufs->buf, bufs->len, timeout);
-            }
+            ret = aos_hal_i2c_mem_read(dev, dev->config.dev_addr, addr, n, bufs->buf, bufs->len, timeout);
         } else {
             if (bufs->len != 0) {
-                for(int k=0; k<bufs->len; k++) {
-                    LOGD(LOG_TAG, "data = 0x%2x\n", bufs->buf[k]);
-                }
-                if(mode == I2C_MODE_MASTER) {
-                    ret = aos_hal_i2c_master_send(dev, addr, bufs->buf, bufs->len, timeout);
-                } else {
-                    ret = aos_hal_i2c_slave_send(dev, bufs->buf, bufs->len, timeout);
-                }
+                ret = aos_hal_i2c_mem_write(dev, dev->config.dev_addr, addr, n, bufs->buf, bufs->len, timeout);
             }
         }
 
         if (ret != 0) {
-            LOGE(LOG_TAG, "machine_hw_i2c_transfer fail, ret = %d\n", ret);
+            LOGE(LOG_TAG, "mp_machine_hw_i2c_transfer fail, ret = %d\n", ret);
             goto fail;
         }
 
@@ -106,51 +98,104 @@ fail:
     return ret;
 }
 
+mp_int_t mp_machine_hw_i2c_write(mp_obj_base_t *self_in, const uint8_t *src, size_t len)
+{
+    MI2C_CHECK_PARAMS();
+    i2c_dev_t *dev = &self->dev;
+    mp_int_t ret = -1;
+    mp_uint_t timeout = self->timeout;
+    uint8_t mode = dev->config.mode;
+
+    if (mode == I2C_MODE_MASTER) {
+        ret = aos_hal_i2c_master_send(dev, dev->config.dev_addr, src, len, timeout);
+    } else {
+        ret = aos_hal_i2c_slave_send(dev, src, len, timeout);
+    }
+
+    if(ret != 0) {
+        return ret;
+    }
+
+    return len;
+}
+
+mp_int_t mp_machine_hw_i2c_read(mp_obj_base_t *self_in, uint8_t *dest, size_t len, bool nack)
+{
+    MI2C_CHECK_PARAMS();
+    i2c_dev_t *dev = &self->dev;
+    mp_int_t ret = -1;
+    mp_uint_t timeout = self->timeout;
+    uint8_t mode = dev->config.mode;
+
+    if (mode == I2C_MODE_MASTER) {
+        ret = aos_hal_i2c_master_recv(dev, dev->config.dev_addr, dest, len, timeout);
+    } else {
+        ret = aos_hal_i2c_slave_recv(dev, dest, len, timeout);
+    }
+
+    if (ret != 0) {
+        return ret;
+    }
+
+    return len;
+}
+
 /******************************************************************************/
 // MicroPython bindings for machine API
 
-STATIC void machine_hw_i2c_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
-    machine_hw_i2c_obj_t *self = MP_OBJ_TO_PTR(self_in);
+STATIC void machine_hw_i2c_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind)
+{
+    MI2C_CHECK_PARAMS();
     i2c_dev_t *dev = &self->dev;
 
-    mp_printf(print, "I2C(port=%u, scl=%u, sda=%u, freq=%u, addr_width=%u, dev_addr=%u, mode=%u)",
-        self->port, self->scl, self->sda, dev->config.freq, dev->config.address_width, 
-        dev->config.dev_addr, dev->config.mode);
+    mp_printf(print,
+              "I2C(port=%u, scl=%u, sda=%u, freq=%u, addr_width=%u, "
+              "dev_addr=%u, mode=%u)",
+              self->port, self->scl, self->sda, dev->config.freq, dev->config.address_width, dev->config.dev_addr,
+              dev->config.mode);
 }
 
-STATIC int32_t machine_hw_i2c_init(machine_hw_i2c_obj_t *self, bool first_init) {
+STATIC mp_int_t machine_hw_i2c_init(machine_hw_i2c_obj_t *self, bool first_init)
+{
     i2c_dev_t *dev = &self->dev;
-    int32_t ret = -1;
+    mp_int_t ret = -1;
     if (!first_init) {
-        ret = aos_hal_i2c_finalize(self->port);
-        if(ret != 0) {
+        ret = aos_hal_i2c_finalize(dev);
+        if (ret != 0) {
             LOGE(LOG_TAG, "aos_hal_i2c_finalize fail, ret = %d\n", ret);
-            return ret;
         }
     }
 
     ret = aos_hal_i2c_init(dev);
-    if(ret != 0) {
+    if (ret != 0) {
         LOGE(LOG_TAG, "aos_hal_i2c_finalize fail, ret = %d\n", ret);
     }
     return ret;
 }
 
-mp_obj_t machine_hw_i2c_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args) {
-    // MP_MACHINE_I2C_CHECK_FOR_LEGACY_SOFTI2C_CONSTRUCTION(n_args, n_kw, all_args);
-
+mp_obj_t machine_hw_i2c_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *all_args)
+{
     // Parse args
-    enum { ARG_id, ARG_scl, ARG_sda, ARG_freq, ARG_timeout, ARG_mode, ARG_addr, ARG_addrsize};
+    enum {
+        ARG_id,
+        ARG_scl,
+        ARG_sda,
+        ARG_freq,
+        ARG_timeout,
+        ARG_mode,
+        ARG_addr,
+        ARG_addrsize
+    };
     static const mp_arg_t allowed_args[] = {
-        { MP_QSTR_id, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
-        { MP_QSTR_scl, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
-        { MP_QSTR_sda, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
-        { MP_QSTR_freq, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = I2C_BUS_BIT_RATES_400K} },
-        { MP_QSTR_timeout, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = I2C_DEFAULT_TIMEOUT_US} },
-        { MP_QSTR_mode, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = I2C_MODE_MASTER} },
-        { MP_QSTR_addr, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = I2C_NUM_0} },
-        { MP_QSTR_addrsize, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = I2C_HAL_ADDRESS_WIDTH_7BIT} },
-        
+        { MP_QSTR_id, MP_ARG_REQUIRED | MP_ARG_OBJ, { .u_obj = MP_OBJ_NULL } },
+        { MP_QSTR_scl, MP_ARG_KW_ONLY | MP_ARG_OBJ, { .u_obj = MP_OBJ_NULL } },
+        { MP_QSTR_sda, MP_ARG_KW_ONLY | MP_ARG_OBJ, { .u_obj = MP_OBJ_NULL } },
+        { MP_QSTR_freq, MP_ARG_KW_ONLY | MP_ARG_INT, { .u_int = I2C_BUS_BIT_RATES_400K } },
+        { MP_QSTR_timeout, MP_ARG_KW_ONLY | MP_ARG_INT, { .u_int = I2C_DEFAULT_TIMEOUT_US } },
+        { MP_QSTR_mode, MP_ARG_KW_ONLY | MP_ARG_INT, { .u_int = I2C_MODE_MASTER } },
+        { MP_QSTR_addr, MP_ARG_KW_ONLY | MP_ARG_INT, { .u_int = 0x00 } },
+        { MP_QSTR_addrsize, MP_ARG_KW_ONLY | MP_ARG_INT, { .u_int = I2C_HAL_ADDRESS_WIDTH_7BIT } },
+
     };
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all_kw_array(n_args, n_kw, all_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
@@ -191,7 +236,7 @@ mp_obj_t machine_hw_i2c_make_new(const mp_obj_type_t *type, size_t n_args, size_
     mp_int_t addr_width = args[ARG_addrsize].u_int;
 
     // Set freq if given
-    mp_int_t freq = addr_width = args[ARG_freq].u_int;
+    mp_int_t freq = args[ARG_freq].u_int;
 
     // Set timeout if given
     mp_int_t timeout = args[ARG_timeout].u_int;
@@ -219,7 +264,11 @@ mp_obj_t machine_hw_i2c_make_new(const mp_obj_type_t *type, size_t n_args, size_
 }
 
 STATIC const mp_machine_i2c_p_t machine_hw_i2c_p = {
-    .transfer = machine_hw_i2c_transfer,
+    .init = mp_machine_hw_i2c_init,
+    .deinit = mp_machine_hw_i2c_deinit,
+    .read = mp_machine_hw_i2c_read,
+    .write = mp_machine_hw_i2c_write,
+    .transfer = mp_machine_hw_i2c_transfer,
 };
 
 const mp_obj_type_t machine_hw_i2c_type = {

@@ -14,7 +14,6 @@
 #include "amp_defines.h"
 #include "aos_network.h"
 #include "aos_socket.h"
-#include "aos_httpc.h"
 #include "httpclient.h"
 #include "aos_tcp.h"
 #include "amp_task.h"

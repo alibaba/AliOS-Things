@@ -43,7 +43,7 @@
 #include <stdlib.h>
 #include <aos/kernel.h>
 
-#include <errno.h>
+#include <bt_errno.h>
 
 
 

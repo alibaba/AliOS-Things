@@ -2,15 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "ulog/ulog.h"
-
 #include "py/builtin.h"
 #include "py/mperrno.h"
 #include "py/obj.h"
 #include "py/runtime.h"
-#include "uvoice_types.h"
+#include "ulog/ulog.h"
 #include "uvoice_init.h"
 #include "uvoice_recorder.h"
+#include "uvoice_types.h"
 
 #define LOG_TAG "UVOICE_RECORDER"
 
@@ -19,18 +18,14 @@ extern bool g_is_uvoice_inited;
 
 #define RECORDER_CHECK_PARAMS()                                                    \
     uvocie_recorder_obj_t *self = (uvocie_recorder_obj_t *)MP_OBJ_TO_PTR(self_in); \
-    do                                                                             \
-    {                                                                              \
-        if (self == NULL || self->recorder_obj == NULL)                            \
-        {                                                                          \
+    do {                                                                           \
+        if (self == NULL || self->recorder_obj == NULL) {                          \
             mp_raise_OSError(EINVAL);                                              \
-            return mp_const_none;                                                  \
         }                                                                          \
     } while (0)
 
 // this is the actual C-structure for our new object
-typedef struct
-{
+typedef struct {
     // base represents some basic information, like type
     mp_obj_base_t base;
 
@@ -61,45 +56,67 @@ STATIC mp_obj_t uvoice_recorder_new(const mp_obj_type_t *type, size_t n_args, si
     return MP_OBJ_FROM_PTR(uvocie_recorder_obj);
 }
 
-STATIC mp_obj_t uvoice_create(mp_obj_t self_in)
+STATIC mp_obj_t uvoice_open(size_t n_args, const mp_obj_t *args)
 {
-    uvocie_recorder_obj_t *self = (uvocie_recorder_obj_t *)MP_OBJ_TO_PTR(self_in);
-    if (self == NULL) {
-        LOGE(LOG_TAG, "uvocie_recorder_obj_t NULL");
-        return mp_const_none;
+    if (n_args < 8) {
+        LOGE(LOG_TAG, "%s: args list illegal, exepect 8, get = %d\n", __func__, n_args);
+        return MP_OBJ_NEW_SMALL_INT(-MP_E2BIG);
     }
 
-    if (g_is_uvoice_inited == false) {
-        mp_raise_OSError(ENXIO);
-        return mp_const_none;
+    if (get_uvoice_state() == false) {
+        LOGE(LOG_TAG, "snd card not inited");
+        return MP_OBJ_NEW_SMALL_INT(-MP_EPERM);
+    }
+
+    uvocie_recorder_obj_t *self = (uvocie_recorder_obj_t *)MP_OBJ_TO_PTR(args[0]);
+    if (self == NULL) {
+        LOGE(LOG_TAG, "uvocie_recorder_obj_t NULL");
+        return MP_OBJ_NEW_SMALL_INT(-MP_EINVAL);
     }
 
     if (self->recorder_obj == NULL) {
         self->recorder_obj = uvoice_recorder_create();
         if (self->recorder_obj == NULL) {
-            LOGE(LOG_TAG, "create media recorder failed !\n");
+            LOGE(LOG_TAG, "open media recorder failed !\n");
+            return MP_OBJ_NEW_SMALL_INT(-MP_ENODEV);
         }
     }
-    return mp_const_none;
-}
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(uvoice_create_obj, uvoice_create);
 
-STATIC mp_obj_t uvoice_release(mp_obj_t self_in)
+    media_format_t format = (media_format_t)mp_obj_get_int(args[1]);
+    int rate = mp_obj_get_int(args[2]);
+    int channels = mp_obj_get_int(args[3]);
+    int bits = mp_obj_get_int(args[4]);
+    int frames = mp_obj_get_int(args[5]);
+    int bitrate = mp_obj_get_int(args[6]);
+    const char *sink = mp_obj_is_str(args[7]) ? mp_obj_str_get_str(args[7]) : NULL;
+
+    LOGD(LOG_TAG,
+         "format=%d, rate=%d, channels=%d, bits=%d, frames=%d, bitrate=%d, "
+         "sink=%s\n",
+         format, rate, channels, bits, frames, bitrate, sink);
+
+    mp_int_t ret = self->recorder_obj->set_sink(format, rate, channels, bits, frames, bitrate, sink);
+    return MP_OBJ_NEW_SMALL_INT(ret);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(uvoice_open_obj, 8, uvoice_open);
+
+STATIC mp_obj_t uvoice_close(mp_obj_t self_in)
 {
     RECORDER_CHECK_PARAMS();
 
-    int status = -1;
+    int ret = -1;
     if (self->recorder_obj != NULL) {
-        status = uvoice_recorder_release(self->recorder_obj);
-        if (status != 0) {
+        ret = self->recorder_obj->stop();
+        ret = uvoice_recorder_release(self->recorder_obj);
+        if (ret != 0) {
             LOGE(LOG_TAG, "failed to release recorder!\n");
         } else {
             self->recorder_obj = NULL;
         }
     }
-    return mp_obj_new_int(status);
+    return MP_OBJ_NEW_SMALL_INT(ret);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(uvoice_release_obj, uvoice_release);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(uvoice_close_obj, uvoice_close);
 
 STATIC mp_obj_t uvoice_set_sink(size_t n_args, const mp_obj_t *args)
 {
@@ -117,13 +134,15 @@ STATIC mp_obj_t uvoice_set_sink(size_t n_args, const mp_obj_t *args)
     int bits = mp_obj_get_int(args[4]);
     int frames = mp_obj_get_int(args[5]);
     int bitrate = mp_obj_get_int(args[6]);
-    char *sink = mp_obj_is_str(args[7]) ? (char *) mp_obj_str_get_str(args[7]) : NULL;
+    char *sink = mp_obj_is_str(args[7]) ? (char *)mp_obj_str_get_str(args[7]) : NULL;
 
-    LOGD(LOG_TAG, "format=%d, rate=%d, channels=%d, bits=%d, frames=%d, bitrate=%d, sink=%s\n",
-          format, rate, channels, bits, frames, bitrate, sink);
+    LOGD(LOG_TAG,
+         "format=%d, rate=%d, channels=%d, bits=%d, frames=%d, bitrate=%d, "
+         "sink=%s\n",
+         format, rate, channels, bits, frames, bitrate, sink);
 
-    mp_int_t status = self->recorder_obj->set_sink(format, rate, channels, bits, frames, bitrate, sink);
-    return mp_obj_new_int(status);
+    mp_int_t ret = self->recorder_obj->set_sink(format, rate, channels, bits, frames, bitrate, sink);
+    return MP_OBJ_NEW_SMALL_INT(ret);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(uvoice_set_sink_obj, 8, uvoice_set_sink);
 
@@ -131,8 +150,8 @@ STATIC mp_obj_t uvoice_clr_sink(mp_obj_t self_in)
 {
     RECORDER_CHECK_PARAMS();
 
-    mp_int_t status = self->recorder_obj->clr_sink();
-    return mp_obj_new_int(status);
+    mp_int_t ret = self->recorder_obj->clr_sink();
+    return MP_OBJ_NEW_SMALL_INT(ret);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(uvoice_clr_sink_obj, uvoice_clr_sink);
 
@@ -140,8 +159,8 @@ STATIC mp_obj_t uvoice_start(mp_obj_t self_in)
 {
     RECORDER_CHECK_PARAMS();
 
-    mp_int_t status = self->recorder_obj->start();
-    return mp_obj_new_int(status);
+    mp_int_t ret = self->recorder_obj->start();
+    return MP_OBJ_NEW_SMALL_INT(ret);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(uvoice_start_obj, uvoice_start);
 
@@ -149,8 +168,8 @@ STATIC mp_obj_t uvoice_stop(mp_obj_t self_in)
 {
     RECORDER_CHECK_PARAMS();
 
-    mp_int_t status = self->recorder_obj->stop();
-    return mp_obj_new_int(status);
+    mp_int_t ret = self->recorder_obj->stop();
+    return MP_OBJ_NEW_SMALL_INT(ret);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(uvoice_stop_obj, uvoice_stop);
 
@@ -164,8 +183,8 @@ STATIC mp_obj_t uvoice_get_stream(mp_obj_t self_in, mp_obj_t buffer_in, mp_obj_t
     mp_get_buffer_raise(buffer_in, &bufinfo, MP_BUFFER_WRITE);
     memset(bufinfo.buf, 0, bufinfo.len);
 
-    mp_int_t rsize = self->recorder_obj->get_stream((uint8_t*)bufinfo.buf, nbytes);
-    return mp_obj_new_int(rsize);
+    mp_int_t rsize = self->recorder_obj->get_stream((uint8_t *)bufinfo.buf, nbytes);
+    return MP_OBJ_NEW_SMALL_INT(rsize);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_3(uvoice_get_stream_obj, uvoice_get_stream);
 
@@ -175,7 +194,7 @@ STATIC mp_obj_t uvoice_get_state(mp_obj_t self_in)
 
     recorder_state_t state;
     self->recorder_obj->get_state(&state);
-    return mp_obj_new_int(state);
+    return MP_OBJ_NEW_SMALL_INT(state);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(uvoice_get_state_obj, uvoice_get_state);
 
@@ -184,8 +203,8 @@ STATIC mp_obj_t uvoice_get_position(mp_obj_t self_in)
     RECORDER_CHECK_PARAMS();
 
     int pos = -1;
-    mp_int_t status = self->recorder_obj->get_position(&pos);
-    return mp_obj_new_int(pos);
+    mp_int_t ret = self->recorder_obj->get_position(&pos);
+    return MP_OBJ_NEW_SMALL_INT(pos);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(uvoice_get_position_obj, uvoice_get_position);
 
@@ -194,8 +213,8 @@ STATIC mp_obj_t uvoice_ns_enable(mp_obj_t self_in, mp_obj_t enable_in)
     RECORDER_CHECK_PARAMS();
 
     int enable = mp_obj_get_int(enable_in);
-    mp_int_t status = self->recorder_obj->ns_enable(enable);
-    return mp_obj_new_int(status);
+    mp_int_t ret = self->recorder_obj->ns_enable(enable);
+    return MP_OBJ_NEW_SMALL_INT(ret);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(uvoice_ns_enable_obj, uvoice_ns_enable);
 
@@ -204,8 +223,8 @@ STATIC mp_obj_t uvoice_ec_enable(mp_obj_t self_in, mp_obj_t enable_in)
     RECORDER_CHECK_PARAMS();
 
     int enable = mp_obj_get_int(enable_in);
-    mp_int_t status = self->recorder_obj->ec_enable(enable);
-    return mp_obj_new_int(status);
+    mp_int_t ret = self->recorder_obj->ec_enable(enable);
+    return MP_OBJ_NEW_SMALL_INT(ret);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(uvoice_ec_enable_obj, uvoice_ec_enable);
 
@@ -214,8 +233,8 @@ STATIC mp_obj_t uvoice_agc_enable(mp_obj_t self_in, mp_obj_t enable_in)
     RECORDER_CHECK_PARAMS();
 
     int enable = mp_obj_get_int(enable_in);
-    mp_int_t status = self->recorder_obj->agc_enable(enable);
-    return mp_obj_new_int(status);
+    mp_int_t ret = self->recorder_obj->agc_enable(enable);
+    return MP_OBJ_NEW_SMALL_INT(ret);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(uvoice_agc_enable_obj, uvoice_agc_enable);
 
@@ -224,8 +243,8 @@ STATIC mp_obj_t uvoice_vad_enable(mp_obj_t self_in, mp_obj_t enable_in)
     RECORDER_CHECK_PARAMS();
 
     int enable = mp_obj_get_int(enable_in);
-    mp_int_t status = self->recorder_obj->vad_enable(enable);
-    return mp_obj_new_int(status);
+    mp_int_t ret = self->recorder_obj->vad_enable(enable);
+    return MP_OBJ_NEW_SMALL_INT(ret);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(uvoice_vad_enable_obj, uvoice_vad_enable);
 
@@ -234,33 +253,27 @@ STATIC mp_obj_t uvoice_format_support(mp_obj_t self_in, mp_obj_t format_in)
     RECORDER_CHECK_PARAMS();
 
     int format = (media_format_t)mp_obj_get_int(format_in);
-    mp_int_t status = self->recorder_obj->format_support(format);
-    return mp_obj_new_int(status);
+    mp_int_t ret = self->recorder_obj->format_support(format);
+    return MP_OBJ_NEW_SMALL_INT(ret);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(uvoice_format_support_obj, uvoice_format_support);
 
 STATIC const mp_rom_map_elem_t uvoice_module_recorder_globals_table[] = {
-    {MP_ROM_QSTR(MP_QSTR___del__), MP_ROM_PTR(&uvoice_clr_sink_obj)},
-    {MP_ROM_QSTR(MP_QSTR_create), MP_ROM_PTR(&uvoice_create_obj)},
-    {MP_ROM_QSTR(MP_QSTR_release), MP_ROM_PTR(&uvoice_release_obj)},
-    {MP_ROM_QSTR(MP_QSTR_set_sink), MP_ROM_PTR(&uvoice_set_sink_obj)},
-    {MP_ROM_QSTR(MP_QSTR_clr_sink), MP_ROM_PTR(&uvoice_clr_sink_obj)},
-    {MP_ROM_QSTR(MP_QSTR_start), MP_ROM_PTR(&uvoice_start_obj)},
-    {MP_ROM_QSTR(MP_QSTR_stop), MP_ROM_PTR(&uvoice_stop_obj)},
-    {MP_ROM_QSTR(MP_QSTR_get_stream), MP_ROM_PTR(&uvoice_get_stream_obj)},
-    {MP_ROM_QSTR(MP_QSTR_get_state), MP_ROM_PTR(&uvoice_get_state_obj)},
-    {MP_ROM_QSTR(MP_QSTR_get_position), MP_ROM_PTR(&uvoice_get_position_obj)},
-    {MP_ROM_QSTR(MP_QSTR_ns_enable), MP_ROM_PTR(&uvoice_ns_enable_obj)},
-    {MP_ROM_QSTR(MP_QSTR_ec_enable), MP_ROM_PTR(&uvoice_ec_enable_obj)},
-    {MP_ROM_QSTR(MP_QSTR_agc_enable), MP_ROM_PTR(&uvoice_agc_enable_obj)},
-    {MP_ROM_QSTR(MP_QSTR_vad_enable), MP_ROM_PTR(&uvoice_vad_enable_obj)},
-    {MP_ROM_QSTR(MP_QSTR_format_support), MP_ROM_PTR(&uvoice_format_support_obj)},
-
+    { MP_ROM_QSTR(MP_QSTR_open), MP_ROM_PTR(&uvoice_open_obj) },
+    { MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&uvoice_close_obj) },
+    { MP_ROM_QSTR(MP_QSTR_start), MP_ROM_PTR(&uvoice_start_obj) },
+    { MP_ROM_QSTR(MP_QSTR_stop), MP_ROM_PTR(&uvoice_stop_obj) },
+    { MP_ROM_QSTR(MP_QSTR_getStream), MP_ROM_PTR(&uvoice_get_stream_obj) },
+    { MP_ROM_QSTR(MP_QSTR_getState), MP_ROM_PTR(&uvoice_get_state_obj) },
+    { MP_ROM_QSTR(MP_QSTR_enableNS), MP_ROM_PTR(&uvoice_ns_enable_obj) },
+    { MP_ROM_QSTR(MP_QSTR_enableEC), MP_ROM_PTR(&uvoice_ec_enable_obj) },
+    { MP_ROM_QSTR(MP_QSTR_enableAGC), MP_ROM_PTR(&uvoice_agc_enable_obj) },
+    { MP_ROM_QSTR(MP_QSTR_enableVAD), MP_ROM_PTR(&uvoice_vad_enable_obj) },
 };
 STATIC MP_DEFINE_CONST_DICT(uvoice_module_recorder_globals, uvoice_module_recorder_globals_table);
 
 const mp_obj_type_t uvoice_recorder_type = {
-    .base = {&mp_type_type},
+    .base = { &mp_type_type },
     .name = MP_QSTR_Recorder,
     .print = uvoice_recorder_print,
     .make_new = uvoice_recorder_new,

@@ -439,8 +439,7 @@ static int32_t customer_upgrade_cb(void *pctx, char *ver, char *module_name, voi
     }
     if (strncmp(module_name, "system", strlen(module_name)) == 0) {
         ret = 0;
-        int current_ver[128] = {0};
-        amp_app_version_get(current_ver);
+        const char *current_ver = aos_app_version_get();
         if (strncmp(ver, current_ver, strlen(ver)) <= 0) {
             ret = OTA_TRANSPORT_VER_FAIL;
             amp_error(MOD_STR, "amp ota version too old!");
@@ -484,7 +483,7 @@ static JSValue native_ota_init(JSContext *ctx, JSValueConst this_val,
     int devicesecret_len = IOTX_DEVICE_SECRET_LEN;
     iot_device_handle_t *iot_device_handle = NULL;
     ota_package_info_t *ota_package_info = NULL;
-    int current_ver[128] = {0};
+
     if (argc < 2 || !JS_IsObject(argv[0]) || !JS_IsFunction(ctx, argv[1])) {
         amp_warn(MOD_STR, "parameter must be (object and function)");
         goto out;
@@ -524,7 +523,7 @@ static JSValue native_ota_init(JSContext *ctx, JSValueConst this_val,
     } else {
         amp_warn(MOD_STR, "customer ota init success!");
     }
-    amp_app_version_get(current_ver);
+    const char *current_ver =  aos_app_version_get();
     res = ota_report_module_version(&customer_ota_ctx, "system", current_ver);
     if (res < 0) {
         amp_error(MOD_STR, "amp ota report ver failed!");

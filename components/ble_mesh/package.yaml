@@ -1,0 +1,189 @@
+
+## 第一部分： 基础信息
+name: ble_mesh                                            # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: master  #v7.4.4                                     # <必选项> 组件版本号
+description: ble_host and mesh stack                          # <必选项> 建议至少20字以上
+type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag: 通用组件                                       # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - ble_mesh
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+  - ble_host: master  #v7.4.4
+
+## 第三部分：板级信息
+# hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段
+#   cpu_id: cpu0
+#   cpu_name: CK804EF
+#   vendor_name: t-head
+#   chip_name: chip_pangu                  # <可选项> 指定芯片组件名,未设置时，使用depends中 chip 第一个组件
+#   board_name: pangu_cpu0                 # <可选项> 指定开发板组件名，未设置时，使用depends中 board 第一个组件
+#   ld_script: configs/gcc_eflash.ld       # <可选项> 连接时使用 LD 脚本，当选把未设置时，使用对应的 board 的 LD 脚本
+#   flash_program: bin/flash_program.elf   # <可选项> 芯片全局烧写程序
+#   cpu0:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#   cpu1:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <可选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+
+## solution component
+# hw_info:
+#   cpu_id: cpu0
+#   board_name: pangu_cpu0
+#   cpu_name: CK805EF
+#   vendor_name: csky
+#   chip_name: 'chip_pangu'
+#   ld_script: configs/gcc_eflash.ld.S
+
+## board component
+# hw_info:
+#   chip_name: chip_pangu
+#   ld_script: configs/gcc_eflash.ld
+
+## chip component (单处理器)
+# hw_info:
+#   cpu_name: CK804EF
+#   ld_script: configs/gcc_eflash.ld
+#   flash_program: bin/flash_program.elf
+
+## chip component(多处理器)
+# hw_info:
+#   cpu0:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#   cpu1:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#   flash_program: bin/flash_program.elf   # <可选项> 芯片全局烧写程序
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  internal_include:
+
+  include:
+    - configs
+    - bt_mesh/core
+    - bt_mesh/core/inc
+    - bt_mesh/core/inc/api
+    - bt_mesh/core/inc/port
+    - bt_mesh/mesh_node/include
+    - bt_mesh/mesh_provisioner/include
+    - bt_mesh/mesh_models/common/include
+    - bt_mesh/mesh_models/sig_model/include
+    - bt_mesh/mesh_models/vendor_model/include
+
+  libs:
+    - ctrl_relay_<cpu> ?<CONFIG_BT_MESH_CTRL_RELAY>
+  libpath:
+    - bt_mesh/core/libs
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - bt_mesh/core/src/lpn.c
+  - bt_mesh/core/src/access.c
+  - bt_mesh/core/src/health_cli.c
+  - bt_mesh/core/src/friend.c
+  - bt_mesh/core/src/transport.c
+  - bt_mesh/core/src/adv.c
+  - bt_mesh/core/src/net.c
+  - bt_mesh/core/src/cfg_srv.c
+  - bt_mesh/core/src/provisioner_prov.c
+  - bt_mesh/core/src/provisioner_main.c
+  - bt_mesh/core/src/beacon.c
+  - bt_mesh/core/src/provisioner_proxy.c
+  - bt_mesh/core/src/proxy.c
+  - bt_mesh/core/src/crypto.c
+  - bt_mesh/core/src/cfg_cli.c
+  - bt_mesh/core/src/settings.c
+  - bt_mesh/core/src/health_srv.c
+  - bt_mesh/core/src/main.c
+  - bt_mesh/core/src/prov.c
+  - bt_mesh/core/src/provisioner_beacon.c
+  - bt_mesh/core/ref_impl/mesh_hal_ble.c
+  - bt_mesh/core/ref_impl/mesh_hal_sec.c
+  - bt_mesh/core/ref_impl/mesh_event_port.c
+  - bt_mesh/mesh_node/mesh_node.c
+  - bt_mesh/mesh_provisioner/mesh_provisioner.c
+  - bt_mesh/mesh_provisioner/mesh_provisioner.c
+  - bt_mesh/mesh_models/mesh_port/bt_mesh_event_port.c
+  - bt_mesh/mesh_models/sig_model/cli/generic_onoff_cli.c   ?<CONFIG_BT_MESH_USE_SIG_MODEL>
+  - bt_mesh/mesh_models/sig_model/cli/light_ctl_cli.c   ?<CONFIG_BT_MESH_USE_SIG_MODEL>
+  - bt_mesh/mesh_models/sig_model/cli/generic_level_cli.c   ?<CONFIG_BT_MESH_USE_SIG_MODEL>
+  - bt_mesh/mesh_models/sig_model/cli/light_lightness_cli.c   ?<CONFIG_BT_MESH_USE_SIG_MODEL>
+  - bt_mesh/mesh_models/sig_model/srv/light_lightness_srv.c    ?<CONFIG_BT_MESH_USE_SIG_MODEL>
+  - bt_mesh/mesh_models/sig_model/srv/generic_onoff_srv.c    ?<CONFIG_BT_MESH_USE_SIG_MODEL>
+  - bt_mesh/mesh_models/sig_model/srv/light_ctl_srv.c   ?<CONFIG_BT_MESH_USE_SIG_MODEL>
+  - bt_mesh/mesh_models/sig_model/srv/generic_level_srv.c   ?<CONFIG_BT_MESH_USE_SIG_MODEL>
+  - bt_mesh/mesh_models/vendor_model/vendor_model_srv.c    ?<CONFIG_BT_MESH_USE_SIG_MODEL>
+  - bt_mesh/mesh_models/vendor_model/vendor_model_cli.c    ?<CONFIG_BT_MESH_USE_SIG_MODEL>
+  - bt_mesh/mesh_models/common/mesh_model.c     ?<CONFIG_BT_MESH_USE_SIG_MODEL>
+  - bt_shell/bt_mesh/shell.c ?<CONFIG_BT_MESH_SHELL>
+
+## 第五部分：配置信息
+# def_config:                              # 组件的可配置项
+#   CONFIG_DEBUG: y
+#   CONFIG_PARAM_NOT_CHECK: y
+#   CONFIG_CLI: y
+
+# 第五部分：配置信息
+def_config:                              # 组件的可配置项
+   CONFIG_BT_ECC: 1
+   CONFIG_BT_HOST_CRYPTO: 1
+   CONFIG_BT_OBSERVER: 1
+   CONFIG_BT_MESH: 1
+   CONFIG_BT_OBSERVER: 1
+   CONFIG_BT_BROADCASTER: 1
+   CONFIG_BT_MESH_EVENT_CALLBACK: 1
+   CONFIG_BT_MESH_DEBUG_USE_ID_ADDR: 1
+
+
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相对路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+# install:
+#   - dest: "include/bt"
+#     source:
+#       - "bluedroid/api/include/api/*h"
+#       - "ble_mesh/api/core/include/*h"
+#       - "ble_mesh/api/models/include/*h"
+#       - "ble_mesh/api/yoc_ble_mesh_defs.h"
+#       - "include/bt_err.h"
+#   - dest: "include"
+#     source:
+#       - "include/bt_config.h"
+
+## 第七部分：导出部分

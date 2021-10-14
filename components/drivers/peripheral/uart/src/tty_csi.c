@@ -10,6 +10,7 @@
 #define TX_TASK_STACK_SIZE      4096
 #define RX_TASK_PRIO            30
 #define TX_TASK_PRIO            30
+#define EVENT_TX                ((uint32_t)1 << 0)
 
 static aos_status_t set_format(aos_tty_csi_t *tty_csi, tcflag_t mode)
 {
@@ -19,21 +20,21 @@ static aos_status_t set_format(aos_tty_csi_t *tty_csi, tcflag_t mode)
     csi_error_t r;
 
     switch (mode & CSIZE) {
-        case CS5:
-            data_bits = UART_DATA_BITS_5;
-            break;
-        case CS6:
-            data_bits = UART_DATA_BITS_6;
-            break;
-        case CS7:
-            data_bits = UART_DATA_BITS_7;
-            break;
-        case CS8:
-            data_bits = UART_DATA_BITS_8;
-            break;
-        default:
-            data_bits = UART_DATA_BITS_8;
-            break;
+    case CS5:
+        data_bits = UART_DATA_BITS_5;
+        break;
+    case CS6:
+        data_bits = UART_DATA_BITS_6;
+        break;
+    case CS7:
+        data_bits = UART_DATA_BITS_7;
+        break;
+    case CS8:
+        data_bits = UART_DATA_BITS_8;
+        break;
+    default:
+        data_bits = UART_DATA_BITS_8;
+        break;
     }
 
     if (mode & CSTOPB)
@@ -41,14 +42,10 @@ static aos_status_t set_format(aos_tty_csi_t *tty_csi, tcflag_t mode)
     else
         stop_bits = UART_STOP_BITS_1;
 
-    if (mode & PARENB) {
-        if (mode & PARODD)
-            parity = UART_PARITY_ODD;
-        else
-            parity = UART_PARITY_EVEN;
-    } else {
+    if (mode & PARENB)
+        parity = (mode & PARODD) ? UART_PARITY_ODD : UART_PARITY_EVEN;
+    else
         parity = UART_PARITY_NONE;
-    }
 
     r = csi_uart_format(&tty_csi->csi_uart, data_bits, parity, stop_bits);
 
@@ -61,98 +58,98 @@ static aos_status_t set_baudrate(aos_tty_csi_t *tty_csi, tcflag_t mode)
     csi_error_t r;
 
     switch (mode & CBAUD) {
-        case B50:
-            baudrate = 50;
-            break;
-        case B75:
-            baudrate = 75;
-            break;
-        case B110:
-            baudrate = 110;
-            break;
-        case B134:
-            baudrate = 134;
-            break;
-        case B150:
-            baudrate = 150;
-            break;
-        case B200:
-            baudrate = 200;
-            break;
-        case B300:
-            baudrate = 300;
-            break;
-        case B600:
-            baudrate = 600;
-            break;
-        case B1200:
-            baudrate = 1200;
-            break;
-        case B1800:
-            baudrate = 1800;
-            break;
-        case B2400:
-            baudrate = 2400;
-            break;
-        case B4800:
-            baudrate = 4800;
-            break;
-        case B9600:
-            baudrate = 9600;
-            break;
-        case B19200:
-            baudrate = 19200;
-            break;
-        case B38400:
-            baudrate = 38400;
-            break;
-        case B57600:
-            baudrate = 57600;
-            break;
-        case B115200:
-            baudrate = 115200;
-            break;
-        case B230400:
-            baudrate = 230400;
-            break;
-        case B460800:
-            baudrate = 460800;
-            break;
-        case B500000:
-            baudrate = 500000;
-            break;
-        case B576000:
-            baudrate = 576000;
-            break;
-        case B921600:
-            baudrate = 921600;
-            break;
-        case B1000000:
-            baudrate = 1000000;
-            break;
-        case B1152000:
-            baudrate = 1152000;
-            break;
-        case B1500000:
-            baudrate = 1500000;
-            break;
-        case B2000000:
-            baudrate = 2000000;
-            break;
-        case B2500000:
-            baudrate = 2500000;
-            break;
-        case B3000000:
-            baudrate = 3000000;
-            break;
-        case B3500000:
-            baudrate = 3500000;
-            break;
-        case B4000000:
-            baudrate = 4000000;
-            break;
-        default:
-            return -EINVAL;
+    case B50:
+        baudrate = 50;
+        break;
+    case B75:
+        baudrate = 75;
+        break;
+    case B110:
+        baudrate = 110;
+        break;
+    case B134:
+        baudrate = 134;
+        break;
+    case B150:
+        baudrate = 150;
+        break;
+    case B200:
+        baudrate = 200;
+        break;
+    case B300:
+        baudrate = 300;
+        break;
+    case B600:
+        baudrate = 600;
+        break;
+    case B1200:
+        baudrate = 1200;
+        break;
+    case B1800:
+        baudrate = 1800;
+        break;
+    case B2400:
+        baudrate = 2400;
+        break;
+    case B4800:
+        baudrate = 4800;
+        break;
+    case B9600:
+        baudrate = 9600;
+        break;
+    case B19200:
+        baudrate = 19200;
+        break;
+    case B38400:
+        baudrate = 38400;
+        break;
+    case B57600:
+        baudrate = 57600;
+        break;
+    case B115200:
+        baudrate = 115200;
+        break;
+    case B230400:
+        baudrate = 230400;
+        break;
+    case B460800:
+        baudrate = 460800;
+        break;
+    case B500000:
+        baudrate = 500000;
+        break;
+    case B576000:
+        baudrate = 576000;
+        break;
+    case B921600:
+        baudrate = 921600;
+        break;
+    case B1000000:
+        baudrate = 1000000;
+        break;
+    case B1152000:
+        baudrate = 1152000;
+        break;
+    case B1500000:
+        baudrate = 1500000;
+        break;
+    case B2000000:
+        baudrate = 2000000;
+        break;
+    case B2500000:
+        baudrate = 2500000;
+        break;
+    case B3000000:
+        baudrate = 3000000;
+        break;
+    case B3500000:
+        baudrate = 3500000;
+        break;
+    case B4000000:
+        baudrate = 4000000;
+        break;
+    default:
+        return -EINVAL;
     }
 
     r = csi_uart_baud(&tty_csi->csi_uart, baudrate);
@@ -171,7 +168,8 @@ static void rx_task_func(void *arg)
         ssize_t r;
 
         (void)aos_sem_wait(&tty_csi->rx_sem, AOS_WAIT_FOREVER);
-        r = csi_uart_receive(csi_uart, buf, sizeof(buf), 0);
+
+        r = csi_uart_receive(csi_uart, buf, sizeof(buf), 1000);
         if (r > 0) {
             aos_irqsave_t flags;
 
@@ -180,7 +178,6 @@ static void rx_task_func(void *arg)
             aos_spin_unlock_irqrestore(&tty->lock, flags);
         }
 
-        aos_msleep(20);
         aos_sem_signal(&tty_csi->rx_sem);
     }
 }
@@ -191,37 +188,38 @@ static void tx_task_func(void *arg)
     aos_tty_t *tty = &tty_csi->tty;
     csi_uart_t *csi_uart = &tty_csi->csi_uart;
     uint8_t buf[TX_BUF_SIZE];
-    size_t count = 0;
-    size_t offset = 0;
 
     while (1) {
+        size_t count;
+        uint32_t val;
+        aos_irqsave_t flags;
+
+        (void)aos_event_get(&tty_csi->event, EVENT_TX, AOS_EVENT_OR, &val, AOS_WAIT_FOREVER);
         (void)aos_sem_wait(&tty_csi->tx_sem, AOS_WAIT_FOREVER);
 
-        if (count == 0) {
-            aos_irqsave_t flags;
-
-            flags = aos_spin_lock_irqsave(&tty->lock);
-            count = aos_tty_tx_buffer_consume(tty, buf, sizeof(buf));
-            aos_spin_unlock_irqrestore(&tty->lock, flags);
+        if (aos_event_get(&tty_csi->event, EVENT_TX, AOS_EVENT_OR, &val, AOS_NO_WAIT)) {
+            aos_sem_signal(&tty_csi->tx_sem);
+            continue;
         }
 
-        if (count > 0) {
+        flags = aos_spin_lock_irqsave(&tty->lock);
+        count = aos_tty_tx_buffer_consume(tty, buf, sizeof(buf));
+
+        if (tty->tx_buf_head == tty->tx_buf_tail)
+            aos_event_set(&tty_csi->event, ~EVENT_TX, AOS_EVENT_AND);
+
+        aos_spin_unlock_irqrestore(&tty->lock, flags);
+
+        for (size_t offset = 0; count > 0 && offset < count;) {
             ssize_t r;
 
-            r = csi_uart_send(csi_uart, &buf[offset], count - offset, 0);
-            if (r > 0) {
+            r = csi_uart_send(csi_uart, &buf[offset], count - offset, 1000);
+            if (r > 0)
                 offset += r;
-                if (offset == count) {
-                    count = 0;
-                    offset = 0;
-                }
-            } else if (r < 0) {
-                count = 0;
-                offset = 0;
-            }
+            else if (r < 0)
+                break;
         }
 
-        aos_msleep(20);
         aos_sem_signal(&tty_csi->tx_sem);
     }
 }
@@ -232,6 +230,7 @@ static void tty_csi_unregister(aos_tty_t *tty)
 
     aos_sem_free(&tty_csi->tx_sem);
     aos_sem_free(&tty_csi->rx_sem);
+    aos_event_free(&tty_csi->event);
 }
 
 static aos_status_t tty_csi_startup(aos_tty_t *tty)
@@ -260,22 +259,20 @@ static aos_status_t tty_csi_startup(aos_tty_t *tty)
 
     tty_csi->mode = mode;
 
-    ret = aos_task_new_ext(&tty_csi->rx_task, "tty_csi_rx",
-                           rx_task_func, tty_csi,
-                           RX_TASK_STACK_SIZE, RX_TASK_PRIO);
+    ret = aos_task_new_ext(&tty_csi->rx_task, "tty_csi_rx", rx_task_func, tty_csi, RX_TASK_STACK_SIZE, RX_TASK_PRIO);
     if (ret) {
         csi_uart_uninit(&tty_csi->csi_uart);
         return ret;
     }
 
-    ret = aos_task_new_ext(&tty_csi->tx_task, "tty_csi_tx",
-                           tx_task_func, tty_csi,
-                           TX_TASK_STACK_SIZE, TX_TASK_PRIO);
+    ret = aos_task_new_ext(&tty_csi->tx_task, "tty_csi_tx", tx_task_func, tty_csi, TX_TASK_STACK_SIZE, TX_TASK_PRIO);
     if (ret) {
         (void)aos_task_delete(&tty_csi->rx_task);
         csi_uart_uninit(&tty_csi->csi_uart);
         return ret;
     }
+
+    aos_sem_signal(&tty_csi->tx_sem);
 
     return 0;
 }
@@ -284,6 +281,8 @@ static void tty_csi_shutdown(aos_tty_t *tty)
 {
     aos_tty_csi_t *tty_csi = aos_container_of(tty, aos_tty_csi_t, tty);
 
+    (void)aos_sem_wait(&tty_csi->tx_sem, AOS_WAIT_FOREVER);
+    aos_event_set(&tty_csi->event, ~EVENT_TX, AOS_EVENT_AND);
     (void)aos_task_delete(&tty_csi->tx_task);
     (void)aos_task_delete(&tty_csi->rx_task);
     csi_uart_uninit(&tty_csi->csi_uart);
@@ -331,22 +330,20 @@ static void tty_csi_disable_rx(aos_tty_t *tty)
     (void)aos_sem_wait(&tty_csi->rx_sem, AOS_WAIT_FOREVER);
 }
 
-static void tty_csi_enable_tx(aos_tty_t *tty)
+static void tty_csi_start_tx(aos_tty_t *tty)
 {
     aos_tty_csi_t *tty_csi = aos_container_of(tty, aos_tty_csi_t, tty);
 
-    aos_sem_signal(&tty_csi->tx_sem);
+    aos_event_set(&tty_csi->event, EVENT_TX, AOS_EVENT_OR);
 }
 
-static void tty_csi_disable_tx(aos_tty_t *tty)
+static void tty_csi_stop_tx(aos_tty_t *tty)
 {
     aos_tty_csi_t *tty_csi = aos_container_of(tty, aos_tty_csi_t, tty);
 
     (void)aos_sem_wait(&tty_csi->tx_sem, AOS_WAIT_FOREVER);
-}
-
-static void tty_csi_start_tx(aos_tty_t *tty)
-{
+    aos_event_set(&tty_csi->event, ~EVENT_TX, AOS_EVENT_AND);
+    aos_sem_signal(&tty_csi->tx_sem);
 }
 
 static const aos_tty_ops_t tty_csi_ops = {
@@ -356,9 +353,8 @@ static const aos_tty_ops_t tty_csi_ops = {
     .set_attr   = tty_csi_set_attr,
     .enable_rx  = tty_csi_enable_rx,
     .disable_rx = tty_csi_disable_rx,
-    .enable_tx  = tty_csi_enable_tx,
-    .disable_tx = tty_csi_disable_tx,
     .start_tx   = tty_csi_start_tx,
+    .stop_tx    = tty_csi_stop_tx,
 };
 
 aos_status_t aos_tty_csi_register(aos_tty_csi_t *tty_csi)
@@ -370,13 +366,21 @@ aos_status_t aos_tty_csi_register(aos_tty_csi_t *tty_csi)
 
     tty_csi->tty.ops = &tty_csi_ops;
     tty_csi->tty.flags = 0;
-    ret = aos_sem_new(&tty_csi->rx_sem, 0);
+
+    ret = aos_event_new(&tty_csi->event, 0);
     if (ret)
         return ret;
+
+    ret = aos_sem_new(&tty_csi->rx_sem, 0);
+    if (ret) {
+        aos_event_free(&tty_csi->event);
+        return ret;
+    }
 
     ret = aos_sem_new(&tty_csi->tx_sem, 0);
     if (ret) {
         aos_sem_free(&tty_csi->rx_sem);
+        aos_event_free(&tty_csi->event);
         return ret;
     }
 
@@ -384,6 +388,7 @@ aos_status_t aos_tty_csi_register(aos_tty_csi_t *tty_csi)
     if (ret) {
         aos_sem_free(&tty_csi->tx_sem);
         aos_sem_free(&tty_csi->rx_sem);
+        aos_event_free(&tty_csi->event);
         return ret;
     }
 

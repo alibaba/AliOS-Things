@@ -18,7 +18,7 @@ typedef enum {
 
 typedef enum {
     AMP_TIMER_ONCE = 0, /* one shot timer */
-    AMP_TIMER_REPEAT    /* repeat timer */
+    AMP_TIMER_REPEAT /* repeat timer */
 } amp_timer_type_t;
 
 typedef struct {
@@ -42,8 +42,7 @@ int32_t py_task_deinit(void);
  */
 int32_t py_task_yield(uint32_t timeout);
 
-aos_timer_t *amp_task_timer_action(uint32_t ms, amp_engine_call_t action,
-                               void *arg, amp_timer_type_t type);
+aos_timer_t *amp_task_timer_action(uint32_t ms, amp_engine_call_t action, void *arg, amp_timer_type_t type);
 
 int32_t py_task_exit_call(amp_engine_call_t call, void *arg);
 

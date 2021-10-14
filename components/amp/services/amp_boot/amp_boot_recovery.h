@@ -45,12 +45,10 @@ int amp_recovery_init(void);
 
 int amp_recovery_entry(void);
 
-void amp_status_set(AMP_STATUS status);
+int amp_recovery_appbin(void);
 
 void uart_send_byte(unsigned char c);
 
 unsigned char uart_recv_byte(unsigned char *c);
-
-int amp_recovery_appbin();
 
 #endif /* AMP_RECOVERY_H */

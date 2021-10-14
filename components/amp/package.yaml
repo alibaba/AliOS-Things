@@ -76,9 +76,9 @@ build_config:
     - engine/quickjs_engine/addons/common ? <CONFIG_ENGINE_QUICKJS>
     - engine/quickjs_engine/aos_port ? <CONFIG_ENGINE_QUICKJS>
     - engine/quickjs_engine/addons ? <CONFIG_ENGINE_QUICKJS>
+    - engine/quickjs_engine/addons/advanced/aiot ? <CONFIG_ENGINE_QUICKJS>
     - engine/quickjs_engine/addons/utils/crypto ? <CONFIG_ENGINE_QUICKJS>
     - engine/quickjs_engine/addons/network/mqtt ? <CONFIG_ENGINE_QUICKJS>
-    - engine/quickjs_engine ? <CONFIG_ENGINE_QUICKJS>
     - engine/quickjs_engine/addons/utils/ui ? <CONFIG_ENGINE_QUICKJS, AMP_ADVANCED_ADDON_UI>
     - main
     - services/amp_utils
@@ -181,6 +181,7 @@ source_file:
   - engine/quickjs_engine/addons/hardware/timer/module_timer.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_TIMER>
   - engine/quickjs_engine/addons/network/http/module_http.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_HTTP>
   - engine/quickjs_engine/addons/network/tcp/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_TCP>
+  - engine/quickjs_engine/addons/network/udp/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_UDP>
   - engine/quickjs_engine/addons/network/mqtt/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_MQTT>
   - engine/quickjs_engine/addons/network/netmgr/*.c ? <CONFIG_ENGINE_QUICKJS, AMP_NET_ADDON_NETMGR>
   - engine/quickjs_engine/addons/network/*.c ? <CONFIG_ENGINE_QUICKJS>

@@ -205,7 +205,7 @@ export CHIP_PSRAM_CTRL_VER := 1
 export CHIP_SPI_VER := 1
 export CHIP_HAS_EC_CODEC_REF := 0
 else ifeq ($(CHIP),haas1000)
-KBUILD_CPPFLAGS += -DCHIP_HAAS1000
+KBUILD_CPPFLAGS += -DCHIP_HAAS1000 -fno-exceptions
 ifeq ($(CHIP_SUBSYS),dsp)
 KBUILD_CPPFLAGS += -DCHIP_HAAS1000_DSP
 CPU := a7
@@ -724,7 +724,7 @@ endif
 ifeq ($(TOOLCHAIN),armclang)
 LIB_LDFLAGS := $(filter-out -lsupc++,$(LIB_LDFLAGS))
 else
-SPECS_CFLAGS := --specs=nano.specs
+SPECS_CFLAGS := --specs=nosys.specs
 
 LIB_LDFLAGS += -lm -lc -lgcc -lnosys
 endif
@@ -777,7 +777,6 @@ else ifeq ($(KERNEL),RHINO)
 KBUILD_CPPFLAGS += \
     -Irtos/rhino \
     -Irtos/rhino/include \
-	-Irtos/rhino/kernel/include/posix \
     -Irtos/rhino/cmsis
 ifneq ($(CPU),a7)
 KBUILD_CPPFLAGS += \

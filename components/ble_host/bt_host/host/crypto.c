@@ -6,7 +6,7 @@
  */
 
 #include <string.h>
-#include <errno.h>
+#include <bt_errno.h>
 
 #include <ble_os.h>
 #include "bt_crypto.h"

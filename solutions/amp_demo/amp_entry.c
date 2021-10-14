@@ -16,6 +16,7 @@ int application_start(int argc, char *argv[])
 {
     int count = 0;
     aos_task_t amp_task;
+    event_service_init(NULL);
 
     aos_task_new_ext(&amp_task, "amp_task", amp_main, NULL, 8192, AOS_DEFAULT_APP_PRI - 2);
 

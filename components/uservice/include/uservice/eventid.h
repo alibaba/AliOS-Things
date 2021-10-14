@@ -140,6 +140,13 @@ extern "C" {
 #define EVENT_USER                              (EVENT_BLE_BASE + 1)
 #define EVENT_USER_MAX                          (EVENT_USER)
 
+/* ETHERNET */
+#define EVENT_ETHERNET_BASE                     (EVENT_USER_MAX)
+#define EVENT_ETHERNET_LINK_UP                  (EVENT_ETHERNET_BASE + 1)
+#define EVENT_ETHERNET_DHCP_SUCCESS             (EVENT_ETHERNET_BASE + 2)
+#define EVENT_ETHERNET_LINK_DOWN                (EVENT_ETHERNET_BASE + 3)
+#define EVENT_ETHERNET_MAX                      (EVENT_ETHERNET_LINK_DOWN)
+
 #ifdef __cplusplus
 }
 #endif

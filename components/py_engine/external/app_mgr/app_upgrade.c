@@ -2,31 +2,31 @@
  * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
 
-#include "aos/kernel.h"
-#include "amp_platform.h"
-#include "aos_system.h"
-#include "py_defines.h"
-#include "app_mgr.h"
 #include "app_upgrade.h"
-#include "ota_agent.h"
+
 #include "aiot_state_api.h"
+#include "amp_platform.h"
+#include "aos/kernel.h"
+#include "aos_system.h"
+#include "app_mgr.h"
 #include "miniunz.h"
+#include "ota_agent.h"
+#include "py_defines.h"
 
 #define MOD_STR "APP_UPGRADE"
 
 #if defined(__ICCARM__)
-#define AMP_WEAK                __weak
+#define AMP_WEAK __weak
 #else
-#define AMP_WEAK                __attribute__((weak))
+#define AMP_WEAK __attribute__((weak))
 #endif
 
 static ota_store_module_info_t module_info[3];
-static ota_service_t internal_ctx = {0};
+static ota_service_t internal_ctx = { 0 };
 static module_version[128];
 
-char *py_ota_get_module_ver(void* pctx, char *module_name)
+char *py_ota_get_module_ver(void *pctx, char *module_name)
 {
-   
     return NULL;
 }
 
@@ -62,9 +62,7 @@ int pyamp_ota_file_plus_name(char *file_path1, char *file_path2, char *new_path,
     int ret = -1;
     int file_path1_len = 0;
     int file_path2_len = 0;
-    if ((file_path1 == NULL) ||
-        (file_path2 == NULL) ||
-        (new_path == NULL)) {
+    if ((file_path1 == NULL) || (file_path2 == NULL) || (new_path == NULL)) {
         return ret;
     }
     file_path1_len = strlen(file_path1);
@@ -81,15 +79,10 @@ int pyamp_ota_file_plus_name(char *file_path1, char *file_path2, char *new_path,
     return ret;
 }
 
-
-
 AMP_WEAK int fota_image_local_copy(char *image_name, int image_size)
 {
     return -1;
 }
-
-
-
 
 /* system image upgrade */
 static int32_t internal_upgrade_cb(void *pctx, char *ver, char *module_name)
@@ -112,7 +105,8 @@ static int32_t internal_upgrade_cb(void *pctx, char *ver, char *module_name)
             /* clear jsengine timer, distory js app*/
             amp_module_free();
             app_js_stop();
-            if (aos_task_new_ext(&internal_ota_task, "amp_internal_ota", internal_sys_upgrade_start, (void *)pctx, 1024 * 8, AOS_DEFAULT_APP_PRI) != 0) {
+            if (aos_task_new_ext(&internal_ota_task, "amp_internal_ota", internal_sys_upgrade_start, (void *)pctx,
+                                 1024 * 8, AOS_DEFAULT_APP_PRI) != 0) {
                 amp_debug(MOD_STR, "internal ota task create failed!");
                 ret = OTA_TRANSPORT_PAR_FAIL;
             }
@@ -126,11 +120,14 @@ static int32_t internal_upgrade_cb(void *pctx, char *ver, char *module_name)
         //         ret = OTA_TRANSPORT_VER_FAIL;
         //         amp_error(MOD_STR, "submodule jsapp ota version too old!");
         //     } else {
-        //         amp_debug(MOD_STR, "ota module version:%s is coming, if OTA module upgrade or not ?\n", ver);
+        //         amp_debug(MOD_STR, "ota module version:%s is coming, if OTA
+        //         module upgrade or not ?\n", ver);
         //         /* clear jsengine timer, distory js app*/
         //         amp_module_free();
         //         app_js_stop();
-        //         if (aos_task_new_ext(&internal_ota_task, "amp_moudle_ota", internal_module_upgrade_start, (void *)pctx, 1024 * 8, AOS_DEFAULT_APP_PRI) != 0) {
+        //         if (aos_task_new_ext(&internal_ota_task, "amp_moudle_ota",
+        //         internal_module_upgrade_start, (void *)pctx, 1024 * 8,
+        //         AOS_DEFAULT_APP_PRI) != 0) {
         //             amp_debug(MOD_STR, "internal ota task create failed!");
         //             ret = OTA_TRANSPORT_PAR_FAIL;
         //         }
@@ -187,20 +184,19 @@ int32_t py_app_upgrade_service(void *mqtt_handle)
     return STATE_SUCCESS;
 }
 
-
 int ota_install_pyapp(void *ota_ctx, char *store_file, int store_file_len, char *install_path)
 {
     int ret = -1;
     ota_service_t *ctx = ota_ctx;
-    amp_debug(MOD_STR,"upgrade sub module\n");
+    amp_debug(MOD_STR, "upgrade sub module\n");
     if ((store_file != NULL) && (install_path != NULL)) {
-        amp_debug(MOD_STR,"store_file:%s, install_file:%s\n", store_file, install_path);
-        //ret = data_file_unpack(store_file, store_file_len, install_path);
-        ret = miniUnzip(store_file,install_path);
+        amp_debug(MOD_STR, "store_file:%s, install_file:%s\n", store_file, install_path);
+        // ret = data_file_unpack(store_file, store_file_len, install_path);
+        ret = miniUnzip(store_file, install_path);
     }
     if (ret < 0) {
-        amp_error(MOD_STR,"py app install failed\n");
-        if ((ctx != NULL) && (ctx->report_func.report_status_cb !=  NULL)) {
+        amp_error(MOD_STR, "py app install failed\n");
+        if ((ctx != NULL) && (ctx->report_func.report_status_cb != NULL)) {
             ctx->report_func.report_status_cb(ctx->report_func.param, ret);
         }
     }
@@ -210,17 +206,16 @@ int ota_install_pyapp(void *ota_ctx, char *store_file, int store_file_len, char 
     return ret;
 }
 
-
-int install_pyapp(char *store_file,  char *install_path)
+int install_pyapp(char *store_file, char *install_path)
 {
     int ret = -1;
-    amp_debug(MOD_STR,"upgrade sub module\n");
+    amp_debug(MOD_STR, "upgrade sub module\n");
     if ((store_file != NULL) && (install_path != NULL)) {
-        amp_debug(MOD_STR,"store_file:%s, install_file:%s\n", store_file, install_path);
-        ret = miniUnzip(store_file,install_path);
+        amp_debug(MOD_STR, "store_file:%s, install_file:%s\n", store_file, install_path);
+        ret = miniUnzip(store_file, install_path);
     }
     if (ret < 0) {
-        amp_error(MOD_STR,"py app install failed\n");
+        amp_error(MOD_STR, "py app install failed\n");
     }
 
     return ret;

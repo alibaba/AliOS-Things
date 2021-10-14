@@ -1,25 +1,24 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 
-#include "py/runtime0.h"
-#include "py/nlr.h"
-#include "py/runtime.h"
+#include "HaasLog.h"
+#include "aos/kernel.h"
+#include "k_api.h"
 #include "py/mperrno.h"
 #include "py/mphal.h"
+#include "py/nlr.h"
+#include "py/runtime.h"
+#include "py/runtime0.h"
 #include "py/stream.h"
-#include "py/mperrno.h"
-
-#include "k_api.h"
-#include "aos/kernel.h"
 #include "timer.h"
-#include "HaasLog.h"
 #include "videocommon.h"
 
 extern const mp_obj_type_t video_camera_type;
 
-void video_camera_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind)
+void video_camera_print(const mp_print_t *print, mp_obj_t self_in,
+                        mp_print_kind_t kind)
 {
     mp_video_camera_obj_t *self = MP_OBJ_TO_PTR(self_in);
     mp_printf(print, "modName(%s)", self->mname);
@@ -28,7 +27,7 @@ void video_camera_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind
 static mp_obj_t video_camera_new(const mp_obj_type_t *type, size_t n_args,
                                  size_t n_kw, const mp_obj_t *args)
 {
-    mp_video_camera_obj_t* camera_obj = m_new_obj(mp_video_camera_obj_t);
+    mp_video_camera_obj_t *camera_obj = m_new_obj(mp_video_camera_obj_t);
 
     VIDEO_CAMERA_OBJ_CHK(camera_obj, MP_ENOMEM, "obj alloc fail");
 
@@ -62,9 +61,9 @@ static mp_obj_t video_camera_open(size_t n_args, const mp_obj_t *args)
     if (camera_obj->frame == NULL) {
         camera_obj->frame = m_new_obj(isp_frame_t);
         if (camera_obj->frame) {
-            #if MICROPY_GC_CONSERVATIVE_CLEAR
+#if MICROPY_GC_CONSERVATIVE_CLEAR
             memset(camera_obj->frame, 0, sizeof(isp_frame_t));
-            #endif
+#endif
             camera_obj->camera_idx = camera_idx;
             camera_obj->frame_release = 0;
         }
@@ -103,7 +102,8 @@ static mp_obj_t video_camera_close(size_t n_args, const mp_obj_t *args)
 
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_VAR(video_camera_close_obj, 1, video_camera_close);
+static MP_DEFINE_CONST_FUN_OBJ_VAR(video_camera_close_obj, 1,
+                                   video_camera_close);
 
 static mp_obj_t video_camera_preview(size_t n_args, const mp_obj_t *args)
 {
@@ -126,13 +126,14 @@ static mp_obj_t video_camera_preview(size_t n_args, const mp_obj_t *args)
 
     while (keep_time_second != 0) {
         aos_msleep(1000);
-        keep_time_second --;
+        keep_time_second--;
     }
     py_usbcam_video_deinit();
 
     return mp_const_none;
 }
-static MP_DEFINE_CONST_FUN_OBJ_VAR(video_camera_preview_obj, 2, video_camera_preview);
+static MP_DEFINE_CONST_FUN_OBJ_VAR(video_camera_preview_obj, 2,
+                                   video_camera_preview);
 
 STATIC mp_obj_t video_camera_capture(size_t n_args, const mp_obj_t *args)
 {
@@ -155,7 +156,8 @@ STATIC mp_obj_t video_camera_capture(size_t n_args, const mp_obj_t *args)
 
     return MP_OBJ_FROM_PTR(camera_obj->frame);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(video_camera_capture_obj, 1, video_camera_capture);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(video_camera_capture_obj, 1,
+                                   video_camera_capture);
 
 STATIC mp_obj_t video_camera_save(size_t n_args, const mp_obj_t *args)
 {
@@ -208,7 +210,8 @@ STATIC mp_obj_t video_camera_config_set(size_t n_args, const mp_obj_t *args)
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(video_camera_config_set_obj, 3, video_camera_config_set);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(video_camera_config_set_obj, 3,
+                                   video_camera_config_set);
 
 STATIC mp_obj_t video_camera_config_get(size_t n_args, const mp_obj_t *args)
 {
@@ -228,7 +231,8 @@ STATIC mp_obj_t video_camera_config_get(size_t n_args, const mp_obj_t *args)
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(video_camera_config_get_obj, 3, video_camera_config_get);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(video_camera_config_get_obj, 3,
+                                   video_camera_config_get);
 
 STATIC const mp_rom_map_elem_t video_camera_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_camera) },
@@ -239,24 +243,24 @@ STATIC const mp_rom_map_elem_t video_camera_globals_table[] = {
     /* H265 or HEVC */
     { MP_OBJ_NEW_QSTR(MP_QSTR_HEVC), MP_ROM_INT(VIDEO_MEDIA_TYPE_HEVC) },
     /* camera.save(frame, pic_type, path) */
-    { MP_ROM_QSTR(MP_QSTR_save),     MP_ROM_PTR(&video_camera_save_obj) },
+    { MP_ROM_QSTR(MP_QSTR_save), MP_ROM_PTR(&video_camera_save_obj) },
     /* camera.open(camara_idx) */
-    { MP_ROM_QSTR(MP_QSTR_open),     MP_ROM_PTR(&video_camera_open_obj) },
+    { MP_ROM_QSTR(MP_QSTR_open), MP_ROM_PTR(&video_camera_open_obj) },
     /* camera.close() */
-    { MP_ROM_QSTR(MP_QSTR_close),    MP_ROM_PTR(&video_camera_close_obj) },
+    { MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&video_camera_close_obj) },
     /* camera.preview() */
-    { MP_ROM_QSTR(MP_QSTR_preview),  MP_ROM_PTR(&video_camera_preview_obj) },
+    { MP_ROM_QSTR(MP_QSTR_preview), MP_ROM_PTR(&video_camera_preview_obj) },
     /* frame = camera.capture() */
-    { MP_ROM_QSTR(MP_QSTR_capture),  MP_ROM_PTR(&video_camera_capture_obj) },
+    { MP_ROM_QSTR(MP_QSTR_capture), MP_ROM_PTR(&video_camera_capture_obj) },
     /* camera.set(proID, val) */
-    { MP_ROM_QSTR(MP_QSTR_set),      MP_ROM_PTR(&video_camera_config_set_obj) },
+    { MP_ROM_QSTR(MP_QSTR_set), MP_ROM_PTR(&video_camera_config_set_obj) },
     /* camera.get(proID, val) */
-    { MP_ROM_QSTR(MP_QSTR_get),      MP_ROM_PTR(&video_camera_config_get_obj) },
+    { MP_ROM_QSTR(MP_QSTR_get), MP_ROM_PTR(&video_camera_config_get_obj) },
 };
 STATIC MP_DEFINE_CONST_DICT(video_camera_globals, video_camera_globals_table);
 
 const mp_obj_type_t video_camera_type = {
-    .base = {&mp_type_type},
+    .base = { &mp_type_type },
     .name = MP_QSTR_camera,
     .print = video_camera_print,
     .make_new = video_camera_new,

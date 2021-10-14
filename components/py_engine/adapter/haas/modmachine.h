@@ -5,8 +5,8 @@
 
 typedef enum {
     // MACHINE_WAKE_IDLE=0x01,
-    MACHINE_WAKE_SLEEP=0x02,
-    MACHINE_WAKE_DEEPSLEEP=0x04,
+    MACHINE_WAKE_SLEEP = 0x02,
+    MACHINE_WAKE_DEEPSLEEP = 0x04,
     SLEEP_WAKEUP_EXT0,
     SLEEP_WAKEUP_EXT1,
     SLEEP_WAKEUP_TIMER,
@@ -32,7 +32,6 @@ typedef enum {
     MP_SOFT_RESET
 } wake_type_t;
 
-
 extern const mp_obj_type_t machine_pin_type;
 extern const mp_obj_type_t mp_machine_soft_i2c_type;
 extern const mp_obj_type_t mp_machine_soft_spi_type;
@@ -47,7 +46,7 @@ extern const mp_obj_type_t machine_uart_type;
 extern const mp_obj_type_t machine_rtc_type;
 extern const mp_obj_type_t machine_timer_type;
 extern const mp_obj_type_t machine_can_type;
-#if MICROPY_PY_MACHINE_HW_PWM
+#if MICROPY_PY_MACHINE_DAC
 extern const mp_obj_type_t machine_dac_type;
 #endif
 extern const mp_obj_type_t machine_wdt_type;
@@ -58,4 +57,4 @@ void machine_pins_init(void);
 void machine_pins_deinit(void);
 void machine_timer_deinit_all(void);
 
-#endif // MICROPY_INCLUDED_HAAS_MODMACHINE_H
+#endif  // MICROPY_INCLUDED_HAAS_MODMACHINE_H

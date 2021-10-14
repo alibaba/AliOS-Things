@@ -7,7 +7,7 @@
 #include <aos/errno.h>
 #include <pthread.h>
 
-__attribute__((weak)) int prctl(int option, ...)
+int prctl(int option, ...)
 {
     int ret = 0;
     va_list ap;

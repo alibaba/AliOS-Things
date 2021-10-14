@@ -16,20 +16,18 @@
 #include "ota_agent.h"
 #include "module_aiot.h"
 
-#define MOD_STR "AIOT"
+#define MOD_STR "AIOT_GATEWAY"
 
 #define OTA_MODE_NAME "system"
 static JSClassID js_aiot_gateway_class_id;
 
 typedef struct {
     iot_gateway_handle_t *handle;
-    char *message;
-    char *topic;
-    char *payload;
     JSValue js_cb_ref;
     int ret_code;
-    int topic_len;
-    int payload_len;
+    char *message;
+    char *data;
+    iot_mqtt_recv_t recv;
     aiot_mqtt_option_t option;
     aiot_subdev_jscallback_type_t cb_type;
 } subdev_notify_param_t;
@@ -42,7 +40,7 @@ static aos_sem_t g_iot_close_sem = NULL;
 static ota_store_module_info_t g_module_info[3];
 ota_service_t g_appota_service;
 static JSValue g_on_message_cb_ref = 0;
-extern const char *amp_jsapp_version_get(void);
+extern const char *aos_userjs_version_get(void);
 
 static char *__amp_strdup(char *src)
 {
@@ -70,7 +68,7 @@ static int user_jsapp_ota_triger_cb(void *pctx, char *ver, char *module_name)
     }
     if (strncmp(module_name, "default", strlen(module_name)) == 0) {
         char *current_ver = NULL;
-        current_ver = amp_jsapp_version_get();
+        current_ver = aos_userjs_version_get();
         if (current_ver == NULL) {
             return ret;
         }
@@ -87,9 +85,7 @@ static int user_jsapp_ota_triger_cb(void *pctx, char *ver, char *module_name)
             }
         }
     } else {
-        char current_amp_ver[64];
-        memset(current_amp_ver, 0x00, sizeof(current_amp_ver));
-        amp_app_version_get(current_amp_ver);
+        const char *current_amp_ver = aos_app_version_get();
         ret = 0;
         if (strncmp(ver, current_amp_ver, strlen(ver)) <= 0) {
             ret = OTA_TRANSPORT_VER_FAIL;
@@ -112,6 +108,7 @@ static void aiot_subdev_notify(void *pdata)
     iot_gateway_handle_t *handle = param->handle;
     JSContext *ctx = js_get_context();
     JSValue obj = JS_NewObject(ctx);
+    amp_debug(MOD_STR, "param->cb_type: %d", param->cb_type);
     switch (param->cb_type) {
         case AIOT_SUBDEV_JSCALLBACK_CREATE_GATEWAY_REF: {
             JS_SetPropertyStr(ctx, obj, "code", JS_NewInt32(ctx, param->ret_code));
@@ -122,145 +119,114 @@ static void aiot_subdev_notify(void *pdata)
             JS_FreeValue(ctx, val);
         }
         break;
-        case AIOT_SUBDEV_JSCALLBACK_LOGIN_REF:
-        case AIOT_SUBDEV_JSCALLBACK_LOGOUT_REF: {
-            JSValue ret = JS_NewInt32(ctx, param->ret_code);
-            JSValue val = JS_Call(ctx, param->js_cb_ref, JS_UNDEFINED, 1, &ret);
-            JS_FreeValue(ctx, val);
-            JS_FreeValue(ctx, ret);
-        }
-        break;
+
         case AIOT_SUBDEV_JSCALLBACK_ADD_TOPO_REF:
+        case AIOT_SUBDEV_JSCALLBACK_REMOVE_TOPO_REF:
         case AIOT_SUBDEV_JSCALLBACK_GET_TOPO_REF:
+        case AIOT_SUBDEV_JSCALLBACK_LOGIN_REF:
+        case AIOT_SUBDEV_JSCALLBACK_LOGOUT_REF:
         case AIOT_SUBDEV_JSCALLBACK_REGISTER_SUBDEV_REF: {
-            JSValue ret = JS_NewInt32(ctx, param->ret_code);
-            JSValue message = JS_NewStringLen(ctx,  param->message, strlen(param->message));
-            JSValue r[] = {ret, message};
-            JSValue val = JS_Call(ctx, param->js_cb_ref, JS_UNDEFINED, 2, r);
+            JS_SetPropertyStr(ctx, obj, "code", JS_NewInt32(ctx, param->ret_code));
+            JS_SetPropertyStr(ctx, obj, "data", JS_NewStringLen(ctx,  param->data, strlen(param->data)));
+            JS_SetPropertyStr(ctx, obj, "message", JS_NewStringLen(ctx,  param->message, strlen(param->message)));
+            amp_debug(MOD_STR, "JS_Call param->cb_type: %d", param->cb_type);
+            JSValue val = JS_Call(ctx, param->js_cb_ref, JS_UNDEFINED, 1, &obj);
             JS_FreeValue(ctx, val);
-            JS_FreeValue(ctx, ret);
-            JS_FreeValue(ctx, message);
-            amp_free(param->message);
+
+            if (param->message)
+                amp_free(param->message);
+            if (param->data)
+                amp_free(param->data);
         }
         break;
+
         case AIOT_SUBDEV_JSCALLBACK_ON_MQTT_MESSAGE_REF: {
             JS_SetPropertyStr(ctx, obj, "code", JS_NewInt32(ctx, param->ret_code));
             if (param->option == AIOT_MQTTOPT_RECV_HANDLER) {
-                JS_SetPropertyStr(ctx, obj, "topic", JS_NewStringLen(ctx, param->topic, param->topic_len));
-                JS_SetPropertyStr(ctx, obj, "payload", JS_NewStringLen(ctx, param->payload, param->payload_len));
+                JS_SetPropertyStr(ctx, obj, "topic", JS_NewStringLen(ctx, param->recv.topic, param->recv.topic_len));
+                JS_SetPropertyStr(ctx, obj, "payload", JS_NewStringLen(ctx, param->recv.payload, param->recv.payload_len));
             }
             JSValue val = JS_Call(ctx, param->js_cb_ref, JS_UNDEFINED, 1, &obj);
             JS_FreeValue(ctx, val);
-            amp_free(param->topic);
-            amp_free(param->payload);
+            amp_free(param->recv.topic);
+            amp_free(param->recv.payload);
         }
         break;
+
+        case AIOT_SUBDEV_JSCALLBACK_SUBSCRIBE_REF: {
+            JS_SetPropertyStr(ctx, obj, "code", JS_NewInt32(ctx, param->ret_code));
+            if (param->option == AIOT_MQTTOPT_RECV_HANDLER) {
+                JS_SetPropertyStr(ctx, obj, "res", JS_NewInt32(ctx, param->recv.res));
+                JS_SetPropertyStr(ctx, obj, "max_qos", JS_NewInt32(ctx, param->recv.max_qos));
+                JS_SetPropertyStr(ctx, obj, "packet_id", JS_NewInt32(ctx, param->recv.packet_id));
+            }
+            JSValue val = JS_Call(ctx, param->js_cb_ref, JS_UNDEFINED, 1, &obj);
+            JS_FreeValue(ctx, val);
+        }
+        break;
+
+        case AIOT_SUBDEV_JSCALLBACK_UNSUBSCRIBE_REF: {
+            JS_SetPropertyStr(ctx, obj, "code", JS_NewInt32(ctx, param->ret_code));
+            JS_SetPropertyStr(ctx, obj, "packet_id", JS_NewInt32(ctx, param->recv.packet_id));
+            JSValue val = JS_Call(ctx, param->js_cb_ref, JS_UNDEFINED, 1, &obj);
+            JS_FreeValue(ctx, val);
+        }
+        break;
+
         default:
-            break;
+        break;
     }
+
     JS_FreeValue(ctx, obj);
     amp_free(param);
 }
 
 static void aiot_subdev_packet_dump(const aiot_subdev_recv_t *packet)
 {
-    printf("%s: packet->type %d\r\n", __func__, packet->type);
-    switch (packet->type) {
-        case AIOT_SUBDEVRECV_TOPO_ADD_REPLY:
-        case AIOT_SUBDEVRECV_TOPO_DELETE_REPLY:
-        case AIOT_SUBDEVRECV_TOPO_GET_REPLY:
-        case AIOT_SUBDEVRECV_BATCH_LOGIN_REPLY:
-        case AIOT_SUBDEVRECV_BATCH_LOGOUT_REPLY:
-        case AIOT_SUBDEVRECV_SUB_REGISTER_REPLY:
-        case AIOT_SUBDEVRECV_PRODUCT_REGISTER_REPLY: {
-            printf("msgid        : %d\r\n", packet->data.generic_reply.msg_id);
-            printf("code         : %d\r\n", packet->data.generic_reply.code);
-            printf("product key  : %s\r\n", packet->data.generic_reply.product_key);
-            printf("device name  : %s\r\n", packet->data.generic_reply.device_name);
-            printf("message      : %s\r\n", (packet->data.generic_reply.message == NULL) ? ("NULL") : (packet->data.generic_reply.message));
-            printf("data         : %s\r\n", packet->data.generic_reply.data);
-        }
-        break;
-        case AIOT_SUBDEVRECV_TOPO_CHANGE_NOTIFY: {
-            printf("msgid        : %d\r\n", packet->data.generic_notify.msg_id);
-            printf("product key  : %s\r\n", packet->data.generic_notify.product_key);
-            printf("device name  : %s\r\n", packet->data.generic_notify.device_name);
-            printf("params       : %s\r\n", packet->data.generic_notify.params);
-        }
-        break;
-        default: {
-        }
+    amp_debug(MOD_STR, "%s: packet->type %d", __func__, packet->type);
+
+    if (packet->type >= AIOT_SUBDEVRECV_TOPO_ADD_REPLY && packet->type <= AIOT_SUBDEVRECV_PRODUCT_REGISTER_REPLY) {
+            amp_debug(MOD_STR, "msgid        : %d", packet->data.generic_reply.msg_id);
+            amp_debug(MOD_STR, "code         : %d", packet->data.generic_reply.code);
+            amp_debug(MOD_STR, "product key  : %s", packet->data.generic_reply.product_key);
+            amp_debug(MOD_STR, "device name  : %s", packet->data.generic_reply.device_name);
+            amp_debug(MOD_STR, "message      : %s", (packet->data.generic_reply.message == NULL) ? ("NULL") : (packet->data.generic_reply.message));
+            amp_debug(MOD_STR, "data         : %s", packet->data.generic_reply.data);
+    } else if (packet->type == AIOT_SUBDEVRECV_TOPO_CHANGE_NOTIFY) {
+            amp_debug(MOD_STR, "msgid        : %d", packet->data.generic_notify.msg_id);
+            amp_debug(MOD_STR, "product key  : %s", packet->data.generic_notify.product_key);
+            amp_debug(MOD_STR, "device name  : %s", packet->data.generic_notify.device_name);
+            amp_debug(MOD_STR, "params       : %s", packet->data.generic_notify.params);
     }
-    printf("%s exit\r\n", __func__);
+
+    amp_debug(MOD_STR, "%s exit", __func__);
 }
 
 static void aiot_subdev_recv_handler(void *handle, const aiot_subdev_recv_t *packet, void *user_data)
 {
     iot_gateway_handle_t *iot_gateway_handle = (iot_gateway_handle_t *)user_data;
-    subdev_notify_param_t *param;
-    param = amp_malloc(sizeof(subdev_notify_param_t));
+    subdev_notify_param_t *param = amp_malloc(sizeof(subdev_notify_param_t));
     if (!param) {
         amp_error(MOD_STR, "alloc gateway notify param fail");
         return;
     }
-    param->handle = iot_gateway_handle;
+    memset(param, 0, sizeof(subdev_notify_param_t));
+
     aiot_subdev_packet_dump(packet);
-    switch (packet->type) {
-        case AIOT_SUBDEVRECV_TOPO_ADD_REPLY:
-            param->cb_type = AIOT_SUBDEV_JSCALLBACK_ADD_TOPO_REF;
-            param->ret_code = packet->data.generic_reply.code == 200 ? 0 : packet->data.generic_reply.code;
-            param->message = __amp_strdup(packet->data.generic_reply.data);
-            param->js_cb_ref = iot_gateway_handle->js_cb_ref[AIOT_SUBDEV_JSCALLBACK_ADD_TOPO_REF];
-            break;
-        case AIOT_SUBDEVRECV_TOPO_DELETE_REPLY:
-            param->cb_type = AIOT_SUBDEV_JSCALLBACK_REMOVE_TOPO_REF;
-            param->ret_code = packet->data.generic_reply.code == 200 ? 0 : packet->data.generic_reply.code;
-            param->js_cb_ref = iot_gateway_handle->js_cb_ref[AIOT_SUBDEV_JSCALLBACK_REMOVE_TOPO_REF];
-            break;
-        case AIOT_SUBDEVRECV_TOPO_GET_REPLY:
-            param->cb_type = AIOT_SUBDEV_JSCALLBACK_GET_TOPO_REF;
-            param->ret_code = packet->data.generic_reply.code == 200 ? 0 : packet->data.generic_reply.code;
-            param->message = __amp_strdup(packet->data.generic_reply.data);
-            param->js_cb_ref = iot_gateway_handle->js_cb_ref[AIOT_SUBDEV_JSCALLBACK_GET_TOPO_REF];
-            break;
-        case AIOT_SUBDEVRECV_BATCH_LOGIN_REPLY:
-            param->cb_type = AIOT_SUBDEV_JSCALLBACK_LOGIN_REF;
-            param->ret_code = packet->data.generic_reply.code == 200 ? 0 : packet->data.generic_reply.code;
-            param->js_cb_ref = iot_gateway_handle->js_cb_ref[AIOT_SUBDEV_JSCALLBACK_LOGIN_REF];
-            break;
-        case AIOT_SUBDEVRECV_BATCH_LOGOUT_REPLY:
-            param->cb_type = AIOT_SUBDEV_JSCALLBACK_LOGOUT_REF;
-            param->ret_code = packet->data.generic_reply.code == 200 ? 0 : packet->data.generic_reply.code;
-            param->js_cb_ref = iot_gateway_handle->js_cb_ref[AIOT_SUBDEV_JSCALLBACK_LOGOUT_REF];
-            break;
-        case AIOT_SUBDEVRECV_SUB_REGISTER_REPLY:
-            param->cb_type = AIOT_SUBDEV_JSCALLBACK_REGISTER_SUBDEV_REF;
-            param->ret_code = packet->data.generic_reply.code == 200 ? 0 : packet->data.generic_reply.code;
-            param->message = __amp_strdup(packet->data.generic_reply.data);
-            param->js_cb_ref = iot_gateway_handle->js_cb_ref[AIOT_SUBDEV_JSCALLBACK_REGISTER_SUBDEV_REF];
-            break;
-        case AIOT_SUBDEVRECV_PRODUCT_REGISTER_REPLY:
-            printf("msgid        : %d\n", packet->data.generic_reply.msg_id);
-            printf("code         : %d\n", packet->data.generic_reply.code);
-            printf("product key  : %s\n", packet->data.generic_reply.product_key);
-            printf("device name  : %s\n", packet->data.generic_reply.device_name);
-            printf("message      : %s\n", (packet->data.generic_reply.message == NULL) ? ("NULL") : (packet->data.generic_reply.message));
-            printf("data         : %s\n", packet->data.generic_reply.data);
-            amp_free(param);
-            return;
-        case AIOT_SUBDEVRECV_TOPO_CHANGE_NOTIFY:
-            printf("msgid        : %d\n", packet->data.generic_notify.msg_id);
-            printf("product key  : %s\n", packet->data.generic_notify.product_key);
-            printf("device name  : %s\n", packet->data.generic_notify.device_name);
-            printf("params       : %s\n", packet->data.generic_notify.params);
-            amp_free(param);
-            return;
-        default: {
-            amp_error(MOD_STR, "%s: unknown type %d", __func__, packet->type);
-            amp_free(param);
-            return;
-        }
+
+    param->handle = iot_gateway_handle;
+    if (packet->type >= AIOT_SUBDEVRECV_TOPO_ADD_REPLY && packet->type <= AIOT_SUBDEVRECV_SUB_REGISTER_REPLY) {
+        param->ret_code = packet->data.generic_reply.code;
+        param->message = __amp_strdup(packet->data.generic_reply.message);
+        param->data = __amp_strdup(packet->data.generic_reply.data);
+        param->cb_type = packet->type;
+        param->js_cb_ref = iot_gateway_handle->js_cb_ref[packet->type];
+        amp_debug(MOD_STR, "param->cb_type:%d, param->js_cb_ref: %d", param->cb_type, param->js_cb_ref);
+    } else {
+        amp_free(param);
+        return;
     }
+
     amp_task_schedule_call(aiot_subdev_notify, param);
 }
 
@@ -285,13 +251,27 @@ static void aiot_mqtt_message_cb(iot_mqtt_message_t *message, void *userdata)
                     amp_free(param);
                     return;
                 }
-                param->cb_type = AIOT_SUBDEV_JSCALLBACK_ON_MQTT_MESSAGE_REF;
-                param->js_cb_ref = g_on_message_cb_ref;
                 param->ret_code = message->recv.code;
-                param->topic_len = message->recv.topic_len;
-                param->payload_len = message->recv.payload_len;
-                param->topic = __amp_strdup(message->recv.topic);
-                param->payload = __amp_strdup(message->recv.payload);
+                param->recv.qos = message->recv.qos;
+                param->recv.topic_len = message->recv.topic_len;
+                param->recv.payload_len = message->recv.payload_len;
+                param->recv.topic = __amp_strdup(message->recv.topic);
+                param->recv.payload = __amp_strdup(message->recv.payload);
+                param->js_cb_ref = g_on_message_cb_ref;
+                param->cb_type = AIOT_SUBDEV_JSCALLBACK_ON_MQTT_MESSAGE_REF;
+                break;
+            case AIOT_MQTTRECV_SUB_ACK:
+                param->ret_code = message->recv.code;
+                param->recv.res = message->recv.res;
+                param->recv.max_qos = message->recv.max_qos;
+                param->recv.packet_id = message->recv.packet_id;
+                param->js_cb_ref = param->handle->js_cb_ref[AIOT_SUBDEV_JSCALLBACK_SUBSCRIBE_REF];
+                param->cb_type = AIOT_SUBDEV_JSCALLBACK_SUBSCRIBE_REF;
+                break;
+            case AIOT_MQTTRECV_UNSUB_ACK:
+                param->recv.packet_id = message->recv.packet_id;
+                param->js_cb_ref = param->handle->js_cb_ref[AIOT_SUBDEV_JSCALLBACK_UNSUBSCRIBE_REF];
+                param->cb_type = AIOT_SUBDEV_JSCALLBACK_UNSUBSCRIBE_REF;
                 break;
             default:
                 amp_free(param);
@@ -398,12 +378,12 @@ static void aiot_gateway_connect(void *pdata)
     //     amp_error(MOD_STR, "user ota init failed!");
     // }
     // //report app js version
-    // res = ota_report_module_version(ota_svc, "default", amp_jsapp_version_get());
+    // res = ota_report_module_version(ota_svc, "default", aos_userjs_version_get());
     // if(res < 0) {
     //     amp_error(MOD_STR, "user ota report ver failed!");
     // }
     // memset(current_amp_ver, 0x00, sizeof(current_amp_ver));
-    // amp_app_version_get(current_amp_ver);
+    // aos_app_version_get(current_amp_ver);
     // //report amp app version
     // res = ota_report_module_version(ota_svc, OTA_MODE_NAME, current_amp_ver);
     // if (res < 0) {
@@ -443,7 +423,7 @@ static JSValue native_aiot_create_gateway(JSContext *ctx, JSValueConst this_val,
     ota_service_t *ota_svc = &g_appota_service;
     /* check paramters */
     if (!JS_IsObject(argv[0]) || !JS_IsFunction(ctx, argv[1])) {
-        amp_warn(MOD_STR, "parameter must be object and function\n");
+        amp_warn(MOD_STR, "parameter must be object and function");
         res = -1;
         goto out;
     }
@@ -466,7 +446,7 @@ static JSValue native_aiot_create_gateway(JSContext *ctx, JSValueConst this_val,
     deviceName    = JS_ToCString(ctx, dn);
     deviceSecret  = JS_ToCString(ctx, ds);
     JS_ToInt32(ctx, &keepaliveSec, kl);
-    amp_debug(MOD_STR, "productKey=%s,deviceName=%s,deviceSecret=%s,keepaliveSec=%d\n", productKey, deviceName, deviceSecret, keepaliveSec);
+    amp_debug(MOD_STR, "productKey=%s,deviceName=%s,deviceSecret=%s,keepaliveSec=%d", productKey, deviceName, deviceSecret, keepaliveSec);
     JS_FreeValue(ctx, pk);
     JS_FreeValue(ctx, dn);
     JS_FreeValue(ctx, ds);
@@ -483,7 +463,7 @@ static JSValue native_aiot_create_gateway(JSContext *ctx, JSValueConst this_val,
     // duk_dup(ctx, 1);
     iot_gateway_handle = (iot_gateway_handle_t *)amp_malloc(sizeof(iot_gateway_handle_t));
     if (!iot_gateway_handle) {
-        amp_error(MOD_STR, "allocate memory failed\n");
+        amp_error(MOD_STR, "allocate memory failed");
         goto out;
     }
     JSValue cb = argv[1];
@@ -544,13 +524,13 @@ out:
     if (subdev) {
         for (i = 0; i < subdev_length; i++) {
             if (subdev[i].product_key) {
-                amp_free(subdev[i].product_key);
+                JS_FreeCString(ctx, subdev[i].product_key);
             }
             if (subdev[i].device_name) {
-                amp_free(subdev[i].device_name);
+                JS_FreeCString(ctx, subdev[i].device_name);
             }
             if (subdev[i].device_secret) {
-                amp_free(subdev[i].device_secret);
+                JS_FreeCString(ctx, subdev[i].device_secret);
             }
         }
         amp_free(subdev);
@@ -565,7 +545,7 @@ static JSValue native_aiot_getTopo(JSContext *ctx, JSValueConst this_val, int ar
     iot_gateway_handle_t *iot_gateway_handle = NULL;
     int js_cb_ref = 0;
     iot_gateway_handle = JS_GetOpaque2(ctx, this_val, js_aiot_gateway_class_id);
-    JSValue cb = argv[1];
+    JSValue cb = argv[0];
     iot_gateway_handle->js_cb_ref[AIOT_SUBDEV_JSCALLBACK_GET_TOPO_REF] = JS_DupValue(ctx, cb);
     res = aiot_subdev_send_topo_get(iot_gateway_handle->subdev_handle);
     if (res < STATE_SUCCESS) {
@@ -617,13 +597,13 @@ out:
     if (subdev) {
         for (i = 0; i < subdev_length; i++) {
             if (subdev[i].product_key) {
-                amp_free(subdev[i].product_key);
+                JS_FreeCString(ctx, subdev[i].product_key);
             }
             if (subdev[i].device_name) {
-                amp_free(subdev[i].device_name);
+                JS_FreeCString(ctx, subdev[i].device_name);
             }
             if (subdev[i].device_secret) {
-                amp_free(subdev[i].device_secret);
+                JS_FreeCString(ctx, subdev[i].device_secret);
             }
         }
         amp_free(subdev);
@@ -669,10 +649,10 @@ out:
     if (subdev) {
         for (i = 0; i < subdev_length; i++) {
             if (subdev[i].product_key) {
-                amp_free(subdev[i].product_key);
+                JS_FreeCString(ctx, subdev[i].product_key);
             }
             if (subdev[i].device_name) {
-                amp_free(subdev[i].device_name);
+                JS_FreeCString(ctx, subdev[i].device_name);
             }
         }
         amp_free(subdev);
@@ -831,7 +811,7 @@ static JSValue native_aiot_publish(JSContext *ctx, JSValueConst this_val, int ar
     amp_debug(MOD_STR, "publish topic: %s, payload: %s, qos is: %d", topic, payload, qos);
     res = aiot_mqtt_pub(iot_gateway_handle->mqtt_handle, topic, payload, payload_len, qos);
     if (res < STATE_SUCCESS) {
-        amp_error(MOD_STR, "aiot app mqtt publish failed\n");
+        amp_error(MOD_STR, "aiot app mqtt publish failed");
         goto out;
     }
 out:
@@ -885,14 +865,40 @@ static JSValue native_aiot_subscribe(JSContext *ctx, JSValueConst this_val, int 
     val = JS_GetPropertyStr(ctx, argv[0], "qos");
     JS_ToInt32(ctx, &qos, val);
     JS_FreeValue(ctx, val);
+
+    JSValue cb = argv[1];
+    iot_gateway_handle->js_cb_ref[AIOT_SUBDEV_JSCALLBACK_SUBSCRIBE_REF] = JS_DupValue(ctx, cb);
+    amp_debug(MOD_STR, "subscribe topic: %s", topic);
+
     res = aiot_mqtt_sub(iot_gateway_handle->mqtt_handle, topic, NULL, qos, NULL);
     if (res < STATE_SUCCESS) {
-        amp_error(MOD_STR, "aiot app mqtt subscribe failed\n");
+        amp_error(MOD_STR, "aiot app mqtt subscribe failed");
         goto out;
     }
 out:
     return JS_NewInt32(ctx, res);
 }
+
+static JSValue native_aiot_get_ntp_time(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
+{
+    int res = -1;
+    iot_device_handle_t *iot_device_handle = NULL;
+    amp_debug(MOD_STR, "native_aiot_get_ntp_time called");
+    iot_device_handle = JS_GetOpaque2(ctx, this_val, js_aiot_gateway_class_id);
+    if (!iot_device_handle) {
+        amp_warn(MOD_STR, "parameter must be handle");
+        goto out;
+    }
+
+    JSValue js_cb = JS_DupValue(ctx, argv[0]);
+    res = aiot_amp_ntp_service(iot_device_handle->mqtt_handle, js_cb);
+    if (res < STATE_SUCCESS) {
+        amp_error(MOD_STR, "device dynmic register failed");
+    }
+out:
+    return JS_NewInt32(ctx, res);
+}
+
 
 /* on mqtt event */
 static JSValue native_aiot_on_mqtt_event(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
@@ -926,15 +932,16 @@ static JSClassDef js_aiot_gateway_class = {
 static const JSCFunctionListEntry js_aiot_gateway_funcs[] = {
     JS_CFUNC_DEF("gateway", 2,          native_aiot_create_gateway),
     JS_CFUNC_DEF("addTopo", 3,          native_aiot_addTopo),
-    JS_CFUNC_DEF("getTopo", 2,          native_aiot_getTopo),
-    JS_CFUNC_DEF("removeTopo", 3,       native_aiot_removeTopo),
-    JS_CFUNC_DEF("registerSubDevice", 3, native_aiot_registerSubDevice),
-    JS_CFUNC_DEF("login",  3,           native_aiot_login),
-    JS_CFUNC_DEF("logout", 3,           native_aiot_logout),
-    JS_CFUNC_DEF("subscribe", 3,        native_aiot_subscribe),
-    JS_CFUNC_DEF("unsubscribe", 3,      native_aiot_unsubscribe),
-    JS_CFUNC_DEF("publish",  3,         native_aiot_publish),
+    JS_CFUNC_DEF("getTopo", 1,          native_aiot_getTopo),
+    JS_CFUNC_DEF("removeTopo", 2,       native_aiot_removeTopo),
+    JS_CFUNC_DEF("registerSubDevice", 2, native_aiot_registerSubDevice),
+    JS_CFUNC_DEF("login",  2,           native_aiot_login),
+    JS_CFUNC_DEF("logout", 2,           native_aiot_logout),
+    JS_CFUNC_DEF("subscribe", 2,        native_aiot_subscribe),
+    JS_CFUNC_DEF("unsubscribe", 2,      native_aiot_unsubscribe),
+    JS_CFUNC_DEF("publish",  2,         native_aiot_publish),
     JS_CFUNC_DEF("onMqttMessage", 1,    native_aiot_on_mqtt_event),
+    JS_CFUNC_DEF("getNtpTime", 1,       native_aiot_get_ntp_time),
 };
 
 static int js_aiot_gateway_init(JSContext *ctx, JSModuleDef *m)

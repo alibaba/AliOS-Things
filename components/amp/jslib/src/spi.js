@@ -21,18 +21,18 @@ class HW_SPI {
 
     _open() {
         this.spiInstance = SPI.open(this.options.id);
-        if (!this.spiInstance) {
+        if (Object.prototype.toString.call(this.spiInstance) !== '[object Object]') {
             this.fail();
-            return;
+        } else {
+            this.success();
         }
-        this.success();
     }
 
     write(data) {
         if (!this.spiInstance || !data) {
             throw new Error("spi not init or params is invalid");
         }
-        this.spiInstance.write(byteArrayToArrayBuffer(data));
+        return this.spiInstance.write(byteArrayToArrayBuffer(data));
     }
 
     read(bytes) {

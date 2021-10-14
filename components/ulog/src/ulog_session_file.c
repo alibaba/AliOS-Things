@@ -3,16 +3,17 @@
  */
 
 #include "ulog_session_file.h"
-#include <string.h>
+
 #include <fcntl.h>
 #include <stdlib.h>
-#include "ulog_api.h"
-#include "ulog/ulog.h"
+#include <string.h>
 
 #include "aos/errno.h"
-#include "cJSON.h"
 #include "aos/kernel.h"
+#include "cJSON.h"
 #include "uagent.h"
+#include "ulog/ulog.h"
+#include "ulog_api.h"
 
 /**
  * record the log files operating. Recover(reset or get) in reload_log_argu()
@@ -20,11 +21,11 @@
  */
 static uint32_t operating_file_offset = 0;
 static uint32_t gu32_log_file_size = LOCAL_FILE_SIZE;
-static char guc_logfile_path[ULOG_FILE_PATH_SIZE / 2] = {0};
+static char guc_logfile_path[ULOG_FILE_PATH_SIZE / 2] = { 0 };
 /**
-* indicates if log on fs feature initialized
-*
-*/
+ * indicates if log on fs feature initialized
+ *
+ */
 static uint8_t session_fs_init = 0;
 
 static uint8_t log_file_failed = 0;
@@ -78,10 +79,9 @@ static int pop_fs_tmp(char *data, const unsigned short len)
 #endif
 
 #if ULOG_UPLOAD_LOG_FILE
-#include "sys/socket.h"
 #include "httpclient.h"
-static httpclient_t *httpc_handle = NULL ;
-
+#include "sys/socket.h"
+static httpclient_t *httpc_handle = NULL;
 
 static char *up_uri = NULL;
 static bool http_client_initd = false;
@@ -170,7 +170,6 @@ int http_start(const char *url, const unsigned short idx)
     return rc;
 }
 
-
 static uint8_t *rsp_buf = NULL;
 static uint8_t *req_buf = NULL;
 void on_fs_upload(const uint32_t idx, const uint32_t start)
@@ -189,7 +188,7 @@ void on_fs_upload(const uint32_t idx, const uint32_t start)
             n = aos_read(fd, upload_stream, gu32_log_file_size + ULOG_SIZE);
             if (0 < n) {
                 char retry = HTTP_REQ_RETRY;
-                httpclient_data_t client_data = {0};
+                httpclient_data_t client_data = { 0 };
                 rsp_buf = (uint8_t *)aos_malloc(RSP_BUF_SIZE);
                 req_buf = (uint8_t *)aos_malloc(RSP_BUF_SIZE);
                 if (rsp_buf != NULL && req_buf != NULL) {
@@ -251,25 +250,25 @@ void on_fs_upload(const uint32_t idx, const uint32_t start)
 #endif
 
 /**
-*
-* Check if file already exist
-*
-* @param  file_idx file index to be checked
-* @return true indicats it is existed, or else not.
-*/
+ *
+ * Check if file already exist
+ *
+ * @param  file_idx file index to be checked
+ * @return true indicats it is existed, or else not.
+ */
 static bool log_file_exist(const uint16_t file_idx)
 {
     bool rc = false;
-    char ulog_file_name[ULOG_FILE_PATH_SIZE] = {0};
+    char ulog_file_name[ULOG_FILE_PATH_SIZE] = { 0 };
     int fd = -1;
 
     if (file_idx <= LOCAL_FILE_CNT) {
         snprintf(ulog_file_name, sizeof(ulog_file_name), ULOG_FILE_FORMAT, guc_logfile_path, file_idx);
         fd = aos_open(ulog_file_name, (O_RDWR | O_CREAT | O_EXCL)
 #ifdef CSP_LINUXHOST
-                                , 0644
+                     , 0644
 #endif
-                               );
+        );
         SESSION_FS_DEBUG("check if file %s exist %d\n", ulog_file_name, fd);
 
         if (fd < 0) {
@@ -278,7 +277,7 @@ static bool log_file_exist(const uint16_t file_idx)
                 SESSION_FS_DEBUG("file %s alreay exist\n", ulog_file_name);
                 rc = true;
             }
-#else /* !CSP_LINUXHOST */
+#else  /* !CSP_LINUXHOST */
             if (fd == -EEXIST) {
                 SESSION_FS_DEBUG("file %s alreay exist\n", ulog_file_name);
                 rc = true;
@@ -296,16 +295,17 @@ static bool log_file_exist(const uint16_t file_idx)
 static int open_create_log_file(const ulog_idx_type file_idx, const bool keep_open)
 {
     int fd = -1;
-    char ulog_file_name[ULOG_FILE_PATH_SIZE] = {0};
+    char ulog_file_name[ULOG_FILE_PATH_SIZE] = { 0 };
 
     snprintf(ulog_file_name, sizeof(ulog_file_name), ULOG_FILE_FORMAT, guc_logfile_path, file_idx);
     SESSION_FS_DEBUG("open create log %s\n", ulog_file_name);
     aos_unlink(ulog_file_name);
     fd = aos_open(ulog_file_name, (O_RDWR | O_CREAT | O_TRUNC)
 #ifdef CSP_LINUXHOST
-                  , 0644
+                                      ,
+                  0644
 #endif
-                 );
+    );
     if (fd >= 0) {
         if (!keep_open) {
             aos_close(fd);
@@ -337,20 +337,20 @@ int open_log_file(const ulog_idx_type file_idx, int flag, const off_t off)
 }
 
 /**
-*
-* Copies one line from file_instanse into buf, On sucessful the destination buf
-* buf is changed into NULL terminated C String. If log content size is longer
-* than buf_len-1, remain will be not saved and NULL terminatated is implicitly
-* appended at the end of destination.
-*
-* @param  file_instanse file description from aos_open() before
-* @param  buf local buffer use for saved, ZERO format is not MUST
-* @param  buf_len buffer size
-* @return actual log text length readed in argumenent buf;
-*         '\n',' is counted. Expected value: 1~buf_len-1
-*         0 indicates EOF of the file, buf_len indicates the possible passing value is
-*         limited to read the whole line.
-*/
+ *
+ * Copies one line from file_instanse into buf, On sucessful the destination buf
+ * buf is changed into NULL terminated C String. If log content size is longer
+ * than buf_len-1, remain will be not saved and NULL terminatated is implicitly
+ * appended at the end of destination.
+ *
+ * @param  file_instanse file description from aos_open() before
+ * @param  buf local buffer use for saved, ZERO format is not MUST
+ * @param  buf_len buffer size
+ * @return actual log text length readed in argumenent buf;
+ *         '\n',' is counted. Expected value: 1~buf_len-1
+ *         0 indicates EOF of the file, buf_len indicates the possible passing
+ * value is limited to read the whole line.
+ */
 int get_log_line(const int fd, char *buf, const uint16_t buf_len)
 {
     int rc = -1;
@@ -380,7 +380,7 @@ int get_log_line(const int fd, char *buf, const uint16_t buf_len)
         }
         rc = cnt;
 
-    } else {/* cnt == buf_len */
+    } else { /* cnt == buf_len */
         /* two possible result */
         /* buffer len is just fit */
         /* buffer is not sufficient to save whole line,
@@ -395,17 +395,18 @@ int get_log_line(const int fd, char *buf, const uint16_t buf_len)
 }
 
 /**
-*
-* Write one line into specify log file, which instance is file_instanse. Append a LOG_LINE_SEPARATOR
-* after log context to separate logs
-*
-* @param  file_instanse file description from aos_open() before
-* @param  buf local buffer use for write
-* @param  keep_open keep opening after write finished
-* @param operating indicates the rolling-back mechanism used.
-* @return actual writen text length(includes length of LOG_LINE_SEPARATOR).
-*         -EINVAL indicates parameter illegal, other value indicates call aos_write failure
-*/
+ *
+ * Write one line into specify log file, which instance is file_instanse. Append
+ * a LOG_LINE_SEPARATOR after log context to separate logs
+ *
+ * @param  file_instanse file description from aos_open() before
+ * @param  buf local buffer use for write
+ * @param  keep_open keep opening after write finished
+ * @param operating indicates the rolling-back mechanism used.
+ * @return actual writen text length(includes length of LOG_LINE_SEPARATOR).
+ *         -EINVAL indicates parameter illegal, other value indicates call
+ * aos_write failure
+ */
 int write_log_line(const int file_instanse, const char *buf, const bool keep_open)
 {
     int rtn = -EINVAL;
@@ -433,13 +434,13 @@ int write_log_line(const int file_instanse, const char *buf, const bool keep_ope
 }
 
 /**
-*
-* Refresh ulog cfg item and saved in cfg file, also create the new ulog file
-*
-*
-* @return  0 indicates create new log file sucessfully, but not means update config pass;
-*          -1 create new log file fail
-*/
+ *
+ * Refresh ulog cfg item and saved in cfg file, also create the new ulog file
+ *
+ *
+ * @return  0 indicates create new log file sucessfully, but not means update
+ * config pass; -1 create new log file fail
+ */
 static int update_new_log_file(const ulog_idx_type idx)
 {
     int rc = -1;
@@ -448,7 +449,6 @@ static int update_new_log_file(const ulog_idx_type idx)
     if (0 == update_mm_cfg(ulog_cfg_type_working, idx, ulog_cfg_para_none, NULL)) {
         /* read it for test */
         if (get_working_from_cfg_mm() == idx) {
-
             /* create log file */
             if (open_create_log_file(idx, false) >= 0) {
                 rc = 0;
@@ -461,7 +461,8 @@ static int update_new_log_file(const ulog_idx_type idx)
 
                 if (fd >= 0) { /* need update cfg file */
                     if (0 != cfg_mm_2_file(fd)) {
-                        /* sync to cfg file fail, have no impact unless the board boot-up before it sync write */
+                        /* sync to cfg file fail, have no impact unless the
+                         * board boot-up before it sync write */
                         SESSION_FS_INFO("sync to cfg file fail %d\n", fd);
                     }
                     aos_close(fd);
@@ -473,11 +474,9 @@ static int update_new_log_file(const ulog_idx_type idx)
                 SESSION_FS_INFO("sync to cfg file fail %d\n", fd);
             }
         } else {
-
             SESSION_FS_INFO("Fatal Error Operate ulog mm cfg\n");
         }
     } else {
-
         SESSION_FS_INFO("Fatal Error update ulog mm cfg\n");
     }
 
@@ -485,21 +484,21 @@ static int update_new_log_file(const ulog_idx_type idx)
 }
 
 /**
-*
-* Reload log history arguments from ulog cfg file(ulog_000.log) in fs,
-* includes operating_file_idx & operating_file_offset. New ulog_000.log
-* will be created if none ulog_000.log found or text is illegal.
-* This is vital for ulog pop via fs, ulog pop via fs will be forbidden if
-* this step fail.
-*
-* return 0 if this step pass, else indicates this step fail
-*
-*/
+ *
+ * Reload log history arguments from ulog cfg file(ulog_000.log) in fs,
+ * includes operating_file_idx & operating_file_offset. New ulog_000.log
+ * will be created if none ulog_000.log found or text is illegal.
+ * This is vital for ulog pop via fs, ulog pop via fs will be forbidden if
+ * this step fail.
+ *
+ * return 0 if this step pass, else indicates this step fail
+ *
+ */
 static int reload_log_argu()
 {
     int rc = -1;
-    struct aos_stat st_logstat = {0};
-    char ulog_file_name[ULOG_FILE_PATH_SIZE] = {0};
+    struct aos_stat st_logstat = { 0 };
+    char ulog_file_name[ULOG_FILE_PATH_SIZE] = { 0 };
     ulog_idx_type tmp_idx = ULOG_FILE_IDX_INVALID;
 
     operating_file_offset = 0;
@@ -589,13 +588,14 @@ static void write_fail_retry()
 }
 
 /**
-* @brief not thread-safe, but only be used in one task(ulog), so not necessary considering mutex
-* @param data
-* @param len
-*
-* @return -1 indicates not send out sucessfully
-*
-*/
+ * @brief not thread-safe, but only be used in one task(ulog), so not necessary
+ * considering mutex
+ * @param data
+ * @param len
+ *
+ * @return -1 indicates not send out sucessfully
+ *
+ */
 int32_t pop_out_on_fs(const char *data, const uint16_t len)
 {
     int32_t rc = -1;
@@ -617,7 +617,10 @@ int32_t pop_out_on_fs(const char *data, const uint16_t len)
 
     fd = open_log_file(idx, O_WRONLY, operating_file_offset);
     if (fd < 0) {
-        SESSION_FS_INFO("fail to pop log to fs for open working log file %d offset fail %d \n", idx, operating_file_offset, errno);
+        SESSION_FS_INFO(
+            "fail to pop log to fs for open working log file %d offset fail %d "
+            "\n",
+            idx, operating_file_offset, errno);
         rc = -1;
 #if ULOG_RESERVED_FS
         rc = push_fs_tmp(data, len);
@@ -627,7 +630,6 @@ int32_t pop_out_on_fs(const char *data, const uint16_t len)
         return rc;
 #endif
     }
-
 
     write_rlt = write_log_line(fd, data, true);
     aos_sync(fd);
@@ -670,35 +672,35 @@ int32_t pop_out_on_fs(const char *data, const uint16_t len)
 void on_fs_record_pause(const uint32_t on, const uint32_t off)
 {
     if ((on ^ off) == 0) {
-        return ;
+        return;
     }
 
-    SESSION_FS_INFO(ULOG_TAG_SELF, "ulog fs ctrl on %d off %d \n", on, off);
+    SESSION_FS_INFO(ULOG_TAG_SELF, "ulog fs ctrl on %d off %d\n", on, off);
     if (1 == on) {
         stop_operating();
-    } else {/* resume the file record */
-            if (0 == reload_log_argu()) {
-                LOGI(ULOG_TAG_SELF, "reload ulog idx %d off %d",
-                        get_working_from_cfg_mm(), operating_file_offset);
+    } else { /* resume the file record */
+        if (0 == reload_log_argu()) {
+            LOGI(ULOG_TAG_SELF, "reload ulog idx %d off %d", get_working_from_cfg_mm(), operating_file_offset);
 #if ULOG_RESERVED_FS
-                char buf[ULOG_SIZE];
+            char buf[ULOG_SIZE];
+            memset(buf, 0, ULOG_SIZE);
+            while (0 == pop_fs_tmp(buf, ULOG_SIZE)) {
+                pop_out_on_fs(buf, strlen(buf));
                 memset(buf, 0, ULOG_SIZE);
-                while (0 == pop_fs_tmp(buf, ULOG_SIZE)) {
-                    pop_out_on_fs(buf, strlen(buf));
-                    memset(buf, 0, ULOG_SIZE);
-                }
-#endif
-            } else {
-                LOGE(ULOG_TAG_SELF, "restart ulog fs fail");
             }
+#endif
+        } else {
+            LOGE(ULOG_TAG_SELF, "restart ulog fs fail");
         }
+    }
 }
 
 void fs_control_cli(const char cmd, const char *param)
 {
     if (param != NULL) {
         switch (cmd) {
-            case 't': {
+        case 't':
+            {
                 int control_cmd = strtoul(param, NULL, 10);
                 if (control_cmd) {
                     ulog_man("fspause on=1");
@@ -707,8 +709,8 @@ void fs_control_cli(const char cmd, const char *param)
                 }
                 break;
             }
-            default:
-                break;
+        default:
+            break;
         }
     }
 }
@@ -723,13 +725,13 @@ int ulog_fs_log_file_size(unsigned int filesize)
     return 0;
 }
 
-
 int ulog_fs_log_file_path(char *filepath)
 {
     size_t len = 0;
     size_t max_len = 0;
     int ret = 0;
     aos_dir_t *pstdir = NULL;
+    bool is_last_char_slash = false;
 
     if (NULL == filepath) {
         return -1;
@@ -746,7 +748,8 @@ int ulog_fs_log_file_path(char *filepath)
     memcpy(guc_logfile_path, filepath, len);
 
     /*remove / at first to make dir ,then and / */
-    if (filepath[len - 1] == '/') {
+    is_last_char_slash = (filepath[len - 1] == '/');
+    if (is_last_char_slash) {
         guc_logfile_path[len - 1] = 0;
     }
 
@@ -756,25 +759,29 @@ int ulog_fs_log_file_path(char *filepath)
         /*log file path doesn't exist , creat it*/
         ret = aos_mkdir(guc_logfile_path);
         if (ret) {
-            SESSION_FS_INFO("%s %d log dir path %s doesn't exist and mkdir fail %d \r\n", __FILE__, __LINE__, guc_logfile_path, ret);
-            return -1;
+            SESSION_FS_INFO("%s %d log dir path %s doesn't exist and mkdir fail %d \r\n", __FILE__, __LINE__,
+                            guc_logfile_path, ret);
+            goto finish;
         }
     } else {
         aos_closedir(pstdir);
     }
 
+finish:
     /*and / for log file process*/
-    guc_logfile_path[len - 1] = '/';
+    if (is_last_char_slash) {
+        guc_logfile_path[len - 1] = '/';
+    }
 
-    return 0;
+    return ret;
 }
 
 /**
-* @brief ulog on fs init
-*
-* @return 0 indicates initialized sucessfully, or else fail
-*
-*/
+ * @brief ulog on fs init
+ *
+ * @return 0 indicates initialized sucessfully, or else fail
+ *
+ */
 int32_t ulog_fs_init()
 {
     int32_t rc = -1;
@@ -789,4 +796,3 @@ int32_t ulog_fs_init()
     }
     return rc;
 }
-

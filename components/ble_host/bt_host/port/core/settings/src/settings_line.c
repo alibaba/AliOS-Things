@@ -10,7 +10,7 @@
 
 #include "settings/settings.h"
 #include "settings_priv.h"
-#include "errno.h"
+#include "bt_errno.h"
 #ifdef CONFIG_SETTINGS_USE_BASE64
 #include "base64.h"
 #endif

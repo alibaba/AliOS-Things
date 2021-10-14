@@ -15,3 +15,4 @@
 ./qjsc_linux -c -m src/mqtt.js -N jslib_mqtt -M MQTT -M events -o bytecode/jslib_mqtt.c
 ./qjsc_linux -c -m src/tcp.js -N jslib_tcp -M events -M TCP -o bytecode/jslib_tcp.c
 ./qjsc_linux -c -m src/location.js -N jslib_location -M NETWORK -M NETMGR -M CELLULAR -o bytecode/jslib_location.c
+./qjsc_linux -c -m src/i2c.js -N jslib_i2c -M I2C -o bytecode/jslib_i2c.c

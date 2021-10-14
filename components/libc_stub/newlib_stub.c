@@ -35,17 +35,23 @@
 #endif
 #endif
 
+#define LIBC_CHECK_AOS_RET(ret) do {if ((ret) < 0) {ptr->_errno = -(ret); return -1; } } while (0)
+
 int _execve_r(struct _reent *ptr, const char *name, char *const *argv,
               char *const *env)
 {
-    ptr->_errno = ENOTSUP;
+    ptr->_errno = ENOSYS;
     return -1;
 }
 
 int _fcntl_r(struct _reent *ptr, int fd, int cmd, int arg)
 {
+    int ret;
+
     if ((fd >= FD_VFS_START) && (fd <= FD_VFS_END)) {
-        return aos_fcntl(fd, cmd, arg);
+        ret = aos_fcntl(fd, cmd, arg);
+        LIBC_CHECK_AOS_RET(ret);
+        return ret;
 #ifdef POSIX_DEVICE_IO_NEED
 #ifdef CONFIG_AOS_LWIP
     } else if ((fd >= FD_SOCKET_START) && (fd <= FD_EVENT_END)) {
@@ -53,19 +59,20 @@ int _fcntl_r(struct _reent *ptr, int fd, int cmd, int arg)
 #endif
 #endif
     } else {
+        ptr->_errno = EBADF;
         return -1;
     }
 }
 
 int _fork_r(struct _reent *ptr)
 {
-    ptr->_errno = ENOTSUP;
+    ptr->_errno = ENOSYS;
     return -1;
 }
 
 int _getpid_r(struct _reent *ptr)
 {
-    ptr->_errno = ENOTSUP;
+    ptr->_errno = ENOSYS;
     return 0;
 }
 
@@ -75,56 +82,45 @@ int _isatty_r(struct _reent *ptr, int fd)
         return 1;
     }
 
-    ptr->_errno = ENOTSUP;
-    return -1;
+    ptr->_errno = ENOTTY;
+    return 0;
 }
 
 int _kill_r(struct _reent *ptr, int pid, int sig)
 {
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
-
-int _link_r(struct _reent *ptr, const char *old, const char *new)
-{
-    ptr->_errno = ENOTSUP;
+    ptr->_errno = ENOSYS;
     return -1;
 }
 
 _off_t _lseek_r(struct _reent *ptr, int fd, _off_t pos, int whence)
 {
     int ret = aos_lseek(fd, pos, whence);
-    if (ret < 0) {
-        ptr->_errno = -ret;
-        ret = -1;
-    }
+    LIBC_CHECK_AOS_RET(ret);
     return ret;
 }
 
 int _mkdir_r(struct _reent *ptr, const char *name, int mode)
 {
     int ret = aos_mkdir(name);
-    if (ret < 0) {
-        ptr->_errno = -ret;
-        ret = -1;
-    }
+    LIBC_CHECK_AOS_RET(ret);
     return ret;
 }
 
 int _open_r(struct _reent *ptr, const char *file, int flags, int mode)
 {
     int ret = aos_open(file, flags);
-    if (ret < 0) {
-        ptr->_errno = -ret;
-        ret = -1;
-    }
+    LIBC_CHECK_AOS_RET(ret);
     return ret;
 }
 
 int _close_r(struct _reent *ptr, int fd)
 {
+    int ret;
+
     if ((fd >= FD_VFS_START) && (fd <= FD_VFS_END)) {
-        return aos_close(fd);
+        ret = aos_close(fd);
+        LIBC_CHECK_AOS_RET(ret);
+        return ret;
 #ifdef POSIX_DEVICE_IO_NEED
 #ifdef CONFIG_AOS_LWIP
     } else if ((fd >= FD_SOCKET_START) && (fd <= FD_EVENT_END)) {
@@ -132,14 +128,19 @@ int _close_r(struct _reent *ptr, int fd)
 #endif
 #endif
     } else {
+        ptr->_errno = EBADF;
         return -1;
     }
 }
 
 _ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t nbytes)
 {
+    int ret;
+
     if ((fd >= FD_VFS_START) && (fd <= FD_VFS_END)) {
-        return aos_read(fd, buf, nbytes);
+        ret = aos_read(fd, buf, nbytes);
+        LIBC_CHECK_AOS_RET(ret);
+        return ret;
 #ifdef POSIX_DEVICE_IO_NEED
 #ifdef CONFIG_AOS_LWIP
     } else if ((fd >= FD_SOCKET_START) && (fd <= FD_EVENT_END)) {
@@ -147,20 +148,20 @@ _ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t nbytes)
 #endif
 #endif
     } else {
+        ptr->_errno = EBADF;
         return -1;
     }
 }
 
-/*
- * implement _write_r here
- */
 _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
 {
+    int ret;
     const char *tmp = buf;
     int         i   = 0;
     uart_dev_t  uart_stdio;
 
     if (buf == NULL) {
+        ptr->_errno = EINVAL;
         return 0;
     }
 
@@ -168,7 +169,9 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
     uart_stdio.port = HAL_UART_STDIO_PORT;
 
     if ((fd >= FD_VFS_START) && (fd <= FD_VFS_END)) {
-        return aos_write(fd, buf, nbytes);
+        ret = aos_write(fd, buf, nbytes);
+        LIBC_CHECK_AOS_RET(ret);
+        return ret;
 #ifdef POSIX_DEVICE_IO_NEED
 #ifdef CONFIG_AOS_LWIP
     } else if ((fd >= FD_SOCKET_START) && (fd <= FD_EVENT_END)) {
@@ -193,6 +196,7 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
 
         return nbytes;
     } else {
+        ptr->_errno = EBADF;
         return -1;
     }
 }
@@ -228,30 +232,31 @@ int ioctl(int fildes, int request, ... /* arg */)
     }
 }
 
-int _fstat_r(struct _reent *ptr, int fd, struct stat *pstat)
+int _rename_r(struct _reent *ptr, const char *oldname, const char *newname)
 {
-    ptr->_errno = ENOTSUP;
-    return -1;
-}
-
-int _rename_r(struct _reent *ptr, const char *old, const char *new)
-{
-    ptr->_errno = ENOTSUP;
-    return 0;
+    int ret = aos_rename(oldname, newname);
+    LIBC_CHECK_AOS_RET(ret);
+    return ret;
 }
 
 void *_sbrk_r(struct _reent *ptr, ptrdiff_t incr)
 {
-    ptr->_errno = ENOTSUP;
+    ptr->_errno = ENOSYS;
     return NULL;
 }
 
 int _stat_r(struct _reent *ptr, const char *file, struct stat *pstat)
 {
+    int ret;
     struct aos_stat stat;
-    int    ret;
+
+    if ((file == NULL) || (pstat == NULL)) {
+        ptr->_errno = EINVAL;
+        return -1;
+    }
 
     ret = aos_stat(file, &stat);
+    LIBC_CHECK_AOS_RET(ret);
 
     pstat->st_mode  = stat.st_mode;
     pstat->st_size  = stat.st_size;
@@ -261,25 +266,50 @@ int _stat_r(struct _reent *ptr, const char *file, struct stat *pstat)
     return ret;
 }
 
+int _fstat_r(struct _reent *ptr, int fd, struct stat *buf)
+{
+    int ret;
+    struct aos_stat stat_temp;
+
+    if ((fd < 0) || (buf == NULL)) {
+        ptr->_errno = EINVAL;
+        return -1;
+    }
+
+    ret = aos_fstat(fd, &stat_temp);
+    LIBC_CHECK_AOS_RET(ret);
+
+    buf->st_mode = stat_temp.st_mode;
+    buf->st_size = stat_temp.st_size;
+    buf->st_atime = stat_temp.st_actime;
+    buf->st_mtime = stat_temp.st_modtime;
+
+    return ret;
+}
+
 _CLOCK_T_ _times_r(struct _reent *ptr, struct tms *ptms)
 {
-    ptr->_errno = ENOTSUP;
+    ptr->_errno = ENOSYS;
     return -1;
+}
+
+int _link_r(struct _reent *ptr, const char *oldpath, const char *newpath)
+{
+    int ret = aos_link(oldpath, newpath);
+    LIBC_CHECK_AOS_RET(ret);
+    return ret;
 }
 
 int _unlink_r(struct _reent *ptr, const char *file)
 {
     int ret = aos_unlink(file);
-    if (ret < 0) {
-        ptr->_errno = -ret;
-        ret = -1;
-    }
+    LIBC_CHECK_AOS_RET(ret);
     return ret;
 }
 
 int _wait_r(struct _reent *ptr, int *status)
 {
-    ptr->_errno = ENOTSUP;
+    ptr->_errno = ENOSYS;
     return -1;
 }
 
@@ -405,3 +435,37 @@ void abort(void)
         ;
 }
 
+struct _reent *__getreent(void)
+{
+#if (RHINO_CONFIG_NEWLIBC_REENT > 0)
+    CPSR_ALLOC();
+
+    ktask_t *cur_task = NULL;
+
+    RHINO_CRITICAL_ENTER();
+    /* If in the interrupt context, use the global reent structure */
+    if (g_intrpt_nested_level[cpu_cur_get()] > 0u) {
+        RHINO_CRITICAL_EXIT();
+        goto ret_impure_ptr;
+    }
+    RHINO_CRITICAL_EXIT();
+
+    cur_task = krhino_cur_task_get();
+    if (cur_task == NULL)
+        goto ret_impure_ptr;
+
+    if (cur_task->newlibc_reent == NULL) {
+        cur_task->newlibc_reent = (struct _reent *)krhino_mm_alloc(sizeof(struct _reent));
+        if (cur_task->newlibc_reent == NULL)
+            goto ret_impure_ptr;
+        _REENT_INIT_PTR(cur_task->newlibc_reent);
+    }
+    return cur_task->newlibc_reent;
+#endif
+
+ret_impure_ptr:
+    if (_impure_ptr->__sdidinit == 0) {
+        __sinit(_impure_ptr);
+    }
+    return _impure_ptr;
+}

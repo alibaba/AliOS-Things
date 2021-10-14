@@ -2094,6 +2094,22 @@ typedef struct RegionStruct {
                                    region.sh_t = SHARED; \
                                    MMU_GetPageDescriptor(&descriptor_l1, &descriptor_l2, region);
 
+//Page_4k_Normal_NC. Outer & inner non-cacheable, non-shareable, executable, rw, domain 0
+#define page4k_normal_nc(descriptor_l1, descriptor_l2, region) region.rg_t = PAGE_4k; \
+                                   region.domain = 0x0; \
+                                   region.e_t = ECC_DISABLED; \
+                                   region.g_t = GLOBAL; \
+                                   region.inner_norm_t = NON_CACHEABLE; \
+                                   region.outer_norm_t = NON_CACHEABLE; \
+                                   region.mem_t = NORMAL; \
+                                   region.sec_t = SECURE; \
+                                   region.xn_t = EXECUTE; \
+                                   region.priv_t = RW; \
+                                   region.user_t = RW; \
+                                   region.sh_t = NON_SHARED; \
+                                   MMU_GetPageDescriptor(&descriptor_l1, &descriptor_l2, region);
+
+
 //Page_64k_Device_RW.  Shared device, not executable, rw, domain 0
 #define page64k_device_rw(descriptor_l1, descriptor_l2, region)  region.rg_t = PAGE_64k; \
                                    region.domain = 0x0; \

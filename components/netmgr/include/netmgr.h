@@ -250,6 +250,15 @@ int netmgr_add_dev(const char* name);
 netmgr_hdl_t netmgr_get_dev(const char* name);
 
 /**
+ * @brief get netmgr dev type
+ *
+ * @param  [in] hdl     netmgr handle
+ *
+ * @return  NETMGR_TYPE_UNKNOWN on failure, others on success.
+ */
+netmgr_type_t  get_hdl_type(netmgr_hdl_t hdl);
+
+/**
  * @brief  set if config information
  *
  * @param  [in] hdl     netmgr handle

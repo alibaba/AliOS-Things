@@ -30,7 +30,7 @@ Lg4 = 0xf89e26.0p-26f; /* 0.24279078841 */
 float log1pf(float x)
 {
 	union {float f; uint32_t i;} u = {x};
-	float_t hfsq,f=0.0f,c=0.0f,s,z,R,w,t1,t2,dk;
+	float_t hfsq,f,c,s,z,R,w,t1,t2,dk;
 	uint32_t ix,iu;
 	int k;
 

@@ -27,11 +27,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "extmod/utime_mphal.h"
+#include "shared/timeutils/timeutils.h"
+#include "py/obj.h"
 #include "py/runtime.h"
 #include "py/smallint.h"
-#include "py/obj.h"
-#include "lib/timeutils/timeutils.h"
-#include "extmod/utime_mphal.h"
 #include "time.h"
 
 // #include "aos_system.h"
@@ -39,7 +39,8 @@
 
 #if MICROPY_PY_UTIME
 
-STATIC mp_obj_t time_localtime(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t time_localtime(size_t n_args, const mp_obj_t *args)
+{
     timeutils_struct_time_t tm;
     mp_int_t seconds;
     if (n_args == 0 || args[0] == mp_const_none) {
@@ -62,25 +63,32 @@ STATIC mp_obj_t time_localtime(size_t n_args, const mp_obj_t *args) {
     };
     return mp_obj_new_tuple(8, tuple);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(time_localtime_obj, 0, 1, time_localtime);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(time_localtime_obj, 0, 1,
+                                           time_localtime);
 
-STATIC mp_obj_t time_mktime(mp_obj_t tuple) {
+STATIC mp_obj_t time_mktime(mp_obj_t tuple)
+{
     size_t len;
     mp_obj_t *elem;
     mp_obj_get_array(tuple, &len, &elem);
 
     // localtime generates a tuple of len 8. CPython uses 9, so we accept both.
     if (len < 8 || len > 9) {
-        mp_raise_msg_varg(&mp_type_TypeError, MP_ERROR_TEXT("mktime needs a tuple of length 8 or 9 (%d given)"), len);
+        mp_raise_msg_varg(
+            &mp_type_TypeError,
+            MP_ERROR_TEXT("mktime needs a tuple of length 8 or 9 (%d given)"),
+            len);
     }
 
-    return mp_obj_new_int_from_uint(timeutils_mktime(mp_obj_get_int(elem[0]),
-        mp_obj_get_int(elem[1]), mp_obj_get_int(elem[2]), mp_obj_get_int(elem[3]),
-        mp_obj_get_int(elem[4]), mp_obj_get_int(elem[5])));
+    return mp_obj_new_int_from_uint(
+        timeutils_mktime(mp_obj_get_int(elem[0]), mp_obj_get_int(elem[1]),
+                         mp_obj_get_int(elem[2]), mp_obj_get_int(elem[3]),
+                         mp_obj_get_int(elem[4]), mp_obj_get_int(elem[5])));
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(time_mktime_obj, time_mktime);
 
-STATIC mp_obj_t time_time(void) {
+STATIC mp_obj_t time_time(void)
+{
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return mp_obj_new_int(tv.tv_sec);

@@ -251,9 +251,6 @@ static int backtraceFromStack(int **pSP, char **pPC,
     if (offset < 0) {
         return -1;
     }
-#ifdef OS_BACKTRACE_DEBUG
-    printf("[backtraceFromStack out2] LR = %p offset = %d\r\n", LR, offset);
-#endif
     *pSP   = SP + framesize;
     *pPC   = LR - offset;
 

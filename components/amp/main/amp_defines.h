@@ -6,6 +6,7 @@
 #define AMP_DEFINES_H
 
 #include "amp_config.h"
+#include "amp_memory.h"
 #include "mbedtls/md5.h"
 #include "mbedtls/sha1.h"
 #include "mbedtls/aes.h"
@@ -28,7 +29,7 @@ typedef enum {
 
 /* sdk version */
 #define AMP_VERSION_LENGTH  128
-#define AMP_VERSION_NUMBER  "3.0.0"
+#define AMP_VERSION_NUMBER  "3.0.1"
 #define AMP_GIT_COMMIT      "g9c40fab"
 #define AMP_MODULE_HARDWARE aos_get_module_hardware_version()
 #define AMP_MODULE_SOFTWARE aos_get_module_software_version()

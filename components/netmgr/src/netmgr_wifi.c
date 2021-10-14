@@ -2968,7 +2968,7 @@ int netmgr_wifi_get_ip_stat(char *ip_addr, char *mask, char *gw, char *dns_serve
                      ((u8_t *)&dns->addr)[2],
                      ((u8_t *)&dns->addr)[3]);
 
-    memset(mac_addr, 0, sizeof(mac_addr) / sizeof(mac_addr[0]));
+    memset(mac_addr, 0, sizeof(mac_addr));
     if (-1 != wifi_get_mac(conn->hdl, mac)) {
         sprintf(mac_addr, "%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx",
             mac[0] & 0xff,

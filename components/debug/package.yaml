@@ -63,8 +63,8 @@ source_file:
 ## 第五部分：配置信息
 def_config:
   AOS_COMP_DEBUG: 1
-  DEBUG_PANIC_PRT_INT: 1
   DEBUG_PANIC_CLI: 1
+  DEBUG_PANIC_CONTEXT_IN_STACK: 1
 
   # cpuusage feature config
   DEBUG_CPUUSAGE_RECODE_TO_FILE_ENABLE: 0

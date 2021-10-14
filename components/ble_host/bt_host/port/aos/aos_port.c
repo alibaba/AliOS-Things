@@ -7,6 +7,7 @@
 #include <misc/dlist.h>
 
 //#include <aos/aos.h> //yulong removed
+// #include "aos/debug.h"
 
 #define BT_DBG_ENABLED IS_ENABLED(CONFIG_BLUETOOTH_DEBUG_CORE)
 
@@ -32,7 +33,7 @@
 #include <k_time.h>
 #include <k_task.h>
 #include <port.h>
-#include "errno.h"
+#include "bt_errno.h"
 #endif
 
 void k_queue_init(struct k_queue *queue)
@@ -162,8 +163,10 @@ int k_sem_take(struct k_sem *sem, uint32_t timeout)
     }
 
     ret = krhino_sem_take(&sem->sem, ticks);
-	if (ret != 0)
+    if (ret != 0) {
+        // aos_debug_backtrace_now(NULL);
 		BT_ERR("%s failed: %d", __func__, ret);
+    }
 	return ret;
 }
 
@@ -176,8 +179,10 @@ int k_sem_give(struct k_sem *sem)
     }
 
     ret = krhino_sem_give(&sem->sem);
-	if (ret != 0)
-		BT_ERR("%s failed: %d", __func__, ret);
+    if (ret != 0) {
+        BT_ERR("%s failed: %d", __func__, ret);
+    }
+
     return 0;
 }
 
@@ -235,9 +240,9 @@ int k_mutex_lock(struct k_mutex *mutex, bt_s32_t timeout)
     }
 
     ret =  krhino_mutex_lock(&mutex->mutex, ticks);
-	if (ret != 0)
+    if (ret != 0) {
 		BT_ERR("%s failed: %d", __func__, ret);
-		
+    }
 	return ret;
 }
 
@@ -250,8 +255,9 @@ void k_mutex_unlock(struct k_mutex *mutex)
     }
 
     ret = krhino_mutex_unlock(&mutex->mutex);
-	if (ret != 0)
+    if (ret != 0) {
 		BT_ERR("%s failed: %d", __func__, ret);
+    }
 }
 
 int64_t k_uptime_get()

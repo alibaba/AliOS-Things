@@ -1,30 +1,29 @@
-#include <string.h>
-#include <unistd.h>
 #include <stdbool.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "usb_s_uvc_ioctl.h"
-#include "dev_info.h"
+#include "HaasLog.h"
 #include "ak_common.h"
-#include "ak_vi.h"
 #include "ak_common_video.h"
 #include "ak_venc.h"
-#include "minIni.h"
+#include "ak_vi.h"
 #include "ak_vpss.h"
+#include "dev_info.h"
+#include "minIni.h"
+#include "usb_s_uvc_ioctl.h"
 #include "videocommon.h"
-#include "HaasLog.h"
 
-#define UVC_ENC_CONFIG_FILE   "/etc/config/anyka_app.ini"
+#define UVC_ENC_CONFIG_FILE "/etc/config/anyka_app.ini"
 
 int py_venc_init(int width, int height, int fps, int media_type)
 {
     int ret = -1, handle_id = -1;
     struct venc_param param;
 
-    param.width  = width;
+    param.width = width;
     param.height = height;
     param.fps = fps;
     param.goplen = fps * 2;
@@ -45,26 +44,34 @@ int py_venc_init(int width, int height, int fps, int media_type)
     param.smart_static_value = 550;
 
     if (VIDEO_MEDIA_TYPE_JPEG == media_type) {
-        param.minqp= ini_getl("usbcam", "mjpeg_minqp", 50 , UVC_ENC_CONFIG_FILE);
-        param.maxqp= ini_getl("usbcam", "mjpeg_maxqp", 50 , UVC_ENC_CONFIG_FILE);
-        param.max_kbps = ini_getl("usbcam", "mjpeg_kbps", 1024, UVC_ENC_CONFIG_FILE);
-        param.target_kbps = ini_getl("usbcam", "mjpeg_kbps", 1024, UVC_ENC_CONFIG_FILE);
+        param.minqp =
+            ini_getl("usbcam", "mjpeg_minqp", 50, UVC_ENC_CONFIG_FILE);
+        param.maxqp =
+            ini_getl("usbcam", "mjpeg_maxqp", 50, UVC_ENC_CONFIG_FILE);
+        param.max_kbps =
+            ini_getl("usbcam", "mjpeg_kbps", 1024, UVC_ENC_CONFIG_FILE);
+        param.target_kbps =
+            ini_getl("usbcam", "mjpeg_kbps", 1024, UVC_ENC_CONFIG_FILE);
 
         param.profile = PROFILE_JPEG;
         param.enc_out_type = MJPEG_ENC_TYPE;
     } else if (VIDEO_MEDIA_TYPE_H264 == media_type) {
-        param.minqp= ini_getl("usbcam", "h264_minqp", 25 , UVC_ENC_CONFIG_FILE);
-        param.maxqp= ini_getl("usbcam", "h264_maxqp", 48 , UVC_ENC_CONFIG_FILE);
-        param.max_kbps = ini_getl("usbcam", "h264_kbps", 1024, UVC_ENC_CONFIG_FILE);
-        param.target_kbps = ini_getl("usbcam", "h264_kbps", 1024, UVC_ENC_CONFIG_FILE);
+        param.minqp = ini_getl("usbcam", "h264_minqp", 25, UVC_ENC_CONFIG_FILE);
+        param.maxqp = ini_getl("usbcam", "h264_maxqp", 48, UVC_ENC_CONFIG_FILE);
+        param.max_kbps =
+            ini_getl("usbcam", "h264_kbps", 1024, UVC_ENC_CONFIG_FILE);
+        param.target_kbps =
+            ini_getl("usbcam", "h264_kbps", 1024, UVC_ENC_CONFIG_FILE);
 
         param.profile = PROFILE_MAIN;
         param.enc_out_type = H264_ENC_TYPE;
-    } else { // HEVC
-        param.minqp= ini_getl("usbcam", "hevc_minqp", 25 , UVC_ENC_CONFIG_FILE);
-        param.maxqp= ini_getl("usbcam", "hevc_maxqp", 50 , UVC_ENC_CONFIG_FILE);
-        param.max_kbps = ini_getl("usbcam", "hevc_kbps", 1024, UVC_ENC_CONFIG_FILE);
-        param.target_kbps = ini_getl("usbcam", "hevc_kbps", 1024, UVC_ENC_CONFIG_FILE);
+    } else {
+        param.minqp = ini_getl("usbcam", "hevc_minqp", 25, UVC_ENC_CONFIG_FILE);
+        param.maxqp = ini_getl("usbcam", "hevc_maxqp", 50, UVC_ENC_CONFIG_FILE);
+        param.max_kbps =
+            ini_getl("usbcam", "hevc_kbps", 1024, UVC_ENC_CONFIG_FILE);
+        param.target_kbps =
+            ini_getl("usbcam", "hevc_kbps", 1024, UVC_ENC_CONFIG_FILE);
 
         param.profile = PROFILE_HEVC_MAIN;
         param.enc_out_type = HEVC_ENC_TYPE;

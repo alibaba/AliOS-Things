@@ -77,19 +77,21 @@ static void cmd_cli_ulog(char *pwbuf, int blen, int argc, char *argv[])
             case 's':/* session */
                 session = strtoul(param, NULL, 10);
                 break;
-
             case 'l':/* level */
                 level = strtoul(param, NULL, 10);
                 break;
-
             case 'a':/* syslog watcher address */
                 update_net_cli(option[0], param);
                 break;
-
+            case 'p': /* syslog wacher port*/
+                update_net_cli(option[0], param);
+                break;
+            case 'n':  /*tcpip on/off*/
+                update_net_cli(option[0], param);
+                break;
             case 't':/* terminate record on fs */
                 fs_control_cli(option[0], param);
                 break;
-
             default: /* unknown option */
                 exit_loop = true;
                 break;

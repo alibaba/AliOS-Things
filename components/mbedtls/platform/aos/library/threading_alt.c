@@ -17,7 +17,7 @@
 
 void threading_mutex_init( mbedtls_threading_mutex_t *mutex )
 {
-    if( mutex == NULL || mutex->is_valid )
+    if( mutex == NULL )
         return;
 
     mutex->is_valid = ( aos_mutex_new( &mutex->mutex ) == 0 );

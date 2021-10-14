@@ -1,28 +1,25 @@
-#include <string.h>
-#include <unistd.h>
 #include <stdbool.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "usb_s_uvc_ioctl.h"
-#include "dev_info.h"
-
-#include "ak_thread.h"
-#include "ak_common.h"
-#include "ak_log.h"
-#include "ak_vi.h"
-#include "ak_common_video.h"
-#include "ak_venc.h"
-#include "minIni.h"
-#include "ak_vpss.h"
-
-#include "os_drv.h"
-#include "list.h"
 #include "HaasLog.h"
-#include "videocommon.h"
+#include "ak_common.h"
+#include "ak_common_video.h"
+#include "ak_log.h"
+#include "ak_thread.h"
+#include "ak_venc.h"
+#include "ak_vi.h"
+#include "ak_vpss.h"
+#include "dev_info.h"
+#include "list.h"
+#include "minIni.h"
+#include "os_drv.h"
+#include "usb_s_uvc_ioctl.h"
 #include "uvc.h"
+#include "videocommon.h"
 
 enum uvc_stream_state_t {
     USBCAM_STATE_STOP = 0,
@@ -30,7 +27,7 @@ enum uvc_stream_state_t {
     USBCAM_STATE_WORKING = 2,
 };
 
-typedef  struct uvc_dev {
+typedef struct uvc_dev {
     ak_pthread_t monitor_thread;
     ak_pthread_t stream_thread;
     ak_pthread_t ctrl_thread;
@@ -47,13 +44,13 @@ typedef  struct uvc_dev {
     void (*ext_event_cb)(int start);
 
     int stream_type;
-    enum ak_vi_daynight_mode day_night;      // 0: day 1: night
+    enum ak_vi_daynight_mode day_night;  // 0: day 1: night
     enum uvc_stream_state_t send_stream;
     char monitor;
     char ctrl;
 } uvc_dev_t;
 
-typedef struct _uvc_msg_queue{
+typedef struct _uvc_msg_queue {
     int ret;
     struct list_head cmd_list;
 } uvc_msg_queue;
@@ -82,22 +79,23 @@ static uvc_dev_t m_uvc_dev = {
     .ext_event_cb = NULL,
 };
 
-static int usbcam_video_get_format(int *width, int *height, enum uvc_stream_type *type)
+static int usbcam_video_get_format(int *width, int *height,
+                                   enum uvc_stream_type *type)
 {
-   if (ioctl(m_uvc_dev.uvc_fd, IO_UVC_GET_FORMAT, type) == -1) {
-       LOG_E("ioctl failed\n");
-       return -1;
-   }
+    if (ioctl(m_uvc_dev.uvc_fd, IO_UVC_GET_FORMAT, type) == -1) {
+        LOG_E("ioctl failed\n");
+        return -1;
+    }
 
-   if (ioctl(m_uvc_dev.uvc_fd, IO_UVC_GET_HEIGHT, height) == -1) {
-       LOG_E("ioctl failed\n");
-       return -1;
-   }
+    if (ioctl(m_uvc_dev.uvc_fd, IO_UVC_GET_HEIGHT, height) == -1) {
+        LOG_E("ioctl failed\n");
+        return -1;
+    }
 
-   if (ioctl(m_uvc_dev.uvc_fd, IO_UVC_GET_WIDTH, width) == -1) {
-       LOG_E("ioctl failed\n");
-       return -1;
-   }
+    if (ioctl(m_uvc_dev.uvc_fd, IO_UVC_GET_WIDTH, width) == -1) {
+        LOG_E("ioctl failed\n");
+        return -1;
+    }
 }
 
 static int usbcam_video_open(void)
@@ -109,9 +107,10 @@ static int usbcam_video_open(void)
         LOG_E("uvc open failed,m_uvc_dev.uvc_fd:%d\n", fd);
         return -1;
     }
-        // max sensor resolution
+    // max sensor resolution
     if (ak_vi_get_sensor_resolution(m_uvc_dev.camera_idx, &res) != 0) {
-        LOG_E("%s, get vi dev(%d) sensor resolution fail\n", __func__, m_uvc_dev.camera_idx);
+        LOG_E("%s, get vi dev(%d) sensor resolution fail\n", __func__,
+              m_uvc_dev.camera_idx);
         close(fd);
         return -1;
     }
@@ -139,7 +138,8 @@ static int usbcam_video_uvc_wait_start(void)
 static int py_usbcam_video_stream_start(void)
 {
     int stream_type;
-    usbcam_video_get_format(&(m_uvc_dev.width), &(m_uvc_dev.height), &stream_type);
+    usbcam_video_get_format(&(m_uvc_dev.width), &(m_uvc_dev.height),
+                            &stream_type);
 
     switch (stream_type) {
         case UVC_STREAM_YUV:
@@ -156,7 +156,8 @@ static int py_usbcam_video_stream_start(void)
             break;
     }
 
-    if (py_video_camera_config_set(m_uvc_dev.width, m_uvc_dev.height, m_uvc_dev.stream_type) != 0) {
+    if (py_video_camera_config_set(m_uvc_dev.width, m_uvc_dev.height,
+                                   m_uvc_dev.stream_type) != 0) {
         py_video_camera_close(m_uvc_dev.camera_idx);
         py_video_camera_open(m_uvc_dev.camera_idx, m_uvc_dev.out_fps);
     }
@@ -166,11 +167,13 @@ static int py_usbcam_video_stream_start(void)
     }
 
     if (m_uvc_dev.stream_type != VIDEO_MEDIA_TYPE_YUV) {
-        m_uvc_dev.venc_fd = py_venc_init(m_uvc_dev.width, m_uvc_dev.height,
-                m_uvc_dev.out_fps, m_uvc_dev.stream_type);
+        m_uvc_dev.venc_fd =
+            py_venc_init(m_uvc_dev.width, m_uvc_dev.height, m_uvc_dev.out_fps,
+                         m_uvc_dev.stream_type);
         if (m_uvc_dev.venc_fd < 0) {
             LOG_E("%s, venc init fail:%d\r\n", __func__, m_uvc_dev.venc_fd);
-            return -1;;
+            return -1;
+            ;
         }
     }
     m_uvc_dev.send_stream = USBCAM_STATE_WORKING;
@@ -206,8 +209,8 @@ static void usbcam_video_stream_send(void)
 
     if (m_uvc_dev.stream_type != VIDEO_MEDIA_TYPE_YUV) {
         memset(&video_str, 0, sizeof(video_str));
-        ret = ak_venc_encode_frame(m_uvc_dev.venc_fd, frame.vi_frame.data, frame.vi_frame.len,
-                NULL, &video_str);
+        ret = ak_venc_encode_frame(m_uvc_dev.venc_fd, frame.vi_frame.data,
+                                   frame.vi_frame.len, NULL, &video_str);
         ak_vi_release_frame(chan, &frame);
         if (ret) {
             LOG_E("encode fail\r\n");
@@ -238,7 +241,7 @@ static void *usbcam_video_monitor_thread(void *arg)
         /* Wait for read or write */
         ret = select(m_uvc_dev.uvc_fd + 1, &readset, NULL, NULL, &timeout);
         if (ret == 0) {
-            //LOG_E("select timeout\r\n");
+            // LOG_E("select timeout\r\n");
             continue;
         }
         ret = usbcam_video_uvc_wait_start();
@@ -261,19 +264,22 @@ static void *usbcam_video_ctrl_thread(void *arg)
 
     while (m_uvc_dev.ctrl) {
         if (ak_thread_sem_wait(&uvc_ctrl_sem) == 0) {
-            list_for_each_safe(pos, q, &uvc_cmd_list) {
+            list_for_each_safe(pos, q, &uvc_cmd_list)
+            {
                 pmsg = list_entry(pos, uvc_msg_queue, cmd_list);
                 if (pmsg) {
                     ak_thread_mutex_lock(&uvc_ctrl_mutex);
                     if (pmsg->ret) {
-                        if (m_uvc_dev.ext_process && m_uvc_dev.ext_event_cb != NULL) {
+                        if (m_uvc_dev.ext_process &&
+                            m_uvc_dev.ext_event_cb != NULL) {
                             m_uvc_dev.ext_event_cb(1);
                         }
                         py_usbcam_video_stream_stop();
                         py_usbcam_video_stream_start();
                     } else {
                         py_usbcam_video_stream_stop();
-                        if (m_uvc_dev.ext_process && m_uvc_dev.ext_event_cb != NULL) {
+                        if (m_uvc_dev.ext_process &&
+                            m_uvc_dev.ext_event_cb != NULL) {
                             m_uvc_dev.ext_event_cb(0);
                         }
                     }
@@ -281,7 +287,8 @@ static void *usbcam_video_ctrl_thread(void *arg)
                 }
 
                 list_del(pos);
-                if (pmsg) free(pmsg);
+                if (pmsg)
+                    free(pmsg);
             }
         }
     }
@@ -308,7 +315,7 @@ static void *usbcam_video_stream_thread(void *arg)
 }
 
 void py_usbcam_video_ext_process_config(void (*ext_process)(isp_frame_t *),
-                                       void (*ext_evt_cb)(int))
+                                        void (*ext_evt_cb)(int))
 {
     m_uvc_dev.ext_process = 1;
     m_uvc_dev.ext_process_cb = ext_process;
@@ -355,8 +362,8 @@ int py_usbcam_video_init(int camera_idx, int chan_idx)
     }
 
     m_uvc_dev.monitor = 1;
-    if (ak_thread_create(&m_uvc_dev.monitor_thread, usbcam_video_monitor_thread, NULL,
-            ANYKA_THREAD_MIN_STACK_SIZE, 20) != 0) {
+    if (ak_thread_create(&m_uvc_dev.monitor_thread, usbcam_video_monitor_thread,
+                         NULL, ANYKA_THREAD_MIN_STACK_SIZE, 20) != 0) {
         close(m_uvc_dev.uvc_fd);
         m_uvc_dev.uvc_fd = -1;
         m_uvc_dev.monitor = 0;
@@ -365,7 +372,7 @@ int py_usbcam_video_init(int camera_idx, int chan_idx)
 
     m_uvc_dev.ctrl = 1;
     if (ak_thread_create(&m_uvc_dev.ctrl_thread, usbcam_video_ctrl_thread, NULL,
-            ANYKA_THREAD_MIN_STACK_SIZE, 20) != 0) {
+                         ANYKA_THREAD_MIN_STACK_SIZE, 20) != 0) {
         m_uvc_dev.monitor = 0;
         ak_thread_join(m_uvc_dev.monitor_thread);
         m_uvc_dev.monitor_thread = NULL;
@@ -376,8 +383,8 @@ int py_usbcam_video_init(int camera_idx, int chan_idx)
     }
 
     m_uvc_dev.send_stream = USBCAM_STATE_STANDBY;
-    if (ak_thread_create(&m_uvc_dev.stream_thread, usbcam_video_stream_thread, NULL,
-            ANYKA_THREAD_MIN_STACK_SIZE, 20) != 0) {
+    if (ak_thread_create(&m_uvc_dev.stream_thread, usbcam_video_stream_thread,
+                         NULL, ANYKA_THREAD_MIN_STACK_SIZE, 20) != 0) {
         m_uvc_dev.ctrl = 0;
         ak_thread_sem_post(&uvc_ctrl_sem);
         ak_thread_join(m_uvc_dev.ctrl_thread);

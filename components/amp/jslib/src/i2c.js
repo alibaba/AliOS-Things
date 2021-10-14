@@ -31,7 +31,7 @@ class HW_I2C {
         if (!this.i2cInstance || !data) {
             throw new Error("i2c not init or params is invalid");
         }
-        this.i2cInstance.write(byteArrayToArrayBuffer(data));
+        return this.i2cInstance.write(byteArrayToArrayBuffer(data));
     }
 
     read(bytes) {
@@ -45,7 +45,7 @@ class HW_I2C {
         if (!this.i2cInstance) {
             throw new Error("i2c not init or params is invalid");
         }
-        this.i2cInstance.writeReg(memaddr, byteArrayToArrayBuffer(data));
+        return this.i2cInstance.writeReg(memaddr, byteArrayToArrayBuffer(data));
     }
 
     readMem(memaddr, bytes) {

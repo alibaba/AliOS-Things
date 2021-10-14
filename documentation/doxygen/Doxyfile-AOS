@@ -937,6 +937,7 @@ INPUT                  = ../manual/mainpage.md \
                          ../../solutions/ota_demo/README.md \
                          ../../solutions/py_engine_demo/README.md \
                          ../../solutions/rfid_demo/README.md \
+                         ../../solutions/tflite_micro_speech_demo/README.md \
                          ../../components/a2sa/include/sound_mixer.h \
                          ../../components/a2sa/include/sound_pcm.h \
                          ../../components/ai_agent/include/aiagent_service.h \

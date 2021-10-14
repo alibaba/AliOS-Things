@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
-name: haas1000                                    # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: master                                   # <必选项> 组件版本号
+name: haas1000                                      # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: master                                    # <必选项> 组件版本号
 description: driver & sdk for platform/mcu haas1000          # <必选项> 建议至少20字以上
 type: chip                                          # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
@@ -16,7 +16,7 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - armv7m: master
+  - armv8m: master
   - rhino: master
   - libc_stub: master
   - osal_aos: master
@@ -51,14 +51,14 @@ depends:
 build_config:
   prebuild_script: _haas1000_alios_lds.py
   cflag: >
-        -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -g -Os
+        -mthumb -mcpu=cortex-m33 -mfpu=fpv5-sp-d16 -mfloat-abi=hard -g -Os
         -DSECURE_BOOT -DHAAS_OTA_ENABLED=1 -DHAAS_OTA_BIN_VER=\"HAAS_AOS_3.1\"
         -DCHIP=haas1000 -DKERNEL=RHINO -DCHIP_HAAS1000_ARCH_ENHANCE -DCHIP_HAAS1000 -DMIC_SAMPLERATE=48000 -DMIC_PERIOD_MS=48 -DFLASH_SIZE=0x1000000 -DCRASH_DUMP_SECTION_SIZE=0
         -DAUD_SECTION_SIZE=0 -DUSERDATA_SECTION_SIZE=0x1000 -DFACTORY_SECTION_SIZE=0x1000
         -DNV_REC_DEV_VER=2 -DREVISION_INFO=x -DCHIP_HAS_UART=3 -DRESAMPLE_ANY_SAMPLE_RATE -DCHIP_HAS_TRANSQ -DRTOS=1
         -DCQ_FUNC_ATTR= -DDEBUG=1 -DREL_TRACE_ENABLE -DLWIP_ETHERNETIF=1 -DLWIP_SUPPORT=0 -DPERSIST_DATA_SECTION_SIZE=0x1000 -std=gnu11 -fno-common -fmessage-length=0 -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer
   cxxflag: >
-          -D_GLIBCXX_HAS_GTHREADS -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -DCHIP=haas1000 -DKERNEL=RHINO -DCHIP_HAAS1000_ARCH_ENHANCE -DCHIP_HAAS1000 -DMIC_SAMPLERATE=48000 -DMIC_PERIOD_MS=48
+          -D_GLIBCXX_HAS_GTHREADS -mthumb -mcpu=cortex-m33 -mfpu=fpv5-sp-d16 -mfloat-abi=hard -DCHIP=haas1000 -DKERNEL=RHINO -DCHIP_HAAS1000_ARCH_ENHANCE -DCHIP_HAAS1000 -DMIC_SAMPLERATE=48000 -DMIC_PERIOD_MS=48
           -DAUD_SECTION_SIZE=0 -DUSERDATA_SECTION_SIZE=0x1000 -DFACTORY_SECTION_SIZE=0x1000
           -DFLASH_SIZE=0x1000000  -DCRASH_DUMP_SECTION_SIZE=0
           -DSECURE_BOOT -DHAAS_OTA_ENABLED=1 -DHAAS_OTA_BIN_VER=\"HAAS_AOS_3.1\"
@@ -66,9 +66,9 @@ build_config:
           -DCQ_FUNC_ATTR= -DDEBUG=1 -DREL_TRACE_ENABLE -DLWIP_ETHERNETIF=1 -DLWIP_SUPPORT=0 -DPERSIST_DATA_SECTION_SIZE=0x1000 -DCHIP_HAS_TRANSQ -DCHIP_HAS_UART=3 -DRTOS=1 -DDISABLE_CLI_MULTI_CONSOLE=0
           -std=gnu++11 -fsigned-char -fno-common -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fpermissive -DSNTP_PERIODIC_SYNC_INTERVAL_MS=3600000
           -g -Os
-  ldflag: -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys -nostartfiles --specs=nosys.specs -Wl,-Map="aos.map"
+  ldflag: -mthumb -mcpu=cortex-m33 -mfpu=fpv5-sp-d16 -mfloat-abi=hard -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys -nostartfiles --specs=nosys.specs -Wl,-Map="aos.map" --coverage
   asmflag: >
-          -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -g -Os
+          -mthumb -mcpu=cortex-m33 -mfpu=fpv5-sp-d16 -mfloat-abi=hard -g -Os
           -DCHIP=haas1000 -DKERNEL=RHINO -DCHIP_HAAS1000_ARCH_ENHANCE -DCHIP_HAAS1000 -DMIC_SAMPLERATE=48000 -DMIC_PERIOD_MS=48
           -DMIC_PERIOD_MS=48 -c -x assembler-with-cpp
   postimage_script: release/auto_build_tool/build_bin.py
@@ -123,10 +123,12 @@ source_file:
   - "hal/sd.c"
   - "hal/flash.c"
   - "hal/gpio.c"
+  - "csi/uart.c"
   - "csi/gpio.c"
   - "csi/iic.c"
   - "csi/wdt.c"
   - "csi/flash.c"
+  - "csi/pwm.c"
   # - "hal/2ndboot/wdg.c"
   # - "hal/2ndboot/sys.c"
   # - "hal/2ndboot/uart.c"
@@ -164,6 +166,8 @@ def_config:
   CONFIG_GPIO_NUM: 42
   CONFIG_U_I2C_CORE: 1
   CONFIG_U_I2C_DEV: 1
+  CONFIG_U_PWM_DEV: 1
+  CONFIG_U_PWM_CORE: 1
   CONFIG_I2C_NUM: 2
   CONFIG_PWM_NUM: 2
   CONFIG_QSPI_NUM: 0
@@ -186,7 +190,7 @@ chip:
 hw_info:
   arch_name: arm
   cpu_name: cortex-m4
-  toolchain_prefix: arm-none-eabi
+  toolchain_prefix: arm-ali-aoseabi
   vendor_name: alibaba IoT
   ld_script: _haas1000_alios.lds
   flash_program: release/aos_burn_tool/flash_program.py

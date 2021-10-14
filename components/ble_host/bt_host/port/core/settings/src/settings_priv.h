@@ -10,7 +10,7 @@
 
 #include <ble_types/types.h>
 #include <misc/slist.h>
-#include <errno.h>
+#include <bt_errno.h>
 #include <settings/settings.h>
 
 #ifdef __cplusplus

@@ -482,7 +482,7 @@
 
 /* Peripheral preferred minimum connection interval in 1.25ms units */
 #ifndef CONFIG_BT_PERIPHERAL_PREF_MIN_INT
-#define CONFIG_BT_PERIPHERAL_PREF_MIN_INT 24 
+#define CONFIG_BT_PERIPHERAL_PREF_MIN_INT 24
 #endif
 
 /* Peripheral preferred maximum connection interval in 1.25ms units */
@@ -582,7 +582,7 @@
 #endif
 
 #ifndef CONFIG_BT_TINYCRYPT_ECC
-//#define CONFIG_BT_TINYCRYPT_ECC 1
+#define CONFIG_BT_TINYCRYPT_ECC 1
 #endif
 
 #ifdef CONFIG_BT_DEBUG

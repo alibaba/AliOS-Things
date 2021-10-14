@@ -55,6 +55,7 @@ typedef unsigned int uint;
 
 // Round-up integer division
 #define MP_CEIL_DIVIDE(a, b) (((a) + (b) - 1) / (b))
+#define MP_ROUND_DIVIDE(a, b) (((a) + (b) / 2) / (b))
 
 /** memory allocation ******************************************/
 
@@ -263,6 +264,10 @@ typedef union _mp_float_union_t {
 /** ROM string compression *************/
 
 #if MICROPY_ROM_TEXT_COMPRESSION
+
+#if MICROPY_ERROR_REPORTING == MICROPY_ERROR_REPORTING_NONE
+#error "MICROPY_ERROR_REPORTING_NONE requires MICROPY_ROM_TEXT_COMPRESSION disabled"
+#endif
 
 #ifdef NO_QSTR
 

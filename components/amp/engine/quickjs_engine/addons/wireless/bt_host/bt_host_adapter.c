@@ -30,8 +30,6 @@ static void bt_host_adapter_adv_data_destroy(ad_data_t *ad_data, int ad_num);
 static int bt_host_adapter_event_callback(ble_event_en event, void *event_data);
 extern int bt_gatts_adapter_event_callback(ble_event_en event,
                                            void *event_data);
-extern int netdev_set_epta_params(int wlan_duration, int bt_duration,
-                                  int hw_epta_enable);
 
 static ble_event_cb_t bt_host_adapter_ble_cb = {
     .callback = bt_host_adapter_event_callback,
@@ -241,8 +239,11 @@ int bt_host_adapter_init(amp_bt_host_adapter_init_t *init)
         return -1;
     }
 
+#if !BOARD_HAAS200
     /* HaaS100/EDU WI-FI/蓝牙共存设置 */
+    extern int netdev_set_epta_params(int wlan_duration, int bt_duration, int hw_epta_enable);
     netdev_set_epta_params(80000, 20000, 0);
+#endif
 
     ret = ble_stack_event_register(&bt_host_adapter_ble_cb);
     if (ret) {

@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <errno.h>
+#include <bt_errno.h>
 #include <atomic.h>
 
 #ifdef CONFIG_BT_HCI_RAW

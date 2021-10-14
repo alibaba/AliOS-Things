@@ -34,20 +34,6 @@
 
 #include "cpu.h"
 
-/*
- *   Typedefs for the types used by lwip -
- *   u8_t, s8_t, u16_t, s16_t, u32_t, s32_t, mem_ptr_t
- */
-typedef unsigned   char    u8_t;      /* Unsigned 8 bit quantity         */
-typedef signed     char    s8_t;      /* Signed    8 bit quantity        */
-typedef unsigned   short   u16_t;     /* Unsigned 16 bit quantity        */
-typedef signed     short   s16_t;     /* Signed   16 bit quantity        */
-typedef unsigned   long    u32_t;     /* Unsigned 32 bit quantity        */
-typedef signed     long    s32_t;     /* Signed   32 bit quantity        */
-//typedef unsigned   long    mem_ptr_t; /* Unsigned 32 bit quantity        */
-typedef int			       intptr_t;
-typedef unsigned int       uintptr_t;
-
 #define LWIP_MAILBOX_QUEUE  1
 #define LWIP_TIMEVAL_PRIVATE 0
 #define LWIP_NO_INTTYPES_H  1

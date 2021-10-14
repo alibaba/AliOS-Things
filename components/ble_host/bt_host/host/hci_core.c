@@ -6,11 +6,10 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-
 #include <ble_os.h>
 #include <string.h>
 #include <stdio.h>
-#include <errno.h>
+#include <bt_errno.h>
 #include <atomic.h>
 #include <misc/util.h>
 #include <misc/slist.h>
@@ -361,7 +360,7 @@ int bt_hci_cmd_send_sync(u16_t opcode, struct net_buf *buf,
 		}
 	}
 
-	BT_DBG("buf %p opcode 0x%04x len %u", buf, opcode, buf->len);
+    BT_INFO("buf %p opcode 0x%04x len %u", buf, opcode, buf->len);
 
 	k_sem_init(&sync_sem, 0, 1);
 	cmd(buf)->sync = &sync_sem;
@@ -6099,11 +6098,11 @@ static int common_init(void)
 #if !defined(CONFIG_BT_USE_HCI_API)
 	struct net_buf *rsp;
 	int err;
-
 	if (!(bt_dev.drv->quirks & BT_QUIRK_NO_RESET)) {
 		/* Send HCI_RESET */
 		err = bt_hci_cmd_send_sync(BT_HCI_OP_RESET, NULL, &rsp);
-		if (err) {
+        if (err) {
+            // BT_ERR("BT_HCI_OP_RESET, err = %d\n");
 			return err;
 		}
 		hci_reset_complete(rsp);
@@ -6112,7 +6111,8 @@ static int common_init(void)
 
 	/* Read Local Supported Features */
 	err = bt_hci_cmd_send_sync(BT_HCI_OP_READ_LOCAL_FEATURES, NULL, &rsp);
-	if (err) {
+    if (err) {
+        // BT_ERR("BT_HCI_OP_READ_LOCAL_FEATURES, err = %d\n");
 		return err;
 	}
 	read_local_features_complete(rsp);
@@ -6121,7 +6121,8 @@ static int common_init(void)
 	/* Read Local Version Information */
 	err = bt_hci_cmd_send_sync(BT_HCI_OP_READ_LOCAL_VERSION_INFO, NULL,
 				   &rsp);
-	if (err) {
+    if (err) {
+        // BT_ERR("BT_HCI_OP_READ_LOCAL_VERSION_INFO, err = %d\n");
 		return err;
 	}
 	read_local_ver_complete(rsp);
@@ -6130,7 +6131,8 @@ static int common_init(void)
 	/* Read Local Supported Commands */
 	err = bt_hci_cmd_send_sync(BT_HCI_OP_READ_SUPPORTED_COMMANDS, NULL,
 				   &rsp);
-	if (err) {
+    if (err) {
+        // BT_ERR("BT_HCI_OP_READ_SUPPORTED_COMMANDS, err = %d\n");
 		return err;
 	}
 	read_supported_commands_complete(rsp);
@@ -7296,6 +7298,8 @@ u16_t bt_hci_get_cmd_opcode(struct net_buf *buf)
 int bt_enable(bt_ready_cb_t cb)
 {
 	int err;
+
+    BT_INFO("enter %s\n", __func__);
 
 	if (!bt_dev.drv) {
 		BT_ERR("No HCI driver registered");

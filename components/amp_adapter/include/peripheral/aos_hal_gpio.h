@@ -18,6 +18,8 @@ extern "C" {
 
 #include <stdint.h>
 
+#include "aos/gpioc.h"
+
 /*
  * Pin configuration
  */
@@ -46,6 +48,9 @@ typedef enum {
  */
 typedef struct {
     uint8_t        port;   /**< gpio port */
+    aos_gpioc_ref_t *gpioc;     /**gpio device fd*/
+    int32_t         gpioc_index;
+    int32_t         pin_index;
     gpio_config_t  config; /**< gpio config */
     void          *priv;   /**< priv data */
 } gpio_dev_t;
@@ -57,6 +62,8 @@ typedef enum {
     IRQ_TRIGGER_RISING_EDGE  = 0x1, /**< Interrupt triggered at input signal's rising edge  */
     IRQ_TRIGGER_FALLING_EDGE = 0x2, /**< Interrupt triggered at input signal's falling edge */
     IRQ_TRIGGER_BOTH_EDGES   = IRQ_TRIGGER_RISING_EDGE | IRQ_TRIGGER_FALLING_EDGE,
+    IRQ_TRIGGER_LEVEL_HIGH   = 0x4,
+    IRQ_TRIGGER_LEVEL_LOW    = 0x5,
 } gpio_irq_trigger_t;
 
 
@@ -119,6 +126,17 @@ int32_t aos_hal_gpio_output_low(gpio_dev_t *gpio);
  */
 int32_t aos_hal_gpio_output_toggle(gpio_dev_t *gpio);
 
+
+/**
+ * Get the state of an input GPIO pin. Using this function on a
+ * gpio pin which is set to output mode will return an undefined value.
+ *
+ * @param[in]  gpio   the gpio pin which should be read
+ *
+ * @return  result
+ */
+int32_t aos_hal_gpio_get(gpio_dev_t *gpio);
+
 /**
  * Get the state of an input GPIO pin. Using this function on a
  * gpio pin which is set to output mode will return an undefined value.
@@ -129,6 +147,7 @@ int32_t aos_hal_gpio_output_toggle(gpio_dev_t *gpio);
  * @return  0 : on success,  otherwise is error
  */
 int32_t aos_hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value);
+
 
 /**
  * Enables an interrupt trigger for an input GPIO pin.
@@ -143,7 +162,7 @@ int32_t aos_hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value);
  * @return  0 : on success,  otherwise is error
  */
 int32_t aos_hal_gpio_enable_irq(gpio_dev_t *gpio, gpio_irq_trigger_t trigger,
-                            gpio_irq_handler_t handler, void *arg);
+                            aos_gpio_irq_handler_t handler, void *arg);
 
 /**
  * Disables an interrupt trigger for an input GPIO pin.
