@@ -164,6 +164,10 @@ typedef struct {
     uint8_t          mm_alloc_flag;
 
     void            *ptcb;  /* pthread control block */
+
+#if (RHINO_CONFIG_NEWLIBC_REENT > 0)
+    struct _reent *newlibc_reent; /* newlib libc reentrancy */
+#endif
 } ktask_t;
 
 /**

@@ -15,6 +15,31 @@
 
 #define MOD_STR "AIOT_ACTINFO"
 
+const char *module_name[] = {
+    "HAAS600-EC100Y",
+    "HAAS600-EC600S",
+    "HAAS600-EC600N",
+    "HAAS600-EC600U",
+    "HAAS600-N58",
+    "HAAS600-N715",
+    "HAAS510-EC600S",
+    "HAAS531-L610CN",
+    "HAAS610-L610CN"
+    "HAAS632-LT32V",
+    "HAAS100-HAAS1000",
+    "HAASEDUK1-HAAS1000",
+    "HAAS200-RTL8723DM",
+};
+
+const char *product_name[] = {
+    "Dev_Board",
+    "Cloud_Speaker",
+    "Charging_Station",
+    "Cloud_Pinter",
+    "DTU",
+    "RTU"
+};
+
 int32_t amp_app_devinfo_report(void *mqtt_handle)
 {
     int32_t res = STATE_SUCCESS;
@@ -55,7 +80,7 @@ int32_t amp_app_devinfo_report(void *mqtt_handle)
     res = snprintf(msg,
                        msg_len,
                        DEVICE_INFO_UPDATE_FMT,
-                       APPLICATION,
+                       PRODUCT_NAME,
                        MODULE_NAME
                       );
     if (res <= 0) {

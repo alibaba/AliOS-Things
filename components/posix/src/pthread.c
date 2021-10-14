@@ -5,12 +5,11 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <sys/time.h>
+#include <time.h>
 #include <sched.h>
 #include <aos/errno.h>
 #include <aos/kernel.h>
 #include <aos/rhino.h>
-#include <posix/timer.h>
 
 #include "internal/pthread.h"
 #include "internal/sched.h"

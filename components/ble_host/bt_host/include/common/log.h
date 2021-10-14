@@ -92,6 +92,9 @@ const char *bt_uuid_str_real(const struct bt_uuid *uuid);
 #define bt_addr_le_str(addr) log_strdup(bt_addr_le_str_real(addr))
 #define bt_uuid_str(uuid) log_strdup(bt_uuid_str_real(uuid))
 
+void hextostring(const uint8_t *source, char *dest, int len);
+u8_t stringtohex(char *str, u8_t *out, u8_t count);
+
 #ifdef __cplusplus
 }
 #endif

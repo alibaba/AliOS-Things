@@ -124,6 +124,13 @@ static void jsengine_register_addons()
     quickjs_add_prebuild_module("tcp", jslib_tcp, jslib_tcp_size);
 #endif
 
+#ifdef JSE_NET_ADDON_UDP
+    module_udp_register();
+    extern uint32_t jslib_udp_size;
+    extern uint8_t jslib_udp[];
+    quickjs_add_prebuild_module("udp", jslib_udp, jslib_udp_size);
+#endif
+
 #ifdef JSE_NET_ADDON_HTTP
     module_http_register();
 #endif
@@ -241,8 +248,26 @@ static void jsengine_register_addons()
 #endif
 }
 
+int amp_context_set(JSContext *context)
+{
+    if (!context) {
+        aos_printf("%s: context null", __func__);
+        return -1;
+    }
+    ctx = context;
+    aos_printf("%s: js context set\r\n", __func__);
+    return 0;
+}
+
+JSModuleDef *amp_modules_load(JSContext *ctx, const char *module_name, void *opaque)
+{
+    aos_printf("%s: load module %s\r\n", __func__, module_name ? module_name : "null");
+    return quickjs_module_loader(ctx, module_name, opaque);
+}
+
 int jsengine_init(void)
 {
+#ifndef HAASUI_AMP_BUILD
     rt = JS_NewRuntime();
     if (rt == NULL) {
         aos_printf("JS_NewRuntime failure");
@@ -272,6 +297,15 @@ int jsengine_init(void)
         module_repl_register();
     }
 
+#else
+    js_std_add_helpers(ctx, -1, NULL);
+
+    /* system modules */
+    js_init_module_std(ctx, "std");
+    js_init_module_os(ctx, "os");
+
+    jsengine_register_addons();
+#endif
     aos_printf("quickjs engine started !\n");
 
     return 0;

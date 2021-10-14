@@ -9,7 +9,7 @@ startup: all
 
 all:
 	@echo "Build Solution by $(BOARD) "
-	$(CPRE) scons $(VERB) --board=$(BOARD) $(MAKEFLAGS) -j4
+	$(CPRE) scons $(VERB) --board=$(BOARD) $(MULTITHREADS) $(MAKEFLAGS)
 	@echo AOS SDK Done
 
 sdk:

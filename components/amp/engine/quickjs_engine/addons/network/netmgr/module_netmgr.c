@@ -17,7 +17,7 @@
 #include "quickjs_addon_common.h"
 
 #define MOD_STR "module_netmgr"
-#define CONNECT_WAIT_TIME_MS (10 * 1000)
+#define CONNECT_WAIT_TIME_MS (100 * 1000)
 #define CHECKIP_INTERVAL_MS 200
 
 typedef JSValue js_cb_ref;
@@ -29,44 +29,65 @@ typedef struct msg_cb_info {
 typedef struct wifi_connect_task_params {
     JSValue cb_ref;
     netmgr_hdl_t hdl;
-} wifi_connect_task_params_t;
+} netmgr_onConnect_task_params_t;
+
+typedef enum {
+    DEV_INVALID,
+    DEV_WIFI,
+    DEV_ETHNET,
+    DEV_MAX
+} DEV_TYPE;
 
 static JSClassID js_netmgr_class_id;
 static slist_t g_msg_cb_list_head;
-static int g_checkip_task_run_flag = 0;
+static int g_checkip_task_run_flag[DEV_MAX] = {0};
 static char dev_name[256];
 
 static void js_cb_conn_status(void *pdata)
 {
     int ret = -1;
-    wifi_connect_task_params_t *params;
+    netmgr_onConnect_task_params_t *params;
     netmgr_ifconfig_info_t info;
     netmgr_hdl_t hdl;
     JSValue cb_ref;
     uint32_t value = 0;
+    DEV_TYPE dev_type = DEV_INVALID;
 
     if (pdata == NULL) {
         amp_debug(MOD_STR, "pdata is null");
         return ;
     }
 
-    if (g_checkip_task_run_flag != 1) {
-        return;
-    }
-
-    params = (wifi_connect_task_params_t *)pdata;
+    params = (netmgr_onConnect_task_params_t *)pdata;
     hdl = params->hdl;
     ret = netmgr_get_ifconfig(hdl, &info);
     if (ret != 0) {
-        amp_debug(MOD_STR, "get ifconfig info failed");
+        amp_warn(MOD_STR, "get ifconfig info failed");
+    }
+
+    if (get_hdl_type(hdl) == NETMGR_TYPE_WIFI) {
+        dev_type = DEV_WIFI;
+    } else if (get_hdl_type(hdl) == NETMGR_TYPE_ETH) {
+        dev_type = DEV_ETHNET;
+    } else {
+        amp_warn(MOD_STR, "unkown type");
+        return;
+    }
+
+    if (g_checkip_task_run_flag[dev_type] != 1) {
+        amp_warn(MOD_STR, "g_checkip_task_run_flag[%d] is 0", dev_type);
+        return;
     }
 
     JSContext *ctx = js_get_context();
     JSValue args;
-    if (strcmp(info.ip_addr, "0.0.0.0") != 0)
+    if (strcmp(info.ip_addr, "0.0.0.0") != 0) {
         args = JS_NewString(ctx, "CONNECTED");
-    else
+        amp_warn(MOD_STR, "CONNECTED");
+    } else {
         args = JS_NewString(ctx, "DISCONNECT");
+        amp_warn(MOD_STR, "DISCONNECT");
+    }
 
     JSValue val = JS_Call(ctx, params->cb_ref, JS_UNDEFINED, 1, &args);
     JS_FreeValue(ctx, args);
@@ -82,23 +103,35 @@ static void check_ip_task(void *arg)
 {
     int ret = -1;
     int count = 0;
-    netmgr_ifconfig_info_t info;
-    wifi_connect_task_params_t *params;
+    DEV_TYPE dev_type = DEV_INVALID;
+
+    netmgr_ifconfig_info_t info = {0};
+    netmgr_onConnect_task_params_t *params;
     netmgr_hdl_t hdl;
     JSContext *ctx = js_get_context();
 
     if (arg == NULL) {
-        amp_debug(MOD_STR, "check ip task arg is null");
+        amp_warn(MOD_STR, "check ip task arg is null");
         return ;
     }
 
-    params = (wifi_connect_task_params_t *) arg;
+    params = (netmgr_onConnect_task_params_t *) arg;
     hdl = params->hdl;
 
-    while (g_checkip_task_run_flag) {
+    if (get_hdl_type(hdl) == NETMGR_TYPE_WIFI) {
+        dev_type = DEV_WIFI;
+    } else if (get_hdl_type(hdl) == NETMGR_TYPE_ETH) {
+        dev_type = DEV_ETHNET;
+    } else {
+        amp_warn(MOD_STR, "unkown type");
+        return;
+    }
+
+    strcpy(info.ip_addr, "0.0.0.0");
+    while (g_checkip_task_run_flag[dev_type]) {
         ret = netmgr_get_ifconfig(hdl, &info);
         if (ret != 0) {
-            amp_debug(MOD_STR, "get ifconfig info failed");
+            amp_warn(MOD_STR, "get ifconfig info failed");
         }
 
         if ((strcmp(info.ip_addr, "0.0.0.0") != 0) ||
@@ -119,13 +152,13 @@ static JSValue native_netmgr_service_init(JSContext *ctx, JSValueConst this_val,
 
     ret = event_service_init(NULL);
     if (ret != 0) {
-        amp_debug(MOD_STR, "netmgr service init failed");
+        amp_error(MOD_STR, "netmgr service init failed");
         goto out;
     }
 
     ret = netmgr_service_init(NULL);
     if (ret != 0) {
-        amp_debug(MOD_STR, "netmgr service init failed");
+        amp_error(MOD_STR, "netmgr service init failed");
         goto out;
     }
 out:
@@ -190,8 +223,9 @@ static JSValue native_netmgr_get_dev(JSContext *ctx, JSValueConst this_val, int 
 
     ret = netmgr_get_dev(name);
     if (ret == -1) {
-        amp_debug(MOD_STR, "netmgr get %s dev failed\n", name);
+        amp_error(MOD_STR, "netmgr get %s dev failed\n", name);
     }
+    amp_debug(MOD_STR, "native_netmgr_get_dev hdl: %d\n", ret);
     JS_FreeCString(ctx, name);
 out:
     return JS_NewInt32(ctx, ret);
@@ -221,82 +255,103 @@ out:
     return JS_NewInt32(ctx, ret);
 }
 
-static wifi_connect_task_params_t connect_task_params;
+static netmgr_onConnect_task_params_t onConnect_task_params;
 static JSValue native_netmgr_connect(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv)
 {
     int ret = -1;
     aos_task_t netmgr_connect_task;
     netmgr_hdl_t hdl;
     netmgr_connect_params_t params;
+    JSValue cb_ref;
     char *ssid = NULL;
     char *password = NULL;
     char *bssid = NULL;
     int timeout_ms = 0;
-
-    if (!JS_IsNumber(argv[0]) || !JS_IsObject(argv[1])
-            || !JS_IsFunction(ctx, argv[2])) {
-        amp_warn(MOD_STR, "parameter must be number, object and function\n");
-        goto out;
-    }
+    DEV_TYPE dev_type;
 
     JS_ToInt32(ctx, &hdl, argv[0]);
 
-    JSValue js_ssid = JS_GetPropertyStr(ctx, argv[1], "ssid");
-    if (!JS_IsString(js_ssid)) {
-        amp_error(MOD_STR, "request ssid is invalid");
-        goto out;
+    if (get_hdl_type(hdl) == NETMGR_TYPE_WIFI) {
+        if (!JS_IsNumber(argv[0]) || !JS_IsObject(argv[1])
+                || !JS_IsFunction(ctx, argv[2])) {
+            amp_warn(MOD_STR, "parameter must be number, object and function\n");
+            goto out;
+        }
+
+        JSValue js_ssid = JS_GetPropertyStr(ctx, argv[1], "ssid");
+        if (!JS_IsString(js_ssid)) {
+            amp_error(MOD_STR, "request ssid is invalid");
+            goto out;
+        }
+        ssid =  JS_ToCString(ctx, js_ssid);
+        JS_FreeValue(ctx, js_ssid);
+
+        JSValue js_password = JS_GetPropertyStr(ctx, argv[1], "password");
+        if (!JS_IsString(js_password)) {
+            amp_error(MOD_STR, "request password is invalid");
+            goto out;
+        }
+        password =  JS_ToCString(ctx, js_password);
+        JS_FreeValue(ctx, js_password);
+
+        JSValue js_bssid = JS_GetPropertyStr(ctx, argv[1], "bssid");
+        if (!JS_IsString(js_bssid)) {
+            amp_error(MOD_STR, "request bssid is invalid");
+            goto out;
+        }
+        bssid =  JS_ToCString(ctx, js_bssid);
+        JS_FreeValue(ctx, js_bssid);
+
+        JSValue js_timeout_ms = JS_GetPropertyStr(ctx, argv[1], "timeout_ms");
+        if (!JS_IsString(js_timeout_ms)) {
+            JS_ToInt32(ctx, &timeout_ms, js_timeout_ms);
+        }
+        JS_FreeValue(ctx, js_timeout_ms);
+
+        memset(&params, 0, sizeof(netmgr_connect_params_t));
+        params.type = NETMGR_TYPE_WIFI;
+        strncpy(params.params.wifi_params.ssid, ssid, sizeof(params.params.wifi_params.ssid) - 1);
+        strncpy(params.params.wifi_params.pwd, password, sizeof(params.params.wifi_params.pwd) - 1);
+        params.params.wifi_params.timeout = timeout_ms;
+        ret = netmgr_connect(hdl, &params);
+        if (ret != 0) {
+            amp_warn(MOD_STR, "netmgr connect failed\n");
+            goto out;
+        }
+
+        dev_type = DEV_WIFI;
+        cb_ref = argv[2];
+        if (!JS_IsFunction(ctx, cb_ref)) {
+            return JS_ThrowTypeError(ctx, "not a function");
+        }
+    } else if (get_hdl_type(hdl) == NETMGR_TYPE_ETH) {
+        if (!JS_IsNumber(argv[0]) || !JS_IsFunction(ctx, argv[1])) {
+            amp_warn(MOD_STR, "parameter must be number and function\n");
+            goto out;
+        }
+
+        dev_type = DEV_ETHNET;
+        cb_ref = argv[1];
+        if (!JS_IsFunction(ctx, cb_ref)) {
+            return JS_ThrowTypeError(ctx, "not a function");
+        }
+
+    } else {
+        amp_error(MOD_STR, "unkown device!");
+        return JS_ThrowTypeError(ctx, "unkown device!");
     }
-    ssid =  JS_ToCString(ctx, js_ssid);
-    JS_FreeValue(ctx, js_ssid);
 
-    JSValue js_password = JS_GetPropertyStr(ctx, argv[1], "password");
-    if (!JS_IsString(js_password)) {
-        amp_error(MOD_STR, "request password is invalid");
-        goto out;
-    }
-    password =  JS_ToCString(ctx, js_password);
-    JS_FreeValue(ctx, js_password);
+    memset(&onConnect_task_params, 0, sizeof(onConnect_task_params));
+    onConnect_task_params.cb_ref = JS_DupValue(ctx, cb_ref);
+    onConnect_task_params.hdl = hdl;
+    g_checkip_task_run_flag[dev_type] = 1;
 
-    JSValue js_bssid = JS_GetPropertyStr(ctx, argv[1], "bssid");
-    if (!JS_IsString(js_bssid)) {
-        amp_error(MOD_STR, "request bssid is invalid");
-        goto out;
-    }
-    bssid =  JS_ToCString(ctx, js_bssid);
-    JS_FreeValue(ctx, js_bssid);
-
-    JSValue js_timeout_ms = JS_GetPropertyStr(ctx, argv[1], "timeout_ms");
-    if (!JS_IsString(js_timeout_ms)) {
-        JS_ToInt32(ctx, &timeout_ms, js_timeout_ms);
-    }
-    JS_FreeValue(ctx, js_timeout_ms);
-
-    memset(&params, 0, sizeof(netmgr_connect_params_t));
-    params.type = NETMGR_TYPE_WIFI;
-    strncpy(params.params.wifi_params.ssid, ssid, sizeof(params.params.wifi_params.ssid) - 1);
-    strncpy(params.params.wifi_params.pwd, password, sizeof(params.params.wifi_params.pwd) - 1);
-    params.params.wifi_params.timeout = timeout_ms;
-    ret = netmgr_connect(hdl, &params);
-    if (ret != 0) {
-        amp_warn(MOD_STR, "netmgr connect failed\n");
-        goto out;
-    }
-
-    JSValue cb_ref = argv[2];
-    if (!JS_IsFunction(ctx, cb_ref)) {
-        return JS_ThrowTypeError(ctx, "not a function");
-    }
-
-    memset(&connect_task_params, 0, sizeof(connect_task_params));
-    connect_task_params.cb_ref = JS_DupValue(ctx, cb_ref);
-    connect_task_params.hdl = hdl;
-    g_checkip_task_run_flag = 1;
-
-    ret = aos_task_new_ext(&netmgr_connect_task, "netmgr connect task", check_ip_task, (void *)&connect_task_params, 1024 * 2, ADDON_TSK_PRIORRITY);
+    ret = aos_task_new_ext(&netmgr_connect_task, "netmgr connect task", check_ip_task, (void *)&onConnect_task_params, 1024 * 2, ADDON_TSK_PRIORRITY);
     if (ret != 0) {
         amp_warn(MOD_STR, "jse_osal_create_task failed\n");
         JS_FreeValue(ctx, cb_ref);
     }
+
 out:
     if (ssid != NULL) {
         JS_FreeCString(ctx, ssid);
@@ -407,14 +462,14 @@ static JSValue native_netmgr_set_ifconfig(JSContext *ctx, JSValueConst this_val,
 {
     int ret = -1;
     netmgr_hdl_t hdl;
-    netmgr_ifconfig_info_t info;
+    netmgr_ifconfig_info_t info = {0};
     char *ip_addr = NULL;
     char *mask    = NULL;
     char *gw      = NULL;
     char *dns_server = NULL;
     char *mac      = NULL;
 
-    if (!JS_IsNumber(argv[0]) || !JS_IsObject(argv[0])) {
+    if (!JS_IsNumber(argv[0]) || !JS_IsObject(argv[1])) {
         amp_warn(MOD_STR, "parameter must be number and object\n");
         goto out;
     }
@@ -433,6 +488,10 @@ static JSValue native_netmgr_set_ifconfig(JSContext *ctx, JSValueConst this_val,
     memcpy(info.gw, gw, strlen(gw));
     memcpy(info.dns_server, dns_server, strlen(dns_server));
     memcpy(info.mac, mac, strlen(mac));
+
+    amp_debug(MOD_STR, "info.dhcp_en is %d", info.dhcp_en);
+    amp_debug(MOD_STR, "info.ip_addr is %s", info.ip_addr);
+    amp_debug(MOD_STR, "info.gw is %s", info.gw);
 
     ret = netmgr_set_ifconfig(hdl, &info);
     if (ret != 0) {
@@ -470,7 +529,7 @@ static JSValue native_netmgr_get_ifconfig(JSContext *ctx, JSValueConst this_val,
 {
     int ret = -1;
     netmgr_hdl_t hdl;
-    netmgr_ifconfig_info_t info;
+    netmgr_ifconfig_info_t info = {0};
     JSValue obj = JS_NewObject(ctx);
 
     if (!JS_IsNumber(argv[0])) {
@@ -608,8 +667,19 @@ static void module_netmgr_source_clean(void)
 {
     JSContext *ctx = js_get_context();
     netmgr_hdl_t hdl;
+    DEV_TYPE dev_type = DEV_INVALID;
 
-    g_checkip_task_run_flag = 0;
+    amp_error(MOD_STR, "module_netmgr_source_clean");
+    if (get_hdl_type(hdl) == NETMGR_TYPE_WIFI) {
+        dev_type = DEV_WIFI;
+    } else if (get_hdl_type(hdl) == NETMGR_TYPE_ETH) {
+        dev_type = DEV_ETHNET;
+    } else {
+        amp_warn(MOD_STR, "unkown type");
+        return;
+    }
+
+    g_checkip_task_run_flag[dev_type] = 0;
     aos_msleep(CHECKIP_INTERVAL_MS);
 
     hdl = netmgr_get_dev(dev_name);

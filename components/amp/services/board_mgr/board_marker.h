@@ -38,6 +38,8 @@ extern "C" {
 #define GPIO_INT_RISING     "rising"
 #define GPIO_INT_FALLING    "falling"
 #define GPIO_INT_BOTH       "both"
+#define GPIO_INT_HIGH_LEVEL  "high"
+#define GPIO_INT_LOW_LEVEL   "low"
 
 /* UART */
 #define MARKER_UART         "UART"

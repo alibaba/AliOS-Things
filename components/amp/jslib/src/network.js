@@ -3,77 +3,122 @@ import * as std from 'std'
 import * as events from 'events'
 import * as NETWORK from 'NETWORK'
 
+var devType = 0;
 class netWork extends events.EventEmitter {
-    constructor() {
+    constructor(options) {
         super();
 
-        var devType = this.getType();
+        if (!options.devType) {
+            devType = this.getType();
+        }
+        else {
+            devType = options.devType;
+        }
+
+        if(devType != 'wifi' && devType != 'cellular' && devType != 'ethnet') {
+            throw new Error('devType only support cellular/wifi/ethnet, please check input!');
+            return;
+        }
+
         console.log('devType is ' + devType);
         if (devType == 'wifi') {
             std.eval('import * as NETMGR from \'NETMGR\'; globalThis.NETMGR = NETMGR')
             this.name = '/dev/wifi0';
-            this._wifiInit();
-            this.dev_handler = this._wifiGetDev();
+            this._netmgrInit();
+            this.dev_handler = this._netmgrGetDev();
+        }
+        else if (devType == 'ethnet') {
+            std.eval('import * as NETMGR from \'NETMGR\'; globalThis.NETMGR = NETMGR')
+            this.name = '/dev/eth0';
+            this._netmgrInit();
+            this.dev_handler = this._netmgrGetDev();
+
+            // this._onConnect();
         }
         else if (devType == 'cellular') {
             std.eval('import * as CELLULAR from \'CELLULAR\'; globalThis.CELLULAR = CELLULAR')
-            this._connect();
+            this._onConnect();
         }
     }
 
-    _wifiInit() {
+    _netmgrInit() {
         if (NETMGR.serviceInit() !== 0) {
             this.emit('error', 'netmgr init error');
         }
     }
 
-    _wifiGetDev() {
-        console.log('wifi name:' + this.name)
+    _netmgrGetDev() {
+        console.log('device net name:' + this.name)
         var dev_handler = NETMGR.getDev(this.name);
         if (dev_handler == -1) {
-            console.log('netmgr get wifi dev error: ' + this.name);
+            console.log('netmgr get dev handle error: ' + this.name);
             return;
         }
 
         return dev_handler;
     }
 
-    _connect() {
-        var cb = function (status) {
-            if (status === 1) {
-                this.emit('connect');
-            } else {
-                this.emit('disconnect');
+    _onConnect() {
+        if (devType == 'cellular') {
+            var cb = function (status) {
+                if (status === 1) {
+                    this.emit('connect');
+                } else {
+                    this.emit('disconnect');
+                }
             }
-        }
-        var type = this.getType();
-        if (type == 'wifi') {
+
+            if (CELLULAR.onConnect(cb.bind(this)) !== 0) {
+                this.emit('error', 'network on cellular status error');
+            }
             return;
         }
-        if (CELLULAR.onConnect(cb.bind(this)) !== 0) {
-            this.emit('error', 'network status error');
+
+        if (devType == 'ethnet') {
+            var cb_ = function(status) {
+                if (status == 'DISCONNECT') {
+                    console.log('ethnet  disconnect');
+                    this.emit('disconnect');
+                } else {
+                    console.log('ethnet  connect');
+                    this.emit('connect');
+                }
+            }
+
+            if (NETMGR.connect(this.dev_handler, cb_.bind(this)) !== 0) {
+                this.emit('error', 'network on ethnet status error');
+            }
+            return;
         }
     }
 
+    /**
+     * get device net type
+    */
     getType() {
-        var type = NETWORK.getType();
-        switch (type) {
-            case 0:
-                type = 'wifi'; break;
-            case 1:
-                type = 'cellular'; break;
-            case 2:
-                type = 'ethnet'; break;
-            default:
-                type = 'unknow'; break;
+        if (devType == 0) {
+            var type = NETWORK.getType();
+            switch (type) {
+                case 0:
+                    type = 'wifi'; break;
+                case 1:
+                    type = 'cellular'; break;
+                case 2:
+                    type = 'ethnet'; break;
+                default:
+                    type = 'unknow'; break;
+            }
+            return type;
+        } else {
+            return devType;
         }
-
-        return type;
     }
 
+    /**
+     * only wifi device support connect
+    */
     connect(options) {
-        var type = this.getType();
-        if (type != 'wifi') {
+        if (devType != 'wifi') {
             console.log('Not wifi dev, can\'t connect');
             return;
         }
@@ -94,9 +139,11 @@ class netWork extends events.EventEmitter {
         }.bind(this));
     }
 
+    /**
+     * only wifi device support disconnect
+    */
     disconnect() {
-        var type = this.getType();
-        if (type != 'wifi') {
+        if (devType != 'wifi') {
             console.log('Not wifi dev, can\'t disconnect');
             return;
         }
@@ -113,11 +160,11 @@ class netWork extends events.EventEmitter {
         var info = {
             simInfo: null,
             locatorInfo: null,
-            wifiInfo: null
+            netInfo: null
         };
-        var type = this.getType();
-        if (type == 'wifi') {
-            info.wifiInfo = this.wifiGetIfConfig();
+        var type = devType;
+        if (type == 'wifi' || type == 'ethnet') {
+            info.netInfo = this.getIfConfig();
             return info;
         }
 
@@ -131,8 +178,8 @@ class netWork extends events.EventEmitter {
     }
 
     getStatus() {
-        var type = this.getType();
-        if (type == 'wifi') {
+        var type = devType;
+        if (type == 'wifi' || type == 'ethnet') {
             var ret = NETMGR.getState(this.dev_handler);
             if (ret == 5) {
                 return 'connect';
@@ -148,39 +195,63 @@ class netWork extends events.EventEmitter {
         }
     }
 
-    wifiSaveConfig() {
+    saveConfig() {
+        if (devType == 'cellular') {
+            throw new Error('cellular device isn\'t support saveConfig!');
+            return;
+        }
+
         var ret = NETMGR.saveConfig(this.dev_handler);
         if (ret !== 0) {
-            this.emit('error', 'netmgr save config error');
+            throw new Error('netmgr save config error');
         }
     }
 
-    wifiSetIfConfig(options) {
+    setIfConfig(options) {
+        if (devType == 'cellular') {
+            throw new Error('setIfConfig: cellular device isn\'t support!');
+            return;
+        }
+
+        if (!options.hasOwnProperty('dhcp_en')) {
+            throw new Error('setIfConfig: property dhcp_en undefined and should be bool type!');
+            return;
+        }
 
         options = {
-            dhcp_en: options.dhcp_en || true,
+            dhcp_en: options.dhcp_en,
             ip_addr: options.ip_addr || '',
             mask: options.mask || '',
             gw: options.gw || '',
-            dns_server: options.dns_server || '',
-            mac: options.mac || ''
+            dns_server: options.dns_server || ''
+        }
+
+        if (options.dhcp_en) {
+            console.log('setIfConfig: enable dhcp');
         }
 
         var ret = NETMGR.setIfConfig(this.dev_handler, options);
         if (ret !== 0) {
-            this.emit('error', 'netmgr save config error');
+            throw new Error('netmgr save config error');
         }
+
+        this._onConnect();
     }
 
-    wifiGetIfConfig() {
+    getIfConfig() {
+        if (devType == 'cellular') {
+            throw new Error('cellular device isn\'t support getIfConfig!');
+            return;
+        }
+
         var config = NETMGR.getIfConfig(this.dev_handler);
         if (!config) {
-            this.emit('error', 'get if config error');
+            throw new Error('get if config error');
         }
         return config;
     }
 }
 
-export function openNetWorkClient() {
-    return new netWork();
+export function openNetWorkClient(options) {
+    return new netWork(options);
 }

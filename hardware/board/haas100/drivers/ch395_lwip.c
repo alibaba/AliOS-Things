@@ -493,14 +493,11 @@ static void ch395_lwip_inter_proc(void)
             gst_lwipch395info.phystate = phy_status;
             if (phy_status == PHY_DISCONN) {
                 LOGI(TAG, "eth link down");
-                netif_set_link_down(&eth_lwip_netif);
-                /* remove IP address from interface  */
-                netif_set_addr(&eth_lwip_netif, IP4_ADDR_ANY4, IP4_ADDR_ANY4, IP4_ADDR_ANY4);
+                event_publish(EVENT_ETHERNET_LINK_DOWN, NULL);
             } else {
                 /*start up to dhcp*/
                 LOGI(TAG, "eth link up");
-                netif_set_link_up(&eth_lwip_netif);
-                tcpip_dhcpc_start(&eth_lwip_netif);
+                event_publish(EVENT_ETHERNET_LINK_UP, &eth_lwip_netif);
             }
         }
 

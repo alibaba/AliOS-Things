@@ -13,15 +13,13 @@ def match_and_send(serialport, pattern, command, timeout):
     """ receive serial data, and check it with pattern """
     pattern = re.compile(pattern)
     start   = time.time()
-    buff    = b''
     while (time.time() - start) < timeout:
         #line = serialport.readline()
         #timeout dont work for 'readline', so using 'read_until' instead
         line = serialport.read_until(b'\n')
         if len(line) == 0:
             continue
-        buff += line
-        match = pattern.search(buff)
+        match = pattern.search(line)
         if match:
             if command:
                 serialport.write(command)
@@ -36,19 +34,21 @@ def send_and_match(serialport, command, pattern, timeout):
     """ receive serial data, and check it with pattern """
     if command:
         serialport.write(command)
+    if pattern == b'':
+        #only send
+        sys.stdout.flush()
+        return None
     pattern = re.compile(pattern)
     start   = time.time()
-    buff    = b''
     while (time.time() - start) < timeout:
         #line = serialport.readline()
         #timeout dont work for 'readline', so using 'read_until' instead
         line = serialport.read_until(b'\n')
         if len(line) == 0:
             continue
-        buff += line
         print(line.decode('UTF-8',errors='ignore'))
         sys.stdout.flush()
-        match = pattern.search(buff)
+        match = pattern.search(line)
         if match:
             return match
     return None
@@ -56,7 +56,7 @@ def send_and_match(serialport, command, pattern, timeout):
 #burn file in 2_boot
 def burn_bin_file(serialport, filename, address):
     if not os.path.exists(filename):
-        print("file \"%s\" is not existed." % filename)
+        print("[ScriptPrint] File \"%s\" is not existed." % filename)
         return False
 
     #get address
@@ -64,19 +64,19 @@ def burn_bin_file(serialport, filename, address):
         # get flash address
         match = send_and_match(serialport, b'1', b'Backup part addr:([0-9a-fxA-F]*)', 5)
         if not match:
-            print("Can not get flash address")
+            print("[ScriptPrint] Can not get flash address")
             return False
         address = match.group(1)
     else:
-        serialport.write(b'1')
+        send_and_match(serialport, b'1', b'', 0)
         address = address.encode()
-        
+
     # set flash address
     match = send_and_match(serialport, address + b'\r\n', b'CCCC', 30)
     if not match:
-        print("Can not enter into ymodem mode")
+        print("[ScriptPrint] Can not enter ymodem mode")
         return False
-            
+
     # send binary file
     def sender_getc(size):
         return serialport.read(size) or None
@@ -87,7 +87,6 @@ def burn_bin_file(serialport, filename, address):
     sender = YModem(sender_getc, sender_putc)
     sent = sender.send_file(filename)
     return True
-
 
 def burn_bin_files(portnum, baudrate, bin_files):
     # open serial port
@@ -102,57 +101,75 @@ def burn_bin_files(portnum, baudrate, bin_files):
     try:
         serialport.open()
     except Exception as e:
-        raise Exception("Failed to open serial port: %s!" % portnum)
+        raise Exception("[ScriptPrint] Failed to open serial port: %s!" % portnum)
 
-    for i in range(6):
-        #reset in 2_boot or CLI
-        if i < 3:
-            serialport.write(b'\n2\n')
-            serialport.write(b'\n2\n')
-            serialport.write(b'\n2\n')
-            #4 means ctrl+d and swap a/b, if board is in cli menu, 4 is forbidden to type in until board is rebooted by typing into 2.
-            serialport.write(b'\r\n\x04')
-            serialport.write(b'reboot\n')
-        match = match_and_send(serialport, b'2ndboot cli menu', b'w', 5)
+    print("[ScriptPrint] Try to reboot...")
+
+    # 重启单板并确保进入2nd-boot
+    for i in range(10):
+        match = send_and_match(serialport, b'\n', b'\(ash', 2)
         if match:
-            print('Reset success!!')
-            sys.stdout.flush()
-            break
-        #reset in Ymodem
-        if i < 3:
-            print('Reset Ymodem!!')
-            sys.stdout.flush()
-            serialport.write(b'\x13')
-            serialport.write(b'\x04')
-            serialport.write(b'\x03')
-        if i >= 3:
-            print("Please reset the board manually.")
-    if i == 5:
-        print("Please connect board serial to your pc, then reset board and check that if board can boot up???");
+            # 如果在cli模式，通过reboot重启系统
+            print("[ScriptPrint] Reboot from CLI")
+            send_and_match(serialport, b'reboot\n', b'', 0)
+            match = match_and_send(serialport, b'2ndboot cli menu', b'w', 5)
+            if match:
+                print("[ScriptPrint] check if in boot")
+                match = send_and_match(serialport, b'\n', b'aos boot', 2)
+                if match:
+                    # 进入boot模式，退出
+                    break
+
+        match = send_and_match(serialport, b'\n', b'aos boot', 2)
+        if match:
+            # 如果在boot模式，通过2重启系统
+            print("[ScriptPrint] Reboot from 2nd-boot")
+            send_and_match(serialport, b'2\n', b'', 0)
+            match = match_and_send(serialport, b'2ndboot cli menu', b'w', 5)
+            if match:
+                print("[ScriptPrint] check if in boot")
+                match = send_and_match(serialport, b'\n', b'aos boot', 2)
+                if match:
+                    # 进入boot模式，退出
+                    break
+        else:
+            # 一些solution需要先退出命令行模式回到CLI
+            print("[ScriptPrint] change to CLI mode")
+            send_and_match(serialport, b'\n\x03', b'', 0) #ctrl-C, ETX, 本文结束
+            send_and_match(serialport, b'\n\x04', b'', 0) #ctrl-D, EOT, 传输结束
+            time.sleep(2)
+
+        time.sleep(2)
+
+    if i >= 9 :
+        print("[ScriptPrint] reboot fail")
+        print("[ScriptPrint] Please connect the serial port of the board to the PC, then reset the board");
+        # close serial port
         serialport.close()
         return False
 
+    # boot中下载文件
+    print("[ScriptPrint] Downloading files...")
     for bin_file in bin_files:
         if not burn_bin_file(serialport, bin_file[0], bin_file[1]):
-            print("Download file %s failed." % bin_file[0])
+            print("[ScriptPrint] Download file %s failed." % bin_file[0])
             serialport.close()
             return False
 
     # switch partition
-    print("Swap AB partition")
-    serialport.write(b'3')
+    print("[ScriptPrint] Swap AB partition")
+    send_and_match(serialport, b'3\n', b'', 0)
     time.sleep(0.5)
-    serialport.write(b'4')
+    send_and_match(serialport, b'4\n', b'', 0)
     time.sleep(0.5)
-    serialport.write(b'3')
+    send_and_match(serialport, b'3\n', b'', 0)
     time.sleep(0.5)
-    serialport.write(b'2')
-    time.sleep(0.5)
+    send_and_match(serialport, b'2\n', b'', 0)
+    time.sleep(0.1)
     # workaround retry issue in 2nd boot
-    serialport.write(b'\n' * 16)
-    match = send_and_match(serialport, b'', b'2ndboot cli menu', 5)
+    match = send_and_match(serialport, b'\n'*16, b'2ndboot cli menu', 5)
     if match:
-        print("Burn \"%s\" success." % bin_files)
+        print("[ScriptPrint] Burn \"%s\" success." % bin_files)
 
     # close serial port
     serialport.close()

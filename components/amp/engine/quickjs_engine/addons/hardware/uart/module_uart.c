@@ -470,6 +470,7 @@ static JSValue native_uart_clean()
             uart_del_recv((uint32_t)(uart_handle.handle));
         }
     }
+    return JS_NewInt32(ctx, 0);
 }
 
 static JSClassDef js_uart_class = {

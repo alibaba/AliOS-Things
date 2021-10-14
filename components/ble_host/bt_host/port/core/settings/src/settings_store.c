@@ -11,7 +11,7 @@
 #include <ble_types/types.h>
 #include <stddef.h>
 #include <sys/types.h>
-#include <errno.h>
+#include <bt_errno.h>
 #include <misc/__assert.h>
 #include <ble_os.h>
 
@@ -37,6 +37,7 @@ void settings_dst_register(struct settings_store *cs)
 
 int settings_load(void)
 {
+    printf("enter %s\n", __func__);
 	return settings_load_subtree(NULL);
 }
 

@@ -9,16 +9,13 @@
 extern "C" {
 #endif
 
+#include <sys/types.h>
 #include <time.h>
 
-#include "k_api.h"
+#define DEFAULT_MQUEUE_SIZE  10240
+#define DEFAULT_MAX_MSG_SIZE 1024
 
-#define DEFAULT_MQUEUE_SIZE  (10 * 1024)
-#define DEFAULT_MAX_MSG_SIZE (1024)
-
-#define NANOSECONDS_PER_SECOND       1000000000LL
-
-typedef kbuf_queue_t *mqd_t;
+typedef void *mqd_t;
 
 struct mq_attr {
     long mq_flags;    /* message queue flags */

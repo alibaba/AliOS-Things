@@ -32,8 +32,8 @@ int32_t sensor_i2c_read(i2c_dev_t *i2c, uint16_t reg, uint8_t *data,
                                uint16_t size, uint32_t timeout);
 int32_t sensor_i2c_write(i2c_dev_t *i2c, uint16_t reg, uint8_t *data,
                                 uint16_t size, uint32_t timeout);
-int32_t sensor_i2c_master_send(i2c_dev_t *i2c, uint8_t *data, uint16_t size, uint32_t timeout);
-int32_t sensor_i2c_master_recv(i2c_dev_t *i2c, uint8_t *data, uint16_t size, uint32_t timeout);
+int32_t sensor_drv_i2c_master_send(i2c_dev_t *i2c, uint8_t *data, uint16_t size, uint32_t timeout);
+int32_t sensor_drv_i2c_master_recv(i2c_dev_t *i2c, uint8_t *data, uint16_t size, uint32_t timeout);
 int32_t sensor_spi_read(spi_dev_t *spi, uint8_t *tx, uint8_t *rx,
                                uint16_t size, uint32_t timeout);
 int32_t sensor_spi_write(spi_dev_t *spi, uint8_t *data, uint16_t size,

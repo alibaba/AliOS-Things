@@ -2,15 +2,16 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "amp_platform.h"
-#include "aos_system.h"
-#include "py_defines.h"
-#include "amp_task.h"
-#include "be_inl.h"
 #include "module_mqtt.h"
-#include "aiot_state_api.h"
 
-#define MOD_STR "MQTT"
+#include "aiot_state_api.h"
+#include "amp_platform.h"
+#include "amp_task.h"
+#include "aos_system.h"
+#include "be_inl.h"
+#include "py_defines.h"
+
+#define MOD_STR                 "MQTT"
 #define MQTT_TASK_YIELD_TIMEOUT 200
 static char g_mqtt_close_flag = 0;
 static aos_sem_t g_mqtt_close_sem = NULL;
@@ -21,7 +22,8 @@ static void mqtt_handle_notify(void *pdata)
     amp_mqtt_handle_t *amp_mqtt_handle = (amp_mqtt_handle_t *)pdata;
 
     duk_context *ctx = be_get_context();
-    be_push_ref(ctx, amp_mqtt_handle->js_cb_ref[MQTT_JSCALLBACK_START_CLIENT_REF]);
+    be_push_ref(ctx,
+                amp_mqtt_handle->js_cb_ref[MQTT_JSCALLBACK_START_CLIENT_REF]);
     duk_push_int(ctx, amp_mqtt_handle->res);
     duk_push_pointer(ctx, amp_mqtt_handle);
     if (duk_pcall(ctx, 2) != DUK_EXEC_SUCCESS) {
@@ -30,8 +32,9 @@ static void mqtt_handle_notify(void *pdata)
     duk_pop(ctx);
 
     /* free when mqtt connect failed */
-    if(amp_mqtt_handle->res < 0){
-        be_unref(ctx, amp_mqtt_handle->js_cb_ref[MQTT_JSCALLBACK_START_CLIENT_REF]);
+    if (amp_mqtt_handle->res < 0) {
+        be_unref(ctx,
+                 amp_mqtt_handle->js_cb_ref[MQTT_JSCALLBACK_START_CLIENT_REF]);
         aos_free(amp_mqtt_handle);
     }
 
@@ -51,7 +54,8 @@ static void mqtt_connect_task(void *pdata)
         return;
     }
 
-    amp_mqtt_handle->js_cb_ref[MQTT_JSCALLBACK_START_CLIENT_REF] = amp_mqtt_params->js_cb_ref[MQTT_JSCALLBACK_START_CLIENT_REF];
+    amp_mqtt_handle->js_cb_ref[MQTT_JSCALLBACK_START_CLIENT_REF] =
+        amp_mqtt_params->js_cb_ref[MQTT_JSCALLBACK_START_CLIENT_REF];
 
     ret = mqtt_client_start(&amp_mqtt_handle->mqtt_handle, amp_mqtt_params);
     if (ret < 0) {
@@ -66,7 +70,7 @@ static void mqtt_connect_task(void *pdata)
     /* return aiot_device_handle */
     amp_task_schedule_call(mqtt_handle_notify, amp_mqtt_handle);
 
-    while(!g_mqtt_close_flag) {
+    while (!g_mqtt_close_flag) {
         aos_msleep(1000);
     }
 
@@ -83,8 +87,7 @@ static duk_ret_t native_mqtt_start(duk_context *ctx)
     aos_task_t mqtt_task;
 
     /* check paramters */
-    if (!duk_is_object(ctx, 0) || !duk_is_function(ctx, 1))
-    {
+    if (!duk_is_object(ctx, 0) || !duk_is_function(ctx, 1)) {
         amp_warn(MOD_STR, "parameter must be object and function\n");
         ret = -1;
         goto out;
@@ -100,12 +103,11 @@ static duk_ret_t native_mqtt_start(duk_context *ctx)
 
     if (!duk_is_string(ctx, -6) || !duk_is_number(ctx, -5) ||
         !duk_is_string(ctx, -4) || !duk_is_string(ctx, -3) ||
-        !duk_is_string(ctx, -2) || !duk_is_number(ctx, -1))
-    {
+        !duk_is_string(ctx, -2) || !duk_is_number(ctx, -1)) {
         amp_warn(MOD_STR,
-            "Parameter 1 must be an object like {host: string, "
-            "port: uint, client_id: string, username: string, "
-            "password: string, keepalive_interval: uint}\n");
+                 "Parameter 1 must be an object like {host: string, "
+                 "port: uint, client_id: string, username: string, "
+                 "password: string, keepalive_interval: uint}\n");
         ret = -2;
         duk_pop_n(ctx, 6);
         goto out;
@@ -124,17 +126,20 @@ static duk_ret_t native_mqtt_start(duk_context *ctx)
     mqtt_params->password = duk_get_string(ctx, -2);
     mqtt_params->keepaliveSec = duk_get_number(ctx, -1);
 
-    amp_debug(MOD_STR, "host: %s, port: %d\n", mqtt_params->host, mqtt_params->port);
-    amp_debug(MOD_STR, "client_id: %s, username: %s, password: %s\n", mqtt_params->clientid, mqtt_params->username, mqtt_params->password);
+    amp_debug(MOD_STR, "host: %s, port: %d\n", mqtt_params->host,
+              mqtt_params->port);
+    amp_debug(MOD_STR, "client_id: %s, username: %s, password: %s\n",
+              mqtt_params->clientid, mqtt_params->username,
+              mqtt_params->password);
 
     duk_dup(ctx, 1);
     // init_params->js_cb_ref = be_ref(ctx);
     mqtt_params->js_cb_ref[MQTT_JSCALLBACK_START_CLIENT_REF] = be_ref(ctx);
 
     /* create task to IOT_MQTT_Yield() */
-    ret = aos_task_new_ext(&mqtt_task, "amp mqtt task", mqtt_connect_task, mqtt_params, 1024 * 4, MQTT_TSK_PRIORITY);
-    if (ret < 0)
-    {
+    ret = aos_task_new_ext(&mqtt_task, "amp mqtt task", mqtt_connect_task,
+                           mqtt_params, 1024 * 4, MQTT_TSK_PRIORITY);
+    if (ret < 0) {
         amp_warn(MOD_STR, "jse_osal_create_task failed\n");
         be_unref(ctx, mqtt_params->js_cb_ref[MQTT_JSCALLBACK_START_CLIENT_REF]);
         aos_free(mqtt_params);
@@ -155,7 +160,8 @@ static duk_ret_t native_mqtt_subscribe(duk_context *ctx)
     uint8_t qos = 0;
     int js_cb_ref = 0;
 
-    if (!duk_is_pointer(ctx, 0) || !duk_is_object(ctx, 1) || !duk_is_function(ctx, 2)) {
+    if (!duk_is_pointer(ctx, 0) || !duk_is_object(ctx, 1) ||
+        !duk_is_function(ctx, 2)) {
         amp_warn(MOD_STR, "parameter must be (pointer, object)");
         goto out;
     }
@@ -169,8 +175,7 @@ static duk_ret_t native_mqtt_subscribe(duk_context *ctx)
     duk_get_prop_string(ctx, 1, "topic");
     duk_get_prop_string(ctx, 1, "qos");
 
-    if (!duk_is_number(ctx, -1) || !duk_is_string(ctx, -2))
-    {
+    if (!duk_is_number(ctx, -1) || !duk_is_string(ctx, -2)) {
         amp_warn(MOD_STR, "invalid params");
         duk_pop_n(ctx, 2);
         goto out;
@@ -203,7 +208,8 @@ static duk_ret_t native_mqtt_unsubscribe(duk_context *ctx)
     uint8_t qos = 0;
     int js_cb_ref = 0;
 
-    if (!duk_is_pointer(ctx, 0) || !duk_is_string(ctx, 1) || !duk_is_function(ctx, 2)) {
+    if (!duk_is_pointer(ctx, 0) || !duk_is_string(ctx, 1) ||
+        !duk_is_function(ctx, 2)) {
         amp_warn(MOD_STR, "parameter must be (pointer, string, function)");
         goto out;
     }
@@ -244,7 +250,8 @@ static duk_ret_t native_mqtt_publish(duk_context *ctx)
     uint8_t qos = 0;
     int js_cb_ref = 0;
 
-    if (!duk_is_pointer(ctx, 0) || !duk_is_object(ctx, 1) || !duk_is_function(ctx, 2)) {
+    if (!duk_is_pointer(ctx, 0) || !duk_is_object(ctx, 1) ||
+        !duk_is_function(ctx, 2)) {
         amp_warn(MOD_STR, "parameter must be (pointer, object, function)");
         goto out;
     }
@@ -259,8 +266,8 @@ static duk_ret_t native_mqtt_publish(duk_context *ctx)
     duk_get_prop_string(ctx, 1, "payload");
     duk_get_prop_string(ctx, 1, "qos");
 
-    if (!duk_is_string(ctx, -3) || !duk_is_string(ctx, -2) || !duk_is_number(ctx, -1))
-    {
+    if (!duk_is_string(ctx, -3) || !duk_is_string(ctx, -2) ||
+        !duk_is_number(ctx, -1)) {
         amp_warn(MOD_STR, "invalid params");
         duk_pop_n(ctx, 3);
         goto out;
@@ -276,9 +283,11 @@ static duk_ret_t native_mqtt_publish(duk_context *ctx)
 
     amp_mqtt_handle->js_cb_ref[MQTT_JSCALLBACK_PUBLISH_REF] = js_cb_ref;
 
-    amp_debug(MOD_STR, "publish topic: %s, payload: %s, qos is: %d", topic, payload, qos);
+    amp_debug(MOD_STR, "publish topic: %s, payload: %s, qos is: %d", topic,
+              payload, qos);
 
-    res = aiot_mqtt_pub(amp_mqtt_handle->mqtt_handle, topic, payload, payload_len, qos);
+    res = aiot_mqtt_pub(amp_mqtt_handle->mqtt_handle, topic, payload,
+                        payload_len, qos);
     if (res < 0) {
         amp_error(MOD_STR, "aiot app mqtt publish failed");
     }
@@ -294,8 +303,7 @@ static duk_ret_t native_mqtt_close(duk_context *ctx)
     int js_cb_ref = 0;
     amp_mqtt_handle_t *amp_mqtt_handle = NULL;
 
-    if (!duk_is_pointer(ctx, 0) || !duk_is_function(ctx, 1))
-    {
+    if (!duk_is_pointer(ctx, 0) || !duk_is_function(ctx, 1)) {
         amp_warn(MOD_STR, "parameter must be pointer function");
         goto out;
     }
@@ -347,11 +355,11 @@ void module_mqtt_register(void)
 
     duk_push_object(ctx);
 
-    AMP_ADD_FUNCTION("start",       native_mqtt_start, 2);
-    AMP_ADD_FUNCTION("subscribe",   native_mqtt_subscribe, 3);
+    AMP_ADD_FUNCTION("start", native_mqtt_start, 2);
+    AMP_ADD_FUNCTION("subscribe", native_mqtt_subscribe, 3);
     AMP_ADD_FUNCTION("unsubscribe", native_mqtt_unsubscribe, 3);
-    AMP_ADD_FUNCTION("publish",     native_mqtt_publish, 5);
-    AMP_ADD_FUNCTION("close",       native_mqtt_close, 2);
+    AMP_ADD_FUNCTION("publish", native_mqtt_publish, 5);
+    AMP_ADD_FUNCTION("close", native_mqtt_close, 2);
 
     duk_put_prop_string(ctx, -2, "MQTT");
 }

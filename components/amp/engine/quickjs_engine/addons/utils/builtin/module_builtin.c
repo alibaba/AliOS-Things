@@ -26,14 +26,14 @@
 /* export appConfig */
 static void native_add_global_appconfig(JSContext *ctx)
 {
-    char json_dir[32] = {0};
+    char json_dir[128] = {0};
     char *json = NULL;
     void *json_data = NULL;
     uint32_t len = 0;
     uint32_t global_config_len = 0;
     int  json_fd = -1;
 
-    snprintf(json_dir, 32, AMP_APP_MAIN_JSON);
+    snprintf(json_dir, sizeof(json_dir), AMP_APP_MAIN_JSON);
 
     if ((json_fd = aos_open(json_dir, O_RDONLY)) < 0) {
         amp_error(MOD_STR, "open:%s fail", json_dir);

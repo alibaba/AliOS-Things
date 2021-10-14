@@ -312,12 +312,12 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_stat_obj, vfs_posix_stat);
 #define USE_STATFS 1
 #endif
 
+
+// Modified bt HaaS begin
+// Add MICROPY_PY_HAAS_SPECIFIC
+
 #if USE_STATFS
-#if MICROPY_PY_HAAS_SPECIFIC
-#include "dirent.h"
-#else
 #include <sys/vfs.h>
-#endif
 #define STRUCT_STATVFS struct statfs
 #define STATVFS statfs
 #define F_FAVAIL sb.f_ffree
@@ -353,6 +353,9 @@ STATIC mp_obj_t vfs_posix_statvfs(mp_obj_t self_in, mp_obj_t path_in) {
     t->items[9] = MP_OBJ_NEW_SMALL_INT(F_NAMEMAX);
     return MP_OBJ_FROM_PTR(t);
 }
+
+// Modified bt HaaS end
+
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_statvfs_obj, vfs_posix_statvfs);
 
 STATIC const mp_rom_map_elem_t vfs_posix_locals_dict_table[] = {
@@ -383,5 +386,6 @@ const mp_obj_type_t mp_type_vfs_posix = {
     .protocol = &vfs_posix_proto,
     .locals_dict = (mp_obj_dict_t *)&vfs_posix_locals_dict,
 };
+
 
 #endif // MICROPY_VFS_POSIX

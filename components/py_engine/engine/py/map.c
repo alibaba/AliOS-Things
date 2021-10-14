@@ -90,14 +90,14 @@ void mp_map_init_fixed_table(mp_map_t *map, size_t n, const mp_obj_t *table) {
 
 // Differentiate from mp_map_clear() - semantics is different
 void mp_map_deinit(mp_map_t *map) {
-    if ((!map->is_fixed) && (map->table != NULL)) {
+    if (!map->is_fixed) {
         m_del(mp_map_elem_t, map->table, map->alloc);
     }
     map->used = map->alloc = 0;
 }
 
 void mp_map_clear(mp_map_t *map) {
-    if ((!map->is_fixed) && (map->table != NULL)) {
+    if (!map->is_fixed) {
         m_del(mp_map_elem_t, map->table, map->alloc);
     }
     map->alloc = 0;

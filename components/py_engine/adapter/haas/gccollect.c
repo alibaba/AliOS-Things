@@ -27,24 +27,27 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
-
-#include "py/mpconfig.h"
-#include "py/mpstate.h"
-#include "py/gc.h"
-#include "py/mpthread.h"
 #include "gccollect.h"
 
-static void gc_collect_inner(int level) {
-    // trace root pointers from any threads
-    #if MICROPY_PY_THREAD
+#include <stdio.h>
+
+#include "py/gc.h"
+#include "py/mpconfig.h"
+#include "py/mpstate.h"
+#include "py/mpthread.h"
+
+static void gc_collect_inner(int level)
+{
+// trace root pointers from any threads
+#if MICROPY_PY_THREAD
     mp_thread_gc_others();
-    #endif
+#endif
 }
 
-void gc_collect(void) {
+void gc_collect(void)
+{
     gc_collect_start();
-    
+
     // trace the stack and registers
     gc_helper_collect_regs_and_stack();
 

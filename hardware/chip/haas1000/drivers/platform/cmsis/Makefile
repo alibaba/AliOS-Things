@@ -62,7 +62,7 @@ ifeq ($(PSRAM_INIT_CHECK),1)
 CFLAGS_system_utils.o += -DPSRAM_INIT_CHECK
 endif
 
-CFLAGS_system_utils.o += -Iplatform/drivers/ana
+CFLAGS_system_utils.o += -Iplatform/drivers/ana -fno-tree-loop-distribute-patterns
 
 CFLAGS_retarget_armclang.o += \
 	-Iplatform/drivers/ana \

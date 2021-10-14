@@ -2,16 +2,16 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "board_config.h"
 #include "amp_platform.h"
-#include "aos_system.h"
-#include "py_defines.h"
 #include "amp_task.h"
+#include "aos_system.h"
 #include "aos_tcp.h"
 #include "be_inl.h"
+#include "board_config.h"
+#include "py_defines.h"
 
-#define MOD_STR "TCP"
-#define MAX_TCP_RECV_LEN 256
+#define MOD_STR              "TCP"
+#define MAX_TCP_RECV_LEN     256
 #define MAX_TCP_RECV_TIMEOUT 200
 
 typedef struct {
@@ -55,7 +55,7 @@ static aos_sem_t g_tcp_close_sem = NULL;
 static void tcp_create_notify(void *pdata)
 {
     tcp_create_notify_param_t *p = (tcp_create_notify_param_t *)pdata;
-    duk_context *ctx           = be_get_context();
+    duk_context *ctx = be_get_context();
     be_push_ref(ctx, p->js_cb_ref);
     duk_push_int(ctx, p->ret);
     if (duk_pcall(ctx, 1) != DUK_EXEC_SUCCESS) {
@@ -69,7 +69,7 @@ static void tcp_create_notify(void *pdata)
 
 static int tcp_create_routine(tcp_create_param_t *create_param)
 {
-    int ret                      = -1;
+    int ret = -1;
     tcp_create_notify_param_t *p;
 
     duk_context *ctx = be_get_context();
@@ -89,7 +89,7 @@ static int tcp_create_routine(tcp_create_param_t *create_param)
     amp_debug(MOD_STR, "sock_id = %d", ret);
 
     p->js_cb_ref = create_param->js_cb_ref;
-    p->ret       = ret;
+    p->ret = ret;
     py_task_schedule_call(tcp_create_notify, p);
 
 out:
@@ -108,7 +108,7 @@ out:
 static duk_ret_t native_tcp_create_socket(duk_context *ctx)
 {
     int err;
-    int ret  = -1;
+    int ret = -1;
     int port = 0;
     const char *host;
     tcp_create_param_t *create_param = NULL;
@@ -122,11 +122,10 @@ static duk_ret_t native_tcp_create_socket(duk_context *ctx)
     duk_get_prop_string(ctx, 0, "host");
     duk_get_prop_string(ctx, 0, "port");
 
-    if (!duk_is_string(ctx, -2) || !duk_is_number(ctx, -1))
-    {
+    if (!duk_is_string(ctx, -2) || !duk_is_number(ctx, -1)) {
         amp_warn(MOD_STR,
-            "Parameter 1 must be an object like {host: string, "
-            "port: uint}");
+                 "Parameter 1 must be an object like {host: string, "
+                 "port: uint}");
         err = -2;
         goto out;
     }
@@ -154,18 +153,17 @@ static duk_ret_t native_tcp_create_socket(duk_context *ctx)
     }
 
 out:
-    if(create_param) {
+    if (create_param) {
         aos_free(create_param);
     }
     duk_push_int(ctx, ret);
     return 1;
-
 }
 
 static void tcp_send_notify(void *pdata)
 {
     tcp_send_notify_param_t *p = (tcp_send_notify_param_t *)pdata;
-    duk_context *ctx           = be_get_context();
+    duk_context *ctx = be_get_context();
     be_push_ref(ctx, p->js_cb_ref);
     duk_push_int(ctx, p->ret);
     if (duk_pcall(ctx, 1) != DUK_EXEC_SUCCESS) {
@@ -184,7 +182,7 @@ static void tcp_send_notify(void *pdata)
  **************************************************************************************/
 static int tcp_send_routine(tcp_send_param_t *send_param)
 {
-    int ret                      = -1;
+    int ret = -1;
     tcp_send_notify_param_t *p;
     int sock_id;
 
@@ -193,7 +191,7 @@ static int tcp_send_routine(tcp_send_param_t *send_param)
     sock_id = send_param->sock_id;
 
     ret = aos_tcp_write(sock_id, send_param->msg, send_param->msg_len, 0);
-    p   = aos_calloc(1, sizeof(tcp_send_notify_param_t));
+    p = aos_calloc(1, sizeof(tcp_send_notify_param_t));
     if (!p) {
         amp_warn(MOD_STR, "allocate memory failed");
         be_unref(ctx, send_param->js_cb_ref);
@@ -201,7 +199,7 @@ static int tcp_send_routine(tcp_send_param_t *send_param)
     }
 
     p->js_cb_ref = send_param->js_cb_ref;
-    p->ret       = ret;
+    p->ret = ret;
     py_task_schedule_call(tcp_send_notify, p);
     ret = 0;
 
@@ -244,7 +242,7 @@ static duk_ret_t native_tcp_send(duk_context *ctx)
     }
 
     msg_len = duk_get_length(ctx, 1);
-    msg     = (char *)aos_malloc(msg_len + 1);
+    msg = (char *)aos_malloc(msg_len + 1);
     if (!msg) {
         amp_warn(MOD_STR, "allocate memory failed");
         goto out;
@@ -273,9 +271,9 @@ static duk_ret_t native_tcp_send(duk_context *ctx)
         aos_free(msg);
         goto out;
     }
-    send_param->sock_id   = sock_id;
-    send_param->msg       = msg;
-    send_param->msg_len   = msg_len;
+    send_param->sock_id = sock_id;
+    send_param->msg = msg;
+    send_param->msg_len = msg_len;
     duk_dup(ctx, 2);
     send_param->js_cb_ref = be_ref(ctx);
 
@@ -288,13 +286,13 @@ out:
 
 static void tcp_recv_notify(void *pdata)
 {
-    int i                      = 0;
+    int i = 0;
     tcp_recv_notify_param_t *p = (tcp_recv_notify_param_t *)pdata;
-    duk_context *ctx           = be_get_context();
+    duk_context *ctx = be_get_context();
     be_push_ref(ctx, p->js_cb_ref);
     duk_push_int(ctx, p->recv_len);
     int arr_idx = duk_push_array(ctx);
-    if(p->recv_len > 0) {
+    if (p->recv_len > 0) {
         for (i = 0; i < p->recv_len; i++) {
             duk_push_int(ctx, p->buf[i]);
             duk_put_prop_index(ctx, arr_idx, i);
@@ -305,7 +303,7 @@ static void tcp_recv_notify(void *pdata)
     }
     duk_pop(ctx);
     duk_gc(ctx, 0);
-    if(p->recv_len < 0) {
+    if (p->recv_len < 0) {
         be_unref(ctx, p->js_cb_ref);
         aos_free(p);
     }
@@ -322,7 +320,7 @@ static void tcp_recv_routine(void *arg)
     int sock_id;
 
     g_tcp_recv_flag = 1;
-    sock_id  = recv_param->sock_id;
+    sock_id = recv_param->sock_id;
     tcp_recv_notify_param_t *p = aos_calloc(1, sizeof(*p));
     if (!p) {
         amp_warn(MOD_STR, "allocate memory failed");
@@ -331,14 +329,15 @@ static void tcp_recv_routine(void *arg)
         goto out;
     }
 
-    while(1) {
-        p->recv_len = aos_tcp_read(sock_id, p->buf, sizeof(p->buf), MAX_TCP_RECV_TIMEOUT);
+    while (1) {
+        p->recv_len =
+            aos_tcp_read(sock_id, p->buf, sizeof(p->buf), MAX_TCP_RECV_TIMEOUT);
         p->js_cb_ref = recv_param->js_cb_ref;
-        if(p->recv_len != 0) {
+        if (p->recv_len != 0) {
             py_task_schedule_call(tcp_recv_notify, p);
         }
 
-        if(p->recv_len < 0) {
+        if (p->recv_len < 0) {
             // connection closed
             amp_error(MOD_STR, "connection closed:%d", p->recv_len);
             break;
@@ -376,7 +375,7 @@ out:
  **************************************************************************************/
 static duk_ret_t native_tcp_receive(duk_context *ctx)
 {
-    int ret     = -1;
+    int ret = -1;
     int sock_id = 0;
     aos_task_t tcp_recv_task;
     tcp_recv_param_t *recv_param;
@@ -403,7 +402,9 @@ static duk_ret_t native_tcp_receive(duk_context *ctx)
     duk_dup(ctx, 1);
     recv_param->js_cb_ref = be_ref(ctx);
 
-    ret = aos_task_new_ext(&tcp_recv_task, "amp tcp recv task", tcp_recv_routine, recv_param, 1024 * 4, ADDON_TSK_PRIORRITY);
+    ret =
+        aos_task_new_ext(&tcp_recv_task, "amp tcp recv task", tcp_recv_routine,
+                         recv_param, 1024 * 4, ADDON_TSK_PRIORRITY);
     if (ret != 0) {
         amp_warn(MOD_STR, "tcp recv task error");
         goto out;
@@ -426,7 +427,7 @@ out:
  **************************************************************************************/
 static duk_ret_t native_tcp_close(duk_context *ctx)
 {
-    int ret     = -1;
+    int ret = -1;
     int sock_id = 0;
 
     if (!duk_is_number(ctx, 0)) {
@@ -474,9 +475,9 @@ void module_tcp_register(void)
     duk_push_object(ctx);
 
     AMP_ADD_FUNCTION("createSocket", native_tcp_create_socket, 2);
-    AMP_ADD_FUNCTION("send",         native_tcp_send, 3);
-    AMP_ADD_FUNCTION("recv",         native_tcp_receive, 2);
-    AMP_ADD_FUNCTION("close",        native_tcp_close, 1);
+    AMP_ADD_FUNCTION("send", native_tcp_send, 3);
+    AMP_ADD_FUNCTION("recv", native_tcp_receive, 2);
+    AMP_ADD_FUNCTION("close", native_tcp_close, 1);
 
     duk_put_prop_string(ctx, -2, "TCP");
 }

@@ -6,7 +6,7 @@
 
 #include <stddef.h>
 #include <ble_types/types.h>
-#include <errno.h>
+#include <bt_errno.h>
 #include <misc/util.h>
 
 int char2hex(char c, u8_t *x)

@@ -1,56 +1,33 @@
 /*
- * This file is part of the Micro Python project, http://micropython.org/
- *
- * The MIT License (MIT)
- *
- * Copyright (c) 2016 Damien P. George
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * Copyright (C) 2015-2021 Alibaba Group Holding Limited
  */
 
 #include <stdio.h>
 
-#include "py/nlr.h"
-#include "py/runtime.h"
-#include "py/mperrno.h"
+#include "aos_hal_pwm.h"
 #include "modmachine.h"
 #include "mphalport.h"
-
+#include "py/mperrno.h"
+#include "py/nlr.h"
+#include "py/runtime.h"
 #include "ulog/ulog.h"
-#include "aos_hal_pwm.h"
 
 #define LOG_TAG "machine_pwm"
 
 enum {
-  PWN_CHANNEL_0,
-  PWN_CHANNEL_1,
-  PWN_CHANNEL_2,
-  PWN_CHANNEL_3,
-  PWN_CHANNEL_MAX
+    PWN_CHANNEL_0,
+    PWN_CHANNEL_1,
+    PWN_CHANNEL_2,
+    PWN_CHANNEL_3,
+    PWN_CHANNEL_MAX
 };
 
 // Forward dec'l
 extern const mp_obj_type_t machine_pwm_type;
 
 // Params for PW operation
-#define PWFREQ  (5000)
-#define PWDUTY  (50)
+#define PWFREQ (5000)
+#define PWDUTY (50)
 
 typedef struct _machine_pwm_obj_t {
     mp_obj_base_t base;
@@ -60,7 +37,8 @@ typedef struct _machine_pwm_obj_t {
     mp_uint_t freq;
 } machine_pwm_obj_t;
 
-STATIC int update_param(machine_pwm_obj_t* self, mp_uint_t newfreq, mp_uint_t newduty) {
+STATIC int update_param(machine_pwm_obj_t *self, mp_uint_t newfreq, mp_uint_t newduty)
+{
     int status = -1;
     pwm_dev_t *dev = &self->dev;
 
@@ -68,8 +46,8 @@ STATIC int update_param(machine_pwm_obj_t* self, mp_uint_t newfreq, mp_uint_t ne
     mp_uint_t ofreq = self->freq;
 
     pwm_config_t cfg = {
-      .duty_cycle = newduty / 100.f,
-      .freq = newfreq,
+        .duty_cycle = newduty / 100.f,
+        .freq = newfreq,
     };
 
     status = aos_hal_pwm_para_chg(dev, cfg);
@@ -82,7 +60,7 @@ STATIC int update_param(machine_pwm_obj_t* self, mp_uint_t newfreq, mp_uint_t ne
     self->duty_cycle = newduty / 100.f;
     self->dev.config.freq = self->freq;
     self->dev.config.duty_cycle = self->duty_cycle;
-    
+
     return status;
 }
 
@@ -90,17 +68,22 @@ STATIC int update_param(machine_pwm_obj_t* self, mp_uint_t newfreq, mp_uint_t ne
 
 // MicroPython bindings for PWM
 
-STATIC void machine_pwm_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
+STATIC void machine_pwm_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind)
+{
     machine_pwm_obj_t *self = MP_OBJ_TO_PTR(self_in);
     mp_printf(print, "PWM(%u", self->id);
     mp_printf(print, ", freq=%u, duty=%u)", self->freq, self->duty_cycle);
 }
 
-STATIC void machine_pwm_init_helper(machine_pwm_obj_t *self, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
-    enum { ARG_freq, ARG_duty };
+STATIC void machine_pwm_init_helper(machine_pwm_obj_t *self, size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args)
+{
+    enum {
+        ARG_freq,
+        ARG_duty
+    };
     static const mp_arg_t allowed_args[] = {
-        { MP_QSTR_freq, MP_ARG_INT, {.u_int = -1} },
-        { MP_QSTR_duty, MP_ARG_INT, {.u_int = PWDUTY} },
+        { MP_QSTR_freq, MP_ARG_INT, { .u_int = -1 } },
+        { MP_QSTR_duty, MP_ARG_INT, { .u_int = PWDUTY } },
     };
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
@@ -112,7 +95,7 @@ STATIC void machine_pwm_init_helper(machine_pwm_obj_t *self, size_t n_args, cons
     mp_int_t duty = args[ARG_duty].u_int;
 
     /* if freq inited */
-    if(freq != -1) {
+    if (freq != -1) {
         dev->config.duty_cycle = duty / 100.f;
         dev->config.freq = freq;
 
@@ -129,7 +112,8 @@ STATIC void machine_pwm_init_helper(machine_pwm_obj_t *self, size_t n_args, cons
     }
 }
 
-STATIC mp_obj_t machine_pwm_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args) {
+STATIC mp_obj_t machine_pwm_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args)
+{
     mp_arg_check_num(n_args, n_kw, 1, MP_OBJ_FUN_ARGS_MAX, true);
 
     // get PWM id
@@ -147,7 +131,7 @@ STATIC mp_obj_t machine_pwm_make_new(const mp_obj_type_t *type, size_t n_args, s
     self->dev.port = pwm_id;
     self->dev.config.duty_cycle = self->duty_cycle;
     self->dev.config.freq = self->freq;
-    
+
     // start the PWM running for this channel
     mp_map_t kw_args;
     mp_map_init_fixed_table(&kw_args, n_kw, args + n_args);
@@ -156,13 +140,15 @@ STATIC mp_obj_t machine_pwm_make_new(const mp_obj_type_t *type, size_t n_args, s
     return MP_OBJ_FROM_PTR(self);
 }
 
-STATIC mp_obj_t machine_pwm_init(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
+STATIC mp_obj_t machine_pwm_init(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args)
+{
     machine_pwm_init_helper(args[0], n_args - 1, args + 1, kw_args);
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_KW(machine_pwm_init_obj, 1, machine_pwm_init);
 
-STATIC mp_obj_t machine_pwm_deinit(mp_obj_t self_in) {
+STATIC mp_obj_t machine_pwm_deinit(mp_obj_t self_in)
+{
     machine_pwm_obj_t *self = MP_OBJ_TO_PTR(self_in);
     aos_hal_pwm_stop(&self->dev);
     aos_hal_pwm_finalize(&self->dev);
@@ -170,8 +156,9 @@ STATIC mp_obj_t machine_pwm_deinit(mp_obj_t self_in) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(machine_pwm_deinit_obj, machine_pwm_deinit);
 
-STATIC mp_obj_t machine_pwm_freq(size_t n_args, const mp_obj_t *args) {
-   machine_pwm_obj_t *self = MP_OBJ_TO_PTR(args[0]);
+STATIC mp_obj_t machine_pwm_freq(size_t n_args, const mp_obj_t *args)
+{
+    machine_pwm_obj_t *self = MP_OBJ_TO_PTR(args[0]);
     if (n_args == 1) {
         // get
         return MP_OBJ_NEW_SMALL_INT(self->freq);
@@ -185,7 +172,8 @@ STATIC mp_obj_t machine_pwm_freq(size_t n_args, const mp_obj_t *args) {
 
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_pwm_freq_obj, 1, 2, machine_pwm_freq);
 
-STATIC mp_obj_t machine_pwm_duty(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t machine_pwm_duty(size_t n_args, const mp_obj_t *args)
+{
     machine_pwm_obj_t *self = MP_OBJ_TO_PTR(args[0]);
 
     if (n_args == 1) {
@@ -200,7 +188,8 @@ STATIC mp_obj_t machine_pwm_duty(size_t n_args, const mp_obj_t *args) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(machine_pwm_duty_obj, 1, 2, machine_pwm_duty);
 
-STATIC mp_obj_t machine_pwm_freqduty(size_t n_args, const mp_obj_t *args) {
+STATIC mp_obj_t machine_pwm_freqduty(size_t n_args, const mp_obj_t *args)
+{
     machine_pwm_obj_t *self = MP_OBJ_TO_PTR(args[0]);
 
     mp_int_t freq = mp_obj_get_int(args[1]);

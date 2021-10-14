@@ -314,9 +314,7 @@ const mp_fun_table_t mp_fun_table = {
     // Additional entries for dynamic runtime, starts at index 50
     memset,
     memmove,
-    #if MICROPY_ENABLE_GC
     gc_realloc,
-    #endif
     mp_printf,
     mp_vprintf,
     mp_raise_msg,

@@ -172,7 +172,7 @@ STATIC mp_uint_t vfs_posix_file_ioctl(mp_obj_t o_in, mp_uint_t request, uintptr_
         case MP_STREAM_FLUSH: {
             int ret;
             MP_HAL_RETRY_SYSCALL(ret, fsync(o->fd), {
-                if (err == MP_EINVAL
+                if (err == EINVAL
                     && (o->fd == STDIN_FILENO || o->fd == STDOUT_FILENO || o->fd == STDERR_FILENO)) {
                     // fsync(stdin/stdout/stderr) may fail with EINVAL, but don't propagate that
                     // error out.  Because data is not buffered by us, and stdin/out/err.flush()
@@ -207,7 +207,7 @@ STATIC mp_uint_t vfs_posix_file_ioctl(mp_obj_t o_in, mp_uint_t request, uintptr_
         case MP_STREAM_GET_FILENO:
             return o->fd;
         default:
-            *errcode = MP_EINVAL;
+            *errcode = EINVAL;
             return MP_STREAM_ERROR;
     }
 }

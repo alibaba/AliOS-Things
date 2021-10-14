@@ -38,7 +38,7 @@ typedef enum {
     MQTT_JSCALLBACK_INVALID_CODE
 } amp_mqtt_jscallback_type_t;
 
-typedef struct amp_mqtt_params{
+typedef struct amp_mqtt_params {
     char *host;
     uint16_t port;
     char *clientid;
@@ -47,13 +47,13 @@ typedef struct amp_mqtt_params{
     uint8_t keepaliveSec;
     int js_cb_ref[MQTT_JSCALLBACK_INVALID_CODE];
     int res;
-}amp_mqtt_params_t;
+} amp_mqtt_params_t;
 
-typedef struct amp_mqtt_handle{
+typedef struct amp_mqtt_handle {
     void *mqtt_handle;
     int js_cb_ref[MQTT_JSCALLBACK_INVALID_CODE];
     int res;
-}amp_mqtt_handle_t;
+} amp_mqtt_handle_t;
 
 /* create mqtt client */
 int32_t mqtt_client_start(void **handle, amp_mqtt_params_t *mqtt_params);

@@ -2,8 +2,12 @@
  * Copyright (C) 2021 Alibaba Group Holding Limited
  */
 
-#ifndef __SYS_SELECT_H
-#define __SYS_SELECT_H
+#ifndef _SYS_SELECT_H
+#define _SYS_SELECT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <sys/_timeval.h>
 
@@ -21,10 +25,6 @@ typedef struct {
 #define FD_CLR(d, s)   ((s)->fds_bits[(d) / (8 * sizeof(long))] &= ~(1UL << ((d) % (8 * sizeof(long)))))
 #define FD_ISSET(d, s) (!!((s)->fds_bits[(d) / (8 * sizeof(long))] & (1UL << ((d) % (8 * sizeof(long))))))
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *errorfds,
                          struct timeval *timeout);
 
@@ -32,4 +32,4 @@ int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *errorfds,
 }
 #endif
 
-#endif /*__SYS_SELECT_H*/
+#endif /*_SYS_SELECT_H*/

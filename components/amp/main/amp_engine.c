@@ -2,11 +2,13 @@
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
+#include "aos/kernel.h"
+#include "aos/vfs.h"
+#include "aos_system.h"
+#include "aos_fs.h"
 #include "amp_platform.h"
 #include "amp_config.h"
-#include "aos_system.h"
 #include "amp_task.h"
-#include "aos_fs.h"
 #include "amp_defines.h"
 #include "board_mgr.h"
 #include "cJSON.h"
@@ -80,7 +82,7 @@ char *search_js_app_main_entry(void)
 
     /* read package config file to json_data buffer */
     file_len = aos_lseek(json_fd, 0, SEEK_END);
-    json_data = aos_calloc(1, sizeof(char) * (file_len + 1));
+    json_data = amp_calloc(1, sizeof(char) * (file_len + 1));
     if (NULL == json_data) {
         aos_close(json_fd);
         json_fd = -1;
@@ -93,7 +95,7 @@ char *search_js_app_main_entry(void)
     /* parser the package json data */
     root = cJSON_Parse(json_data);
     if (NULL == root) {
-        aos_free(json_data);
+        amp_free(json_data);
         amp_error(MOD_STR, "cJSON_Parse failed");
         return NULL;
     }
@@ -105,7 +107,7 @@ char *search_js_app_main_entry(void)
         snprintf(js_app_file_name, sizeof(js_app_file_name), "/%s", item->valuestring);
         if ((js_app_fd = aos_open(js_app_file_name, O_RDONLY)) < 0) {
             aos_close(js_app_fd);
-            aos_free(json_data);
+            amp_free(json_data);
             cJSON_Delete(root);
             amp_debug(MOD_STR, "find test index %s", js_app_file_name);
             return js_app_file_name;
@@ -117,13 +119,13 @@ char *search_js_app_main_entry(void)
     if (NULL != item && cJSON_String == item->type &&
         strstr(item->valuestring, ".js")) {
         strncpy(js_app_file_name, item->valuestring, MAX_FILE_NAME_LEN);
-        aos_free(json_data);
+        amp_free(json_data);
         cJSON_Delete(root);
         amp_debug(MOD_STR, "find main index %s", js_app_file_name);
         return js_app_file_name;
     }
 
-    aos_free(json_data);
+    amp_free(json_data);
     cJSON_Delete(root);
 
     return NULL;
@@ -143,7 +145,7 @@ void amp_task_main()
 {
     uint8_t ssdp_started = 0;
     int app_running = 1;
-    char user_dir[32] = {0};
+    char user_dir[128] = {0};
 
     snprintf(user_dir, sizeof(user_dir), AMP_APP_MAIN_JSON);
     if (0 != board_mgr_init(user_dir)) {
@@ -158,6 +160,7 @@ void amp_task_main()
     jsengine_init();
     amp_debug(MOD_STR, "jsengine_init ok");
 
+#ifndef HAASUI_AMP_BUILD
     /* run the js application */
     char *filename = search_js_app_main_entry();
     amp_debug(MOD_STR, "search_js_app_main_entry: %s", filename ? filename : "null");
@@ -179,6 +182,7 @@ void amp_task_main()
     amp_task_deinit();
     aos_sem_signal(&jse_task_exit_sem);
     amp_memmgt_mem_show_rec();
+#endif
 }
 
 void jsengine_main(void)
@@ -192,6 +196,10 @@ void jsengine_main(void)
         return;
     }
 
+#ifndef HAASUI_AMP_BUILD
     amp_debug(MOD_STR, "jse_task created");
     aos_task_new_ext(&jsengine_task, "amp_jsengine_task", be_jse_task_main_entrance, NULL, JSENGINE_TASK_STACK_SIZE, AOS_DEFAULT_APP_PRI);
+#else
+    amp_task_main();
+#endif
 }

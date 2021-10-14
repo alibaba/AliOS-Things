@@ -80,6 +80,7 @@ class IotDeviceClient extends event.EventEmitter {
         }
         return ret;
     }
+
     postProps(params, cb) {
         console.log("postProps is called");
         var ret = this.IoTDeviceInstance.postProps(params, cb || function() {});
@@ -177,7 +178,7 @@ class IotGatewayClient extends event.EventEmitter{
     }
 
     addTopo(options, cb) {
-        var ret = this.IoTGatewayInstance.addTopo(options, cb || function(ret, message) {});
+        var ret = this.IoTGatewayInstance.addTopo(options, cb || function() {});
         if (ret < 0) {
             throw new Error('add topo error');
         }
@@ -186,7 +187,7 @@ class IotGatewayClient extends event.EventEmitter{
     }
 
     getTopo(cb) {
-        var ret = this.IoTGatewayInstance.getTopo(cb || function(ret, message) {});
+        var ret = this.IoTGatewayInstance.getTopo(cb || function() {});
         if (ret < 0) {
             throw new Error('get topo error');
         }
@@ -222,7 +223,7 @@ class IotGatewayClient extends event.EventEmitter{
     }
 
     registerSubDevice(options, cb) {
-        var ret = this.IoTGatewayInstance.registerSubDevice(options, cb || function(ret, message) {});
+        var ret = this.IoTGatewayInstance.registerSubDevice(options, cb || function() {});
         if (ret < 0) {
             throw new Error('aiot register subdev error');
         }
@@ -254,6 +255,14 @@ class IotGatewayClient extends event.EventEmitter{
             throw new Error('publish topic info error', options.topic);
         }
 
+        return ret;
+    }
+
+    getNtpTime(cb) {
+        var ret = this.IoTGatewayInstance.getNtpTime(cb || function() {});
+        if (ret < 0) {
+            throw new Error('get ntp time error');
+        }
         return ret;
     }
 }

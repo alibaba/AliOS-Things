@@ -5,13 +5,14 @@
 #ifndef AOS_TTY_CSI_H
 #define AOS_TTY_CSI_H
 
-#include <aos/tty.h>
+#include <aos/tty_core.h>
 #include <drv/uart.h>
 
 typedef struct {
     aos_tty_t tty;
     csi_uart_t csi_uart;
     tcflag_t mode;
+    aos_event_t event;
     aos_sem_t rx_sem;
     aos_sem_t tx_sem;
     aos_task_t rx_task;

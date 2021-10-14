@@ -32,8 +32,6 @@
 #include "py/mperrno.h"
 #include "extmod/vfs.h"
 
-#if !MICROPY_PY_HAAS_SPECIFIC // disabled by HaaS-AMP
-
 STATIC void MP_VFS_LFSx(check_open)(MP_OBJ_VFS_LFSx_FILE * self) {
     if (self->vfs == NULL) {
         mp_raise_ValueError(NULL);
@@ -252,5 +250,3 @@ const mp_obj_type_t MP_TYPE_VFS_LFSx_(_textio) = {
     .protocol = &MP_VFS_LFSx(textio_stream_p),
     .locals_dict = (mp_obj_dict_t *)&MP_VFS_LFSx(file_locals_dict),
 };
-
-#endif

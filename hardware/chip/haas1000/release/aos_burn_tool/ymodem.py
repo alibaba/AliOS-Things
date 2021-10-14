@@ -210,6 +210,7 @@ class YModem(object):
         error_count = 0
         sequence = 1
         sequence_int = 1
+        print("file size: " + str(self.st._task_packets) + " KB")
         while True:
             data = data_stream.read(packet_size)
 

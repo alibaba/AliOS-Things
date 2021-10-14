@@ -1,17 +1,24 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
+# Add by HaaS
+# version = 1.1.1
 
 import os, sys, re, codecs, time, json
 import argparse
 import inspect
 from ymodemfile import YModemfile
 
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(filename)s[line:%(lineno)d]: %(message)s')
+
 try:
     import serial
     from serial.tools import miniterm
     from serial.tools.list_ports import comports
 except:
-    print("\n\nNot found pyserial, please install: \nsudo pip install pyserial")
+    logging.debug("\n\nNot found pyserial, please install:\nsudo pip install pyserial")
     sys.exit(0)
 
 
@@ -39,6 +46,44 @@ def ymodemTrans(serialport, filename):
     sent = sender.send_file(filename)
 
 
+def received_data_check(pattern, buff):
+    matcher = re.compile(pattern)
+    if matcher.search(buff):
+        return True
+
+    return False
+
+def send_check_recv_data_count_down(serialport, pattern, timeout, countUnit):
+    """ receive serial data, and check it with pattern """
+    matcher = re.compile(pattern)
+    tic     = time.time()
+    cnt     = 0
+    unit    = countUnit
+    buff    = serialport.read(128)
+    currentTic = time.time()
+    while (currentTic - tic) < timeout:
+        # show count down
+        if((currentTic - tic) > unit):
+            cnt = unit
+            unit = countUnit + unit
+            print("*****", (timeout-cnt), "*****")
+
+        buff += serialport.read(128)
+        if matcher.search(buff):
+            print("")
+            return True
+        # reset currentTic
+        currentTic = time.time()
+
+    # give more 5S to read buffer
+    while (time.time() - tic) < (timeout + 10):
+        buff += serialport.read(128)
+        if matcher.search(buff):
+            print("")
+            return True
+    print("")
+    return False
+
 def send_check_recv_data(serialport, pattern, timeout):
     """ receive serial data, and check it with pattern """
     matcher = re.compile(pattern)
@@ -51,8 +96,37 @@ def send_check_recv_data(serialport, pattern, timeout):
 
     return False
 
+def file_transfer_handshake_function(serialport):
+    count = 0
+    handshake_data = [0xA5]
+    shakehand_result = False
+    print("***** handsharking *****")
+    print("")
 
-def download_file(portnum, baudrate, filepath):
+    for i in range(300):
+        serialport.write(serial.to_bytes(handshake_data))
+        time.sleep(0.1)
+        buff = serialport.read(2)
+        # logging.debug(buff)
+
+        if((buff) == b'Z'):
+            # logging.debug('Read data OK');
+            count +=1
+
+        if(count >= 4):
+            shakehand_result = True
+
+        if shakehand_result:
+            break
+
+        if i > 5:
+            logging.debug("Please reboot the board manually.")
+            break
+
+    return shakehand_result
+
+
+def download_file(portnum, baudrate, filepath, devpath):
     # open serial port first
     serialport = serial.Serial()
     serialport.port = portnum
@@ -68,96 +142,161 @@ def download_file(portnum, baudrate, filepath):
         raise Exception("Failed to open serial port: %s!" % portnum)
 
     # send handshark world for check amp boot mode
-    mylist = [0xA5]
     checkstatuslist = [0x5A]
     bmatched = False
     shakehand = False
-    count = 0
+    reboot_cmd_cli = 'reboot()\n'
+    reboot_cmd = 'reboot\n'
     reboot_count = 0;
+    reboot_method = 0;
 
     # step 1: check system status
     for i in range(300):
         serialport.write(serial.to_bytes(checkstatuslist))
         time.sleep(0.1)
         buff = serialport.read(2)
-        print(buff)
+        # logging.debug(buff)
         # case 1: input == output is cli or repl mode
         if((buff) == b'Z'):
-            # print('Read data OK');
+            # logging.debug('Read data OK');
             reboot_count +=1
         else:
         # not cli or repl mode is running mode
-            print("Please reboot the board manually.")
+            # reboot_method = 1;
+            time.sleep(0.2)
+            serialport.write(reboot_cmd_cli.encode())
+            time.sleep(0.2)
+            serialport.write(reboot_cmd.encode())
             break;
 
         if(reboot_count >= 4):
             # need reboot system
-            print("Please reboot the board manually.")
+            # send Enter CMD
+            # print("send enter")
+            time.sleep(0.2)
+            # send a cmd
+            serialport.write(b'a\r\n')
+
+            time.sleep(0.2)
+            enter_buff = serialport.read(100)
+            # print(enter_buff)
+            repl_mode = received_data_check(b'Traceback', enter_buff)
+            if repl_mode:
+                # exit python repl mode
+                # print('repl mode')
+                serialport.write(reboot_cmd_cli.encode())
+            else:
+                # cli mode
+                cli_mode = received_data_check(b'cmd not found', enter_buff)
+                if cli_mode:
+                    # print('cli mode')
+                    serialport.write(reboot_cmd.encode())
+                else:
+                    # print('abnomarl')
+                    reboot_method = 1;
+                    break;
+
+            # print(enter_buff)
+            print("***** Device is rebooting *****")
+            print("")
             break;
 
+
     # step 2: wait reboot and hand shakend cmd
-    time.sleep(1)
-    bmatched = send_check_recv_data(serialport, b'amp shakehand begin...', 10)
-    # print(buff)
+    # judge reset dev
+    if(reboot_method == 1):
+        # need reset dev
+        bmatched = False
+    else:
+        time.sleep(1)
+        bmatched = send_check_recv_data(serialport, b'amp shakehand begin...', 10)
+        if bmatched:
+            print("***** Device reboot OK *****")
+        else:
+            print("***** Device reboot Failed *****")
+
+        # logging.debug(buff)
 
     if bmatched:
-        print('amp shakehand begin...')
-
-        for i in range(300):
-            serialport.write(serial.to_bytes(mylist))
-            time.sleep(0.1)
-            buff = serialport.read(2)
-            print(buff)
-
-            if((buff) == b'Z'):
-                # print('Read data OK');
-                count +=1
-
-            if(count >= 4):
-                shakehand = True
-
-            if shakehand:
-                break
-
-            if i > 5:
-                print("Please reboot the board manually.")
-                break
-
+        shakehand = file_transfer_handshake_function(serialport)
+        if shakehand:
+            print("***** recived handshark data *****")
+        else:
+            print("***** can not recived handshark data *****")
+            print("")
+            print("***** Please reboot the board manually, and try it again *****")
+            print("")
+            serialport.close()
+            return
     else:
-        print("Please reboot the board manually, and try it again.")
-        serialport.close()
-        return
+        print("***** Please reboot the board within 10 seconds *****")
+        print("")
+        bmatched_retry = send_check_recv_data_count_down(serialport, b'amp shakehand begin...', 10, 1)
+
+        if bmatched_retry:
+            shakehand = file_transfer_handshake_function(serialport)
+            if shakehand:
+                print("***** recived handshark data *****")
+            else:
+                print("***** can not recived handshark data *****")
+                print("")
+                print("***** Please reboot the board manually, and try it again *****")
+                print("")
+                serialport.close()
+                return
+        else:
+            print("")
+            print("***** Please reboot the board manually, and try it again *****")
+            print("")
+            serialport.close()
+            return
 
     # start send amp boot cmd
     time.sleep(0.1)
-    print("start to send amp_boot cmd")
+    logging.debug("start to send amp_boot cmd")
+    save_path = devpath
     cmd = 'amp_boot'
+
+    if((save_path == 'NULL') or (save_path == 'DATA')):
+        logging.debug('save file in /data')
+        cmd = 'amp_boot'
+    elif (save_path == 'SDCARD'):
+        logging.debug('save file in /sdcard')
+        cmd = 'amp_boot_sd'
+
     serialport.write(cmd.encode())
     # serialport.write(b'amp_boot')
 
     # send file transfer cmd
     time.sleep(0.1)
-    print("start to send file cmd")
-    cmd = 'cmd_file_transfer\n'
-    serialport.write(cmd.encode())
-    bmatched = send_check_recv_data(serialport, b'amp shakehand success', 2)
+    # logging.debug("start to send file cmd")
+    # cmd = 'cmd_file_transfer\n'
+    # serialport.write(cmd.encode())
+    bmatched = send_check_recv_data(serialport, b'amp shakehand success', 5)
     # serialport.write(b'cmd_flash_js\n')
-    
     # send file
     if bmatched:
-        print('amp shakehand success')
+        print("***** Handshark success *****")
+        print("")
+        print("***** Start file transfer *****")
+        print("")
+        cmd = 'cmd_file_transfer\n'
+        serialport.write(cmd.encode())
+
         time.sleep(0.1)
+        serialport.timeout = 0.5
         ymodemTrans(serialport, filepath)
-        print("Ymodem transfer file finish")
+        # logging.debug("Ymodem transfer file finish")
 
         # send file transfer cmd
         time.sleep(0.1)
-        print("send cmd exit")
+        print("***** File transfer End *****")
+        print("")
         cmd = 'cmd_exit\n'
         serialport.write(cmd.encode())
     else:
-        print('amp shakehand failed, please reboot the boaard manually')
-
+        print("***** Handshark failed *****")
+        print("***** Please reboot the board manually, and try it again *****")
     # close serialport
     serialport.close()
 
@@ -169,6 +308,7 @@ def get_downloadconfig():
     configs['chip_haas1000'] = {}
     configs['chip_haas1000']['serialport'] = ''
     configs['chip_haas1000']['baudrate'] = ''
+    configs['chip_haas1000']['savepath'] = ''
     configs['chip_haas1000']['filepath'] = ''
 
     return configs['chip_haas1000']
@@ -181,11 +321,12 @@ def main2():
 
     cmd_parser.add_argument('-d', '--device', default='', help='the serial device or the IP address of the pyboard')
     cmd_parser.add_argument('-b', '--baudrate', default=115200, help='the baud rate of the serial device')
+    cmd_parser.add_argument('-p', '--path', default='NULL', help='the save file path: SDCARD or DATA or NULL')
     cmd_parser.add_argument('files', nargs='*', help='input transfer files')
 
     args = cmd_parser.parse_args()
 
-    print(args)
+    logging.debug(args)
     # download file
     # step 1: set config
     downloadconfig = get_downloadconfig()
@@ -195,7 +336,7 @@ def main2():
         if not downloadconfig["serialport"]:
             downloadconfig["serialport"] = miniterm.ask_for_port()
             if not downloadconfig["serialport"]:
-                print("no specified serial port")
+                logging.debug("no specified serial port")
                 return
         else:
             needsave = True
@@ -206,29 +347,39 @@ def main2():
         if not downloadconfig["baudrate"]:
             downloadconfig["baudrate"] = "115200"
 
+    # step 4: get saved file path of devices
+    if not downloadconfig["savepath"]:
+        downloadconfig["savepath"] = args.path
+        if not downloadconfig["savepath"]:
+            logging.debug('use default path')
+            return
+
     # step 4: get transfer file
     if not downloadconfig["filepath"]:
         downloadconfig["filepath"] = args.files
         if not downloadconfig["filepath"]:
-            print('no file wait to transfer')
+            logging.debug('no file wait to transfer')
             return
-    
+
     if os.path.isabs("".join(downloadconfig["filepath"])):
         filepath = "".join(downloadconfig["filepath"])
-        print('the filepath is abs path')
+        logging.debug('the filepath is abs path')
     else:
         basepath = os.path.abspath('.')
         filepath = basepath + '/' + "".join(downloadconfig["filepath"])
-        print('the filepath is not abs path')
+        logging.debug('the filepath is not abs path')
 
-
+    print("")
+    print("***** Params setting *****")
     print("serial port is %s" % downloadconfig["serialport"])
     print("transfer baudrate is %s" % downloadconfig["baudrate"])
-    # print(base_path(downloadconfig["filepath"]))
+    print("savepath is %s" % downloadconfig["savepath"])
     print("filepath is %s" % filepath)
-    # print("the settings were restored in the file %s" % os.path.join(os.getcwd(), '.config_burn'))
+    print("***** Params setting end *****")
+    print("")
+
     # step 3: download file
-    download_file(downloadconfig["serialport"], downloadconfig['baudrate'], filepath)
+    download_file(downloadconfig["serialport"], downloadconfig['baudrate'], filepath, downloadconfig['savepath'])
 
 
 

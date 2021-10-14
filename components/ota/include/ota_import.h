@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 #ifndef OTA_DOWNLOAD_BLOCK_SIZE
-#define OTA_DOWNLOAD_BLOCK_SIZE    1024   /*OTA download block size:512*/
+#define OTA_DOWNLOAD_BLOCK_SIZE    2048   /*OTA download block size:2048*/
 #endif
 
 #ifndef OTA_FLASH_BLOCK_SIZE

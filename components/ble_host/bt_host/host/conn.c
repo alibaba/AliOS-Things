@@ -8,7 +8,7 @@
 
 #include <ble_os.h>
 #include <string.h>
-#include <errno.h>
+#include <bt_errno.h>
 #include <stdbool.h>
 #include <atomic.h>
 #include <misc/byteorder.h>

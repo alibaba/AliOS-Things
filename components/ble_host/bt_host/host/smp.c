@@ -12,7 +12,7 @@
 
 #include <ble_os.h>
 #include <stddef.h>
-#include <errno.h>
+#include <bt_errno.h>
 #include <string.h>
 #include <atomic.h>
 #include <misc/util.h>
@@ -281,7 +281,8 @@ static bool bondable = IS_ENABLED(CONFIG_BT_BONDABLE);
 static bool oobd_present;
 static bool sc_supported;
 static const u8_t *sc_public_key;
-static K_SEM_DEFINE(sc_local_pkey_ready, 0, 1);
+// static K_SEM_DEFINE(sc_local_pkey_ready, 0, 1);
+static struct k_sem sc_local_pkey_ready;
 
 static u8_t get_io_capa(void)
 {
@@ -4305,6 +4306,8 @@ static void bt_smp_pkey_ready(const u8_t *pkey)
 		return;
 	}
 
+    k_sem_init(&sc_local_pkey_ready, 0, 1);
+
 	k_sem_give(&sc_local_pkey_ready);
 
 	for (i = 0; i < ARRAY_SIZE(bt_smp_pool); i++) {
@@ -5558,7 +5561,6 @@ int bt_smp_init(void)
 		.func           = bt_smp_pkey_ready,
 	};
 #endif
-
 	sc_supported = le_sc_supported();
 	if (IS_ENABLED(CONFIG_BT_SMP_SC_PAIR_ONLY) && !sc_supported) {
 		BT_ERR("SC Pair Only Mode selected but LE SC not supported");

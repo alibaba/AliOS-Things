@@ -214,7 +214,7 @@ static pcm_stream_handler_t codec_pcm_stream_open(int mode, int sampleRate, int 
         }
         capture_stream_hdl = data_dump_open(aud_record_subscribe, _kfifo_len / 1024, sampleRate, 0);
         LOGD(LOG_TAG, "%s:%d: capture_stream_hdl 0x%x, mode %d, sampleRate %d, channels %d, format %d \r\n", __func__, __LINE__,
-             playback_stream_hdl, PCM_STREAM_OUT, sampleRate, channels, format);
+             capture_stream_hdl, PCM_STREAM_OUT, sampleRate, channels, format);
         return capture_stream_hdl;
     } else if (mode == PCM_STREAM_OUT) {
         playback_stream_hdl = (pcm_stream_handler_t)alsa_open(ALSA_MODE_OUT, sampleRate, channels, format);
@@ -358,8 +358,10 @@ static int codec_pcm_stream_close(pcm_stream_handler_t hdl)
     if(hdl == capture_stream_hdl) {
         // TBD: close capture stream
         data_dump_close(hdl, aud_record_unsubscribe);
+        capture_stream_hdl = NULL;
     } else if (hdl == playback_stream_hdl) {
         ret = alsa_close(playback_stream_hdl);
+        capture_stream_hdl = NULL;
     }
     LOGD(LOG_TAG, "%s:%d, ret = %d.", __func__, __LINE__, ret);
     return ret;

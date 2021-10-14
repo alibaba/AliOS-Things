@@ -65,3 +65,4 @@ AliOS Things Solution是指一系列典型应用场景下的示例程序。Solut
 @subpage relay_demo \n
 @subpage rfid_demo \n
 @subpage ucloud_ai_demo \n
+@subpage tflite_micro_speech_demo \n

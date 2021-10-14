@@ -4,18 +4,19 @@
 
 #include <stdio.h>
 #include <string.h>
-
+#include "amp_utils.h"
 #include "amp_defines.h"
 #include "aos_system.h"
 
 #define MOD_STR "AMP_UTILS"
 
+static AOS_SYSTEM_VERSION aos_version = {0};
+
 unsigned char hex2num(unsigned char ch)
 {
     if (ch >= 'a') {
         return ch - 'a' + 10;
-    }
-    else if (ch >= 'A') {
+    } else if (ch >= 'A') {
         return ch - 'A' + 10;
     }
 
@@ -67,10 +68,11 @@ int end_with(char *str1, char *str2)
  *Input:       title: a string, buff: the dest buff for dump,len:the buffer len
  *Output:      none
  *****************************************************************************/
-void amp_hexdump(const char *title, const void *buff, const int len)
+void amp_dump(const char *title, const void *buff, const int len)
 {
     int i, j, written;
     unsigned char ascii[16 + 1] = {0};
+    // char header[64]             = {0};
     unsigned char *buf          = (unsigned char *)buff;
 
     written = 0;
@@ -105,27 +107,101 @@ void amp_hexdump(const char *title, const void *buff, const int len)
         }
     }
     amp_debug(MOD_STR, "%s",
-           "+"
-           "-----------------------"
-           "-----------------------"
-           "-----------------------");
+              "+"
+              "-----------------------"
+              "-----------------------"
+              "-----------------------");
 
     return;
 }
 
-int amp_version_get(char *version)
-{
-    const char *amp_version_fmt = "amp-v%s-g%s-%s-%s";
 
-    aos_snprintf(version, AMP_VERSION_LENGTH, amp_version_fmt, \
-                                  AMP_VERSION_NUMBER, AMP_GIT_COMMIT, AMP_MODULE_HARDWARE, \
-                                  AMP_MODULE_SOFTWARE);
-    return 0;
+/**
+ * 设置用户JS脚本版本号
+ *
+*/
+void aos_userjs_version_set(char *version)
+{
+    if (!version)
+        return;
+    snprintf(aos_version.userjs, sizeof(aos_version.userjs), "%s", version);
+    // amp_debug(MOD_STR, "version %s", aos_version.userjs);
 }
 
-int amp_app_version_get(char *version)
+/**
+ * 获取用户的JS脚本版本号
+ *
+*/
+const char *aos_userjs_version_get(void)
+{
+    // amp_debug(MOD_STR, "version %s", aos_version.userjs);
+    return aos_version.userjs;
+}
+
+/**
+ * 获取用户的JS脚本版本号
+ *
+*/
+const char *aos_app_version_get(void)
 {
     const char *amp_version_fmt = "amp-v%s";
-    aos_snprintf(version, 64, amp_version_fmt, AMP_VERSION_NUMBER);
-    return 0;
+    aos_snprintf(aos_version.app, 64, amp_version_fmt, AMP_VERSION_NUMBER);
+    // amp_debug(MOD_STR, "version %s", aos_version.app);
+    return aos_version.app;
 }
+
+/**
+ * 获取系统kernel软件版本号，在模组设备上即模组软件版本号
+ *
+*/
+const char *aos_kernel_version_get(void)
+{
+    memset(aos_version.kernel, 0, AOS_VERSION_LENGTH);
+    memcpy(aos_version.kernel, AMP_MODULE_SOFTWARE, strlen(AMP_MODULE_SOFTWARE));
+    // amp_debug(MOD_STR, "version %s", aos_version.kernel);
+    return aos_version.kernel;
+}
+
+
+/**
+ * 获取系统软件版本号，包括JS轻应用软件版本和模组软件版本
+ * 用于模组软件不能单独升级、只能和应用软件一起打包升级的场景
+ *
+*/
+const char *aos_system_version_get(void)
+{
+    const char *amp_version_fmt = "amp-v%s-%s";
+    memset(aos_version.system, 0, AOS_VERSION_LENGTH * 2);
+    aos_snprintf(aos_version.system, AMP_VERSION_LENGTH, amp_version_fmt, \
+                 AMP_VERSION_NUMBER, AMP_MODULE_SOFTWARE);
+    // amp_debug(MOD_STR, "version %s", aos_version.system);
+    return aos_version.system;
+}
+
+/**
+ * 系统软件编译时间
+ *
+*/
+const char *aos_system_build_time(void)
+{
+    const char *amp_version_fmt = "%s, %s";
+    memset(aos_version.build_time, 0, 128);
+
+    aos_snprintf(aos_version.build_time, AMP_VERSION_LENGTH, amp_version_fmt, \
+                 __DATE__, __TIME__);
+    // amp_debug(MOD_STR, "version %s", aos_version.build_time);
+    return aos_version.build_time;
+}
+
+/**
+ * 模组硬件版本
+ *
+*/
+const char *aos_hardware_version_get(void)
+{
+    memset(aos_version.module_hardware, 0, AOS_VERSION_LENGTH);
+    memcpy(aos_version.module_hardware, AMP_MODULE_HARDWARE, strlen(AMP_MODULE_HARDWARE));
+    // amp_debug(MOD_STR, "version %s", aos_version.module_hardware);
+    return aos_version.module_hardware;
+}
+

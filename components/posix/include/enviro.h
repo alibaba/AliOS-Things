@@ -22,14 +22,11 @@ extern "C" {
 #define _POSIX_MEMLOCK_RANGE       0
 #define _POSIX_MEMORY_PROTECTION   0
 #define _POSIX_MESSAGE_PASSING     1
-#define _POSIX_MONOTONIC_CLOCK     1
-#define _POSIX_CLOCK_SELECTION     1
 #define _POSIX_PRIORITIZED_IO      1
 #define _POSIX_PRIORITY_SCHEDULING 1
 #define _POSIX_REALTIME_SIGNALS    0
 #define _POSIX_SEMAPHORES          1
 #define _POSIX_SYNCHRONIZED_IO     0
-#define _POSIX_TIMERS              1
 #define _POSIX_BARRIERS            0
 #define _POSIX_READER_WRITER_LOCKS 0
 #define _POSIX_SPIN_LOCKS          0

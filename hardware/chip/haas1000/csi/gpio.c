@@ -7,8 +7,7 @@
 #include <aos/gpioc_csi.h>
 
 #define GPIO_PINS_PER_PORT      (sizeof(uint32_t) * 8)
-#define GPIO_NUM_PORTS \
-    ((HAL_GPIO_PIN_LED_NUM + GPIO_PINS_PER_PORT - 1) / GPIO_PINS_PER_PORT)
+#define GPIO_NUM_PORTS          ((HAL_GPIO_PIN_LED_NUM + GPIO_PINS_PER_PORT - 1) / GPIO_PINS_PER_PORT)
 
 static aos_gpioc_csi_t gpioc_csi[GPIO_NUM_PORTS];
 static csi_gpio_irq_mode_t irq_modes[GPIO_NUM_PORTS][GPIO_PINS_PER_PORT];
@@ -34,15 +33,13 @@ void csi_gpio_uninit(csi_gpio_t *gpio)
 
 csi_error_t csi_gpio_dir(csi_gpio_t *gpio, uint32_t pin_mask, csi_gpio_dir_t dir)
 {
-    uint32_t i;
-
     if (!gpio)
         return CSI_ERROR;
 
     if (gpio->dev.idx >= GPIO_NUM_PORTS)
         return CSI_ERROR;
 
-    for (i = 0; i < GPIO_PINS_PER_PORT; i++) {
+    for (uint32_t i = 0; i < GPIO_PINS_PER_PORT; i++) {
         if (pin_mask & ((uint32_t)1 << i)) {
             struct HAL_IOMUX_PIN_FUNCTION_MAP cfg;
             enum HAL_GPIO_DIR_T d;
@@ -51,8 +48,7 @@ csi_error_t csi_gpio_dir(csi_gpio_t *gpio, uint32_t pin_mask, csi_gpio_dir_t dir
             cfg.volt = HAL_IOMUX_PIN_VOLTAGE_VIO;
             cfg.pull_sel = HAL_IOMUX_PIN_PULLUP_ENALBE;
             hal_iomux_init(&cfg, 1);
-            d = (dir == GPIO_DIRECTION_INPUT) ? HAL_GPIO_DIR_IN :
-                                                HAL_GPIO_DIR_OUT;
+            d = (dir == GPIO_DIRECTION_INPUT) ? HAL_GPIO_DIR_IN : HAL_GPIO_DIR_OUT;
             hal_gpio_pin_set_dir(cfg.pin, d, 0);
         }
     }
@@ -62,15 +58,13 @@ csi_error_t csi_gpio_dir(csi_gpio_t *gpio, uint32_t pin_mask, csi_gpio_dir_t dir
 
 csi_error_t csi_gpio_mode(csi_gpio_t *gpio, uint32_t pin_mask, csi_gpio_mode_t mode)
 {
-    uint32_t i;
-
     if (!gpio)
         return CSI_ERROR;
 
     if (gpio->dev.idx >= GPIO_NUM_PORTS)
         return CSI_ERROR;
 
-    for (i = 0; i < GPIO_PINS_PER_PORT; i++) {
+    for (uint32_t i = 0; i < GPIO_PINS_PER_PORT; i++) {
         if (pin_mask & ((uint32_t)1 << i)) {
             struct HAL_IOMUX_PIN_FUNCTION_MAP cfg;
             enum HAL_GPIO_DIR_T d;
@@ -78,30 +72,30 @@ csi_error_t csi_gpio_mode(csi_gpio_t *gpio, uint32_t pin_mask, csi_gpio_mode_t m
             cfg.function = HAL_IOMUX_FUNC_AS_GPIO;
             cfg.volt = HAL_IOMUX_PIN_VOLTAGE_VIO;
             switch (mode) {
-                case GPIO_MODE_PULLNONE:
-                    cfg.pull_sel = HAL_IOMUX_PIN_NOPULL;
-                    d = HAL_GPIO_DIR_IN;
-                    break;
-                case GPIO_MODE_PULLUP:
-                    cfg.pull_sel = HAL_IOMUX_PIN_PULLUP_ENALBE;
-                    d = HAL_GPIO_DIR_IN;
-                    break;
-                case GPIO_MODE_PULLDOWN:
-                    cfg.pull_sel = HAL_IOMUX_PIN_PULLDOWN_ENALBE;
-                    d = HAL_GPIO_DIR_IN;
-                    break;
-                case GPIO_MODE_OPEN_DRAIN:
-                    cfg.pull_sel = HAL_IOMUX_PIN_NOPULL;
-                    d = HAL_GPIO_DIR_OUT;
-                    break;
-                case GPIO_MODE_PUSH_PULL:
-                    cfg.pull_sel = HAL_IOMUX_PIN_PULLDOWN_ENALBE;
-                    d = HAL_GPIO_DIR_OUT;
-                    break;
-                default:
-                    cfg.pull_sel = HAL_IOMUX_PIN_NOPULL;
-                    d = HAL_GPIO_DIR_IN;
-                    break;
+            case GPIO_MODE_PULLNONE:
+                cfg.pull_sel = HAL_IOMUX_PIN_NOPULL;
+                d = HAL_GPIO_DIR_IN;
+                break;
+            case GPIO_MODE_PULLUP:
+                cfg.pull_sel = HAL_IOMUX_PIN_PULLUP_ENALBE;
+                d = HAL_GPIO_DIR_IN;
+                break;
+            case GPIO_MODE_PULLDOWN:
+                cfg.pull_sel = HAL_IOMUX_PIN_PULLDOWN_ENALBE;
+                d = HAL_GPIO_DIR_IN;
+                break;
+            case GPIO_MODE_OPEN_DRAIN:
+                cfg.pull_sel = HAL_IOMUX_PIN_NOPULL;
+                d = HAL_GPIO_DIR_OUT;
+                break;
+            case GPIO_MODE_PUSH_PULL:
+                cfg.pull_sel = HAL_IOMUX_PIN_PULLDOWN_ENALBE;
+                d = HAL_GPIO_DIR_OUT;
+                break;
+            default:
+                cfg.pull_sel = HAL_IOMUX_PIN_NOPULL;
+                d = HAL_GPIO_DIR_IN;
+                break;
             }
             hal_iomux_init(&cfg, 1);
             hal_gpio_pin_set_dir(cfg.pin, d, 0);
@@ -113,8 +107,6 @@ csi_error_t csi_gpio_mode(csi_gpio_t *gpio, uint32_t pin_mask, csi_gpio_mode_t m
 
 csi_error_t csi_gpio_irq_mode(csi_gpio_t *gpio, uint32_t pin_mask, csi_gpio_irq_mode_t mode)
 {
-    uint32_t i;
-
     if (!gpio)
         return CSI_ERROR;
 
@@ -122,14 +114,14 @@ csi_error_t csi_gpio_irq_mode(csi_gpio_t *gpio, uint32_t pin_mask, csi_gpio_irq_
         return CSI_ERROR;
 
     switch (mode) {
-        case GPIO_IRQ_MODE_RISING_EDGE:
-        case GPIO_IRQ_MODE_FALLING_EDGE:
-            break;
-        default:
-            return CSI_ERROR;
+    case GPIO_IRQ_MODE_RISING_EDGE:
+    case GPIO_IRQ_MODE_FALLING_EDGE:
+        break;
+    default:
+        return CSI_ERROR;
     }
 
-    for (i = 0; i < GPIO_PINS_PER_PORT; i++) {
+    for (uint32_t i = 0; i < GPIO_PINS_PER_PORT; i++) {
         if (pin_mask & ((uint32_t)1 << i))
             irq_modes[gpio->dev.idx][i] = mode;
     }
@@ -139,23 +131,25 @@ csi_error_t csi_gpio_irq_mode(csi_gpio_t *gpio, uint32_t pin_mask, csi_gpio_irq_
 
 static void irq_handler(enum HAL_GPIO_PIN_T pin)
 {
-    aos_gpioc_csi_t *gpioc_csi = &gpioc_csi[pin / GPIO_PINS_PER_PORT];
-    csi_gpio_t *gpio = &gpioc_csi->csi_gpio;
+    uint32_t port = pin / GPIO_PINS_PER_PORT;
+    csi_gpio_t *gpio;
 
+    if (port >= GPIO_NUM_PORTS || pin % GPIO_PINS_PER_PORT >= gpioc_csi[port].gpioc.num_pins)
+        return;
+
+    gpio = &gpioc_csi[port].csi_gpio;
     gpio->callback(gpio, (uint32_t)1 << (pin % GPIO_PINS_PER_PORT), gpio->arg);
 }
 
 csi_error_t csi_gpio_irq_enable(csi_gpio_t *gpio, uint32_t pin_mask, bool enable)
 {
-    uint32_t i;
-
     if (!gpio)
         return CSI_ERROR;
 
     if (gpio->dev.idx >= GPIO_NUM_PORTS)
         return CSI_ERROR;
 
-    for (i = 0; i < GPIO_PINS_PER_PORT; i++) {
+    for (uint32_t i = 0; i < GPIO_PINS_PER_PORT; i++) {
         if (pin_mask & ((uint32_t)1 << i)) {
             uint32_t pin = gpio->dev.idx * GPIO_PINS_PER_PORT + i;
             struct HAL_GPIO_IRQ_CFG_T cfg;
@@ -164,9 +158,8 @@ csi_error_t csi_gpio_irq_enable(csi_gpio_t *gpio, uint32_t pin_mask, bool enable
                 cfg.irq_enable = true;
                 cfg.irq_debounce = true;
                 mode = irq_modes[gpio->dev.idx][i];
-                cfg.irq_polarity = (mode == GPIO_IRQ_MODE_RISING_EDGE) ?
-                                   HAL_GPIO_IRQ_POLARITY_HIGH_RISING :
-                                   HAL_GPIO_IRQ_POLARITY_LOW_FALLING;
+                cfg.irq_polarity = (mode == GPIO_IRQ_MODE_RISING_EDGE) ? HAL_GPIO_IRQ_POLARITY_HIGH_RISING :
+                                                                         HAL_GPIO_IRQ_POLARITY_LOW_FALLING;
                 cfg.irq_handler = irq_handler;
                 cfg.irq_type = HAL_GPIO_IRQ_TYPE_EDGE_SENSITIVE;
             } else {
@@ -185,15 +178,13 @@ csi_error_t csi_gpio_irq_enable(csi_gpio_t *gpio, uint32_t pin_mask, bool enable
 
 void csi_gpio_write(csi_gpio_t *gpio, uint32_t pin_mask, csi_gpio_pin_state_t value)
 {
-    uint32_t i;
-
     if (!gpio)
         return;
 
     if (gpio->dev.idx >= GPIO_NUM_PORTS)
         return;
 
-    for (i = 0; i < GPIO_PINS_PER_PORT; i++) {
+    for (uint32_t i = 0; i < GPIO_PINS_PER_PORT; i++) {
         if (pin_mask & ((uint32_t)1 << i)) {
             uint32_t pin = gpio->dev.idx * GPIO_PINS_PER_PORT + i;
             hal_gpio_pin_set_dir(pin, HAL_GPIO_DIR_OUT, !!value);
@@ -203,8 +194,7 @@ void csi_gpio_write(csi_gpio_t *gpio, uint32_t pin_mask, csi_gpio_pin_state_t va
 
 uint32_t csi_gpio_read(csi_gpio_t *gpio, uint32_t pin_mask)
 {
-    uint32_t ret;
-    uint32_t i;
+    uint32_t ret = 0;
 
     if (!gpio)
         return CSI_ERROR;
@@ -212,7 +202,7 @@ uint32_t csi_gpio_read(csi_gpio_t *gpio, uint32_t pin_mask)
     if (gpio->dev.idx >= GPIO_NUM_PORTS)
         return CSI_ERROR;
 
-    for (ret = 0, i = 0; i < GPIO_PINS_PER_PORT; i++) {
+    for (uint32_t i = 0; i < GPIO_PINS_PER_PORT; i++) {
         if (pin_mask & ((uint32_t)1 << i)) {
             uint32_t pin = gpio->dev.idx * GPIO_PINS_PER_PORT + i;
             ret |= (uint32_t)!!hal_gpio_pin_get_val(pin) << i;
@@ -250,9 +240,7 @@ void csi_gpio_detach_callback(csi_gpio_t *gpio)
 
 static int gpioc_csi_init(void)
 {
-    uint32_t i;
-
-    for (i = 0; i < GPIO_NUM_PORTS; i++) {
+    for (uint32_t i = 0; i < GPIO_NUM_PORTS; i++) {
         uint32_t num_pins;
         int ret;
 
@@ -265,10 +253,9 @@ static int gpioc_csi_init(void)
         gpioc_csi[i].default_output_cfg = AOS_GPIO_OUTPUT_CFG_PP;
         ret = (int)aos_gpioc_csi_register(&gpioc_csi[i]);
         if (ret) {
-            uint32_t j;
-
-            for (j = 0; j < i; j++)
+            for (uint32_t j = 0; j < i; j++)
                 (void)aos_gpioc_csi_unregister(j);
+            return ret;
         }
     }
 

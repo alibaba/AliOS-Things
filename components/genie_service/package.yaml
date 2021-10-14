@@ -1,0 +1,155 @@
+## 第一部分： 基础信息
+name: genie_service                                 # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: master                                   # <必选项> 组件版本号
+description: genie_service stack                    # <必选项> 建议至少20字以上
+type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
+tag: 通用组件                                       # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - genie service
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+#  - genie_console: v7.4.4
+  - ble_mesh: master #v7.4-dev
+  - kv: master
+#  - dut_service: v7.4.3
+
+## 第三部分：板级信息
+# hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段
+#   cpu_id: cpu0
+#   cpu_name: CK804EF
+#   vendor_name: t-head
+#   chip_name: chip_pangu                  # <可选项> 指定芯片组件名,未设置时，使用depends中 chip 第一个组件
+#   board_name: pangu_cpu0                 # <可选项> 指定开发板组件名，未设置时，使用depends中 board 第一个组件
+#   ld_script: configs/gcc_eflash.ld       # <可选项> 连接时使用 LD 脚本，当选把未设置时，使用对应的 board 的 LD 脚本
+#   flash_program: bin/flash_program.elf   # <可选项> 芯片全局烧写程序
+#   cpu0:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#   cpu1:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <可选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+
+## solution component
+# hw_info:
+#   cpu_id: cpu0
+#   board_name: pangu_cpu0
+#   cpu_name: CK805EF
+#   vendor_name: csky
+#   chip_name: 'chip_pangu'
+#   ld_script: configs/gcc_eflash.ld.S
+
+## board component
+# hw_info:
+#   chip_name: chip_pangu
+#   ld_script: configs/gcc_eflash.ld
+
+## chip component (单处理器)
+# hw_info:
+#   cpu_name: CK804EF
+#   ld_script: configs/gcc_eflash.ld
+#   flash_program: bin/flash_program.elf
+
+## chip component(多处理器)
+# hw_info:
+#   cpu0:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#   cpu1:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#   flash_program: bin/flash_program.elf   # <可选项> 芯片全局烧写程序
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  internal_include:
+    - utility/crc/
+
+
+  include:
+    - genie_port/
+    - ./
+    - core/inc
+    - sal/inc
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+    - genie_service.c
+    - core/src/genie_cli.c
+    - core/src/genie_reset.c
+    - core/src/genie_event.c
+    - core/src/genie_storage.c
+    - core/src/genie_triple.c
+    - core/src/genie_vendor_model.c
+    - core/src/genie_transport.c
+    - core/src/genie_crypto.c
+    - core/src/genie_version.c
+    - core/src/genie_provision.c
+    - core/src/genie_mesh.c
+    - core/src/genie_at.c ?<CONFIG_GENIE_MESH_AT_CMD>
+    - sal/src/genie_sal_uart.c ?<CONFIG_GENIE_MESH_AT_CMD>
+    - core/src/genie_bin_cmds.c ?<CONIFG_GENIE_MESH_BINARY_CMD>
+    - sal/src/genie_sal_uart.c ?<CONIFG_GENIE_MESH_BINARY_CMD>
+    - core/src/genie_time.c ?<MESH_MODEL_VENDOR_TIMER>
+    - core/src/genie_lpm.c ?<CONFIG_PM_SLEEP>
+    - sal/src/genie_sal_ble.c
+    - sal/src/genie_sal_lpm.c ?<CONFIG_PM_SLEEP>
+    - core/src/genie_ais.c ?<CONFIG_GENIE_OTA>
+    - core/src/genie_ota.c ?<CONFIG_GENIE_OTA>
+    - core/src/sig_models/sig_model_onoff_srv.c ?<CONFIG_MESH_MODEL_GEN_ONOFF_SRV>
+    - core/src/sig_models/sig_model_lightness_srv.c ?<CONFIG_MESH_MODEL_LIGHTNESS_SRV>
+    - core/src/sig_models/sig_model_light_ctl_srv.c ?<CONFIG_MESH_MODEL_CTL_SRV>
+    - core/src/sig_models/sig_model_scene_srv.c ?<CONFIG_MESH_MODEL_SCENE_SRV>
+    - core/src/sig_models/sig_model_bind_ops.c
+    - core/src/sig_models/sig_model_transition.c
+    - core/src/sig_models/sig_model_event.c
+    - genie_port/hal/genie_hal_flash.c
+    - genie_port/ali_dfu_port.c
+    - genie_port/bt_mesh_event_port.c
+    - utility/crc/*.c
+
+## 第五部分：配置信息
+defconfig:                              # 组件的可配置项
+    CONFIG_GENIE_MESH_PORT: 1
+    CONFIG_GENIE_MESH_ENABLE: 1
+    CONFIG_AOS_CLI: 1
+    CONFIG_BT_MESH_PB_ADV: 1
+    CONFIG_BT_MESH_MODEL_GROUP_COUNT: 8
+    CONFIG_BT_MESH_PROV_TIMEOUT: 0
+    GENIE_DEFAULT_DURATION: 205
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相对路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+
+## 第七部分：导出部分

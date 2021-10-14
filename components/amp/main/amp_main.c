@@ -26,6 +26,7 @@ volatile int g_ui_run_flag = 1;
 #define MOD_STR "AMP_MAIN"
 
 extern void jsengine_main(void);
+extern int aos_network_status_registercb(void (*cb)(int status, void *), void *arg);
 
 #ifdef AMP_NETWORK_ENABLE
 void network_func(void *argv)
@@ -58,6 +59,9 @@ int amp_main(void)
     /* add memory init */
     amp_memory_init();
 
+    /* system init */
+    aos_system_init();
+
     /* printf amp system info */
     aos_printf("=================amp info=================\r\n");
     aos_printf("amp version: amp-v%s-%s\r\n", AMP_VERSION_NUMBER, AMP_GIT_COMMIT);
@@ -77,6 +81,7 @@ int amp_main(void)
     /* set ulog level, make all the level of log is not lower than this value could be logged */
     aos_set_log_level(AOS_LL_ERROR);
 
+#ifndef HAASUI_AMP_BUILD
     /* amp recovery service init */
     amp_boot_main();
 
@@ -123,6 +128,21 @@ int amp_main(void)
         aos_msleep(5000);
     }
 
+#else /* HAASUI_AMP_BUILD defined */
+
+    ret = kv_init();
+    if (ret != 0) {
+        amp_warn(MOD_STR, "kv init failed!");
+    }
+
+    jsengine_main();
+#endif
+
     return 0;
+}
+
+int amp_sysdep_init(void)
+{
+    return amp_main();
 }
 

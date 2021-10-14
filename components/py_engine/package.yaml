@@ -27,7 +27,7 @@ depends:
   - amp_adapter: master
   - oss: "master ? <PY_BUILD_OSS>"
   - ucamera: "master ? <PY_BUILD_UCAMERA>"
-  - linksdk: "master ? <PY_BUILD_LINKSDK>"
+  - linksdk: "master ? <PY_BUILD_ALIYUNIOT>"
   - netmgr: "master ? <PY_BUILD_NETMGR>"
   - lwip: master
   - http: "master ? <PY_BUILD_HTTP>"
@@ -36,11 +36,12 @@ depends:
   - ai_agent: master ? <PY_BUILD_AIAGENT>
   - uvoice: "master ? <PY_BUILD_AUDIO>"
   - a2sa: "master ? <PY_BUILD_AUDIO>"
-  - ble_netconfig: "master ? <PY_BUILD_BLENETCONFIG>"
-  - ble_host: "master ? <PY_BUILD_BLENETCONFIG>"
+  - ble_netconfig: "master ? <PY_BUILD_BLE>"
+  - ble_host: "master ? <PY_BUILD_BLE>"
   - sntp: "master ? <PY_BUILD_SNTP>"
   - mbedtls: "master ? <PY_BUILD_MBEDTLS>"
   - mbmaster: "master ? <PY_BUILD_MODBUS>"
+  - ugraphics: "master ? <PY_BUILD_UGRAPHICS>"
   
   
 ## 第四部分：编译连接信息
@@ -76,13 +77,14 @@ build_config:
 
     # modules
     - modules/audio/
-    - modules/ble_netconfig/
+    - modules/ble/
     - modules/driver/
-    - modules/linksdk/
+    - modules/aliyunIoT/
     - modules/minicv/
     - modules/modbus/
     - modules/mqtt/
     - modules/netmgr/
+    - modules/netconfig/
     - modules/network/
     - modules/oss/
     - modules/ota/
@@ -95,6 +97,7 @@ build_config:
     - engine/drivers/
     - engine/extmod/
     - engine/lib/
+    - engine/shared/
     
     # external/unzip
     - external/unzip/internal/
@@ -102,9 +105,6 @@ build_config:
 
     # external/amp_boot
     - external/amp_boot/
-
-    # external/amp_iot
-    - external/amp_iot/
   
     # external/amp_task
     - external/amp_task/
@@ -119,10 +119,10 @@ build_config:
     - external/common/
 
    
-  prebuild_script: create_python_home.py
+  prebuild_script: py_engine_prepare.py
 
   libs:
-    - ampchannel
+    - ampchannel ? <PY_BUILD_CHANNEL>
 
   libpath:
     - external/libs/haas1000 ? <BOARD_HAAS100>
@@ -143,13 +143,13 @@ source_file:                             # <可选项> 指定参与编译的源�
   - modules/audio/*.c ? <PY_BUILD_AUDIO>
 
   # ble
-  - modules/ble_netconfig/*.c ? <PY_BUILD_BLENETCONFIG>
+  - modules/ble/*.c ? <PY_BUILD_BLE>
 
   # driver
   - modules/driver/*.c
   
   # linksdk
-  - modules/linksdk/*.c ? <PY_BUILD_LINKSDK>
+  - modules/aliyunIoT/*.c ? <PY_BUILD_ALIYUNIOT>
 
   # minicv
   - modules/minicv/*.c ? <PY_BUILD_AI>
@@ -167,9 +167,14 @@ source_file:                             # <可选项> 指定参与编译的源�
   # modbus
   - modules/modbus/*.c ? <PY_BUILD_MODBUS>
   
+  - modules/ugraphics/*.c ? <PY_BUILD_UGRAPHICS>
+
   # mqtt
   - modules/mqtt/modmqtt.c ? <PY_BUILD_MQTT>
   - modules/mqtt/mqttclient.c ? <PY_BUILD_MQTT>
+
+  # netconfig
+  - modules/netconfig/*.c ? <PY_BUILD_BLE>
 
   # netmgr
   - modules/netmgr/modnetmgr.c ? <PY_BUILD_NETMGR>
@@ -201,17 +206,73 @@ source_file:                             # <可选项> 指定参与编译的源�
   # ulog
   - modules/ulog/*.c ? <PY_BUILD_ULOG>
 
+  # kv
+  - modules/kv/*.c ? <PY_BUILD_KV>
+
+   # system
+  - modules/system/*.c ? <PY_BUILD_SYSTEM>
+
   # engine/drivers/
   - engine/drivers/bus/*.c
 
   # engine/extmod/
-  - engine/extmod/*.c
+  - engine/extmod/machine_bitstream.c
+  #- engine/extmod/modbluetooth.c
+  - engine/extmod/moducryptolib.c
+  - engine/extmod/moduselect.c
+  - engine/extmod/mpbthci.c
+  - engine/extmod/vfs_fat_diskio.c
+  - engine/extmod/vfs_reader.c
+  - engine/extmod/machine_i2c.c
+  - engine/extmod/modbtree.c
+  - engine/extmod/moductypes.c
+  - engine/extmod/modussl_axtls.c
+  - engine/extmod/network_cyw43.c
+  - engine/extmod/vfs_fat_file.c
+  - engine/extmod/virtpin.c
+  - engine/extmod/machine_mem.c
+  - engine/extmod/modframebuf.c
+  - engine/extmod/moduhashlib.c
+  - engine/extmod/modussl_mbedtls.c
+  - engine/extmod/uos_dupterm.c
+  - engine/extmod/vfs_lfs.c
+  - engine/extmod/machine_pinbase.c
+  # - engine/extmod/modlwip.c
+  - engine/extmod/moduheapq.c
+  - engine/extmod/modutimeq.c
+  - engine/extmod/utime_mphal.c
+  # - engine/extmod/vfs_lfsx.c
+  - engine/extmod/machine_pulse.c
+  - engine/extmod/modonewire.c
+  - engine/extmod/modujson.c
+  - engine/extmod/moduwebsocket.c
+  - engine/extmod/vfs.c
+  #- engine/extmod/vfs_lfsx_file.c
+  - engine/extmod/machine_signal.c
+  - engine/extmod/moduasyncio.c
+  - engine/extmod/modurandom.c
+  - engine/extmod/moduzlib.c
+  - engine/extmod/vfs_blockdev.c
+  - engine/extmod/vfs_posix.c
+  - engine/extmod/machine_spi.c
+  - engine/extmod/modubinascii.c
+  - engine/extmod/modure.c
+  - engine/extmod/modwebrepl.c
+  - engine/extmod/vfs_fat.c
+  - engine/extmod/vfs_posix_file.c
 
   # engine/lib/
-  - engine/lib/utils/*.c
-  - engine/lib/mp-readline/*.c
-  - engine/lib/timeutils/*.c
-  - engine/lib/netutils/*.c
+  - engine/lib/rel1.5/*.c
+  #- engine/lib/uzlib/*.c
+
+  # engine/shared
+  #- engine/shared/libc/*.c
+  #- engine/shared/memzip/*.c
+  - engine/shared/netutils/*.c
+  - engine/shared/readline/*.c
+  - engine/shared/runtime/*.c
+  - engine/shared/timeutils/*.c
+  - engine/shared/upyteshhelper/*.c
 
   # engine/py/
   - engine/py/*.c
@@ -222,9 +283,6 @@ source_file:                             # <可选项> 指定参与编译的源�
   # external/amp_boot
   - external/amp_boot/*.c ? <PY_BUILD_BOOT>
 
-  # external/amp_iot
-  - external/amp_iot/*.c
-
   # external/amp_task
   - external/amp_task/*.c
 
@@ -233,15 +291,19 @@ source_file:                             # <可选项> 指定参与编译的源�
 
   # external/app_mgr
   - external/app_mgr/app_upgrade.c ? <PY_BUILD_OTA>
-  - external/app_mgr/app_mgr.c ? <PY_BUILD_OTA, PY_BUILD_BOOT>
-  - external/app_mgr/app_message.c ? <PY_BUILD_BOOT>
+  - external/app_mgr/app_mgr.c
+  - external/app_mgr/app_message.c
   
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项
 #   CONFIG_DEBUG: y
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y 
-def_config:                         
+def_config:
+  # Activation start
+  AOS_BUILD_APP: "py_engine"
+  # Activation end
+
   #以下配置同时仅允许打开其中一项
   LINKSDK_DEMO_MQTT_BASIC: y       #MQTT连IoT平台基础功能演示
   LINKSDK_DEMO_MQTT_BCAST: n       #MQTT连IoT平台接收广播推送演示
@@ -258,21 +320,25 @@ def_config:
   PY_BUILD_UDP: 1                  # Py_Engine module build udp config
   PY_BUILD_NETMGR: 1               # Py_Engine module build http config
   PY_BUILD_MQTT: 1                 # Py_Engine module build mqtt config
-  PY_BUILD_LINKSDK: 1              # Py_Engine module build linksdk config
+  PY_BUILD_ALIYUNIOT: 1              # Py_Engine module build linksdk config
   PY_BUILD_USOCKET: 1              # Py_Engine module build usocket config
   PY_BUILD_AUDIO: 1                # Py_Engine module build uvoice config
   PY_BUILD_UOS: 1                  # Py_Engine module build uos config
   PY_BUILD_OSS: 1                  # Py_Engine module build oss config
   PY_BUILD_UCAMERA: 1              # Py_Engine module build ucamera config
-  PY_BUILD_BLENETCONFIG: 1         # Py_Engine module build ble net config
+  PY_BUILD_BLE: 1                  # Py_Engine module build ble net and host config
   PY_BUILD_SNTP: 1                 # Py_Engine module build sntptime config
   PY_BUILD_MODBUS: 1               # Py_Engine module build modbus config
+  PY_BUILD_UGRAPHICS: 0            # Py_Engine module build ugraphics config
   PY_BUILD_ULOG: 1                 # Py_Engine module build ulog config
   PY_BUILD_OTA: 1                  # Py_Engine module build OTA config
   PY_BUILD_BOOT: 1                 # Py_Engine module build boot config
   PY_BUILD_CHANNEL: 1              # Py_Engine module build boot config
   PY_BUILD_AIAGENT: 1              # Py_Engine module build ai_agent config
   PY_BUILD_UCLOUD_AI: 1            # Py_Engine module build ucloud_ai config
+  PY_BUILD_KV: 1                   # Py_Engine module build KV config
+  PY_BUILD_SYSTEM: 1               # Py_Engine module build system config
+
   PY_BUILD_MBEDTLS: 1              # Py_Engine module build mbed TLS
   MBEDTLS_CTR_DRBG_C: 1
   MBEDTLS_ENTROPY_C: 1

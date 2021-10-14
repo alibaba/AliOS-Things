@@ -1,6 +1,11 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <stdlib.h>
+#include <fcntl.h>
 #include <aos/errno.h>
+#include <aos/kernel.h>
 #if AOS_COMP_CLI
 #include "aos/cli.h"
 #endif

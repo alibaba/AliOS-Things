@@ -13,7 +13,7 @@
 
 #if defined(CONFIG_BT_DEBUG_MONITOR)
 #include <ble_os.h>
-#include <device.h>
+#include <bt_device.h>
 #include <init.h>
 #include <drivers/console/uart_pipe.h>
 #include <misc/byteorder.h>

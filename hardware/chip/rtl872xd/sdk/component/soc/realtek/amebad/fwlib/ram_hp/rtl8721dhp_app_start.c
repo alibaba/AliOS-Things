@@ -309,7 +309,7 @@ void app_start(void)
 #if defined (__GNUC__)
 extern void __libc_init_array(void);
 /* Add This for C++ support */
-	__libc_init_array();
+    // __libc_init_array();
 #endif
 
 	// force SP align to 8 byte not 4 byte (initial SP is 4 byte align)

@@ -2,14 +2,15 @@
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
+#include "amp_task.h"
+
+#include "amp_list.h"
 #include "amp_platform.h"
 #include "aos_system.h"
-#include "amp_task.h"
-#include "amp_list.h"
 
-#define MOD_STR                 "PY_TASK"
-#define AMP_MSGQ_WAITIME        (2000)
-#define AMP_MSGQ_MAX_NUM        10
+#define MOD_STR "PY_TASK"
+#define AMP_MSGQ_WAITIME (2000)
+#define AMP_MSGQ_MAX_NUM 10
 
 typedef struct {
     dlist_t node;
@@ -19,8 +20,8 @@ typedef struct {
 static dlist_t g_sources_list = AMP_DLIST_HEAD_INIT(g_sources_list);
 
 static unsigned char g_init = 0;
-static aos_queue_t amp_task_mq = {NULL}; /* JSEngine message queue */
-static aos_mutex_t amp_task_mutex   = {NULL};     /* JSEngine mutex */
+static aos_queue_t amp_task_mq = { NULL }; /* JSEngine message queue */
+static aos_mutex_t amp_task_mutex = { NULL }; /* JSEngine mutex */
 
 static void queue_deinit(aos_queue_t *queue)
 {
@@ -50,27 +51,23 @@ int32_t py_task_yield(uint32_t timeout)
         amp_msg.callback(amp_msg.param);
     }
 
-    else if(amp_msg.type == AMP_TASK_MSG_EXIT) {
+    else if (amp_msg.type == AMP_TASK_MSG_EXIT) {
         return 1;
     }
 
     return 0;
 }
 
-
-
-
 int32_t py_task_schedule_call(amp_engine_call_t call, void *arg)
 {
-
     printf("************* py_task_schedule_call START  *******\r\n");
 
     amp_task_msg_t msg_buf;
     amp_task_msg_t *p_param = &msg_buf;
 
     p_param->callback = call;
-    p_param->param    = arg;
-    p_param->type     = AMP_TASK_MSG_CALLBACK;
+    p_param->param = arg;
+    p_param->type = AMP_TASK_MSG_CALLBACK;
 
     if (!g_init) {
         amp_warn(MOD_STR, "amp_task_mq has not been initlized");
@@ -90,8 +87,8 @@ int32_t py_task_exit_call(amp_engine_call_t call, void *arg)
 
     memset(p_param, 0, sizeof(amp_task_msg_t));
     p_param->callback = call;
-    p_param->param    = arg;
-    p_param->type     = AMP_TASK_MSG_EXIT;
+    p_param->param = arg;
+    p_param->type = AMP_TASK_MSG_EXIT;
 
     if (!g_init) {
         amp_warn(MOD_STR, "amp_task_mq has not been initlized");

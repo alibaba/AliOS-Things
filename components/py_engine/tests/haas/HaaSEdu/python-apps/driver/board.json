@@ -44,7 +44,7 @@
     },
     "ADC2": {
       "type": "ADC",
-      "port": 0,
+      "port": 2,
       "sampling": 12000000
     },
     "GPIO2": {
@@ -96,9 +96,30 @@
       "dir": "output",
       "pull": "pullup"
     },
-    "GPIO23": {
+    "KEY_1": {
       "type": "GPIO",
       "port": 23,
+      "dir": "irq",
+      "pull": "pullup",
+      "intMode": "rising"
+    },
+    "KEY_2": {
+      "type": "GPIO",
+      "port": 20,
+      "dir": "irq",
+      "pull": "pullup",
+      "intMode": "rising"
+    },
+    "KEY_3": {
+      "type": "GPIO",
+      "port": 21,
+      "dir": "irq",
+      "pull": "pullup",
+      "intMode": "rising"
+    },
+    "KEY_4": {
+      "type": "GPIO",
+      "port": 26,
       "dir": "irq",
       "pull": "pullup",
       "intMode": "rising"
@@ -110,6 +131,12 @@
       "freq": 100000,
       "mode": "master",
       "devAddr": 60
+    },
+    "led0": {
+      "type": "GPIO",
+      "port": 36,
+      "dir": "output",
+      "pull": "pullup"
     },
     "led_r": {
       "type": "GPIO",
@@ -133,13 +160,15 @@
       "type": "SPI",
       "port": 0,
       "mode": "master",
-      "freq": 2000000
+      "freq": 2000000,
+      "polPha": 3
     },
     "oled_spi": {
       "type": "SPI",
       "port": 1,
       "mode": "master",
-      "freq": 26000000
+      "freq": 26000000,
+      "polPha": 3
     },
     "oled_dc": {
       "type": "GPIO",
@@ -161,8 +190,13 @@
       "stopBits": 1,
       "flowControl": "disable",
       "parity": "none"
+    },
+    "pwm0": {
+        "type": "PWM",
+        "port": 0
     }
   },
   "debugLevel": "ERROR",
   "repl": "disable"
 }
+

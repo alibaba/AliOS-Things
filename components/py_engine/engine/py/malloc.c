@@ -129,7 +129,6 @@ void *m_malloc0(size_t num_bytes) {
     #if !MICROPY_GC_CONSERVATIVE_CLEAR
     memset(ptr, 0, num_bytes);
     #endif
-    DEBUG_printf("malloc %d : %p\n", num_bytes, ptr);
     return ptr;
 }
 
