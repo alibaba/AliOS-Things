@@ -4,7 +4,7 @@
 
 #include <aos/tty_core.h>
 
-#define STA_TX_EN               ((uint32_t)1 << 0)
+#define STA_TX_EN               ((uint32_t)1 << 0)  /* reserved for XON/XOFF flow control */
 
 #define RW_BUDGET               256
 #define RX_COUNT_THRESHOLD      ((size_t)UINT8_MAX)
@@ -481,7 +481,8 @@ static size_t tx_buffer_produce(aos_tty_t *tty, const void *buf, size_t count)
 
         if (old_count == 0 && new_count > 0) {
             aos_event_set(&tty->event, ~EVENT_TX_EMPTY, AOS_EVENT_AND);
-            tty->ops->start_tx(tty);
+            if (tty->status & STA_TX_EN)
+                tty->ops->start_tx(tty);
         }
 
         aos_spin_unlock_irqrestore(&tty->lock, flags);
@@ -640,6 +641,10 @@ aos_status_t aos_tty_register(aos_tty_t *tty)
     if (!tty)
         return -EINVAL;
 
+    if (!tty->ops || !tty->ops->startup || !tty->ops->shutdown || !tty->ops->set_attr ||
+        !tty->ops->enable_rx || !tty->ops->disable_rx || !tty->ops->start_tx || !tty->ops->stop_tx)
+        return -EINVAL;
+
     tty->dev.type = AOS_DEV_TYPE_TTY;
     tty->dev.ops = &dev_tty_ops;
 #ifdef AOS_COMP_VFS
@@ -666,6 +671,18 @@ aos_status_t aos_tty_register(aos_tty_t *tty)
     }
 
     return 0;
+}
+
+aos_status_t aos_tty_register_argumented(aos_tty_t *tty, uint32_t id, const aos_tty_ops_t *ops, uint32_t flags)
+{
+    if (!tty)
+        return -EINVAL;
+
+    tty->dev.id = id;
+    tty->ops = ops;
+    tty->flags = flags;
+
+    return aos_tty_register(tty);
 }
 
 aos_status_t aos_tty_unregister(uint32_t id)
