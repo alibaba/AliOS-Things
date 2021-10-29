@@ -210,8 +210,6 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec *restrict 
     int     ret            = 0;
     int64_t value_ns       = 0;
     int64_t interval_ns    = 0;
-    int64_t value_ticks    = 0;
-    int64_t interval_ticks = 0;
     struct timespec value_spec = {0};
     struct timespec interval_spec = {0};
     timer_list_t   *timer_list = NULL;

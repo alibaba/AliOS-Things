@@ -75,7 +75,23 @@ key_value["ldflag"] += " --specs=nosys.specs"
 # and call cmake to build
 comp_path = os.path.dirname(sys.argv[0])
 
-build_cmd = '%s-gcc %s %s -E -D__ARM__  -D__ALIGN__=4 -P %s/_haas1000_alios.c -o %s/_haas1000_alios.lds' % (key_value["toolchain"], key_value["cflag"], key_value["macro_list"], comp_path, comp_path)
+macro_path = "macro_defines.h"
+f = open(macro_path, 'w')
+data_list = key_value["macro_list"].split('-D')
+
+for item in data_list:
+    k_list = item.split('=')
+    if len(k_list) < 2:
+        continue
+    head = "#ifndef " + k_list[0] + "\n"
+    f.write(head)
+    data = item.replace('=', "    ")
+    f.write("#define "+ data + "\n")
+    f.write("#endif\n\n")
+
+f.close()
+
+build_cmd = '%s-gcc %s -imacros %s -E -D__ARM__  -D__ALIGN__=4 -P %s/_haas1000_alios.c -o %s/_haas1000_alios.lds' % (key_value["toolchain"], key_value["cflag"], macro_path, comp_path, comp_path)
 print(build_cmd)
 ret = os.system(build_cmd) >> 8
 if ret != 0:

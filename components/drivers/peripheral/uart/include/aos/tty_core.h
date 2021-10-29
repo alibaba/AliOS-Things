@@ -54,6 +54,7 @@ extern "C" {
 #endif
 
 aos_status_t aos_tty_register(aos_tty_t *tty);
+aos_status_t aos_tty_register_argumented(aos_tty_t *tty, uint32_t id, const aos_tty_ops_t *ops, uint32_t flags);
 aos_status_t aos_tty_unregister(uint32_t id);
 
 size_t aos_tty_rx_buffer_produce(aos_tty_t *tty, const void *buf, size_t count);

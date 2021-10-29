@@ -20,7 +20,8 @@ static inline pthread_t _pid_to_pthread(pid_t pid)
         return NULL;
     }
 
-    return (pthread_t)pid;
+    /* todo, not surpport  */
+    return (pthread_t)(uintptr_t)pid;
 }
 
 /* Convert pid to ptcb of the thread. */

@@ -224,8 +224,8 @@ int pthread_attr_getscope(const pthread_attr_t *restrict attr, int *restrict con
 
 int pthread_attr_setscope(pthread_attr_t *attr, int contentionscope)
 {
-    if ((attr == NULL) || (contentionscope != PTHREAD_SCOPE_PROCESS) &&
-                          (contentionscope != PTHREAD_SCOPE_SYSTEM)) {
+    if ((attr == NULL) ||
+        ((contentionscope != PTHREAD_SCOPE_PROCESS) && (contentionscope != PTHREAD_SCOPE_SYSTEM))) {
         return EINVAL;
     }
 

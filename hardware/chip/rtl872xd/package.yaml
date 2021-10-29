@@ -166,7 +166,7 @@ source_file:
   - csi_driver/adc/adc.c
   - csi_driver/gpio/gpio.c
   - csi_driver/iic/iic.c
-  - csi_driver/pwm/pwm.c
+  - aos_driver/pwm/pwm.c
   - csi_driver/spi/spi.c
   - csi_driver/spiflash/spiflash.c
   - csi_driver/timer/timer.c
