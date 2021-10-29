@@ -24,6 +24,8 @@ extern "C" {
 #define DT_SOCK    12
 #define DT_WHT     14
 
+#define DIRSIZ(dp) (offsetof(struct dirent, d_name) + ((strlen((dp)->d_name) + 1 + 3) & ~3))
+
 typedef aos_dir_t DIR;
 
 struct dirent {

@@ -9,7 +9,6 @@
 
 int prctl(int option, ...)
 {
-    int ret = 0;
     va_list ap;
     unsigned long arg;
 

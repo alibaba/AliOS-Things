@@ -79,7 +79,6 @@ static void do_pthread_cleanup(pthread_tcb_t *ptcb)
 /* Exit the pthread, never return. */
 void pthread_exit(void* value_ptr)
 {
-    int ret = 0;
     pthread_tcb_t *ptcb = NULL;
 
     ptcb = __pthread_get_tcb(pthread_self());
@@ -131,7 +130,6 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     int ret = 0;
     pthread_tcb_t *ptcb   = NULL;  /* The ptcb of new thread. */
     pthread_tcb_t *ptcb_c = NULL;  /* The ptcb of current thread. */
-    uint32_t stack_size = 0;
     int kpolicy = 0;
     int kpriority = 0;
 
@@ -389,7 +387,6 @@ int pthread_setschedparam(pthread_t thread, int policy, const struct sched_param
 {
     int ret = 0;
     pthread_tcb_t *ptcb = NULL;
-    uint8_t old_priority = 0;
     uint8_t priority = 0;
     int kpolicy = 0;
 

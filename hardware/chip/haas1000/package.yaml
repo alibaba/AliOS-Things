@@ -128,7 +128,8 @@ source_file:
   - "csi/iic.c"
   - "csi/wdt.c"
   - "csi/flash.c"
-  - "csi/pwm.c"
+  #- "csi/pwm.c"
+  - "aos_driver/pwm/pwm.c"
   # - "hal/2ndboot/wdg.c"
   # - "hal/2ndboot/sys.c"
   # - "hal/2ndboot/uart.c"
@@ -169,7 +170,7 @@ def_config:
   CONFIG_U_PWM_DEV: 1
   CONFIG_U_PWM_CORE: 1
   CONFIG_I2C_NUM: 2
-  CONFIG_PWM_NUM: 2
+  CONFIG_PWM_NUM: 4
   CONFIG_QSPI_NUM: 0
   CONFIG_SPI_NUM: 2
   CONFIG_TIMER_NUM: 1

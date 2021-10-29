@@ -79,7 +79,7 @@
 
 # Release Note
 
-## 2021-10-12
+## 2021-08-26
 - JavaScript轻应用：IoT-Device修复publish内存泄漏问题、优化物模型初始化流程；IoT-Gateway增加NTP时间获取功能、完善拓扑管理、子设备注册和登陆登出等API；新增以太网配网功能，支持静态IP配网；新增UDP功能；更新JS轻应用版本信息获取接口；修复setTimeout、SPI的write问题等
 - python轻应用：micropython引擎升级到V1.17；API对齐HaaS轻应用接口标准；新增BLE支持；GPIO适配层重构；封装Python视觉AI接口
 - components：新增linkkit、ble_mesh、genie_service组件用于天猫精灵IoT生态的接入；

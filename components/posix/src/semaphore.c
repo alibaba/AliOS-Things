@@ -133,8 +133,6 @@ int sem_timedwait(sem_t *sem, const struct timespec *abs_timeout)
 /* unlock a semaphore */
 int sem_post(sem_t *sem)
 {
-    int ret  = 0;
-
     if (sem == NULL) {
         errno = EINVAL;
         return -1;
@@ -148,8 +146,6 @@ int sem_post(sem_t *sem)
 /* get the value of a semaphore */
 int sem_getvalue(sem_t *sem, int *sval)
 {
-    int ret  = 0;
-
     if ((sem == NULL) || (sval == NULL)) {
         errno = EINVAL;
         return -1;
@@ -162,8 +158,6 @@ int sem_getvalue(sem_t *sem, int *sval)
 /* close a named semaphore */
 int sem_close(sem_t *sem)
 {
-    int ret = 0;
-
     if (sem == NULL) {
         errno = EINVAL;
         return -1;
@@ -176,8 +170,6 @@ int sem_close(sem_t *sem)
 /* remove a named semaphore */
 int sem_unlink(const char *name)
 {
-    int ret  = 0;
-
     if (name == NULL) {
         errno = EINVAL;
         return -1;
