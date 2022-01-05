@@ -23,8 +23,12 @@
 #include "../auth/Signer.h"
 #include <sstream>
 #include <ctime>
-#ifdef USE_AOS_TIME_POSIX_API
+#if USE_AOS_TIME_POSIX_API
+#if ESP_PLATFORM
+#include <sys/time.h>
+#else
 #include <posix/timer.h>
+#endif
 #endif
 
 using namespace AlibabaCloud::OSS;
@@ -69,7 +73,7 @@ Client::ClientOutcome Client::AttemptRequest(const std::string & endpoint, const
                 auto serverTimeStr = analyzeServerTime(outcome.error().Message());
                 auto serverTime = UtcToUnixTime(serverTimeStr);
                 if (serverTime != -1) {
-#ifdef USE_AOS_TIME_POSIX_API
+#if USE_AOS_TIME_POSIX_API
                     struct timespec currentTime;
                     time_t localTime;
                     clock_gettime(CLOCK_REALTIME, &currentTime);

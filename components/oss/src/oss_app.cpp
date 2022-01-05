@@ -7,7 +7,9 @@
 #include "fstream"
 #include "string.h"
 #include "oss_app.h"
+#if !ESP_PLATFORM
 #include "aos/vfs.h"
+#endif
 #include "fcntl.h"
 
 #ifdef USE_SD_FOR_OSS
@@ -30,8 +32,8 @@ using namespace AlibabaCloud::OSS;
 
 static void ProgressCallback(size_t increment, int64_t transfered, int64_t total, void* userData)
 {
-    std::cout << "ProgressCallback[" << userData << "] => " <<
-              increment <<" ," << transfered << "," << total << std::endl;
+    // std::cout << "ProgressCallback[" << userData << "] => " <<
+    //          increment <<" ," << transfered << "," << total << std::endl;
 }
 
 static int64_t getFileSize(const std::string& file)
@@ -87,7 +89,7 @@ void sd_file_read(unsigned char * buf,int read_size)
 
 extern Url g_ags_url;
 std::string g_url;
-char* oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *bucketName, char* localfilepath)
+char *oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *bucketName, char * localfilepath)
 {
     /* 初始化OSS账号信息 */
     std::string AccessKeyId;
@@ -97,8 +99,7 @@ char* oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *
     /* yourObjectName表示上传文件到OSS时需要指定包含文件后缀在内的完整路径，例如abc/efg/123.jpg */
     std::string ObjectName ;
 
-    char *p_url;
-    char *pfile_path,file_path[256];
+    // char *pfile_path,file_path[256];
 
     if((keyId == NULL)||(keySecret == NULL)||(endPoint == NULL)||(bucketName == NULL)||(localfilepath == NULL))
     {
@@ -110,16 +111,16 @@ char* oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *
     Endpoint = endPoint;
     BucketName = bucketName;
 
-#ifdef OSS_DEBUG
+#if OSS_DEBUG
     std::cout << "Input_AccessKeyId:" << AccessKeyId <<std::endl;
     std::cout << "Input_AccessKeySecret:" << AccessKeySecret <<std::endl;
     std::cout << "Input_Endpoint:" << Endpoint <<std::endl;
     std::cout << "Input_BucketName:" << BucketName <<std::endl;
 #endif
-    memset(file_path,0,256);
-    pfile_path = localfilepath;
-    strncpy(file_path,&pfile_path[1],strlen(pfile_path)-1);
-    ObjectName = file_path;
+    // memset(file_path,0,256);
+    // pfile_path = localfilepath;
+    // strncpy(file_path,&pfile_path[1],strlen(pfile_path)-1);
+    ObjectName = localfilepath;
 
 #ifdef USE_SD_FOR_OSS
     int file_total_size;
@@ -133,7 +134,7 @@ char* oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *
     OssClient client(Endpoint, AccessKeyId, AccessKeySecret, conf);
 
     /* 上传文件 */
-#ifdef OSS_DEBUG
+#if OSS_DEBUG
     std::cout << "objectfile_path:" << ObjectName <<std::endl;
     std::cout << "localfile_path:" << localfilepath <<std::endl;
 #endif
@@ -165,7 +166,6 @@ char* oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *
     auto outcome = client.PutObject(request);
     g_url = g_ags_url.toString();
     std::cout << "oss ->url:" << g_url << std::endl;
-    p_url = (char *)(g_url.data());
 
     if (!outcome.isSuccess()) {
         /* 异常处理 */
@@ -178,12 +178,12 @@ char* oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *
         ShutdownSdk();
         return NULL;
     }
-    std::cout << __FUNCTION__ << " success, ETag:" << outcome.result().ETag() << std::endl;
+    // std::cout << __FUNCTION__ << " success, ETag:" << outcome.result().ETag() << std::endl;
     /* 释放网络等资源 */
     aos_free(alloc_file_content);
     sd_file_close();
     ShutdownSdk();
-    return p_url;
+    return g_url.c_str();
 #else
     /* 初始化网络等资源 */
     InitializeSdk();
@@ -194,7 +194,7 @@ char* oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *
 
     /* 上传文件 */
     auto fileSize = getFileSize(localfilepath);
-#ifdef OSS_DEBUG
+#if OSS_DEBUG
     std::cout << "objectfile_path:" << ObjectName <<std::endl;
     std::cout << "localfile_path:" << localfilepath <<std::endl;
     std::cout << "localfile_path size:" << fileSize <<std::endl;
@@ -207,8 +207,7 @@ char* oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *
 
     auto outcome = client.PutObject(request);
     g_url = g_ags_url.toString();
-    std::cout << "oss ->url:" << g_url << std::endl;
-    p_url = (char *)(g_url.data());
+    // std::cout << "oss ->url:" << g_url << std::endl;
 
     if (!outcome.isSuccess()) {
         /* 异常处理 */
@@ -219,14 +218,14 @@ char* oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *
         ShutdownSdk();
         return NULL;
     }
-    std::cout << __FUNCTION__ << " success, ETag:" << outcome.result().ETag() << std::endl;
+    // std::cout << __FUNCTION__ << " success, ETag:" << outcome.result().ETag() << std::endl;
     /* 释放网络等资源 */
     ShutdownSdk();
-    return p_url;
+    return g_url.c_str();
 #endif
 }
 
-char* oss_upload_file(char *keyId, char *keySecret, char *endPoint, char *bucketName, char *objectName, char* localfilepath)
+char *oss_upload_file(char *keyId, char *keySecret, char *endPoint, char *bucketName, char *objectName, char * localfilepath)
 {
     /* 初始化OSS账号信息 */
     std::string AccessKeyId;
@@ -235,8 +234,6 @@ char* oss_upload_file(char *keyId, char *keySecret, char *endPoint, char *bucket
     std::string BucketName;
     /* yourObjectName表示上传文件到OSS时需要指定包含文件后缀在内的完整路径，例如abc/efg/123.jpg */
     std::string ObjectName ;
-
-    char *p_url;
 
     if((keyId == NULL)||(keySecret == NULL)||(endPoint == NULL)||(bucketName == NULL)||(localfilepath == NULL))
     {
@@ -249,7 +246,7 @@ char* oss_upload_file(char *keyId, char *keySecret, char *endPoint, char *bucket
     BucketName = bucketName;
     ObjectName = objectName;
 
-#ifdef OSS_DEBUG
+#if OSS_DEBUG
     std::cout << "Input_AccessKeyId:" << AccessKeyId <<std::endl;
     std::cout << "Input_AccessKeySecret:" << AccessKeySecret <<std::endl;
     std::cout << "Input_Endpoint:" << Endpoint <<std::endl;
@@ -268,7 +265,7 @@ char* oss_upload_file(char *keyId, char *keySecret, char *endPoint, char *bucket
     OssClient client(Endpoint, AccessKeyId, AccessKeySecret, conf);
 
     /* 上传文件 */
-#ifdef OSS_DEBUG
+#if OSS_DEBUG
     std::cout << "objectfile_path:" << ObjectName <<std::endl;
     std::cout << "localfile_path:" << localfilepath <<std::endl;
 #endif
@@ -299,8 +296,7 @@ char* oss_upload_file(char *keyId, char *keySecret, char *endPoint, char *bucket
 
     auto outcome = client.PutObject(request);
     g_url = g_ags_url.toString();
-    std::cout << "oss ->url:" << g_url << std::endl;
-    p_url = (char *)(g_url.data());
+    // std::cout << "oss ->url:" << g_url << std::endl;
 
     if (!outcome.isSuccess()) {
         /* 异常处理 */
@@ -313,12 +309,12 @@ char* oss_upload_file(char *keyId, char *keySecret, char *endPoint, char *bucket
         ShutdownSdk();
         return NULL;
     }
-    std::cout << __FUNCTION__ << " success, ETag:" << outcome.result().ETag() << std::endl;
+    // std::cout << __FUNCTION__ << " success, ETag:" << outcome.result().ETag() << std::endl;
     /* 释放网络等资源 */
     aos_free(alloc_file_content);
     sd_file_close();
     ShutdownSdk();
-    return p_url;
+    return g_url.c_str();
 #else
     /* 初始化网络等资源 */
     InitializeSdk();
@@ -329,7 +325,7 @@ char* oss_upload_file(char *keyId, char *keySecret, char *endPoint, char *bucket
 
     /* 上传文件 */
     auto fileSize = getFileSize(localfilepath);
-#ifdef OSS_DEBUG
+#if OSS_DEBUG
     std::cout << "objectfile_path:" << ObjectName <<std::endl;
     std::cout << "localfile_path:" << localfilepath <<std::endl;
     std::cout << "localfile_path size:" << fileSize <<std::endl;
@@ -342,8 +338,7 @@ char* oss_upload_file(char *keyId, char *keySecret, char *endPoint, char *bucket
 
     auto outcome = client.PutObject(request);
     g_url = g_ags_url.toString();
-    std::cout << "oss ->url:" << g_url << std::endl;
-    p_url = (char *)(g_url.data());
+    // std::cout << "oss ->url:" << g_url << std::endl;
 
     if (!outcome.isSuccess()) {
         /* 异常处理 */
@@ -354,14 +349,14 @@ char* oss_upload_file(char *keyId, char *keySecret, char *endPoint, char *bucket
         ShutdownSdk();
         return NULL;
     }
-    std::cout << __FUNCTION__ << " success, ETag:" << outcome.result().ETag() << std::endl;
+    // std::cout << __FUNCTION__ << " success, ETag:" << outcome.result().ETag() << std::endl;
     /* 释放网络等资源 */
     ShutdownSdk();
-    return p_url;
+    return g_url.c_str();
 #endif
 }
 
-char* oss_upload_local_content(char *keyId, char *keySecret, char *endPoint, char *bucketName, char *scontent)
+char *oss_upload_local_content(char *keyId, char *keySecret, char *endPoint, char *bucketName, char *scontent, int32_t contentLen, char *ossFilePath)
 {
     /* 初始化OSS账号信息 */
     std::string AccessKeyId;
@@ -389,7 +384,7 @@ char* oss_upload_local_content(char *keyId, char *keySecret, char *endPoint, cha
         sContent = scontent;
     }
 
-#ifdef OSS_DEBUG
+#if OSS_DEBUG
     std::cout << "Input_AccessKeyId:" << AccessKeyId <<std::endl;
     std::cout << "Input_AccessKeySecret:" << AccessKeySecret <<std::endl;
     std::cout << "Input_Endpoint:" << Endpoint <<std::endl;
@@ -404,10 +399,10 @@ char* oss_upload_local_content(char *keyId, char *keySecret, char *endPoint, cha
 
     /* 上传文件 */
     std::shared_ptr<std::iostream> content = std::make_shared<std::stringstream>();
-    *content << sContent;
+    (*content).write(scontent, contentLen);
 
-    ObjectName = "oss/test/oss.txt";
-    std::cout << "objectfile_path:" << ObjectName <<std::endl;
+    ObjectName = ossFilePath;
+    // std::cout << "objectfile_path:" << ObjectName <<std::endl;
     PutObjectRequest request(BucketName, ObjectName, content);
 
     TransferProgress progressCallback = { ProgressCallback };
@@ -415,7 +410,7 @@ char* oss_upload_local_content(char *keyId, char *keySecret, char *endPoint, cha
 
     auto outcome = client.PutObject(request);
     g_url = g_ags_url.toString();
-    std::cout << "oss ->url:" << g_url << std::endl;
+    // std::cout << "oss ->url:" << g_url << std::endl;
 
     if (!outcome.isSuccess()) {
         /* 异常处理 */
@@ -426,13 +421,13 @@ char* oss_upload_local_content(char *keyId, char *keySecret, char *endPoint, cha
         ShutdownSdk();
         return NULL;
     }
-    std::cout << __FUNCTION__ << " success, ETag:" << outcome.result().ETag() << std::endl;
+    // std::cout << __FUNCTION__ << " success, ETag:" << outcome.result().ETag() << std::endl;
     /* 释放网络等资源 */
     ShutdownSdk();
-    return NULL;
+    return g_url.c_str();
 }
 
-char* oss_download_file(char *keyId, char *keySecret, char *endPoint, char *bucketName, char *objectName, char* localfilepath)
+char *oss_download_file(char *keyId, char *keySecret, char *endPoint, char *bucketName, char *objectName, char * localfilepath)
 {
     /* 初始化OSS账号信息 */
     std::string AccessKeyId;
@@ -455,7 +450,11 @@ char* oss_download_file(char *keyId, char *keySecret, char *endPoint, char *buck
     BucketName = bucketName;
     ObjectName = objectName;
 
+#if ESP_PLATFORM
+    int fp = open(localfilepath, O_RDWR | O_CREAT | O_TRUNC);
+#else
     int fp = aos_open(localfilepath, O_RDWR | O_CREAT | O_TRUNC);
+#endif
     if (fp < 0) {
         std::cout <<"open file fail\n";
         return NULL;
@@ -479,12 +478,21 @@ char* oss_download_file(char *keyId, char *keySecret, char *endPoint, char *buck
             stream->read(buffer, 256);
             auto count = stream->gcount();
             /*根据实际情况处理数据。*/
+#if ESP_PLATFORM
+            int ret = write(fp, buffer, count);
+            if (ret <= 0) {
+                close(fp);
+                fp = -1;
+                return NULL;
+            }
+#else
             int ret = aos_write(fp, buffer, count);
             if (ret <= 0) {
                 aos_close(fp);
                 fp = -1;
                 return NULL;
             }
+#endif
 	    }
     }
     else {
@@ -497,7 +505,11 @@ char* oss_download_file(char *keyId, char *keySecret, char *endPoint, char *buck
         return NULL;
     }
     if (fp >= 0) {
+#if ESP_PLATFORM
+        close(fp);
+#else
         aos_close(fp);
+#endif
     }
 
     /*释放网络等资源*/

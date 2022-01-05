@@ -31,7 +31,7 @@ typedef uint32_t cpu_stack_t;
 typedef uint32_t cpu_cpsr_t;
 
 #else
-	#error Assembler did not define __riscv_xlen
+    #error Assembler did not define __riscv_xlen
 #endif
 
 typedef uint64_t hr_timer_t;

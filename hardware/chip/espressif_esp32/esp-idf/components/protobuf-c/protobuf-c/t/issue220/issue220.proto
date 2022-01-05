@@ -1,0 +1,20 @@
+message TopLevel {
+    oneof submessages {
+        MessageType1 type1 = 1;
+        MessageType2 type2 = 2;
+    }
+}
+
+message MessageType1 {
+    enum Flag {
+        OK = 1;
+    }
+    optional Flag flag = 1;
+}
+
+message MessageType2 {
+    enum AnotherFlag {
+        OK = 1;
+    }
+    optional AnotherFlag flag = 1;
+}

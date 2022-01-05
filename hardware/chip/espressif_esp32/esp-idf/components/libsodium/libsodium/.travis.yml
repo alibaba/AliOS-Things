@@ -1,0 +1,39 @@
+sudo: false
+
+language: c
+
+os:
+ - linux
+
+compiler:
+ - clang
+ - gcc
+ - g++
+
+before_script:
+ - ./autogen.sh
+
+script:
+ - ./configure --disable-dependency-tracking
+ - >
+   if [ "$TRAVIS_OS_NAME" = 'linux' -a "$CC" = 'gcc' ]; then make CFLAGS='-g0' > /dev/null && cp src/libsodium/.libs/libsodium.so lib.so && make clean > /dev/null && make CFLAGS='-g0' CPPFLAGS='-DSODIUM_C99\(X\)=' > /dev/null && cp src/libsodium/.libs/libsodium.so lib-oldc.so && cmp lib.so lib-oldc.so && echo No binary changes && make clean > /dev/null ; fi
+ - make distcheck
+ - make distclean > /dev/null
+ - ./configure --disable-dependency-tracking --enable-minimal
+ - make distcheck
+ - ( echo '#include <sodium.h>' ; echo 'int main(void) { return sodium_init(); }' ) > /tmp/main.c && gcc -Isrc/libsodium/include -Isrc/libsodium/include/sodium $(find src -name '*.c' -o -name '*.S') /tmp/main.c
+
+env:
+  global:
+   - secure: "OyX+ypmU5NLRiSsIg1HvaGYvlaHSN2S/0AyCIQt63PNdcG7o1xa9Sv1Tcujr/xuvSvNbchNVEyBvCbNgqp/R8kRRhNPqFo2pxMMjkEKrJQqOm8sjvwMqTV4k6axEq+WwKylQaNJSDq1G9n5J/s7hlVPaiKAjsOPKnMN5ThNAr8o="
+
+addons:
+  coverity_scan:
+    project:
+      name: jedisct1/libsodium
+      version: 1.0.12
+      description: libsodium
+      notification_email: coverityscan@pureftpd.org
+      build_command_prepend: ./autogen.sh ; ./configure
+      build_command: make -j4
+      branch_pattern: coverity_scan

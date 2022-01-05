@@ -47,11 +47,37 @@ typedef struct _RecogCharacterStruct {
     int width;
 } RecogCharacterStruct;
 
+typedef struct _RecogLicensePlateStruct {
+    char *plateNumber;
+    float confidence;
+    char *plateType;
+    float plateTypeConfidence;
+    struct {
+    int x;
+    int y;
+    int w;
+    int h;
+    } roi;
+} RecogLicensePlateStruct;
+
+typedef struct _RecogOcrCodeStruct {
+    char *taskId;
+    char imageURL;
+    struct {
+        char *suggestion;
+        float rate;
+        char *qrCodesData;
+        char *label;
+    } results;
+} RecogOcrCodeStruct;
+
 typedef struct _OcrResultStruct {
     union {
         RecogIdentityCardStruct identity;
         RecogBankCardStruct bank;
         RecogCharacterStruct character;
+        RecogLicensePlateStruct licensePlate;
+        RecogOcrCodeStruct qrCode;
     };
 } OcrResultStruct;
 
@@ -59,6 +85,7 @@ int recognizeIdentityCardFaceSide(char *url, AIModelCBFunc cb);
 int recognizeIdentityCardBackSide(char *url, AIModelCBFunc cb);
 int recognizeBankCard(char *url, AIModelCBFunc cb);
 int recognizeCharacter(char *url, AIModelCBFunc cb);
+int recognizeLicensePlate(char *url, AIModelCBFunc cb);
 
 #ifdef __cplusplus
 }

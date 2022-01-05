@@ -7,24 +7,21 @@
 #include "aiot_state_api.h"
 #include "aiot_sysdep_api.h"
 #include "amp_task.h"
+#ifdef AOS_COMP_KV
 #include "aos/kv.h"
-#include "app_upgrade.h"
+#endif
+// #include "app_upgrade.h"
 #include "module_aiot.h"
-#include "ota_agent.h"
+// #include "ota_agent.h"
 #include "py/mperrno.h"
 #include "py_defines.h"
 
-#define MOD_STR       "AIOT"
+#define MOD_STR       "AIOT_GATEWAY"
 
 #define OTA_MODE_NAME "system"
 
-static char g_iot_close_flag = 0;
-static char g_iot_conn_flag = 0;
-static char g_iot_clean_flag = 0;
-static aos_sem_t g_iot_connect_sem = NULL;
-
-static ota_service_t pyamp_g_aiot_device_appota_service;
-static ota_store_module_info_t module_info[3];
+// static ota_service_t pyamp_g_aiot_device_appota_service;
+// static ota_store_module_info_t module_info[3];
 
 const mp_obj_type_t linksdk_gateway_type;
 
@@ -96,7 +93,7 @@ static char *__amp_strdup(const char *src)
 
 static void aiot_subdev_packet_dump(const aiot_subdev_recv_t *packet)
 {
-    printf("%s: packet->type %d\r\n", __func__, packet->type);
+    amp_debug(MOD_STR, "%s: packet->type %d\r\n", __func__, packet->type);
     switch (packet->type) {
         case AIOT_SUBDEVRECV_TOPO_ADD_REPLY:
         case AIOT_SUBDEVRECV_TOPO_DELETE_REPLY:
@@ -105,25 +102,26 @@ static void aiot_subdev_packet_dump(const aiot_subdev_recv_t *packet)
         case AIOT_SUBDEVRECV_BATCH_LOGOUT_REPLY:
         case AIOT_SUBDEVRECV_SUB_REGISTER_REPLY:
         case AIOT_SUBDEVRECV_PRODUCT_REGISTER_REPLY: {
-            printf("msgid        : %d\r\n", packet->data.generic_reply.msg_id);
-            printf("code         : %d\r\n", packet->data.generic_reply.code);
-            printf("product key  : %s\r\n", packet->data.generic_reply.product_key);
-            printf("device name  : %s\r\n", packet->data.generic_reply.device_name);
-            printf("message      : %s\r\n", (packet->data.generic_reply.message == NULL)?("NULL"):(packet->data.generic_reply.message));
-            printf("data         : %s\r\n", packet->data.generic_reply.data);
+            amp_debug(MOD_STR, "msgid        : %d\r\n", packet->data.generic_reply.msg_id);
+            amp_debug(MOD_STR, "code         : %d\r\n", packet->data.generic_reply.code);
+            amp_debug(MOD_STR, "product key  : %s\r\n", packet->data.generic_reply.product_key);
+            amp_debug(MOD_STR, "device name  : %s\r\n", packet->data.generic_reply.device_name);
+            amp_debug(MOD_STR, "message      : %s\r\n",
+                (packet->data.generic_reply.message == NULL) ? ("NULL") : (packet->data.generic_reply.message));
+            amp_debug(MOD_STR, "data         : %s\r\n", packet->data.generic_reply.data);
         }
         break;
         case AIOT_SUBDEVRECV_TOPO_CHANGE_NOTIFY: {
-            printf("msgid        : %d\r\n", packet->data.generic_notify.msg_id);
-            printf("product key  : %s\r\n", packet->data.generic_notify.product_key);
-            printf("device name  : %s\r\n", packet->data.generic_notify.device_name);
-            printf("params       : %s\r\n", packet->data.generic_notify.params);
+            amp_debug(MOD_STR, "msgid        : %d\r\n", packet->data.generic_notify.msg_id);
+            amp_debug(MOD_STR, "product key  : %s\r\n", packet->data.generic_notify.product_key);
+            amp_debug(MOD_STR, "device name  : %s\r\n", packet->data.generic_notify.device_name);
+            amp_debug(MOD_STR, "params       : %s\r\n", packet->data.generic_notify.params);
         }
         break;
         default:
         break;
     }
-    printf("%s exit\r\n", __func__);
+    amp_debug(MOD_STR, "%s exit\r\n", __func__);
 }
 
 static void subcribe_cb(void *handle, const aiot_mqtt_recv_t *packet, void *userdata)
@@ -133,9 +131,9 @@ static void subcribe_cb(void *handle, const aiot_mqtt_recv_t *packet, void *user
     switch (packet->type) {
     case AIOT_MQTTRECV_PUB:
         /* print topic name and topic message */
-        amp_debug(MOD_STR, "pub, qos: %d, len: %d, topic: %s  \r\n", packet->data.pub.qos, packet->data.pub.topic_len,
+        amp_debug(MOD_STR, "pub, qos: %d, len: %d, topic: %s\r\n", packet->data.pub.qos, packet->data.pub.topic_len,
                   packet->data.pub.topic);
-        amp_debug(MOD_STR, "pub, len: %d, payload: %s  \r\n", packet->data.pub.payload_len, packet->data.pub.payload);
+        amp_debug(MOD_STR, "pub, len: %d, payload: %s\r\n", packet->data.pub.payload_len, packet->data.pub.payload);
         mp_obj_t dict = MP_OBJ_NULL;
         dict = mp_obj_new_dict(2);
         mp_obj_dict_store(MP_OBJ_FROM_PTR(dict),
@@ -143,12 +141,13 @@ static void subcribe_cb(void *handle, const aiot_mqtt_recv_t *packet, void *user
                           mp_obj_new_str(packet->data.pub.topic,  packet->data.pub.topic_len));
         mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("payload", 7),
                           mp_obj_new_str(packet->data.pub.payload, packet->data.pub.payload_len));
-        if (mp_obj_is_fun(iot_gateway_handle->callback[ON_SUBCRIBE])) {
-            callback_to_python(iot_gateway_handle->callback[ON_SUBCRIBE], dict);
+        mp_obj_t callback = iot_gateway_handle->callback[ON_SUBCRIBE];
+        if (callback != MP_OBJ_NULL && mp_obj_is_fun(callback)) {
+                callback_to_python(callback, dict);
         } else {
-            amp_error(MOD_STR,
+            amp_warn(MOD_STR,
                       "iot_gateway_handle->cb_on_subcribe is "
-                      "not function");
+                      "not function\r\n");
         }
         break;
     default:
@@ -161,6 +160,7 @@ static void aiot_subdev_notify(void *pdata)
     subdev_notify_param_t *param = (subdev_notify_param_t *)pdata;
 
     mp_obj_t dict = MP_OBJ_NULL;
+    mp_obj_t callback = MP_OBJ_NULL;
 
     switch (param->cb_type) {
     case ON_LOGIN:
@@ -168,12 +168,11 @@ static void aiot_subdev_notify(void *pdata)
     case ON_TOPOADD:
     case ON_TOPOREMOVE:
     case ON_SUBREGISTER:
-        if (mp_obj_is_fun(param->iot_gateway_handle->callback[param->cb_type])) {
-            callback_to_python(param->iot_gateway_handle->callback[param->cb_type],
-                               mp_obj_new_int(param->ret_code));
-        } else {
-            amp_error(MOD_STR, "callback function is not rigister");
-        }
+        callback = param->iot_gateway_handle->callback[param->cb_type];
+        if (callback != MP_OBJ_NULL && mp_obj_is_fun(callback))
+            callback_to_python(callback, mp_obj_new_int(param->ret_code));
+        else
+            amp_error(MOD_STR, "callback function is not rigister\r\n");
         break;
 
     case ON_TOPOGET:
@@ -182,11 +181,11 @@ static void aiot_subdev_notify(void *pdata)
                           mp_obj_new_int(param->ret_code));
         mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("message", 7),
                           mp_obj_new_str(param->params, strlen(param->params)));
-        if (mp_obj_is_fun(param->iot_gateway_handle->callback[param->cb_type])) {
-            callback_to_python(param->iot_gateway_handle->callback[param->cb_type], dict);
-        } else {
-            amp_error(MOD_STR, "callback function is not rigister");
-        }
+        callback = param->iot_gateway_handle->callback[param->cb_type];
+        if (callback != MP_OBJ_NULL && mp_obj_is_fun(callback))
+            callback_to_python(callback, dict);
+        else
+            amp_error(MOD_STR, "callback function is not rigister.\r\n");
         aos_free(param->params);
         break;
 
@@ -198,10 +197,11 @@ static void aiot_subdev_notify(void *pdata)
                           mp_obj_new_int(param->ret_code));
         mp_obj_dict_store(dict, mp_obj_new_str("handle", 6),
                           MP_OBJ_FROM_PTR(param->iot_gateway_handle));
-        if (mp_obj_is_fun(param->iot_gateway_handle->callback[param->cb_type])) {
-            callback_to_python(param->iot_gateway_handle->callback[param->cb_type], dict);
+        callback = param->iot_gateway_handle->callback[param->cb_type];
+        if (callback != MP_OBJ_NULL && mp_obj_is_fun(callback)) {
+                callback_to_python(callback, dict);
         } else {
-            amp_error(MOD_STR, "callback function is not rigister");
+            amp_error(MOD_STR, "callback function is not rigister\r\n");
         }
         break;
 
@@ -219,7 +219,7 @@ static void aiot_subdev_recv_handler(void *handle, const aiot_subdev_recv_t *pac
 
     param = aos_malloc(sizeof(subdev_notify_param_t));
     if (!param) {
-        amp_error(MOD_STR, "alloc gateway notify param fail");
+        amp_error(MOD_STR, "alloc gateway notify param fail.\r\n");
         return;
     }
 
@@ -255,23 +255,24 @@ static void aiot_subdev_recv_handler(void *handle, const aiot_subdev_recv_t *pac
             param->ret_code = packet->data.generic_reply.code == 200 ? 0 : packet->data.generic_reply.code;
             break;
         case AIOT_SUBDEVRECV_PRODUCT_REGISTER_REPLY:
-            printf("msgid        : %d\n", packet->data.generic_reply.msg_id);
-            printf("code         : %d\n", packet->data.generic_reply.code);
-            printf("product key  : %s\n", packet->data.generic_reply.product_key);
-            printf("device name  : %s\n", packet->data.generic_reply.device_name);
-            printf("message      : %s\n", (packet->data.generic_reply.message == NULL)?("NULL"):(packet->data.generic_reply.message));
-            printf("data         : %s\n", packet->data.generic_reply.data);
+            amp_debug(MOD_STR, "msgid        : %d\n", packet->data.generic_reply.msg_id);
+            amp_debug(MOD_STR, "code         : %d\n", packet->data.generic_reply.code);
+            amp_debug(MOD_STR, "product key  : %s\n", packet->data.generic_reply.product_key);
+            amp_debug(MOD_STR, "device name  : %s\n", packet->data.generic_reply.device_name);
+            amp_debug(MOD_STR, "message      : %s\n",
+                (packet->data.generic_reply.message == NULL) ? ("NULL") : (packet->data.generic_reply.message));
+            amp_debug(MOD_STR, "data         : %s\n", packet->data.generic_reply.data);
             aos_free(param);
             return;
         case AIOT_SUBDEVRECV_TOPO_CHANGE_NOTIFY:
-            printf("msgid        : %d\n", packet->data.generic_notify.msg_id);
-            printf("product key  : %s\n", packet->data.generic_notify.product_key);
-            printf("device name  : %s\n", packet->data.generic_notify.device_name);
-            printf("params       : %s\n", packet->data.generic_notify.params);
+            amp_debug(MOD_STR, "msgid        : %d\n", packet->data.generic_notify.msg_id);
+            amp_debug(MOD_STR, "product key  : %s\n", packet->data.generic_notify.product_key);
+            amp_debug(MOD_STR, "device name  : %s\n", packet->data.generic_notify.device_name);
+            amp_debug(MOD_STR, "params       : %s\n", packet->data.generic_notify.params);
             aos_free(param);
             return;
         default: {
-            amp_error(MOD_STR, "%s: unknown type %d", __func__, packet->type);
+            amp_error(MOD_STR, "%s: unknown type %d\n", __func__, packet->type);
             aos_free(param);
             return;
         }
@@ -289,11 +290,11 @@ static void aiot_mqtt_message_cb(iot_mqtt_message_t *message, void *userdata)
     if (!message || !udata)
         return;
 
-    amp_error(MOD_STR, "aiot_mqtt_message_cb IS CALLED");
+    amp_debug(MOD_STR, "aiot_mqtt_message_cb IS CALLED\r\n");
 
     param = aos_malloc(sizeof(subdev_notify_param_t));
     if (!param) {
-        amp_error(MOD_STR, "alloc device notify param fail");
+        amp_error(MOD_STR, "alloc gateway notify param fail\r\n");
         return;
     }
     memset(param, 0, sizeof(subdev_notify_param_t));
@@ -301,14 +302,14 @@ static void aiot_mqtt_message_cb(iot_mqtt_message_t *message, void *userdata)
     param->iot_gateway_handle = iot_gateway_handle;
 
     param->option = message->option;
-    amp_error(MOD_STR, "message->option is %d  ", message->option);
-
+    amp_debug(MOD_STR, "message->option is %d\r\n", message->option);
     if (message->option == AIOT_MQTTOPT_EVENT_HANDLER) {
-        amp_error(MOD_STR, "message->event.type is %d  ", message->event.type);
+        amp_debug(MOD_STR, "message->event.type is %d\r\n", message->event.type);
 
         switch (message->event.type) {
         case AIOT_MQTTEVT_CONNECT:
-            aos_sem_signal(&g_iot_connect_sem);
+            aos_sem_signal(&param->iot_gateway_handle->g_iot_connect_sem);
+             aos_free(param);
             return;
         case AIOT_MQTTEVT_DISCONNECT:
             param->cb_type  = ON_DISCONNECT;
@@ -320,7 +321,7 @@ static void aiot_mqtt_message_cb(iot_mqtt_message_t *message, void *userdata)
             return;
         }
     } else if (message->option == AIOT_MQTTOPT_RECV_HANDLER) {
-        amp_debug(MOD_STR, "message->recv.type is %d  ", message->recv.type);
+        amp_debug(MOD_STR, "message->recv.type is %d\r\n", message->recv.type);
         switch (message->recv.type) {
         case AIOT_MQTTRECV_PUB:
             param->ret_code  = message->recv.code;
@@ -346,12 +347,12 @@ static void aiot_gateway_connect(void *pdata)
 {
     int res = -1;
     char current_amp_ver[64];
-    ota_service_t *ota_svc = &pyamp_g_aiot_device_appota_service;
+    // ota_service_t *ota_svc = &pyamp_g_aiot_device_appota_service;
     iot_gateway_handle_t *iot_gateway_handle = (iot_gateway_handle_t *)pdata;
     iot_mqtt_userdata_t *userdata;
     subdev_notify_param_t *param;
 
-    amp_error(MOD_STR, "start mqtt connect task");
+    amp_debug(MOD_STR, "start mqtt connect task.\r\n");
 
     uint16_t keepaliveSec = 0;
 
@@ -359,7 +360,7 @@ static void aiot_gateway_connect(void *pdata)
 
     userdata = aos_malloc(sizeof(iot_mqtt_userdata_t));
     if (!userdata) {
-        amp_error(MOD_STR, "alloc mqtt userdata fail");
+        amp_error(MOD_STR, "alloc mqtt userdata fail.\r\n");
         return;
     }
     userdata->callback = aiot_mqtt_message_cb;
@@ -368,18 +369,18 @@ static void aiot_gateway_connect(void *pdata)
     res = pyamp_aiot_mqtt_client_start(&iot_gateway_handle->mqtt_handle,
                                        keepaliveSec, userdata);
     if (res < STATE_SUCCESS) {
-        amp_debug(MOD_STR, "mqtt client create failed");
+        amp_debug(MOD_STR, "mqtt client create failed\r\n");
         aos_free(userdata);
         aos_free(iot_gateway_handle);
         return;
     }
 
-    g_iot_conn_flag = 1;
+    iot_gateway_handle->g_iot_conn_flag = 1;
 
     /* device model service */
     iot_gateway_handle->subdev_handle = aiot_subdev_init();
     if (iot_gateway_handle->subdev_handle == NULL) {
-        amp_debug(MOD_STR, "aiot_subdev_init failed");
+        amp_debug(MOD_STR, "aiot_subdev_init failed\r\n");
         aos_free(userdata);
         aos_free(iot_gateway_handle);
         return;
@@ -394,11 +395,11 @@ static void aiot_gateway_connect(void *pdata)
 
     param = aos_malloc(sizeof(subdev_notify_param_t));
     if (!param) {
-        amp_error(MOD_STR, "alloc gateway notify param fail");
+        amp_error(MOD_STR, "alloc gateway notify param fail.\r\n");
         return;
     }
 
-    aos_sem_wait(&g_iot_connect_sem, AOS_WAIT_FOREVER);
+     aos_sem_wait(&iot_gateway_handle->g_iot_connect_sem, AOS_WAIT_FOREVER);
     /* Make sure gateway related functions can be performed in the CONNECT callback */
     param->ret_code           = 0;
     param->iot_gateway_handle = iot_gateway_handle;
@@ -409,19 +410,16 @@ static void aiot_gateway_connect(void *pdata)
 
     /* app gateway active info report */
     res = pyamp_amp_app_devinfo_report(iot_gateway_handle->mqtt_handle);
-    if (res < STATE_SUCCESS) {
-        amp_debug(MOD_STR, "gateway active info report failed");
-    }
-
-    while (!g_iot_close_flag) {
+    if (res < STATE_SUCCESS)
+        amp_debug(MOD_STR, "gateway active info report failed\r\n");
+    while (!iot_gateway_handle->g_iot_close_flag)
         aos_msleep(1000);
-    }
 
     pyamp_aiot_mqtt_client_stop(&iot_gateway_handle->mqtt_handle);
 
     aos_free(userdata);
-    aos_free(iot_gateway_handle);
-    g_iot_conn_flag = 0;
+    iot_gateway_handle->g_iot_conn_flag = 0;
+    aos_sem_signal(&iot_gateway_handle->g_iot_close_sem);
     aos_task_exit(0);
     return;
 }
@@ -445,7 +443,7 @@ static mp_obj_t aiot_create_gateway(mp_obj_t self_in, mp_obj_t data)
     u_int32_t keepaliveSec = 0;
     aos_task_t iot_gateway_task;
     iot_gateway_handle_t *iot_gateway_handle = NULL;
-    ota_service_t *ota_svc = &pyamp_g_aiot_device_appota_service;
+    // ota_service_t *ota_svc = &pyamp_g_aiot_device_appota_service;
 
     linksdk_gateway_obj_t *self = self_in;
     if (self_in == NULL) {
@@ -454,7 +452,7 @@ static mp_obj_t aiot_create_gateway(mp_obj_t self_in, mp_obj_t data)
     }
 
     if (!mp_obj_is_dict_or_ordereddict(data)) {
-        amp_error(MOD_STR, "%s  param1 type error,param type must be dict \r\n",
+        amp_error(MOD_STR, "%s  param1 type error,param type must be dict\r\n",
                   __func__);
         return mp_obj_new_int(-1);
     }
@@ -472,16 +470,16 @@ static mp_obj_t aiot_create_gateway(mp_obj_t self_in, mp_obj_t data)
     keepaliveSec = mp_obj_get_int(mp_obj_dict_get(data, index));
 
     amp_info(MOD_STR,
-             "productKey=%s deviceName=%s deviceSecret=%s keepaliveSec=%d\n",
-             productKey, deviceName, deviceSecret, keepaliveSec);
-
-    memset(ota_svc->pk, 0, sizeof(ota_svc->pk));
-    memset(ota_svc->dn, 0, sizeof(ota_svc->dn));
-    memset(ota_svc->ds, 0, sizeof(ota_svc->ds));
-    memcpy(ota_svc->pk, productKey, strlen(productKey));
-    memcpy(ota_svc->dn, deviceName, strlen(deviceName));
-    memcpy(ota_svc->ds, deviceSecret, strlen(deviceSecret));
-
+        "productKey=%s deviceName=%s deviceSecret=%s keepaliveSec=%d\r\n",
+        productKey, deviceName, deviceSecret, keepaliveSec);
+    /*
+        memset(ota_svc->pk, 0, sizeof(ota_svc->pk));
+        memset(ota_svc->dn, 0, sizeof(ota_svc->dn));
+        memset(ota_svc->ds, 0, sizeof(ota_svc->ds));
+        memcpy(ota_svc->pk, productKey, strlen(productKey));
+        memcpy(ota_svc->dn, deviceName, strlen(deviceName));
+        memcpy(ota_svc->ds, deviceSecret, strlen(deviceSecret));
+    */
     aos_kv_set(AMP_CUSTOMER_PRODUCTKEY, productKey, IOTX_PRODUCT_KEY_LEN, 1);
     aos_kv_set(AMP_CUSTOMER_DEVICENAME, deviceName, IOTX_DEVICE_NAME_LEN, 1);
     aos_kv_set(AMP_CUSTOMER_DEVICESECRET, deviceSecret, IOTX_DEVICE_SECRET_LEN, 1);
@@ -492,7 +490,7 @@ static mp_obj_t aiot_create_gateway(mp_obj_t self_in, mp_obj_t data)
                            aiot_gateway_connect, self->iot_gateway_handle,
                            1024 * 10, AOS_DEFAULT_APP_PRI);
     if (res != STATE_SUCCESS) {
-        amp_warn(MOD_STR, "iot create task failed");
+        amp_warn(MOD_STR, "iot create task failed\n");
         aos_free(iot_gateway_handle);
         goto out;
     }
@@ -501,8 +499,28 @@ out:
 
     return mp_obj_new_int(res);
 }
-
 MP_DEFINE_CONST_FUN_OBJ_2(native_gateway_create_gateway, aiot_create_gateway);
+
+/* aiot_gateway_close */
+static mp_obj_t aiot_gateway_close(mp_obj_t self_in)
+{
+    int res = -1;
+
+    linksdk_gateway_obj_t *self = self_in;
+
+    if (self_in == NULL)
+        return mp_obj_new_int(res);
+
+    iot_gateway_handle_t *iot_gateway_handle = self->iot_gateway_handle;
+
+    if (iot_gateway_handle->g_iot_conn_flag) {
+        iot_gateway_handle->g_iot_close_flag = 1;
+        aos_sem_wait(&iot_gateway_handle->g_iot_close_sem, 8000);
+        iot_gateway_handle->g_iot_close_flag = 0;
+        aos_msleep(10);
+    }
+}
+MP_DEFINE_CONST_FUN_OBJ_1(native_aiot_gateway_close, aiot_gateway_close);
 
 /* publish */
 static mp_obj_t aiot_publish(mp_obj_t self_in, mp_obj_t data)
@@ -520,7 +538,7 @@ static mp_obj_t aiot_publish(mp_obj_t self_in, mp_obj_t data)
     }
 
     if (!mp_obj_is_dict_or_ordereddict(data)) {
-        amp_error(MOD_STR, "%s  data type error,param type must be dict \r\n",
+        amp_error(MOD_STR, "%s  data type error,param type must be dict\r\n",
                   __func__);
         return mp_obj_new_int(-1);
     }
@@ -535,13 +553,12 @@ static mp_obj_t aiot_publish(mp_obj_t self_in, mp_obj_t data)
     index = mp_obj_new_str_via_qstr("qos", 3);
     qos = mp_obj_get_int(mp_obj_dict_get(data, index));
 
-    amp_debug(MOD_STR, "publish topic: %s, payload: %s, qos is: %d", topic,
-              payload, qos);
+    amp_debug(MOD_STR, "publish topic: %s, payload: %s, qos is: %d\r\n", topic, payload, qos);
 
     res = aiot_mqtt_pub(self->iot_gateway_handle->mqtt_handle, topic,
                         payload, payload_len, qos);
     if (res < STATE_SUCCESS) {
-        amp_error(MOD_STR, "aiot app mqtt publish failed\n");
+        amp_error(MOD_STR, "aiot app mqtt publish failed\r\n");
         goto out;
     }
 
@@ -564,7 +581,7 @@ static mp_obj_t aiot_unsubscribe(mp_obj_t self_in, mp_obj_t data)
     }
 
     if (!mp_obj_is_dict_or_ordereddict(data)) {
-        amp_error(MOD_STR, "%s  data type error,param type must be dict \r\n",
+        amp_error(MOD_STR, "%s  data type error,param type must be dict\r\n",
                   __func__);
         return mp_obj_new_int(-1);
     }
@@ -572,7 +589,7 @@ static mp_obj_t aiot_unsubscribe(mp_obj_t self_in, mp_obj_t data)
     mp_obj_t index = mp_obj_new_str_via_qstr("topic", 5);
     topic = mp_obj_str_get_str(mp_obj_dict_get(data, index));
 
-    amp_debug(MOD_STR, "unsubscribe topic: %s", topic);
+    amp_debug(MOD_STR, "unsubscribe topic: %s\r\n", topic);
 
     res = aiot_mqtt_unsub(self->iot_gateway_handle->mqtt_handle, topic);
     if (res < STATE_SUCCESS) {
@@ -592,7 +609,7 @@ static mp_obj_t aiot_subscribe(mp_obj_t self_in, mp_obj_t data)
     int res = -1;
     char *topic = NULL;
     uint32_t qos = 0;
-    amp_debug(MOD_STR, "native_aiot_subscribe is called");
+    amp_debug(MOD_STR, "native_aiot_subscribe is called\r\n");
 
     linksdk_gateway_obj_t *self = self_in;
     if (self_in == NULL) {
@@ -601,7 +618,7 @@ static mp_obj_t aiot_subscribe(mp_obj_t self_in, mp_obj_t data)
     }
 
     if (!mp_obj_is_dict_or_ordereddict(data)) {
-        amp_error(MOD_STR, "%s  data type error,param type must be dict \r\n",
+        amp_error(MOD_STR, "%s data type error,param type must be dict\r\n",
                   __func__);
         return mp_obj_new_int(-1);
     }
@@ -621,7 +638,7 @@ static mp_obj_t aiot_subscribe(mp_obj_t self_in, mp_obj_t data)
         amp_error(MOD_STR, "aiot app mqtt subscribe failed\n");
         goto out;
     } else {
-        amp_error(MOD_STR, "subcribe topic: %s  succeed \r\n", topic);
+        amp_info(MOD_STR, "subcribe topic: %s  succeed\r\n", topic);
     }
 
 out:
@@ -659,7 +676,7 @@ static mp_obj_t aiot_topo_common(mp_obj_t self_in, mp_obj_t data, gateway_funcod
     subdev_length = subdev_num;
     subdev = aos_malloc(subdev_length * sizeof(aiot_subdev_dev_t));
     if (subdev == NULL) {
-        amp_debug(MOD_STR, "sub dev malloc failed");
+        amp_debug(MOD_STR, "sub device malloc failed\r\n");
         goto out;
     }
     memset(subdev, 0, subdev_length * sizeof(aiot_subdev_dev_t));
@@ -720,7 +737,7 @@ static mp_obj_t aiot_topo_common(mp_obj_t self_in, mp_obj_t data, gateway_funcod
     break;
     }
     if (res < STATE_SUCCESS) {
-        amp_error(MOD_STR, "aiot app mqtt publish failed ret = %d\n", res);
+        amp_error(MOD_STR, "aiot app mqtt publish failed ret = %d.\r\n", res);
         goto out;
     }
 
@@ -795,7 +812,7 @@ static mp_obj_t aiot_getTop(mp_obj_t self_in)
 
     res = aiot_subdev_send_topo_get(self->iot_gateway_handle->subdev_handle);
     if (res < STATE_SUCCESS) {
-        amp_error(MOD_STR, "aiot app mqtt publish failed\n");
+        amp_error(MOD_STR, "aiot app mqtt publish failed\r\n");
         goto out;
     }
 
@@ -832,7 +849,7 @@ static mp_obj_t get_gateway_handle(mp_obj_t self_in)
     }
     iot_gateway_handle_t *iot_gateway_handle = self->iot_gateway_handle;
     if (!iot_gateway_handle) {
-        amp_warn(MOD_STR, "parameter must be handle");
+        amp_warn(MOD_STR, "parameter must be handle\r\n");
         goto out;
     } else {
          return mp_obj_new_int((mp_int_t)iot_gateway_handle);
@@ -852,12 +869,12 @@ static mp_obj_t hapy_get_ntp_time(mp_obj_t self_in, mp_obj_t cb)
     }
     iot_gateway_handle_t *iot_gateway_handle = self->iot_gateway_handle ;
     if (!iot_gateway_handle) {
-        amp_warn(MOD_STR, "parameter must be handle");
+        amp_warn(MOD_STR, "parameter must be handle\r\n");
         goto out;
     }
     res = hapy_aiot_amp_ntp_service(iot_gateway_handle->mqtt_handle, cb);
     if (res < STATE_SUCCESS) {
-        amp_error(MOD_STR, "gateway dynmic register failed");
+        amp_error(MOD_STR, "gateway dynmic register failed\r\n");
     }
 out:
     return mp_obj_new_int(res);
@@ -878,6 +895,7 @@ STATIC const mp_rom_map_elem_t linkkit_gateway_locals_dict_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR_login), MP_ROM_PTR(&native_gateway_login) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_logout), MP_ROM_PTR(&native_gateway_logout) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_registerSubDevice), MP_ROM_PTR(&native_gateway_register_subDevice) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_end), MP_ROM_PTR(&native_aiot_gateway_close) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_ON_CONNECT), MP_ROM_INT(ON_CONNECT) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_ON_DISCONNECT), MP_ROM_INT(ON_DISCONNECT) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_ON_CLOSE), MP_ROM_INT(ON_CLOSE) },
@@ -919,7 +937,8 @@ STATIC mp_obj_t linksdk_gateway_make_new(const mp_obj_type_t *type,
 
     iot_gateway_handle->callback = m_new(mp_obj_t, ON_CB_MAX);
 
-    aos_sem_new(&g_iot_connect_sem, 0);
+    aos_sem_new(&iot_gateway_handle->g_iot_connect_sem, 0);
+    aos_sem_new(&iot_gateway_handle->g_iot_close_sem, 0);
 
     gateway_obj->iot_gateway_handle = iot_gateway_handle;
     gateway_obj->base.type = &linksdk_gateway_type;

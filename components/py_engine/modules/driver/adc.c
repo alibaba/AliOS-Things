@@ -33,7 +33,7 @@ STATIC mp_obj_t adc_obj_make_new(const mp_obj_type_t *type, size_t n_args, size_
 {
     mp_adc_obj_t *driver_obj = m_new_obj(mp_adc_obj_t);
     if (!driver_obj) {
-        mp_raise_OSError(ENOMEM);
+        mp_raise_OSError(MP_ENOMEM);
     }
     memset(driver_obj, 0, sizeof(mp_adc_obj_t));
 
@@ -122,7 +122,7 @@ STATIC mp_obj_t adc_close(size_t n_args, const mp_obj_t *args)
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(adc_close_obj, 1, adc_close);
 
-STATIC mp_obj_t adc_read(size_t n_args, const mp_obj_t *args)
+STATIC mp_obj_t adc_readVoltage(size_t n_args, const mp_obj_t *args)
 {
     adc_dev_t *adc_device = NULL;
     if (n_args < 1) {
@@ -142,20 +142,80 @@ STATIC mp_obj_t adc_read(size_t n_args, const mp_obj_t *args)
     }
 
     int32_t adc_value = -1;
-    int32_t ret = aos_hal_adc_value_get(adc_device, &adc_value, 0);
+    int32_t ret = aos_hal_adc_voltage_value_get(adc_device, &adc_value, 0);
     if(ret != 0) {
         return MP_OBJ_NEW_SMALL_INT(ret);
     } else {
         return MP_OBJ_NEW_SMALL_INT(adc_value);
     }
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(adc_read_obj, 1, adc_read);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(adc_readVoltage_obj, 1, adc_readVoltage);
+
+STATIC mp_obj_t adc_readRaw(size_t n_args, const mp_obj_t *args)
+{
+    adc_dev_t *adc_device = NULL;
+    if (n_args < 1) {
+        LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
+        return MP_OBJ_NEW_SMALL_INT(-MP_E2BIG);
+    }
+    mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_adc_obj_t *driver_obj = (mp_adc_obj_t *)self;
+    if (driver_obj == NULL) {
+        LOGE(LOG_TAG, "driver_obj is NULL\n");
+        return MP_OBJ_NEW_SMALL_INT(-MP_EINVAL);
+    }
+    adc_device = py_board_get_node_by_handle(MODULE_ADC, &(driver_obj->adc_handle));
+    if (NULL == adc_device) {
+        LOGE(LOG_TAG, "%s: py_board_get_node_by_handle failed;\n", __func__);
+        return MP_OBJ_NEW_SMALL_INT(-MP_ENODEV);
+    }
+
+    int32_t adc_value = -1;
+    int32_t ret = aos_hal_adc_raw_value_get(adc_device, &adc_value, 0);
+    if (ret != 0) {
+        return MP_OBJ_NEW_SMALL_INT(ret);
+    } else {
+        return MP_OBJ_NEW_SMALL_INT(adc_value);
+    }
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(adc_readRaw_obj, 1, adc_readRaw);
+
+STATIC mp_obj_t adc_getHwParam(size_t n_args, const mp_obj_t *args)
+{
+    adc_dev_t *adc_device = NULL;
+    if (n_args < 1) {
+        LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
+        return MP_OBJ_NEW_SMALL_INT(-MP_E2BIG);
+    }
+    mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_adc_obj_t *driver_obj = (mp_adc_obj_t *)self;
+    if (driver_obj == NULL) {
+        LOGE(LOG_TAG, "driver_obj is NULL\n");
+        return MP_OBJ_NEW_SMALL_INT(-MP_EINVAL);
+    }
+    adc_device = py_board_get_node_by_handle(MODULE_ADC, &(driver_obj->adc_handle));
+    if (NULL == adc_device) {
+        LOGE(LOG_TAG, "%s: py_board_get_node_by_handle failed;\n", __func__);
+        return MP_OBJ_NEW_SMALL_INT(-MP_ENODEV);
+    }
+
+    mp_obj_t dict = mp_obj_new_dict(2);
+    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("ADC_WIDTH_BIT", strlen("ADC_WIDTH_BIT")),
+                      mp_obj_new_int(adc_device->config.adc_width));
+    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("ADC_ATTEN_DB", strlen("ADC_ATTEN_DB")),
+                      mp_obj_new_int(adc_device->config.adc_atten));
+
+    return dict;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(adc_getHwParam_obj, 1, adc_getHwParam);
 
 STATIC const mp_rom_map_elem_t adc_locals_dict_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_ADC) },
     { MP_ROM_QSTR(MP_QSTR_open), MP_ROM_PTR(&adc_open_obj) },
     { MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&adc_close_obj) },
-    { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&adc_read_obj) },
+    { MP_ROM_QSTR(MP_QSTR_readVoltage), MP_ROM_PTR(&adc_readVoltage_obj) },
+    { MP_ROM_QSTR(MP_QSTR_readRaw), MP_ROM_PTR(&adc_readRaw_obj) },
+    { MP_ROM_QSTR(MP_QSTR_getHwParam), MP_ROM_PTR(&adc_getHwParam_obj) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(adc_locals_dict, adc_locals_dict_table);

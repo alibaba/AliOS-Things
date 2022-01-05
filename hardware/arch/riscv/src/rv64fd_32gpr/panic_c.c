@@ -5,53 +5,21 @@
 #include <stdio.h>
 #include <string.h>
 #include <csi_core.h>
-//#include "debug_api.h"
+#include <k_arch.h>
+#include <aos/debug.h>
 
-#define REG_NAME_WIDTH 7
+#define REG_NAME_WIDTH 8
 extern volatile uint32_t g_crash_steps;
-extern void panicHandler(void *context);
 
-typedef struct
-{
-    /* saved in assembler */
-    long LR; // X1/ra
-    long SP; // X2
-    long X3;
-    long X4;
-    long X5;
-    long X6;
-    long X7;
-    long X8;
-    long X9;
-    long X10;
-    long X11;
-    long X12;
-    long X13;
-    long X14;
-    long X15;
-    long X16;
-    long X17;
-    long X18;
-    long X19;
-    long X20;
-    long X21;
-    long X22;
-    long X23;
-    long X24;
-    long X25;
-    long X26;
-    long X27;
-    long X28;
-    long X29;
-    long X30;
-    long X31;
-    long mepc;
-    long mstatus;
-} PANIC_CONTEXT;
+typedef context_t PANIC_CONTEXT;
+
 
 typedef struct
 {
     long mcause;
+    long mtval;
+    long sp;
+    long lr;
 } FAULT_REGS;
 
 static char *k_ll2str(intptr_t num, char *str)
@@ -72,9 +40,9 @@ void panicGetCtx(void *context, char **pPC, char **pLR, int **pSP)
 {
     PANIC_CONTEXT *rv64_context = (PANIC_CONTEXT *)context;
 
-    *pSP = (int *)rv64_context->SP;
-    *pPC = (char *)rv64_context->mepc;
-    *pLR = (char *)rv64_context->LR;
+    *pSP = (int *)((long)rv64_context + sizeof(PANIC_CONTEXT));
+    *pPC = (char *)rv64_context->PC;
+    *pLR = (char *)rv64_context->X1;
 }
 
 void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...))
@@ -84,42 +52,43 @@ void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...))
     char       s_panic_regs[REG_NAME_WIDTH + 14 + 8];
     FAULT_REGS stFregs;
     /* PANIC_CONTEXT */
-    char s_panic_ctx[] = "X1     "
-                         "X2     "
-                         "X3     "
-                         "X4     "
-                         "X5     "
-                         "X6     "
-                         "X7     "
-                         "X8     "
-                         "X9     "
-                         "X10    "
-                         "X11    "
-                         "X12    "
-                         "X13    "
-                         "X14    "
-                         "X15    "
-                         "X16    "
-                         "X17    "
-                         "X18    "
-                         "X19    "
-                         "X20    "
-                         "X21    "
-                         "X22    "
-                         "X23    "
-                         "X24    "
-                         "X25    "
-                         "X26    "
-                         "X27    "
-                         "X28    "
-                         "X29    "
-                         "X30    "
-                         "X31    "
-                         "MEPC   "
-                         "MSTAT  ";
+    char s_panic_ctx[] = "X1(ra)  "
+                         "X4(tp)  "
+                         "X5(t0)  "
+                         "X6(t1)  "
+                         "X7(t2)  "
+                         "X8(s0)  "
+                         "X9(s1)  "
+                         "X10(a0) "
+                         "X11(a1) "
+                         "X12(a2) "
+                         "X13(a3) "
+                         "X14(a4) "
+                         "X15(a5) "
+                         "X16(a6) "
+                         "X17(a7) "
+                         "X18(s2) "
+                         "X19(s3) "
+                         "X20(s4) "
+                         "X21(s5) "
+                         "X22(s6) "
+                         "X23(s7) "
+                         "X24(s8) "
+                         "X25(s9) "
+                         "X26(s10)"
+                         "X27(s11)"
+                         "X28(t3) "
+                         "X29(t4) "
+                         "X30(t5) "
+                         "X31(t6) "
+                         "MEPC    "
+                         "MSTAT   ";
 
     /* FAULT_REGS */
-    char s_panic_reg[] = "MCAUSE ";
+    char s_panic_reg[] = "MCAUSE  "
+                         "MTVAL   "
+                         "SP      "
+                         "LR      ";
 
     if (regs == NULL) {
         return;
@@ -140,7 +109,10 @@ void panicShowRegs(void *context, int (*print_func)(const char *fmt, ...))
     }
 
     /* show FAULT_REGS */
-    stFregs.mcause  = __get_MCAUSE();
+    stFregs.mcause = __get_MCAUSE();
+    stFregs.mtval  = __get_MTVAL();
+    stFregs.sp     = (long)(context + sizeof(PANIC_CONTEXT));
+    stFregs.lr     = (long)regs[0];
     for (x = 0; x < sizeof(stFregs) / sizeof(long); x++) {
         memcpy(&s_panic_regs[0], &s_panic_reg[x * REG_NAME_WIDTH],
                REG_NAME_WIDTH);
@@ -179,12 +151,14 @@ void panicNmiInputFilter(uint8_t ch)
 void panicNmiInputFilter(uint8_t ch){}
 #endif
 
+extern void panicHandler(void *context);
 void exceptionHandler(void *context)
 {
     g_crash_steps++;
+
     if (g_crash_steps > 1) {
         context = NULL;
-    } 
+    }
     panicHandler(context);
 }
 

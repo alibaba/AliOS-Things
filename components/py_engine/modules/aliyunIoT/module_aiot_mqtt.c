@@ -9,7 +9,9 @@
 #include "aiot_sysdep_api.h"
 #include "amp_platform.h"
 #include "amp_task.h"
+#ifdef AOS_COMP_KV
 #include "aos/kv.h"
+#endif
 #include "aos_system.h"
 #include "py_defines.h"
 // #include "be_inl.h"
@@ -27,6 +29,9 @@ extern const char *ali_ca_cert;
 
 uint8_t pyamp_g_app_mqtt_process_thread_running = 0;
 uint8_t pyamp_g_app_mqtt_recv_thread_running = 0;
+uint8_t pyamp_g_app_mqtt_process_thread_exit = 0;
+uint8_t pyamp_g_app_mqtt_recv_thread_exit = 0;
+aos_sem_t g_iot_mqtt_recv_sem;
 
 static char *__amp_strdup(char *src, int len)
 {
@@ -50,7 +55,7 @@ static char *__amp_strdup(char *src, int len)
 void pyamp_aiot_app_mqtt_process_thread(void *args)
 {
     int32_t res = STATE_SUCCESS;
-
+    pyamp_g_app_mqtt_process_thread_exit = 0;
     while (pyamp_g_app_mqtt_process_thread_running) {
         res = aiot_mqtt_process(args);
         if (res == STATE_USER_INPUT_EXEC_DISABLED) {
@@ -58,6 +63,7 @@ void pyamp_aiot_app_mqtt_process_thread(void *args)
         }
         aos_msleep(1000);
     }
+    pyamp_g_app_mqtt_process_thread_exit = 1;
     aos_task_exit(0);
     return;
 }
@@ -66,7 +72,7 @@ void pyamp_aiot_app_mqtt_process_thread(void *args)
 void pyamp_aiot_app_mqtt_recv_thread(void *args)
 {
     int32_t res = STATE_SUCCESS;
-
+    pyamp_g_app_mqtt_recv_thread_exit = 0;
     while (pyamp_g_app_mqtt_recv_thread_running) {
         res = aiot_mqtt_recv(args);
         if (res < STATE_SUCCESS) {
@@ -76,7 +82,10 @@ void pyamp_aiot_app_mqtt_recv_thread(void *args)
             aos_msleep(1000);
         }
     }
+    pyamp_g_app_mqtt_recv_thread_exit = 1;
+    aos_sem_signal(&g_iot_mqtt_recv_sem);
     aos_task_exit(0);
+
     return;
 }
 
@@ -99,8 +108,8 @@ void pyamp_aiot_app_mqtt_recv_handler(void *handle,
     case AIOT_MQTTRECV_SUB_ACK:
         {
             amp_debug(MOD_STR,
-                      "suback, res: -0x%04X, packet id: %d, max qos: %d",
-                      -packet->data.sub_ack.res, packet->data.sub_ack.packet_id,
+                      "recv sub_ack, res: 0x%04X, packet id: %d, max qos: %d\r\n",
+                      packet->data.sub_ack.res, packet->data.sub_ack.packet_id,
                       packet->data.sub_ack.max_qos);
             /* TODO: 处理服务器对订阅请求的回应, 一般不处理 */
         }
@@ -108,10 +117,10 @@ void pyamp_aiot_app_mqtt_recv_handler(void *handle,
 
     case AIOT_MQTTRECV_PUB:
         {
-            amp_debug(MOD_STR, "pub, qos: %d, topic: %.*s",
+            amp_debug(MOD_STR, "recv pub, qos: %d, topic: %.*s\r\n",
                       packet->data.pub.qos, packet->data.pub.topic_len,
                       packet->data.pub.topic);
-            amp_debug(MOD_STR, "pub, payload: %.*s",
+            amp_debug(MOD_STR, "recv pub, payload: %.*s\r\n",
                       packet->data.pub.payload_len, packet->data.pub.payload);
             /* TODO: 处理服务器下发的业务报文 */
             iot_mqtt_userdata_t *udata = (iot_mqtt_userdata_t *)userdata;
@@ -136,7 +145,7 @@ void pyamp_aiot_app_mqtt_recv_handler(void *handle,
 
     case AIOT_MQTTRECV_PUB_ACK:
         {
-            amp_debug(MOD_STR, "puback, packet id: %d",
+            amp_debug(MOD_STR, "recv puback, packet id: %d\r\n",
                       packet->data.pub_ack.packet_id);
             /* TODO: 处理服务器对QoS1上报消息的回应, 一般不处理 */
         }
@@ -166,7 +175,7 @@ void pyamp_aiot_app_mqtt_event_handler(void *handle,
      */
     case AIOT_MQTTEVT_CONNECT:
         {
-            amp_debug(MOD_STR, "AIOT_MQTTEVT_CONNECT");
+            amp_debug(MOD_STR, "AIOT_MQTTEVT_CONNECT\r\n");
             /* TODO: 处理SDK建连成功, 不可以在这里调用耗时较长的阻塞函数 */
             message.event.code = AIOT_MQTT_CONNECT;
         }
@@ -175,7 +184,7 @@ void pyamp_aiot_app_mqtt_event_handler(void *handle,
     /* SDK因为网络状况被动断连后, 自动发起重连已成功 */
     case AIOT_MQTTEVT_RECONNECT:
         {
-            amp_debug(MOD_STR, "AIOT_MQTTEVT_RECONNECT");
+            amp_debug(MOD_STR, "AIOT_MQTTEVT_RECONNECT\r\n");
             /* TODO: 处理SDK重连成功, 不可以在这里调用耗时较长的阻塞函数 */
             message.event.code = AIOT_MQTT_RECONNECT;
         }
@@ -189,7 +198,7 @@ void pyamp_aiot_app_mqtt_event_handler(void *handle,
                            AIOT_MQTTDISCONNEVT_NETWORK_DISCONNECT)
                               ? ("network disconnect")
                               : ("heartbeat disconnect");
-            amp_debug(MOD_STR, "AIOT_MQTTEVT_DISCONNECT: %s", cause);
+            amp_debug(MOD_STR, "AIOT_MQTTEVT_DISCONNECT: %s\r\n", cause);
             /* TODO: 处理SDK被动断连, 不可以在这里调用耗时较长的阻塞函数 */
             message.event.code = AIOT_MQTT_DISCONNECT;
         }
@@ -268,6 +277,8 @@ int32_t pyamp_aiot_mqtt_client_start(void **handle, int keepaliveSec,
     int devicename_len = IOTX_DEVICE_NAME_LEN;
     int devicesecret_len = IOTX_DEVICE_SECRET_LEN;
 
+    aos_sem_new(&g_iot_mqtt_recv_sem, 0);
+
     aos_kv_get(AMP_CUSTOMER_PRODUCTKEY, product_key, &productkey_len);
     aos_kv_get(AMP_CUSTOMER_DEVICENAME, device_name, &devicename_len);
     aos_kv_get(AMP_CUSTOMER_DEVICESECRET, device_secret, &devicesecret_len);
@@ -293,17 +304,17 @@ int32_t pyamp_aiot_mqtt_client_start(void **handle, int keepaliveSec,
     mqtt_handle = aiot_mqtt_init();
 
     if (mqtt_handle == NULL) {
-        amp_debug(MOD_STR, "aiot_mqtt_init failed");
+        amp_debug(MOD_STR, "aiot_mqtt_init failed\r\n");
         aos_free(mqtt_handle);
         return -1;
     }
-
+#if 1
     /* TODO: 如果以下代码不被注释, 则例程会用TCP而不是TLS连接云平台 */
     {
         memset(&cred, 0, sizeof(aiot_sysdep_network_cred_t));
         cred.option = AIOT_SYSDEP_NETWORK_CRED_NONE;
     }
-
+#endif
     snprintf(host, 100, "%s.%s", product_key, url);
     /* 配置MQTT服务器地址 */
     aiot_mqtt_setopt(mqtt_handle, AIOT_MQTTOPT_HOST, (void *)host);
@@ -337,7 +348,7 @@ int32_t pyamp_aiot_mqtt_client_start(void **handle, int keepaliveSec,
     if (res < STATE_SUCCESS) {
         /* 尝试建立连接失败, 销毁MQTT实例, 回收资源 */
         aiot_mqtt_deinit(&mqtt_handle);
-        amp_debug(MOD_STR, "aiot_mqtt_connect failed: -0x%04X", -res);
+        amp_debug(MOD_STR, "aiot_mqtt_connect failed: -0x%04X\r\n", -res);
         aos_task_exit(0);
         return -1;
     }
@@ -350,13 +361,13 @@ int32_t pyamp_aiot_mqtt_client_start(void **handle, int keepaliveSec,
 
     if (aos_task_new_ext(&mqtt_process_task, "mqtt_process",
                          pyamp_aiot_app_mqtt_process_thread, mqtt_handle,
-                         1024 * 4, AOS_DEFAULT_APP_PRI) != 0) {
-        amp_debug(MOD_STR, "management mqtt process task create failed!");
+                         1024 * 2, AOS_DEFAULT_APP_PRI) != 0) {
+        amp_debug(MOD_STR, "management mqtt process task create failed!\r\n");
         aiot_mqtt_deinit(&mqtt_handle);
         aos_task_exit(0);
         return -1;
     }
-    amp_debug(MOD_STR, "app mqtt process start");
+    amp_debug(MOD_STR, "app mqtt process start\r\n");
 
     /* 创建一个单独的线程用于执行aiot_mqtt_recv,
      * 它会循环收取服务器下发的MQTT消息, 并在断线时自动重连 */
@@ -367,12 +378,12 @@ int32_t pyamp_aiot_mqtt_client_start(void **handle, int keepaliveSec,
     if (aos_task_new_ext(&mqtt_rec_task, "mqtt_rec",
                          pyamp_aiot_app_mqtt_recv_thread, mqtt_handle, 1024 * 4,
                          AOS_DEFAULT_APP_PRI) != 0) {
-        amp_debug(MOD_STR, "management mqtt rec task create failed!");
+        amp_debug(MOD_STR, "management mqtt rec task create failed!\r\n");
         aiot_mqtt_deinit(&mqtt_handle);
         aos_task_exit(0);
         return -1;
     }
-    amp_debug(MOD_STR, "app mqtt rec start");
+    amp_debug(MOD_STR, "app mqtt rec start\r\n");
 
     *handle = mqtt_handle;
 #ifdef AOS_COMP_UAGENT
@@ -394,24 +405,33 @@ int32_t pyamp_aiot_mqtt_client_stop(void **handle)
 {
     int32_t res = STATE_SUCCESS;
     void *mqtt_handle = NULL;
+    int cnt = 30;
 
     mqtt_handle = *handle;
 
     pyamp_g_app_mqtt_process_thread_running = 0;
     pyamp_g_app_mqtt_recv_thread_running = 0;
 
+    while (cnt-- > 0) {
+        if (pyamp_g_app_mqtt_recv_thread_exit && pyamp_g_app_mqtt_process_thread_exit)
+            break;
+        aos_msleep(200);
+    }
+
+    aos_sem_wait(&g_iot_mqtt_recv_sem, 8000);
+
     /* 断开MQTT连接 */
     res = aiot_mqtt_disconnect(mqtt_handle);
     if (res < STATE_SUCCESS) {
         aiot_mqtt_deinit(&mqtt_handle);
-        amp_debug(MOD_STR, "aiot_mqtt_disconnect failed: -0x%04X", -res);
+        amp_debug(MOD_STR, "aiot_mqtt_disconnect failed: -0x%04X\r\n", -res);
         return -1;
     }
 
     /* 销毁MQTT实例 */
     res = aiot_mqtt_deinit(&mqtt_handle);
     if (res < STATE_SUCCESS) {
-        amp_debug(MOD_STR, "aiot_mqtt_deinit failed: -0x%04X", -res);
+        amp_debug(MOD_STR, "aiot_mqtt_deinit failed: -0x%04X\r\n", -res);
         return -1;
     }
 

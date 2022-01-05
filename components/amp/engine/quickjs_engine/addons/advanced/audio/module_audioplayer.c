@@ -59,7 +59,7 @@ enum {
 };
 
 static audio_player_t *g_audioplayer;
-static JSClassID js_audio_class_id;
+static JSClassID js_audioplayer_class_id;
 
 static int js_get_length32(JSContext* ctx, uint32_t* pres,
                                        JSValueConst obj)
@@ -168,9 +168,8 @@ static void audioplayer_play_cplt_cb(uvoice_event_t *event, void *data)
         (event->value == PLAYER_STAT_COMPLETE ||
         event->value == PLAYER_STAT_STOP) &&
         (unsigned long)aos_now_ms() >= param->timestamp) {
-
-        uvoice_event_unregister(UVOICE_EV_PLAYER, audioplayer_play_cplt_cb, param);
         amp_task_schedule_call(audioplayer_play_cplt_notify, param);
+        uvoice_event_unregister(UVOICE_EV_PLAYER, audioplayer_play_cplt_cb, param);
     }
 }
 
@@ -706,11 +705,11 @@ static void module_audioplayer_source_clean(void)
     uvoice_free();
 }
 
-static JSClassDef js_audio_class = {
-    "audio",
+static JSClassDef js_audioplayer_class = {
+    "AUDIOPLAYER",
 };
 
-static const JSCFunctionListEntry js_audio_funcs[] = {
+static const JSCFunctionListEntry js_audioplayer_funcs[] = {
     JS_CFUNC_DEF("listPlay",    2, native_audioplayer_play_list),
     JS_CFUNC_DEF("listPlayStop",0, native_audioplayer_play_list_stop),
     JS_CFUNC_DEF("play",        2, native_audioplayer_play),
@@ -726,31 +725,30 @@ static const JSCFunctionListEntry js_audio_funcs[] = {
     JS_CFUNC_DEF("getVolume",   0, native_audioplayer_volume_get)
 };
 
-static int js_audio_init(JSContext *ctx, JSModuleDef *m)
+static int js_audioplayer_init(JSContext *ctx, JSModuleDef *m)
 {
     JSValue proto;
 
-    JS_NewClassID(&js_audio_class_id);
+    JS_NewClassID(&js_audioplayer_class_id);
 
-    JS_NewClass(JS_GetRuntime(ctx), js_audio_class_id, &js_audio_class);
+    JS_NewClass(JS_GetRuntime(ctx), js_audioplayer_class_id, &js_audioplayer_class);
     proto = JS_NewObject(ctx);
-    JS_SetPropertyFunctionList(ctx, proto, js_audio_funcs, countof(js_audio_funcs));
-    JS_SetClassProto(ctx, js_audio_class_id, proto);
-    return JS_SetModuleExportList(ctx, m, js_audio_funcs, countof(js_audio_funcs));
+    JS_SetPropertyFunctionList(ctx, proto, js_audioplayer_funcs, countof(js_audioplayer_funcs));
+    JS_SetClassProto(ctx, js_audioplayer_class_id, proto);
+    return JS_SetModuleExportList(ctx, m, js_audioplayer_funcs, countof(js_audioplayer_funcs));
 }
 
 JSModuleDef *js_init_module_audio(JSContext *ctx, const char *module_name)
 {
     JSModuleDef *m;
-    m = JS_NewCModule(ctx, module_name, js_audio_init);
+    m = JS_NewCModule(ctx, module_name, js_audioplayer_init);
     if (!m)
         return NULL;
-    JS_AddModuleExportList(ctx, m, js_audio_funcs, countof(js_audio_funcs));
+    JS_AddModuleExportList(ctx, m, js_audioplayer_funcs, countof(js_audioplayer_funcs));
     return m;
 }
 
-
-void module_audio_register(void)
+void module_audioplayer_register(void)
 {
     audio_player_t *audioplayer;
 
@@ -778,7 +776,7 @@ void module_audio_register(void)
 
     amp_module_free_register(module_audioplayer_source_clean);
 
-    amp_debug(MOD_STR, "module_audio_register");
+    amp_debug(MOD_STR, "module_audioplayer_register");
     JSContext *ctx = js_get_context();
     js_init_module_audio(ctx, "AUDIOPLAYER");
 }

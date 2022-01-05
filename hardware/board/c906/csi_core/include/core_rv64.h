@@ -162,21 +162,21 @@ typedef struct {
     __IOM uint32_t PLIC_H0_STH;
     __IOM uint32_t PLIC_H0_SCLAIM;
     uint32_t RESERVED4[0xFFC/4 - 1];
-    
+
     __IOM uint32_t PLIC_H1_MTH;
     __IOM uint32_t PLIC_H1_MCLAIM;
     uint32_t RESERVED5[0xFFC/4 - 1];
     __IOM uint32_t PLIC_H1_STH;
     __IOM uint32_t PLIC_H1_SCLAIM;
     uint32_t RESERVED6[0xFFC/4 - 1];
-    
+
     __IOM uint32_t PLIC_H2_MTH;
     __IOM uint32_t PLIC_H2_MCLAIM;
     uint32_t RESERVED7[0xFFC/4 - 1];
     __IOM uint32_t PLIC_H2_STH;
     __IOM uint32_t PLIC_H2_SCLAIM;
     uint32_t RESERVED8[0xFFC/4 - 1];
-    
+
     __IOM uint32_t PLIC_H3_MTH;
     __IOM uint32_t PLIC_H3_MCLAIM;
     uint32_t RESERVED9[0xFFC/4 - 1];

@@ -3,7 +3,7 @@ version: master                                     # <必选项> 组件版本�
 description: 基于LinkSDK实现设备连接阿里云，用户可以通过阿里云物联网平台查看设备的在线状态、上下行数据等。
 
 type: solution
-
+#separate_app: 1
 solution:
   cpu_id: cpu0
   # board_name: haas100
@@ -25,7 +25,7 @@ depends:                                       # 该组件依赖其他的组件
   - uservice: master
   - wifi: master
   - cli: master
-
+  - ota: master
 # supported_boards 中记录当前组件能支持的所有板子
 supported_boards:
   - haas100: master
@@ -40,5 +40,6 @@ def_config:
 # 源文件
 source_file:
   - "maintask.c"
-  - "main.c"
-  - "data_model_basic_demo.c"
+  - "separate_app/main.c"
+  - "separate_app/data_model_basic_demo.c"
+

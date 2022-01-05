@@ -73,6 +73,7 @@ OTA_WEAK int ota_hal_write(unsigned int *off, char *in_buf, unsigned int in_buf_
 {
     int ret = 0;
     int tocopy = 0;
+    static char buf[2048];
     if(off == NULL || in_buf_len > OTA_FLASH_WRITE_CACHE_SIZE) {
         return OTA_UPGRADE_WRITE_FAIL;
     }
@@ -89,6 +90,7 @@ OTA_WEAK int ota_hal_write(unsigned int *off, char *in_buf, unsigned int in_buf_
         if(ret < 0) {
             goto EXIT;
         }
+        *off += OTA_FLASH_WRITE_CACHE_SIZE;
         ota_crc16_update(&ctx, ota_cache, OTA_FLASH_WRITE_CACHE_SIZE);
         ota_cache_len = 0;
     }
@@ -102,6 +104,10 @@ OTA_WEAK int ota_hal_write(unsigned int *off, char *in_buf, unsigned int in_buf_
     if(ota_receive_total_len == ota_fw_size) {
         if (ota_cache_len != 0) {
             ret = aos_hal_flash_write(boot_part, off, ota_cache, ota_cache_len);
+            if (ret < 0) {
+                goto EXIT;
+            }
+            *off += ota_cache_len;
             ota_crc16_update(&ctx, ota_cache, ota_cache_len);
         }
         if(ota_cache != NULL) {
@@ -192,3 +198,5 @@ int ota_hal_reboot_bank(void)
 {
     return 0;
 }
+
+

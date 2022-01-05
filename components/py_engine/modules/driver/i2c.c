@@ -72,9 +72,9 @@ STATIC mp_obj_t i2c_obj_make_new(const mp_obj_type_t *type, size_t n_args, size_
 
 STATIC mp_obj_t i2c_open(size_t n_args, const mp_obj_t *args)
 {
-    int ret = -1;
-
     I2C_CHECK_PARAMS(2);
+
+    int ret = -1;
 
     char *id = NULL;
     if (mp_obj_is_str(args[1])) {
@@ -152,64 +152,85 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(i2c_close_obj, 1, i2c_close);
 
 STATIC mp_obj_t i2c_write(size_t n_args, const mp_obj_t *args)
 {
-    int ret = -1;
-
-    I2C_CHECK_PARAMS(3);
+    I2C_CHECK_PARAMS(2);
     I2C_NODE_GET();
 
-    mp_buffer_info_t bufinfo = { 0 };
+    mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
-    char *buf = (char *)bufinfo.buf;
 
-    mp_uint_t write_size = mp_obj_get_int(args[2]);
-    if (write_size > bufinfo.len) {
-        LOGE(LOG_TAG, "%s: write size[%d] exceed buffer size[%d]\n", __func__, write_size, bufinfo.len);
-        return MP_OBJ_NEW_SMALL_INT(-MP_ENFILE);
+    mp_int_t ret =
+        aos_hal_i2c_master_send(i2c_device, i2c_device->config.dev_addr, bufinfo.buf, bufinfo.len, I2C_TIMEOUT_MS);
+    if (ret < 0) {
+        LOGE(LOG_TAG, "aos_hal_i2c_master_send failed\n");
+        return MP_OBJ_NEW_SMALL_INT(ret);
+    } else {
+        return MP_OBJ_NEW_SMALL_INT(bufinfo.len);
     }
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(i2c_write_obj, 2, i2c_write);
 
-    ret =
-        aos_hal_i2c_mem_write(i2c_device, i2c_device->config.dev_addr, buf[0], 1, &buf[1], write_size - 1, I2C_TIMEOUT);
+STATIC mp_obj_t i2c_read(size_t n_args, const mp_obj_t *args)
+{
+    I2C_CHECK_PARAMS(2);
+    I2C_NODE_GET();
+
+    mp_buffer_info_t bufinfo;
+    mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
+
+    mp_int_t ret =
+        aos_hal_i2c_master_recv(i2c_device, i2c_device->config.dev_addr, bufinfo.buf, bufinfo.len, I2C_TIMEOUT_MS);
+    if (ret < 0) {
+        LOGE(LOG_TAG, "aos_hal_i2c_master_recv failed\n");
+        return MP_OBJ_NEW_SMALL_INT(ret);
+    } else {
+        return MP_OBJ_NEW_SMALL_INT(bufinfo.len);
+    }
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(i2c_read_obj, 2, i2c_read);
+
+STATIC mp_obj_t i2c_memWrite(size_t n_args, const mp_obj_t *args)
+{
+    I2C_CHECK_PARAMS(4);
+    I2C_NODE_GET();
+
+    mp_buffer_info_t bufinfo;
+
+    mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
+    mp_uint_t mem_addr = mp_obj_get_int(args[2]);
+    mp_uint_t mem_addr_size = mp_obj_get_int(args[3]);
+
+    mp_int_t ret = aos_hal_i2c_mem_write(i2c_device, i2c_device->config.dev_addr, mem_addr, mem_addr_size, bufinfo.buf,
+                                         bufinfo.len, I2C_TIMEOUT_MS);
     if (ret < 0) {
         LOGE(LOG_TAG, "aos_hal_i2c_mem_write failed\n");
         return MP_OBJ_NEW_SMALL_INT(ret);
     } else {
-        return MP_OBJ_NEW_SMALL_INT(write_size);
+        return MP_OBJ_NEW_SMALL_INT(bufinfo.len);
     }
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(i2c_write_obj, 3, i2c_write);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(i2c_memWrite_obj, 4, i2c_memWrite);
 
-STATIC mp_obj_t i2c_read(size_t n_args, const mp_obj_t *args)
+STATIC mp_obj_t i2c_memRead(size_t n_args, const mp_obj_t *args)
 {
-    int ret = -1;
-
-    I2C_CHECK_PARAMS(2);
+    I2C_CHECK_PARAMS(4);
     I2C_NODE_GET();
 
-    mp_buffer_info_t bufinfo = { 0 };
-    mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
-    const char *buf = (const char *)bufinfo.buf;
+    mp_buffer_info_t bufinfo;
 
-    mp_uint_t read_size = mp_obj_get_int(args[2]);
-    if (read_size > bufinfo.len) {
-        LOGE(LOG_TAG, "%s: read size[%d] exceed buffer size[%d]\n", __func__, read_size, bufinfo.len);
-        return MP_OBJ_NEW_SMALL_INT(-MP_ENFILE);
-    }
+    mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
+    mp_uint_t mem_addr = mp_obj_get_int(args[2]);
+    mp_uint_t mem_addr_size = mp_obj_get_int(args[3]);
 
-    ret = aos_hal_i2c_mem_write(i2c_device, i2c_device->config.dev_addr, buf[0], 1, &buf[0], 1, I2C_TIMEOUT);
+    mp_int_t ret = aos_hal_i2c_mem_read(i2c_device, i2c_device->config.dev_addr, mem_addr, mem_addr_size, bufinfo.buf,
+                                        bufinfo.len, I2C_TIMEOUT_MS);
     if (ret < 0) {
-        LOGE(LOG_TAG, "aos_hal_i2c_master_send failed\n");
-        return MP_OBJ_NEW_SMALL_INT(ret);
-    }
-
-    ret = aos_hal_i2c_mem_read(i2c_device, i2c_device->config.dev_addr, buf[0], 1, &buf[0], read_size, I2C_TIMEOUT_MS);
-    if (ret < 0) {
-        LOGE(LOG_TAG, "hal_i2c_master_recv failed\n");
+        LOGE(LOG_TAG, "aos_hal_i2c_mem_read failed\n");
         return MP_OBJ_NEW_SMALL_INT(ret);
     } else {
-        return MP_OBJ_NEW_SMALL_INT(read_size);
+        return MP_OBJ_NEW_SMALL_INT(bufinfo.len);
     }
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(i2c_read_obj, 2, i2c_read);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(i2c_memRead_obj, 4, i2c_memRead);
 
 STATIC const mp_rom_map_elem_t i2c_locals_dict_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_I2C) },
@@ -217,8 +238,9 @@ STATIC const mp_rom_map_elem_t i2c_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&i2c_close_obj) },
     { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&i2c_read_obj) },
     { MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&i2c_write_obj) },
+    { MP_ROM_QSTR(MP_QSTR_memRead), MP_ROM_PTR(&i2c_memRead_obj) },
+    { MP_ROM_QSTR(MP_QSTR_memWrite), MP_ROM_PTR(&i2c_memWrite_obj) },
 };
-
 STATIC MP_DEFINE_CONST_DICT(i2c_locals_dict, i2c_locals_dict_table);
 
 const mp_obj_type_t driver_i2c_type = {

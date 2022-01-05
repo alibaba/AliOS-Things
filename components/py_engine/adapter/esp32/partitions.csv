@@ -1,0 +1,11 @@
+# Notes: the offset of the partition table itself is set in
+# $IDF_PATH/components/partition_table/Kconfig.projbuild.
+# Name,   Type, SubType, Offset,   Size,     Flags
+ota_param1,data,145,0x16000,4K,
+ota_param2,data,146,0x17000,8K,
+nvs,data,nvs,0x19000,24K,
+phy_init,data,phy,0x1f000,4K,
+ota0,app,ota_0,0x20000,1984K,
+ota1,app,ota_1,0x210000,1088K,
+vfs,data,fat,0x320000,832K,
+kv,data,131,0x3f0000,64K,

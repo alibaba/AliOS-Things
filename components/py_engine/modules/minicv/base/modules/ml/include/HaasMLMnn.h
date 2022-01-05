@@ -5,13 +5,13 @@
 class HaasMLMnn : public IHaasML
 {
 public:
-	HaasMLMnn();
-	virtual ~HaasMLMnn();
+    HaasMLMnn();
+    virtual ~HaasMLMnn();
 
-	virtual int SetInputData(const char* dataPath);
-	virtual int LoadNet(const char* modePath);
-	virtual int Predict();
-	virtual int GetPredictResponses(char* outResult, int len);
-	virtual int UnLoadNet();
+    virtual int SetInputData(const char *dataPath, const char *compareDataPath);
+    virtual int LoadNet(const char *modePath);
+    virtual int Predict();
+    virtual int GetPredictResponses(char *outResult, int len);
+    virtual int UnLoadNet();
 };
 #endif

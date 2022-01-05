@@ -50,8 +50,8 @@ static void rtk_notify_info_to_wifi(uint8_t length, uint8_t *report_info)
     }
     if (length)
     {
-        HCI_PRINT_TRACE1("bt info: cmd %2.2X", report->cmd);
-        HCI_PRINT_TRACE1("bt info: len %2.2X", report->len);
+        HCI_PRINT_TRACE("bt info: cmd %2.2X", report->cmd);
+        HCI_PRINT_TRACE("bt info: len %2.2X", report->len);
         HCI_PRINT_TRACE6("bt info: data %2.2X %2.2X %2.2X %2.2X %2.2X %2.2X",
                          report->data[0], report->data[1], report->data[2],
                          report->data[3], report->data[4], report->data[5]);
@@ -78,7 +78,7 @@ void bt_coex_handle_cmd_complete_evt(uint16_t opcode, uint16_t cause, uint8_t to
         total_len--;
         if(total_len <=1)
         {
-            HCI_PRINT_TRACE0("bt_coex_handle_cmd_complete_evt: not reprot to wifi");
+            HCI_PRINT_TRACE("bt_coex_handle_cmd_complete_evt: not reprot to wifi");
             return ;
         }
 

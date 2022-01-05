@@ -43,9 +43,9 @@ void messageArrived(MessageData *md)
 {
     MQTTMessage *message = md->message;
 
-    printf("%.*s\n", md->topicName->lenstring.len,
+    LOGD(LOG_TAG, "%.*s\n", md->topicName->lenstring.len,
            md->topicName->lenstring.data);
-    printf("%.*s\n", (int)message->payloadlen, (char *)message->payload);
+    LOGD(LOG_TAG, "%.*s\n", (int)message->payloadlen, (char *)message->payload);
 
     if (mp_obj_is_fun(global_mqtt_on_subcribe)) {
         mp_call_function_2(
@@ -67,7 +67,7 @@ void mqtt_client_print(const mp_print_t *print, mp_obj_t self_in,
 STATIC mp_obj_t mqtt_client_new(const mp_obj_type_t *type, size_t n_args,
                                 size_t n_kw, const mp_obj_t *args)
 {
-    LOGE(LOG_TAG, "entern  %s,n_args is %d  ;\r\n", __func__, n_args);
+    LOGD(LOG_TAG, "enter  %s,n_args is %d  ;\r\n", __func__, n_args);
     char clientId[150] = { 0 };
     char username[65] = { 0 };
     char password[65] = { 0 };
@@ -133,10 +133,10 @@ STATIC mp_obj_t mqtt_connect(size_t n_args, const mp_obj_t *args)
 
     rc = NetworkConnect(&mqtt_client_obj->n, host, port);
     if (rc != 0) {
-        printf("Network Connect failed:%d\n", rc);
+        LOGD(LOG_TAG, "Network Connect failed:%d\n", rc);
         return;
     } else {
-        printf("Network Connect Success!\n");
+        LOGD(LOG_TAG, "Network Connect Success!\n");
     }
 
     /* init mqtt client */
@@ -146,16 +146,16 @@ STATIC mp_obj_t mqtt_connect(size_t n_args, const mp_obj_t *args)
     /* set the default message handler */
     mqtt_client_obj->c.defaultMessageHandler = messageArrived;
 
-    printf("client id is %s \r\n", mqtt_client_obj->data.clientID);
-    printf("host is %s \r\n", host);
-    printf("port is %d \r\n", port);
+    LOGD(LOG_TAG, "client id is %s \r\n", mqtt_client_obj->data.clientID);
+    LOGD(LOG_TAG, "host is %s \r\n", host);
+    LOGD(LOG_TAG, "port is %d \r\n", port);
 
     /* set mqtt connect parameter */
     rc = MQTTConnect(&mqtt_client_obj->c, &mqtt_client_obj->data);
     if (rc != 0) {
-        printf("MQTT Connect server failed:%d\n", rc);
+        LOGD(LOG_TAG, "MQTT Connect server failed:%d\n", rc);
     } else {
-        printf("MQTT Connect Success!\n");
+        LOGD(LOG_TAG, "MQTT Connect Success!\n");
     }
     return mp_obj_new_int(rc);
 }

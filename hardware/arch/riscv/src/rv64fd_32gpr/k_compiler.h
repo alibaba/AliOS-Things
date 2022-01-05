@@ -5,12 +5,6 @@
 #ifndef K_COMPILER_H
 #define K_COMPILER_H
 
-#include <time.h>
-size_t strftime(char *s, size_t max, const char *format,
-                       const struct tm *tm);
-struct tm *gmtime (const time_t *_timer);
-struct tm* localtime(const time_t* t);
-
 #if defined(__CC_ARM)
 
 #define RHINO_INLINE                static __inline
@@ -96,8 +90,16 @@ struct tm* localtime(const time_t* t);
 __attribute__((always_inline)) RHINO_INLINE void *RHINO_GET_SP(void)
 {
     void *sp;
-    asm volatile("mv %0, sp\n":"=r"(sp));
+    __asm__ volatile("mv %0, sp\n" : "=r"(sp));
     return sp;
+}
+
+/* get the return address of the current function */
+__attribute__((always_inline)) RHINO_INLINE void *RHINO_GET_PC(void)
+{
+    void *pc;
+    __asm__ volatile("auipc %0, 0\n" : "=r"(pc));
+    return pc;
 }
 
 /* Returns the number of leading 0-bits in x,
@@ -115,15 +117,6 @@ __attribute__((always_inline)) RHINO_INLINE void *RHINO_GET_SP(void)
 #ifndef RHINO_ASM
 #define RHINO_ASM                   __asm__
 #endif
-
-/* Instruction Synchronization Barrier */
-//#define OS_ISB()                    __asm volatile ("isb sy":::"memory")
-
-/* Data Memory Barrier */
-//#define OS_DMB()                    __asm volatile ("dmb sy":::"memory")
-
-/* Data Synchronization Barrier */
-//#define OS_DSB()                    __asm volatile ("dsb sy":::"memory")
 
 #else
 #error "Unsupported compiler"

@@ -51,11 +51,11 @@ static void aiot_device_ntp_notify(void *pdata)
                               mp_obj_new_int(param->msecond));
     mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("timestamp", 9),
                               mp_obj_new_int(param->timestamp));
-    if (mp_obj_is_fun(param->cb)) {
+    if (param->cb != MP_OBJ_NULL && mp_obj_is_fun(param->cb)) {
         callback_to_python(param->cb, dict);
     } else {
-        amp_error(MOD_STR,
-                    "param->cb is not function");
+        amp_warn(MOD_STR,
+            "param->cb is not function");
     }
     aos_free(param);
 }

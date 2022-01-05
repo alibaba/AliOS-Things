@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <vfsdev/timer_dev.h>
+// #include <vfsdev/timer_dev.h>
 
 #include "aos_hal_timer.h"
 #include "py/builtin.h"
@@ -88,11 +88,11 @@ STATIC void driver_timer_disable(timer_dev_t *tim)
     aos_hal_timer_stop(tim);
 }
 
-STATIC mp_int_t aos_hal_timer_reload(timer_dev_t *tim)
-{
-    int32_t *p_fd = (int32_t *)tim->priv;
-    return ioctl(*p_fd, IOC_TIMER_RELOAD, (unsigned long)false);
-}
+// STATIC mp_int_t aos_hal_timer_reload(timer_dev_t *tim)
+// {
+//     int32_t *p_fd = (int32_t *)tim->priv;
+//     return ioctl(*p_fd, IOC_TIMER_RELOAD, (unsigned long)false);
+// }
 
 STATIC void driver_timer_isr(void *self_in)
 {
@@ -173,7 +173,7 @@ STATIC mp_obj_t driver_timer_period(mp_obj_t self_in, mp_obj_t period)
         mp_raise_OSError(MP_EINVAL);
         return mp_const_none;
     } else {
-        self->dev.config.period = mp_obj_get_int(period);
+        self->dev.config.period = mp_obj_get_int(period) * 1000UL;
     }
     timer_config_t para = self->dev.config;
 
@@ -206,9 +206,10 @@ STATIC mp_obj_t driver_timer_reload(mp_obj_t self_in)
     driver_timer_obj_t *self = self_in;
     timer_dev_t *tim = &self->dev;
     mp_int_t ret = aos_hal_timer_reload(tim);
-    return MP_OBJ_NEW_SMALL_INT(ret);
+    return MP_OBJ_NEW_SMALL_INT(0);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(driver_timer_reload_obj, driver_timer_reload);
+
 STATIC const mp_rom_map_elem_t driver_timer_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_open), MP_ROM_PTR(&driver_timer_open_obj) },
     { MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&driver_timer_close_obj) },

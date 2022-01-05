@@ -179,6 +179,10 @@ SECTIONS
     __post_driver_start__ = .;
     KEEP(*(*.post_driver_entry))
     __post_driver_end__ = .;
+
+    __symbol_table_start__ = .;
+    KEEP(*(*.symbol_table_entry))
+     __symbol_table_end__ = .;
 /************** end of drivers *********/
 
         __flash_text_end__ = .;

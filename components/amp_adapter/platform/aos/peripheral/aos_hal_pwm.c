@@ -135,9 +135,11 @@ int32_t aos_hal_pwm_para_chg(pwm_dev_t *pwm, pwm_config_t para)
         printf ("set freq to %d on pwm%d failed, ret:%d\r\n", para.freq, pwm->port, ret);
     }
 
-    ret = ioctl(*p_fd, IOC_PWM_DUTY_CYCLE, (unsigned long)&para.duty_cycle);
+    int duty = 0;
+    duty = para.duty_cycle / 100;
+    ret = ioctl(*p_fd, IOC_PWM_DUTY_CYCLE, (unsigned long)&duty);
     if (ret) {
-        printf ("set duty cycle to %d on pwm%d failed, ret:%d\r\n", para.duty_cycle, pwm->port, ret);
+        printf("set duty cycle to %d on pwm%d failed, ret:%d\r\n", duty, pwm->port, ret);
     }
 
     return ret;

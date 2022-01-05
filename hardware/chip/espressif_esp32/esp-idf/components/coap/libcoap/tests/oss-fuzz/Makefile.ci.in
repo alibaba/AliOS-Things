@@ -1,0 +1,31 @@
+# -*- Mode: Makefile for CI checks -*-
+
+top_builddir?=@top_builddir@
+top_srcdir?=@top_srcdir@
+OUT?=.
+libcoap?=libcoap-@LIBCOAP_NAME_SUFFIX@
+WARNING_CFLAGS?=@WARNING_CFLAGS@
+DTLS_CFLAGS?=@DTLS_CFLAGS@
+DTLS_LIBS?=@DTLS_LIBS@
+CPPFLAGS=-I$(top_builddir)/include -I$(top_srcdir)/include
+CFLAGS=$(WARNING_CFLAGS) $(DTLS_CFLAGS) -std=c99
+CFLAGS+=-Wno-missing-prototypes -Wno-missing-declarations
+
+SOURCES:=$(wildcard *_target.c)
+OBJECTS:= $(patsubst %.c, $(OUT)/%.o, $(SOURCES))
+PROGRAMS:=$(patsubst %_target.o, %_fuzzer, $(OBJECTS))
+
+.PHONY: all check
+
+all: $(PROGRAMS)
+
+$(OUT)/%.o: %.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $^ -o $@
+
+%_fuzzer: %_target.o
+	$(LINK.cc) $(CXXFLAGS) $^ $(top_builddir)/.libs/$(libcoap).a $(LDFLAGS) $(LDLIBS) $(DTLS_LIBS) -o $@
+
+check: $(OBJECTS)
+
+clean:
+	@-$(RM) $(OBJECTS) $(PROGRAMS)

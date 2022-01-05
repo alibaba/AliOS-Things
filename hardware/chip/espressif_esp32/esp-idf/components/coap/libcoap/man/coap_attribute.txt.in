@@ -1,0 +1,134 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap_attribute(3)
+=================
+:doctype: manpage
+:man source:   coap_attribute
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap_attribute, coap_add_attr, coap_find_attr
+- Work with CoAP attributes
+
+SYNOPSIS
+--------
+*#include <coap@LIBCOAP_API_VERSION@/coap.h>*
+
+*coap_attr_t *coap_add_attr(coap_resource_t *_resource_, coap_str_const_t
+*_name_, coap_str_const_t *_value_, int _flags_);*
+
+*coap_attr_t *coap_find_attr(coap_resource_t *_resource_, coap_str_const_t
+*_name_);*
+
+Link with *-lcoap-@LIBCOAP_API_VERSION@*, *-lcoap-@LIBCOAP_API_VERSION@-gnutls*,
+*-lcoap-@LIBCOAP_API_VERSION@-openssl* or
+*-lcoap-@LIBCOAP_API_VERSION@-tinydtls* depending on your (D)TLS library
+type.
+
+DESCRIPTION
+-----------
+CoAP Resources on a CoAP Server need to be created, updated etc. The URI in
+the request packet defines the resource to work with, with possibly the Query
+referring to a sub-resource.
+When resources are configured on the CoAP server, the URI to match against
+is specified.
+Callback Handlers are then added to the resource to handle the different
+request methods.
+Adding Attributes allows textual information to be added to the resource
+which can then be reported back to any client doing a "GET .well-known/core"
+request.
+
+Attributes are automatically freed when a Resource is deleted.
+
+The *coap_add_attr*() function
+registers a new attribute called _name_ for the _resource_.
+The value of the attribute is _value_.
+
+_flags_ can be one or more of the following, which, if set, defines what is
+to be internally freed off when the attribute is deleted with
+*coap_delete_resource*().
+
+[horizontal]
+*COAP_ATTR_FLAGS_RELEASE_NAME*::
+Free off _name_ when attribute is deleted with *coap_delete_resource*().
+
+*COAP_ATTR_FLAGS_RELEASE_VALUE*::
+Free off _value_ when attribute is deleted with *coap_delete_resource*().
+
+The *coap_find_attr*() function returns the attribute with the _name_,
+if found, associated with _resource_.
+
+RETURN VALUES
+-------------
+*coap_add_attr*() function return a pointer to
+the attribute that was created or NULL if there is a malloc failure.
+
+*coap_find_attr*() function returns a pointer to the first matching
+attribute or NULL if the _name_ was not found.
+
+EXAMPLE
+-------
+*Initialize Resources*
+
+[source, c]
+--
+#include <coap@LIBCOAP_API_VERSION@/coap.h>
+
+static void
+init_resources(coap_context_t *ctx) {
+
+  coap_resource_t *r;
+
+  /* Create a resource to return general information */
+  r = coap_resource_init(NULL, 0);
+  coap_register_handler(r, COAP_REQUEST_GET, hnd_get_index);
+
+  /* Document resource for .well-known/core request */
+  coap_add_attr(r, coap_make_str_const("ct"), coap_make_str_const("0"), 0);
+  coap_add_attr(r, coap_make_str_const("title"),
+                coap_make_str_const("\"General Info\""), 0);
+
+  coap_add_resource(ctx, r);
+
+  /* Create a resource to return return or update time */
+  r = coap_resource_init(coap_make_str_const("time"),
+                         COAP_RESOURCE_FLAGS_NOTIFY_CON);
+  coap_resource_set_get_observable(r, 1);
+  coap_register_handler(r, COAP_REQUEST_GET, hnd_get_time);
+  coap_register_handler(r, COAP_REQUEST_PUT, hnd_put_time);
+  coap_register_handler(r, COAP_REQUEST_DELETE, hnd_delete_time);
+
+  /* Document resource for .well-known/core request */
+  coap_add_attr(r, coap_make_str_const("ct"), coap_make_str_const("0"), 0);
+  coap_add_attr(r, coap_make_str_const("title"),
+                coap_make_str_const("\"Internal Clock\""), 0);
+  coap_add_attr(r, coap_make_str_const("rt"), coap_make_str_const("\"secs\""),
+                0);
+  coap_add_attr(r, coap_make_str_const("if"), coap_make_str_const("\"clock\""),
+                0);
+
+  coap_add_resource(ctx, r);
+
+}
+--
+
+SEE ALSO
+--------
+*coap_resource*(3) and *coap_handler*(3)
+
+FURTHER INFORMATION
+-------------------
+See RFC7252 `The Constrained Application Protocol (CoAP)' for further
+information.
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

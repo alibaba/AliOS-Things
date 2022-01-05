@@ -1,0 +1,18 @@
+
+# Special partition table for unit test app
+#
+# Name,     Type, SubType, Offset,   Size, Flags
+# Note: if you change the phy_init or app partition offset, make sure to change the offset in Kconfig.projbuild
+nvs,        data, nvs,      0x9000,  0x6000
+phy_init,   data, phy,      0xf000,  0x1000
+
+# these OTA partitions are used for tests, but can't fit real OTA apps in them
+# (done this way to reduce total flash usage.)
+ota_0,      0,    ota_0,    0x10000, 0x80000
+
+# flash_test partition used for SPI flash tests, WL FAT tests, and SPIFFS tests
+flash_test, data, fat,      ,        0x90000
+
+# Note: still 1MB of a 4MB flash left free for some other purpose
+voice_data, data,  fat,     0x500000, 3M
+

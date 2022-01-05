@@ -5,16 +5,17 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "os_sched.h"
-#include "os_pool.h"
-#include "os_sync.h"
-#include "os_mem.h"
-
-#include "hci_tp.h"
+//#include "os_sched.h"
+//#include "os_pool.h"
+//#include "os_sync.h"
+//#include "os_mem.h"
+#include "osif_customer.h"
+#include <mem_types.h>
+//#include "hci_tp.h"
 #include "hci_uart.h"
 #include "bt_types.h"
-#include "trace_app.h"
-
+//#include "trace_app.h"
+#include "hci_dbg.h"
 #include "bt_board.h"
 #include "hci_board.h"
 #include "hci_process.h"
@@ -109,14 +110,14 @@ extern uint32_t bt_flatk_8721d(uint16_t txgain_flatk);
 
     if (signature != BT_CONFIG_SIGNATURE)
     {
-        HCI_PRINT_ERROR1("hci_rtk_parse_config: invalid signature 0x%08x", signature);
+        HCI_PRINT_ERROR("hci_rtk_parse_config: invalid signature 0x%08x", signature);
 
         return false;
     }
 
     if (payload_len != config_len - BT_CONFIG_HEADER_LEN)
     {
-        HCI_PRINT_WARN2("hci_rtk_parse_config: invalid len, stated %u, calculated %u",
+        HCI_PRINT_WARN("hci_rtk_parse_config: invalid len, stated %u, calculated %u",
                          payload_len, config_len - BT_CONFIG_HEADER_LEN);
         LE_UINT16_TO_STREAM(p_len, config_len - BT_CONFIG_HEADER_LEN);  //just avoid the length is not coreect
         /* FIX the len */
@@ -157,7 +158,7 @@ extern uint32_t bt_flatk_8721d(uint16_t txgain_flatk);
                     p_hci_rtk->hw_flow_cntrl |= 1;  /* bit0 enable hw flow control */
                 }
             }
-            HCI_PRINT_TRACE2("hci_rtk_parse_config: baudrate 0x%08x, hw flow control 0x%02x",
+            HCI_PRINT_TRACE("hci_rtk_parse_config: baudrate 0x%08x, hw flow control 0x%02x",
                              p_hci_rtk->baudrate,p_hci_rtk->hw_flow_cntrl);
             //hci_board_debug("hci_rtk_parse_config: baudrate 0x%08x\n", p_hci_rtk->baudrate);
 #endif
@@ -288,7 +289,7 @@ extern uint32_t bt_flatk_8721d(uint16_t txgain_flatk);
             }
             break;
         default:
-            HCI_PRINT_TRACE2("hci_rtk_parse_config: entry offset 0x%04x, len 0x%02x",
+            HCI_PRINT_TRACE("hci_rtk_parse_config: entry offset 0x%04x, len 0x%02x",
                              entry_offset, entry_len);
             break;
         }
@@ -318,13 +319,13 @@ uint8_t *hci_find_patch_address(void)
     else if (ota_get_cur_index() == OTA_INDEX_1)
     {
         hci_board_debug("\nWe use BT ROM OTA2 PATCH ADDRESS:0x%x\n", MERGE_PATCH_ADDRESS_OTA2);
-        HCI_PRINT_INFO1("\nWe use BT ROM OTA2 PATCH ADDRESS:0x%x\n", MERGE_PATCH_ADDRESS_OTA2);
+        HCI_PRINT_INFO("\nWe use BT ROM OTA2 PATCH ADDRESS:0x%x\n", MERGE_PATCH_ADDRESS_OTA2);
         return (uint8_t *)MERGE_PATCH_ADDRESS_OTA2;
     }
     else
     {
         hci_board_debug("\nWe use BT ROM OTA1 PATCH ADDRESS:0x%x\n", MERGE_PATCH_ADDRESS_OTA1);
-        HCI_PRINT_INFO1("\nWe use BT ROM OTA1 PATCH ADDRESS:0x%x\n", MERGE_PATCH_ADDRESS_OTA1);
+        HCI_PRINT_INFO("\nWe use BT ROM OTA1 PATCH ADDRESS:0x%x\n", MERGE_PATCH_ADDRESS_OTA1);
         return (uint8_t *)MERGE_PATCH_ADDRESS_OTA1;
     }
 }
@@ -363,7 +364,7 @@ uint8_t *hci_rtk_combine_config(void)
     memcpy(full_config_buf,rtlbt_init_config, sizeof(rtlbt_init_config));
     memcpy(full_config_buf+sizeof(rtlbt_init_config),rtlbt_config+HCI_CONFIG_HEAD, rtlbt_config_len-HCI_CONFIG_HEAD);
 
-    HCI_PRINT_WARN1("hci_rtk_combine_config: invalid len, calculated %u",   config_length);
+    HCI_PRINT_WARN("hci_rtk_combine_config: invalid len, calculated %u",   config_length);
 
     LE_UINT16_TO_STREAM(p_len, config_length);  //just avoid the length is not coreect
     if(!CHECK_SW(EFUSE_SW_DRIVER_DEBUG_LOG))
@@ -644,7 +645,7 @@ bool hci_board_init()
         return false;
     }
 	
-    HCI_PRINT_INFO1("hci_tp_open, this cut is AmebaD %X CUT",SYSCFG_CUTVersion()+10);
+    HCI_PRINT_INFO("hci_tp_open, this cut is AmebaD %X CUT",SYSCFG_CUTVersion()+10);
 
     if (rltk_wlan_is_mp())
     {

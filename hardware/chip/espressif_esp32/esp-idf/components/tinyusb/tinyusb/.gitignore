@@ -1,0 +1,14 @@
+html
+latex
+test/_build
+*.d
+*.o
+*.P
+*.map
+*.axf
+*.jlink
+*.emSession
+*.elf
+*.ind
+.env
+/examples/*/*/build-*

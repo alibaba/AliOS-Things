@@ -414,7 +414,6 @@ mp_obj_t mp_vfs_ilistdir(size_t n_args, const mp_obj_t *args) {
 
     mp_obj_t path_out;
     mp_vfs_mount_t *vfs = lookup_path(path_in, &path_out);
-
     if (vfs == MP_VFS_ROOT) {
         // list the root directory
         mp_vfs_ilistdir_it_t *iter = m_new_obj(mp_vfs_ilistdir_it_t);

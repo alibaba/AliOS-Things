@@ -35,7 +35,6 @@ let macro4libjs = {
   /* system */
   init: 'JSE_CORE_ADDON_INITJS',
   fs: 'JSE_CORE_ADDON_FS',
-  checksum: 'JSE_CORE_ADDON_CHECKSUM',
   kv: 'JSE_CORE_ADDON_KV',
   pm: 'JSE_CORE_ADDON_PM',
   battery: 'JSE_CORE_ADDON_BATTERY',

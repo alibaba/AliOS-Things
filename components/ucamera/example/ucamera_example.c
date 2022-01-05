@@ -32,9 +32,19 @@ static void ucamera_comp_example(int argc, char **argv)
     } else if (!strncmp(argv[1], "-t", 2)) {
         if (!strcmp(argv[2], "wifi")) {
             /*init ucamera service*/
-            ret = ucamera_service_init("wifi_camera");
+            ret = ucamera_service_init(WIFI_CAMERA_NAME);
             if (ret < 0) {
                 LOGE(TAG, "ucamera service init fail\n");
+                return;
+            }
+            ret = ucamera_service_config(UCAMERA_CMD_SET_CONTROL_URL, (void *)WIFICAMERA_FRAME_SIZE_CONTROL_URL);
+            if (ret < 0) {
+                LOGE(TAG, "ucamera_service_config frame size failed");
+                return;
+            }
+            ret = ucamera_service_connect(WIFICAMERA_URL);
+            if (ret < 0) {
+                LOGE(TAG, "ucamera service start fail\n");
                 return;
             }
 
@@ -54,6 +64,12 @@ static void ucamera_comp_example(int argc, char **argv)
                 return;
             } else {
                 LOG("save image to %s successfully!\n", CAPTURED_IMAGE);
+            }
+
+            ret = ucamera_service_disconnect();
+            if (ret < 0) {
+                LOGE(TAG, "ucamera service stop fail\n");
+                return;
             }
 
             /*uninit ucamera service*/

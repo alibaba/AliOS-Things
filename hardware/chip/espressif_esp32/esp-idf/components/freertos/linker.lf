@@ -1,0 +1,6 @@
+[mapping:freertos]
+archive: libfreertos.a
+entries:
+    * (noflash_text)
+    queue:xQueueGenericCreateStatic (default)
+

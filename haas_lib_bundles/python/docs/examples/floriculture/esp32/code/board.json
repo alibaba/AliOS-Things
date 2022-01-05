@@ -1,0 +1,28 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "sht3x": {
+      "type": "I2C",
+      "port": 0,
+      "addrWidth": 7,
+      "freq": 400000,
+      "mode": "master",
+      "devAddr": 68
+    },
+    "led_g": {
+      "type": "GPIO",
+      "port": 26,
+      "dir": "output",
+      "pull": "pullup"
+    },
+    "led_b": {
+      "type": "GPIO",
+      "port": 27,
+      "dir": "output",
+      "pull": "pullup"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

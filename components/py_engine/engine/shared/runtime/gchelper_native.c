@@ -30,9 +30,6 @@
 #include "py/gc.h"
 #include "shared/runtime/gchelper.h"
 
-// Modified bt HaaS begin
-#if !MICROPY_PY_HAAS_SPECIFIC
-// Modified bt HaaS end
 #if MICROPY_ENABLE_GC
 
 // provided by gchelper_*.s
@@ -48,7 +45,3 @@ MP_NOINLINE void gc_helper_collect_regs_and_stack(void) {
 }
 
 #endif
-
-// Modified bt HaaS begin
-#endif
-//// Modified bt HaaS end

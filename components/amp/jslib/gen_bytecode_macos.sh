@@ -1,7 +1,6 @@
 ./qjsc_macos -c -m -M GPIO -N jslib_gpio -o bytecode/jslib_gpio.c src/gpio.js
 ./qjsc_macos -c -m -N jslib_events -o bytecode/jslib_events.c src/events.js
 ./qjsc_macos -c -m -M events -M CRYPTO -N jslib_crypto -o bytecode/jslib_crypto.c src/crypto.js
-./qjsc_macos -c -m -M events -M CHECKSUM -N jslib_checksum -o bytecode/jslib_checksum.c src/checksum.js
 ./qjsc_macos -c -m -M events -M APPOTA -N jslib_appota -o bytecode/jslib_appota.c src/appota.js
 ./qjsc_macos -c -m -M events -M AIOT_DEVICE -M AIOT_GATEWAY -N jslib_iot -o bytecode/jslib_iot.c src/iot.js
 ./qjsc_macos -c -m -M events -M BT_HOST -N jslib_bt_host -o bytecode/jslib_bt_host.c src/bt_host.js

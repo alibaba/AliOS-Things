@@ -278,7 +278,6 @@ static int32_t _core_sysdep_network_connect(char *host, uint16_t port, int famil
     hints.ai_protocol = protocol;
     hints.ai_flags = 0;
     _port_uint2str(port, service);
-
     res = getaddrinfo(host, service, &hints, &addrInfoList);
     if (res == 0) {
         for (pos = addrInfoList; pos != NULL; pos = pos->ai_next) {
@@ -340,9 +339,8 @@ static int32_t _core_sysdep_network_connect(char *host, uint16_t port, int famil
                     }
                 }
             }
-
-            close(fd);
             printf("connect error, errno: %d\n", errno);
+            close(fd);
         }
     } else {
         res = STATE_PORT_NETWORK_DNS_FAILED;
@@ -1103,8 +1101,10 @@ int32_t core_sysdep_network_send(void *handle, uint8_t *buffer, uint32_t len, ui
 
 static void _core_sysdep_network_tcp_disconnect(core_network_handle_t *network_handle)
 {
-    shutdown(network_handle->fd, 2);
-    close(network_handle->fd);
+    if (network_handle->fd > 0) {
+        shutdown(network_handle->fd, 2);
+        close(network_handle->fd);
+    }
 }
 
 #ifdef CORE_SYSDEP_MBEDTLS_ENABLED

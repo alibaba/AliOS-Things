@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  */
 
 #ifndef __UVOICE_COMMON_H__

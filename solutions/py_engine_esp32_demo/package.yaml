@@ -1,0 +1,158 @@
+
+## 第一部分： 基础信息
+name: py_engine_esp32_demo                               # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: master                                    # <必选项> 组件版本号
+description: start python engine esp32 demos        # <必选项> 建议至少20字以上
+type: solution                                      # <必选项> 组件类型，为：solution, board, chip, arch, drv_core, drv_peripheral, drv_external_device, kernel, common, sdk, document
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，未来版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           目前仅支持指定某一个版本，如 v1.0 与 ==v1.0
+#           依赖还可以包含条件，条件可以不定义(即false)；也可以是组件（该组件或其它组件）里的def_config里的宏，且取值为0(即false)，1(即true)
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: 'v7.2.0'
+#   - aos: 'v7.2.0 ? <ENABLE_AOS>'
+depends:
+  - espressif_esp32: master
+  - py_engine: master
+  - osal_aos: master
+  - posix: master
+  - ota: master
+  - amp_adapter: master
+  - kv: master
+  - littlefs: master
+  - nodemcu32s:  master
+supported_boards:
+  - nodemcu32s: master
+  - m5stackcore2: master
+
+## 第三部分：板级信息
+# hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段
+#   cpu_id: cpu0
+#   cpu_name: CK804EF
+#   vendor_name: t-head
+#   chip_name: chip_pangu                  # <可选项> 指定芯片组件名,未设置时，使用depends中 chip 第一个组件
+#   board_name: pangu_cpu0_evb             # <可选项> 指定开发板组件名，未设置时，使用depends中 board 第一个组件
+#   ld_script: configs/gcc_eflash.ld       # <可选项> 连接时使用 LD 脚本，当选把未设置时，使用对应的 board 的 LD 脚本
+#   flash_program: bin/flash_program.elf   # <可选项> 芯片全局烧写程序
+#   toolchain_prefix: csky-abiv2-elf       # <可选项> 编译器前缀
+#   cpu0:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#     toolchain_prefix: csky-abiv2-elf     # <可选项> 编译器前缀
+#   cpu1:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <可选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#     toolchain_prefix: csky-abiv2-elf     # <可选项> 编译器前缀
+
+## solution component
+# hw_info:
+#   cpu_id: cpu0
+#   board_name: pangu_cpu0_evb
+#   cpu_name: CK805EF
+#   vendor_name: thead
+#   chip_name: 'chip_pangu'
+#   ld_script: configs/gcc_eflash.ld.S
+
+## board component
+# hw_info:
+#   chip_name: chip_pangu
+#   ld_script: configs/gcc_eflash.ld
+
+## chip component (单处理器)
+# hw_info:
+#   cpu_name: CK804EF
+#   ld_script: configs/gcc_eflash.ld
+#   toolchain_prefix: csky-abiv2-elf
+#   flash_program: bin/flash_program.elf
+
+## chip component(多处理器)
+# hw_info:
+#   cpu0:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#     toolchain_prefix: csky-abiv2-elf     # <可选项> 编译器前缀
+#   cpu1:
+#     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
+#     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
+#     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
+#     toolchain_prefix: csky-abiv2-elf     # <可选项> 编译器前缀
+solution:
+  cpu_id: cpu0
+  board_name: nodemcu32s
+
+## 第四部分：编译连接信息
+build_config:
+  postimage_script: makeimg.sh
+  include:
+    - esp_sdk/include
+  libpath:
+    - esp_sdk/lib
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - "appdemo.c"
+  - "activation/activation.c"
+
+## 第五部分：配置信息
+esp_system_config: &esp_system_config
+  # Activation start
+  AOS_BUILD_APP: "py_engine"
+  # Activation end
+  ESP_PLATFROM: 1
+  FFCONF_H: "lib/oofatfs/ffconf.h"
+  LFS1_NO_MALLOC: y
+  LFS1_NO_DEBUG: y
+  LFS1_NO_WARN: y
+  LFS1_NO_ERROR: y
+  LFS1_NO_ASSERT: y
+  LFS2_NO_MALLOC: y
+  LFS2_NO_DEBUG: y
+  LFS2_NO_WARN: y
+  LFS2_NO_ERROR: y
+  LFS2_NO_ASSERT: y
+  __DBINTERFACE_PRIVATE: 1
+  USE_STATFS: 1
+  MICROPY_PY_HTTP: 1
+  MICROPY_PY_MODBUS: 1
+  MICROPY_PY_KV: 1
+  MICROPY_PY_OTA: 1
+  MICROPY_PY_DRIVER: 1
+  MICROPY_PY_ALIYUNIOT: 1        # Py_Engine module build linksdk config
+
+def_config:
+  <<: *esp_system_config
+  CONFIG_LWIP_VERSION: "lwip2.0.0"
+  HAAS_ACTIVATE_FLAG: y
+  SYSINFO_MCU_ESP32: y
+  SYSINFO_AOS_VERSION: "AOS-R-3.3.0"
+  SYSINFO_PARTNER: "AliOS Things Team"
+  SYSINFO_APP_NET: "MQTT/HTTPS"
+  SYSINFO_PROJECT: "HaaS Inside"
+  SYSINFO_FRAMEWORK: "HaaS Python"
+  SYSINFO_NETWORK: "WIFI/BT"
+  SYSINFO_DEVICE_TYPE: "solo"
+  SYSINFO_CLOUD_TYPE: "aliyun"
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于AOS SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+install:
+  - dest: "include"
+    source:
+      - "include/*.h"
+
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"

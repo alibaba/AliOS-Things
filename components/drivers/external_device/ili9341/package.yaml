@@ -23,6 +23,7 @@ depends:
   - vfs: master
   - spi: master
   - gpio: master
+  - fbdev: master
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
 #   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效

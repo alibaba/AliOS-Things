@@ -153,16 +153,17 @@ int i2c_device_ioctl (file_t *f, int cmd, unsigned long arg) {
             if (!c->c.role) {
                 ret = -EINVAL;
                 ddkc_err("i2c%d only support master mode\r\n", c->freq);
+                break;
             }
 
             ret = aos_i2c_slave_addr_set(slave, c->c.addr);
             if (ret) {
-                ddkc_err("set slave address:0x%x to i2c%d failed, ret:%d\r\n", c->c.addr, ret);
+                ddkc_err("set slave address:0x%x to i2c failed, ret:%d\r\n", c->c.addr, ret);
             }
 
             ret += aos_i2c_addr_width_set(slave, c->c.addr_width ? I2C_SLAVE_ADDR_WIDTH_10BIT : I2C_SLAVE_ADDR_WIDTH_7BIT);
             if (ret) {
-                ddkc_err("set slave address:0x%x to i2c%d failed, ret:%d\r\n", c->c.addr, ret);
+                ddkc_err("set slave address:0x%x to i2c%d failed, ret:%d\r\n", c->c.addr, vd->port, ret);
             }
             break;
 
@@ -173,7 +174,7 @@ int i2c_device_ioctl (file_t *f, int cmd, unsigned long arg) {
 
             ret = aos_i2c_slave_addr_set(slave, d->addr);
             if (ret) {
-                ddkc_err("set slave address:0x%x to i2c%d failed, ret:%d\r\n", c->c.addr, ret);
+                ddkc_err("set slave address:0x%x to i2c%d failed, ret:%d\r\n", d->addr, vd->port, ret);
                 return ret;
             }
 
@@ -195,7 +196,7 @@ int i2c_device_ioctl (file_t *f, int cmd, unsigned long arg) {
 
             ret = aos_i2c_slave_addr_set(slave, d->addr);
             if (ret) {
-                ddkc_err("set slave address:0x%x to i2c%d failed, ret:%d\r\n", c->c.addr, ret);
+                ddkc_err("set slave address:0x%x to i2c failed, ret:%d\r\n", c->c.addr, ret);
                 return ret;
             }
 
@@ -226,7 +227,7 @@ int i2c_device_ioctl (file_t *f, int cmd, unsigned long arg) {
 
             ret = aos_i2c_slave_addr_set(slave, d->addr);
             if (ret) {
-                ddkc_err("set slave address:0x%x to i2c%d failed, ret:%d\r\n", c->c.addr, ret);
+                ddkc_err("set slave address:0x%x to i2c failed, ret:%d\r\n", c->c.addr, ret);
                 return ret;
             }
 
@@ -247,7 +248,7 @@ int i2c_device_ioctl (file_t *f, int cmd, unsigned long arg) {
 
             ret = aos_i2c_slave_addr_set(slave, d->addr);
             if (ret) {
-                ddkc_err("set slave address:0x%x to i2c%d failed, ret:%d\r\n", c->c.addr, ret);
+                ddkc_err("set slave address:0x%x to i2c failed, ret:%d\r\n", c->c.addr, ret);
                 return ret;
             }
 
@@ -304,7 +305,7 @@ int i2c_device_close (file_t *f) {
         }
         f->f_arg = NULL;
     } else {
-        ddkc_warn("invalid f_arg:%x\r\n", slave);
+        ddkc_warn("invalid f_arg:%p\r\n", slave);
     };
 
     ddkc_dbg("device:%s close success\r\n", f->node->i_name);

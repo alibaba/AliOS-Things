@@ -37,7 +37,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <dirent.h>
-
+#include <unistd.h>
 typedef struct _mp_obj_vfs_posix_t {
     mp_obj_base_t base;
     vstr_t root;
@@ -308,33 +308,17 @@ STATIC mp_obj_t vfs_posix_stat(mp_obj_t self_in, mp_obj_t path_in) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_stat_obj, vfs_posix_stat);
 
-#ifdef __ANDROID__
-#define USE_STATFS 1
-#endif
-
-
 // Modified bt HaaS begin
 // Add MICROPY_PY_HAAS_SPECIFIC
 
 #if USE_STATFS
-#include <sys/vfs.h>
+#include <sys/statfs.h>
 #define STRUCT_STATVFS struct statfs
 #define STATVFS statfs
 #define F_FAVAIL sb.f_ffree
 #define F_NAMEMAX sb.f_namelen
-#if !MICROPY_PY_HAAS_SPECIFIC
-#define F_FLAG sb.f_flags
-#endif
-#else
-#include <sys/statvfs.h>
-#define STRUCT_STATVFS struct statvfs
-#define STATVFS statvfs
-#define F_FAVAIL sb.f_favail
-#define F_NAMEMAX sb.f_namemax
-#define F_FLAG sb.f_flag
-#endif
-
-STATIC mp_obj_t vfs_posix_statvfs(mp_obj_t self_in, mp_obj_t path_in) {
+STATIC mp_obj_t vfs_posix_statvfs(mp_obj_t self_in, mp_obj_t path_in)
+{
     mp_obj_vfs_posix_t *self = MP_OBJ_TO_PTR(self_in);
     STRUCT_STATVFS sb;
     const char *path = vfs_posix_get_path_str(self, path_in);
@@ -349,13 +333,32 @@ STATIC mp_obj_t vfs_posix_statvfs(mp_obj_t self_in, mp_obj_t path_in) {
     t->items[5] = MP_OBJ_NEW_SMALL_INT(sb.f_files);
     t->items[6] = MP_OBJ_NEW_SMALL_INT(sb.f_ffree);
     t->items[7] = MP_OBJ_NEW_SMALL_INT(F_FAVAIL);
-    t->items[8] = MP_OBJ_NEW_SMALL_INT(0); //F_FLAG
+    t->items[8] = MP_OBJ_NEW_SMALL_INT(0); // F_FLAG
     t->items[9] = MP_OBJ_NEW_SMALL_INT(F_NAMEMAX);
-    return MP_OBJ_FROM_PTR(t);
+     return MP_OBJ_FROM_PTR(t);
 }
+#else
+STATIC mp_obj_t vfs_posix_statvfs(mp_obj_t self_in, mp_obj_t path_in)
+{
+    mp_obj_vfs_posix_t *self = MP_OBJ_TO_PTR(self_in);
+    const char *path = vfs_posix_get_path_str(self, path_in);
+    int ret;
+    mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(10, NULL));
+    t->items[0] = MP_OBJ_NEW_SMALL_INT(0);
+    t->items[1] = MP_OBJ_NEW_SMALL_INT(0); // sb.f_frsize
+    t->items[2] = MP_OBJ_NEW_SMALL_INT(0);
+    t->items[3] = MP_OBJ_NEW_SMALL_INT(0);
+    t->items[4] = MP_OBJ_NEW_SMALL_INT(0);
+    t->items[5] = MP_OBJ_NEW_SMALL_INT(0);
+    t->items[6] = MP_OBJ_NEW_SMALL_INT(0);
+    t->items[7] = MP_OBJ_NEW_SMALL_INT(0);
+    t->items[8] = MP_OBJ_NEW_SMALL_INT(0); // F_FLAG
+    t->items[9] = MP_OBJ_NEW_SMALL_INT(0);
+     return MP_OBJ_FROM_PTR(t);
+}
+#endif
 
 // Modified bt HaaS end
-
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_statvfs_obj, vfs_posix_statvfs);
 
 STATIC const mp_rom_map_elem_t vfs_posix_locals_dict_table[] = {
@@ -386,6 +389,5 @@ const mp_obj_type_t mp_type_vfs_posix = {
     .protocol = &vfs_posix_proto,
     .locals_dict = (mp_obj_dict_t *)&vfs_posix_locals_dict,
 };
-
 
 #endif // MICROPY_VFS_POSIX

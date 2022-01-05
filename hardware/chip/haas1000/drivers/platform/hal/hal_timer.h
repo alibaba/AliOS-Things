@@ -1,5 +1,16 @@
 /*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
+ * Copyright (c) 2021 Bestechnic (Shanghai) Co., Ltd. All rights reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 #ifndef __HAL_TIMER_H__
 #define __HAL_TIMER_H__
@@ -11,22 +22,22 @@ extern "C" {
 #include "plat_types.h"
 #include "hal_cmu.h"
 
-//=============================================================================
+// =============================================================================
 // Slow Timer (Default Timer)
 
 #ifdef FPGA
-#define CONFIG_SYSTICK_HZ_NOMINAL   (32000)
+#define SYS_TIMER_TICK_HZ_NOMINAL   (32000)
 #else
-#define CONFIG_SYSTICK_HZ_NOMINAL   (16000)
+#define SYS_TIMER_TICK_HZ_NOMINAL   (16000)
 #endif
 
-//#if (CONFIG_SYSTICK_HZ_NOMINAL % 1000)
-//#error "Bad CONFIG_SYSTICK_HZ_NOMINAL configuration"
-//#endif
+// #if (SYS_TIMER_TICK_HZ_NOMINAL % 1000)
+// #error "Bad SYS_TIMER_TICK_HZ_NOMINAL configuration"
+// #endif
 
 #ifdef CALIB_SLOW_TIMER
 
-#define CONFIG_SYSTICK_HZ           hal_sys_timer_systick_hz()
+#define SYS_TIMER_TICK_HZ           hal_sys_timer_systick_hz()
 
 #define __MS_TO_TICKS(ms)           hal_sys_timer_ms_to_ticks(ms)
 
@@ -38,15 +49,15 @@ extern "C" {
 
 #else
 
-#define CONFIG_SYSTICK_HZ           CONFIG_SYSTICK_HZ_NOMINAL
+#define SYS_TIMER_TICK_HZ           SYS_TIMER_TICK_HZ_NOMINAL
 
-#define __MS_TO_TICKS(ms)           ((ms) * ((uint32_t)CONFIG_SYSTICK_HZ / 1000))
+#define __MS_TO_TICKS(ms)           ((ms) * ((uint32_t)SYS_TIMER_TICK_HZ / 1000))
 
-#define __US_TO_TICKS(us)           (((us) * ((uint32_t)CONFIG_SYSTICK_HZ / 1000) + 1000 - 1) / 1000 + 1)
+#define __US_TO_TICKS(us)           (((us) * ((uint32_t)SYS_TIMER_TICK_HZ / 1000) + 1000 - 1) / 1000 + 1)
 
-#define __TICKS_TO_MS(tick)         ((tick) / ((uint32_t)CONFIG_SYSTICK_HZ / 1000))
+#define __TICKS_TO_MS(tick)         ((tick) / ((uint32_t)SYS_TIMER_TICK_HZ / 1000))
 
-#define __TICKS_TO_US(tick)         ((tick) * 1000 / ((uint32_t)CONFIG_SYSTICK_HZ / 1000))
+#define __TICKS_TO_US(tick)         ((tick) * 1000 / ((uint32_t)SYS_TIMER_TICK_HZ / 1000))
 
 #endif
 
@@ -163,4 +174,3 @@ void hal_timer2_close(void);
 #endif
 
 #endif
-

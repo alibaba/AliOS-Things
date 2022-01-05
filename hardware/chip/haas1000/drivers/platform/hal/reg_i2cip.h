@@ -44,8 +44,8 @@
 #define MIN_HS_SCL_LOWTIME  160
 
 /* Worst case timeout for 1 byte is kept as 2ms */
-#define I2C_BYTE_TO     (CONFIG_SYSTICK_HZ/500)
-#define I2C_STOPDET_TO      (CONFIG_SYSTICK_HZ/500)
+#define I2C_BYTE_TO         (SYS_TIMER_TICK_HZ / 500)
+#define I2C_STOPDET_TO      (SYS_TIMER_TICK_HZ / 500)
 #define I2C_BYTE_TO_BB      (I2C_BYTE_TO * 16)
 
 /* i2c control register definitions */

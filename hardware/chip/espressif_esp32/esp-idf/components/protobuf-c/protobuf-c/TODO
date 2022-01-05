@@ -1,0 +1,82 @@
+----------------------
+--- IMPORTANT TODO ---
+----------------------
+
+--------------------
+--- NEEDED TESTS ---
+--------------------
+- test:
+  - service method lookups
+  - out-of-order fields in messages (ie if the number isn't ascending)
+  - gaps in numbers: check that the number of ranges is correct
+  - default values
+  - message unpack alloc failures when allocating new slab
+  - message unpack alloc failures when allocating unknown field buffers
+  - packed message corruption.
+    - meta-todo: get a list of all the unpack errors together to check off
+
+---------------------
+--- DOCUMENTATION ---
+---------------------
+Document:
+  - services
+  - check over documentation again
+
+--------------------------
+--- LOW PRIORITY STUFF ---
+--------------------------
+- support Group (whatever it is)
+- proper support for extensions
+  - slot for ranges in descriptor
+  - extends is implemented as c-style function
+    whose name is built from the package, the base message type-name
+    and the member.  which takes the base message and returns the
+    value, if it is found in "unknown_values".
+    boolean package__extension_member_name__get(Message *message,
+                                                type     *out);
+    void    package__extension_member_name__set_raw(type      in,
+                                                ProtobufCUnknownValue *to_init);
+
+------------------------------------
+--- EXTREMELY LOW PRIORITY STUFF ---
+------------------------------------
+- stop using qsort in the code generator:  find some c++ish way to do it
+
+----------------------------------------------
+--- ISSUES WE ARE PROBABLY GOING TO IGNORE ---
+----------------------------------------------
+- strings may not contain NULs
+
+-------------------------
+--- IDEAS TO CONSIDER ---
+-------------------------
+
+- optimization: structures without repeated members could skip
+  the ScannedMember phase
+
+- optimization: a way to ignore unknown-fields when unpacking
+
+- optimization: certain functions are not well setup for WORDSIZE==64;
+  especially the int64 routines are inefficient that way.
+  The best might be an internal #define WORDSIZE (sizeof(long)*8)"
+  except w/ a real constant there, one that the preprocessor can use.
+  I think the functions in protobuf-c.c are already tagged.
+
+- lifetime functions for messages:
+   message__new()
+       return a new message using an allocator with standard allocation policy
+   message__unpack_onto(...)
+       unpack onto an initialized message
+   message__clear(...)
+       clears all allocations, does not free the message itself
+   message__free(...)
+       free the message.
+  [yeah, right: after typing it out, i see it's way too complicated]
+
+- switching to pure C.
+  - Rewrite the code-generator in C, including the parser.
+  - This would have the huge advantage that we could use ".proto" files
+    directly, instead of having to invoke the compilers.
+  - keep in a separate c file for static linking optimziation purposes
+  - need alignment tests
+  - the CAVEATS should discuss our structure-packing assumptions

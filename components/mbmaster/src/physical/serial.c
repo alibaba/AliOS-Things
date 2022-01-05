@@ -3,10 +3,8 @@
  */
 
 #include <limits.h>
-#include <poll.h>
 #include <sys/ioctl.h>
 #include <aos/kernel.h>
-#include <vfsdev/uart_dev.h>
 #include <mbmaster.h>
 #include "serial.h"
 #include "aos_hal_uart.h"

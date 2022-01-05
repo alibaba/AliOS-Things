@@ -89,6 +89,9 @@ def_config:                              # 组件的可配置项
   # wifi camera的http访问地址,用户根据自己摄像头的IP地址进行替换
   WIFICAMERA_URL: "http://192.168.43.166:80/capture"
 
+  # wifi camera配置的http访问地址,用户根据自己摄像头的配置方法进行替换
+  WIFICAMERA_FRAME_SIZE_CONTROL_URL: "http://192.168.43.166:80/control\\?var=framesize\\&val=5" # QVGA 320x240
+
   # 配置你要对比的人脸
   MYFACE_PATH: "http://viapi-test.oss-cn-shanghai.aliyuncs.com/viapi-3.0domepic/facebody/CompareFace/CompareFace-left1.png"
 

@@ -10,17 +10,23 @@ extern "C" {
 #endif
 
 #include <ulog/ulog.h>
+#include "aos/kernel.h"
 
 #define MODBUS_MOUDLE "modbusm"
 /* forward declaration */
 typedef enum mb_status mb_status_t;
 typedef struct mb_handler mb_handler_t;
 
-#define MB_CRITICAL_ALLOC() CPSR_ALLOC()
-#define MB_CRITICAL_ENTER() RHINO_CRITICAL_ENTER()
-#define MB_CRITICAL_EXIT()  RHINO_CRITICAL_EXIT()
+/* Commented out as esp32 doesn't support following feature */
+// #define MB_CRITICAL_ALLOC() CPSR_ALLOC()
+// #define MB_CRITICAL_ENTER() RHINO_CRITICAL_ENTER()
+// #define MB_CRITICAL_EXIT()  RHINO_CRITICAL_EXIT()
 
-#define MB_MUTEX_T             kmutex_t
+#define MB_CRITICAL_ALLOC()
+#define MB_CRITICAL_ENTER()
+#define MB_CRITICAL_EXIT()
+
+#define MB_MUTEX_T             aos_mutex_t
 #define MB_MUTEX_CREATE(mutex) mb_mutex_create(mutex)
 #define MB_MUTEX_LOCK(mutex)   mb_mutex_lock(mutex)
 #define MB_MUTEX_UNLOCK(mutex) mb_mutex_unlock(mutex)

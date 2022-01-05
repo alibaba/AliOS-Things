@@ -79,7 +79,7 @@ STATIC const mp_pin_p_t pinbase_pin_p = {
 
 const mp_obj_type_t machine_pinbase_type = {
     { &mp_type_type },
-    .name = MP_QSTR_PinBase,
+    .name = MP_QSTR_Pin,
     .make_new = pinbase_make_new,
     .protocol = &pinbase_pin_p,
 };

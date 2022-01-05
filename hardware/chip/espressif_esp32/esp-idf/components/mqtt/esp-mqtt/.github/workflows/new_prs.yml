@@ -1,0 +1,20 @@
+name: Sync PRs to JIRA
+
+# This workflow will be triggered when a pull request is opened
+on: pull_request
+
+jobs:
+  sync_prs_to_jira:
+    name: Sync PRs to Jira
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Sync PRs to Jira project
+        uses: espressif/github-actions/sync_issues_to_jira@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JIRA_PASS: ${{ secrets.JIRA_PASS }}
+          JIRA_PROJECT: IDFGH
+          JIRA_COMPONENT: esp-mqtt
+          JIRA_URL: ${{ secrets.JIRA_URL }}
+          JIRA_USER: ${{ secrets.JIRA_USER }}

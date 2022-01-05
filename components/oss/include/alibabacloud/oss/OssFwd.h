@@ -25,7 +25,7 @@
 #include <alibabacloud/oss/utils/Outcome.h>
 #include <alibabacloud/oss/model/VoidResult.h>
 
-#if !defined(OSS_DISABLE_BUCKET)
+#if (!OSS_DISABLE_BUCKET)
 #include <alibabacloud/oss/model/ListBucketsRequest.h>
 #include <alibabacloud/oss/model/ListBucketsResult.h>
 #include <alibabacloud/oss/model/CreateBucketRequest.h>
@@ -151,13 +151,13 @@
 #include <alibabacloud/oss/model/ListPartsRequest.h>
 #include <alibabacloud/oss/model/ListPartsResult.h>
 
-#if !defined(OSS_DISABLE_RESUAMABLE)
+#if (!OSS_DISABLE_RESUAMABLE)
 #include <alibabacloud/oss/model/UploadObjectRequest.h>
 #include <alibabacloud/oss/model/MultiCopyObjectRequest.h>
 #include <alibabacloud/oss/model/DownloadObjectRequest.h>
 #endif
 
-#if !defined(OSS_DISABLE_LIVECHANNEL)
+#if (!OSS_DISABLE_LIVECHANNEL)
 #include <alibabacloud/oss/model/PutLiveChannelStatusRequest.h>
 #include <alibabacloud/oss/model/PutLiveChannelRequest.h>
 #include <alibabacloud/oss/model/PutLiveChannelResult.h>
@@ -184,7 +184,7 @@ namespace OSS
     using VoidOutcome = Outcome<OssError, VoidResult>;
     using StringOutcome = Outcome<OssError, std::string>;
 
-#if !defined(OSS_DISABLE_BUCKET)
+#if (!OSS_DISABLE_BUCKET)
     using ListBucketsOutcome = Outcome<OssError, ListBucketsResult>;
     using CreateBucketOutcome = Outcome<OssError, Bucket>;
     using ListBucketInventoryConfigurationsOutcome = Outcome<OssError, ListBucketInventoryConfigurationsResult>;
@@ -238,7 +238,7 @@ namespace OSS
     using ListMultipartUploadsOutcome = Outcome<OssError, ListMultipartUploadsResult>;
     using ListPartsOutcome = Outcome<OssError, ListPartsResult>;
 
-#if !defined(OSS_DISABLE_LIVECHANNEL)
+#if (!OSS_DISABLE_LIVECHANNEL)
     /*livechannel*/
     using PutLiveChannelOutcome = Outcome<OssError, PutLiveChannelResult>;
     using GetLiveChannelStatOutcome = Outcome<OssError, GetLiveChannelStatResult>;

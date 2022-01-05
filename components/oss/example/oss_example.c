@@ -18,7 +18,7 @@ static void example_oss_local_upload(int argc, char **argv)
 {
     printf("oss upload begin %s...\r\n",argv[1]);
     if(0 == strcmp(argv[1],"0")){
-        oss_upload_local_content(AccessKey_ID, AccessKey_Secret, Endpoint, Bucket, argv[2]);
+        oss_upload_local_content(AccessKey_ID, AccessKey_Secret, Endpoint, Bucket, argv[2], argv[3], argv[4]);
     }
     else if(0 == strcmp(argv[1],"1")){
         oss_upload_local_file(AccessKey_ID, AccessKey_Secret, Endpoint, Bucket, argv[2]);

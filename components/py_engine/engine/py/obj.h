@@ -113,6 +113,9 @@ mp_obj_t mp_obj_new_float(mp_float_t value);
 #endif
 
 static inline bool mp_obj_is_obj(mp_const_obj_t o) {
+    if (NULL == o) {
+        return false;
+    }
     return (((mp_int_t)(o)) & 3) == 0;
 }
 
@@ -148,6 +151,9 @@ mp_obj_t mp_obj_new_float(mp_float_t value);
 #endif
 
 static inline bool mp_obj_is_obj(mp_const_obj_t o) {
+    if (NULL == o) {
+        return false;
+    }
     return (((mp_int_t)(o)) & 1) == 0;
 }
 
@@ -195,6 +201,9 @@ static inline bool mp_obj_is_immediate_obj(mp_const_obj_t o) {
 #define MP_OBJ_NEW_IMMEDIATE_OBJ(val) ((mp_obj_t)(((val) << 4) | 0xe))
 
 static inline bool mp_obj_is_obj(mp_const_obj_t o) {
+    if (NULL == o) {
+        return false;
+    }
     return (((mp_int_t)(o)) & 3) == 0;
 }
 
@@ -247,6 +256,9 @@ static inline mp_obj_t mp_obj_new_float(mp_float_t f) {
 #endif
 
 static inline bool mp_obj_is_obj(mp_const_obj_t o) {
+    if (NULL == o) {
+        return false;
+    }
     return (((uint64_t)(o)) & 0xffff000000000000) == 0x0000000000000000;
 }
 #define MP_OBJ_TO_PTR(o) ((void *)(uintptr_t)(o))

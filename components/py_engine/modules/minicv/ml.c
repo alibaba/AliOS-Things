@@ -10,6 +10,8 @@
 #include "base/modules/c/include/WrapperIHaasML.h"
 #include "ulog/ulog.h"
 
+#include "ucloud_ai_common.h"
+
 #define LOG_TAG "ML"
 
 extern const mp_obj_type_t minicv_ml_type;
@@ -20,9 +22,12 @@ typedef struct
     mp_obj_base_t Base;
     // a member created by us
     char *ModuleName;
-    MLEngineType_t  mType;
-    void            *mInstance;
+    MLEngineType_t mType;
+    void *mInstance;
+    char *mNetName;
 } mp_ml_obj_t;
+
+static mp_obj_t callback = mp_const_none;
 
 void ml_obj_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind)
 {
@@ -34,8 +39,9 @@ void ml_obj_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kin
 STATIC mp_obj_t ml_obj_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s;\n", __func__);
-    mp_ml_obj_t* driver_obj = m_new_obj(mp_ml_obj_t);
-    if (!driver_obj) {
+    mp_ml_obj_t *driver_obj = m_new_obj(mp_ml_obj_t);
+    if (!driver_obj)
+    {
         mp_raise_OSError(MP_EINVAL);
     }
 
@@ -51,14 +57,14 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
+    void *instance = NULL;
     if (n_args < 2)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
         return mp_const_none;
     }
-    mp_obj_base_t *self = (mp_obj_base_t*)MP_OBJ_TO_PTR(args[0]);
-    mp_ml_obj_t* driver_obj = (mp_ml_obj_t *)self;
+    mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_ml_obj_t *driver_obj = (mp_ml_obj_t *)self;
     if (driver_obj == NULL)
     {
         LOGE(LOG_TAG, "driver_obj is NULL\n");
@@ -90,14 +96,14 @@ STATIC mp_obj_t obj_close(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
+    void *instance = NULL;
     if (n_args < 1)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
         return mp_const_none;
     }
-    mp_obj_base_t *self = (mp_obj_base_t*)MP_OBJ_TO_PTR(args[0]);
-    mp_ml_obj_t* driver_obj = (mp_ml_obj_t *)self;
+    mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_ml_obj_t *driver_obj = (mp_ml_obj_t *)self;
     if (driver_obj == NULL)
     {
         LOGE(LOG_TAG, "driver_obj is NULL\n");
@@ -123,14 +129,14 @@ STATIC mp_obj_t obj_config(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
-    if (n_args < 6)
+    void *instance = NULL;
+    if (n_args < 5)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
         return mp_const_none;
     }
-    mp_obj_base_t *self = (mp_obj_base_t*)MP_OBJ_TO_PTR(args[0]);
-    mp_ml_obj_t* driver_obj = (mp_ml_obj_t *)self;
+    mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_ml_obj_t *driver_obj = (mp_ml_obj_t *)self;
     if (driver_obj == NULL)
     {
         LOGE(LOG_TAG, "driver_obj is NULL\n");
@@ -143,18 +149,16 @@ STATIC mp_obj_t obj_config(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    char *key = (char *)mp_obj_str_get_str(args[1]);
-    char *secret = (char *)mp_obj_str_get_str(args[2]);
-    char *region_id = (char *)mp_obj_str_get_str(args[3]);
-    char *endpoint = (char *)mp_obj_str_get_str(args[4]);
-    char *url = (char *)mp_obj_str_get_str(args[5]);
+    char *key = (mp_obj_get_type(args[1]) == &mp_type_NoneType) ? NULL : (char *)mp_obj_str_get_str(args[1]);
+    char *secret = (mp_obj_get_type(args[2]) == &mp_type_NoneType) ? NULL : (char *)mp_obj_str_get_str(args[2]);
+    char *endpoint = (mp_obj_get_type(args[3]) == &mp_type_NoneType) ? NULL : (char *)mp_obj_str_get_str(args[3]);
+    char *bucket = (mp_obj_get_type(args[4]) == &mp_type_NoneType) ? NULL : (char *)mp_obj_str_get_str(args[4]);
+
     LOGD(LOG_TAG, "key = %s;\n", key);
     LOGD(LOG_TAG, "secret = %s;\n", secret);
-    LOGD(LOG_TAG, "region_id = %s;\n", region_id);
     LOGD(LOG_TAG, "endpoint = %s;\n", endpoint);
-    LOGD(LOG_TAG, "url = %s;\n", url);
-    ret = MLConfig(driver_obj->mInstance, key, secret, region_id,
-            endpoint, url);
+    LOGD(LOG_TAG, "bucket = %s;\n", bucket);
+    ret = MLConfig(driver_obj->mInstance, key, secret, endpoint, bucket);
     if (ret != 0)
     {
         LOGE(LOG_TAG, "MLConfig failed\n");
@@ -163,20 +167,21 @@ STATIC mp_obj_t obj_config(size_t n_args, const mp_obj_t *args)
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(ml_obj_config, 6, obj_config);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(ml_obj_config, 5, obj_config);
 
 STATIC mp_obj_t obj_setInputData(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
+    void *instance = NULL;
     if (n_args < 2)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
         return mp_const_none;
     }
-    mp_obj_base_t *self = (mp_obj_base_t*)MP_OBJ_TO_PTR(args[0]);
-    mp_ml_obj_t* driver_obj = (mp_ml_obj_t *)self;
+
+    mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_ml_obj_t *driver_obj = (mp_ml_obj_t *)self;
     if (driver_obj == NULL)
     {
         LOGE(LOG_TAG, "driver_obj is NULL\n");
@@ -189,32 +194,43 @@ STATIC mp_obj_t obj_setInputData(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    char *mFileName = (char *)mp_obj_str_get_str(args[1]);
-    LOGD(LOG_TAG, "mFileName = %s;\n", mFileName);
-    ret = MLSetInputData(driver_obj->mInstance, mFileName);
+    char *mFileName = NULL;
+    char *mFileName2 = NULL;
+
+    if (n_args == 2)
+    {
+        mFileName = (char *)mp_obj_str_get_str(args[1]);
+    }
+    else if (n_args > 2)
+    {
+        mFileName = (char *)mp_obj_str_get_str(args[1]);
+        mFileName2 = (mp_obj_get_type(args[2]) == &mp_type_NoneType) ? NULL : (char *)mp_obj_str_get_str(args[2]);
+    }
+
+    ret = MLSetInputData(driver_obj->mInstance, mFileName, mFileName2);
     if (ret != 0)
     {
-        LOGE(LOG_TAG, "MLSetInputData failed mFileName = %s;\n", mFileName);
+        LOGE(LOG_TAG, "MLSetInputData failed mFileName = %s, mFileName2: %s;\n", mFileName, mFileName2);
         return mp_const_none;
     }
     LOGD(LOG_TAG, "%s:out\n", __func__);
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(ml_obj_setInputData, 2, obj_setInputData);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(ml_obj_setInputData, 2, 3, obj_setInputData);
 
 STATIC mp_obj_t obj_loadNet(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
+    void *instance = NULL;
     if (n_args < 2)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
         return mp_const_none;
     }
-    mp_obj_base_t *self = (mp_obj_base_t*)MP_OBJ_TO_PTR(args[0]);
-    mp_ml_obj_t* driver_obj = (mp_ml_obj_t *)self;
+    mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_ml_obj_t *driver_obj = (mp_ml_obj_t *)self;
     if (driver_obj == NULL)
     {
         LOGE(LOG_TAG, "driver_obj is NULL\n");
@@ -227,12 +243,12 @@ STATIC mp_obj_t obj_loadNet(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    char *mFileName = (char *)mp_obj_str_get_str(args[1]);
-    LOGD(LOG_TAG, "mFileName = %s;\n", mFileName);
-    ret = MLLoadNet(driver_obj->mInstance, mFileName);
+    driver_obj->mNetName = (char *)mp_obj_str_get_str(args[1]);
+    LOGD(LOG_TAG, "mNetName = %s;\n", driver_obj->mNetName);
+    ret = MLLoadNet(driver_obj->mInstance, driver_obj->mNetName);
     if (ret != 0)
     {
-        LOGE(LOG_TAG, "MLLoadNet failed mFileName = %s;\n", mFileName);
+        LOGE(LOG_TAG, "MLLoadNet failed mNetName = %s;\n", driver_obj->mNetName);
         return mp_const_none;
     }
     LOGD(LOG_TAG, "%s:out\n", __func__);
@@ -245,14 +261,14 @@ STATIC mp_obj_t obj_predict(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
+    void *instance = NULL;
     if (n_args < 1)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
         return mp_const_none;
     }
-    mp_obj_base_t *self = (mp_obj_base_t*)MP_OBJ_TO_PTR(args[0]);
-    mp_ml_obj_t* driver_obj = (mp_ml_obj_t *)self;
+    mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_ml_obj_t *driver_obj = (mp_ml_obj_t *)self;
     if (driver_obj == NULL)
     {
         LOGE(LOG_TAG, "driver_obj is NULL\n");
@@ -264,8 +280,9 @@ STATIC mp_obj_t obj_predict(size_t n_args, const mp_obj_t *args)
         LOGE(LOG_TAG, "Module has been closed, please open first\n");
         return mp_const_none;
     }
-
+    MP_THREAD_GIL_EXIT();
     ret = MLPredict(driver_obj->mInstance);
+    MP_THREAD_GIL_ENTER();
     if (ret != 0)
     {
         LOGE(LOG_TAG, "MLPredict failed\n");
@@ -281,14 +298,16 @@ STATIC mp_obj_t obj_getPredictResponses(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
+    void *instance = NULL;
+    mp_obj_t ret_list = mp_obj_new_list(0, NULL);
+
     if (n_args < 2)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
         return mp_const_none;
     }
-    mp_obj_base_t *self = (mp_obj_base_t*)MP_OBJ_TO_PTR(args[0]);
-    mp_ml_obj_t* driver_obj = (mp_ml_obj_t *)self;
+    mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_ml_obj_t *driver_obj = (mp_ml_obj_t *)self;
     if (driver_obj == NULL)
     {
         LOGE(LOG_TAG, "driver_obj is NULL\n");
@@ -301,20 +320,138 @@ STATIC mp_obj_t obj_getPredictResponses(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    mp_buffer_info_t bufinfo;
-    mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
-    memset(bufinfo.buf, 0, bufinfo.len);
-    LOGD(LOG_TAG, "bufinfo.buf = %p;bufinfo.len = %d;\n", bufinfo.buf, bufinfo.len);
-    ret = MLGetPredictResponses(driver_obj->mInstance, bufinfo.buf, bufinfo.len);
-    if (ret != 0)
+    if (args[1] != mp_const_none)
     {
-        LOGE(LOG_TAG, "MLGetPredictResponses failed\n");
-        //return mp_const_none;
+        mp_buffer_info_t bufinfo;
+        mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
+        memset(bufinfo.buf, 0, bufinfo.len);
+        LOGD(LOG_TAG, "bufinfo.buf = %p;bufinfo.len = %d;\n", bufinfo.buf, bufinfo.len);
+        ret = MLGetPredictResponses(driver_obj->mInstance, &bufinfo.buf, &bufinfo.len);
+        if (ret != 0)
+        {
+            LOGE(LOG_TAG, "MLGetPredictResponses failed\n");
+        }
+        LOGD(LOG_TAG, "bufinfo.buf = %s;bufinfo.len = %d;\n", bufinfo.buf, bufinfo.len);
+        LOGD(LOG_TAG, "%s:out ret = %d;\n", __func__, ret);
+        return mp_const_none;
     }
-    LOGD(LOG_TAG, "bufinfo.buf = %s;bufinfo.len = %d;\n", bufinfo.buf, bufinfo.len);
-    LOGD(LOG_TAG, "%s:out ret = %d;\n", __func__, ret);
+    else
+    {
+        if (driver_obj->mType == ML_ENGINE_CLOUD)
+        {
+            int i = 0, ret_len = 0;
+            ucloud_ai_result_t result[16];
 
-    return MP_ROM_INT(ret);
+            memset(result, 0, sizeof(ucloud_ai_result_t) * 16);
+
+            if (!strcmp(driver_obj->mNetName, "FacebodyComparing"))
+            {
+                ret_len = MLGetPredictResponses(driver_obj->mInstance, (char *)&result[0], sizeof(ucloud_ai_result_t));
+                if (ret_len <= 0)
+                {
+                    LOGE(LOG_TAG, "MLGetPredictResponses failed\n");
+                    return mp_const_none;
+                }
+
+                mp_obj_t dict = mp_obj_new_dict(5);
+
+                i = 0;
+                LOGD(LOG_TAG, "%.1f\n", result[i].facebody.face.confidence);
+                LOGD(LOG_TAG, "x: %.1f\n", result[i].facebody.face.location.x);
+                LOGD(LOG_TAG, "y: %.1f\n", result[i].facebody.face.location.y);
+                LOGD(LOG_TAG, "w: %.1f\n", result[i].facebody.face.location.w);
+                LOGD(LOG_TAG, "h: %.1f\n", result[i].facebody.face.location.h);
+                mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("confidence")),
+                                  mp_obj_new_float(result[i].facebody.face.confidence));
+                mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("x")),
+                                  mp_obj_new_float(result[i].facebody.face.location.x));
+                mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("y")),
+                                  mp_obj_new_float(result[i].facebody.face.location.y));
+                mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("w")),
+                                  mp_obj_new_float(result[i].facebody.face.location.w));
+                mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("h")),
+                                  mp_obj_new_float(result[i].facebody.face.location.h));
+
+                return dict;
+            }
+            else if (!strcmp(driver_obj->mNetName, "DetectFruits"))
+            {
+                ret_len = MLGetPredictResponses(driver_obj->mInstance, (char *)&result[0], sizeof(ucloud_ai_result_t) * 16);
+                if (ret_len <= 0)
+                {
+                    LOGE(LOG_TAG, "MLGetPredictResponses failed\n");
+                    return mp_const_none;
+                }
+
+                mp_obj_t dict = mp_obj_new_dict(6);
+                mp_obj_t ret_list = mp_obj_new_list(0, NULL);
+
+                for (i = 0; i < ret_len; i++)
+                {
+                    LOGD(LOG_TAG, "name: %s\n", result[i].imagerecog.fruits.name);
+                    LOGD(LOG_TAG, "score: %.1f\n", result[i].imagerecog.fruits.score);
+                    LOGD(LOG_TAG, "x: %.1f\n", result[i].imagerecog.fruits.box.x);
+                    LOGD(LOG_TAG, "y: %.1f\n", result[i].imagerecog.fruits.box.y);
+                    LOGD(LOG_TAG, "w: %.1f\n", result[i].imagerecog.fruits.box.w);
+                    LOGD(LOG_TAG, "h: %.1f\n", result[i].imagerecog.fruits.box.h);
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("name")),
+                                      mp_obj_new_strn(result[i].imagerecog.fruits.name));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("score")),
+                                      mp_obj_new_float(result[i].imagerecog.fruits.score));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("x")),
+                                      mp_obj_new_float(result[i].imagerecog.fruits.box.x));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("y")),
+                                      mp_obj_new_float(result[i].facebody.face.location.y));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("w")),
+                                      mp_obj_new_float(result[i].facebody.face.location.w));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("h")),
+                                      mp_obj_new_float(result[i].facebody.face.location.h));
+                    mp_obj_list_append(ret_list, dict);
+                }
+                return ret_list;
+            }
+            else if (!strcmp(driver_obj->mNetName, "DetectPedestrian"))
+            {
+                ret_len = MLGetPredictResponses(driver_obj->mInstance, (char *)&result[0], sizeof(ucloud_ai_result_t) * 16);
+                if (ret_len <= 0)
+                {
+                    LOGE(LOG_TAG, "MLGetPredictResponses failed\n");
+                    return mp_const_none;
+                }
+
+                mp_obj_t dict = mp_obj_new_dict(6);
+                mp_obj_t ret_list = mp_obj_new_list(0, NULL);
+
+                for (i = 0; i < ret_len; i++)
+                {
+                    LOGD(LOG_TAG, "type: %s\n", result[i].facebody.pedestrian.type);
+                    LOGD(LOG_TAG, "score: %.1f\n", result[i].facebody.pedestrian.score);
+                    LOGD(LOG_TAG, "x: %.1f\n", result[i].facebody.pedestrian.box.x);
+                    LOGD(LOG_TAG, "y: %.1f\n", result[i].facebody.pedestrian.box.y);
+                    LOGD(LOG_TAG, "w: %.1f\n", result[i].facebody.pedestrian.box.w);
+                    LOGD(LOG_TAG, "h: %.1f\n", result[i].facebody.pedestrian.box.h);
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("type")),
+                                      mp_obj_new_strn(result[i].facebody.pedestrian.type));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("score")),
+                                      mp_obj_new_float(result[i].facebody.pedestrian.score));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("x")),
+                                      mp_obj_new_float(result[i].facebody.pedestrian.box.x));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("y")),
+                                      mp_obj_new_float(result[i].facebody.pedestrian.box.y));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("w")),
+                                      mp_obj_new_float(result[i].facebody.pedestrian.box.w));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("h")),
+                                      mp_obj_new_float(result[i].facebody.pedestrian.box.h));
+                    mp_obj_list_append(ret_list, dict);
+                }
+                return ret_list;
+            }
+        }
+        else
+        {
+            return mp_const_none;
+        }
+    }
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(ml_obj_getPredictResponses, 2, obj_getPredictResponses);
 
@@ -322,14 +459,14 @@ STATIC mp_obj_t obj_unLoadNet(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
+    void *instance = NULL;
     if (n_args < 1)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
         return mp_const_none;
     }
-    mp_obj_base_t *self = (mp_obj_base_t*)MP_OBJ_TO_PTR(args[0]);
-    mp_ml_obj_t* driver_obj = (mp_ml_obj_t *)self;
+    mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_ml_obj_t *driver_obj = (mp_ml_obj_t *)self;
     if (driver_obj == NULL)
     {
         LOGE(LOG_TAG, "driver_obj is NULL\n");

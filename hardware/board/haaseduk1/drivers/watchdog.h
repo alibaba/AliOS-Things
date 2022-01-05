@@ -7,5 +7,6 @@
 
 void watchdog_feeddog(void);
 void watchdog_stopfeed(void);
+void watchdog_feeddog_user(void);
 
 #endif

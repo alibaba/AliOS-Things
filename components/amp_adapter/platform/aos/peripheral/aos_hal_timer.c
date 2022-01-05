@@ -117,6 +117,12 @@ void aos_hal_timer_stop(timer_dev_t *tim)
 #endif
 }
 
+int32_t aos_hal_timer_reload(aos_hal_timer_dev_t *tim)
+{
+    int32_t *p_fd = (int32_t *)tim->priv;
+    return ioctl(*p_fd, IOC_TIMER_RELOAD, (unsigned long)false);
+}
+
 int32_t aos_hal_timer_para_chg(timer_dev_t *tim, timer_config_t para)
 {
 #ifndef AOS_BOARD_HAAS700

@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
 '''
 @File       :    speech_utils.py
 @Description:    file description   
@@ -31,17 +31,15 @@ cb_data = None
 player = None
 def init_audio():
     global player
-    Snd.install_codec_driver()
     Snd.init()
     player = Player()
-    player.create()
-    player.set_volume(8)
+    player.open()
+    player.setVolume(8)
 
 def play(path):
     global player
-    player.set_source(path)
-    player.start()
-    player.wait_complete()
+    player.play(path)
+    player.waitComplete()
 
 def playlist(pathlist):
     for path in pathlist:
@@ -49,9 +47,17 @@ def playlist(pathlist):
 
     print('********end playlist*******')
 
-def play_voice(data,dir):
+
+def play_voice(data,dir_info):
+    """
+    {"format":"wav","speechs":["zfbGet","{$10000}","yuan"],"id":"Xc14Erf9skwt5kj5YHepXGEiTa8DIxZJ","timestamp":"1633943696513"}
+    """
     global toneDir, tonenameSuffix, playlist
-    toneDir = dir
+    print('************* play_voice***********')
+    print('*************data: %s' % data)
+    print('*************dir_info: %s' % dir_info)
+
+    toneDir = dir_info
     format =  data['format']
     audioResFormat = 0
     if (format == 'mp3'):
@@ -67,7 +73,7 @@ def play_voice(data,dir):
             toneList = add_amount(speech_num,toneList,audioResFormat)
         else:
             toneList.append(toneDir + speech + tonenameSuffix[audioResFormat])
-        print(toneList)
+    print(toneList)
     playlist(toneList)
 
 
@@ -183,7 +189,7 @@ def download_resource_file(on_request,resDir):
         'url':on_request['url'],
         'method': 'GET',
         'headers': {
-            'Accept':'*/*'
+            'content-type' :'application/x-www-form-urlencoded'
         },
         'timeout': 30000,
         'params' : ''
@@ -201,13 +207,26 @@ def download_resource_file(on_request,resDir):
             break
         else:
             time.sleep(1)
-
-    response = json.loads(cb_data)
-    format = response['format']
-    size = response['size']
+    # {
+    #     "audios":
+    #     [
+    #         {   "format":"wav",
+    #             "id":"zfbGet",
+    #             "size":40204,
+    #             "type":"custom",
+    #             "url":"http://speech-solution.oss-cn-shanghai.aliyuncs.com/speech_model_audio/l5saRiTZw8WaqUV3RRrNJf1SG5C0pw3B/zfbGet.wav?Expires=1634549515&OSSAccessKeyId=LTAIN4oIylhS6P47&Signature=NBX9rRmeGYRjoLceSe9hZl%2BgcyI%3D"
+    #         }
+    #     ],
+    #     "format":"wav",
+    #     "size":40204
+    # }
+    print(cb_data)
+    response = json.loads(cb_data['body'])
     audio = response['audios'][0]
-    id = audio['id']
     format = audio['format']
+    id = audio['id']
+    size = audio['size']
+
     path = toneDir +id+'.'+format
     print('************ begin to download: ' + path)
     d_data = {

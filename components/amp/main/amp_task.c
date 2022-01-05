@@ -11,7 +11,7 @@
 
 #define MOD_STR                 "AMP_TASK"
 #define AMP_MSGQ_WAITIME        (2000)
-#define AMP_MSGQ_MAX_NUM        64
+#define AMP_MSGQ_MAX_NUM        128
 
 typedef struct {
     dlist_t node;
@@ -147,6 +147,7 @@ fail:
 
 int32_t amp_task_schedule_call(amp_engine_call_t call, void *arg)
 {
+    int ret = 0;
     amp_task_msg_t msg_buf;
     amp_task_msg_t *p_param = &msg_buf;
 
@@ -161,12 +162,12 @@ int32_t amp_task_schedule_call(amp_engine_call_t call, void *arg)
         amp_warn(MOD_STR, "amp_task_mq has not been initlized");
         return -1;
     }
-    aos_queue_send(&amp_task_mq, p_param, sizeof(amp_task_msg_t));
+    ret = aos_queue_send(&amp_task_mq, p_param, sizeof(amp_task_msg_t));
 #ifdef HAASUI_AMP_BUILD
     if (g_task_msg_notify)
         g_task_msg_notify(amp_task_yield_nowait);
 #endif
-    return 0;
+    return ret;
 }
 
 void amp_task_msg_register(void (*msg_notify)(int (*msg_handler)(void)))

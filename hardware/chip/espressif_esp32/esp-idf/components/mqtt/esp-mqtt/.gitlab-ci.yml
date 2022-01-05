@@ -1,0 +1,178 @@
+stages:
+  - build
+  - static_analysis
+  - deploy_report
+  - deploy
+
+
+variables:
+  IDF_REPO: ${GITLAB_SSH_SERVER}/idf/esp-idf.git
+  OLDER_IDF: release/v3.1
+  RECENT_IDF: release/v3.3
+
+.add_gh_key_remote: &add_gh_key_remote |
+  cit_add_ssh_key "${GH_PUSH_KEY}"
+  git remote remove github || true
+  git remote add github ${GH_PUSH_REPO}
+
+before_script:
+  # Use CI Tools
+  - curl -sSL ${CIT_LOADER_URL} | sh
+  - source citools/import_functions
+  - PATH=$CI_PROJECT_DIR/esp-idf/tools:$PATH
+  - export IDF_PATH=$CI_PROJECT_DIR/esp-idf
+  - export MQTT_PATH=$CI_PROJECT_DIR
+
+build_with_idf_v3:
+  stage: build
+  image: ${CI_DOCKER_REGISTRY}/esp32-ci-env
+  tags:
+    - build
+  dependencies: []
+  script:
+    - cit_add_ssh_key "${GITLAB_KEY}"
+    - git clone "${IDF_REPO}"
+    # build with IDFv3.2
+    - $MQTT_PATH/ci/set_idf.sh release/v3.2
+    - $MQTT_PATH/ci/set_mqtt.sh $CI_COMMIT_SHA
+    - $MQTT_PATH/ci/build_examples.sh make
+    # build with IDFv3.3
+    - $MQTT_PATH/ci/set_idf.sh release/v3.3
+    - $MQTT_PATH/ci/set_mqtt.sh $CI_COMMIT_SHA
+    - $MQTT_PATH/ci/build_examples.sh make
+    # simple build with IDFv3.1 (buiding directly in mqtt repo)
+    - $MQTT_PATH/ci/set_idf.sh release/v3.1
+    - cd $MQTT_PATH && ./ci/modify_for_legacy_idf.sh ${RECENT_IDF} || true
+    - cd $MQTT_PATH/examples/tcp && rm -rf build && make defconfig && make
+
+build_with_idf_v4:
+  stage: build
+  image: ${CI_DOCKER_REGISTRY}/esp32-ci-env
+  tags:
+    - build
+  dependencies: []
+  artifacts:
+    when: always
+    paths:
+      - tidybuild/*
+    expire_in: 1 day
+  script:
+    - cit_add_ssh_key "${GITLAB_KEY}"
+    - git clone "${IDF_REPO}"
+    - $MQTT_PATH/ci/set_idf.sh master
+    - cd $IDF_PATH && tools/idf_tools.py --non-interactive install && eval "$(tools/idf_tools.py --non-interactive export)"
+    - $MQTT_PATH/ci/set_mqtt.sh $CI_COMMIT_SHA
+    # capture compile commands/flags for static analysis
+    - cd $IDF_PATH/examples/protocols/mqtt/tcp
+    - mkdir -p tidybuild && cd tidybuild
+    - cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+    - mv $IDF_PATH/examples/protocols/mqtt/tcp/tidybuild $CI_PROJECT_DIR/tidybuild
+    # enable pedantic flags for compilation
+    - export PEDANTIC_CFLAGS="-Werror -Werror=deprecated-declarations -Werror=unused-variable -Werror=unused-but-set-variable -Werror=unused-function"
+    - export EXTRA_CFLAGS=${PEDANTIC_CFLAGS} && export EXTRA_CXXFLAGS=${EXTRA_CFLAGS}
+    # build other examples
+    - $MQTT_PATH/ci/build_examples.sh
+    # rebuild with IDFv4.2
+    - $MQTT_PATH/ci/set_idf.sh release/v4.2
+    - cd $IDF_PATH && tools/idf_tools.py --non-interactive install && eval "$(tools/idf_tools.py --non-interactive export)"
+    - $MQTT_PATH/ci/set_mqtt.sh $CI_COMMIT_SHA
+    - $MQTT_PATH/ci/build_examples.sh
+    # rebuild with IDFv4.1
+    - $MQTT_PATH/ci/set_idf.sh release/v4.1
+    - cd $IDF_PATH && tools/idf_tools.py --non-interactive install && eval "$(tools/idf_tools.py --non-interactive export)"
+    - $MQTT_PATH/ci/set_mqtt.sh $CI_COMMIT_SHA
+    - $MQTT_PATH/ci/build_examples.sh
+    # rebuild with IDFv4.0
+    - $MQTT_PATH/ci/set_idf.sh release/v4.0
+    - cd $IDF_PATH && tools/idf_tools.py --non-interactive install && eval "$(tools/idf_tools.py --non-interactive export)"
+    - $MQTT_PATH/ci/set_mqtt.sh $CI_COMMIT_SHA
+    - $MQTT_PATH/ci/build_examples.sh
+
+build_and_test_qemu:
+  stage: build
+  image: ${CI_DOCKER_REGISTRY}/qemu:esp-develop-20191124
+  tags:
+    - build
+    - shiny
+  dependencies: []
+  script:
+    - cit_add_ssh_key "${GITLAB_KEY}"
+    - git clone "${IDF_REPO}"
+    - $MQTT_PATH/ci/set_idf.sh release/v4.1
+    - cd $IDF_PATH && tools/idf_tools.py --non-interactive install && eval "$(tools/idf_tools.py --non-interactive export)"
+    - $MQTT_PATH/ci/set_mqtt.sh $CI_COMMIT_SHA
+    # build publish stress test
+    - cd $IDF_PATH/examples/protocols/mqtt/publish_test && cat sdkconfig.qemu | $IDF_PATH/tools/ci/envsubst.py >> sdkconfig.defaults && idf.py build
+    - source /opt/pyenv/activate && pyenv global 2.7.15 && python --version
+    # setup runner params
+    - export PYTHONPATH="$IDF_PATH/tools:$IDF_PATH/tools/ci/python_packages"
+    - export TEST_CASE_PATH=$IDF_PATH/components/mqtt/weekend_test
+    - cd $IDF_PATH/tools/ci/python_packages/tiny_test_fw/bin
+    # run test (with environment->qemu)
+    - python Runner.py $TEST_CASE_PATH -c $TEST_CASE_PATH/test_weekend_mqtt_qemu.yml -e $TEST_CASE_PATH/env.yml
+
+clang_tidy_check:
+  stage: static_analysis
+  image: ${CI_DOCKER_REGISTRY}/clang-static-analysis
+  tags:
+    - host_test
+  dependencies:
+    - build_with_idf_v4
+  artifacts:
+    reports:
+      junit: esp-idf/examples/protocols/mqtt/tcp/tidybuild/output.xml
+    when: always
+    paths:
+      - esp-idf/examples/protocols/mqtt/tcp/tidybuild/report/*
+    expire_in: 1 day
+  script:
+    - cit_add_ssh_key "${GITLAB_KEY}"
+    - git clone "${IDF_REPO}"
+    - cd esp-idf
+    - ./tools/ci/mirror-submodule-update.sh
+    - export IDF_PATH=$(pwd)
+    - cd $IDF_PATH/components/mqtt/esp-mqtt
+    - rm -rf .git
+    - cp -r $CI_PROJECT_DIR/.git .
+    - git reset --hard $CI_COMMIT_SHA
+    - mv $CI_PROJECT_DIR/tidybuild $IDF_PATH/examples/protocols/mqtt/tcp/tidybuild
+    - cd $IDF_PATH/examples/protocols/mqtt/tcp/tidybuild
+    - git clone $IDF_ANALYSIS_UTILS static_analysis_utils && cd static_analysis_utils
+    - ./generate_report.sh $CI_PROJECT_DIR/static-analysis-rules.yml $IDF_PATH/examples/protocols/mqtt/tcp/tidybuild/report $IDF_PATH/examples/protocols/mqtt/tcp/tidybuild/output.xml
+
+deploy_report:
+  stage: deploy_report
+  image: $CI_DOCKER_REGISTRY/esp32-ci-env
+  tags:
+    - deploy
+    - shiny
+  dependencies:
+    - clang_tidy_check
+  script:
+    - cit_add_ssh_key "${DOCS_DEPLOY_KEY}"
+    - echo -e "Host $DOCS_SERVER\n\tStrictHostKeyChecking no\n\tUser $DOCS_SERVER_USER\n" >> ~/.ssh/config
+    - export GIT_VER=$(git describe --always)
+    - cd esp-idf/examples/protocols/mqtt/tcp/tidybuild
+    - mv report $GIT_VER
+    - tar czvf $GIT_VER.tar.gz $GIT_VER
+    - ssh $DOCS_SERVER -x "mkdir -p $DOCS_PATH/clang-tidy"
+    - scp $GIT_VER.tar.gz $DOCS_SERVER:$DOCS_PATH/clang-tidy
+    - ssh $DOCS_SERVER -x "cd $DOCS_PATH/clang-tidy && tar xzvf $GIT_VER.tar.gz && rm -f latest && ln -s $GIT_VER latest"
+    # add link to view the report
+    - echo "[static analysis][clang tidy] $CI_DOCKER_REGISTRY/static_analysis/esp-idf/clang-tidy/${GIT_VER}/index.html"
+    - test ! -e ${GIT_VER}/FAILED_RULES || { echo 'Failed static analysis rules!'; cat ${GIT_VER}/FAILED_RULES; exit 1; }
+
+push_master_to_github:
+  stage: deploy
+  image: ${CI_DOCKER_REGISTRY}/esp32-ci-env
+  tags:
+    - build
+  only:
+    - master
+    - idf
+  when: on_success
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - *add_gh_key_remote
+    - git push github HEAD:${CI_COMMIT_REF_NAME}

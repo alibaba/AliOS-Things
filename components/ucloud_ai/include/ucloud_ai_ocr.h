@@ -52,6 +52,14 @@ void ucloud_ai_ocr_recognize_bank_card(char *path, ucloud_ai_cb_t cb);
 void ucloud_ai_ocr_recognize_character(char *path, ucloud_ai_cb_t cb);
 
 /**
+ * Ucloud ai recognizing license plate api.
+ *
+ * @param[in]  path                license plate you want to recogize.
+ * @param[in]  cb                  callback function to deal with result.
+ *
+ */
+void ucloud_ai_ocr_recognize_license_plate(char *path, ucloud_ai_cb_t cb);
+/**
  * @}
  */
 

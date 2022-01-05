@@ -130,7 +130,9 @@ char* oss_upload_local_content(char *keyId,
                                char *keySecret, 
                                char *endPoint, 
                                char *bucketName, 
-                               char *scontent);
+                               char *scontent,
+                               int32_t contentLen,
+                               char *ossFilePath);
 ```
 
 # 使用示例
@@ -242,7 +244,7 @@ CLI关键日志：
 **CLI命令行输入：**
 测试OSS上传本地字符内容
 ```sh
-oss_test 0 hello_oss  # 上传本地内容，例如hello_oss到oss系统中
+oss_test 0 hello_oss 9 oss/test/oss.txt# 上传本地内容，例如hello_oss到oss系统中
 ```
 
 

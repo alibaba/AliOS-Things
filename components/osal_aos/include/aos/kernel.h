@@ -31,7 +31,9 @@ extern "C" {
  */
 
 /* Define the AliOS-Things' Version */
-#define SYSINFO_KERNEL_VERSION "AOS-R-3.3.0" /**< AliOS Things内核版本信息 */
+#define SYSINFO_VERSION_MAX       10            /**< 管理版本的内部数组长度 */
+#define SYSINFO_KERNEL_VERSION "3.3.0"       /**< AliOS Things内核版本信息 */
+#define SYSINFO_AOSAPI_VERSION "1.3.0"       /**< AliOS Things系统版本信息 */
 
 /* Defined for API with delay time */
 #define AOS_WAIT_FOREVER 0xffffffffu /**< 阻塞性等待，即一直等待，直到事件发生或资源获得才返回 */
@@ -1059,6 +1061,16 @@ void aos_init(void);
  * Start system.
  */
 void aos_start(void);
+
+/**
+ * Sets the version string for the component
+ */
+int32_t aos_comp_version_set(const char *comp_name, const char *version);
+
+/**
+ * Gets the component's version string
+ */
+const char *aos_comp_version_get(const char *comp_name);
 
 /** @} */
 

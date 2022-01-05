@@ -40,7 +40,7 @@ void RecognizeLicensePlateResult::parse(const std::string &payload)
 	reader.parse(payload, value);
 	setRequestId(value["RequestId"].asString());
 	auto dataNode = value["Data"];
-	auto allPlatesNode = dataNode["Plates"]["Plate"];
+	auto allPlatesNode = dataNode["Plates"];
 	for (auto dataNodePlatesPlate : allPlatesNode)
 	{
 		Data::Plate plateObject;

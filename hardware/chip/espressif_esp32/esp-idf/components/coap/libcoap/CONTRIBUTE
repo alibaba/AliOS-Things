@@ -1,0 +1,218 @@
+       #######################################################
+       #  Developer information for contributing to libcoap  #
+       #######################################################
+
+1. The basics
+~~~~~~~~~~~~~
+The libcoap project is a FOSS project that is dual licensed. The maintainer
+for the libcoap is Olaf Bergmann <bergmann@tzi.org>.
+Any contributions have to be made under the terms of the
+license
+
+  * BSD 2-Clause (The BSD 2-Clause License)
+
+Contributions made up to 2017-06-01 have been made under the dual
+license model BSD 2-Clause and GPL v2+ (The GNU General Public License
+2.0 or later).
+
+The used VCS for libcoap is Git, the main repository is living on GitHub.
+You can clone (or fork directly on GitHub) on the repository site:
+
+  https://github.com/obgm/libcoap
+
+Please refer also to the libcoap website for additional information
+
+  https://libcoap.net/
+
+The build environment is grounded on the classical autotools, the GNU GCC and
+the LLVM C-compiler (CLang) are supported. The Windows systems are not
+currently supported (until someone is creating support for it).
+
+Doxygen is used for creating a HTML based online documentation of the
+libcoap library.
+
+2. Communications
+~~~~~~~~~~~~~~~~~
+The main discussion and development platform for libcoap is the mailing list
+on Sourceforge.
+No matter if you just have a simple question, some specific problem or
+want to discuss some patches, please write it to the mailing list. Please
+avoid personal mailings to the maintainer (or some other contributor) if
+your questions will probably be in the interest of other users too.
+You can subscribe to the list here:
+
+  https://lists.sourceforge.net/lists/listinfo/libcoap-developers
+
+The archive of the list can be found on:
+
+  https://sourceforge.net/p/libcoap/mailman/libcoap-developers
+
+3. Starting contributing
+~~~~~~~~~~~~~~~~~~~~~~~~
+As written above libcoap is maintained with the Git tools so you should be
+familiar with the various git commands.
+The libcoap project is using just two main branches, the 'master' branch is
+holding the point releases, all the development process is going on in the
+'develop' branch.
+To start any contributing you first have to clone the git tree from the main
+repository on GitHub:
+
+  git clone https://github.com/obgm/libcoap.git
+
+4. Working on the source
+~~~~~~~~~~~~~~~~~~~~~~~~
+As one golden rule you should work on improvements within *your* own local
+development branch! To do so you have to first checkout the 'develop' branch
+as local branch and then start on top on this branch your own branch. So
+create (or better say checkout) the local 'develop' branch:
+
+  cd libcoap
+  git checkout develop origin/develop
+
+Now you can simply start your own local branch (for example 'my-develop')
+with the 'origin/develop' as parent so you can later create the patches
+against the the upstream development branch:
+
+  git checkout -b my-develop
+
+At this point you can now work as known with git, modify the source, commit
+the changes, amend if needed and test your work.
+At some point you will have to generate patches to post them on the mailing
+list (and/or push your changes into your public Git tree). It's a good idea to
+post your patch series on the mailing list so other contributors will see your
+work and give further suggestions or discuss your work.
+
+To be able to send a patch series you will now create the series itself as
+single patches, this will be going easy with the 'git format-patch' command
+against the 'develop' branch, remind this is the upstream main development
+branch.
+To not mix up your series with probably unrelated patches let git place the
+patches within a defined directory. Also, while create the patches, tell git to
+create a cover letter patch so you can append some introducing words that will
+hold probably explanations why you create the patches in the way you have done.
+
+  git format-patch --cover-letter -o ../patches4libcoap
+
+This command will create a patch series in ../patches4libcoap where you find a
+patch named '0000-cover-letter.patch'. Please modify this patch with some
+useful information's for the mailing list. After finish this you now can send
+your patches to libcoap-developers@lists.sourceforge.net
+
+  git send-email ../patches4libcoap/* --to=libcoap-developers@lists.sourceforge.net
+
+5. Coding rules
+~~~~~~~~~~~~~~~
+As every FOSS project the libcoap project needs also some rules for coding.
+There are loss but the main of them are important!
+
+5.1 License and Copyright
+-------------------------
+Every new file must contain a license and the copyright holder(s). Please
+take a look into existing files and adopt the needed changes to your new
+file(s).
+
+5.2 Source Code Indentation
+---------------------------
+* For better reading the indentation is set to 2 characters as spaces, this
+  is depended on the often used nested functions like 'if-else'. Don't use
+  TABs any there! Avoid trailing white spaces at the end of a line.
+  It's appropriate to set up a modline like this one at first line within
+  the source file:
+
+--8<----
+/* -*- Mode: C; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
+--->8--
+
+* Single lines within the source code should not be longer then 78
+  characters.
+
+* If there a functions with a lot of parameters that do not fit into the above
+  rule split the declaration (in the *.h) and the implementation (in the *.c)
+  into single lines per parameter. For example like this (from src/block.c):
+
+--8<----
+int
+coap_add_block(coap_pdu_t *pdu,
+               unsigned int len,
+               const unsigned char *data,
+               unsigned int block_num,
+               unsigned char block_szx);
+--->8--
+
+5.3 Source Code Documentation
+-----------------------------
+* A useful source code documentation is mandatory. Mostly to be done within the
+  source code files, but more complex description should be done in extra
+  README files.
+
+* Please set up/adjust the doxygen documentation if you create new functions or
+  change existing functions. The doxygen documentation has to be done in the
+  header files as they are the public part of the libcoap and only use the
+  @-syntax for doxygen commands (akin to javadoc).
+
+5.4 API Changes
+---------------
+* Never break the API!
+  Don't remove old functions and if there some changes are needed in some kind
+  always provide a wrapper for the old call to let the library be backward
+  compatible and mark the old function as @deprecated in the doxygen comment.
+  Please discuss needed changes on the mailing list.
+
+5.5 Patches and Commits
+-----------------------
+* Git commits must be atomic and contain a declarative subject line (max 50
+  characters if possible) and a body for a statement if needed.
+  Use the possibility to write a good explanation why your patch/commit is
+  handle the changes in the way you have done. Remind that other user can
+  read your code but not necessary understand why the code is written this
+  way. Don't use something to generic like "bugfix commit".
+
+* A patch/commit or a series of patches/commits have to ensure that the
+  whole project is able to build up every thing, in short: Do not break
+  any make target and test your work.
+
+* Every patch/commit should handle one single logical change. If more than
+  one patch/commit is needed for a change explain it, respect the point
+  above. If your subject line become much larger than 50 characters then
+  typically your patch is to big for one single commit.
+
+* Commit message should begin with a submodule or unit the commit is for. By
+  this your commit message helps to find thematic other changes. If you have
+  to search and find something with 'git log | grep [foo]' you will see why
+  this is useful. Examples:
+
+    rd.c: Fixed type-specifier warning
+    Makefile.am: Added missing src/address.c
+    address.[hc]: make coap_address_equals() not inline on POSIX
+
+6. Where to start contributing?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There are various things you could starting on to contribute, the best
+is you simply pick up an issue you blindly see and just improve the
+situation. Please take also a look into the file TODO and choose a point
+from there or point the maintainer to add other things here too.
+
+* Documentation
+We are always lacking on a better documentation on the source code, so
+maybe you can improve the doxygen documentation.
+Also a good documentation on the usage of the libcoap and the example
+binaries is always improvable. So we appreciate any help on this.
+
+* Manual Pages
+The source is providing some example binaries which originally just should show
+how the libcoap can be used. Right now these binaries are fully usable and
+quite more than simple examples on a system. There are man pages for these
+binaries available, if you found there is a improvement needed please do so and
+write to the mailing list explained in section 2.
+Maybe you can write up some good HowTo's on the usage for these binaries.
+
+* HowTo's
+The libcoap library has now a lot of functions you can use.
+Unfortunately there is no good user guide on how to use the libcoap in
+any external project. This means there is no HowTo or CheatSheet for a
+programming person available. You want to write up something?
+
+* Missing functionality
+There are some features that are still missing inside the libcoap. For
+example some DTLS implementations and proxy functionality.
+

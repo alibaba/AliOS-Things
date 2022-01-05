@@ -1,0 +1,16 @@
+# generated files
+libnghttp2_asio.pc
+
+# programs
+deflatehd
+h2load
+inflatehd
+nghttp
+nghttpd
+nghttpx
+
+# build
+libnghttpx.a
+
+# tests
+nghttpx-unittest

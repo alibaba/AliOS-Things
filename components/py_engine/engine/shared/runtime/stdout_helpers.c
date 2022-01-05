@@ -27,7 +27,7 @@
 #include <string.h>
 #include "py/mphal.h"
 
-#if !MICROPY_PY_HAAS_SPECIFIC // disabled by HaaS-AMP
+#if !MICROPY_PY_AOS_SPECIFIC // disabled by HaaS-AMP
 /*
  * Extra stdout functions
  * These can be either optimized for a particular port, or reference
@@ -61,4 +61,4 @@ void mp_hal_stdout_tx_strn_cooked(const char *str, size_t len) {
 void mp_hal_stdout_tx_str(const char *str) {
     mp_hal_stdout_tx_strn(str, strlen(str));
 }
-#endif 
+#endif

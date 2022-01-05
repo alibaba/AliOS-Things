@@ -55,7 +55,7 @@
 #ifdef BYFOUR
 #  define REV(w) ((((w)>>24)&0xff)+(((w)>>8)&0xff00)+ \
                 (((w)&0xff00)<<8)+(((w)&0xff)<<24))
-#if (BOARD_HAAS200 == 1 || BOARD_HAAS700 == 1)
+#if (ESP_PLATFORM == 1 || BOARD_HAAS200 == 1 || BOARD_HAAS700 == 1)
    local unsigned long crc32_little OF((unsigned long,
                         const unsigned char FAR *, unsigned));
    local unsigned long crc32_big OF((unsigned long,
@@ -220,7 +220,7 @@ const unsigned long FAR * ZEXPORT get_crc_table()
 #define DO8 DO1; DO1; DO1; DO1; DO1; DO1; DO1; DO1
 
 /* ========================================================================= */
-#if (BOARD_HAAS200 == 1 || BOARD_HAAS700 == 1)
+#if (ESP_PLATFORM == 1 || BOARD_HAAS200 == 1 || BOARD_HAAS700 == 1)
 unsigned long ZEXPORT crc32(crc, buf, len)
     unsigned long crc;
     const unsigned char FAR *buf;
@@ -265,7 +265,7 @@ unsigned long ZEXPORT crc32(crc, buf, len)
 #define DOLIT32 DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4; DOLIT4
 
 /* ========================================================================= */
-#if (BOARD_HAAS200 == 1 || BOARD_HAAS700 == 1)
+#if (ESP_PLATFORM == 1 || BOARD_HAAS200 == 1 || BOARD_HAAS700 == 1)
 local unsigned long crc32_little(crc, buf, len)
     unsigned long crc;
     const unsigned char FAR *buf;
@@ -306,7 +306,7 @@ local unsigned long crc32_little(crc, buf, len)
 #define DOBIG32 DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4; DOBIG4
 
 /* ========================================================================= */
-#if (BOARD_HAAS200 == 1 || BOARD_HAAS700 == 1)
+#if (ESP_PLATFORM == 1 || BOARD_HAAS200 == 1 || BOARD_HAAS700 == 1)
 local unsigned long crc32_big(crc, buf, len)
     unsigned long crc;
     const unsigned char FAR *buf;

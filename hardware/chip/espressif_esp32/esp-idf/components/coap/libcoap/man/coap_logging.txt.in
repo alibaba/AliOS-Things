@@ -1,0 +1,167 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap_logging(3)
+=================
+:doctype: manpage
+:man source:   coap_logging
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap_logging, coap_log, coap_get_log_level, coap_set_log_level,
+coap_set_log_handler, coap_package_name, coap_package_version,
+coap_set_show_pdu_output, coap_show_pdu
+- Work with CoAP logging
+
+SYNOPSIS
+--------
+*#include <coap@LIBCOAP_API_VERSION@/coap.h>*
+
+*void coap_log(coap_log_t _level_, const char *_format_, ...);*
+
+*void coap_set_log_level(coap_log_t _level_);*
+
+*coap_log_t coap_get_log_level(void);*
+
+*void coap_dtls_set_log_level(int _level_);*
+
+*int coap_dtls_get_log_level(void);*
+
+*void coap_set_log_handler(coap_log_handler_t _handler_);*
+
+*const char *coap_package_name(void);*
+
+*const char *coap_package_version(void);*
+
+*void coap_set_show_pdu_output(int _use_fprintf_);*
+
+*void coap_show_pdu(coap_log_t _level_, const coap_pdu_t *_pdu_);*
+
+*const char *coap_endpoint_str(const coap_endpoint_t *_endpoint_);*
+
+*const char *coap_session_str(const coap_session_t *_session_);*
+
+Link with *-lcoap-@LIBCOAP_API_VERSION@*, *-lcoap-@LIBCOAP_API_VERSION@-gnutls*,
+*-lcoap-@LIBCOAP_API_VERSION@-openssl* or
+*-lcoap-@LIBCOAP_API_VERSION@-tinydtls* depending on your (D)TLS library
+type.
+
+DESCRIPTION
+-----------
+The logging sub-system supports logging at different levels, and depending on
+the selected logging level, outputs the appropriate information.
+
+Logging by default is to stderr or stdout depending on the logging level of
+the log entry.  It ia possible to send the logging information to an
+application logging call-back handler for processing by the application.
+
+The *coap_log*() function is used to log information at the appropriate _level_.
+The rest of the parameters follow the standard *printf*() function format.
+
+Logging levels (*coap_log_t*) are defined by (the same as for *syslog*()), which
+are numerically incrementing in value:
+
+*LOG_EMERG*::
+Emergency level (0).
+
+*LOG_ALERT*::
+Alert level (1).
+
+*LOG_CRIT*::
+Critical level (2).
+
+*LOG_ERR*::
+Error level (3).
+
+*LOG_WARNING*::
+Warning level (the default) (4).
+
+*LOG_NOTICE*::
+Notice level (5).
+
+*LOG_INFO*::
+Information level (6).
+
+*LOG_DEBUG*::
+Debug level (7).
+
+The *coap_set_log_level*() function is used to set the current logging _level_
+for output by any subsequent *coap_log*() calls.  Output is only logged if the
+*coap_log*() _level_ definition is smaller than or equal to the curent logging
+_level_.
+
+The *coap_get_log_level*() function is used to get the current logging level.
+
+The *coap_dtls_set_log_level*() function is used to set the logging _level_
+for output by the DTLS library for specific DTLS information. Usually, both
+*coap_set_log_level*() and *coap_dtls_set_log_level*() would be set to the
+same _level_ value. If the logging level is set to greater than LOG_DEBUG,
+the underlying TLS library may get more verbose in its output.
+
+The *coap_dtls_get_log_level*() function is used to get the current logging
+level for the DTLS library.
+
+The *coap_set_log_handler*()* function can be used to define an alternative
+logging handler for processing the logging messages.  The logging handler
+prototype is defined as:
+
+[source, c]
+----
+typedef void (*coap_log_handler_t) (coap_log_t level, const char *message);
+----
+
+The *coap_package_name*() function returns the name of this library.
+
+The *coap_package_version*() function returns the version of this library.
+
+The *coap_set_show_pdu_output*() function defines whether the output from
+*coap_show_pdu*() is to be either sent to stdout/stderr, or output using
+*coap_log*().  _use_fprintf_ is set to 1 for stdout/stderr (the default), and
+_use_fprintf_ is set to 0 for *coap_log*().
+
+The *coap_show_pdu*() function is used to decode the _pdu_, outputting as
+appropriate for logging _level_.  Where the output goes is dependent on
+*coap_set_show_pdu_output*().
+
+The *coap_endpoint_str*() function returns a description string of the
+_endpoint_.
+
+The *coap_session_str*() function is used to get a string containing the
+information about the _session_.
+
+RETURN VALUES
+-------------
+
+The *coap_package_name*() and *coap_package_version*() return the appropriate
+zero-terminated character string.
+
+The *coap_get_log_level*() function returns the current logging level.
+
+The *coap_dtls_get_log_level*() function returns the current logging level
+for the DTLS library specifics.
+
+The *coap_endpoint_str*() function returns a description string of the
+_endpoint_.
+
+The *coap_session_str*() function returns a description string of the
+_session_.
+
+SEE ALSO
+--------
+*coap_context*(3) and *coap_session*(3)
+
+FURTHER INFORMATION
+-------------------
+See "RFC7252: The Constrained Application Protocol (CoAP)" for further
+information.
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

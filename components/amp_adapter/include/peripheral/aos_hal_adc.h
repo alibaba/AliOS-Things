@@ -24,6 +24,8 @@ extern "C" {
 /* Define ADC config args */
 typedef struct {
     uint32_t sampling_cycle; /**< sampling period in number of ADC clock cycles */
+    uint8_t adc_atten;
+    uint8_t adc_width;
 } adc_config_t;
 
 /* Define ADC dev hal handle */
@@ -55,8 +57,22 @@ int32_t aos_hal_adc_init(adc_dev_t *adc);
  *
  * @return  0 : on success,  otherwise is error
  */
-int32_t aos_hal_adc_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout);
+int32_t aos_hal_adc_voltage_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout);
 
+/**
+ * Takes a single sample from an ADC interface
+ *
+ * @note If the ADC is configured with mutiple channels, the result of each channel is
+ *       copied to output buffer one by one according to the sequence of the channel registered,
+ *       and each result takes sizeof(uint32_t) bytes.
+ *
+ * @param[in]   adc      the interface which should be sampled
+ * @param[out]  output   pointer to a variable which will receive the sample
+ * @param[in]   timeout  ms timeout
+ *
+ * @return  0 : on success,  otherwise is error
+ */
+int32_t aos_hal_adc_raw_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout);
 /**
  * De-initialises an ADC interface, Turns off an ADC hardware interface
  *

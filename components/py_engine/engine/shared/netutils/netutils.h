@@ -27,16 +27,16 @@
 #ifndef MICROPY_INCLUDED_LIB_NETUTILS_NETUTILS_H
 #define MICROPY_INCLUDED_LIB_NETUTILS_NETUTILS_H
 
-// Modified bt HaaS begin
-#include "py/mpprint.h"
-#include "py/obj.h"
-// Modified bt HaaS end
-
 #define NETUTILS_IPV4ADDR_BUFSIZE    4
 
 #define NETUTILS_TRACE_IS_TX        (0x0001)
 #define NETUTILS_TRACE_PAYLOAD      (0x0002)
 #define NETUTILS_TRACE_NEWLINE      (0x0004)
+
+// Modified bt HaaS begin
+#include "py/mpprint.h"
+#include "py/obj.h"
+// Modified bt HaaS end
 
 typedef enum _netutils_endian_t {
     NETUTILS_LITTLE,
