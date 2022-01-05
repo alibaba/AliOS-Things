@@ -27,6 +27,27 @@ void irq_vectors_init(void)
     int i;
 
     for (i = 0; i < 1023; i++) {
-        g_irqvector[i] = Default_Handler;
+        g_irqvector[i] = NULL;
     }
 }
+
+void dispatcher_interrupt(long irq)
+{
+    int32_t irq_id;
+
+    krhino_intrpt_enter();
+    if (irq == 7) {
+        CORET_IRQHandler();
+    } else {
+        irq_id = *((int32_t *)(PLIC_BASE + 0x200004));
+        if (g_irqvector[irq_id] == NULL) {
+            krhino_intrpt_exit();
+            return;
+        }
+
+        g_irqvector[irq_id]();
+        *((int32_t *)(PLIC_BASE + 0x200004)) = irq_id;
+    }
+    krhino_intrpt_exit();
+}
+

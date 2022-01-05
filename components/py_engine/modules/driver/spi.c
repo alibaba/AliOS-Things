@@ -107,6 +107,7 @@ STATIC mp_obj_t spi_open(size_t n_args, const mp_obj_t *args)
     LOGD(LOG_TAG, "%s: cs = %d;\n", __func__, spi_device->config.cs);
 
     ret = aos_hal_spi_init(spi_device);
+
 fail:
     if (ret < 0) {
         LOGE(LOG_TAG, "%s: spi_open failed ret = %d\n", __func__, ret);
@@ -138,119 +139,81 @@ STATIC mp_obj_t spi_read(size_t n_args, const mp_obj_t *args)
 {
     mp_int_t ret = -1;
 
-    SPI_CHECK_PARAMS(4);
+    SPI_CHECK_PARAMS(2);
     SPI_NODE_GET();
 
-    mp_buffer_info_t read_bufinfo;
-    mp_get_buffer_raise(args[1], &read_bufinfo, MP_BUFFER_WRITE);
-    memset(read_bufinfo.buf, 0, read_bufinfo.len);
+    mp_buffer_info_t bufinfo;
+    mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
 
-    mp_uint_t read_size = mp_obj_get_int(args[2]);
-    if (read_size > read_bufinfo.len) {
-        LOGE(LOG_TAG, "%s: read size[%d] exceed buffer size[%d]\n", __func__, read_size, read_bufinfo.len);
-        return MP_OBJ_NEW_SMALL_INT(-MP_ENFILE);
-    }
-
-    ret = aos_hal_spi_recv(spi_device, read_bufinfo.buf, read_size, SPI_TIMEOUT);
+    ret = aos_hal_spi_recv(spi_device, bufinfo.buf, bufinfo.len, SPI_TIMEOUT);
     if (ret < 0) {
-        LOGE(LOG_TAG, "%s: hal_spi_recv failed;\n", __func__);
+        LOGE(LOG_TAG, "%s: aos_hal_spi_recv failed;\n", __func__);
         return MP_OBJ_NEW_SMALL_INT(ret);
     } else {
-        uint8_t *data = (uint8_t *)read_bufinfo.buf;
-        LOGD(LOG_TAG, "data = 0x%x, size=%d\n", data[0], read_size);
-        return MP_OBJ_NEW_SMALL_INT(read_size);
+        return MP_OBJ_NEW_SMALL_INT(bufinfo.len);
     }
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(spi_read_obj, 4, spi_read);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(spi_read_obj, 2, spi_read);
 
 STATIC mp_obj_t spi_write(size_t n_args, const mp_obj_t *args)
 {
-    SPI_CHECK_PARAMS(3);
+    SPI_CHECK_PARAMS(2);
     SPI_NODE_GET();
 
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
 
-    mp_uint_t write_size = mp_obj_get_int(args[2]);
-    if (write_size > bufinfo.len) {
-        LOGE(LOG_TAG, "%s: write size[%d] exceed buffer size[%d]\n", __func__, write_size, bufinfo.len);
-        return MP_OBJ_NEW_SMALL_INT(-MP_ENFILE);
-    }
-
-    char *data = (char *)bufinfo.buf;
-    LOGD(LOG_TAG, "data = 0x%x, 0x%x, size=%d\n", data[0], data[1], write_size);
-
-    mp_int_t ret = aos_hal_spi_send(spi_device, bufinfo.buf, write_size, SPI_TIMEOUT);
+    mp_int_t ret = aos_hal_spi_send(spi_device, bufinfo.buf, bufinfo.len, SPI_TIMEOUT);
     if (ret < 0) {
         LOGE(LOG_TAG, "%s: hal_spi_send failed;\n", __func__);
         return MP_OBJ_NEW_SMALL_INT(ret);
     } else {
-        return MP_OBJ_NEW_SMALL_INT(write_size);
+        return MP_OBJ_NEW_SMALL_INT(bufinfo.len);
     }
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(spi_write_obj, 3, spi_write);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(spi_write_obj, 2, spi_write);
 
-STATIC mp_obj_t spi_writeRead(size_t n_args, const mp_obj_t *args)
+STATIC mp_obj_t spi_readAfterWrite(size_t n_args, const mp_obj_t *args)
 {
-    SPI_CHECK_PARAMS(4);
+    SPI_CHECK_PARAMS(3);
     SPI_NODE_GET();
 
-    mp_uint_t tx_data = mp_obj_get_int(args[1]);
+    mp_buffer_info_t bufinfo;
 
-    mp_buffer_info_t read_bufinfo;
-    mp_get_buffer_raise(args[2], &read_bufinfo, MP_BUFFER_WRITE);
+    mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
+    mp_uint_t tx_data = mp_obj_get_int(args[2]);
 
-    mp_uint_t read_size = mp_obj_get_int(args[3]);
-    if (read_size > read_bufinfo.len) {
-        LOGE(LOG_TAG, "%s: read size[%d] exceed buffer size[%d]\n", __func__, read_size, read_bufinfo.len);
-        return MP_OBJ_NEW_SMALL_INT(-MP_ENFILE);
-    }
-
-    mp_int_t ret = aos_hal_spi_send_recv(spi_device, &tx_data, read_bufinfo.buf, read_size, SPI_TIMEOUT);
+    mp_int_t ret = aos_hal_spi_send_recv(spi_device, &tx_data, bufinfo.buf, bufinfo.len, SPI_TIMEOUT);
     if (ret < 0) {
-        LOGE(LOG_TAG, "hal_spi_send_recv failed\n");
+        LOGE(LOG_TAG, "aos_hal_spi_send_recv failed\n");
         return MP_OBJ_NEW_SMALL_INT(ret);
     } else {
-        return MP_OBJ_NEW_SMALL_INT(read_size);
+        return MP_OBJ_NEW_SMALL_INT(bufinfo.len);
     }
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(spi_writeRead_obj, 4, spi_writeRead);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(spi_readAfterWrite_obj, 3, spi_readAfterWrite);
 
-STATIC mp_obj_t spi_writeAndRead(size_t n_args, const mp_obj_t *args)
+STATIC mp_obj_t spi_readAndWrite(size_t n_args, const mp_obj_t *args)
 {
-    mp_int_t ret = -1;
-
-    SPI_CHECK_PARAMS(5);
+    SPI_CHECK_PARAMS(3);
     SPI_NODE_GET();
 
-    mp_buffer_info_t write_bufinfo;
-    mp_get_buffer_raise(args[1], &write_bufinfo, MP_BUFFER_READ);
-
-    mp_uint_t write_size = mp_obj_get_int(args[2]);
-    if (write_size > write_bufinfo.len) {
-        LOGE(LOG_TAG, "%s: read size[%d] exceed buffer size[%d]\n", __func__, write_size, write_bufinfo.len);
-        return MP_OBJ_NEW_SMALL_INT(-MP_ENFILE);
-    }
-
     mp_buffer_info_t read_bufinfo;
-    mp_get_buffer_raise(args[3], &read_bufinfo, MP_BUFFER_WRITE);
-    memset(read_bufinfo.buf, 0, read_bufinfo.len);
+    mp_get_buffer_raise(args[1], &read_bufinfo, MP_BUFFER_WRITE);
 
-    mp_uint_t read_size = mp_obj_get_int(args[4]);
-    if (read_size > read_bufinfo.len) {
-        LOGE(LOG_TAG, "%s: read size[%d] exceed buffer size[%d]\n", __func__, read_size, read_bufinfo.len);
-        return MP_OBJ_NEW_SMALL_INT(-MP_ENFILE);
-    }
+    mp_buffer_info_t write_bufinfo;
+    mp_get_buffer_raise(args[2], &write_bufinfo, MP_BUFFER_READ);
 
-    ret = aos_hal_spi_send_and_recv(spi_device, write_bufinfo.buf, write_size, read_bufinfo.buf, read_size, SPI_TIMEOUT);
+    mp_int_t ret = aos_hal_spi_send_and_recv(spi_device, write_bufinfo.buf, write_bufinfo.len, read_bufinfo.buf,
+                                             read_bufinfo.len, SPI_TIMEOUT);
     if (ret < 0) {
         LOGE(LOG_TAG, "%s: hal_spi_recv failed;\n", __func__);
         return MP_OBJ_NEW_SMALL_INT(ret);
     } else {
-        return MP_OBJ_NEW_SMALL_INT(read_size);
+        return MP_OBJ_NEW_SMALL_INT(read_bufinfo.len);
     }
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(spi_writeAndRead_obj, 5, spi_writeAndRead);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(spi_readAndWrite_obj, 3, spi_readAndWrite);
 
 STATIC const mp_rom_map_elem_t spi_locals_dict_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_SPI) },
@@ -258,10 +221,9 @@ STATIC const mp_rom_map_elem_t spi_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&spi_close_obj) },
     { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&spi_read_obj) },
     { MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&spi_write_obj) },
-    { MP_ROM_QSTR(MP_QSTR_writeRead), MP_ROM_PTR(&spi_writeRead_obj) },
-    { MP_ROM_QSTR(MP_QSTR_writeAndRead), MP_ROM_PTR(&spi_writeAndRead_obj) },
+    { MP_ROM_QSTR(MP_QSTR_readAfterWrite), MP_ROM_PTR(&spi_readAfterWrite_obj) },
+    { MP_ROM_QSTR(MP_QSTR_readAndWrite), MP_ROM_PTR(&spi_readAndWrite_obj) },
 };
-
 STATIC MP_DEFINE_CONST_DICT(spi_locals_dict, spi_locals_dict_table);
 
 const mp_obj_type_t driver_spi_type = {

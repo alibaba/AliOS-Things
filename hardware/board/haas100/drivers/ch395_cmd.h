@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2020-2022 Alibaba Group Holding Limited
+ *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #ifndef CH395_CMD_H

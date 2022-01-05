@@ -220,7 +220,7 @@ static void gpio_irq_notify(void *arg)
 }
 
 /* avoid stdout in irq function */
-static void gpio_irq(void *arg)
+static void gpio_irq(int polarity, void *arg)
 {
     static uint64_t irq_lasttime = 0;
     uint64_t irq_nowtime = aos_now_ms();

@@ -37,6 +37,7 @@ extern "C" {
 
 #define GPIO_PULL_DOWN     "pulldown"
 #define GPIO_PULL_UP       "pullup"
+#define GPIO_PUSH_PULL     "pushpull"
 #define GPIO_PULL_OPEN     "opendrain"
 
 #define GPIO_INT_RISING    "rising"
@@ -87,6 +88,8 @@ extern "C" {
 /* ADC */
 #define MARKER_ADC         "ADC"
 #define ADC_SAMPLING       "sampling"
+#define ADC_ATTEN          "atten"
+#define ADC_WIDTH          "width"
 
 /* DAC */
 #define MARKER_DAC         "DAC"
@@ -109,6 +112,19 @@ extern "C" {
 
 /* TIMER */
 #define MARKER_TIMER       "TIMER"
+
+/* MODBUS */
+#define MARKER_MODBUS       "MODBUS"
+#define MODBUS_MODE         "mode"
+#define MODBUS_PORT         "port"
+#define MODBUS_BAUDRATE     "baudrate"
+#define MODBUS_PARITY       "parity"
+#define MODBUS_TIMEOUT      "timeout"
+
+/* WDT */
+#define MARKER_WDT          "WDT"
+#define WDT_TIMEOUT         "timeout"
+
 typedef enum addon_module {
     MODULE_GPIO = 0x1324,
     MODULE_UART,
@@ -126,6 +142,8 @@ typedef enum addon_module {
     MODULE_SDIO,
     MODULE_USB,
     MODULE_I2C_GPIO,
+    MODULE_MODBUS,
+    MODULE_WDT,
     MODULE_NUMS,
 } addon_module_m;
 
@@ -152,16 +170,19 @@ typedef struct {
     void *reserved;
 } gpio_params_t;
 
-typedef struct {
-    uint8_t* name;
-    uint16_t addr;
-} i2c_slave_t;
+#define MODBUS_SERIAL_PORT (1)
+typedef enum {
+    MBMODE_SERIAL = 0x00,
+    MBMODE_NET = 0x01,
+} MBMODE;
 
 typedef struct {
-    i2c_dev_t dev;
-    uint32_t timeout;
-    i2c_slave_t salves[I2C_SLAVE_MAX];
-} i2c_devicetree_t;
+    MBMODE mode;
+    int8_t port;
+    int8_t parity;
+    int32_t baudrate;
+    int32_t timeout;
+} modbus_dev_t;
 
 /**
  * initialize mgr system

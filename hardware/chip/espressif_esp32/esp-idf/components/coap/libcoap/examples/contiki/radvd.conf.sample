@@ -1,0 +1,14 @@
+interface tap0
+{
+   AdvSendAdvert on;
+   MinRtrAdvInterval 3;
+   MaxRtrAdvInterval 20;
+
+   prefix aaaa::/64
+   {
+  	AdvOnLink on;
+        AdvAutonomous on;
+        AdvRouterAddr on;
+
+   };
+};  

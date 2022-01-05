@@ -56,7 +56,7 @@ namespace OSS
         PutObjectOutcome UploadPart(const UploadPartRequest& request, const MultipartUploadCryptoContext& ctx) const;
         CompleteMultipartUploadOutcome CompleteMultipartUpload(const CompleteMultipartUploadRequest& request, const MultipartUploadCryptoContext& ctx) const;
 
-#if !defined(OSS_DISABLE_RESUAMABLE)
+#if (!OSS_DISABLE_RESUAMABLE)
         /*Resumable Operation*/
         PutObjectOutcome ResumableUploadObject(const UploadObjectRequest& request) const;
         GetObjectOutcome ResumableDownloadObject(const DownloadObjectRequest& request) const;

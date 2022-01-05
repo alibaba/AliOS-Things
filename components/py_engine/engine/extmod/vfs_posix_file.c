@@ -265,9 +265,9 @@ const mp_obj_type_t mp_type_vfs_posix_textio = {
     .protocol = &vfs_posix_textio_stream_p,
     .locals_dict = (mp_obj_dict_t *)&vfs_posix_rawfile_locals_dict,
 };
-
+/*
 const mp_obj_vfs_posix_file_t mp_sys_stdin_obj = {{&mp_type_textio}, STDIN_FILENO};
 const mp_obj_vfs_posix_file_t mp_sys_stdout_obj = {{&mp_type_textio}, STDOUT_FILENO};
 const mp_obj_vfs_posix_file_t mp_sys_stderr_obj = {{&mp_type_textio}, STDERR_FILENO};
-
+*/
 #endif // MICROPY_VFS_POSIX || MICROPY_VFS_POSIX_FILE

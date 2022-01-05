@@ -24,8 +24,8 @@ int32_t hal_wdg_init(wdg_dev_t *wdg)
  */
 void hal_wdg_reload(wdg_dev_t *wdg)
 {
-    watchdog_feeddog();
-	return;
+    watchdog_feeddog_user();
+    return;
 }
 
 /**
@@ -37,6 +37,7 @@ void hal_wdg_reload(wdg_dev_t *wdg)
  */
 int32_t hal_wdg_finalize(wdg_dev_t *wdg)
 {
-	return 0;
+    watchdog_stopfeed();
+    return 0;
 }
 

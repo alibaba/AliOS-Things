@@ -18,7 +18,7 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - aos: >=v7.2.0
 depends:
   - osal_aos: master
-  - mbedtls: master
+  - mbedtls: master ? <!ESP_PLATFORM>
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项

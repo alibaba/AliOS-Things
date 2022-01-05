@@ -6,12 +6,18 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-
 #include "k_api.h"
 #include "aos/kernel.h"
+
+#ifdef AOS_COMP_KV
 #include "aos/kv.h"
+#endif
+#ifdef AOS_COMP_VFS
 #include "aos/vfs.h"
+#endif
+#ifdef AOS_COMP_ULOG
 #include "ulog/ulog.h"
+#endif
 #ifndef AOS_BOARD_HAAS700
 #include "netmgr.h"
 

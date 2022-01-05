@@ -30,11 +30,13 @@
 
 void callback_to_python(mp_obj_t function, mp_obj_t arg)
 {
-    bool ret = mp_sched_schedule(function, MP_OBJ_FROM_PTR(arg));
-    if (ret == false) {
-        printf("[utility]: schedule queue is full !!!!\r\n");
+    if (function != MP_OBJ_NULL && mp_obj_is_callable(function)) {
+        bool ret = mp_sched_schedule(function, MP_OBJ_FROM_PTR(arg));
+        if (ret == false) {
+            printf("[utility]: schedule queue is full !!!!\r\n");
+        }
+        mp_hal_wake_main_task_from_isr();
     }
-    mp_hal_wake_main_task_from_isr();
 }
 
 mp_obj_t mp_obj_new_strn(const char *data)

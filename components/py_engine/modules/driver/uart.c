@@ -48,14 +48,12 @@ STATIC mp_obj_t uart_obj_make_new(const mp_obj_type_t *type, size_t n_args, size
 
 STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
 {
-    LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
-    int ret = -1;
-    uart_dev_t *uart_device = NULL;
-
+    mp_int_t ret = -1;
     if (n_args < 2) {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
         return mp_const_none;
     }
+
     mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
     mp_uart_obj_t *driver_obj = (mp_uart_obj_t *)self;
     if (driver_obj == NULL) {
@@ -63,9 +61,7 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    char *id = (char *)mp_obj_str_get_str(args[1]);
-    LOGD(LOG_TAG, "%s: id =%s;\n", __func__, id);
-
+    const char *id = mp_obj_str_get_str(args[1]);
     if (id == NULL) {
         LOGE(LOG_TAG, "%s:illegal par id =%s;\n", __func__, id);
         return mp_const_none;
@@ -77,14 +73,13 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    LOGD(LOG_TAG, "%s: py_board_mgr_init ret = %d;\n", __func__, ret);
     ret = py_board_attach_item(MODULE_UART, id, &(driver_obj->uart_handle));
     if (ret != 0) {
         LOGE(LOG_TAG, "%s: py_board_attach_item failed ret = %d;\n", __func__, ret);
         goto out;
     }
 
-    uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
+    uart_dev_t *uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
     if (NULL == uart_device) {
         LOGE(LOG_TAG, "%s: py_board_get_node_by_handle failed;\n", __func__);
         goto out;
@@ -97,8 +92,8 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
     LOGD(LOG_TAG, "%s: stop_bits = %d;\n", __func__, uart_device->config.stop_bits);
     LOGD(LOG_TAG, "%s: flow_control = %d;\n", __func__, uart_device->config.flow_control);
     LOGD(LOG_TAG, "%s: mode = %d;\n", __func__, uart_device->config.mode);
+
     ret = aos_hal_uart_init(uart_device);
-    LOGD(LOG_TAG, "%s: init ret = %d;\n", __func__, ret);
 
 out:
     if (0 != ret) {
@@ -106,21 +101,18 @@ out:
         py_board_disattach_item(MODULE_UART, &(driver_obj->uart_handle));
     }
 
-    LOGD(LOG_TAG, "%s:out\n", __func__);
-
     return MP_ROM_INT(ret);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(uart_obj_open, 2, obj_open);
 
 STATIC mp_obj_t obj_close(size_t n_args, const mp_obj_t *args)
 {
-    LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
-    int ret = -1;
-    uart_dev_t *uart_device = NULL;
+    mp_int_t ret = -1;
     if (n_args < 1) {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
         return mp_const_none;
     }
+
     mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
     mp_uart_obj_t *driver_obj = (mp_uart_obj_t *)self;
     if (driver_obj == NULL) {
@@ -128,7 +120,7 @@ STATIC mp_obj_t obj_close(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
+    uart_dev_t *uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
     if (NULL == uart_device) {
         LOGE(LOG_TAG, "%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
@@ -140,8 +132,6 @@ STATIC mp_obj_t obj_close(size_t n_args, const mp_obj_t *args)
     }
 
     py_board_disattach_item(MODULE_UART, &(driver_obj->uart_handle));
-    // uart_del_recv(driver_obj->uart_handle.handle);//TODO
-    LOGD(LOG_TAG, "%s:out\n", __func__);
 
     return MP_ROM_INT(ret);
 }
@@ -149,14 +139,12 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(uart_obj_close, 1, obj_close);
 
 STATIC mp_obj_t obj_read(size_t n_args, const mp_obj_t *args)
 {
-    LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
-    int ret = -1;
-    uart_dev_t *uart_device = NULL;
     uint32_t recvsize = 0;
-    if (n_args < 2) {
+    if (n_args != 2) {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
         return mp_const_none;
     }
+
     mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
     mp_uart_obj_t *driver_obj = (mp_uart_obj_t *)self;
     if (driver_obj == NULL) {
@@ -164,7 +152,7 @@ STATIC mp_obj_t obj_read(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
+    uart_dev_t *uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
     if (NULL == uart_device) {
         LOGE(LOG_TAG, "%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
@@ -172,34 +160,25 @@ STATIC mp_obj_t obj_read(size_t n_args, const mp_obj_t *args)
 
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
-    memset(bufinfo.buf, 0, bufinfo.len);
 
-    uint32_t expect_size = args[2];
-
-    ret = aos_hal_uart_recv_II(uart_device, bufinfo.buf, expect_size, &recvsize, 0);
-    if (recvsize <= 0) {
+    mp_int_t ret = aos_hal_uart_recv_II(uart_device, bufinfo.buf, bufinfo.len, &recvsize, 0);
+    if (ret != 0) {
         LOGE(LOG_TAG, "%s:aos_hal_uart_recv_II failed\n", __func__);
+        return MP_ROM_INT(ret);
+    } else {
+        return MP_ROM_INT(recvsize);
     }
-    uint8_t *data = (uint8_t *)bufinfo.buf;
-    for (int i = 0; i < recvsize; i++) {
-        LOGD(LOG_TAG, "%s:data[%d] = 0x%x;\n", __func__, i, data[i]);
-    }
-    LOGD(LOG_TAG, "%s:recvsize = %d;\n", __func__, recvsize);
-    LOGD(LOG_TAG, "%s:out\n", __func__);
-
-    return MP_ROM_INT(recvsize);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(uart_obj_read, 3, obj_read);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(uart_obj_read, 2, obj_read);
 
 STATIC mp_obj_t obj_write(size_t n_args, const mp_obj_t *args)
 {
-    LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
-    int ret = -1;
-    uart_dev_t *uart_device = NULL;
-    if (n_args < 2) {
+    mp_int_t ret = -1;
+    if (n_args != 2) {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
         return mp_const_none;
     }
+
     mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
     mp_uart_obj_t *driver_obj = (mp_uart_obj_t *)self;
     if (driver_obj == NULL) {
@@ -207,7 +186,7 @@ STATIC mp_obj_t obj_write(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
+    uart_dev_t *uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
     if (NULL == uart_device) {
         LOGE(LOG_TAG, "%s: py_board_get_node_by_handle failed;\n", __func__);
         return mp_const_none;
@@ -216,22 +195,15 @@ STATIC mp_obj_t obj_write(size_t n_args, const mp_obj_t *args)
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
 
-    uint32_t expect_size = args[2];
-
-    uint8_t *data = (uint8_t *)bufinfo.buf;
-    for (int i = 0; i < expect_size; i++) {
-        LOGD(LOG_TAG, "%s:data[%d] = 0x%x;\n", __func__, i, data[i]);
-    }
-
-    ret = aos_hal_uart_send(uart_device, bufinfo.buf, expect_size, UART_TIMEOUT);
-    if (ret == -1) {
+    ret = aos_hal_uart_send(uart_device, bufinfo.buf, bufinfo.len, UART_TIMEOUT);
+    if (ret != 0) {
         LOGE(LOG_TAG, "aos_hal_uart_send failed\n");
+        return MP_ROM_INT(ret);
+    } else {
+        return MP_ROM_INT(bufinfo.len);
     }
-    LOGD(LOG_TAG, "%s:out\n", __func__);
-
-    return MP_ROM_INT(ret);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(uart_obj_write, 3, obj_write);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(uart_obj_write, 2, obj_write);
 
 STATIC mp_obj_t obj_setBaudRate(size_t n_args, const mp_obj_t *args)
 {
@@ -317,7 +289,6 @@ STATIC const mp_rom_map_elem_t uart_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&uart_obj_close) },
     { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&uart_obj_read) },
     { MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&uart_obj_write) },
-    // { MP_ROM_QSTR(MP_QSTR_setBaudRate), MP_ROM_PTR(&uart_obj_setBaudRate) },
     { MP_ROM_QSTR(MP_QSTR_on), MP_ROM_PTR(&uart_obj_on) },
 };
 

@@ -1500,7 +1500,7 @@ typedef double mp_float_t;
 #endif
 
 #ifndef MICROPY_PY_FRAMEBUF
-#define MICROPY_PY_FRAMEBUF (1)
+#define MICROPY_PY_FRAMEBUF (0)
 #endif
 
 #ifndef MICROPY_PY_BTREE

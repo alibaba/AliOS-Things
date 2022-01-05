@@ -451,7 +451,7 @@ static void aiot_device_connect(void *pdata)
     aiot_mqtt_client_stop(&iot_device_handle->mqtt_handle);
 
     for (int i = 0; i < AIOT_DEV_JSCALLBACK_INVALID_CODE; i++) {
-        if (iot_device_handle->js_cb_ref[i] != JS_UNDEFINED) {
+        if (!JS_IsUndefined(iot_device_handle->js_cb_ref[i])) {
             JS_FreeValue(ctx, iot_device_handle->js_cb_ref[i]);
         }
     }
@@ -924,9 +924,15 @@ static void module_iot_source_clean(void)
 
     g_iot_clean_flag = 1;
 }
+
 static JSValue native_aiot_close(JSContext *ctx, JSValueConst this_val,int argc, JSValueConst *argv)
 {
-    module_iot_source_clean();
+    if (g_iot_conn_flag) {
+        g_iot_close_flag = 1;
+        aos_sem_wait(&g_iot_close_sem, 8000);
+        g_iot_close_flag = 0;
+        aos_msleep(10);
+    }
     return JS_NewInt32(ctx,0);
 }
 

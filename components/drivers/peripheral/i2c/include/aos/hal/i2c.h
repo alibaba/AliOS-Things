@@ -19,7 +19,9 @@ extern "C" {
 #include <stdint.h>
 
 /* Define the wait forever timeout macro */
+#ifndef HAL_WAIT_FOREVER
 #define HAL_WAIT_FOREVER 0xFFFFFFFFU
+#endif
 
 #define I2C_MODE_MASTER 1 /**< i2c communication is master mode */
 #define I2C_MODE_SLAVE  2 /**< i2c communication is slave mode */

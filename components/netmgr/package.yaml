@@ -63,6 +63,7 @@ source_file:
 #  - example/*.c
   - netdev/src/*.c
   - net/*.c
+  - export.c ? <CONFIG_DM>
 
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项

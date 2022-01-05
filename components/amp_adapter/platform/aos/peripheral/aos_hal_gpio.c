@@ -138,7 +138,6 @@ int32_t aos_hal_gpio_init(gpio_dev_t *gpio)
 int32_t aos_hal_gpio_output_high(gpio_dev_t *gpio)
 {
 #ifndef AOS_BOARD_HAAS700
-
     if (!gpio || gpio->port >= PLATFORM_GPIO_NUM)
         return -1;
 
@@ -152,7 +151,6 @@ int32_t aos_hal_gpio_output_high(gpio_dev_t *gpio)
 int32_t aos_hal_gpio_output_low(gpio_dev_t *gpio)
 {
 #ifndef AOS_BOARD_HAAS700
-
     if (!gpio || gpio->port >= PLATFORM_GPIO_NUM)
         return -1;
 
@@ -166,7 +164,6 @@ int32_t aos_hal_gpio_output_low(gpio_dev_t *gpio)
 int32_t aos_hal_gpio_output_toggle(gpio_dev_t *gpio)
 {
 #ifndef AOS_BOARD_HAAS700
-
     return aos_gpioc_toggle(gpio->gpioc, gpio->pin_index);
 
 #else
@@ -184,9 +181,10 @@ int32_t aos_hal_gpio_get(gpio_dev_t *gpio)
 int32_t aos_hal_gpio_input_get(gpio_dev_t *gpio, uint32_t *value)
 {
 #ifndef AOS_BOARD_HAAS700
-
-    return aos_gpioc_get_value(gpio->gpioc, gpio->pin_index);
-
+    int ret = -1;
+    ret = aos_gpioc_get_value(gpio->gpioc, gpio->pin_index);
+    *value = ret > 0 ? 1 : 0;
+    return ret;
 #else
     return -1;
 #endif

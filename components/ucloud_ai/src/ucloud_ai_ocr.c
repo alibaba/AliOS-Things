@@ -68,3 +68,18 @@ void ucloud_ai_ocr_recognize_character(char *path, ucloud_ai_cb_t cb)
     recognizeCharacter(p_upload_url, cb);
     free(p_upload_url);
 }
+
+void ucloud_ai_ocr_recognize_license_plate(char *path, ucloud_ai_cb_t cb)
+{
+    int ret;
+    int len;
+    char *p_upload_url;
+
+    /*update capture.jpg to oss*/
+    p_upload_url = ucloud_ai_upload_file(path);
+    if (!p_upload_url)
+        return;
+
+    recognizeLicensePlate(p_upload_url, cb);
+    free(p_upload_url);
+}

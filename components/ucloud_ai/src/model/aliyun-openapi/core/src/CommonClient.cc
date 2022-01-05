@@ -22,8 +22,23 @@
 #include <ctime>
 #include <iomanip>
 #include <sstream>
-#ifdef USE_AOS_TIME_POSIX_API
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if USE_AOS_TIME_POSIX_API
+#if ESP_PLATFORM
+#if MICROPY_PY_UCLOUD_AI
+#include "mpconfigport.h"
+#include "shared/timeutils/timeutils.h"
+extern void timeutils_seconds_since_2000_to_struct_time(mp_uint_t t, timeutils_struct_time_t *tm);
+#endif
+#include <sys/time.h>
+#else
 #include <posix/timer.h>
+#endif
+#endif
+#ifdef __cplusplus
+}
 #endif
 #include <alibabacloud/core/Utils.h>
 
@@ -178,7 +193,7 @@ CommonClient::buildRoaHttpRequest(const std::string &endpoint,
                     ComputeContentMD5(msg.content(), msg.contentSize()));
   request.setBody(msg.content(), msg.contentSize());
 
-#ifdef USE_AOS_TIME_POSIX_API
+#if USE_AOS_TIME_POSIX_API
     struct timespec currentTime;
     time_t t;
     clock_gettime(CLOCK_REALTIME, &currentTime);
@@ -254,9 +269,9 @@ CommonClient::buildRpcHttpRequest(const std::string &endpoint,
   queryParams["SignatureMethod"] = signer_->name();
   queryParams["SignatureNonce"] = GenerateUuid();
   queryParams["SignatureVersion"] = signer_->version();
-#ifdef USE_AOS_TIME_POSIX_API
-    struct timespec currentTime;
+#if USE_AOS_TIME_POSIX_API
     time_t t;
+    struct timespec currentTime;
     clock_gettime(CLOCK_REALTIME, &currentTime);
     t = currentTime.tv_nsec/1000000000 + currentTime.tv_sec;
 #else
@@ -268,7 +283,18 @@ CommonClient::buildRpcHttpRequest(const std::string &endpoint,
   strftime(tmbuff, 26, "%FT%TZ", std::gmtime(&t));
   ss << tmbuff;
 #else
+#if ESP_PLATFORM && MICROPY_PY_UCLOUD_AI
+  time_t now;
+  struct tm *timeinfo = NULL;
+  char GMT_DATA_TIME[30];
+  now = time(NULL);
+  timeinfo = localtime(&now);
+  memset(GMT_DATA_TIME, 0, sizeof(GMT_DATA_TIME));
+  strftime(GMT_DATA_TIME, sizeof(GMT_DATA_TIME), "%FT%TZ", timeinfo);
+  ss << GMT_DATA_TIME;
+#else
   ss << std::put_time(std::gmtime(&t), "%FT%TZ");
+#endif
 #endif
   queryParams["Timestamp"] = ss.str();
   queryParams["Version"] = msg.version();

@@ -87,11 +87,11 @@ MP_DECLARE_CONST_FUN_OBJ_2(mp_op_getitem_obj);
 MP_DECLARE_CONST_FUN_OBJ_3(mp_op_setitem_obj);
 MP_DECLARE_CONST_FUN_OBJ_2(mp_op_delitem_obj);
 
-// Modified bt HaaS begin
-#if MICROPY_PY_HAAS_SPECIFIC
+// Modified by HaaS begin
+#if MICROPY_PY_AOS_SPECIFIC
 MP_DECLARE_CONST_FUN_OBJ_0(machine_reset_obj);
 #endif
-// Modified bt HaaS end
+// Modified by HaaS end
 
 extern const mp_obj_module_t mp_module___main__;
 extern const mp_obj_module_t mp_module_builtins;

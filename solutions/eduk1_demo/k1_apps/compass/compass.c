@@ -33,7 +33,7 @@ int compass_init(void)
 
     OLED_Clear();
     OLED_Refresh_GRAM();
-    aos_task_new_ext(&compass_task_handle, "compass_task", compass_task, NULL, 1024, AOS_DEFAULT_APP_PRI);
+    aos_task_new_ext(&compass_task_handle, "compass_task", compass_task, NULL, 1024 * 4, AOS_DEFAULT_APP_PRI);
     LOGI(EDU_TAG, "aos_task_new compass_task\n");
     return 0;
 }

@@ -1,0 +1,6 @@
+THIS IS NOT A GRANT OF PATENT RIGHTS.
+
+Espressif makes no representation or warranty that the codecs made available hereunder
+are unencumbered by third-party patents. Those intending to use these codecs in hardware
+or software products are advised that usage may require patent licenses from the relevant
+patent holders.

@@ -1,0 +1,25 @@
+PMF:
+  stage: feature_test
+  image: $CI_DOCKER_REGISTRY/esp32-ci-env
+  parallel: 5
+  tags:
+    - wlan_feature
+
+  artifacts:
+    paths:
+    - gitlabCI-${CI_PROJECT_NAME}-${CI_BUILD_ID}.tar.gz
+    
+    expire_in: 1 week
+    when: always
+  
+  only:
+    refs:       
+     - triggers     
+
+  script:
+     -  git clone ${GITLAB_SSH_SERVER}/app-frameworks/devops.git
+     -  tar -xzvf $board-${CI_PIPELINE_ID}.debug.tar.gz
+     -  python -u devops/automation/Runner.py wifi_pmf --id WIFI_PMF_${CI_NODE_INDEX} --build "$board-${CI_PIPELINE_ID}.debug"
+     -  tar -zcvf gitlabCI-${CI_PROJECT_NAME}-${CI_BUILD_ID}.tar.gz gitlabCI-${CI_PROJECT_NAME}-${CI_BUILD_ID}
+     -  exit "$(cat /tmp/gitlabCI-${CI_PROJECT_NAME}-${CI_BUILD_ID})"
+

@@ -34,7 +34,7 @@ extern const char haas_help_text[];
 #define MICROPY_OPT_MPZ_BITWISE                (1)
 
 // Python internal features
-#define MICROPY_READER_VFS                     (0)
+#define MICROPY_READER_VFS                     (1)
 #define MICROPY_READER_POSIX                   (1)
 #define MICROPY_ENABLE_FINALISER               (1)
 #define MICROPY_STACK_CHECK                    (1)
@@ -219,7 +219,7 @@ extern const char haas_help_text[];
 #define mp_builtin_open_obj              mp_vfs_open_obj
 
 // extended modules by HaaS
-#define MICROPY_PY_HAAS_SPECIFIC         (1)
+#define MICROPY_PY_AOS_SPECIFIC         (1)
 #define MICROPY_QSTR_BYTES_IN_HASH       (1)
 #define MICROPY_ALLOC_PARSE_CHUNK_INIT   (16)
 #define MICROPY_ENABLE_EXTERNAL_IMPORT   (1)
@@ -356,9 +356,9 @@ extern const struct _mp_obj_module_t aiagent_module;
 #define MICROPY_PY_AIAGENT_DEF
 #endif
 
-#if PY_BUILD_UCAMERA
+#if MICROPY_PY_UCAMERA
 extern const struct _mp_obj_module_t ucamera_module;
-#define MICROPY_PY_UCAMERA_DEF { MP_ROM_QSTR(MP_QSTR_UCamera), MP_ROM_PTR(&ucamera_module) },
+#define MICROPY_PY_UCAMERA_DEF { MP_ROM_QSTR(MP_QSTR_ucamera), MP_ROM_PTR(&ucamera_module) },
 #else
 #define MICROPY_PY_UCAMERA_DEF
 #endif
@@ -432,7 +432,7 @@ extern const struct _mp_obj_module_t audio_module;
 #define MICROPY_PY_AUDIO_DEF
 #endif
 
-#if PY_BUILD_SNTP
+#if MICROPY_PY_SNTP
 extern const struct _mp_obj_module_t sntp_module;
 #define MICROPY_PY_SNTP_DEF { MP_ROM_QSTR(MP_QSTR_sntp), MP_ROM_PTR(&sntp_module) },
 #else

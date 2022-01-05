@@ -39,14 +39,6 @@
 uintptr_t mp_hal_stdio_poll(uintptr_t poll_flags);
 #endif
 
-// Modified bt HaaS begin
-
-#ifndef mp_hal_uart_init
-void mp_hal_uart_init(void);
-#endif
-
-// Modified bt HaaS end
-
 #ifndef mp_hal_stdin_rx_chr
 int mp_hal_stdin_rx_chr(void);
 #endif

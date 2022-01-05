@@ -50,6 +50,7 @@ build_config:
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
   - "src/*.c"
+  - export.c ? <CONFIG_DM>
   # - "example/cjson_example.c"
 
 ## 第五部分：配置信息

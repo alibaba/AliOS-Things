@@ -9,22 +9,22 @@
 #include <aos/kernel.h>
 #include <aos/device.h>
 
+/**
+ * @defgroup aos_pwm_app PWM
+ * @ingroup driver_api
+ * 给应用提供PWM操作的AOS API.
+ *
+ * @{
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/** @defgroup driver_api driver
- *  @ingroup aos_components
- * @{
- */
-
-/** @} */
 typedef enum {
     AOS_PWM_POLARITY_NORMAL,
     AOS_PWM_POLARITY_INVERSE,
 } aos_pwm_polarity_t;
-
-/** @} */
 
 typedef struct {
     uint32_t period; /*in ns*/
@@ -84,5 +84,7 @@ aos_status_t aos_pwm_get_attr(aos_pwm_ref_t *ref, aos_pwm_attr_t *attr);
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* _AOS_PWM_H */

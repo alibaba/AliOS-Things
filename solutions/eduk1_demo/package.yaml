@@ -31,6 +31,7 @@ depends:
   - ble_netconfig: master
   - debug: master
   - sh1106: master
+  - haaseduk1: master
 
 # supported_boards 中记录当前组件能支持的所有板子
 supported_boards:

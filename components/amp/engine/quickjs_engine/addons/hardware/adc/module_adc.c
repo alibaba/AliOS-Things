@@ -112,7 +112,7 @@ static JSValue native_adc_read(JSContext *ctx, JSValueConst this_val,
         goto out;
     }
 
-    (void)aos_hal_adc_value_get(adc_device, &adc_value, 0);
+    (void)aos_hal_adc_raw_value_get(adc_device, &adc_value, 0);
 out:
     return JS_NewInt32(ctx, adc_value);
 }

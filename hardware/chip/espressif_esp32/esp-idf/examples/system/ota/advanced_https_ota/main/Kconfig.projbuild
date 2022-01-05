@@ -1,0 +1,31 @@
+menu "Example Configuration"
+
+    config EXAMPLE_FIRMWARE_UPGRADE_URL
+        string "Firmware Upgrade URL"
+        default "https://192.168.2.106:8070/hello-world.bin"
+        help
+            URL of server which hosts the firmware image.
+
+    config EXAMPLE_FIRMWARE_UPGRADE_URL_FROM_STDIN
+        bool
+        default y if EXAMPLE_FIRMWARE_UPGRADE_URL = "FROM_STDIN"
+
+    config EXAMPLE_SKIP_COMMON_NAME_CHECK
+        bool "Skip server certificate CN fieldcheck"
+        default n
+        help
+            This allows you to skip the validation of OTA server certificate CN field.
+
+    config EXAMPLE_SKIP_VERSION_CHECK
+        bool "Skip firmware version check"
+        default n
+        help
+            This allows you to skip the firmware version check.
+
+    config EXAMPLE_OTA_RECV_TIMEOUT
+        int "OTA Receive Timeout"
+        default 5000
+        help
+            Maximum time for reception
+
+endmenu

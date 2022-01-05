@@ -1,0 +1,241 @@
+2019-02-11  Olaf Bergmann  <bergmann@tzi.org>
+
+	Change summary for version 4.2.0:
+
+	* DTLS support improvements (OpenSSL, GnuTLS, tinydtls)
+	    * Pre-shared keys, X.509 certificates
+        * new session abstraction
+	* TCP and TLS support
+	* improved documentation; manual pages
+	* changes in internal PDU structure
+	* improved examples (DTLS usage, block-wise transfer)
+	* docker images for continuous integration
+	* support for Google OSS fuzzer
+	* MS Visual Studio project for Windows builds
+
+2017-07-10  Olaf Bergmann  <bergmann@tzi.org>
+
+	* DTLS support (OpenSSL, tinyDTLS) by Jean-Claude Michelou
+	* Win32 support by Jean-Claude Michelou
+	* New Session API by Jean-Claude Michelou
+
+2016-02-16  Olaf Bergmann  <bergmann@tzi.org>
+
+	* Fixed build for Contiki3 and LwIP
+	* .travis.yml: Enabled continuous integration for platforms
+	  POSIX and Contiki
+
+2015-03-11  Olaf Bergmann  <bergmann@tzi.org>
+
+	* include/coap/resource.h: Replaced custom list structures by
+	utlist macros.
+
+2015-03-09  Olaf Bergmann  <bergmann@tzi.org>
+
+	* src/uri.c (coap_split_path): Fixed URI parser bug and
+	removed broken parse iterator.
+
+2015-03-05  Olaf Bergmann  <bergmann@tzi.org>
+
+	* src/coap_time.c (coap_ticks): Changed POSIX implementation
+	to fixed point arithmetic and removed clock_offset.
+
+2015-02-21  Olaf Bergmann  <bergmann@tzi.org>
+
+	* net.c (coap_send_confirmed): Use fixed point arithmetic
+	to calculate retransmission timeout.
+
+2015-02-20  Olaf Bergmann  <bergmann@tzi.org>
+
+	* coap_list.[hc]: Moved old list implementation into
+	sub-directory examples and replaced by linked lists
+	from utlist.h. As a result, the list must be sorted
+	explicitly with LL_SORT).
+
+2015-02-19  Olaf Bergmann  <bergmann@tzi.org>
+
+	* net.c (coap_send_confirmed): Fixed retransmission timeout
+	calculation and renamed transmission parameters according to
+	Section 4.8 of RFC 7252.
+
+2015-02-17  Olaf Bergmann  <bergmann@tzi.org>
+
+	* major rework to get Contiki and lwip running
+	* many fixed bugs and warnings
+
+2014-06-18  Olaf Bergmann  <bergmann@tzi.org>
+
+	* mem.c (coap_malloc_type): New functions for allocating memory.
+	On POSIX systems, coap_malloc_type() and coap_free_type() are just
+	wrapper functions for malloc() and free(), while on Contiki and
+	LWIP distinct arrays are used for each type.
+
+2014-03-09  Olaf Bergmann  <bergmann@tzi.org>
+
+	* net.c (coap_cancel): Removed 7.31 again and implemented new
+	method for cancelling observe relationships.
+
+2014-02-25  Olaf Bergmann  <bergmann@tzi.org>
+
+	* net.c (coap_cancel): Handling of 7.31 responses to cancel
+	notifications (see Section 4.6 of draft-ietf-core-observe-12)
+
+2014-02-04  Olaf Bergmann  <bergmann@tzi.org>
+
+	* resource.c (coap_print_link): This function now takes an offset
+	where printing starts. This is used for generating blocks on the
+	fly.
+
+	* net.c (wellknown_response): Added support for Block2 options
+	when generating a response for .well-known/core.
+
+	* block.h (coap_opt_block_num): Fixed handling of zero-length
+	options. COAP_OPT_BLOCK_LAST now returns NULL when the option
+	value's length is zero.
+
+2014-01-07  Olaf Bergmann  <bergmann@tzi.org>
+
+	* resource.c (coap_print_link): Output partial resource
+	descriptions. The function now provides a sliding window over the
+	textual representation of the resource. Output starts at the given
+	offset and ends at the buffer's upper bound. The meaning of the
+	return value has changed to allow distinguishing whether or not
+	the resource description has been truncated at the buffer's upper
+	bound.
+	(print_wellknown): Support for the new coap_print_link(). An
+	additional parameter now is used to provide the offset into the
+	resource description. The meaning of the return value has been
+	adjusted accordingly.
+
+2013-12-23  Olaf Bergmann  <bergmann@tzi.org>
+
+	* configure.in: merged with LWIP port from chrysn
+	<https://git.gitorious.org/coap-lwip/coap-lwip.git>. This
+	introduces new compiler flags WITH_POSIX and WITH_LWIP to
+	distinguish target platforms.
+
+2013-09-03  Olaf Bergmann  <bergmann@tzi.org>
+
+	* option.h (coap_option_setb): increased size of option type
+	argument
+
+	* tests/test_error_response.c (t_init_error_response_tests): new
+	tests for error response generation
+
+	* tests/test_pdu.c (t_encode_pdu5): fixed number for option Accept
+
+	* net.c (coap_new_error_response): fixed option size calculation
+
+2013-07-04  Olaf Bergmann  <bergmann@tzi.org>
+
+	* net.c (coap_new_context): register critical Accept option
+
+	* pdu.c: option codes for Accept and Size1 according to coap-18
+
+2013-02-01  Olaf Bergmann  <bergmann@tzi.org>
+
+	* coap_time.h (coap_clock_init_impl): fix invalid preprocessor
+	directive. #warning is now only used for gcc only (close sf bug #15)
+
+	* net.c (wellknown_response): applied patch from chrysn to
+	fix bug in generation of .well-known/core representation
+
+2013-01-21  Olaf Bergmann  <bergmann@tzi.org>
+
+	* option.h: renamed option field in coap_opt_iterator_t to
+	next_option to detect erroneous use in old code
+
+2013-01-18  Olaf Bergmann  <bergmann@tzi.org>
+
+	* configure.in: new option --with-tests to enable unit tests
+
+	* tests/testdriver.c: unit tests for parser functions
+
+	* pdu.c (coap_pdu_parse): new PDU parser for Klaus-encoding
+	according to coap-13
+
+	* net.c (coap_read): call coap_pdu_parse() to check PDU integrity
+
+	* option.c: Klaus-encoding for coap-13, including new option
+	iterator interface
+
+2012-11-20  Olaf Bergmann  <bergmann@tzi.org>
+
+	* net.c (next_option_safe): made option parsing more robust in
+	presence of option jumps
+
+	* pdu.h: new option codes from draft-ietf-core-coap-12
+
+	* option.c (coap_opt_setlength): new function to set option length
+
+	* uri.c (make_decoded_option): use coap_opt_setlength() instead of
+	obsolete macro COAP_OPT_SETLENGTH.
+
+2012-11-19  Olaf Bergmann  <bergmann@tzi.org>
+
+	* uri.c (make_decoded_option): use coap_opt_encode() instead of writing
+
+2012-11-03  Olaf Bergmann  <bergmann@tzi.org>
+
+	* net.c (coap_read): read new option encoding
+
+2012-11-01  Olaf Bergmann  <bergmann@tzi.org>
+
+	* option.c (coap_opt_size, coap_opt_value, coap_opt_length):
+	several functions to access fields of options (possibly preceeded
+	by option jump)
+
+2012-10-25  Olaf Bergmann  <bergmann@tzi.org>
+
+	* option.c (coap_opt_encode): new function for option encoding
+	with option jumps
+
+2012-03-23  Olaf Bergmann  <bergmann@tzi.org>
+
+	* examples/client.c (clear_obs): clear observation relationship after
+	user-specified duration
+
+2012-03-21  Olaf Bergmann  <bergmann@tzi.org>
+
+	* resource.c (print_wellknown): filtering by attributes
+
+2012-03-19  Olaf Bergmann  <bergmann@tzi.org>
+
+	* pdu.c (coap_add_option): allow more than 15 options.
+
+2012-03-15  Olaf Bergmann  <bergmann@tzi.org>
+
+	* examples/client.c (cmdline_uri): split path and query here to
+	make it easier to include these options in subsequent requests for
+	block transfer.
+
+2012-03-14  Olaf Bergmann  <bergmann@tzi.org>
+
+	* examples/etsi_iot_01.c: Support for POST, PUT, DELETE on /test
+
+2012-03-13  Olaf Bergmann  <bergmann@tzi.org>
+
+	* encode.c (coap_encode_var_bytes): more efficient coding for 0
+
+2012-03-11  Olaf Bergmann  <bergmann@tzi.org>
+
+	* examples/etsi_iot_01.c: Test cases for 1st ETSI CoAP Plugtest,
+	March 24/25, 2012 in Paris, France.
+
+2012-03-10  Olaf Bergmann  <bergmann@tzi.org>
+
+	* block.c: support for block transfer.
+
+2012-03-07  Olaf Bergmann  <bergmann@tzi.org>
+
+	* examples/client.c (usage): new command line options
+	-B to set timeout after which the main loop is left.
+	-e to specify a payload (incompatible with -f)
+	(message_handler): bugfixes
+
+	* resource.h: (coap_method_handler_t): new API for method handlers.
+
+
+Copyright 2012 Olaf Bergmann, TZI
+Copying and distribution of this file, with or without modification, are
+permitted provided the copyright notice and this notice are preserved.

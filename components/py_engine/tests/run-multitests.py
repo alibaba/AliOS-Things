@@ -32,8 +32,10 @@ import sys
 class multitest:
     @staticmethod
     def flush():
-        if hasattr(sys.stdout, "flush"):
+        try:
             sys.stdout.flush()
+        except AttributeError:
+            pass
     @staticmethod
     def skip():
         print("SKIP")
@@ -43,6 +45,16 @@ class multitest:
     def next():
         print("NEXT")
         multitest.flush()
+    @staticmethod
+    def broadcast(msg):
+        print("BROADCAST", msg)
+        multitest.flush()
+    @staticmethod
+    def wait(msg):
+        msg = "BROADCAST " + msg
+        while True:
+            if sys.stdin.readline().rstrip() == msg:
+                return
     @staticmethod
     def globals(**gs):
         for g in gs:
@@ -124,14 +136,12 @@ class PyInstanceSubProcess(PyInstance):
 
     def start_script(self, script):
         self.popen = subprocess.Popen(
-            self.argv,
+            self.argv + ["-c", script],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             env=self.env,
         )
-        self.popen.stdin.write(script)
-        self.popen.stdin.close()
         self.finished = False
 
     def stop(self):
@@ -139,7 +149,7 @@ class PyInstanceSubProcess(PyInstance):
             self.popen.terminate()
 
     def readline(self):
-        sel = select.select([self.popen.stdout.raw], [], [], 0.1)
+        sel = select.select([self.popen.stdout.raw], [], [], 0.001)
         if not sel[0]:
             self.finished = self.popen.poll() is not None
             return None, None
@@ -149,6 +159,10 @@ class PyInstanceSubProcess(PyInstance):
             return None, None
         else:
             return str(out.rstrip(), "ascii"), None
+
+    def write(self, data):
+        self.popen.stdin.write(data)
+        self.popen.stdin.flush()
 
     def is_finished(self):
         return self.finished
@@ -160,7 +174,17 @@ class PyInstanceSubProcess(PyInstance):
 
 
 class PyInstancePyboard(PyInstance):
+    @staticmethod
+    def map_device_shortcut(device):
+        if device[0] == "a" and device[1:].isdigit():
+            return "/dev/ttyACM" + device[1:]
+        elif device[0] == "u" and device[1:].isdigit():
+            return "/dev/ttyUSB" + device[1:]
+        else:
+            return device
+
     def __init__(self, device):
+        device = self.map_device_shortcut(device)
         self.device = device
         self.pyb = pyboard.Pyboard(device)
         self.pyb.enter_raw_repl()
@@ -208,6 +232,9 @@ class PyInstancePyboard(PyInstance):
             err = None
         return str(out.rstrip(), "ascii"), err
 
+    def write(self, data):
+        self.pyb.serial.write(data)
+
     def is_finished(self):
         return self.finished
 
@@ -233,6 +260,7 @@ def trace_instance_output(instance_idx, line):
     if cmd_args.trace_output:
         t_ms = round((time.time() - trace_t0) * 1000)
         print("{:6} i{} :".format(t_ms, instance_idx), line)
+        sys.stdout.flush()
 
 
 def run_test_on_instances(test_file, num_instances, instances):
@@ -305,7 +333,12 @@ def run_test_on_instances(test_file, num_instances, instances):
                 last_read_time[idx] = time.time()
                 if out is not None and not any(m in out for m in IGNORE_OUTPUT_MATCHES):
                     trace_instance_output(idx, out)
-                    output[idx].append(out)
+                    if out.startswith("BROADCAST "):
+                        for instance2 in instances:
+                            if instance2 is not instance:
+                                instance2.write(bytes(out, "ascii") + b"\r\n")
+                    else:
+                        output[idx].append(out)
                 if err is not None:
                     trace_instance_output(idx, err)
                     output[idx].append(err)

@@ -2,8 +2,10 @@
  * Copyright (C) 2020-2021 Alibaba Group Holding Limited
  */
 
-#include <string.h>
 #include <aos/i2c_core.h>
+#if AOS_I2C_BUF_SIZE > 0
+#include <string.h>
+#endif
 
 #define XFER_TIMEOUT            1000
 
@@ -20,11 +22,62 @@ void aos_i2c_put(aos_i2c_ref_t *ref)
     aos_dev_put(ref);
 }
 
+aos_status_t aos_i2c_get_info(aos_i2c_ref_t *ref, aos_i2c_info_t *info)
+{
+    aos_i2c_t *i2c;
+
+    if (!ref || !aos_dev_ref_is_valid(ref) || !info)
+        return -EINVAL;
+
+    i2c = aos_container_of(ref->dev, aos_i2c_t, dev);
+    info->flags = i2c->flags;
+    aos_dev_lock(ref->dev);
+    info->hz = i2c->hz;
+    aos_dev_unlock(ref->dev);
+
+    return 0;
+}
+
+aos_status_t aos_i2c_set_hz(aos_i2c_ref_t *ref, uint32_t hz)
+{
+    aos_i2c_t *i2c;
+    uint32_t old_hz;
+    aos_status_t ret;
+
+    if (!ref || !aos_dev_ref_is_valid(ref) || hz == 0)
+        return -EINVAL;
+
+    i2c = aos_container_of(ref->dev, aos_i2c_t, dev);
+
+    if (!i2c->ops->set_hz)
+        return -ENOTSUP;
+
+    aos_dev_lock(ref->dev);
+    old_hz = i2c->hz;
+    i2c->hz = hz;
+    ret = i2c->ops->set_hz(i2c);
+    if (ret) {
+        i2c->hz = old_hz;
+        aos_dev_unlock(ref->dev);
+        return ret;
+    }
+
+    aos_dev_unlock(ref->dev);
+
+    return 0;
+}
+
 static aos_status_t transfer_sequence(aos_i2c_t *i2c, const aos_i2c_msg_t *msgs, size_t num_msgs)
 {
+#if AOS_I2C_BUF_SIZE > 0
     const aos_i2c_msg_t *last_msg = NULL;
     size_t last_pos = 0;
+#endif
 
+    if (i2c->ops->transfer_sequence)
+        return i2c->ops->transfer_sequence(i2c, msgs, num_msgs);
+
+#if AOS_I2C_BUF_SIZE > 0
     if (!(msgs[0].cfg & AOS_I2C_MCFG_RX))
         memcpy(i2c->buf[0], msgs[0].buf, AOS_I2C_BUF_SIZE < msgs[0].count ? AOS_I2C_BUF_SIZE : msgs[0].count);
 
@@ -44,14 +97,15 @@ static aos_status_t transfer_sequence(aos_i2c_t *i2c, const aos_i2c_msg_t *msgs,
 
         i2c->x.timeout = XFER_TIMEOUT;
         i2c->x.len = (pos + AOS_I2C_BUF_SIZE < msg->count) ? AOS_I2C_BUF_SIZE : msg->count - pos;
-        i2c->x.pos[0] = 0;
-        i2c->x.pos[1] = 0;
+        i2c->x.head = 0;
+        i2c->x.tail = 0;
         msg_tail = (pos + i2c->x.len == msg->count);
-        i2c->x.flags = (j & 0x1) ? AOS_I2C_XF_BUF_IDX : 0;
+        i2c->x.flags = 0;
         i2c->x.flags |= (pos == 0) ? AOS_I2C_XF_MSG_HEAD : 0;
         i2c->x.flags |= msg_tail ? AOS_I2C_XF_MSG_TAIL : 0;
         i2c->x.flags |= (j == 0) ? AOS_I2C_XF_SEQ_HEAD : 0;
         i2c->x.flags |= (msg_tail && i + 1 == num_msgs) ? AOS_I2C_XF_SEQ_TAIL : 0;
+        i2c->x.buf = i2c->buf[j & 0x1];
 
         ret = i2c->ops->start_xfer(i2c);
         if (ret)
@@ -108,10 +162,41 @@ static aos_status_t transfer_sequence(aos_i2c_t *i2c, const aos_i2c_msg_t *msgs,
         }
     }
 
-    if (last_msg && (last_msg->cfg & AOS_I2C_MCFG_RX)) {
-        int index = (i2c->x.flags & AOS_I2C_XF_BUF_IDX) ? 1 : 0;
-        memcpy(&((uint8_t *)last_msg->buf)[last_pos], i2c->buf[index], i2c->x.len);
+    if (last_msg && (last_msg->cfg & AOS_I2C_MCFG_RX))
+        memcpy(&((uint8_t *)last_msg->buf)[last_pos], i2c->x.buf, i2c->x.len);
+#else
+    for (size_t i = 0; i < num_msgs; i++) {
+        const aos_i2c_msg_t *msg = &msgs[i];
+        uint32_t mask;
+        uint32_t val;
+        aos_status_t ret;
+
+        i2c->x.timeout = XFER_TIMEOUT;
+        i2c->x.flags = AOS_I2C_XF_MSG_HEAD | AOS_I2C_XF_MSG_TAIL;
+        i2c->x.flags |= (i == 0) ? AOS_I2C_XF_SEQ_HEAD : 0;
+        i2c->x.flags |= (i + 1 == num_msgs) ? AOS_I2C_XF_SEQ_TAIL : 0;
+        i2c->x.cfg = msg->cfg;
+        i2c->x.addr = msg->addr;
+        i2c->x.len = msg->count;
+        i2c->x.head = 0;
+        i2c->x.tail = 0;
+        i2c->x.buf = msg->buf;
+
+        ret = i2c->ops->start_xfer(i2c);
+        if (ret)
+            return ret;
+
+        mask = EVENT_XFER_COMPLETE | EVENT_XFER_ERROR;
+        if (aos_event_get(&i2c->event, mask, AOS_EVENT_OR, &val, i2c->x.timeout) || (val & EVENT_XFER_ERROR)) {
+            i2c->ops->abort_xfer(i2c);
+            aos_event_set(&i2c->event, 0, AOS_EVENT_AND);
+            return -EIO;
+        } else {
+            i2c->ops->finish_xfer(i2c);
+            aos_event_set(&i2c->event, 0, AOS_EVENT_AND);
+        }
     }
+#endif
 
     return 0;
 }
@@ -178,16 +263,11 @@ static void dev_i2c_unregister(aos_dev_t *dev)
 static aos_status_t dev_i2c_get(aos_dev_ref_t *ref)
 {
     aos_i2c_t *i2c = aos_container_of(ref->dev, aos_i2c_t, dev);
-    aos_status_t ret;
 
     if (!aos_dev_ref_is_first(ref))
         return 0;
 
-    ret = i2c->ops->startup(i2c);
-    if (ret)
-        return ret;
-
-    return 0;
+    return i2c->ops->startup(i2c);
 }
 
 static void dev_i2c_put(aos_dev_ref_t *ref)
@@ -213,8 +293,10 @@ aos_status_t aos_i2c_register(aos_i2c_t *i2c)
     if (!i2c)
         return -EINVAL;
 
-    if (!i2c->ops || !i2c->ops->startup || !i2c->ops->shutdown ||
-        !i2c->ops->start_xfer || !i2c->ops->finish_xfer || !i2c->ops->abort_xfer)
+    if (!i2c->ops || !i2c->ops->startup || !i2c->ops->shutdown)
+        return -EINVAL;
+
+    if ((!i2c->ops->start_xfer || !i2c->ops->finish_xfer || !i2c->ops->abort_xfer) && !i2c->ops->transfer_sequence)
         return -EINVAL;
 
     if (i2c->hz == 0)
@@ -226,7 +308,6 @@ aos_status_t aos_i2c_register(aos_i2c_t *i2c)
     i2c->dev.vfs_helper.name[0] = '\0';
     i2c->dev.vfs_helper.ops = NULL;
 #endif
-    aos_spin_lock_init(&i2c->lock);
 
     ret = aos_event_new(&i2c->event, 0);
     if (ret)
@@ -241,6 +322,20 @@ aos_status_t aos_i2c_register(aos_i2c_t *i2c)
     return 0;
 }
 
+aos_status_t aos_i2c_register_argumented(aos_i2c_t *i2c, uint32_t id, const aos_i2c_ops_t *ops,
+                                         uint32_t flags, uint32_t hz)
+{
+    if (!i2c)
+        return -EINVAL;
+
+    i2c->dev.id = id;
+    i2c->ops = ops;
+    i2c->flags = flags;
+    i2c->hz = hz;
+
+    return aos_i2c_register(i2c);
+}
+
 aos_status_t aos_i2c_unregister(uint32_t id)
 {
     return aos_dev_unregister(AOS_DEV_TYPE_I2C, id);
@@ -248,35 +343,31 @@ aos_status_t aos_i2c_unregister(uint32_t id)
 
 size_t aos_i2c_hard_push(aos_i2c_t *i2c, void *tx_buf, size_t count)
 {
-    if (i2c->x.pos[0] + count > i2c->x.len)
-        count = i2c->x.len - i2c->x.pos[0];
+    if (i2c->x.head + count > i2c->x.len)
+        count = i2c->x.len - i2c->x.head;
 
     if (!(i2c->x.cfg & AOS_I2C_MCFG_RX) && tx_buf) {
-        const uint8_t *buf = i2c->buf[(i2c->x.flags & AOS_I2C_XF_BUF_IDX) ? 1 : 0];
-
         for (size_t i = 0; i < count; i++)
-            ((uint8_t *)tx_buf)[i] = buf[i2c->x.pos[0] + i];
+            ((uint8_t *)tx_buf)[i] = ((const uint8_t *)i2c->x.buf)[i2c->x.head + i];
     }
 
-    i2c->x.pos[0] += count;
+    i2c->x.head += count;
 
     return count;
 }
 
 bool aos_i2c_hard_pull(aos_i2c_t *i2c, const void *rx_buf, size_t count)
 {
-    if (i2c->x.pos[1] + count > i2c->x.pos[0])
-        count = i2c->x.pos[0] - i2c->x.pos[1];
+    if (i2c->x.tail + count > i2c->x.head)
+        count = i2c->x.head - i2c->x.tail;
 
     if ((i2c->x.cfg & AOS_I2C_MCFG_RX) && rx_buf) {
-        uint8_t *buf = i2c->buf[(i2c->x.flags & AOS_I2C_XF_BUF_IDX) ? 1 : 0];
-
         for (size_t i = 0; i < count; i++)
-            buf[i2c->x.pos[1] + i] = ((const uint8_t *)rx_buf)[i];
+            ((uint8_t *)i2c->x.buf)[i2c->x.tail + i] = ((const uint8_t *)rx_buf)[i];
     }
 
-    i2c->x.pos[1] += count;
-    if (i2c->x.pos[1] == i2c->x.len) {
+    i2c->x.tail += count;
+    if (i2c->x.tail == i2c->x.len) {
         aos_event_set(&i2c->event, EVENT_XFER_COMPLETE, AOS_EVENT_OR);
         return true;
     }

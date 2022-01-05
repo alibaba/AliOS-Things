@@ -114,7 +114,7 @@ i2c_dev_handle_t aos_i2c_open (uint32_t id, i2c_slave_config_t *config) {
 
     status = aos_mutex_lock(&g_i2c_controller_lock, AOS_WAIT_FOREVER);
     if (status) {
-        ddkc_warn("lock g_i2c_controller_lock failed, status:%d\r\n", id, status);
+        ddkc_warn("lock g_i2c_controller_lock failed, status:%d\r\n", status);
         return NULL;
     }
 
@@ -159,7 +159,7 @@ i2c_dev_handle_t aos_i2c_open (uint32_t id, i2c_slave_config_t *config) {
     status = aos_mutex_unlock(&g_i2c_controller_lock);
     if (status) {
         // This should never happen
-        ddkc_warn("THIS SHOULD NEVER HAPPEN - unlock g_i2c_controller_lock failed, status:%d\r\n", id, status);
+        ddkc_warn("THIS SHOULD NEVER HAPPEN - unlock g_i2c_controller_lock failed, status:%d\r\n", status);
     }
     /*
      * Note: check whether the slave with the same address is already opened or not?
@@ -233,7 +233,7 @@ err_master:
     status = aos_mutex_unlock(&g_i2c_controller_lock);
     if (status) {
         // This should never happen
-        ddkc_warn("THIS SHOULD NEVER HAPPEN - unlock g_i2c_controller_lock failed, status:%d\r\n", id, status);
+        ddkc_warn("THIS SHOULD NEVER HAPPEN - unlock g_i2c_controller_lock failed, status:%d\r\n", status);
     }
     if (master) {
         free(master);
@@ -278,7 +278,7 @@ aos_status_t aos_i2c_close (i2c_dev_handle_t dev_h) {
     free (slave);
 
     if (dlist_empty(&master->slave)) {
-        ddkc_info("i2c%d's slave list is empty\r\n");
+        ddkc_info("i2c's slave list is empty\r\n");
     }
 
     status = aos_mutex_unlock(&master->lock);

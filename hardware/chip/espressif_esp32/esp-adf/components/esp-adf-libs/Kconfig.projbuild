@@ -1,0 +1,24 @@
+menu "Recorder Engine Configuration"
+
+
+choice RECORD_ENGINE_MODE
+    prompt "Choose recorder engine functionality"
+    default REC_ENG_ENABLE_VAD_WWE_AMR
+    help
+        Recorder engine have VAD, WWE and AMR encoding functionality.
+        AMR encoding enabled, the binary size increase 144kB.
+        WWE enabled, the binary size increase 103kB.
+
+config REC_ENG_ENABLE_VAD_ONLY
+    bool "VAD ONLY"
+
+config REC_ENG_ENABLE_VAD_WWE
+    bool "VAD and WWE"
+
+config REC_ENG_ENABLE_VAD_WWE_AMR
+    bool "VAD, WWE and AMR encoding"
+
+endchoice
+
+
+endmenu

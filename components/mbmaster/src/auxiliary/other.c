@@ -6,7 +6,7 @@
 
 static mb_handler_t mb_handler[MBMASTER_CONFIG_HANDLER_MAX];
 
-mb_handler_t* mb_alloc_handler(void)
+mb_handler_t *mb_alloc_handler(void)
 {
     MB_CRITICAL_ALLOC();
     MB_CRITICAL_ENTER();
@@ -25,7 +25,7 @@ void mb_free_handler(mb_handler_t *handler)
 {
     MB_CRITICAL_ALLOC();
     MB_CRITICAL_ENTER();
-    if (handler->used ==1) {
+    if (handler->used == 1) {
         handler->used = 0;
     }
     MB_CRITICAL_EXIT();
@@ -33,44 +33,21 @@ void mb_free_handler(mb_handler_t *handler)
 
 mb_status_t mb_mutex_create(MB_MUTEX_T *mutex)
 {
-    kstat_t stat;
-    stat = krhino_mutex_create(mutex, "mb_mutex");
-    if (stat == RHINO_SUCCESS) {
-        return MB_SUCCESS;
-    } else {
-        return MB_MUTEX_ERROR;
-    }
+    return aos_mutex_create(mutex, 0);
 }
 
 mb_status_t mb_mutex_lock(MB_MUTEX_T *mutex)
 {
-    kstat_t stat;
-    stat = krhino_mutex_lock(mutex, RHINO_WAIT_FOREVER);
-    if (stat == RHINO_SUCCESS) {
-        return MB_SUCCESS;
-    } else {
-        return MB_MUTEX_ERROR;
-    }
+    return aos_mutex_lock(mutex, AOS_WAIT_FOREVER);
 }
 
 mb_status_t mb_mutex_unlock(MB_MUTEX_T *mutex)
 {
-    kstat_t stat;
-    stat = krhino_mutex_unlock(mutex);
-    if (stat == RHINO_SUCCESS) {
-        return MB_SUCCESS;
-    } else {
-        return MB_MUTEX_ERROR;
-    }
+    return aos_mutex_unlock(mutex);
 }
 
 mb_status_t mb_mutex_del(MB_MUTEX_T *mutex)
 {
-    kstat_t stat;
-    stat = krhino_mutex_del(mutex);
-    if (stat == RHINO_SUCCESS) {
-        return MB_SUCCESS;
-    } else {
-        return MB_MUTEX_ERROR;
-    }
+    aos_mutex_free(mutex);
+    return 0;
 }

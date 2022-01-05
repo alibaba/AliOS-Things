@@ -6,6 +6,8 @@
 #include "ota_hal_os.h"
 #include "aos_hal_flash.h"
 
+static int boot_part               = HAL_PARTITION_OTA_TEMP;
+
 int ota_is_download_mode(void)
 {
     int ret = 0;
@@ -55,14 +57,8 @@ int ota_update_parameter(ota_boot_param_t *ota_param)
         return ret;
     }
     ota_param->param_crc = ota_get_data_crc16((const unsigned char *)ota_param, sizeof(ota_boot_param_t) - sizeof(unsigned short));
-    OTA_LOG_I("ota update param crc:0x%04x flag:0x%04x \n", ota_param->param_crc, ota_param->upg_flag);
+    OTA_LOG_I("ota update param crc:0x%04x flag:0x%04x\n", ota_param->param_crc, ota_param->upg_flag);
     memset(&comp_buf, 0, len);
-#if 0
-    ret = hal_flash_dis_secure(HAL_PARTITION_PARAMETER_1, 0, 0);
-    if(ret != 0) {
-        return OTA_UPGRADE_PARAM_FAIL;
-    }
-#endif
     ret = aos_hal_flash_erase(HAL_PARTITION_PARAMETER_1, offset, len);
     if(ret >= 0) {
         ret = aos_hal_flash_write(HAL_PARTITION_PARAMETER_1, &offset, ota_param, len);
@@ -72,7 +68,7 @@ int ota_update_parameter(ota_boot_param_t *ota_param)
             if(ret >= 0) {
                  if(memcmp(ota_param, (unsigned char*)&comp_buf, len) != 0) {
                      ret = OTA_UPGRADE_PARAM_FAIL;
-                     aos_printf("ble ota save param failed\r\n");
+                     OTA_LOG_E("save param failed\r\n");
                  }
             }
         }
@@ -112,7 +108,7 @@ int ota_clear_paramters()
     int ret = 0;
     unsigned int offset = 0x00;
     unsigned int len = sizeof(ota_boot_param_t);
-    ret = aos_hal_flash_erase(HAL_PARTITION_PARAMER1, offset, len);
+    ret = aos_hal_flash_erase(HAL_PARTITION_PARAMETER_1, offset, len);
     OTA_LOG_I("ota clear ret = %d\r\n", ret);
     return ret;
 }
@@ -134,4 +130,55 @@ unsigned int ota_parse_ota_type(unsigned char *buf, unsigned int len)
     }
     OTA_LOG_I("ota header:0x%x", upg_flag);
     return upg_flag;
+}
+
+int ota_hal_rollback(void)
+{
+    int ret = 0;
+    unsigned int offset = 0;
+    ota_boot_param_t param;
+    memset(&param, 0, sizeof(ota_boot_param_t));
+    ret = aos_hal_flash_read(HAL_PARTITION_PARAMETER_1, &offset, &param, sizeof(ota_boot_param_t));
+    if (ret < 0) {
+        OTA_LOG_E("rollback err:%d", ret);
+        return ret;
+    }
+    if ((param.boot_count != 0) && (param.boot_count != 0xff)) {
+        param.upg_flag = 0;
+        param.boot_count = 0; /*Clear bootcount to avoid rollback*/
+        ret = ota_update_parameter(&param);
+    }
+    if (ret != 0) {
+        OTA_LOG_E("rollback err:%d", ret);
+    }
+    return ret;
+}
+
+int ota_hal_boot(ota_boot_param_t *param)
+{
+    int ret = OTA_UPGRADE_WRITE_FAIL;
+    hal_logic_partition_t  ota_info;
+    hal_logic_partition_t  app_info;
+    hal_logic_partition_t *p_ota_info = &ota_info;
+    hal_logic_partition_t *p_app_info = &app_info;
+    memset(p_ota_info, 0, sizeof(hal_logic_partition_t));
+    memset(p_app_info, 0, sizeof(hal_logic_partition_t));
+    aos_hal_flash_info_get(boot_part, &p_ota_info);
+    aos_hal_flash_info_get(HAL_PARTITION_APPLICATION, &p_app_info);
+    if (param != NULL) {
+        if (param->crc == 0 || param->crc == 0xffff) {
+            OTA_LOG_I("calculate image crc");
+            ota_hal_image_crc16(&param->crc);
+        }
+        param->src_adr = p_ota_info->partition_start_addr;
+        param->dst_adr = p_app_info->partition_start_addr;
+        param->old_size = p_app_info->partition_length;
+        param->boot_type = ota_hal_boot_type();
+        ret = ota_update_parameter(param);
+        if (ret < 0) {
+            return OTA_UPGRADE_WRITE_FAIL;
+        }
+        OTA_LOG_I("OTA after finish dst:0x%08x src:0x%08x len:0x%08x, crc:0x%04x param crc:0x%04x upg_flag:0x%04x \r\n", param->dst_adr, param->src_adr, param->len, param->crc, param->param_crc, param->upg_flag);
+    }
+    return ret;
 }

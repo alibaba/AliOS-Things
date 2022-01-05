@@ -22,8 +22,12 @@
 #include <mutex>
 #include <sstream>
 #include <thread>
-#ifdef USE_AOS_TIME_POSIX_API
+#if USE_AOS_TIME_POSIX_API
+#if ESP_PLATFORM
+#include <sys/time.h>
+#else
 #include <posix/timer.h>
+#endif
 #endif
 #ifndef WIN32
 #include "LocalEndpoints.h"
@@ -237,7 +241,7 @@ EndpointProvider::EndpointOutcome EndpointProvider::loadRemoteEndpoint() {
       auto all = outcome.result().endpoints();
       if (all.size() > 0)
         cachedEndpoint_ = all.front().endpoint;
-#ifdef USE_AOS_TIME_POSIX_API
+#if USE_AOS_TIME_POSIX_API
       struct timespec currentTime;
       time_t t;
       clock_gettime(CLOCK_REALTIME, &currentTime);

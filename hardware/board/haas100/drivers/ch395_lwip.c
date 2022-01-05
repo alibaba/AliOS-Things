@@ -566,7 +566,7 @@ int eth_lwip_tcpip_init(void)
 
     ret = ch395_module_init(&eth_spi_dev);
     if (ret) {
-        printf("spi init fail 0x%x, port %d, spi role %d, firstbit %d, work_mode %d, freq %d",
+        printf("spi init fail 0x%x, port %d, spi role %d, firstbit %d, work_mode %d, freq %d\r\n",
                ret, eth_spi_dev.port, eth_spi_dev.config.role, eth_spi_dev.config.firstbit,
                eth_spi_dev.config.mode, eth_spi_dev.config.freq);
         return -1;
@@ -574,31 +574,31 @@ int eth_lwip_tcpip_init(void)
 
     ret = ch395_get_version(&chip_ver, &soft_ver);
     if (ret || chip_ver != 0x4) {
-        printf("Fail to get chip ver: 0x%x soft ver 0x%x ret : 0x%x", chip_ver, soft_ver, ret);
+        printf("Fail to get chip ver: 0x%x soft ver 0x%x ret : 0x%x\r\n", chip_ver, soft_ver, ret);
         return -1;
     }
 
     ret = ch395_set_func_param(SOCK_CTRL_FLAG_SOCKET_CLOSE);
     if (ret) {
-        printf("eht init fail : ch395 set func param fail %d", ret);
+        printf("eht init fail : ch395 set func param fail %d\r\n", ret);
         return -1;
     }
 
     ret = ch395_dev_init();
     if (ret) {
-        printf("eht init fail : ch395 init fail %d", ret);
+        printf("eht init fail : ch395 init fail %d\r\n", ret);
         return -1;
     }
 
     ret = ch395_eth_sock_macraw();
     if (ret) {
-        printf("eth fail to set socket 0 macraw mode \r\n", ret);
+        printf("eth fail to set socket 0 macraw mode %d\r\n", ret);
         return -1;
     }
 
     ret = ch395_ping_enable(1);
     if (ret) {
-        printf("eht init fail : ch395 ping enable fail %d", ret);
+        printf("eht init fail : ch395 ping enable fail %d\r\n", ret);
     }
 
     tcpip_init_done(NULL);

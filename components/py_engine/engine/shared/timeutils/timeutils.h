@@ -28,10 +28,12 @@
 #define MICROPY_INCLUDED_LIB_TIMEUTILS_TIMEUTILS_H
 
 // Modified bt HaaS begin
-#include <stdbool.h>
+#if !MICROPY_PY_AOS_SPECIFIC
 
+#include <stdbool.h>
 #include "py/mpconfig.h"
 
+#endif
 // Modified bt HaaS end
 
 // The number of seconds between 1970/1/1 and 2000/1/1 is calculated using:

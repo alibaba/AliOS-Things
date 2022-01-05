@@ -1,0 +1,166 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap_recovery(3)
+=================
+:doctype: manpage
+:man source:   coap_recovery
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap_recovery, coap_session_set_max_retransmit, coap_session_set_ack_timeout,
+coap_session_set_ack_random_factor, coap_session_get_max_transmit,
+coap_session_get_ack_timeout, coap_session_get_ack_random_factor,
+coap_debug_set_packet_loss
+- Work with CoAP packet transmissions
+
+SYNOPSIS
+--------
+*#include <coap@LIBCOAP_API_VERSION@/coap.h>*
+
+*void coap_session_set_max_retransmit(coap_session_t *_session_,
+unsigned int _value_)*;
+
+*void coap_session_set_ack_timeout(coap_session_t *_session_,
+coap_fixed_point_t _value_)*;
+
+*void coap_session_set_ack_random_factor(coap_session_t *_session_,
+coap_fixed_point_t _value_)*;
+
+*unsigned int coap_session_get_max_transmit(coap_session_t *_session_)*;
+
+*coap_fixed_point_t coap_session_get_ack_timeout(coap_session_t *_session_)*;
+
+*coap_fixed_point_t coap_session_get_ack_random_factor(coap_session_t
+*_session_)*;
+
+*int coap_debug_set_packet_loss(const char *_loss_level_)*;
+
+Link with *-lcoap-@LIBCOAP_API_VERSION@*, *-lcoap-@LIBCOAP_API_VERSION@-gnutls*,
+*-lcoap-@LIBCOAP_API_VERSION@-openssl* or
+*-lcoap-@LIBCOAP_API_VERSION@-tinydtls* depending on your (D)TLS library
+type.
+
+DESCRIPTION
+-----------
+For CoAP Confirmable messages, it is possible to define the retry counts,
+repeat rate etc. for error recovery.  Further information can be found in
+"RFC7272: 4.2. Messages Transmitted Reliably".
+
+It is not recommended that the suggested default setting are changed, but
+there may be some special requirements that need different values and the
+consequences of changing these values is fully understood.
+
+Changing the default values for multicast packets is not supported.
+
+Some of the parameters or return values are in fixed point format as defined
+by the coap_fixed_point_t structure as below
+----
+typedef struct coap_fixed_point_t {
+  uint16_t integer_part;    /* Integer part of fixed point variable */
+  uint16_t fractional_part; /* Fractional part of fixed point variable
+                               1/1000 (3 points) precision */
+} coap_fixed_point_t;
+----
+
+The CoAP message retry rules are (with the default values to compute the time)
+----
+1st retransmit after 1 * ack_timeout * ack_random factor (3 seconds)
+2nd retransmit after 2 * ack_timeout * ack_random factor (6 seconds)
+3rd retransmit after 3 * ack_timeout * ack_random factor (12 seconds)
+4th retransmit after 4 * ack_timeout * ack_random factor (24 seconds)
+5th retransmit after 5 * ack_timeout * ack_random factor (48 seconds)
+
+As max_transmit (by default) is 4, then the 5th retransmit does not get sent,
+but at that point COAP_NACK_TOO_MANY_RETRIES gets raised in the nack_handler
+(if defined). Note that the sum of the seconds is 93 matching RFC7252.
+----
+
+It should be noted that these retries are separate from the DTLS or TLS
+encrypted session setup retry timeouts. For DTLS, the initial requesting
+packet will get sent max_retransmit times before reporting failure.
+For TLS the initial TCP connection will timeout before reporting failure.
+
+It is also possible to set up packet losses, for both confirmable, and
+non-confirmable messages.  This can be used for stress testing packet
+transmission recovery as well as application handling of lossy networks.
+
+The *coap_session_set_max_retransmit*() function updates the _session_ maximum
+retransmit count with the new _value_.  The default value is 4.
+
+The *coap_session_set_ack_timeout*() function updates the _session_ initial
+ack or response timeout with the new _value_.  The default value is 2.0.
+
+The *coap_session_set_ack_random_factor*() function updates the _session_ ack
+random wait factor, used to randomize re-transmissions, with the new _value_.
+The default value is 1.5.
+
+The *coap_session_get_max_retransmit*() function returns the current _session_
+maximum retransmit count.
+
+The *coap_session_get_ack_timeout*() function returns the current _session_
+initial ack or response timeout.
+
+The *coap_session_get_ack_random_factor*() function returns the current
+_session_ ack random wait factor.
+
+The *coap_debug_set_packet_loss*() function is uses to set the packet loss
+levels as defined in _loss_level_.  _loss_level_ can be set as a percentage
+from "0%" to "100%".
+Alternatively, it is possible to specify which packets of a packet sequence
+are dropped.  A definition of "1,5-9,11-20,101" means that packets 1, 5
+through 9, 11 through 20 and 101 will get dropped. A maximum of 10 different
+packet sets is supported.  The packet count is reset to 0 when
+coap_debug_set_packet_loss() is called.
+To remove any packet losses, set the _loss_level_ to "0%".
+
+RETURN VALUES
+-------------
+*coap_session_get_max_retransmit*(), *coap_session_get_ack_timeout*() and
+*coap_session_get_ack_random_factor*() return their respective current values.
+
+*coap_debug_set_packet_loss*() returns 0 if _loss_level_ does not parse
+correctly, otherwise 1 if successful.
+
+TESTING
+-------
+
+The libcoap recovery/re-transmit logic will only work for confirmable requests.
+
+To see what is happening (other than by sniffing the network traffic), the
+logging level needs to be set to LOG_DEBUG in the client by using
+coap_set_log_level(LOG_DEBUG) and coap_dtls_set_log_level(LOG_DEBUG).
+
+The client needs to be sending confirmable requests during the test.
+
+The server can either be stopped, or if packet loss levels are set to 100% by
+using coap_debug_set_packet_loss("100%") when receiving the client requests.
+
+*NOTE:* If the server end of the connection is returning ICMP unreachable packets
+after being turned off, you will get a debug message of the form
+"coap_network_read: unreachable", so libcoap will stop doing the retries.  If
+this is the case, then you need to make use of (on the server)
+coap_debug_set_packet_loss("100%") or put in some packet filtering to drop the
+packets.
+
+The client should then restart transmitting the requests based on the
+ack_timeout, ack_random_factor and max_retransmit values.  The client's
+nack_handler will get called with COAP_NACK_TOO_MANY_RETRIES when the
+confirmable request cannot be successfully transmitted.
+
+
+FURTHER INFORMATION
+-------------------
+See "RFC7252: The Constrained Application Protocol (CoAP)" for further
+information.
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

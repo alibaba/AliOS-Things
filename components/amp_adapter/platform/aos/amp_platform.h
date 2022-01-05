@@ -7,6 +7,10 @@
 #include <stdbool.h>
 #include "aos/errno.h"
 #include "aos/kernel.h"
+#ifdef AOS_COMP_KV
 #include "aos/kv.h"
+#endif
+#ifdef AOS_COMP_ULOG
 #include "ulog/ulog.h"
+#endif
 // #include <sys/socket.h>

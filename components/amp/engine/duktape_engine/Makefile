@@ -27,7 +27,6 @@ MOD_SOURCES += \
 
 MOD_SOURCES += \
 		addons/utils/builtin/module_builtin.c \
-		addons/utils/checksum/module_checksum.c \
 		addons/utils/crypto/module_crypto.c \
 		addons/utils/fs/module_fs.c \
 		addons/utils/kv/module_kv.c \
@@ -72,7 +71,6 @@ MOD_INCLUDES := \
 		../../utils/mbedtls/platform/include \
 		../../utils/mbedtls/platform/amp/include \
 		../../utils/cJSON \
-		../../utils/checksum \
 		../../utils/list \
 		../../services/amp_utils \
 		../../services/board_mgr \

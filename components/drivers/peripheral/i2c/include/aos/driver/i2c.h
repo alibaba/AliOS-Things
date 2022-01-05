@@ -20,7 +20,9 @@ extern "C" {
 
 
 /* Define the wait forever timeout macro */
+#ifndef AOS_WAIT_FOREVER
 #define AOS_WAIT_FOREVER 0xFFFFFFFFU
+#endif
 
 /*
  * I2C bus's clock rate

@@ -8,7 +8,6 @@
 #include "aos/init.h"
 #include "board.h"
 #include <k_api.h>
-
 #ifndef AOS_BINS
 extern int application_start(int argc, char *argv[]);
 #endif
@@ -50,9 +49,12 @@ void aos_maintask(void *arg)
     board_init();
     board_kinit_init(&kinit);
     aos_components_init(&kinit);
-
-#ifndef AOS_BINS
-    application_start(kinit.argc, kinit.argv);  /* jump to app entry */
+#if !defined(AOS_BINS) && !defined(AOS_SEPARATE_APP)
+    application_start(kinit.argc, kinit.argv);
+#else
+    #include "dm_app.h"
+    printf("%s-%s\r\n", __DATE__, __TIME__);
+    dm_app_load("/data/app/separate_app");
 #endif
 }
 

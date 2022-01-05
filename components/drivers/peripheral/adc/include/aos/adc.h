@@ -21,9 +21,9 @@ extern "C" {
 /** @} */
 
 /**
- * @defgroup aos_adc_app ADC应用操作
+ * @defgroup aos_adc_app ADC
  * @ingroup driver_api
- * 给应用提供ADC操作的AOS ADC API.
+ * 给应用提供ADC操作的AOS API.
  *
  * @{
  */

@@ -17,7 +17,7 @@
 #include "ch395_spi.h"
 #include "ch395_cmd.h"
 
-#define TAG "ch395_sal_module"
+#define TAG "ch395_cmd"
 
 #define SPI_TIME_OUT          1000
 
@@ -30,8 +30,6 @@
 static int8_t guc_module_initflag = 0;
 static spi_dev_t g_st_spi_info = {0};
 static aos_mutex_t gst_spi_op_mutex = {0};
-
-#define TAG "ch395_cmd"
 
 int32_t ch395_str_to_ip4addr(int8_t *str, uint8_t *paddr)
 {
@@ -211,7 +209,7 @@ int32_t ch395_chip_exist_check(void)
         return -1;
     }
 
-    if (readdata != ~cmd[1]) {
+    if (readdata != 0xA5) {
         LOGE(TAG, "testdata 0x%x, readdata 0x%x ,chip not exist", cmd[1], readdata);
         return -1;
     }

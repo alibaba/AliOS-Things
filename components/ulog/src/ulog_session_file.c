@@ -615,7 +615,7 @@ int32_t pop_out_on_fs(const char *data, const uint16_t len)
         idx = get_working_from_cfg_mm();
     }
 
-    fd = open_log_file(idx, O_WRONLY, operating_file_offset);
+    fd = open_log_file(idx, O_CREAT | O_WRONLY, operating_file_offset);
     if (fd < 0) {
         SESSION_FS_INFO(
             "fail to pop log to fs for open working log file %d offset fail %d "

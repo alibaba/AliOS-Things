@@ -39,6 +39,7 @@ typedef enum _ucloud_ai_model_t {
     UCLOUD_AI_MODEL_COMPARING_FACEBODY, // refer to https://vision.aliyun.com/experience/detail?spm=a211p3.14471187.J_7524944390.59.bc2e797dbbIyZQ&tagName=facebody&children=CompareFace
     UCLOUD_AI_MODEL_GENERATE_HUMAN_ANIME_STYLE, // refer to https://vision.aliyun.com/experience/detail?spm=a211p3.14471187.J_7524944390.15.54ca797dDKkjDk&tagName=facebody&children=GenerateHumanAnimeStyle
     UCLOUD_AI_MODEL_RECOGNIZE_EXPRESSION, // refer to https://vision.aliyun.com/experience/detail?spm=a211p3.14471187.J_7524944390.10.4e1a797dHZHzS5&tagName=facebody&children=RecognizeExpression
+    UCLOUD_AI_MODEL_DETECT_PEDSTRIAN, // refer to https://vision.aliyun.com/experience/detail?spm=a211p3.14471187.J_7524944390.35.15b8797dPuaXsj&tagName=facebody&children=DetectPedestrian
     UCLOUD_AI_MODEL_DETECT_OBJECT, // refer to https://vision.aliyun.com/experience/detail?spm=a211p3.14471187.J_7524944390.20.2074797dOvJ4L2&tagName=objectdet&children=DetectObject
     UCLOUD_AI_MODEL_DETECT_MAIN_BODY, // refer to https://vision.aliyun.com/experience/detail?spm=a211p3.14471187.J_7524944390.23.61df797dKC0yXR&tagName=objectdet&children=DetectMainBody
     UCLOUD_AI_MODEL_SEGMENT_COMMON_IMAGE, // refer to https://vision.aliyun.com/experience/detail?spm=a211p3.14471187.J_7524944390.6.7d9e797dL51BIO&tagName=imageseg&children=SegmentCommonImage
@@ -47,6 +48,7 @@ typedef enum _ucloud_ai_model_t {
     UCLOUD_AI_MODEL_RECOGNIZE_IDENTITY_CARD_BACK_SIDE, // refer to https://vision.aliyun.com/experience/detail?spm=a211p3.14471187.J_7524944390.16.7d87797d2vHJJ9&tagName=ocr&children=RecognizeIdentityCard
     UCLOUD_AI_MODEL_RECOGNIZE_BANK_CARD, // refer to https://vision.aliyun.com/experience/detail?spm=a211p3.14471187.J_7524944390.20.63cd797d7APYEE&tagName=ocr&children=RecognizeBankCard
     UCLOUD_AI_MODEL_RECOGNIZE_CHARACTER, // refer to https://vision.aliyun.com/experience/detail?spm=a211p3.14020179.J_7524944390.6.66cd608dJkkY48&tagName=ocr&children=RecognizeCharacter
+    UCLOUD_AI_MODEL_RECOGNIZE_LICENCE_PLATE, // refer to https://vision.aliyun.com/experience/detail?spm=a211p3.14471187.J_7524944390.13.73f5797d26kqtB&tagName=ocr&children=RecognizeLicensePlate
     UCLOUD_AI_MODEL_CLASSIFYING_RUBBISH, // refer to https://vision.aliyun.com/experience/detail?spm=a211p3.14471187.J_7524944390.13.73f5797dHFaJxR&tagName=imagerecog&children=ClassifyingRubbish
     UCLOUD_AI_MODEL_DETECT_FRUITS, // refer to https://vision.aliyun.com/experience/detail?spm=a211p3.14020179.J_7524944390.44.66cd608dt39mQW&tagName=imagerecog&children=DetectFruits
     UCLOUD_AI_MODEL_ERASE_PERSON, // refer to https://vision.aliyun.com/experience/detail?spm=a211p3.14471187.J_7524944390.6.6c49797dKzzl8D&tagName=imageenhan&children=ErasePerson, have some unknown issue
@@ -126,12 +128,43 @@ void ucloud_ai_disconnect(void);
  *
  */
 int32_t ucloud_ai_get_stream(char *url, char **stream);
+
 /**
  * Get token id by domain and region id.
  *
  */
-
 char *ucloud_ai_get_token_id(const char *domain, const char *region_id);
+
+/**
+ * Compute content md5.
+ * @param[in]  data data content.
+ * @param[in]  size data size.
+ *
+ * @return md5 data after compute.
+ */
+char *ucloud_ai_compute_md5(const char *data, size_t size);
+
+/**
+ * Generate uuid.
+ *
+ * @return uuid.
+ */
+char *ucloud_ai_generate_uuid();
+
+/**
+ * Url encode.
+ * @param[in]  src encode url.
+ *
+ * @return string after url encode.
+ */
+char *ucloud_ai_url_encode(const char *src);
+/**
+ * Url decode.
+ * @param[in]  src decode url.
+ *
+ * @return string after url decode.
+ */
+char *ucloud_ai_url_decode(const char *src);
 /**
  * @}
  */

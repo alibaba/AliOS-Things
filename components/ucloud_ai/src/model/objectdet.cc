@@ -22,6 +22,7 @@ int detectObject(char *url, AIModelCBFunc cb)
     string tmpImageURL;
     ObjectDetResultStruct result;
     string type;
+    double left, top, right, bottom; 
     int ret = 0;
     int objectNum, i;
 
@@ -42,18 +43,22 @@ int detectObject(char *url, AIModelCBFunc cb)
     for (i = 0; i < objectNum; i++) {
         cout << "object score:" << outcome.result().getData().elements[i].score << endl;
         cout << "object type:" << outcome.result().getData().elements[i].type << endl;
-        cout << "object boxes.x:" << outcome.result().getData().elements[i].boxes[0] << endl;
-        cout << "object boxes.y:" << outcome.result().getData().elements[i].boxes[1] << endl;
-        cout << "object boxes.w:" << outcome.result().getData().elements[i].boxes[2] << endl;
-        cout << "object boxes.h:" << outcome.result().getData().elements[i].boxes[3] << endl;
+        cout << "object boxes.left:" << outcome.result().getData().elements[i].boxes[0] << endl;
+        cout << "object boxes.top:" << outcome.result().getData().elements[i].boxes[1] << endl;
+        cout << "object boxes.right:" << outcome.result().getData().elements[i].boxes[2] << endl;
+        cout << "object boxes.bottom:" << outcome.result().getData().elements[i].boxes[3] << endl;
 
         type = outcome.result().getData().elements[i].type;
+        left = outcome.result().getData().elements[i].boxes[0];
+        top = outcome.result().getData().elements[i].boxes[1];
+        right = outcome.result().getData().elements[i].boxes[2];
+        bottom = outcome.result().getData().elements[i].boxes[3];
         result.object.type = (char *)type.c_str();
         result.object.score = outcome.result().getData().elements[i].score;
-        result.object.box.x = outcome.result().getData().elements[i].boxes[0];
-        result.object.box.y = outcome.result().getData().elements[i].boxes[1];
-        result.object.box.w = outcome.result().getData().elements[i].boxes[2];
-        result.object.box.h = outcome.result().getData().elements[i].boxes[3];
+        result.object.box.x = left;
+        result.object.box.y = top;
+        result.object.box.w = right - left;
+        result.object.box.h = bottom - top;
         if (cb) {
             ret = cb((void *)&result);
         }

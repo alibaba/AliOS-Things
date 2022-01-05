@@ -6,14 +6,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "os_mem.h"
-#include "os_sync.h"
-#include "os_sched.h"
-
+//#include "os_mem.h"
+//#include "os_sync.h"
+//#include "os_sched.h"
+#include "osif_customer.h"
+#include <mem_types.h>
 #include "hci_process.h"
 #include "hci_tp.h"
+#include "hci_dbg.h"
 #include "bt_board.h"
-#include "trace_app.h"
+//#include "trace_app.h"
 #include "bt_types.h"
 #include "hci_board.h"
 #include "hci_uart.h"
@@ -35,7 +37,7 @@ uint8_t hci_tp_read_local_ver(void)
     uint8_t *p_cmd;
     uint8_t *p;
 
-    HCI_PRINT_TRACE0("hci_tp_read_local_ver");
+    HCI_PRINT_TRACE("hci_tp_read_local_ver");
 
     hci_normal_start();
     p_cmd = os_mem_zalloc(RAM_TYPE_DATA_ON, 4);
@@ -63,10 +65,10 @@ uint8_t hci_read_local_version_check(uint8_t len, uint8_t *p_buf)
     /* Skip status, hci version, hci revision, lmp version & manufacture name */
     STREAM_SKIP_LEN(p_buf, 6);
     LE_STREAM_TO_UINT16(lmp_subver, p_buf);
-    HCI_PRINT_INFO1("hci_tp_config: lmp_subver 0x%04x", lmp_subver);
+    HCI_PRINT_INFO("hci_tp_config: lmp_subver 0x%04x", lmp_subver);
     if (lmp_subver != BT_DEFAUT_LMP_SUBVER)
     {
-        HCI_PRINT_ERROR0("hci_tp_config: Patch already exists");
+        HCI_PRINT_ERROR("hci_tp_config: Patch already exists");
         hci_board_debug("%s: Patch already exists\n",__FUNCTION__);
         return HCI_TP_CONFIG_END;
     }
@@ -81,7 +83,7 @@ uint8_t hci_tp_read_rom_ver(void)
     uint8_t *p_cmd;
     uint8_t *p;
 
-    HCI_PRINT_TRACE0("hci_tp_read_rom_ver");
+    HCI_PRINT_TRACE("hci_tp_read_rom_ver");
 
     p_cmd = os_mem_zalloc(RAM_TYPE_DATA_ON, 4);
     if (p_cmd != NULL)
@@ -108,7 +110,7 @@ uint8_t hci_read_rom_check(uint8_t len, uint8_t *p_buf)
     uint8_t    rom_version;
     uint8_t    bt_hci_chip_id;
     LE_STREAM_TO_UINT8(rom_version, p_buf);
-    HCI_PRINT_INFO1("hci_tp_config: rom_version 0x%02x", rom_version);
+    HCI_PRINT_INFO("hci_tp_config: rom_version 0x%02x", rom_version);
     bt_hci_chip_id = rom_version + 1;
     hci_board_debug("%s: rom_version 0x%04x, bt_hci_chip_id 0x%04x\n", __FUNCTION__, rom_version, bt_hci_chip_id);
 
@@ -127,7 +129,7 @@ uint8_t hci_tp_read_thermal(void)
     uint8_t *p_cmd;
     uint8_t *p;
 
-    HCI_PRINT_TRACE0("hci_tp_read_thermal");
+    HCI_PRINT_TRACE("hci_tp_read_thermal");
 
     if (rltk_wlan_is_mp())
     {
@@ -243,11 +245,11 @@ bool hci_set_patch(uint8_t *fw_addr,uint32_t fw_len, uint8_t *fw_config_addr, ui
     {
         p_hci_patch->patch_frag_tail = PATCH_FRAGMENT_MAX_SIZE;
     }
-    HCI_PRINT_INFO3("hci_rtk_load_patch:svn %d patch frag count %u, tail len %u",svn_version,
+    HCI_PRINT_INFO("hci_rtk_load_patch:svn %d patch frag count %u, tail len %u",svn_version,
                     p_hci_patch->patch_frag_cnt, p_hci_patch->patch_frag_tail);
 
 
-    HCI_PRINT_INFO3("BT patch:svn %d coex svn_version: %x LMP VERSION:%x\n",(int)svn_version, (unsigned int)coex_version,(unsigned int)lmp_subversion);
+    HCI_PRINT_INFO("BT patch:svn %d coex svn_version: %x LMP VERSION:%x\n",(int)svn_version, (unsigned int)coex_version,(unsigned int)lmp_subversion);
     if (rltk_wlan_is_mp())
     {
         hci_board_debug("BT patch:svn %d coex svn_version: %x LMP VERSION:%x\n",(int)svn_version, (unsigned int)coex_version,(unsigned int)lmp_subversion);
@@ -269,7 +271,7 @@ uint8_t hci_tp_download_patch(void)
     {
         if (p_hci_rtk->patch_frag_idx == p_hci_rtk->patch_frag_cnt - 1)
         {
-            HCI_PRINT_TRACE0("hci_tp_download_patch: send last frag");
+            HCI_PRINT_TRACE("hci_tp_download_patch: send last frag");
             //hci_board_debug("hci_tp_download_patch: send last frag\n");
 
             p_hci_rtk->patch_frag_idx |= 0x80;
@@ -283,7 +285,7 @@ uint8_t hci_tp_download_patch(void)
 
     //hci_board_debug("hci_tp_download_patch: frag index %d, len %d\n",
      //         p_hci_rtk->patch_frag_idx, p_hci_rtk->patch_frag_len);
-    HCI_PRINT_TRACE2("hci_tp_download_patch: frag index %d, len %d",
+    HCI_PRINT_TRACE("hci_tp_download_patch: frag index %d, len %d",
                      p_hci_rtk->patch_frag_idx, p_hci_rtk->patch_frag_len);
 
     p_cmd = os_mem_zalloc(RAM_TYPE_DATA_ON, HCI_CMD_HDR_LEN + 1 + p_hci_rtk->patch_frag_len);
@@ -335,7 +337,7 @@ uint8_t hci_download_patch_check(uint8_t len, uint8_t *p_buf)
     T_HCI_PATCH *p_hci_rtk = &hci_patch_info;
     if (index & 0x80)   /* receive the last fragment completed evt */
     {
-        HCI_PRINT_INFO0("Download patch completely\n");
+        HCI_PRINT_INFO("Download patch completely\n");
         //hci_board_debug("Download patch completely\n");
         os_mem_free(p_hci_rtk->fw_buf);
         os_mem_free(p_hci_rtk->config_buf);
@@ -353,7 +355,7 @@ uint8_t hci_tp_set_controller_baudrate(void)
     uint8_t *p;
     T_HCI_PATCH *p_hci_rtk = &hci_patch_info;
 
-    HCI_PRINT_TRACE1("hci_tp_set_controller_baudrate: baudrate 0x%08x", p_hci_rtk->baudrate);
+    HCI_PRINT_TRACE("hci_tp_set_controller_baudrate: baudrate 0x%08x", p_hci_rtk->baudrate);
     //hci_board_debug("hci_tp_set_controller_baudrate: baudrate 0x%08x\n", p_hci_rtk->baudrate);
 
     p_cmd = os_mem_zalloc(RAM_TYPE_DATA_ON, HCI_CMD_HDR_LEN + 4);
@@ -392,7 +394,7 @@ extern unsigned int baudrates_length;
         }
     }
 
-    HCI_PRINT_TRACE0("hci_rtk_convert_buadrate: use default baudrate[115200]");
+    HCI_PRINT_TRACE("hci_rtk_convert_buadrate: use default baudrate[115200]");
     return;
 }
 
@@ -414,7 +416,7 @@ uint8_t hci_tp_rf_radio_ver(uint8_t offset, uint16_t value)
     uint8_t *p_cmd;
     uint8_t *p;
 
-    HCI_PRINT_TRACE0("hci_tp_rf_radio_ver");
+    HCI_PRINT_TRACE("hci_tp_rf_radio_ver");
     hci_board_debug("hci_tp_rf_radio_ver\n");
 
     p_cmd = os_mem_zalloc(RAM_TYPE_DATA_ON, 8);
@@ -508,7 +510,7 @@ uint8_t hci_tp_write_efuse_iqk(void)
     uint8_t *p_cmd;
     uint8_t *p;
 
-    HCI_PRINT_TRACE0("hci_tp_write_efuse_iqk");
+    HCI_PRINT_TRACE("hci_tp_write_efuse_iqk");
     
     p_cmd = os_mem_zalloc(RAM_TYPE_DATA_ON, 23);
     if (p_cmd != NULL)
@@ -534,7 +536,7 @@ uint8_t hci_tp_hci_reset(void)
 {
     uint8_t *p_cmd;
     uint8_t *p;
-    HCI_PRINT_TRACE0("hci_reset");
+    HCI_PRINT_TRACE("hci_reset");
     //hci_board_debug("hci_reset\n");
     p_cmd = os_mem_zalloc(RAM_TYPE_DATA_ON, 4);
     if (p_cmd != NULL)
@@ -580,7 +582,7 @@ uint8_t hci_tp_tx_test_cmd(void)
     uint8_t *p_cmd;
     uint8_t *p;
 
-    //HCI_PRINT_TRACE0("hci_tp_read_local_ver");
+    //HCI_PRINT_TRACE("hci_tp_read_local_ver");
     //
 #define HCI_LE_TRANSMIT_TEST 0x201e
     hci_board_debug("hci_tp_tx_test_cmd 2402, 0xFF, 0x00\n");
@@ -610,7 +612,7 @@ uint8_t hci_tp_rx_test_cmd(void)
     uint8_t *p_cmd;
     uint8_t *p;
 
-    //HCI_PRINT_TRACE0("hci_tp_read_local_ver");
+    //HCI_PRINT_TRACE("hci_tp_read_local_ver");
     //
 #define HCI_LE_RECEIVE_TEST 0x201d
     hci_board_debug("hci_tp_rx_test_cmd 2402\n");

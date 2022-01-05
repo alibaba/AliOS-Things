@@ -29,12 +29,32 @@
 #include "OssClientImpl.h"
 #include "utils/LogUtils.h"
 #include "utils/FileSystemUtils.h"
-#if !defined(OSS_DISABLE_RESUAMABLE)
+#if (!OSS_DISABLE_RESUAMABLE)
 #include "resumable/ResumableUploader.h"
 #include "resumable/ResumableDownloader.h"
 #include "resumable/ResumableCopier.h"
 #endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#if USE_AOS_TIME_POSIX_API
+#if ESP_PLATFORM
+#if MICROPY_PY_UCLOUD_AI
+#include "mpconfigport.h"
+#include "shared/timeutils/timeutils.h"
+extern void timeutils_seconds_since_2000_to_struct_time(mp_uint_t t, timeutils_struct_time_t *tm);
+#endif
+#include <sys/time.h>
+#include "py/mpprint.h"
+#else
 #include <posix/timer.h>
+#endif
+#endif
+#ifdef __cplusplus
+}
+#endif
+
 using namespace AlibabaCloud::OSS;
 using namespace tinyxml2;
 
@@ -63,7 +83,7 @@ int OssClientImpl::asyncExecute(Runnable * r) const
 {
     if (executor_ == nullptr)
         return 1;
-    
+
     executor_->execute(r);
     return 0;
 }
@@ -111,7 +131,7 @@ bool OssClientImpl::hasResponseError(const std::shared_ptr<HttpResponse>&respons
         }
     }
 
-    //check Calback 
+    // check Calback
     if (response->statusCode() == 203 &&
         (response->request().hasHeader("x-oss-callback") ||
         (response->request().url().query().find("callback=") != std::string::npos))) {
@@ -135,17 +155,29 @@ void OssClientImpl::addHeaders(const std::shared_ptr<HttpRequest> &httpRequest, 
         httpRequest->addHeader(Http::DATE, httpRequest->Header("x-oss-date"));
     }
     if (!httpRequest->hasHeader(Http::DATE)) {
-#ifdef USE_AOS_TIME_POSIX_API
-    struct timespec currentTime;
-    time_t t;
-    clock_gettime(CLOCK_REALTIME, &currentTime);
-    t = currentTime.tv_nsec/1000000000 + currentTime.tv_sec;
-    printf("----- time %lld ---------\r\n",t);
+#if USE_AOS_TIME_POSIX_API
+        struct timespec currentTime;
+        time_t t;
+        clock_gettime(CLOCK_REALTIME, &currentTime);
+        t = currentTime.tv_nsec/1000000000 + currentTime.tv_sec;
+        // printf("----- time %lld ---------\r\n",t);
 #else
-    std::time_t t = std::time(nullptr);
+        std::time_t t = std::time(nullptr);
+
 #endif
         t += getRequestDateOffset();
+#if ESP_PLATFORM
+        time_t now;
+        struct tm *timeinfo = NULL;
+        char GMT_DATA_TIME[30];
+        now = time(NULL);
+        timeinfo = localtime(&now);
+        memset(GMT_DATA_TIME, 0, sizeof(GMT_DATA_TIME));
+        strftime(GMT_DATA_TIME, sizeof(GMT_DATA_TIME), "%a, %d %b %Y %H:%M:%S GMT", timeinfo);
+        httpRequest->addHeader(Http::DATE, GMT_DATA_TIME);
+#else
         httpRequest->addHeader(Http::DATE, ToGmtTime(t));
+#endif
     }
 }
 
@@ -159,7 +191,7 @@ void OssClientImpl::addBody(const std::shared_ptr<HttpRequest> &httpRequest, con
             httpRequest->removeHeader(Http::CONTENT_LENGTH);
         }
     }
-    
+
     if ((body != nullptr) && !httpRequest->hasHeader(Http::CONTENT_LENGTH)) {
         auto streamSize = GetIOStreamLength(*body);
         httpRequest->setHeader(Http::CONTENT_LENGTH, std::to_string(streamSize));
@@ -229,7 +261,7 @@ void OssClientImpl::addUrl(const std::shared_ptr<HttpRequest> &httpRequest, cons
     url.setPath(path);
 
     OSS_LOG(LogLevel::LogDebug, TAG, "client(%p) request(%p) host:%s, path:%s", this, httpRequest.get(), host.c_str(), path.c_str());
-    
+
     auto parameters = request.Parameters();
     if (!parameters.empty()) {
         std::stringstream queryString;
@@ -341,7 +373,7 @@ OssOutcome OssClientImpl::MakeRequest(const OssRequest &request, Http::Method me
     }
 }
 
-#if !defined(OSS_DISABLE_BUCKET)
+#if (!OSS_DISABLE_BUCKET)
 
 ListBucketsOutcome OssClientImpl::ListBuckets(const ListBucketsRequest &request) const
 {
@@ -1378,7 +1410,7 @@ ListPartsOutcome OssClientImpl::ListParts(const ListPartsRequest &request) const
     }
 }
 
-#if !defined(OSS_DISABLE_RESUAMABLE)
+#if (!OSS_DISABLE_RESUAMABLE)
 /*Resumable Operation*/
 PutObjectOutcome OssClientImpl::ResumableUploadObject(const UploadObjectRequest& request) const 
 {
@@ -1512,7 +1544,7 @@ GetObjectOutcome OssClientImpl::ResumableDownloadObject(const DownloadObjectRequ
 }
 #endif
 
-#if !defined(OSS_DISABLE_LIVECHANNEL)
+#if (!OSS_DISABLE_LIVECHANNEL)
 /*Live Channel*/
 VoidOutcome OssClientImpl::PutLiveChannelStatus(const PutLiveChannelStatusRequest& request) const
 {
@@ -1656,7 +1688,7 @@ StringOutcome OssClientImpl::GenerateRTMPSignedUrl(const GenerateRTMPSignedUrlRe
     if (!credentials.SessionToken().empty()) {
         parameters["security-token"] = credentials.SessionToken();
     }
-    
+
     parameters = request.Parameters();
 
     std::string expireStr;

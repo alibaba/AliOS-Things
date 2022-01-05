@@ -9,8 +9,8 @@
 #include "stdint.h"
 /* device active info report */
 #define APPLICATION "soundbox"               // product of application
-#define MODULE_NAME aos_get_platform_type()  // module type
-
+// #define MODULE_NAME aos_get_platform_type()  // module type
+#define MODULE_NAME "AliOS Things"  // module type
 #ifndef countof
 #define countof(x) (sizeof(x) / sizeof((x)[0]))
 #endif
@@ -157,6 +157,10 @@ typedef struct iot_device_hanlde {
     uint16_t keepaliveSec;
     int res;
     mp_obj_t *callback;
+    char g_iot_close_flag;
+    char g_iot_conn_flag;
+    aos_sem_t g_iot_close_sem;
+    aos_sem_t g_iot_connect_sem;
 } iot_device_handle_t;
 
 typedef struct iot_gateway_handle {
@@ -164,6 +168,10 @@ typedef struct iot_gateway_handle {
     void     *subdev_handle;
     uint16_t keepaliveSec;
     mp_obj_t *callback;
+    char g_iot_close_flag;
+    char g_iot_conn_flag;
+    aos_sem_t g_iot_close_sem;
+    aos_sem_t g_iot_connect_sem;
 } iot_gateway_handle_t;
 
 typedef struct iot_gateway_response {
@@ -225,3 +233,4 @@ int32_t pyamp_aiot_dynreg_http(mp_obj_t cb);
 
 /* device active info report */
 int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle);
+

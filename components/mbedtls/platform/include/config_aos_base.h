@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2019 Alibaba Group Holding Limited
+ *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #ifndef MBEDTLS_CONFIG_H

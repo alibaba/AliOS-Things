@@ -6,16 +6,17 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "os_mem.h"
+//#include "os_mem.h"
+#include "osif_customer.h"
 #include "hci_tp.h"
 #include "hci_process.h"
 #include "bt_types.h"
-
+#include "hci_dbg.h"
 #include "hci_uart.h"
 #include "bt_board.h"
 #include "hci_board.h"
 
-#include "trace_app.h"
+//#include "trace_app.h"
 
 
 typedef struct
@@ -85,7 +86,7 @@ void hci_tp_open(P_HCI_TP_OPEN_CB open_cb, P_HCI_TP_RX_IND rx_ind)
 
 void hci_tp_close(void)
 {
-    HCI_PRINT_INFO0("hci_tp_close");
+    HCI_PRINT_INFO("hci_tp_close");
     bt_power_off();
     hci_uart_deinit();
     return;
@@ -100,7 +101,7 @@ void hci_tp_set_rx_ind(void (*ready_to_rx)(void))
 
 void hci_tp_del(void)
 {
-    HCI_PRINT_INFO0("hci_tp_del");
+    HCI_PRINT_INFO("hci_tp_del");
     bt_power_off();
     hci_uart_deinit();
     return;
@@ -126,7 +127,7 @@ void hci_tp_config(uint8_t *p_buf, uint16_t len)
     uint8_t  p_buf_len;
 
     //hci_board_debug("hci tp config: state %08x\n", hci_hardware.state);
-    //HCI_PRINT_INFO2("hci_tp_config: state %u, %b", hci_rtk.state, TRACE_BINARY(len, p_buf));
+    //HCI_PRINT_INFO("hci_tp_config: state %u, %b", hci_rtk.state, TRACE_BINARY(len, p_buf));
 
     LE_STREAM_TO_UINT8(pkt_type, p_buf);
 

@@ -1,0 +1,35 @@
+version: 0.5.3-build-{build}
+pull_requests:
+  do_not_increment_build_number: true
+image:
+- Visual Studio 2015
+- Visual Studio 2013
+- Visual Studio 2017
+install:
+- cmd: >-
+    set tests=1
+
+    if /i "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2013" (call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" amd64) & (set tests=0)
+
+    if /i "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" (call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86) & (set QTDIR=C:\Qt\5.9\msvc2015)
+
+    if /i "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" (call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64) & (set QTDIR=C:\Qt\5.9\msvc2017_64)
+
+    set path=%PATH%;%QTDIR%\bin
+build_script:
+- cmd: >-
+    nmake -f Makefile.nmake -nologo CFLAGS="-W3 -Os -MDd"
+
+    cd tests
+
+    if /i "%tests%"=="1" qmake CONFIG-=release CONFIG+=debug
+
+    if /i "%tests%"=="1" nmake -nologo -s
+test_script:
+- cmd: >-
+    if /i "%tests%"=="1" nmake -s -nologo TESTARGS=-silent check
+
+    if /i "%tests%"=="0" echo Tests skipped.
+artifacts:
+- path: lib\tinycbor.lib
+deploy: off

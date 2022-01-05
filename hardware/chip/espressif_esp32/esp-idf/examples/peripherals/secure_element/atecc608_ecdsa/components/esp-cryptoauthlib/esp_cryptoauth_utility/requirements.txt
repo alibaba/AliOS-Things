@@ -1,0 +1,4 @@
+cryptography>=2.7
+pyasn1_modules==0.1.5
+pyasn1==0.3.7
+python-jose==3.1.0

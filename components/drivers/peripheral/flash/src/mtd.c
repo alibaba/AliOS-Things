@@ -7,10 +7,12 @@
 #include <errno.h>
 #include <aos/mtd.h>
 #include <aos/mtdpart.h>
-#include <drivers/u_ld.h>
 
-/**
- * keep a mapping for partition name and device name,
+#define AOS_MTD_PART_NAME_TYPE_STD 0    /* AliOS Things standard partition name. */
+#define AOS_MTD_PART_NAME_TYPE_VENDOR 1 /* Vendor partition name. */
+#define AOS_MTD_MAX_NUM_CHIP 16  /* Maxmium number of supported mtd chips. */
+
+/* Keep a mapping for partition name and device name,
  * just in case users want to operation parition based
  * on device name (such as dd command).
  */
@@ -24,267 +26,267 @@ struct mtd_info_ctx {
     struct mtd_info_entry *entries;
 };
 
-static struct mtd_info_ctx g_mtd_info = {0};
+static struct mtd_info_ctx g_mtd_info[AOS_MTD_MAX_NUM_CHIP];
 
-static aos_mtd_t* mtd_part_alloc(aos_mtd_t *master, const struct mtd_part *part)
+static aos_mtd_t *mtd_part_alloc(aos_mtd_t *master)
 {
     aos_mtd_t *slave;
 
     slave = malloc(sizeof(aos_mtd_t));
     if (slave == NULL)
-        goto out;
+        return NULL;
 
     slave->master = master;
-
+    /* Inherit information from master.*/
     *slave = *master;
-    slave->size = part->size;
-    slave->offset = part->offset;
-
-out:
 
     return slave;
 }
 
-/* Caller is responsible to free the info memery */
 int aos_mtd_part_info_get(struct mtd_part_info **info, int *cnt)
 {
-    if (g_mtd_info.np > 0) {
-        int np = g_mtd_info.np;
-        struct mtd_info_entry *entries = g_mtd_info.entries;
-        struct mtd_part_info *p;
+    struct mtd_part_info *p ;
 
-        *info = calloc(sizeof(struct mtd_part_info), np);
-        if (*info == NULL) goto failure;
-
-        p = *info;
-        for (int i = 0; i < np; i++, p++) {
-            memcpy(p, &(entries[i].pinfo), sizeof(struct mtd_part_info));
-        }
-
-        *cnt = np;
-        return 0;
-    }
-
-failure:
-    if (*info) free(*info);
-    *info = NULL;
     *cnt = 0;
-    return -1;
-}
-
-#if 0
-static void aos_show_mtdparts()
-{
-    int cnt;
-    char name[32];
-    uint32_t size, offset;
-    struct mtd_part_info *info = NULL;
-
-    if (aos_mtd_part_info_get(&info, &cnt) == 0) {
-        LOG("IDX :Name\tSize\tOffset\t\tDevice");
-        LOG("----------------------------------------------------\r\n");
-        for (int i = 0; i < cnt; i++) {
-            memset(name, 0, sizeof(name));
-            snprintf(name, sizeof(name), "MTD%d:%s\t", i+1, info[i].part_name);
-            if (strlen(name) <= 8) {
-                snprintf(name+strlen(name), sizeof(name) - strlen(name), "\t");
-            }
-
-            size = info[i].size >> 10; // in KB uint
-            offset = info[i].offset;
-
-            LOG("%s%dKB\t0x%08x\t/dev/%s", name, size, offset, info[i].dev_name);
+    *info = NULL;
+    for (int chip_idx = 0; g_mtd_info[chip_idx].entries; chip_idx++) {
+        *cnt += g_mtd_info[chip_idx].np;
+        p = realloc(*info, *cnt * sizeof(struct mtd_part_info));
+        if (p == NULL) {
+            free(*info);
+            return -ENOMEM;
         }
+        *info = p;
 
-        free(info);
+        p = *info + *cnt;
+        for (int i = 0; i < g_mtd_info[chip_idx].np; i++, p++)
+            memcpy(p, &(g_mtd_info[chip_idx].entries[i].pinfo), sizeof(struct mtd_part_info));
     }
+    return 0;
 }
-#endif
 
-aos_mtd_t* aos_mtd_get_by_device(const char *device_name)
+static aos_mtd_t *aos_mtd_get_by_device(uint32_t id)
 {
-    aos_mtd_t *mtd;
+    aos_status_t ret;
+    aos_mtd_t *mtd = NULL;
+    aos_dev_ref_t ref = AOS_DEV_REF_INIT_VAL;
 
-    mtd = (aos_mtd_t *)aos_device_find(device_name);
-    if (mtd == NULL)
+    ret = aos_dev_get(&ref, AOS_DEV_TYPE_MTD, id);
+    if (ret != 0)
         return NULL;
 
-    if (mtd->parent.type != AOS_Device_Class_MTD)
+    mtd = aos_container_of((&ref)->dev, aos_mtd_t, dev);
+    if ((mtd == NULL) || (mtd->dev.type != AOS_DEV_TYPE_MTD))
         return NULL;
 
     return mtd;
 }
 
-aos_mtd_t* aos_mtd_get_by_std_part(const char *partition_name)
+static aos_mtd_t *aos_mtd_get_by_part_name(const char *partition_name, int type)
 {
-    char *name;
-    int index = 0;
+    int ret;
+    uint32_t id = 0;
+    int chip_idx;
+    int i;
 
-    while (index < g_mtd_info.np) {
-        name = g_mtd_info.entries[index].pinfo.part_name_std;
-        if (strcmp(partition_name, name) == 0) break;
-        index++;
+    for (chip_idx = 0; g_mtd_info[chip_idx].entries; chip_idx++) {
+        for (i = 0; i < g_mtd_info[chip_idx].np; i++) {
+            if (type == AOS_MTD_PART_NAME_TYPE_STD)
+                ret = strcmp(partition_name, g_mtd_info[chip_idx].entries[i].pinfo.part_name_std);
+            else
+                ret = strcmp(partition_name, g_mtd_info[chip_idx].entries[i].pinfo.part_name);
+            if (ret == 0)
+                return aos_mtd_get_by_device(id);
+            id++;
+        }
     }
 
-    if (index >= g_mtd_info.np) return NULL;
-
-    return aos_mtd_get_by_device(g_mtd_info.entries[index].pinfo.dev_name);
+    return NULL;
 }
 
-aos_mtd_t* aos_mtd_get_by_vendor_part(const char *partition_name)
+/* Keep this api for backward compatibility. */
+aos_mtd_t *aos_mtd_get_by_std_part(const char *partition_name)
 {
-    char *name;
-    int index = 0;
-
-    while (index < g_mtd_info.np) {
-        name = g_mtd_info.entries[index].pinfo.part_name;
-        if (strcmp(partition_name, name) == 0) break;
-        index++;
-    }
-
-    if (index >= g_mtd_info.np) return NULL;
-
-    return aos_mtd_get_by_device(g_mtd_info.entries[index].pinfo.dev_name);
+    return aos_mtd_get_by_part_name(partition_name, AOS_MTD_PART_NAME_TYPE_STD);
 }
 
-static int mtd_init(aos_device_t dev)
+/* Keep this api for backward compatibility. */
+aos_mtd_t *aos_mtd_get_by_vendor_part(const char *partition_name)
+{
+    return aos_mtd_get_by_part_name(partition_name, AOS_MTD_PART_NAME_TYPE_VENDOR);
+}
+
+static int mtd_open(inode_t *node, file_t *fp)
 {
     return 0;
 }
 
-static int mtd_open(aos_device_t dev, uint16_t flags)
+static int mtd_close(file_t *fp)
 {
     return 0;
 }
 
-static int mtd_close(aos_device_t dev)
+static ssize_t mtd_read(file_t *fp, void *buffer, size_t size)
 {
-    return 0;
+    off_t pos = fp->offset;
+    aos_dev_t *dev = fp->node->i_arg;
+    aos_mtd_t *mtd = aos_container_of(dev, aos_mtd_t, dev);
+
+    return aos_mtd_read(mtd, pos, buffer, size);
 }
 
-static size_t mtd_read(aos_device_t dev, long pos, void *buffer, uint32_t size)
+static ssize_t mtd_write(file_t *fp, const void *buffer, size_t size)
 {
-    return (size_t)aos_mtd_read((aos_mtd_t *)dev, pos, (uint8_t *)buffer, size);
+    off_t pos = fp->offset;
+    aos_dev_t *dev = fp->node->i_arg;
+    aos_mtd_t *mtd = aos_container_of(dev, aos_mtd_t, dev);
+
+    return aos_mtd_write(mtd, pos, buffer, size);
 }
 
-static size_t mtd_write(aos_device_t dev, long pos, const void *buffer, uint32_t size)
+static int mtd_ioctl(file_t *fp, int cmd, unsigned long arg)
 {
-    return (size_t)aos_mtd_write((aos_mtd_t *)dev, pos, (const uint8_t *)buffer, size);
-}
-
-static int mtd_ioctl(aos_device_t dev, int cmd, void *arg)
-{
-    int ret = -1;
-    aos_mtd_t *mtd = (aos_mtd_t *)dev;
+    aos_dev_t *dev = fp->node->i_arg;
+    aos_mtd_t *mtd = aos_container_of(dev, aos_mtd_t, dev);
     struct mtd_erase_info *einfo;
 
     switch (cmd) {
         case IOC_MTD_GET_SIZE:
             *((unsigned int *)arg) = mtd->size;
-            ret = 0;
-            break;
+            return 0;
         case IOC_MTD_GET_OFFSET:
             *((off_t *)arg) = mtd->offset;
-            ret = 0;
-            break;
+            return 0;
         case IOC_MTD_ERASE:
             einfo = (struct mtd_erase_info *)arg;
-            ret = aos_mtd_erase(mtd, einfo->offset, einfo->length);
-            break;
+            return aos_mtd_erase(mtd, einfo->offset, einfo->length);
         default:
-            ret = -1;
-            break;
+            return -EINVAL;
+    }
+}
+
+static uint32_t mtd_lseek(file_t *fp, int64_t off, int32_t whence)
+{
+    switch (whence) {
+    case SEEK_CUR:
+        off = fp->offset + off;
+        break;
+    /* case SEEK_END: break; */
+    case SEEK_SET:
+        fp->offset = off;
+        break;
     }
 
-    return ret;
+    return off;
 }
+
+static void mtd_unregister(struct aos_dev *dev)
+{
+    return;
+}
+
+static aos_status_t mtd_get(aos_dev_ref_t *ref)
+{
+    return 0;
+}
+
+static void mtd_put(aos_dev_ref_t *ref)
+{
+    return;
+}
+
+static aos_dev_ops_t mtd_dev_ops = {
+    .unregister = mtd_unregister,
+    .get = mtd_get,
+    .put = mtd_put,
+};
+
+#ifdef AOS_COMP_VFS
+static struct file_ops mtd_dev_fops = {
+    .open = mtd_open,
+    .close = mtd_close,
+    .read = mtd_read,
+    .write = mtd_write,
+    .ioctl = mtd_ioctl,
+    .poll = NULL,
+    .lseek = mtd_lseek,
+};
+#endif
 
 int aos_mtd_register(aos_mtd_t *master, const struct mtd_part *parts, int np)
 {
     int ret;
-    aos_mtd_t *slave;
-    static int dev_idx = 0; // defined as static so as to support multiple chips
-    int index = 0;
-    char name[16];
+    aos_mtd_t *mtd_device = NULL;
+    static int dev_idx = 0; /* Use static to support multiple chips. */
+    static int chip_idx = 0; /* Define here because flash chip is unpluggable. */
+    static int is_master = 1;
+    int i = 0;
+    char device_name[MTD_DEVICE_NAME_MAX + 1];
 
-    master->master = master;
-    master->parent.type = AOS_Device_Class_MTD;
-    master->parent.init = mtd_init;
-    master->parent.open = mtd_open;
-    master->parent.close = mtd_close;
-    master->parent.read = mtd_read;
-    master->parent.write = mtd_write;
-    master->parent.control = mtd_ioctl;
+    if ((master == NULL) || (parts == NULL) || (np <= 0))
+        return -EINVAL;
 
-    if (np > 0) {
-        g_mtd_info.entries = calloc(np, sizeof(struct mtd_info_entry));
-        if (!g_mtd_info.entries) return -1;
-        g_mtd_info.np = np;
-
-        master->offset = parts->offset;
-        master->size = parts->size;
-
-        // generata device name
-        memset(name, 0, sizeof(name));
-        snprintf(name, sizeof(name), MTD_DEVICE_NAME_FORMAT, dev_idx++);
-
-        // setup mtd information context
-        g_mtd_info.entries[index].pinfo.offset = parts->offset;
-        g_mtd_info.entries[index].pinfo.size = parts->size;
-        strncpy(g_mtd_info.entries[index].pinfo.part_name, parts->name, MTD_PARTITION_NAME_MAX);
-        strncpy(g_mtd_info.entries[index].pinfo.part_name_std, parts->name_std, MTD_PARTITION_NAME_MAX);
-        strncpy(g_mtd_info.entries[index].pinfo.dev_name, name, MTD_DEVICE_NAME_MAX);
-        g_mtd_info.entries[index].mtd = master;
-
-        // register device
-        ret = aos_device_register((aos_device_t)master, name, 0);
-        if (ret != 0)
-            goto _out;
-
-        np --;
-        parts ++;
-        index++;
-    }
+    g_mtd_info[chip_idx].entries = calloc(np, sizeof(struct mtd_info_entry));
+    if (g_mtd_info[chip_idx].entries == NULL)
+        return -ENOMEM;
+    g_mtd_info[chip_idx].np = np;
 
     while (np > 0) {
-        slave = mtd_part_alloc(master, parts);
-        if (!slave)
-            break;
+        if (is_master) {
+            mtd_device = master;
+            mtd_device->master = master;
+            is_master = 0;
+        } else {
+            mtd_device = mtd_part_alloc(master);
+            if (mtd_device == NULL) {
+                free(g_mtd_info[chip_idx].entries);
+                return -ENOMEM;
+            }
+        }
 
-        slave->parent.init = mtd_init;
-        slave->parent.open = mtd_open;
-        slave->parent.close = mtd_close;
-        slave->parent.read = mtd_read;
-        slave->parent.write = mtd_write;
-        slave->parent.control = mtd_ioctl;
+        /* Set mtd device information. */
+        mtd_device->offset = parts->offset;
+        mtd_device->size = parts->size;
+        mtd_device->dev.type = AOS_DEV_TYPE_MTD;
+        mtd_device->dev.id = dev_idx++;
+        memset(device_name, 0, sizeof(device_name));
+        snprintf(device_name, sizeof(device_name) - 1, MTD_DEVICE_NAME_FORMAT, mtd_device->dev.id);
+#ifdef AOS_COMP_VFS
+        /*TODO: device name should like mtdblock0p1 */
+        strncpy(mtd_device->dev.vfs_helper.name, device_name, AOS_DEV_NAME_MAX_LEN);
+        mtd_device->dev.vfs_helper.ops = &mtd_dev_fops;
+#endif
+        mtd_device->dev.ops = &mtd_dev_ops;
 
-        // generate device name
-        memset(name, 0, sizeof(name));
-        snprintf(name, sizeof(name), MTD_DEVICE_NAME_FORMAT, dev_idx++);
+        /* Set partition information.*/
+        g_mtd_info[chip_idx].entries[i].pinfo.offset = parts->offset;
+        g_mtd_info[chip_idx].entries[i].pinfo.size = parts->size;
+        strncpy(g_mtd_info[chip_idx].entries[i].pinfo.part_name,
+            parts->name, MTD_PARTITION_NAME_MAX - 1);
+        strncpy(g_mtd_info[chip_idx].entries[i].pinfo.part_name_std,
+            parts->name_std, MTD_PARTITION_NAME_MAX - 1);
+        strncpy(g_mtd_info[chip_idx].entries[i].pinfo.dev_name,
+            device_name, MTD_DEVICE_NAME_MAX - 1);
+        g_mtd_info[chip_idx].entries[i].mtd = mtd_device;
 
-        // setup name map
-        g_mtd_info.entries[index].pinfo.offset = parts->offset;
-        g_mtd_info.entries[index].pinfo.size = parts->size;
-        strncpy(g_mtd_info.entries[index].pinfo.part_name, parts->name, MTD_PARTITION_NAME_MAX);
-        strncpy(g_mtd_info.entries[index].pinfo.part_name_std, parts->name_std, MTD_PARTITION_NAME_MAX);
-        strncpy(g_mtd_info.entries[index].pinfo.dev_name, name, MTD_DEVICE_NAME_MAX);
-        g_mtd_info.entries[index].mtd = slave;
+        ret = aos_dev_register(&(mtd_device->dev));
+        if (ret != 0) {
+            free(g_mtd_info[chip_idx].entries);
+            if (!is_master)
+                free(mtd_device);
+            return -1;
+        }
 
-        // register device
-        ret = aos_device_register((aos_device_t)slave, name, 0);
-        if (ret)
-            break;
-
-        parts ++;
-        np --;
-        index++;
+        np--;
+        parts++;
+        i++;
     }
+    chip_idx++;
 
-_out:
-    return np;
+    return 0;
 }
 
-aos_mtd_t* aos_mtd_open(const char *name)
+aos_mtd_t *aos_mtd_open(const char *name)
 {
     aos_mtd_t *mtd_dev = NULL;
 
@@ -466,10 +468,3 @@ aos_status_t aos_mtd_block_is_bad(aos_mtd_t *mtd, uint32_t block)
 
     return mtd->ops->isbad(mtd->master, block + offset_blk);
 }
-
-int aos_mtd_init()
-{
-    return csi_flash_init();
-}
-
-VFS_DRIVER_ENTRY(aos_mtd_init)

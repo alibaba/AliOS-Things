@@ -27,9 +27,10 @@ extern "C" {
 #define debug_print_assert(A, B, C, D, E, F)
 #endif
 
-#if (!defined(unlikely))
-#define unlikely(EXPRESSSION) !!(EXPRESSSION)
-#endif
+/* remove as already defined by IDF-V4.2 */
+// #if (!defined(unlikely))
+// #define unlikely(EXPRESSSION) !!(EXPRESSSION)
+// #endif
 
 #ifdef CONFIG_DEBUG
 

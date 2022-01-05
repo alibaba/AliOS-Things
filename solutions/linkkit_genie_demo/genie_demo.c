@@ -18,14 +18,24 @@
 #include "linkkit/dev_model_api.h"
 #include "linkkit/infra/infra_config.h"
 #include "linkkit/wrappers/wrappers.h"
-
 #include "cJSON.h"
 
-// for demo only
-#define PRODUCT_KEY      "a1FxISeKbq9"
-#define PRODUCT_SECRET   "ThNbP5iNUQ1lQe2Q"
-#define DEVICE_NAME      "alen-activate-test"
-#define DEVICE_SECRET    "jcumDL5AJRgU7zRNcCcnHRiQmtii0vDn"
+#include "aos/gpioc.h"
+
+/**
+ * These PRODUCT_KEY|PRODUCT_SECRET|DEVICE_NAME|DEVICE_SECRET are listed for demo only
+ *
+ * When you created your own devices on iot.console.com, you SHOULD replace them with what you got from console
+ *
+ */
+#define PRODUCT_KEY      "xx"
+#define PRODUCT_SECRET   "xx"
+#define DEVICE_NAME      "xx"
+#define DEVICE_SECRET    "xx"
+
+// kv keys of Wi-Fi SSID/Password
+#define WIFI_SSID_KV_KEY "wifi_ssid"
+#define WIFI_PASSWORD_KV_KEY "wifi_password"
 
 #define EXAMPLE_TRACE(...)                                          \
     do {                                                            \
@@ -37,21 +47,57 @@
 #define EXAMPLE_MASTER_DEVID            (0)
 #define EXAMPLE_YIELD_TIMEOUT_MS        (200)
 
+// HaaS200's GPIO named with PA_28 is connected to the Red LED
+#define LED_PIN 28
+
 typedef struct {
     int master_devid;
     int cloud_connected;
     int master_initialized;
 } user_example_ctx_t;
 
-/**
- * These PRODUCT_KEY|PRODUCT_SECRET|DEVICE_NAME|DEVICE_SECRET are listed for demo only
- *
- * When you created your own devices on iot.console.com, you SHOULD replace them with what you got from console
- *
- */
-
 static user_example_ctx_t g_user_example_ctx;
+static aos_gpioc_ref_t gpioc;
+static led_state = 0;
 
+
+
+// control LED's on/off
+int led_ctrl(unsigned int on)
+{
+    // output 0 to turn on the LED, while output 1 to turn off the LED
+    return aos_gpioc_set_value(&gpioc, LED_PIN, on ? 0 : 1);
+}
+
+// initialize the GPIO, which is connected with LED
+int led_init(void)
+{
+    int ret = -1;
+    unsigned int mode;
+
+    memset(&gpioc, 0, sizeof(gpioc));
+
+    // get GPIO controller's reference
+    ret = aos_gpioc_get(&gpioc, 0);
+    if (ret) {
+        EXAMPLE_TRACE("GPIO_HAL", "get gpioc failed,  gpioc_index = %d, ret = %d;\n", LED_PIN, ret);
+        return ret;
+    }
+
+    // set LED_PIN into output mode
+    mode = AOS_GPIO_DIR_OUTPUT;
+    mode |= AOS_GPIO_OUTPUT_CFG_PP;
+    mode |= AOS_GPIO_OUTPUT_INIT_HIGH;
+    ret = aos_gpioc_set_mode(&gpioc, LED_PIN, mode);
+    if (ret) {
+        EXAMPLE_TRACE("GPIO_HAL", "%s: set gpio mode failed, %d\n", __func__, ret);
+        aos_gpioc_put(&gpioc);
+        return ret;
+    }
+    EXAMPLE_TRACE("GPIO_HAL", "%s: set gpio mode succeed\n", __func__);
+
+    return ret;
+}
 
 /** cloud connected event callback */
 static int user_connected_event_handler(void)
@@ -102,20 +148,44 @@ static int user_trigger_event_reply_event_handler(const int devid, const int msg
     return 0;
 }
 
-/** recv event post response message from cloud **/
+/** recv property set command from cloud **/
 static int user_property_set_event_handler(const int devid, const char *request, const int request_len)
 {
     int res = 0;
+    cJSON *root = NULL, *power_state = NULL;
     EXAMPLE_TRACE("Property Set Received, Request: %s", request);
 
-    res = IOT_Linkkit_Report(EXAMPLE_MASTER_DEVID, ITM_MSG_POST_PROPERTY,
-                             (unsigned char *)request, request_len);
-    EXAMPLE_TRACE("Post Property Message ID: %d", res);
+    /* parse json string */
+    root = cJSON_Parse(request);
+    if (root == NULL || !cJSON_IsObject(root)) {
+        EXAMPLE_TRACE("JSON Parse Error");
+        return -1;
+    }
+
+    /* check whether powerstate control command exist or not */
+    power_state = cJSON_GetObjectItem(root, "powerstate");
+    if (power_state == NULL)
+        goto out;
+
+    EXAMPLE_TRACE("powerstate = %d", power_state->valueint);
+    if (power_state->valueint)
+        led_state = 1;
+    else
+        led_state = 0;
+
+    // turn on/off the LED according to the command from cloud
+    EXAMPLE_TRACE("turn %s the LED", led_state ? "on" : "off");
+    led_ctrl(led_state);
+
+    // post device's property back to the cloud
+    user_post_property();
+out:
+    cJSON_Delete(root);
 
     return 0;
 }
 
-
+/** recv service request from cloud **/
 static int user_service_request_event_handler(const int devid, const char *serviceid, const int serviceid_len,
         const char *request, const int request_len,
         char **response, int *response_len)
@@ -136,16 +206,16 @@ static int user_service_request_event_handler(const int devid, const char *servi
         if (strlen("Operation_Service") == serviceid_len && memcmp("Operation_Service", serviceid, serviceid_len) == 0) {
             /* Parse NumberA */
             item_number_a = cJSON_GetObjectItem(root, "NumberA");
-            if (item_number_a == NULL || !cJSON_IsNumber(item_number_a)) {
+            if (item_number_a == NULL || !cJSON_IsNumber(item_number_a))
                 break;
-            }
+
             EXAMPLE_TRACE("NumberA = %d", item_number_a->valueint);
 
             /* Parse NumberB */
             item_number_b = cJSON_GetObjectItem(root, "NumberB");
-            if (item_number_b == NULL || !cJSON_IsNumber(item_number_b)) {
+            if (item_number_b == NULL || !cJSON_IsNumber(item_number_b))
                 break;
-            }
+
             EXAMPLE_TRACE("NumberB = %d", item_number_b->valueint);
             add_result = item_number_a->valueint + item_number_b->valueint;
             ret = 0;
@@ -210,29 +280,18 @@ static int user_cota_event_handler(int type, const char *config_id, int config_s
     return 0;
 }
 
+// report device's property to the cloud
 void user_post_property(void)
 {
-    static int cnt = 0;
     int res = 0;
 
     char property_payload[30] = {0};
-    HAL_Snprintf(property_payload, sizeof(property_payload), "{\"Counter\": %d}", cnt++);
+    HAL_Snprintf(property_payload, sizeof(property_payload), "{\"powerstate\": %d}", led_state);
 
     res = IOT_Linkkit_Report(EXAMPLE_MASTER_DEVID, ITM_MSG_POST_PROPERTY,
                              (unsigned char *)property_payload, strlen(property_payload));
 
     EXAMPLE_TRACE("Post Property Message ID: %d", res);
-}
-
-void user_post_event(void)
-{
-    int res = 0;
-    char *event_id = "HardwareError";
-    char *event_payload = "{\"ErrorCode\": 0}";
-
-    res = IOT_Linkkit_TriggerEvent(EXAMPLE_MASTER_DEVID, event_id, strlen(event_id),
-                                   event_payload, strlen(event_payload));
-    EXAMPLE_TRACE("Post Event Message ID: %d", res);
 }
 
 void user_deviceinfo_update(void)
@@ -261,22 +320,21 @@ static int user_cloud_error_handler(const int code, const char *data, const char
     return 0;
 }
 
-void set_iotx_info()
+// make sure device's signature is correct
+static void set_iot_device_info(void)
 {
-    char _product_key[IOTX_PRODUCT_KEY_LEN + 1] = {0};
-    char _device_name[IOTX_DEVICE_NAME_LEN + 1] = {0};
+    char _device_secret[IOTX_DEVICE_SECRET_LEN + 1] = {0};
 
-    HAL_GetProductKey(_product_key);
-    if (strlen(_product_key) == 0) {
+    HAL_GetDeviceSecret(_device_secret);
+    // if device secret does not exist, store pk/ps/dn/ds into kv system
+    if (!strlen(_device_secret)) {
         HAL_SetProductKey(PRODUCT_KEY);
         HAL_SetProductSecret(PRODUCT_SECRET);
-    }
-
-    HAL_GetDeviceName(_device_name);
-    if (strlen(_device_name) == 0) {
         HAL_SetDeviceName(DEVICE_NAME);
         HAL_SetDeviceSecret(DEVICE_SECRET);
     }
+
+    return;
 }
 
 int linkkit_main(void)
@@ -361,11 +419,6 @@ int linkkit_main(void)
             user_post_property();
         }
 
-        /* Post Event Example */
-        if ((cnt % 50) == 0) {
-            user_post_event();
-        }
-
         cnt++;
 
         if (auto_quit == 1 && cnt > 3600) {
@@ -382,14 +435,53 @@ int linkkit_main(void)
 
 int application_start(int argc, char *argv[])
 {
+    int len = 0;
+    int ret = 0;
     int count = 0;
+    char ssid[32 + 1] = {0};
+    char password[64 + 1] = {0};
 
-    printf("nano entry here!\r\n");
+    EXAMPLE_TRACE("nano entry here!\r\n");
+
+    /* LED GPIO initialization */
+    ret = led_init();
+    if (ret) {
+        EXAMPLE_TRACE("led init done, ret:%d\r\n", ret);
+    }
+
+    set_iot_device_info();
+
+    /*
+        check whether SSID/Password are configured or not
+     */
+    len = sizeof(ssid);
+    ret = aos_kv_get(WIFI_SSID_KV_KEY, ssid, &len);
+    if (ret) {
+        EXAMPLE_TRACE("aos_kv_get %s ret:%d\r\n", WIFI_SSID_KV_KEY, ret);
+        goto zero_config;
+    }
+    len = sizeof(password);
+    ret = aos_kv_get(WIFI_PASSWORD_KV_KEY, password, &len);
+    if (ret) {
+        EXAMPLE_TRACE("aos_kv_get %s ret:%d\r\n", WIFI_PASSWORD_KV_KEY, ret);
+        goto zero_config;
+    }
+
+    /*
+        connect to Wi-Fi
+     */
+    netmgr_comp_enable(ssid, password, 0);
+    goto linkkit_start;
+
+zero_config:
     awss_config_press();
     awss_start();
+
+linkkit_start:
     linkkit_main();
+
     while (1) {
-        printf("hello world! count %d \r\n", count++);
+        EXAMPLE_TRACE("hello genie intelligent light! count %d \r\n", count++);
         aos_msleep(10000);
     };
 }

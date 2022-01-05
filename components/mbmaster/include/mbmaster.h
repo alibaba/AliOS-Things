@@ -13,8 +13,6 @@ extern "C" {
 #include <stdio.h>
 #include <string.h>
 
-#include "k_api.h"
-
 #include "mbmaster_default_config.h"
 #include "adu.h"
 #include "auxiliary.h"

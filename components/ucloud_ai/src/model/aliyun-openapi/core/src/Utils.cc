@@ -18,7 +18,7 @@
 #include <alibabacloud/core/Utils.h>
 #include <sstream>
 #include <stdlib.h>
-
+#include <aos/kernel.h>
 #ifdef _WIN32
 #include <Windows.h>
 #elif defined(USE_CRYPTO_MBEDTLS)

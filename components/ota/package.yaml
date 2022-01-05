@@ -16,8 +16,8 @@ license: Apache license v2.0         # <可选项> 源代码的许可证，要�
 #          指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
 #          未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
 depends:
-  - cjson: master
-  - mbedtls: master
+  - cjson: master ? <!ESP_PLATFORM>
+  - mbedtls: master ? <!ESP_PLATFORM>
   - linksdk: master
   - http: master
 
@@ -50,6 +50,7 @@ build_config:
     #- OTA_CONFIG_SECURE_DL_MODE=1
   include:
     - include
+    - tools
   internal_include:
     - hal
     - 2ndboot/include
@@ -57,7 +58,6 @@ build_config:
     - 2ndboot/updater/xz/linux/lib/xz
     - 2ndboot/updater/xz/linux/include/linux
     - tools/xz/include
-    - tools
 
   libs:
 
@@ -65,13 +65,15 @@ build_config:
 ## source_file:                       # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
+  - hal/ota_hal_fs_plat.c
+  - hal/ota_hal_param.c   ? <ESP_PLATFORM>
+  - hal/ota_hal_vfs_param.c ? <!ESP_PLATFORM>
+  - hal/ota_hal_plat.c ? <ESP_PLATFORM>
+  - hal/ota_hal_vfs_plat.c ? <!ESP_PLATFORM>
+  - hal/ota_hal_os.c
+  - hal/ota_hal_ctrl.c
   - hal/ota_hal_trans.c
   - hal/ota_hal_digest.c
-  - hal/ota_hal_fs_plat.c
-  - hal/ota_hal_os.c
-  - hal/ota_hal_vfs_param.c
-  - hal/ota_hal_vfs_plat.c
-  - hal/ota_hal_ctrl.c
   - ota_agent/ota_service.c
   - ota_agent/download/ota_download_http.c
   - ota_agent/download/ota_download_file2fs_http.c

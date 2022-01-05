@@ -1,8 +1,9 @@
-#include <aos/kernel.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#if MICROPY_PY_MODBUS
+#include "board_mgr.h"
 #include "mbmaster.h"
 #include "py/builtin.h"
 #include "py/obj.h"
@@ -14,50 +15,74 @@
 
 static mb_handler_t *mb_handler = NULL;
 
+STATIC mp_int_t parser_from_board_configuration_file(const char *id, modbus_dev_t *dev)
+{
+    item_handle_t modbus_handle;
+
+    mp_int_t ret = py_board_mgr_init();
+    if (ret != 0) {
+        LOGE(LOG_TAG, "%s:py_board_mgr_init failed\n", __func__);
+        goto out;
+    }
+
+    ret = py_board_attach_item(MODULE_MODBUS, id, &modbus_handle);
+    if (ret != 0) {
+        LOGE(LOG_TAG, "%s: py_board_attach_item failed ret = %d;\n", __func__, ret);
+        goto out;
+    }
+
+    modbus_dev_t *modbus_device = py_board_get_node_by_handle(MODULE_MODBUS, &modbus_handle);
+    if (!modbus_device) {
+        LOGE(LOG_TAG, "%s: py_board_get_node_by_handle failed;\n", __func__);
+    } else {
+        memcpy(dev, modbus_device, sizeof(modbus_dev_t));
+    }
+
+out:
+    if (0 != ret) {
+        py_board_disattach_item(MODULE_ADC, &modbus_handle);
+    }
+
+    return ret;
+}
+
 STATIC mp_obj_t mp_modbus_init(size_t n_args, const mp_obj_t *args)
 {
+    if (n_args != 1) {
+        mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("Should input 1 string argument"));
+        return mp_const_none;
+    }
+
     if (mb_handler != NULL) {
         mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("Device busy, deinit firstly"));
-        return mp_const_none;
+        return MP_OBJ_NEW_SMALL_INT(-EBUSY);
     }
 
-    if (n_args == 0) {
-        mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("Args invalid"));
-        return mp_const_none;
+    const char *node_name = mp_obj_str_get_str(args[0]);
+    if (node_name == NULL) {
+        LOGE(LOG_TAG, "node_name null !!!!\n");
+        return MP_OBJ_NEW_SMALL_INT(-EINVAL);
     }
 
-    uint8_t port = 1;
-    uint32_t baud_rate = 9600;
-    mb_parity_t parity = MB_PAR_NONE;
-    uint32_t timeout = 200;
+    modbus_dev_t dev = {
+        .mode = MBMODE_SERIAL,
+        .port = 1,
+        .baudrate = 9600,
+        .parity = MB_PAR_NONE,
+        .timeout = 200,
+    };
 
-    if (n_args == 1) {
-        port = mp_obj_get_int(args[0]);
-    } else if (n_args == 2) {
-        port = mp_obj_get_int(args[0]);
-        baud_rate = mp_obj_get_int(args[1]);
-    } else if (n_args == 3) {
-        port = mp_obj_get_int(args[0]);
-        baud_rate = mp_obj_get_int(args[1]);
-        parity = mp_obj_get_int(args[2]);
-    } else if (n_args == 4) {
-        port = mp_obj_get_int(args[0]);
-        baud_rate = mp_obj_get_int(args[1]);
-        parity = mp_obj_get_int(args[2]);
-        int t = mp_obj_get_int(args[3]);
-        if (t < 0) {
-            timeout = AOS_WAIT_FOREVER;
-        } else {
-            timeout = t;
-        }
+    mp_int_t status = parser_from_board_configuration_file(node_name, &dev);
+    if (status != 0) {
+        return MP_OBJ_NEW_SMALL_INT(status);
     }
 
-    if (parity != MB_PAR_NONE && parity != MB_PAR_ODD && parity != MB_PAR_EVEN) {
-        mp_raise_OSError(EINVAL);
-        return mp_const_none;
+    if (dev.mode == MBMODE_NET) {
+        status = EOPNOTSUPP;
+    } else {
+        status = mbmaster_rtu_init(&mb_handler, dev.port, dev.baudrate, dev.parity, dev.timeout);
     }
 
-    mp_int_t status = mbmaster_rtu_init(&mb_handler, port, baud_rate, parity, timeout);
     return MP_OBJ_NEW_SMALL_INT(-status);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_modbus_init_obj, 0, 4, mp_modbus_init);
@@ -127,7 +152,7 @@ STATIC mp_obj_t mp_writeMultipleHoldingRegisters(size_t n_args, const mp_obj_t *
 
     uint16_t resp_addr = 0;
     uint16_t resp_quantity = 0;
-    uint16_t exception_code = 0;
+    uint8_t exception_code = 0;
     uint8_t slave_addr = mp_obj_get_int(args[0]);
     uint16_t start_addr = mp_obj_get_int(args[1]);
     uint16_t reg_quantity = mp_obj_get_int(args[2]);
@@ -213,7 +238,7 @@ STATIC mp_obj_t mp_writeMultipleCoils(size_t n_args, const mp_obj_t *args)
 
     uint16_t resp_addr = 0;
     uint16_t resp_quantity = 0;
-    uint16_t exception_code = 0;
+    uint8_t exception_code = 0;
     uint8_t slave_addr = mp_obj_get_int(args[0]);
     uint16_t start_addr = mp_obj_get_int(args[1]);
     uint16_t reg_quantity = mp_obj_get_int(args[2]);
@@ -291,7 +316,7 @@ STATIC mp_obj_t mp_readInputRegisters(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    uint16_t resp_quantity = 0;
+    uint8_t resp_quantity = 0;
     uint8_t slave_addr = mp_obj_get_int(args[0]);
     uint16_t start_addr = mp_obj_get_int(args[1]);
     uint16_t reg_quantity = mp_obj_get_int(args[2]);
@@ -329,7 +354,7 @@ STATIC mp_obj_t mp_readDiscreteInputs(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    uint16_t resp_quantity = 0;
+    uint8_t resp_quantity = 0;
     uint8_t slave_addr = mp_obj_get_int(args[0]);
     uint16_t start_addr = mp_obj_get_int(args[1]);
     uint16_t reg_quantity = mp_obj_get_int(args[2]);
@@ -367,7 +392,7 @@ STATIC mp_obj_t mp_readCoils(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 
-    uint16_t resp_quantity = 0;
+    uint8_t resp_quantity = 0;
     uint8_t slave_addr = mp_obj_get_int(args[0]);
     uint16_t start_addr = mp_obj_get_int(args[1]);
     uint16_t reg_quantity = mp_obj_get_int(args[2]);
@@ -490,7 +515,11 @@ STATIC const mp_rom_map_elem_t modbus_module_globals_table[] = {
 
 STATIC MP_DEFINE_CONST_DICT(modbus_module_globals, modbus_module_globals_table);
 
-const mp_obj_module_t modbus_module = {
+const mp_obj_module_t mp_module_modbus = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&modbus_module_globals,
 };
+
+MP_REGISTER_MODULE(MP_QSTR_modbus, mp_module_modbus, MICROPY_PY_MODBUS);
+
+#endif  // MICROPY_PY_MODBUS

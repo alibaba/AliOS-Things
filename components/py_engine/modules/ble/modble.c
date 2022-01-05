@@ -54,8 +54,7 @@ MP_DEFINE_CONST_FUN_OBJ_2(ble_open_obj, ble_open);
 STATIC mp_obj_t ble_startAdv(mp_obj_t *data)
 {
     if (!mp_obj_is_dict_or_ordereddict(data)) {
-        LOGE(LOG_TAG, "%s  data type error,param type must be dict \r\n",
-                  __func__);
+        LOGE(LOG_TAG, "%s  data type error,param type must be dict \r\n", __func__);
         return mp_obj_new_int(MP_EINVAL);
     }
     amp_bt_host_adapter_adv_start_t adv_param = { 0 };
@@ -65,8 +64,7 @@ STATIC mp_obj_t ble_startAdv(mp_obj_t *data)
     if (mp_obj_is_int(value)) {
         adv_param.type = mp_obj_get_int(value);
     } else {
-        LOGE(LOG_TAG, "%s   key type value must be int \r\n",
-                  __func__);
+        LOGE(LOG_TAG, "%s   key type value must be int \r\n", __func__);
         return mp_obj_new_int(MP_EINVAL);
     }
 
@@ -75,8 +73,7 @@ STATIC mp_obj_t ble_startAdv(mp_obj_t *data)
     if (mp_obj_is_str(value)) {
         adv_param.adv_data = mp_obj_str_get_str(value);
     } else {
-        LOGE(LOG_TAG, "%s   key adv_data value must be str \r\n",
-                  __func__);
+        LOGE(LOG_TAG, "%s   key adv_data value must be str \r\n", __func__);
         return mp_obj_new_int(MP_EINVAL);
     }
 
@@ -85,8 +82,7 @@ STATIC mp_obj_t ble_startAdv(mp_obj_t *data)
     if (mp_obj_is_str(value)) {
         adv_param.scan_rsp_data = mp_obj_str_get_str(value);
     } else {
-        LOGE(LOG_TAG, "%s   key scan_rsp_data value must be str \r\n",
-                  __func__);
+        LOGE(LOG_TAG, "%s   key scan_rsp_data value must be str \r\n", __func__);
         return mp_obj_new_int(MP_EINVAL);
     }
 
@@ -95,8 +91,7 @@ STATIC mp_obj_t ble_startAdv(mp_obj_t *data)
     if (mp_obj_is_int(value)) {
         adv_param.interval_min = mp_obj_get_int(value);
     } else {
-        LOGE(LOG_TAG, "%s   key interval_min value must be int \r\n",
-                  __func__);
+        LOGE(LOG_TAG, "%s   key interval_min value must be int \r\n", __func__);
         return mp_obj_new_int(MP_EINVAL);
     }
 
@@ -105,8 +100,7 @@ STATIC mp_obj_t ble_startAdv(mp_obj_t *data)
     if (mp_obj_is_int(value)) {
         adv_param.interval_max = mp_obj_get_int(value);
     } else {
-        LOGE(LOG_TAG, "%s   key interval_max value must be int \r\n",
-                  __func__);
+        LOGE(LOG_TAG, "%s   key interval_max value must be int \r\n", __func__);
         return mp_obj_new_int(MP_EINVAL);
     }
 
@@ -115,8 +109,7 @@ STATIC mp_obj_t ble_startAdv(mp_obj_t *data)
     if (mp_obj_is_int(value)) {
         adv_param.channel_map = mp_obj_get_int(value);
     } else {
-        LOGE(LOG_TAG, "%s   key channel_map value must be int \r\n",
-                  __func__);
+        LOGE(LOG_TAG, "%s   key channel_map value must be int \r\n", __func__);
         return mp_obj_new_int(MP_EINVAL);
     }
 

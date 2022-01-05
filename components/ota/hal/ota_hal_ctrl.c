@@ -13,7 +13,6 @@
 #include "ota_hal_os.h"
 #include "ota_hal_digest.h"
 #include "ota_hal.h"
-#include <aos/vfs.h>
 
 static ota_hash_ctx_t hash_ctx  = {0};
 static unsigned short upg_flag  = 0;

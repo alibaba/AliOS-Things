@@ -30,6 +30,26 @@ elif cur_os == 'Windows':
     path = 'win32'
 if path:
     path = os.path.join("tools", path, "xz")
+# dm relative, clean.
+target_path = os.path.join("../..", "prebuild/data/app")
+cmd_str = "rm -rf \"%s\"" % (target_path)
+if os.path.exists(target_path):
+    os.system(cmd_str)
+target_path = os.path.join("../..", "prebuild/data/dylib")
+cmd_str = "rm -rf \"%s\"" % (target_path)
+if os.path.exists(target_path):
+    os.system(cmd_str)
+# dm relative, copy
+target_path = os.path.join("../..", "prebuild/data")
+source_path = os.path.join(os.path.dirname(target),"../aos_sdk/app")
+cmd_str = "cp -rf \"%s\" \"%s\"" % (source_path, target_path)
+if os.path.exists(source_path) and os.path.exists(target_path):
+    os.system(cmd_str)
+target_path = os.path.join("../..", "prebuild/data")
+source_path = os.path.join(os.path.dirname(target),"../aos_sdk/dylib")
+cmd_str = "cp -rf \"%s\" \"%s\"" % (source_path, target_path)
+if os.path.exists(source_path) and os.path.exists(target_path):
+    os.system(cmd_str)
 
 hw_module = 0
 cmd_str = "python haas1000_genbin.py %d \"%s\"" % (hw_module, target)

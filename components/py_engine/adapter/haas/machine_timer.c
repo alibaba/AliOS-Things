@@ -63,10 +63,9 @@ STATIC void machine_timer_disable(timer_dev_t *tim)
     aos_hal_timer_stop(tim);
 }
 
-STATIC mp_int_t aos_hal_timer_reload(timer_dev_t *tim)
+STATIC mp_int_t aos_timer_reload(timer_dev_t *tim)
 {
-    int32_t *p_fd = (int32_t *)tim->priv;
-    return ioctl(*p_fd, IOC_TIMER_RELOAD, (unsigned long)false);
+    return aos_hal_timer_reload(tim);
 }
 
 STATIC void machine_timer_isr(void *self_in)
@@ -179,7 +178,7 @@ STATIC mp_obj_t machine_timer_reload(mp_obj_t self_in)
 {
     machine_timer_obj_t *self = self_in;
     timer_dev_t *tim = &self->dev;
-    mp_int_t ret = aos_hal_timer_reload(tim);
+    mp_int_t ret = aos_timer_reload(tim);
     return MP_OBJ_NEW_SMALL_INT(ret);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(machine_timer_reload_obj, machine_timer_reload);
