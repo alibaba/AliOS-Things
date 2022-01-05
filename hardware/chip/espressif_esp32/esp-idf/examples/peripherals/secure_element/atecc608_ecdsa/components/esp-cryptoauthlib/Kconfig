@@ -1,0 +1,36 @@
+menu "esp-cryptoauthlib"
+
+    choice ATECC608A_TYPE
+        prompt "Choose the type of ATECC608A chip"
+        default ATECC608A_TNG
+        help
+            There are three types of ATECC608A ( Secure Element) chips, which are
+            Trust & GO, TrustFLex and Trust Custom. For more details consult README
+            file of esp_cryptoauth_utility which is part of esp-cryptoauthlib component.
+        config ATECC608A_TNG
+            bool "ATECC608A chip type Trust & GO"
+        config ATECC608A_TFLEX
+            bool "ATECC608A chip type TrustFlex"
+        config ATECC608A_TCUSTOM
+            bool "ATECC608A chip type TrustCustom"
+    endchoice
+
+    config ATCA_MBEDTLS_ECDSA
+        bool "Enable Hardware ECDSA keys for mbedTLS"
+        depends on MBEDTLS_ECDSA_C
+        help
+            Enable Hardware ECDSA
+
+    config ATCA_MBEDTLS_ECDSA_SIGN
+        bool "Enable ATECC608A sign operations in mbedTLS"
+        depends on ATCA_MBEDTLS_ECDSA
+        select MBEDTLS_ATCA_HW_ECDSA_SIGN
+        select MBEDTLS_ECP_DP_SECP256R1_ENABLED
+
+    config ATCA_MBEDTLS_ECDSA_VERIFY
+        bool "Enable ATECC608A verify operations in mbedTLS"
+        depends on ATCA_MBEDTLS_ECDSA
+        select MBEDTLS_ATCA_HW_ECDSA_VERIFY
+        select MBEDTLS_ECP_DP_SECP256R1_ENABLED
+
+endmenu # cryptoauthlib

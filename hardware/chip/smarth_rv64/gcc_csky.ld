@@ -10,11 +10,11 @@
  ******************************************************************************/
 MEMORY
 {
-	SRAM   : ORIGIN = 0x00000000 , LENGTH = 0x100000   /* on-chip SRAM 128KB */
+    SRAM   : ORIGIN = 0x00000000 , LENGTH = 0x100000   /* on-chip SRAM 1MB */
 }
 
 __min_heap_size = 0x200;
-PROVIDE (__ram_end  = 0x00040000 - 0x1000 - 0x8);
+PROVIDE (__ram_end  = 0x00100000);
 PROVIDE (__heap_end = __ram_end);
 
 REGION_ALIAS("REGION_TEXT",    SRAM);
@@ -59,6 +59,7 @@ SECTIONS
  } > REGION_TEXT
  .rodata : {
   . = ALIGN(0x4) ;
+  KEEP(*(*.vectors*))
   __srodata = .;
   *(.rdata)
   *(.rdata*)
@@ -79,6 +80,50 @@ SECTIONS
   KEEP (*(.dtors))
   __dtor_end__ = .;
   . = ALIGN(0x4) ;
+
+    /************** added drivers **************/
+    _cli_region_begin = .;
+    KEEP(*(CliRegion))
+    . = ALIGN(4);
+    _cli_region_end = .;
+
+    __core_driver_start__ = .;
+    KEEP(*(.core_driver_entry))
+    . = ALIGN(4);
+    __core_driver_end__ = .;
+
+    __bus_driver_start__ = .;
+    KEEP(*(*.bus_driver_entry))
+    __bus_driver_end__ = .;
+
+    __early_driver_start__ = .;
+    KEEP(*(*.early_driver_entry))
+    __early_driver_end__ = .;
+
+    __vfs_driver_start__ = .;
+    KEEP(*(*.vfs_driver_entry))
+    __vfs_driver_end__ = .;
+
+    __level0_driver_start__ = .;
+    KEEP(*(*.level0_driver_entry))
+    __level0_driver_end__ = .;
+
+    __level1_driver_start__ = .;
+    KEEP(*(*.level1_driver_entry))
+    __level1_driver_end__ = .;
+
+    __level2_driver_start__ = .;
+    KEEP(*(*.level2_driver_entry))
+    __level2_driver_end__ = .;
+    __level3_driver_start__ = .;
+    KEEP(*(*.level3_driver_entry))
+    __level3_driver_end__ = .;
+
+    __post_driver_start__ = .;
+    KEEP(*(*.post_driver_entry))
+    __post_driver_end__ = .;
+/************** end of drivers *********/
+
   __erodata = .;
   __rodata_end__ = .;
  } > REGION_RODATA
@@ -87,7 +132,6 @@ SECTIONS
   __sdata = . ;
   __data_start__ = . ;
   data_start = . ;
-/*  KEEP(*startup.o(*.vectors*))*/
   *(.got.plt)
   *(.got)
   *(.gnu.linkonce.r*)

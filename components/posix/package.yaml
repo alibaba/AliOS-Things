@@ -10,15 +10,16 @@ license: Apache license v2.0
 
 depends:
   - osal_aos: master
-  - select: master
+  - select: master ? <!ESP_PLATFORM>
 
 build_config:
   include:
-    - include
-
+    - include ? <!ESP_PLATFORM>
+    - esp_idf/include ? <ESP_PLATFORM>
 source_file:
-  - "src/*.c"
-
+  - src/*.c ? <!ESP_PLATFORM>
+  - esp_idf/*c ? <ESP_PLATFORM>
+  - export.c ? <CONFIG_DM>
 install:
   - dest: "include"
     source:

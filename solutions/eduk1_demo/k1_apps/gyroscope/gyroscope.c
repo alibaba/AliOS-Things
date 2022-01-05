@@ -50,7 +50,7 @@ int gyroscope_init(void)
     }
 
     LOGI(EDU_TAG, "MPU_Init done\n");
-    aos_task_new_ext(&gyroscope_task_handle, "gyroscope_task", gyroscope_task, NULL, 1024, AOS_DEFAULT_APP_PRI);
+    aos_task_new_ext(&gyroscope_task_handle, "gyroscope_task", gyroscope_task, NULL, 1024 * 4, AOS_DEFAULT_APP_PRI);
     LOGI(EDU_TAG, "aos_task_new gyroscope_task\n");
     return 0;
 }

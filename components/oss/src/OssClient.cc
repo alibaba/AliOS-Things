@@ -44,7 +44,7 @@ void AlibabaCloud::OSS::ShutdownSdk()
 {
     if (!IsSdkInitialized())
         return;
-    
+
     CurlHttpClient::cleanupGlobalState();
     DeinitLogInner();
     SdkInitDone = false;
@@ -98,7 +98,7 @@ OssClient::~OssClient()
 {
 }
 
-#if !defined(OSS_DISABLE_BUCKET)
+#if (!OSS_DISABLE_BUCKET)
 
 ListBucketsOutcome OssClient::ListBuckets() const
 {
@@ -879,7 +879,7 @@ UploadPartCopyOutcomeCallable OssClient::UploadPartCopyCallable(const UploadPart
 }
 
 /*Extended APIs*/
-#if !defined(OSS_DISABLE_BUCKET)
+#if (!OSS_DISABLE_BUCKET)
 bool OssClient::DoesBucketExist(const std::string &bucket) const
 {
     return client_->GetBucketAcl(GetBucketAclRequest(bucket)).isSuccess();
@@ -899,7 +899,7 @@ CopyObjectOutcome OssClient::ModifyObjectMeta(const std::string& bucket, const s
     return client_->CopyObject(copyRequest);
 }
 
-#if !defined(OSS_DISABLE_LIVECHANNEL)
+#if (!OSS_DISABLE_LIVECHANNEL)
 VoidOutcome OssClient::PutLiveChannelStatus(const PutLiveChannelStatusRequest &request) const
 {
     return client_->PutLiveChannelStatus(request);
@@ -961,7 +961,7 @@ void OssClient::EnableRequest()
     client_->EnableRequest();
 }
 
-#if !defined(OSS_DISABLE_RESUAMABLE)
+#if (!OSS_DISABLE_RESUAMABLE)
 PutObjectOutcome OssClient::ResumableUploadObject(const UploadObjectRequest &request) const
 {
     return client_->ResumableUploadObject(request);

@@ -8,6 +8,13 @@
 #include <termios.h>
 #include <aos/device.h>
 
+/**
+ * @defgroup tty_api TTY
+ * @ingroup driver_api
+ * @brief AOS API for TTY.
+ * @{
+ */
+
 typedef aos_dev_ref_t aos_tty_ref_t;
 
 #ifdef __cplusplus
@@ -64,5 +71,7 @@ ssize_t aos_tty_write(aos_tty_ref_t *ref, const void *buf, size_t count, uint32_
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif /* AOS_TTY_H */

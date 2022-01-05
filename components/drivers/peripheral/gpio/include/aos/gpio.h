@@ -5,7 +5,14 @@
 #ifndef AOS_GPIO_H
 #define AOS_GPIO_H
 
-#include <aos/device_core.h>
+#include <aos/device.h>
+
+/**
+ * @defgroup gpio_api GPIO Pin
+ * @ingroup driver_api
+ * @brief AOS API for GPIO pin.
+ * @{
+ */
 
 #define AOS_GPIO_DIR_MASK               ((uint32_t)0xF << 0)
 #define AOS_GPIO_DIR_NONE               ((uint32_t)0x0 << 0)
@@ -61,5 +68,7 @@
 #define AOS_GPIO_OUTPUT_INIT_HIGH       ((uint32_t)0x1 << 8)
 
 typedef void (*aos_gpio_irq_handler_t)(int polarity, void *arg);
+
+/** @} */
 
 #endif /* AOS_GPIO_H */

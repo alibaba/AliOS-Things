@@ -42,7 +42,7 @@ namespace OSS
         virtual ~OssClientImpl();
         int asyncExecute(Runnable * r) const;
 
-#if !defined(OSS_DISABLE_BUCKET)
+#if (!OSS_DISABLE_BUCKET)
         ListBucketsOutcome ListBuckets(const ListBucketsRequest &request) const;
         CreateBucketOutcome CreateBucket(const CreateBucketRequest &request) const;
         VoidOutcome SetBucketAcl(const SetBucketAclRequest& request) const;
@@ -138,14 +138,14 @@ namespace OSS
 
         /*Generate Post Policy*/
 
-#if !defined(OSS_DISABLE_RESUAMABLE)
+#if (!OSS_DISABLE_RESUAMABLE)
         /*Resumable Operation*/
         PutObjectOutcome ResumableUploadObject(const UploadObjectRequest& request) const;
         CopyObjectOutcome ResumableCopyObject(const MultiCopyObjectRequest& request) const;
         GetObjectOutcome ResumableDownloadObject(const DownloadObjectRequest& request) const;
 #endif
 
-#if !defined(OSS_DISABLE_LIVECHANNEL)
+#if (!OSS_DISABLE_LIVECHANNEL)
         /*Live Channel*/
         VoidOutcome PutLiveChannelStatus(const PutLiveChannelStatusRequest &request) const;
         PutLiveChannelOutcome PutLiveChannel(const PutLiveChannelRequest &request) const;

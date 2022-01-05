@@ -19,10 +19,11 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - mbedtls: master
-  - cplusplus: master
-  - fatfs: master
-  #- jsoncpp: master
+  - mbedtls: master ? <!ESP_PLATFORM>
+  - cplusplus: master ? <!ESP_PLATFORM>
+  - fatfs: master ? <!ESP_PLATFORM>
+  - curl: master ? <!CHIP_HAAS1000>
+#  - jsoncpp: master ? <ESP_PLATFORM>
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
 #   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
@@ -54,29 +55,69 @@ build_config:
     - include/alibabacloud/oss/model/
     - include/alibabacloud/oss/encryption/
     - include/alibabacloud/oss/
-    - src/
+    - src/external/
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
-# ? <CONFIG_ALICLOUD_OSS_ENABLE>
 source_file:
+
+  # common
   - src/*.cc
-  - src/model/*.cc
   - src/*.cpp
   - src/auth/*.cc
   - src/client/*.cc
   - src/http/*.cc
   - src/utils/*.cc
+
+  - src/model/ModelError.cc
+  - "src/model/*Object*.cc"
+  - "src/model/*Symlink*.cc"
+  - "src/model/InputFormat.cc"
+  - "src/model/OutputFormat.cc"
+  - "src/model/Tagging.cc"
+  - "src/model/GeneratePresignedUrlRequest.cc"
+  - "src/model/*MultipartUpload*.cc"
+  - "src/model/UploadPart*.cc"
+  - "src/model/ListPart*.cc"
+
+  # tinyxml
   - src/external/tinyxml2/*.cpp
-  - example/oss_example.c
+
+  # json
+  - src/external/json/*.cpp ? <!OSS_DISABLE_ENCRYPTION || !OSS_DISABLE_RESUAMABLE>
+
+  # bucket
+  - src/model/*Bucket*.cc ? <!OSS_DISABLE_BUCKET>
+  - src/model/GetUserQos*.cc ? <!OSS_DISABLE_BUCKET>
+  - src/model/LifecycleRule.cc ? <!OSS_DISABLE_BUCKET>
+  - src/model/InventoryConfiguration.cc ? <!OSS_DISABLE_BUCKET>
+  - src/model/Tagging.cc ? <!OSS_DISABLE_BUCKET>
+
+  # livechannel
+  - src/model/*LiveChannel*.cc ? <!OSS_DISABLE_LIVECHANNEL>
+  - src/model/GetVod*.cc ? <!OSS_DISABLE_LIVECHANNEL>
+  - src/model/PostVod*.cc ? <!OSS_DISABLE_LIVECHANNEL>
+  - src/model/GenerateRTMPSignedUrlRequest.cc ? <!OSS_DISABLE_LIVECHANNEL>
+
+  # resuamable
+  - src/resumable/*.cc ? <!OSS_DISABLE_RESUAMABLE>
+
+  # encryption
+  - src/encryption/*.cc ? <!OSS_DISABLE_ENCRYPTION>
+
+#  - example/oss_example.c
 
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项
   USE_CRYPTO_MBEDTLS: 1
   USE_AOS_TIME_POSIX_API: 1
-  OSS_DEBUG: 1
+  OSS_DEBUG: 0
 #  USE_SD_FOR_OSS: 1
   READ_SD_SIZE_MAX: 1024*15
+  OSS_DISABLE_BUCKET: 1
+  OSS_DISABLE_LIVECHANNEL: 1
+  OSS_DISABLE_RESUAMABLE: 1
+  OSS_DISABLE_ENCRYPTION: 1
 
 ## 第六部分：安装信息
 # install:

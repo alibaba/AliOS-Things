@@ -138,7 +138,7 @@ STATIC mp_obj_t aiagent_infer(size_t n_args, const mp_obj_t *args)
         (mp_obj_get_type(args[3]) == &mp_type_NoneType) ? NULL : args[3];
     self->engine_obj->src1 =
         mp_obj_is_str(args[1]) ? (char *)mp_obj_str_get_str(args[1]) : NULL;
-    self->engine_obj->src1 =
+    self->engine_obj->src2 =
         mp_obj_is_str(args[2]) ? (char *)mp_obj_str_get_str(args[2]) : NULL;
     self->engine_obj->callback = aiagent_python_cb;
 

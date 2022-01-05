@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2017-2019 Alibaba Group Holding Limited
+ * SPDX-License-Identifier: Apache-2.0
  */
-
 
 /******************************************************************************
  * @file     csi_rv32_gcc.h

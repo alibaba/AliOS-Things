@@ -174,7 +174,7 @@ namespace OSS
             }
             return false;
         }
-    
+
         void setDefaultOptions(CURL* handle)
         {
             curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1L);
@@ -239,7 +239,6 @@ namespace OSS
                 }
             }
             // TODO: ethan
-            printf("read\r\n");
             content->read(ptr, read);
             got = static_cast<size_t>(content->gcount());
         }
@@ -290,7 +289,6 @@ namespace OSS
             return -2;
         }
         // TODO: ethan
-        printf("write\r\n");
         content->write(ptr, static_cast<std::streamsize>(wanted));
         if (content->bad()) {
             return -3;
@@ -486,24 +484,25 @@ std::shared_ptr<HttpResponse> CurlHttpClient::makeRequest(const std::shared_ptr<
     }
 
     std::string url = request->url().toString();
+    // printf("oss url : %s\n", url.c_str());
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     switch (request->method())
     {
-    case Http::Method::Head:
-        curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
-        break;
-    case Http::Method::Put:
-        curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
-        break;
-    case Http::Method::Post:
-        curl_easy_setopt(curl, CURLOPT_POST, 1L);
-        break;
-    case Http::Method::Delete:
-        curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
-        break;
-    case Http::Method::Get:
-    default:
-        break;
+        case Http::Method::Head:
+            curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
+            break;
+        case Http::Method::Put:
+            curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+            break;
+        case Http::Method::Post:
+            curl_easy_setopt(curl, CURLOPT_POST, 1L);
+            break;
+        case Http::Method::Delete:
+            curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+            break;
+        case Http::Method::Get:
+        default:
+            break;
     }
     
     curl_easy_setopt(curl, CURLOPT_USERAGENT,userAgent_.c_str());

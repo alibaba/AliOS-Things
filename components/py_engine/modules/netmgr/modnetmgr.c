@@ -88,6 +88,7 @@ MP_DEFINE_CONST_FUN_OBJ_0(hapy_netmgr_init_obj, hapy_netmgr_init);
 
 STATIC mp_obj_t hapy_netmgr_deinit(void)
 {
+    return mp_obj_new_int(0);
 }
 MP_DEFINE_CONST_FUN_OBJ_0(hapy_netmgr_deinit_obj, hapy_netmgr_deinit);
 
@@ -153,7 +154,7 @@ STATIC mp_obj_t hapy_netmgr_autoReconnect(mp_obj_t autoReconnect_in)
     netmgr_hdl_t hdl = netmgr_get_dev(WIFI_DEV_PATH);
     bool isAutoReconnect = mp_obj_is_true(autoReconnect_in);
     netmgr_set_auto_reconnect(hdl, isAutoReconnect);
-    return mp_const_none;
+    return mp_obj_new_int(0);
 }
 MP_DEFINE_CONST_FUN_OBJ_1(hapy_netmgr_autoReconnect_obj, hapy_netmgr_autoReconnect);
 
@@ -266,19 +267,15 @@ STATIC mp_obj_t hapy_netmgr_deleteConfig(mp_obj_t config_in)
 }
 MP_DEFINE_CONST_FUN_OBJ_1(hapy_netmgr_deleteConfig_obj, hapy_netmgr_deleteConfig);
 
-STATIC mp_obj_t hapy_netmgr_getChannelList(mp_obj_t channel_num_in)
+STATIC mp_obj_t hapy_netmgr_getChannelList(void)
 {
     netmgr_hdl_t hdl = netmgr_get_dev(WIFI_DEV_PATH);
 
-    int channel_num = mp_obj_get_int(channel_num_in);
-    int *channel_array = (int *)aos_calloc(channel_num, sizeof(int));
-    if (channel_array == NULL) {
-        return mp_const_none;
-    }
+    int channel_num = 0;
+    int *channel_array = NULL;
 
     mp_int_t ret = netmgr_wifi_get_channelist(hdl, &channel_array, &channel_num);
     if (ret != 0) {
-        aos_free(channel_array);
         LOGE(LOG_TAG, "netmgr_wifi_get_channelist failed, ret = %d\n", ret);
         return mp_const_none;
     }
@@ -286,7 +283,6 @@ STATIC mp_obj_t hapy_netmgr_getChannelList(mp_obj_t channel_num_in)
     vstr_t vstr = { 0 };
     vstr_init_len(&vstr, channel_num * sizeof(int));
     memcpy(vstr.buf, channel_array, channel_num * sizeof(int));
-    aos_free(channel_array);
 
     return mp_obj_new_str_from_vstr(&mp_type_bytes, &vstr);
 }
@@ -321,7 +317,7 @@ MP_DEFINE_CONST_FUN_OBJ_1(hapy_netmgr_on_obj, hapy_netmgr_on);
 STATIC const mp_rom_map_elem_t netmgr_module_globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_netmgr) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_init), MP_ROM_PTR(&hapy_netmgr_init_obj) },
-    // { MP_OBJ_NEW_QSTR(MP_QSTR_deinit), MP_ROM_PTR(&hapy_netmgr_deinit_obj) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_deinit), MP_ROM_PTR(&hapy_netmgr_deinit_obj) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_connect), MP_ROM_PTR(&hapy_netmgr_connect_obj) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_disconnect), MP_ROM_PTR(&hapy_netmgr_disconnect_obj) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_getStatus), MP_ROM_PTR(&hapy_netmgr_getStatus_obj) },

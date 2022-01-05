@@ -1,0 +1,17 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "gnss": {
+      "type": "UART",
+      "port": 2,
+      "dataWidth": 8,
+      "baudRate": 9600,
+      "stopBits": 1,
+      "flowControl": "disable",
+      "parity": "none"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

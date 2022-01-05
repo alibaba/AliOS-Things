@@ -15,7 +15,7 @@ HaasMLMnn::~HaasMLMnn()
     LOGD(LOG_TAG, "entern\n");
 }
 
-int HaasMLMnn::SetInputData(const char* dataPath)
+int HaasMLMnn::SetInputData(const char *dataPath, const char *compareDataPath)
 {
     LOGD(LOG_TAG, "entern\n");
     return STATUS_OK;

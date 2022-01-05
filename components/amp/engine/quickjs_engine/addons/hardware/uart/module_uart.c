@@ -93,6 +93,7 @@ void uart_recv_callback(int port, void *data, uint16_t len, void *arg)
     uint32_t recvsize = 0;
     uart_dev_t *dev = (uart_dev_t *)module->uart;
     uart_notify_t *notify;
+    int ret = 0;
 
     if (!module)
         return;
@@ -116,7 +117,11 @@ void uart_recv_callback(int port, void *data, uint16_t len, void *arg)
     notify->recv_len = recvsize;
     notify->js_cb_ref = module->js_cb_ref;
 
-    amp_task_schedule_call(uart_recv_notify, notify);
+    ret = amp_task_schedule_call(uart_recv_notify, notify);
+    if (ret != 0) {
+        amp_error(MOD_STR, "Uart data is too large to be processed. Discard it !!!\n");
+        aos_free(notify);
+    }
 }
 
 static int uart_add_recv(uart_dev_t *uart, uint32_t item_handle, JSValue js_cb_ref)

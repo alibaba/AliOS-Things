@@ -42,7 +42,7 @@ wdg_dev_handle_t aos_wdg_open (uint32_t id, uint32_t ms) {
 
     // if ms is less than 20, print warning message and force assign it to 20
     if (ms < 20) {
-        ddkc_warn("too smaller timeout value, force set to 20ms\r\n", ms);
+        ddkc_warn("too smaller timeout value:%d, force set to 20ms\r\n", ms);
         ms = 20;
     }
 

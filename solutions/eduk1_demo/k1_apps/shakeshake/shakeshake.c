@@ -38,7 +38,7 @@ int shakeshake_init(void)
     OLED_Icon_Draw(122, 24, &icon_skip_right, 0);
     OLED_Refresh_GRAM();
 
-    aos_task_new_ext(&shakeshake_task_handle, "shakeshake_task", shakeshake_task, NULL, 1024, AOS_DEFAULT_APP_PRI);
+    aos_task_new_ext(&shakeshake_task_handle, "shakeshake_task", shakeshake_task, NULL, 1024 * 4, AOS_DEFAULT_APP_PRI);
     LOGI(EDU_TAG, "aos_task_new shakeshake_task\n");
     return 0;
 }

@@ -49,7 +49,7 @@ static void mqtt_connect_task(void *pdata)
 
     amp_mqtt_handle = aos_malloc(sizeof(amp_mqtt_handle_t));
     if (amp_mqtt_handle == NULL) {
-        amp_debug(MOD_STR, "amp mqtt handle malloc failed");
+        amp_debug(MOD_STR, "amp mqtt handle malloc failed \r\n");
         aos_free(amp_mqtt_params);
         return;
     }
@@ -59,7 +59,7 @@ static void mqtt_connect_task(void *pdata)
 
     ret = mqtt_client_start(&amp_mqtt_handle->mqtt_handle, amp_mqtt_params);
     if (ret < 0) {
-        amp_debug(MOD_STR, "mqtt client init failed");
+        amp_debug(MOD_STR, "mqtt client init failed \r\n");
         aos_free(amp_mqtt_params);
         aos_free(amp_mqtt_handle);
         return;
@@ -162,13 +162,13 @@ static duk_ret_t native_mqtt_subscribe(duk_context *ctx)
 
     if (!duk_is_pointer(ctx, 0) || !duk_is_object(ctx, 1) ||
         !duk_is_function(ctx, 2)) {
-        amp_warn(MOD_STR, "parameter must be (pointer, object)");
+        amp_warn(MOD_STR, "parameter must be (pointer, object) \r\n");
         goto out;
     }
 
     amp_mqtt_handle = duk_get_pointer(ctx, 0);
     if (amp_mqtt_handle == NULL) {
-        amp_warn(MOD_STR, "mqtt handle is null");
+        amp_warn(MOD_STR, "mqtt handle is null \r\n");
         goto out;
     }
 
@@ -176,7 +176,7 @@ static duk_ret_t native_mqtt_subscribe(duk_context *ctx)
     duk_get_prop_string(ctx, 1, "qos");
 
     if (!duk_is_number(ctx, -1) || !duk_is_string(ctx, -2)) {
-        amp_warn(MOD_STR, "invalid params");
+        amp_warn(MOD_STR, "invalid params \r\n");
         duk_pop_n(ctx, 2);
         goto out;
     }
@@ -210,13 +210,13 @@ static duk_ret_t native_mqtt_unsubscribe(duk_context *ctx)
 
     if (!duk_is_pointer(ctx, 0) || !duk_is_string(ctx, 1) ||
         !duk_is_function(ctx, 2)) {
-        amp_warn(MOD_STR, "parameter must be (pointer, string, function)");
+        amp_warn(MOD_STR, "parameter must be (pointer, string, function) \r\n");
         goto out;
     }
 
     amp_mqtt_handle = duk_get_pointer(ctx, 0);
     if (amp_mqtt_handle == NULL) {
-        amp_warn(MOD_STR, "mqtt handle is null");
+        amp_warn(MOD_STR, "mqtt handle is null \r\n");
         goto out;
     }
 
@@ -227,7 +227,7 @@ static duk_ret_t native_mqtt_unsubscribe(duk_context *ctx)
 
     amp_mqtt_handle->js_cb_ref[MQTT_JSCALLBACK_UNSCRIBE_TOPIC_REF] = js_cb_ref;
 
-    amp_debug(MOD_STR, "unsubscribe topic: %s", topic);
+    amp_debug(MOD_STR, "unsubscribe topic: %s \r\n", topic);
 
     res = aiot_mqtt_unsub(amp_mqtt_handle->mqtt_handle, topic);
     if (res < 0) {
@@ -252,13 +252,13 @@ static duk_ret_t native_mqtt_publish(duk_context *ctx)
 
     if (!duk_is_pointer(ctx, 0) || !duk_is_object(ctx, 1) ||
         !duk_is_function(ctx, 2)) {
-        amp_warn(MOD_STR, "parameter must be (pointer, object, function)");
+        amp_warn(MOD_STR, "parameter must be (pointer, object, function) \r\n");
         goto out;
     }
 
     amp_mqtt_handle = duk_get_pointer(ctx, 0);
     if (amp_mqtt_handle == NULL) {
-        amp_warn(MOD_STR, "mqtt handle is null");
+        amp_warn(MOD_STR, "mqtt handle is null \r\n");
         goto out;
     }
 
@@ -268,7 +268,7 @@ static duk_ret_t native_mqtt_publish(duk_context *ctx)
 
     if (!duk_is_string(ctx, -3) || !duk_is_string(ctx, -2) ||
         !duk_is_number(ctx, -1)) {
-        amp_warn(MOD_STR, "invalid params");
+        amp_warn(MOD_STR, "invalid params \r\n");
         duk_pop_n(ctx, 3);
         goto out;
     }
@@ -283,13 +283,13 @@ static duk_ret_t native_mqtt_publish(duk_context *ctx)
 
     amp_mqtt_handle->js_cb_ref[MQTT_JSCALLBACK_PUBLISH_REF] = js_cb_ref;
 
-    amp_debug(MOD_STR, "publish topic: %s, payload: %s, qos is: %d", topic,
+    amp_debug(MOD_STR, "publish topic: %s, payload: %s, qos is: %d \r\n", topic,
               payload, qos);
 
     res = aiot_mqtt_pub(amp_mqtt_handle->mqtt_handle, topic, payload,
                         payload_len, qos);
     if (res < 0) {
-        amp_error(MOD_STR, "aiot app mqtt publish failed");
+        amp_error(MOD_STR, "aiot app mqtt publish failed \r\n");
     }
 
 out:
@@ -304,13 +304,13 @@ static duk_ret_t native_mqtt_close(duk_context *ctx)
     amp_mqtt_handle_t *amp_mqtt_handle = NULL;
 
     if (!duk_is_pointer(ctx, 0) || !duk_is_function(ctx, 1)) {
-        amp_warn(MOD_STR, "parameter must be pointer function");
+        amp_warn(MOD_STR, "parameter must be pointer function \r\n");
         goto out;
     }
 
     amp_mqtt_handle = duk_get_pointer(ctx, 0);
     if (amp_mqtt_handle == NULL) {
-        amp_warn(MOD_STR, "mqtt client is null");
+        amp_warn(MOD_STR, "mqtt client is null \r\n");
         goto out;
     }
 
@@ -321,7 +321,7 @@ static duk_ret_t native_mqtt_close(duk_context *ctx)
 
     res = mqtt_client_stop(&amp_mqtt_handle->mqtt_handle);
     if (res < 0) {
-        amp_debug(MOD_STR, "mqtt client stop failed");
+        amp_debug(MOD_STR, "mqtt client stop failed \r\n");
     }
 
 out:
@@ -346,7 +346,7 @@ void module_mqtt_register(void)
 
     if (!g_mqtt_close_sem) {
         if (aos_sem_new(&g_mqtt_close_sem, 0) != 0) {
-            amp_error(MOD_STR, "create mqtt sem fail");
+            amp_error(MOD_STR, "create mqtt sem fail \r\n");
             return;
         }
     }

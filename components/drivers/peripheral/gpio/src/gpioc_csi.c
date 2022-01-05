@@ -117,7 +117,9 @@ static aos_status_t gpioc_csi_set_mode(aos_gpioc_t *gpioc, uint32_t pin)
     mode = gpioc->pins[pin].mode;
     dir = mode & AOS_GPIO_DIR_MASK;
 
-    if (dir == AOS_GPIO_DIR_INPUT) {
+    if (dir == AOS_GPIO_DIR_NONE) {
+        /* do nothing */
+    } else if (dir == AOS_GPIO_DIR_INPUT) {
         uint32_t cfg = mode & AOS_GPIO_INPUT_CFG_MASK;
         uint32_t trig = mode & AOS_GPIO_IRQ_TRIG_MASK;
 
@@ -169,6 +171,8 @@ static aos_status_t gpioc_csi_set_mode(aos_gpioc_t *gpioc, uint32_t pin)
 
         val = gpioc->pins[pin].value ? GPIO_PIN_HIGH : GPIO_PIN_LOW;
         csi_gpio_write(&gpioc_csi->csi_gpio, mask, val);
+    } else {
+        return -EINVAL;
     }
 
     gpioc_csi->modes[pin] = mode;
@@ -228,11 +232,8 @@ static const aos_gpioc_ops_t gpioc_csi_ops = {
 
 static void irq_handler(csi_gpio_t *csi_gpio, uint32_t pin_mask, void *arg)
 {
-    aos_gpioc_csi_t *gpioc_csi;
-    aos_gpioc_t *gpioc;
-
-    gpioc_csi = aos_container_of(csi_gpio, aos_gpioc_csi_t, csi_gpio);
-    gpioc = &gpioc_csi->gpioc;
+    aos_gpioc_csi_t *gpioc_csi = aos_container_of(csi_gpio, aos_gpioc_csi_t, csi_gpio);
+    aos_gpioc_t *gpioc = &gpioc_csi->gpioc;
 
     for (uint32_t i = 0; i < gpioc->num_pins; i++) {
         if (pin_mask & ((uint32_t)1 << i))
@@ -255,6 +256,7 @@ aos_status_t aos_gpioc_csi_register(aos_gpioc_csi_t *gpioc_csi)
         return -EINVAL;
 
     gpioc->ops = &gpioc_csi_ops;
+    gpioc->pins = gpioc_csi->pins;
 
     for (uint32_t i = 0; i < gpioc->num_pins; i++)
         gpioc_csi->modes[i] = AOS_GPIO_DIR_NONE;
@@ -277,6 +279,20 @@ aos_status_t aos_gpioc_csi_register(aos_gpioc_csi_t *gpioc_csi)
     }
 
     return 0;
+}
+
+aos_status_t aos_gpioc_csi_register_argumented(aos_gpioc_csi_t *gpioc_csi, uint32_t id, uint32_t num_pins,
+                                               uint32_t default_input_cfg, uint32_t default_output_cfg)
+{
+    if (!gpioc_csi)
+        return -EINVAL;
+
+    gpioc_csi->gpioc.dev.id = id;
+    gpioc_csi->gpioc.num_pins = num_pins;
+    gpioc_csi->default_input_cfg = default_input_cfg;
+    gpioc_csi->default_output_cfg = default_output_cfg;
+
+    return aos_gpioc_csi_register(gpioc_csi);
 }
 
 aos_status_t aos_gpioc_csi_unregister(uint32_t id)

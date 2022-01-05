@@ -164,6 +164,10 @@ int alios_debug_print(const char *buf, int size)
     return size;
 }
 
+void hal_watchdog_disable(void)
+{
+}
+
 void alios_cli_panic_hook()
 {
     hal_watchdog_disable();
@@ -274,10 +278,6 @@ int aos_printf_hook(const char *tag, const char *fmt, enum PRINTF_FLAG_T flag, v
 void aos_set_driver_trace_flag(int flag)
 {
     g_dirver_trace_flag = flag;
-}
-
-void hal_watchdog_disable(void)
-{
 }
 
 void hal_watchdog_reset(int timeout)

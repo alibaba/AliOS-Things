@@ -1,0 +1,89 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap-rd(5)
+==========
+:doctype: manpage
+:man source:   coap-rd
+:man version:  @PACKAGE_VERSION@
+:man manual:   coap-rd Manual
+
+NAME
+-----
+coap-rd - A CoAP Resource Directory based on libcoap
+
+SYNOPSIS
+--------
+*coap-rd* [*-A* addr] [*-g* group] [*-p* port] [*-v* num]
+
+DESCRIPTION
+-----------
+*coap-rd* is a simple CoAP Resource Directory server that can handle resource
+registrations using the protocol CoAP (RFC 7252).
+
+OPTIONS
+-------
+*-A* addr::
+   The local address of the interface which the server has to listen.
+
+*-g* group::
+   Join specified multicast 'group' on startup.
+
+*-p* port::
+   The 'port' on the given address the server will be waitung for connections.
+   The default port is 5683 if not given any other value.
+
+*-v* num::
+   The verbosity level to use (default: 3, maximum is 9). Above 7, there is
+   increased verbosity in GnuTLS logging.
+
+EXAMPLES
+--------
+* Example
+----
+coap-rd -A ::1
+----
+Let the server listen on localhost (port 5683).
+
+* Example
+----
+coap-rd -A ::1 -p 13011
+----
+Quite the same, except listening port is '13011' (and not the default port
+5683).
+
+* Example
+----
+coap-rd -A 2001:db8:81a8:0:6ef0:dead:feed:beef  -v 5
+----
+The listening address is set to '2001:db8:81a8:0:6ef0:dead:feed:beef' and the
+verbosity level is set to '5'.
+
+* Example
+----
+coap-rd -A 2001:db8:81a8:0:6ef0:dead:feed:beef  -g FF02::FD
+----
+Set listening address to '2001:db8:81a8:0:6ef0:dead:feed:beef' and join the
+All CoAP Nodes multicast group 'FF02::FD'.
+
+FILES
+------
+There are no configuration files.
+
+EXIT STATUS
+-----------
+*0*::
+   Success
+
+*1*::
+   Failure (syntax or usage error; configuration error; document
+   processing failure; unexpected error)
+
+BUGS
+-----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

@@ -19,7 +19,7 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - aos: >=v7.2.0
 depends:
   - osal_aos: master
-  - cplusplus: master
+  - cplusplus: master ? <!ESP_PLATFORM>
   # - debug: master
 
 ## 第四部分：编译连接信息

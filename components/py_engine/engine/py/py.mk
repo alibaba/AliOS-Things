@@ -1,122 +1,297 @@
-#include
-include_directories(${MPYENGINEDIR}/py)
+# where py object files go (they have a name prefix to prevent filename clashes)
+PY_BUILD = $(BUILD)/py
 
-#add src
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/argcheck.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/asmarm.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/asmbase.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/asmthumb.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/asmx64.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/asmx86.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/asmxtensa.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/bc.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/binary.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/builtinevex.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/builtinhelp.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/builtinimport.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/compile.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/emitbc.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/emitcommon.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/emitglue.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/emitinlinethumb.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/emitinlinextensa.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/emitnarm.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/emitnthumb.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/emitnx64.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/emitnx86.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/emitnxtensa.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/emitnxtensawin.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/formatfloat.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/frozenmod.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/gc.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/lexer.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/malloc.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/map.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/modarray.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/modbuiltins.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/modcmath.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/modcollections.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/modgc.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/modio.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/modmath.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/modmicropython.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/modstruct.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/modsys.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/modthread.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/moduerrno.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/mpprint.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/mpstate.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/mpz.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/nativeglue.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/nlr.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/nlrpowerpc.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/nlrsetjmp.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/nlrthumb.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/nlrx64.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/nlrx86.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/nlrxtensa.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/obj.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objarray.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objattrtuple.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objbool.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objboundmeth.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objcell.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objclosure.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objcomplex.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objdeque.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objdict.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objenumerate.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objexcept.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objfilter.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objfloat.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objfun.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objgenerator.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objgetitemiter.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objint.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objint_longlong.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objint_mpz.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objlist.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objmap.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objmodule.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objnamedtuple.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objnone.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objobject.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objpolyiter.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objproperty.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objrange.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objreversed.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objset.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objsingleton.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objslice.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objstr.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objstringio.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objstrunicode.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objtuple.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objtype.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/objzip.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/opmethods.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/pairheap.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/parse.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/parsenum.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/parsenumbase.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/persistentcode.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/profile.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/pystack.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/qstr.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/reader.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/repl.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/ringbuf.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/runtime.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/runtime_utils.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/scheduler.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/scope.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/sequence.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/showbc.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/smallint.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/stackctrl.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/stream.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/unicode.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/vm.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/vstr.c")
-list(APPEND SOURCEFILE "${MPYENGINEDIR}/py/warning.c")
+# where autogenerated header files go
+HEADER_BUILD = $(BUILD)/genhdr
 
+# file containing qstr defs for the core Python bit
+PY_QSTR_DEFS = $(PY_SRC)/qstrdefs.h
+
+# If qstr autogeneration is not disabled we specify the output header
+# for all collected qstrings.
+ifneq ($(QSTR_AUTOGEN_DISABLE),1)
+QSTR_DEFS_COLLECTED = $(HEADER_BUILD)/qstrdefs.collected.h
+endif
+
+# Any files listed by these variables will cause a full regeneration of qstrs
+# DEPENDENCIES: included in qstr processing; REQUIREMENTS: not included
+QSTR_GLOBAL_DEPENDENCIES += $(PY_SRC)/mpconfig.h mpconfigport.h
+QSTR_GLOBAL_REQUIREMENTS += $(HEADER_BUILD)/mpversion.h
+
+# some code is performance bottleneck and compiled with other optimization options
+CSUPEROPT = -O3
+
+# Enable building 32-bit code on 64-bit host.
+ifeq ($(MICROPY_FORCE_32BIT),1)
+CC += -m32
+CXX += -m32
+LD += -m32
+endif
+
+# External modules written in C.
+ifneq ($(USER_C_MODULES),)
+# pre-define USERMOD variables as expanded so that variables are immediate
+# expanded as they're added to them
+SRC_USERMOD :=
+SRC_USERMOD_CXX :=
+CFLAGS_USERMOD :=
+CXXFLAGS_USERMOD :=
+LDFLAGS_USERMOD :=
+$(foreach module, $(wildcard $(USER_C_MODULES)/*/micropython.mk), \
+    $(eval USERMOD_DIR = $(patsubst %/,%,$(dir $(module))))\
+    $(info Including User C Module from $(USERMOD_DIR))\
+	$(eval include $(module))\
+)
+
+SRC_MOD += $(patsubst $(USER_C_MODULES)/%.c,%.c,$(SRC_USERMOD))
+SRC_MOD_CXX += $(patsubst $(USER_C_MODULES)/%.cpp,%.cpp,$(SRC_USERMOD_CXX))
+CFLAGS_MOD += $(CFLAGS_USERMOD)
+CXXFLAGS_MOD += $(CXXFLAGS_USERMOD)
+LDFLAGS_MOD += $(LDFLAGS_USERMOD)
+endif
+
+# py object files
+PY_CORE_O_BASENAME = $(addprefix py/,\
+	mpstate.o \
+	nlr.o \
+	nlrx86.o \
+	nlrx64.o \
+	nlrthumb.o \
+	nlraarch64.o \
+	nlrpowerpc.o \
+	nlrxtensa.o \
+	nlrsetjmp.o \
+	malloc.o \
+	gc.o \
+	pystack.o \
+	qstr.o \
+	vstr.o \
+	mpprint.o \
+	unicode.o \
+	mpz.o \
+	reader.o \
+	lexer.o \
+	parse.o \
+	scope.o \
+	compile.o \
+	emitcommon.o \
+	emitbc.o \
+	asmbase.o \
+	asmx64.o \
+	emitnx64.o \
+	asmx86.o \
+	emitnx86.o \
+	asmthumb.o \
+	emitnthumb.o \
+	emitinlinethumb.o \
+	asmarm.o \
+	emitnarm.o \
+	asmxtensa.o \
+	emitnxtensa.o \
+	emitinlinextensa.o \
+	emitnxtensawin.o \
+	formatfloat.o \
+	parsenumbase.o \
+	parsenum.o \
+	emitglue.o \
+	persistentcode.o \
+	runtime.o \
+	runtime_utils.o \
+	scheduler.o \
+	nativeglue.o \
+	pairheap.o \
+	ringbuf.o \
+	stackctrl.o \
+	argcheck.o \
+	warning.o \
+	profile.o \
+	map.o \
+	obj.o \
+	objarray.o \
+	objattrtuple.o \
+	objbool.o \
+	objboundmeth.o \
+	objcell.o \
+	objclosure.o \
+	objcomplex.o \
+	objdeque.o \
+	objdict.o \
+	objenumerate.o \
+	objexcept.o \
+	objfilter.o \
+	objfloat.o \
+	objfun.o \
+	objgenerator.o \
+	objgetitemiter.o \
+	objint.o \
+	objint_longlong.o \
+	objint_mpz.o \
+	objlist.o \
+	objmap.o \
+	objmodule.o \
+	objobject.o \
+	objpolyiter.o \
+	objproperty.o \
+	objnone.o \
+	objnamedtuple.o \
+	objrange.o \
+	objreversed.o \
+	objset.o \
+	objsingleton.o \
+	objslice.o \
+	objstr.o \
+	objstrunicode.o \
+	objstringio.o \
+	objtuple.o \
+	objtype.o \
+	objzip.o \
+	opmethods.o \
+	sequence.o \
+	stream.o \
+	binary.o \
+	builtinimport.o \
+	builtinevex.o \
+	builtinhelp.o \
+	modarray.o \
+	modbuiltins.o \
+	modcollections.o \
+	modgc.o \
+	modio.o \
+	modmath.o \
+	modcmath.o \
+	modmicropython.o \
+	modstruct.o \
+	modsys.o \
+	moduerrno.o \
+	modthread.o \
+	vm.o \
+	bc.o \
+	showbc.o \
+	repl.o \
+	smallint.o \
+	frozenmod.o \
+	)
+
+PY_EXTMOD_O_BASENAME = \
+	extmod/moduasyncio.o \
+	extmod/moductypes.o \
+	extmod/modujson.o \
+	extmod/modure.o \
+	extmod/moduzlib.o \
+	extmod/moduheapq.o \
+	extmod/modutimeq.o \
+	extmod/moduhashlib.o \
+	extmod/moducryptolib.o \
+	extmod/modubinascii.o \
+	extmod/virtpin.o \
+	extmod/machine_bitstream.o \
+	extmod/machine_mem.o \
+	extmod/machine_pinbase.o \
+	extmod/machine_signal.o \
+	extmod/machine_pulse.o \
+	extmod/machine_i2c.o \
+	extmod/machine_spi.o \
+	extmod/modbluetooth.o \
+	extmod/modussl_axtls.o \
+	extmod/modussl_mbedtls.o \
+	extmod/modurandom.o \
+	extmod/moduselect.o \
+	extmod/moduwebsocket.o \
+	extmod/modwebrepl.o \
+	extmod/modframebuf.o \
+	extmod/vfs.o \
+	extmod/vfs_blockdev.o \
+	extmod/vfs_reader.o \
+	extmod/vfs_posix.o \
+	extmod/vfs_posix_file.o \
+	extmod/vfs_fat.o \
+	extmod/vfs_fat_diskio.o \
+	extmod/vfs_fat_file.o \
+	extmod/vfs_lfs.o \
+	extmod/utime_mphal.o \
+	extmod/uos_dupterm.o \
+	shared/libc/abort_.o \
+	shared/libc/printf.o \
+
+# prepend the build destination prefix to the py object files
+PY_CORE_O = $(addprefix $(BUILD)/, $(PY_CORE_O_BASENAME))
+PY_EXTMOD_O = $(addprefix $(BUILD)/, $(PY_EXTMOD_O_BASENAME))
+
+# this is a convenience variable for ports that want core, extmod and frozen code
+PY_O = $(PY_CORE_O) $(PY_EXTMOD_O)
+
+# object file for frozen code specified via a manifest
+ifneq ($(FROZEN_MANIFEST),)
+PY_O += $(BUILD)/$(BUILD)/frozen_content.o
+endif
+
+# object file for frozen files
+ifneq ($(FROZEN_DIR),)
+PY_O += $(BUILD)/$(BUILD)/frozen.o
+endif
+
+# object file for frozen bytecode (frozen .mpy files)
+ifneq ($(FROZEN_MPY_DIR),)
+PY_O += $(BUILD)/$(BUILD)/frozen_mpy.o
+endif
+
+# Sources that may contain qstrings
+SRC_QSTR_IGNORE = py/nlr%
+SRC_QSTR += $(SRC_MOD) $(filter-out $(SRC_QSTR_IGNORE),$(PY_CORE_O_BASENAME:.o=.c)) $(PY_EXTMOD_O_BASENAME:.o=.c)
+
+# Anything that depends on FORCE will be considered out-of-date
+FORCE:
+.PHONY: FORCE
+
+$(HEADER_BUILD)/mpversion.h: FORCE | $(HEADER_BUILD)
+	$(Q)$(PYTHON) $(PY_SRC)/makeversionhdr.py $@
+
+# mpconfigport.mk is optional, but changes to it may drastically change
+# overall config, so they need to be caught
+MPCONFIGPORT_MK = $(wildcard mpconfigport.mk)
+
+# qstr data
+# Adding an order only dependency on $(HEADER_BUILD) causes $(HEADER_BUILD) to get
+# created before we run the script to generate the .h
+# Note: we need to protect the qstr names from the preprocessor, so we wrap
+# the lines in "" and then unwrap after the preprocessor is finished.
+# See more information about this process in docs/develop/qstr.rst.
+$(HEADER_BUILD)/qstrdefs.generated.h: $(PY_QSTR_DEFS) $(QSTR_DEFS) $(QSTR_DEFS_COLLECTED) $(PY_SRC)/makeqstrdata.py mpconfigport.h $(MPCONFIGPORT_MK) $(PY_SRC)/mpconfig.h | $(HEADER_BUILD)
+	$(ECHO) "GEN $@"
+	$(Q)$(CAT) $(PY_QSTR_DEFS) $(QSTR_DEFS) $(QSTR_DEFS_COLLECTED) | $(SED) 's/^Q(.*)/"&"/' | $(CPP) $(CFLAGS) - | $(SED) 's/^\"\(Q(.*)\)\"/\1/' > $(HEADER_BUILD)/qstrdefs.preprocessed.h
+	$(Q)$(PYTHON) $(PY_SRC)/makeqstrdata.py $(HEADER_BUILD)/qstrdefs.preprocessed.h > $@
+
+$(HEADER_BUILD)/compressed.data.h: $(HEADER_BUILD)/compressed.collected
+	$(ECHO) "GEN $@"
+	$(Q)$(PYTHON) $(PY_SRC)/makecompresseddata.py $< > $@
+
+# build a list of registered modules for py/objmodule.c.
+$(HEADER_BUILD)/moduledefs.h: $(SRC_QSTR) $(QSTR_GLOBAL_DEPENDENCIES) | $(HEADER_BUILD)/mpversion.h
+	@$(ECHO) "GEN $@"
+	$(Q)$(PYTHON) $(PY_SRC)/makemoduledefs.py --vpath="., $(TOP), $(USER_C_MODULES)" $(SRC_QSTR) > $@
+
+# Standard C functions like memset need to be compiled with special flags so
+# the compiler does not optimise these functions in terms of themselves.
+CFLAGS_BUILTIN ?= -ffreestanding -fno-builtin -fno-lto
+$(BUILD)/shared/libc/string0.o: CFLAGS += $(CFLAGS_BUILTIN)
+
+# Force nlr code to always be compiled with space-saving optimisation so
+# that the function preludes are of a minimal and predictable form.
+$(PY_BUILD)/nlr%.o: CFLAGS += -Os
+
+# optimising gc for speed; 5ms down to 4ms on pybv2
+$(PY_BUILD)/gc.o: CFLAGS += $(CSUPEROPT)
+
+# optimising vm for speed, adds only a small amount to code size but makes a huge difference to speed (20% faster)
+$(PY_BUILD)/vm.o: CFLAGS += $(CSUPEROPT)
+# Optimizing vm.o for modern deeply pipelined CPUs with branch predictors
+# may require disabling tail jump optimization. This will make sure that
+# each opcode has its own dispatching jump which will improve branch
+# branch predictor efficiency.
+# https://marc.info/?l=lua-l&m=129778596120851
+# http://hg.python.org/cpython/file/b127046831e2/Python/ceval.c#l828
+# http://www.emulators.com/docs/nx25_nostradamus.htm
+#-fno-crossjumping
+
+# Include rules for extmod related code
+include $(TOP)/extmod/extmod.mk

@@ -8,6 +8,10 @@
 #include "ucamera_device.h"
 #include "ucamera_common.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define UCAMERA_PIX_FMT_YYUV    0
 #define UCAMERA_PIX_FMT_AYUV32  1
 #define UCAMERA_PIX_FMT_ARGB32  2
@@ -23,12 +27,13 @@
 typedef struct _ucamera_context_t {
     const char *name;
     const char *desc;
+    cam_dev_type_t type;
     int (*available) (void);
     ucamera_device_t *(*create) (int devindex);
 } ucamera_context_t;
 
 extern ucamera_context_t wifi_camera;
-
+extern ucamera_context_t uart_camera;
 
 /** @defgroup ucamera_aos_api ucamera
  * @{
@@ -52,6 +57,27 @@ int32_t ucamera_service_init(const char *dev_name);
 int32_t ucamera_service_uninit(void);
 
 /**
+ * Config frame parameters of ucamera service
+ *
+ * @return  frame buffer content.
+ */
+int32_t ucamera_service_config(command_t cmd, void *params);
+
+/**
+ * Start the ucamera service
+ *
+ * @return  0 on success, negative error on failure.
+ */
+int32_t ucamera_service_connect(const char *url);
+
+/**
+ * Stop the ucamera service
+ *
+ * @return  0 on success, negative error on failure.
+ */
+int32_t ucamera_service_disconnect(void);
+
+/**
  * Get one frame of camera device.
 
  * @return  frame buffer content.
@@ -70,5 +96,9 @@ int ucamera_service_save_frame(frame_buffer_t *frame, const char *path);
 /**
  * @}
  */
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
 
 #endif // _WIFI_CAMERA_H_

@@ -1,0 +1,30 @@
+This is a simple file for all kinds of stuff related on devlopment for
+libcoap. Please append (and remove) any issue you think its worthy.
+
+Classification of issues:
+ Critical -> Break the library in some kind or a missing feature, maybe not
+             directly but later
+ Serious  -> No regression on the user side, more likly on the libcoap
+             development
+ Minor    -> Things that are nice to have, but they are not time critical
+
+=================
+* CRITICAL ISSUES
+=================
+-> Remove #ifdef HAVE_ASSERT_H and so on from the public headers.
+-> Proxy functionality
+ -> A coap-server should be able to act as proxy server
+
+================
+* SERIOUS ISSUES
+================
+-> Create some development rules like:
+    --> How to submit patches? What about pull requests?
+	--> How to implement/change platform related code?
+-> Further improve the API documentation
+
+==============
+* MINOR ISSUES
+==============
+-> Adding a logo for libcoap
+

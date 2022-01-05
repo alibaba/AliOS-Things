@@ -31,7 +31,9 @@
 #if MICROPY_USE_INTERNAL_ERRNO
 
 // Modified bt HaaS begin
+#if MICROPY_PY_AOS_SPECIFIC
 #include <errno.h>
+#endif
 // Modified bt HaaS end
 
 // MP_Exxx errno's are defined directly as numeric values

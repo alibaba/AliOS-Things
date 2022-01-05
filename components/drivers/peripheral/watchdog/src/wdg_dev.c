@@ -29,7 +29,7 @@ int wdg_device_ioctl (file_t *f, int cmd, unsigned long arg) {
     wdg_dev_handle_t wdg = (wdg_dev_handle_t)f->f_arg;
 
     if (!vt || !wdg) {
-        ddkc_err("%s invalid vt:%p or wdg:%p", vt, wdg);
+        ddkc_err("%s invalid vt:%p or wdg:%p", __func__, vt, wdg);
         return -EINVAL;
     }
 
@@ -40,19 +40,19 @@ int wdg_device_ioctl (file_t *f, int cmd, unsigned long arg) {
         case IOC_WDG_FEED:
             ret = aos_wdg_feed(wdg);
             if (ret) {
-                ddkc_err("%s feed watchdog failed\r\n", __func__, ret);
+                ddkc_err("%s feed watchdog failed, ret:%d\r\n", __func__, ret);
             }
             break;
         case IOC_WDG_START:
             ret = aos_wdg_start(wdg);
             if (ret) {
-                ddkc_err("%s start watchdog failed\r\n", __func__, ret);
+                ddkc_err("%s start watchdog failed, ret:%d\r\n", __func__, ret);
             }
             break;
         case IOC_WDG_STOP:
             ret = aos_wdg_stop(wdg);
             if (ret) {
-                ddkc_err("%s start watchdog failed\r\n", __func__, ret);
+                ddkc_err("%s start watchdog failed, ret:%d\r\n", __func__, ret);
             }
             break;
         default:
@@ -92,7 +92,7 @@ int wdg_device_close (file_t *f) {
     wdg_dev_handle_t wdg = (wdg_dev_handle_t)f->f_arg;
 
     if (!vt || !wdg) {
-        ddkc_err("%s invalid vt:%p or wdg:%p", vt, wdg);
+        ddkc_err("%s invalid vt:%p or wdg:%p", __func__, vt, wdg);
         return -EINVAL;
     }
 

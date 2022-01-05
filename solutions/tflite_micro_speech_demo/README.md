@@ -80,12 +80,16 @@ https://help.aliyun.com/document_detail/205267.html
 <div align=center display=flex>
     <img src="https://img.alicdn.com/imgextra/i1/O1CN01NqoJso1s5WDaBqJGU_!!6000000005715-2-tps-830-342.png#id=SogmV&originHeight=342&originWidth=830&originalType=binary&ratio=1&status=done&style=none"  style="max-width:800px;" />
 </div>
+
 # 4. AliOS Things开发环境搭建
 案例相关的代码下载、编译和固件烧录均依赖AliOS Things配套的开发工具 **haas-studio** ，所以首先需要参考[《AliOS Things集成开发环境使用说明之搭建开发环境》](https://help.aliyun.com/document_detail/302378.html)，下载安装 **haas-studio** 。
 待开发环境搭建完成后，可以按照以下步骤进行示例的测试。
 
 ## 4.1 案例代码下载
 该案例相关的源代码下载可参考[《AliOS Things集成开发环境使用说明之创建工程》](https://help.aliyun.com/document_detail/302379.html)。
+<div align=left display=flex>
+    <img src="https://img.alicdn.com/imgextra/i4/O1CN01Dhy3ce1bsfFL3Qn8J_!!6000000003521-2-tps-947-575.png"  style="max-width:800px;" />
+</div>
 其中：
 > 选择解决方案: “TFLite-Micro离线语音快捷词唤醒案例”或者“tflite_micro_speech_demo”
 
@@ -109,8 +113,8 @@ https://help.aliyun.com/document_detail/205267.html
 
 固件烧录完成后，可以通过串口查看示例的运行结果，打开串口的具体方法可参考[《AliOS Things集成开发环境使用说明之查看日志》](https://help.aliyun.com/document_detail/302382.html)。
 
-# 5. 案例演示
-<video width="100%" height="560"  controls="controls" src="https://cloud.video.taobao.com/play/u/3903519387/p/1/e/6/t/1/324208098397.mp4"></video>
+# 5. 案例体验
+<video width="100%" style="max-width:800px" controls="controls" src="https://cloud.video.taobao.com/play/u/3903519387/p/1/e/6/t/1/324208098397.mp4"></video>
 
 当程序烧录完成后，直接喊出“打开"，“关闭”，就可以看到视频所示的效果。目前只支持近场唤醒，唤醒距离1米左右。如果听不到声音请逆时针选择喇叭蓝色旋钮调节音量至最大。
 

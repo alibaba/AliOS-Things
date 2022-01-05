@@ -54,8 +54,67 @@ source_file:
   - "maintask.c"
   - "appdemo.c"
 
+
+## 第五部分：配置信息
+aos_system_config: &aos_system_config
+  PY_BUILD_CLI: 1
+  PY_BUILD_UAGENT: 1
+  PY_BUILD_CJSON: 1
+  PY_BUILD_VFS: 1
+  PY_BUILD_LWIP: 1
+
+  #以下配置同时仅允许打开其中一项
+  LINKSDK_DEMO_MQTT_BASIC: y       #MQTT连IoT平台基础功能演示
+  LINKSDK_DEMO_MQTT_BCAST: n       #MQTT连IoT平台接收广播推送演示
+  LINKSDK_DEMO_MQTT_RRPC: n        #MQTT连IoT平台RRPC演示
+  CLI_IOBOX_ENABLE: 1              # Enable iobox cmd
+  ULOG_CONFIG_ASYNC: 1
+  ULOG_CONFIG_POP_FS: 1
+  ULOG_CONFIG_POP_UDP: 1
+
+  #以下是Python引擎模块编译选项，1 为打开，0 为关闭
+  PY_BUILD_FATFS: 0                # Py_Engine module build FATFS Flag
+  PY_BUILD_AI: 0                   # Py_Engine module build AI Flag
+  PY_BUILD_UDP: 1                  # Py_Engine module build udp config
+  PY_BUILD_NETMGR: 1               # Py_Engine module build http config
+  PY_BUILD_MQTT: 1                 # Py_Engine module build mqtt config
+  PY_BUILD_USOCKET: 1              # Py_Engine module build usocket config
+  PY_BUILD_AUDIO: 1                # Py_Engine module build uvoice config
+  PY_BUILD_UOS: 1                  # Py_Engine module build uos config
+  PY_BUILD_OSS: 0                  # Py_Engine module build oss config
+  PY_BUILD_UCAMERA: 0              # Py_Engine module build ucamera config
+  PY_BUILD_BLE: 1                  # Py_Engine module build ble net and host config
+  PY_BUILD_SNTP: 1                 # Py_Engine module build sntptime config
+  PY_BUILD_UGRAPHICS: 0            # Py_Engine module build ugraphics config
+  PY_BUILD_ULOG: 1                 # Py_Engine module build ulog config
+  PY_BUILD_BOOT: 1                 # Py_Engine module build boot config
+  PY_BUILD_CHANNEL: 1              # Py_Engine module build boot config
+  PY_BUILD_AIAGENT: 0              # Py_Engine module build ai_agent config
+  PY_BUILD_xTEM: 1               # Py_Engine module build system config
+
+  PY_BUILD_MBEDTLS: 1              # Py_Engine module build mbed TLS
+  MBEDTLS_CTR_DRBG_C: 1
+  MBEDTLS_ENTROPY_C: 1
+  # MBEDTLS_SHA256_C: 1
+  MBEDTLS_AES_ROM_TABLES: 1
+  # MBEDTLS_AES_C: 1
+  # MBEDTLS_FS_IO: 1
+  MBEDTLS_NO_PLATFORM_ENTROPY: 1
+  CONFIG_KWS_AI_ENGINE_ENABLE: 0 # 必须：使能HaaS HaaS唤醒引擎
+
+  MICROPY_READER_VFS: 1
+  MICROPY_VFS_POSIX: 1
+  MICROPY_PY_HTTP: 1
+  MICROPY_PY_MODBUS: 1
+  MICROPY_PY_KV: 1
+  MICROPY_PY_OTA: 1
+  MICROPY_PY_DRIVER: 1
+  MICROPY_PY_ALIYUNIOT: 1        # Py_Engine module build linksdk config
+
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项
+  USE_AOS_KERNEL: 1
+  <<: *aos_system_config
 #   CONFIG_DEBUG: y
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y

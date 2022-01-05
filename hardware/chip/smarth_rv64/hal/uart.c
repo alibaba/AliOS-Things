@@ -12,6 +12,7 @@ kbuf_queue_t g_buf_queue_uart;
 char g_buf_uart[MAX_BUF_UART_BYTES];
 //static uint8_t rx_buffer[1];
 extern usart_handle_t console_handle;
+usart_handle_t console_handle = NULL;
 
 /* can not get data here
 void usart_hal_event_fun(int32_t idx, usart_event_e event);
@@ -40,7 +41,7 @@ int32_t hal_uart_init(uart_dev_t *uart)
     console_handle = csi_usart_initialize(uart->port, NULL);
     /* config the UART */
     ret = csi_usart_config(console_handle, 115200, USART_MODE_ASYNCHRONOUS, USART_PARITY_NONE, USART_STOP_BITS_1, USART_DATA_BITS_8);
-    
+
     return ret;
 }
 
@@ -69,7 +70,7 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
         }
 
     }
-    
+
     if (recv_size)
     {
         *recv_size = rx_count;
@@ -103,6 +104,12 @@ int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_
 
 void hal_reboot(void)
 {
+}
+
+
+int32_t hal_uart_finalize(uart_dev_t *uart)
+{
+
 }
 
 char uart_input_read(void)

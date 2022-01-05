@@ -43,6 +43,14 @@ void ucloud_ai_facebody_recognize_expression(char *path, ucloud_ai_cb_t cb);
 void ucloud_ai_facebody_generate_human_anime_style(char *path, ucloud_ai_cb_t cb);
 
 /**
+ * Ucloud ai facebody detect pedestrian api.
+ *
+ * @param[in]  path      facebody image you want to recognize.
+ * @param[in]  cb        callback function to deal with result.
+ *
+ */
+void ucloud_ai_facebody_detect_pedestrian(char *path, ucloud_ai_cb_t cb);
+/**
  * @}
  */
 

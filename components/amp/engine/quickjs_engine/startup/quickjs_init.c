@@ -209,17 +209,10 @@ static void jsengine_register_addons()
 #endif
 
 #ifdef JSE_ADVANCED_ADDON_AUDIOPLAYER
-    module_audio_register();
+    module_audioplayer_register();
     extern uint32_t jslib_audioplayer_size;
     extern uint8_t jslib_audioplayer[];
     quickjs_add_prebuild_module("audioplayer", jslib_audioplayer, jslib_audioplayer_size);
-#endif
-
-#ifdef JSE_CORE_ADDON_CHECKSUM
-    module_checksum_register();
-    extern uint32_t jslib_checksum_size;
-    extern uint8_t jslib_checksum[];
-    quickjs_add_prebuild_module("checksum", jslib_checksum, jslib_checksum_size);
 #endif
 
 #ifdef JSE_ADVANCED_ADDON_BLECFGNET

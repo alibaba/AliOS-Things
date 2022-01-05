@@ -1,6 +1,7 @@
 #include <iostream>
 #include "alibabacloud/core/AlibabaCloud.h"
 #include "alibabacloud/core/CommonClient.h"
+#include "alibabacloud/core/Utils.h"
 #include "ucloud_ai_common.h"
 #include <ulog/ulog.h>
 
@@ -104,6 +105,26 @@ char *getTokenId(const char *domain, const char *regionId)
     ShutdownSdk();
 
     return response;
+}
+
+char *computeContentMD5(const char *data, size_t size)
+{
+    return (char *)ComputeContentMD5(data, size).c_str();
+}
+
+char *generateUuid()
+{
+    return (char *)GenerateUuid().c_str();
+}
+
+char *urlEncode(const char *src)
+{
+    return (char *)UrlEncode(src).c_str();
+}
+
+char *urlDecode(const char *src)
+{
+    return (char *)UrlDecode(src).c_str();
 }
 
 }

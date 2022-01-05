@@ -262,9 +262,9 @@ int apppack_update(uint8_t *ptr, int size)
         amp_warn(MOD_STR, "filename len = %d", g_file_header_size - JSEPACK_FILE_HEADER);
 
         if (g_file_name) {
-            aos_free(g_file_name);
+            amp_free(g_file_name);
         }
-        g_file_name = aos_calloc(1, g_file_header_size - JSEPACK_FILE_HEADER + 1);
+        g_file_name = amp_calloc(1, g_file_header_size - JSEPACK_FILE_HEADER + 1);
 
         /* get file name */
         len = g_file_header_size - JSEPACK_FILE_HEADER;

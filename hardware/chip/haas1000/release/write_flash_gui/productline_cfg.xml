@@ -1,0 +1,89 @@
+<productlinecfg>
+	<admin id="1">
+		<username>1</username>
+		<password>1</password>
+	</admin>
+	<language>en</language>
+	<encrypt_on>0</encrypt_on>
+    <burnappota_only>0</burnappota_only>
+	<cfgasupdate>0</cfgasupdate>
+	<burn switch="1">
+        <app>1</app>
+		<burnpath_1 />
+        <hash1>0</hash1>
+		<verify_hash_1 />
+        <otaboot>0</otaboot>
+		<burnpath_2 />
+        <hash2>0</hash2>
+		<verify_hash_2 />
+        <btfname>0</btfname>
+        <erasewhole>0</erasewhole>
+		<updatesector enable="1">
+			<addr_gen_type>2</addr_gen_type>
+			<updatebtaddr enable="1">
+			    <curr_bt_addr_gen>
+				    <NAP>0x11,0x11</NAP>
+				    <UAP>0x22</UAP>
+				    <LAP>0x33,0x33,0x46</LAP>
+			    </curr_bt_addr_gen>
+            </updatebtaddr>
+			<updatebtname enable="1">
+			    <dev_localname>cust_bt</dev_localname>			
+            </updatebtname>    
+			<updatebleaddr enable="1">
+			    <curr_ble_addr_gen>
+				    <NAP>0x12,0x34</NAP>
+				    <UAP>0x56</UAP>
+				    <LAP>0xc2,0x9a,0xdf</LAP>
+			    </curr_ble_addr_gen>
+            </updatebleaddr>
+            <updateblename enable="1">
+                <dev_localname>test</dev_localname>
+            </updateblename>
+			<updateconaddr enable="1">
+			    <btdongleaddr>
+				    <NAP>0x19,0x00</NAP>
+				    <UAP>0x86</UAP>
+				    <LAP>0x02,0x11,0x00</LAP>
+			    </btdongleaddr>
+            </updateconaddr>
+			<updatecalib enable="1">
+			    <defaultcalibval>127</defaultcalibval>
+                <defaultcalibval2>256</defaultcalibval2>
+            </updatecalib>
+            <updatesn enable="1">
+		        <sn_gen_type>0</sn_gen_type>
+			    <sn>0000000000000029</sn>
+            </updatesn>
+		</updatesector>
+        <chipver>1000</chipver>
+        <customer1 enable="0">
+            <customerpath />
+            <customeraddr />
+        </customer1>
+        <customer2 enable="0">
+            <customerpath />
+            <customeraddr />
+        </customer2>
+        <customer3 enable="0">
+            <customerpath />
+            <customeraddr />
+        </customer3>
+        <customer4 enable="0">
+            <customerpath />
+            <customeraddr />
+        </customer4>
+	</burn>
+	<factorymode switch="0">
+		<calibrate>0</calibrate>
+		<connector>0</connector>
+	</factorymode>
+	<dld_result>
+		<complete>64</complete>
+		<failure>3927</failure>
+	</dld_result>
+    <unuse_bt_addr />
+    <unuse_ble_addr />
+    <efuse_ID1>3</efuse_ID1>
+    <efuse_ID2>4</efuse_ID2>
+</productlinecfg>

@@ -1,12 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#本文件位于\AliOS-Things\platform\mcu\haas1000\release\auto_build_tool文件夹下
 #本文件用于适配python3.x版本，在3.7.3版本下测试通过。其他版本未测试。
 #修改本文件的目的是解决3.x版本下，使用aos make命令编译固件时发生的两个错误
 #第一个错误是“missing parentheses in call to 'print'”
 #第二个错误是“module ‘string’ has no attribute 'find'"
 
-#与阿里云提供的haashaas1000_genbin.py原版相比，本文件一共修改了4处，详见注释。
 #花生，2020年10月6日
 
 import os
@@ -59,8 +57,6 @@ while True:
     if not line:
         break
 
-    print("%s" %(line))
-
     arry_parm = line.split('-', 1 )
 
     if len(arry_parm) == 2:
@@ -75,17 +71,12 @@ while True:
         para_key = arry_parm[0]
         para_val = arry_parm[1]
 
-    print("para_key %s"  % para_key)
-    print("para_val %s"  % para_val)
-
     if para_key[0:1].isspace() == False:
         num_of_first_items = num_of_first_items + 1
         if para_val != '\r\n' and para_val != '\n':
             #花生，2020年10月6日17:32:39，下面的语句，原版本是print "format wrong"，要想在3.x版本支持，需要加括号。
             #否则会提示"missing parentheses in call to print"错误。下面若干个print也是相同处理方式
-            print ("format wrong")
             break
-
         dict1_name_list.append(para_key);
 
         cfg_dict[dict1_name_list[num_of_first_items]] = {}
@@ -349,10 +340,7 @@ if True:
 #  cp out/helloworld_demo@haas1000/binary/helloworld_demo@haas1000.bin release_bin
 if True:
     res_file_path = binary_dir + '/' + rtos_res_file_name
-    print("yxy %s" % os.getcwd())
-    print("yxy %s" % res_file_path)
     if not glob.glob(res_file_path):
-        print("yxy %s" % glob.glob(res_file_path))
         res_file_path = os.path.join(output_dir, "binary", rtos_res_file_name)
     res_file_path = sys.argv[2]
     des_path = release_file_dir + '/' + rtos_file_name

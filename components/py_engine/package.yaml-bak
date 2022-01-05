@@ -1,0 +1,374 @@
+
+## 第一部分： 基础信息
+name: py_engine
+version: dev_aos
+description: "component built by cmake"             # <必选项> 建议至少20字以上
+type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag:                                                # <可选项> 组件分类，缺省值： ''
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+  - cli: dev_aos
+  - osal_aos: dev_aos
+  - ulog: dev_aos
+  - uagent: dev_aos
+  - kv: dev_aos
+  - mbedtls: dev_aos
+  - cjson: dev_aos
+  - fatfs: "dev_aos ? <PY_BUILD_FATFS>"
+  - vfs: dev_aos
+  - amp_adapter: dev_aos
+  - oss: "dev_aos ? <PY_BUILD_OSS>"
+  - ucamera: "dev_aos ? <PY_BUILD_UCAMERA>"
+  - linksdk: "dev_aos ? <PY_BUILD_ALIYUNIOT>"
+  - netmgr: "dev_aos ? <PY_BUILD_NETMGR>"
+  - lwip: dev_aos
+  - http: "dev_aos ? <PY_BUILD_HTTP>"
+  - mqtt: "dev_aos ? <PY_BUILD_MQTT>"
+  - ucloud_ai: "dev_aos ? <PY_BUILD_UCLOUD_AI>"
+  - ai_agent: dev_aos ? <PY_BUILD_AIAGENT>
+  - uvoice: "dev_aos ? <PY_BUILD_AUDIO>"
+  - a2sa: "dev_aos ? <PY_BUILD_AUDIO>"
+  - ble_netconfig: "dev_aos ? <PY_BUILD_BLE>"
+  - ble_host: "dev_aos ? <PY_BUILD_BLE>"
+  - sntp: "dev_aos ? <PY_BUILD_SNTP>"
+  - mbedtls: "dev_aos ? <PY_BUILD_MBEDTLS>"
+  - mbmaster: "dev_aos ? <PY_BUILD_MODBUS>"
+  - ugraphics: "dev_aos ? <PY_BUILD_UGRAPHICS>"
+  
+  
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  define:
+    UVOICE_EVENT_BY_BUFFER_QUEUE: 1 ? <PY_BUILD_AUDIO>
+
+  include:
+
+    # adapter
+    - adapter/
+    - adapter/haas/ ? <PY_PLATFORM_HAAS_EDU>
+    - adapter/haas506/ ? <PY_PLATFORM_HAAS_506>
+    - adapter/haas510/ ? <PY_PLATFORM_HAAS_510>
+    - adapter/haas700/ ? <PY_PLATFORM_HAAS_700>
+
+    # modules
+    - modules/audio/
+    - modules/ble/
+    - modules/driver/
+    - modules/aliyunIoT/
+    - modules/minicv/
+    - modules/modbus/
+    - modules/mqtt/
+    - modules/netmgr/
+    - modules/netconfig/
+    - modules/network/
+    - modules/oss/
+    - modules/ota/
+    - modules/sntp/
+    - modules/ucamera/
+    - modules/ulog/
+
+    # engine
+    - engine/
+    - engine/drivers/
+    - engine/extmod/
+    - engine/lib/
+    - engine/shared/
+    
+    # external/unzip
+    - external/unzip/internal/
+    - external/unzip/include/
+
+    # external/amp_boot
+    - external/amp_boot/
+  
+    # external/amp_task
+    - external/amp_task/
+
+    # external/amp_utils
+    - external/amp_utils/
+
+    # external/app_mgr
+    - external/app_mgr/
+
+     # external/common
+    - external/common/
+
+   
+  prebuild_script: py_engine_prepare.py
+
+  libs:
+    - ampchannel ? <PY_BUILD_CHANNEL>
+
+  libpath:
+    - external/libs/haas1000 ? <BOARD_HAAS100>
+    - external/libs/haas1000 ? <BOARD_HAASEDUK1>
+    - external/libs/rtl872xd ? <BOARD_HAAS200>
+
+source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+  # - src/*.c                            # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+
+  # adapter
+  - adapter/main.c
+  - adapter/haas/*.c ? <PY_PLATFORM_HAAS_EDU>
+  - adapter/haas506/*.c ? <PY_PLATFORM_HAAS_506>
+  - adapter/haas510/*.c ? <PY_PLATFORM_HAAS_510>
+  - adapter/haas700/*.c ? <PY_PLATFORM_HAAS_700>
+
+  # audio
+  - modules/audio/*.c ? <PY_BUILD_AUDIO>
+
+  # ble
+  - modules/ble/*.c ? <PY_BUILD_BLE>
+
+  # driver
+  - modules/driver/*.c
+  
+  # linksdk
+  - modules/aliyunIoT/*.c ? <PY_BUILD_ALIYUNIOT>
+
+  # minicv
+  - modules/minicv/*.c ? <PY_BUILD_AI>
+  - modules/minicv/base/modules/c/src/WrapperIHaasDataInput.cpp
+  - modules/minicv/base/modules/c/src/WrapperIHaasImageCodec.cpp
+  - modules/minicv/base/modules/c/src/WrapperIHaasImageProc.cpp
+  - modules/minicv/base/modules/c/src/WrapperIHaasML.cpp
+  - modules/minicv/base/modules/c/src/WrapperIHaasUI.cpp
+  - modules/minicv/base/modules/c/src/WrapperIHaasVideoCodec.cpp
+  - modules/minicv/base/modules/core/src/HaasImageUtils.cpp
+  - modules/minicv/base/modules/ml/src/HaasML.cpp ? <PY_BUILD_AI>
+  - modules/minicv/base/modules/ml/src/HaasMLCloud.cpp ? <PY_BUILD_AI>
+  - modules/minicv/base/modules/ml/src/HaasMLMnn.cpp ? <PY_BUILD_AI>
+
+  # modbus
+  - modules/modbus/*.c ? <PY_BUILD_MODBUS>
+  
+  - modules/ugraphics/*.c ? <PY_BUILD_UGRAPHICS>
+
+  # mqtt
+  - modules/mqtt/modmqtt.c ? <PY_BUILD_MQTT>
+  - modules/mqtt/mqttclient.c ? <PY_BUILD_MQTT>
+
+  # netconfig
+  - modules/netconfig/*.c ? <PY_BUILD_BLE>
+
+  # netmgr
+  - modules/netmgr/modnetmgr.c ? <PY_BUILD_NETMGR>
+
+  # network/
+  - modules/network/http/modhttp.c ? <PY_BUILD_HTTP>
+  - modules/network/http/httpclient.c ? <PY_BUILD_HTTP>
+  - modules/network/tcp/modtcp.c ? <PY_BUILD_TCP>
+  - modules/network/udp/modudp.c ? <PY_BUILD_UDP>
+
+  # oss
+  - modules/oss/*.c ? <PY_BUILD_OSS>
+
+  # ucloud_ai
+  - modules/ucloud_ai/*.c ? <PY_BUILD_UCLOUD_AI>
+
+  # aiagent
+  - modules/ai_agent/*.c ? <PY_BUILD_AIAGENT>
+
+  # ota
+  - modules/ota/*.c ? <PY_BUILD_OTA>
+  
+  # sntp
+  - modules/sntp/*.c ? <PY_BUILD_SNTP>
+
+  # ucamera
+  - modules/ucamera/*.c ? <PY_BUILD_UCAMERA>
+
+  # ulog
+  - modules/ulog/*.c ? <PY_BUILD_ULOG>
+
+  # kv
+  - modules/kv/*.c ? <PY_BUILD_KV>
+
+   # system
+  - modules/system/*.c ? <PY_BUILD_SYSTEM>
+
+  # engine/drivers/
+  - engine/drivers/bus/*.c
+
+  # engine/extmod/
+  - engine/extmod/machine_bitstream.c
+  #- engine/extmod/modbluetooth.c
+  - engine/extmod/moducryptolib.c
+  - engine/extmod/moduselect.c
+  - engine/extmod/mpbthci.c
+  - engine/extmod/vfs_fat_diskio.c
+  - engine/extmod/vfs_reader.c
+  - engine/extmod/machine_i2c.c
+  - engine/extmod/modbtree.c
+  - engine/extmod/moductypes.c
+  - engine/extmod/modussl_axtls.c
+  - engine/extmod/network_cyw43.c
+  - engine/extmod/vfs_fat_file.c
+  - engine/extmod/virtpin.c
+  - engine/extmod/machine_mem.c
+  - engine/extmod/modframebuf.c
+  - engine/extmod/moduhashlib.c
+  - engine/extmod/modussl_mbedtls.c
+  - engine/extmod/uos_dupterm.c
+  - engine/extmod/vfs_lfs.c
+  - engine/extmod/machine_pinbase.c
+  # - engine/extmod/modlwip.c
+  - engine/extmod/moduheapq.c
+  - engine/extmod/modutimeq.c
+  - engine/extmod/utime_mphal.c
+  # - engine/extmod/vfs_lfsx.c
+  - engine/extmod/machine_pulse.c
+  - engine/extmod/modonewire.c
+  - engine/extmod/modujson.c
+  - engine/extmod/moduwebsocket.c
+  - engine/extmod/vfs.c
+  #- engine/extmod/vfs_lfsx_file.c
+  - engine/extmod/machine_signal.c
+  - engine/extmod/moduasyncio.c
+  - engine/extmod/modurandom.c
+  - engine/extmod/moduzlib.c
+  - engine/extmod/vfs_blockdev.c
+  - engine/extmod/vfs_posix.c
+  - engine/extmod/machine_spi.c
+  - engine/extmod/modubinascii.c
+  - engine/extmod/modure.c
+  - engine/extmod/modwebrepl.c
+  - engine/extmod/vfs_fat.c
+  - engine/extmod/vfs_posix_file.c
+
+  # engine/lib/
+  - engine/lib/rel1.5/*.c
+  #- engine/lib/uzlib/*.c
+
+  # engine/shared
+  #- engine/shared/libc/*.c
+  #- engine/shared/memzip/*.c
+  - engine/shared/netutils/*.c
+  - engine/shared/readline/*.c
+  - engine/shared/runtime/*.c
+  - engine/shared/timeutils/*.c
+  - engine/shared/upyteshhelper/*.c
+
+  # engine/py/
+  - engine/py/*.c
+
+  # external/unzip
+  - external/unzip/src/*.c
+
+  # external/amp_boot
+  - external/amp_boot/*.c ? <PY_BUILD_BOOT>
+
+  # external/amp_task
+  - external/amp_task/*.c
+
+  # external/amp_utils
+  - external/amp_utils/*.c
+
+  # external/app_mgr
+  - external/app_mgr/app_upgrade.c ? <PY_BUILD_OTA>
+  - external/app_mgr/app_mgr.c
+  - external/app_mgr/app_message.c
+  
+## 第五部分：配置信息
+# def_config:                              # 组件的可配置项
+#   CONFIG_DEBUG: y
+#   CONFIG_PARAM_NOT_CHECK: y
+#   CONFIG_CLI: y 
+def_config:
+  # Activation start
+  AOS_BUILD_APP: "py_engine"
+  # Activation end
+
+  #以下配置同时仅允许打开其中一项
+  LINKSDK_DEMO_MQTT_BASIC: y       #MQTT连IoT平台基础功能演示
+  LINKSDK_DEMO_MQTT_BCAST: n       #MQTT连IoT平台接收广播推送演示
+  LINKSDK_DEMO_MQTT_RRPC: n        #MQTT连IoT平台RRPC演示
+  CLI_IOBOX_ENABLE: 1              # Enable iobox cmd
+  ULOG_CONFIG_ASYNC: 1
+  ULOG_CONFIG_POP_FS: 1
+  ULOG_CONFIG_POP_UDP: 1
+  
+  #以下是Python引擎模块编译选项，1 为打开，0 为关闭
+  PY_BUILD_FATFS: 1                # Py_Engine module build FATFS Flag
+  PY_BUILD_AI: 1                   # Py_Engine module build AI Flag
+  PY_BUILD_HTTP: 1                 # Py_Engine module build http config
+  PY_BUILD_UDP: 1                  # Py_Engine module build udp config
+  PY_BUILD_NETMGR: 1               # Py_Engine module build http config
+  PY_BUILD_MQTT: 1                 # Py_Engine module build mqtt config
+  PY_BUILD_ALIYUNIOT: 1              # Py_Engine module build linksdk config
+  PY_BUILD_USOCKET: 1              # Py_Engine module build usocket config
+  PY_BUILD_AUDIO: 1                # Py_Engine module build uvoice config
+  PY_BUILD_UOS: 1                  # Py_Engine module build uos config
+  PY_BUILD_OSS: 1                  # Py_Engine module build oss config
+  PY_BUILD_UCAMERA: 1              # Py_Engine module build ucamera config
+  PY_BUILD_BLE: 1                  # Py_Engine module build ble net and host config
+  PY_BUILD_SNTP: 1                 # Py_Engine module build sntptime config
+  PY_BUILD_MODBUS: 1               # Py_Engine module build modbus config
+  PY_BUILD_UGRAPHICS: 0            # Py_Engine module build ugraphics config
+  PY_BUILD_ULOG: 1                 # Py_Engine module build ulog config
+  PY_BUILD_OTA: 1                  # Py_Engine module build OTA config
+  PY_BUILD_BOOT: 1                 # Py_Engine module build boot config
+  PY_BUILD_CHANNEL: 1              # Py_Engine module build boot config
+  PY_BUILD_AIAGENT: 1              # Py_Engine module build ai_agent config
+  PY_BUILD_UCLOUD_AI: 1            # Py_Engine module build ucloud_ai config
+  PY_BUILD_KV: 1                   # Py_Engine module build KV config
+  PY_BUILD_SYSTEM: 1               # Py_Engine module build system config
+
+  PY_BUILD_MBEDTLS: 1              # Py_Engine module build mbed TLS
+  MBEDTLS_CTR_DRBG_C: 1
+  MBEDTLS_ENTROPY_C: 1
+  # MBEDTLS_SHA256_C: 1
+  MBEDTLS_AES_ROM_TABLES: 1
+  # MBEDTLS_AES_C: 1
+  # MBEDTLS_FS_IO: 1
+  MBEDTLS_NO_PLATFORM_ENTROPY: 1
+  CONFIG_KWS_AI_ENGINE_ENABLE: 1 # 必须：使能HaaS HaaS唤醒引擎
+
+  PY_PLATFORM_HAAS_100: 0
+  PY_PLATFORM_HAAS_200: 0
+  PY_PLATFORM_HAAS_EDU: 1
+  PY_PLATFORM_HAAS_510: 0
+
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+
+
+
+  
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"

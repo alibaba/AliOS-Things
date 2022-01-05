@@ -81,7 +81,7 @@ namespace OSS
         OssClient(const std::string& endpoint, const std::shared_ptr<CredentialsProvider>& credentialsProvider, const ClientConfiguration& configuration);
         virtual ~OssClient();
 
-#if !defined(OSS_DISABLE_BUCKET)
+#if (!OSS_DISABLE_BUCKET)
         /*Service*/
         ListBucketsOutcome ListBuckets() const;
         ListBucketsOutcome ListBuckets(const ListBucketsRequest& request) const;
@@ -231,13 +231,13 @@ namespace OSS
         /*Generate Post Policy*/
 
         /*Resumable Operation*/
-#if !defined(OSS_DISABLE_RESUAMABLE)
+#if (!OSS_DISABLE_RESUAMABLE)
         PutObjectOutcome ResumableUploadObject(const UploadObjectRequest& request) const;
         CopyObjectOutcome ResumableCopyObject(const MultiCopyObjectRequest& request) const;
         GetObjectOutcome ResumableDownloadObject(const DownloadObjectRequest& request) const;
 #endif
 
-#if !defined(OSS_DISABLE_LIVECHANNEL)
+#if (!OSS_DISABLE_LIVECHANNEL)
         /*Live Channel*/
         VoidOutcome PutLiveChannelStatus(const PutLiveChannelStatusRequest& request) const;
         PutLiveChannelOutcome PutLiveChannel(const PutLiveChannelRequest& request) const;
@@ -266,7 +266,7 @@ namespace OSS
         UploadPartCopyOutcomeCallable UploadPartCopyCallable(const UploadPartCopyRequest& request) const;
 
         /*Extended APIs*/
-#if !defined(OSS_DISABLE_BUCKET)
+#if (!OSS_DISABLE_BUCKET)
         bool DoesBucketExist(const std::string& bucket) const;
 #endif
         bool DoesObjectExist(const std::string& bucket, const std::string& key) const;

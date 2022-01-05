@@ -17,7 +17,7 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - rhino: master
+  - rhino: master ? <!OS_FREERTOS>
   - ulog: master
 #  - cli: master
 
@@ -49,8 +49,9 @@ build_config:
   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
     - include                              #        include 只能是该软件包下的目录，不能使用外部目录
 source_file:
-  - common.c
-  - rhino/*c
+  - rhino/*.c ? <!OS_FREERTOS>
+  - freertos/*.c ? <OS_FREERTOS>
+  - export.c ? <CONFIG_DM>
 #  - example/event_example.c
 #  - example/mem_example.c
 #  - example/mutex_example.c
@@ -67,6 +68,7 @@ source_file:
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y
 def_config:
+  SYSINFO_SYSTEM_VERSION: "0.1.7"          # Anolis Things系统版本信息
   OSAL_RHINO: 1
   AOS_HAL: 1
 

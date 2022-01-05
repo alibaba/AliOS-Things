@@ -19,17 +19,17 @@ license: Apache-2.0 License                        # <可选项> 源代码的许
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - osal_aos: master
-  - ulog: master
-  - kv: master
-  - mbedtls: master
-  - cjson: master
-  - linksdk: master
-  - ota: master
-  - netmgr: master
-  - littlefs: master
-  - http: master
-  - udisplay: master
+  - osal_aos: master ? <!ESP_PLATFORM>
+  - ulog: master ? <!ESP_PLATFORM>
+  - kv: master ? <!ESP_PLATFORM>
+  - mbedtls: master ? <!ESP_PLATFORM>
+  - cjson: master ? <!ESP_PLATFORM>
+  - linksdk: master ? <!ESP_PLATFORM>
+  - ota: master ? <!ESP_PLATFORM>
+  - netmgr: master ? <!ESP_PLATFORM>
+  - littlefs: master ? <!ESP_PLATFORM>
+  - http: master ? <!ESP_PLATFORM>
+  - udisplay: master ? <!ESP_PLATFORM>
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -62,14 +62,15 @@ build_config:
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
-  - platform/aos/aos_fs.c
+  - platform/aos/aos_fs.c ? <!ESP_PLATFORM>
   - platform/aos/haas100/amp_ota_port.c ? <BOARD_HAAS100>
   - platform/aos/haas200/amp_ota_port.c ? <BOARD_HAAS200>
   - platform/aos/haaseduk1/amp_ota_port.c ? <BOARD_HAASEDUK1>
-  - platform/aos/aos_system.c
-  - platform/aos/network/*.c
-  - platform/aos/peripheral/*.c
-
+  - platform/aos/aos_system.c ? <!ESP_PLATFORM>
+  - platform/aos/network/*.c ? <!ESP_PLATFORM>
+  - platform/aos/peripheral/*.c     ? <!ESP_PLATFORM>
+  - platform/esp_idf/peripheral/*.c ? <ESP_PLATFORM>
+  - platform/esp_idf/*.c ? <ESP_PLATFORM>
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项
 #   CONFIG_DEBUG: y

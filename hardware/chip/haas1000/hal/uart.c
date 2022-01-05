@@ -380,7 +380,15 @@ int32_t hal_uart_init(uart_dev_t *uart)
         return EIO;
     }
 
-    krhino_mutex_create(&uart_ctx[uart_id].rx_cb_mutex, "uart_rx_cb");
+    ret = krhino_mutex_create(&uart_ctx[uart_id].rx_cb_mutex, "uart_rx_cb");
+    if (ret != RHINO_SUCCESS) {
+        aos_free(uart_ctx[uart_id].rx_ringbuf);
+        krhino_sem_del(&uart_ctx[uart_id].tx_sem);
+        krhino_sem_del(&uart_ctx[uart_id].rx_sem);
+        krhino_sem_del(&uart_ctx[uart_id].rx_irq_bottom_sem);
+        return EIO;
+    }
+
     uart_ctx[uart_id].rx_cb = NULL;
     uart_ctx[uart_id].rx_cb_arg = NULL;
     ret = krhino_task_dyn_create(&uart_ctx[uart_id].rx_irq_bottom_task,

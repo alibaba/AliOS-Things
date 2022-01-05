@@ -215,4 +215,56 @@ int recognizeCharacter(char *url, AIModelCBFunc cb)
     return ret;
 }
 
+int recognizeLicensePlate(char *url, AIModelCBFunc cb)
+{
+    InitializeSdk();
+    string key = getAccessKey();
+    string secret = getAccessSecret();
+    ClientConfiguration configuration;
+    configuration.setRegionId(CLOUD_AI_REGION_ID);
+    configuration.setEndpoint(CLOUD_AI_OCR_ENDPOINT);
+    OcrClient client(key, secret, configuration);
+    Model::RecognizeLicensePlateRequest request;
+    OcrResultStruct result;
+    string text;
+    string imageURL;
+    int ret = 0, i;
+
+    imageURL = url;
+    request.setScheme("http");
+    request.setMethod(HttpRequest::Method::Post);
+    request.setImageURL(imageURL);
+
+    auto outcome = client.recognizeLicensePlate(request);
+    cout << endl << "ocr recognizeCharacter describeInstances returned:" << endl;
+    cout << "error code: " << outcome.error().errorCode() << endl;
+    cout << "requestId: " << outcome.result().requestId() << endl << endl;
+
+    for (i = 0; i < outcome.result().getData().plates.size(); i++) {
+        cout << "plateNumber: " << outcome.result().getData().plates[i].plateNumber << endl;
+        cout << "confidence: " << outcome.result().getData().plates[i].confidence << endl;
+        cout << "plateType: " << outcome.result().getData().plates[i].plateType << endl;
+        cout << "plateTypeConfidence: " << outcome.result().getData().plates[i].plateTypeConfidence << endl;
+        cout << "roi.x: " << outcome.result().getData().plates[i].roi.x << endl;
+        cout << "roi.y: " << outcome.result().getData().plates[i].roi.y << endl;
+        cout << "roi.w: " << outcome.result().getData().plates[i].roi.w << endl;
+        cout << "roi.h: " << outcome.result().getData().plates[i].roi.h << endl;
+
+        result.licensePlate.plateNumber = outcome.result().getData().plates[i].plateNumber.c_str();
+        result.licensePlate.confidence = outcome.result().getData().plates[i].confidence;
+        result.licensePlate.plateType = outcome.result().getData().plates[i].plateType.c_str();
+        result.licensePlate.plateTypeConfidence = outcome.result().getData().plates[i].plateTypeConfidence;
+        result.licensePlate.roi.x = outcome.result().getData().plates[i].roi.x;
+        result.licensePlate.roi.y = outcome.result().getData().plates[i].roi.y;
+        result.licensePlate.roi.w = outcome.result().getData().plates[i].roi.w;
+        result.licensePlate.roi.h = outcome.result().getData().plates[i].roi.h;
+
+        if (cb) {
+            ret = cb((void *)&result);
+        }
+    }
+    ShutdownSdk();
+    return ret;
+}
+
 }

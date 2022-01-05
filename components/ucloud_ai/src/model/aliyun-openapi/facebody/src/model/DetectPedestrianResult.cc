@@ -44,7 +44,7 @@ void DetectPedestrianResult::parse(const std::string &payload)
 		data_.height = std::stoi(dataNode["Height"].asString());
 	if(!dataNode["Width"].isNull())
 		data_.width = std::stoi(dataNode["Width"].asString());
-	auto allElementsNode = dataNode["Elements"]["Element"];
+	auto allElementsNode = dataNode["Elements"];
 	for (auto dataNodeElementsElement : allElementsNode)
 	{
 		Data::Element elementObject;
@@ -52,7 +52,7 @@ void DetectPedestrianResult::parse(const std::string &payload)
 			elementObject.score = std::stof(dataNodeElementsElement["Score"].asString());
 		if(!dataNodeElementsElement["Type"].isNull())
 			elementObject.type = dataNodeElementsElement["Type"].asString();
-		auto allBoxes = value["Boxes"]["Box"];
+		auto allBoxes = dataNodeElementsElement["Boxes"];
 		for (auto value : allBoxes)
 			elementObject.boxes.push_back(value.asString());
 		data_.elements.push_back(elementObject);

@@ -70,11 +70,6 @@ source_file:
 # os driver entry
   - devicevfs/src/u_driver_hub.c ? <CONFIG_DRV_VFS>
 
-# aos device framework
-  - device/device.c ? <CONFIG_DRV_DEVICE>
-  - device/object.c ? <CONFIG_DRV_DEVICE>
-  - device/vfs_adapter.c ? <CONFIG_DRV_DEVICE>
-
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项
 #   CONFIG_DEBUG: y
@@ -83,7 +78,6 @@ source_file:
 def_config:
   CONFIG_DRV_CORE: 1
   CONFIG_DRV_PLATFORM: 1
-  CONFIG_DRV_DEVICE: 1
 
   CONFIG_DRV_VFS: 1
 

@@ -57,6 +57,7 @@ source_file:
   - src/ulog_session_file.c? <ULOG_CONFIG_POP_FS>
   - src/ulog_session_udp.c? <ULOG_CONFIG_POP_UDP>
   - src/ulog_utility.c
+  - export.c ? <CONFIG_DM>
 #  - "example/*.c"
 
 ## 第五部分：配置信息

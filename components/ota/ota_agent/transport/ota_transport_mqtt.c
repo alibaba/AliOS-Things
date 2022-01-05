@@ -11,7 +11,6 @@
 #include "ota_hal_os.h"
 #include "ota_hal_trans.h"
 #include "ota_agent.h"
-#include "aiot_mqtt_api.h"
 /**
  * ota_sevice_parse_msg  OTA parse download info from cloud
  *
@@ -224,22 +223,16 @@ static void ota_mqtt_sub_cb(void *mqtt_client, void *msg, void *pctx)
 {
     char *payload = NULL;
     ota_service_t *ctx = (ota_service_t *)pctx;
-    aiot_mqtt_recv_t *mqtt_msg = (aiot_mqtt_recv_t *)msg;
     if ((msg == NULL) && (ctx == NULL)) {
         OTA_LOG_E("mqtt sub param err!");
         return;
     }
-    if (mqtt_msg->type == AIOT_MQTTRECV_PUB) {
-        payload = (char *)mqtt_msg->data.pub.payload;
-        OTA_LOG_I("pub, qos: %d, topic: %.*s\n", mqtt_msg->data.pub.qos, mqtt_msg->data.pub.topic_len, mqtt_msg->data.pub.topic);
+    if (ota_hal_mqtt_type_is_pub(msg)) {
+        payload = (char *)ota_hal_mqtt_get_payload(msg);
         if (payload != NULL) {
-            OTA_LOG_I("mqtt cb evt:%d %s", mqtt_msg->type, payload);
             ota_sevice_parse_msg(ctx, payload);
         }
     } else {
-        OTA_LOG_I("mqtt type = %d", mqtt_msg->type);
-        payload = (char *)mqtt_msg->data.pub.payload;
-        // OTA_LOG_I("pub, qos: %d, topic: %.*s\n", mqtt_msg->data.pub.qos, mqtt_msg->data.pub.topic_len, mqtt_msg->data.pub.topic);
         OTA_LOG_E("mqtt receive err msg type!");
     }
 }

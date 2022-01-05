@@ -82,6 +82,8 @@ int ota_download_store_fs_start(char *url, unsigned int url_len, char *store_pat
          return ret;
     }
     for (j = OTA_DOWNLOAD_RETRY_CNT; (j > 0) && (ret < 0); j--) {
+        memset(&client_data, 0, sizeof(client_data));
+        memset(&client, 0 , sizeof(client));
         ret = ota_httpc_settings_init(&client, &client_data);
         if (ret < 0) {
             ret = OTA_DOWNLOAD_INIT_FAIL;
@@ -133,7 +135,7 @@ int ota_download_store_fs_start(char *url, unsigned int url_len, char *store_pat
                 }
                 ota_rx_size += client_data.content_block_len;
                 ota_msleep(5);
-                off_size = ota_rx_size;
+                off_size += client_data.content_block_len;
                 if (ota_file_size) {
                     percent = ((long)(ota_rx_size >> 6) * 100) / (long)(ota_file_size >> 6);
                     if (percent / divisor) {

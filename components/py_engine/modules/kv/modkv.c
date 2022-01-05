@@ -1,3 +1,5 @@
+#if (MICROPY_PY_KV)
+
 #include "aos/kv.h"
 
 #include <stdio.h>
@@ -60,6 +62,7 @@ STATIC mp_obj_t obj_getStorageSync(size_t n_args, const mp_obj_t *args)
         LOGE(LOG_TAG, "allocate memory failed\n");
         return MP_ROM_INT(-ENOMEM);
     }
+    memset(value, 0, KV_BUFFER_MAX_LEN);
 
     ret = aos_kv_get(key, value, &value_len);
     if (ret != 0) {
@@ -110,7 +113,9 @@ STATIC const mp_rom_map_elem_t kv_module_globals_table[] = {
 };
 
 STATIC MP_DEFINE_CONST_DICT(kv_module_globals, kv_module_globals_table);
-const mp_obj_module_t kv_module = {
+const mp_obj_module_t mp_module_kv = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&kv_module_globals,
 };
+
+#endif // MICROPY_PY_KV

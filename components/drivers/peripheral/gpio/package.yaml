@@ -1,8 +1,8 @@
 
 ## 第一部分： 基础信息
-name: gpio                                           # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+name: gpio                                          # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
 version: master                                    # <必选项> 组件版本号
-description: GPIO 通用驱动                           # <必选项> 建议至少20字以上
+description: GPIO 通用驱动                          # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
 tag: 第三方驱动                                     # <可选项> 组件分类，缺省值： ''

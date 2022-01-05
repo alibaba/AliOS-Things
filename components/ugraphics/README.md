@@ -46,7 +46,7 @@ def_config:                              # 组件的可配置项
 > 配置是否支持JPEG解码、图像格式转换、图像旋转，默认是关闭的
 
 # API说明
-- 参考 [ugraphics_aos_api](https://g.alicdn.com/alios-things-3.3/doc/group__ugraphics__aos__api.html)
+  暂无说明
 
 # 使用示例
 

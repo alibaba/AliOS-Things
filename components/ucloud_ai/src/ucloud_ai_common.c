@@ -46,18 +46,23 @@ void ucloud_ai_set_oss_endpoint(char *endpoint)
 
 uint8_t *ucloud_ai_upload_file(char *path)
 {
-    char *tmp_upload_url, *p_upload_url;
+    char *p_upload_url = NULL;
     char *access_key = getAccessKey();
     char *access_secret = getAccessSecret();
 
-    /*update capture.jpg to oss*/
-    tmp_upload_url = oss_upload_local_file(access_key, \
-            (char *)access_secret, g_oss_endpoint, g_oss_bucket, path);
-    if (!tmp_upload_url) {
-        LOGE(TAG, "url is null\n");
-        return NULL;
+    if (strstr(path, "https") || strstr(path, "http")) {
+        p_upload_url = strdup(path);
+    } else {
+        /*update capture.jpg to oss*/
+        char *tmp_upload_url = NULL;
+        tmp_upload_url = oss_upload_local_file(access_key, \
+                (char *)access_secret, g_oss_endpoint, g_oss_bucket, path);
+        if (!tmp_upload_url) {
+            LOGE(TAG, "url is null\n");
+            return NULL;
+        }
+        p_upload_url = strdup(tmp_upload_url);
     }
-    p_upload_url = strdup(tmp_upload_url);
     return p_upload_url;
 }
 
@@ -128,4 +133,25 @@ char *ucloud_ai_get_token_id(const char *domain, const char *region_id)
 {
     return getTokenId(domain, region_id);
 }
+
+char *ucloud_ai_compute_md5(const char *data, size_t size)
+{
+    return (char *)computeContentMD5(data, size);
+}
+
+char *ucloud_ai_generate_uuid()
+{
+    return (char *)generateUuid();
+}
+
+char *ucloud_ai_url_encode(const char *src)
+{
+    return (char *)urlEncode(src);
+}
+
+char *ucloud_ai_url_decode(const char *src)
+{
+    return (char *)urlDecode(src);
+}
+
 

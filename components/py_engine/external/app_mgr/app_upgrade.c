@@ -23,7 +23,6 @@
 
 static ota_store_module_info_t module_info[3];
 static ota_service_t internal_ctx = { 0 };
-static module_version[128];
 
 char *py_ota_get_module_ver(void *pctx, char *module_name)
 {
@@ -82,106 +81,6 @@ int pyamp_ota_file_plus_name(char *file_path1, char *file_path2, char *new_path,
 AMP_WEAK int fota_image_local_copy(char *image_name, int image_size)
 {
     return -1;
-}
-
-/* system image upgrade */
-static int32_t internal_upgrade_cb(void *pctx, char *ver, char *module_name)
-{
-    int32_t ret = OTA_TRANSPORT_PAR_FAIL;
-    aos_task_t internal_ota_task;
-    char *current_ver = NULL;
-    if ((pctx == NULL) || (ver == NULL) || (module_name == NULL)) {
-        amp_error(MOD_STR, "amp:ota triggered param err!");
-        return ret;
-    }
-    if (strncmp(module_name, "default", strlen(module_name)) == 0) {
-        ret = STATE_SUCCESS;
-        current_ver = ota_get_module_ver(pctx, module_name);
-        if (strncmp(ver, current_ver, strlen(ver)) <= 0) {
-            ret = OTA_TRANSPORT_VER_FAIL;
-            amp_error(MOD_STR, "amp ota version too old!");
-        } else {
-            amp_debug(MOD_STR, "ota version:%s is coming, if OTA upgrade or not ?\n", ver);
-            /* clear jsengine timer, distory js app*/
-            amp_module_free();
-            app_js_stop();
-            if (aos_task_new_ext(&internal_ota_task, "amp_internal_ota", internal_sys_upgrade_start, (void *)pctx,
-                                 1024 * 8, AOS_DEFAULT_APP_PRI) != 0) {
-                amp_debug(MOD_STR, "internal ota task create failed!");
-                ret = OTA_TRANSPORT_PAR_FAIL;
-            }
-            amp_debug(MOD_STR, "app management center start");
-        }
-    } else {
-        // current_ver = ota_get_module_ver(pctx, module_name);
-        // if (current_ver != NULL) {
-        //     ret = STATE_SUCCESS;
-        //     if (strncmp(ver, current_ver, strlen(ver)) <= 0) {
-        //         ret = OTA_TRANSPORT_VER_FAIL;
-        //         amp_error(MOD_STR, "submodule jsapp ota version too old!");
-        //     } else {
-        //         amp_debug(MOD_STR, "ota module version:%s is coming, if OTA
-        //         module upgrade or not ?\n", ver);
-        //         /* clear jsengine timer, distory js app*/
-        //         amp_module_free();
-        //         app_js_stop();
-        //         if (aos_task_new_ext(&internal_ota_task, "amp_moudle_ota",
-        //         internal_module_upgrade_start, (void *)pctx, 1024 * 8,
-        //         AOS_DEFAULT_APP_PRI) != 0) {
-        //             amp_debug(MOD_STR, "internal ota task create failed!");
-        //             ret = OTA_TRANSPORT_PAR_FAIL;
-        //         }
-        //         amp_debug(MOD_STR, "app management center start");
-        //     }
-        // }
-    }
-    return ret;
-}
-
-/* app upgrade service */
-int32_t py_app_upgrade_service(void *mqtt_handle)
-{
-    int res = STATE_SUCCESS;
-    int productkey_len = IOTX_PRODUCT_KEY_LEN;
-    int productsecret_len = IOTX_PRODUCT_SECRET_LEN;
-    int devicename_len = IOTX_DEVICE_NAME_LEN;
-    int devicesecret_len = IOTX_DEVICE_SECRET_LEN;
-    char *current_ver = NULL;
-
-    ota_service_param_reset(&internal_ctx);
-    memset(module_info, 0x00, sizeof(module_info));
-    ota_register_module_store(&internal_ctx, module_info, 3);
-    /* get device info */
-    aos_kv_get(AMP_INTERNAL_PRODUCTKEY, internal_ctx.pk, &productkey_len);
-    aos_kv_get(AMP_INTERNAL_PRODUCTSECRET, internal_ctx.ps, &productsecret_len);
-    aos_kv_get(AMP_INTERNAL_DEVICENAME, internal_ctx.dn, &devicename_len);
-    aos_kv_get(AMP_INTERNAL_DEVICESECRET, internal_ctx.ds, &devicesecret_len);
-
-    ota_register_trigger_msg_cb(&internal_ctx, (void *)internal_upgrade_cb, NULL);
-    internal_ctx.mqtt_client = (void *)mqtt_handle;
-    ota_set_module_information(&internal_ctx, AMP_OTA_MODULE_NAME, SUBDEV_FILE_PATH, OTA_UPGRADE_CUST);
-    ota_set_module_information(&internal_ctx, "default", OS_APP_PATH, OTA_UPGRADE_ALL);
-    /* init ota service */
-    res = ota_service_init(&internal_ctx);
-    if (res < STATE_SUCCESS) {
-        amp_error(MOD_STR, "internal ota init failed!");
-    }
-    amp_warn(MOD_STR, "internal ota init success!");
-
-    /*custom report version*/
-    current_ver = ota_get_module_ver(&internal_ctx, "default");
-    res = ota_report_module_version(&internal_ctx, "default", current_ver);
-    if (res < STATE_SUCCESS) {
-        amp_error(MOD_STR, "amp ota report ver failed!");
-    }
-    current_ver = ota_get_module_ver(&internal_ctx, AMP_OTA_MODULE_NAME);
-    res = ota_report_module_version(&internal_ctx, AMP_OTA_MODULE_NAME, current_ver);
-    if (res < STATE_SUCCESS) {
-        amp_error(MOD_STR, "amp jsota report ver failed!");
-        return -1;
-    }
-
-    return STATE_SUCCESS;
 }
 
 int ota_install_pyapp(void *ota_ctx, char *store_file, int store_file_len, char *install_path)

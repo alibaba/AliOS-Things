@@ -37,6 +37,8 @@ typedef struct {
 
 int ota_hal_mqtt_subscribe(void *mqtt_client, char *topic, void* cb, void *ctx);
 int ota_hal_mqtt_publish(void *mqtt_client, char *topic, int qos, void *data, int len);
+int ota_hal_mqtt_type_is_pub(void *msg);
+void *ota_hal_mqtt_get_payload(void *msg);
 /**
  * @}
  */

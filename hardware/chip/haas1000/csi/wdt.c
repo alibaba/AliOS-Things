@@ -19,7 +19,7 @@ csi_error_t csi_wdt_init(csi_wdt_t *wdt, uint32_t idx)
 
     if(watchdog_flag == 1) {
         printf("%s - wdt already init\r\n", __func__);
-        return;
+        return CSI_ERROR;
     }
 
     if(wdg_gpio.port == 0) {
@@ -74,7 +74,7 @@ csi_error_t csi_wdt_feed(csi_wdt_t *wdt)
 
     if(watchdog_flag == 0) {
         printf("%s - watchdog is not init yet\r\n", __func__);
-        return;
+        return CSI_ERROR;
     }
 
     hal_gpio_output_toggle(&wdg_gpio);

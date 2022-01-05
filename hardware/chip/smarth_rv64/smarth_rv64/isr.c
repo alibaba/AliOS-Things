@@ -16,21 +16,10 @@
 #include <csi_kernel.h>
 #endif
 
-#if defined(CONFIG_KERNEL_RHINO)
-#undef CONFIG_SYSTICK_HZ
-#define CONFIG_SYSTICK_HZ RHINO_CONFIG_TICKS_PER_SECOND
-#endif
-
-#ifndef CONFIG_SYSTICK_HZ
-#define CONFIG_SYSTICK_HZ 100
-#endif
-
 extern void ck_usart_irqhandler(int32_t idx);
 extern void dw_timer_irqhandler(int32_t idx);
 extern void dw_gpio_irqhandler(int32_t idx);
 extern void systick_handler(void);
-extern void xPortSysTickHandler(void);
-extern void OSTimeTick(void);
 
 #define  ATTRIBUTE_ISR
 
@@ -47,23 +36,8 @@ extern void OSTimeTick(void);
 
 ATTRIBUTE_ISR void CORET_IRQHandler(void)
 {
-#ifndef CONFIG_KERNEL_FREERTOS
-    CSI_INTRPT_ENTER();
-#endif
-
-    csi_coret_config(drv_get_sys_freq() / CONFIG_SYSTICK_HZ, 0x0);
-
-#if defined(CONFIG_KERNEL_RHINO)
+    csi_coret_config(drv_get_sys_freq() / RHINO_CONFIG_TICKS_PER_SECOND, 0x0);
     systick_handler();
-#elif defined(CONFIG_KERNEL_FREERTOS)
-    xPortSysTickHandler();
-#elif defined(CONFIG_KERNEL_UCOS)
-    OSTimeTick();
-#endif
-
-#ifndef CONFIG_KERNEL_FREERTOS
-    CSI_INTRPT_EXIT();
-#endif
 }
 
 ATTRIBUTE_ISR void USART_IRQHandler(void)

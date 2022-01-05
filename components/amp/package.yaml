@@ -89,7 +89,6 @@ build_config:
     - services/amp_boot
     - services/amp_memmgt
     - ui/render/include ? <AMP_ADVANCED_ADDON_UI>
-    - utils/checksum
     - aos_config
   libs:
     - ampservice
@@ -146,7 +145,6 @@ source_file:
   - engine/duktape_engine/addons/utils/system/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_CORE_ADDON_SYSTEM>
   - engine/duktape_engine/addons/utils/systimer/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_CORE_ADDON_SYSTIMER>
   - engine/duktape_engine/addons/utils/log/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_CORE_ADDON_LOG>
-  - engine/duktape_engine/addons/utils/checksum/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_CORE_ADDON_CHECKSUM>
   - engine/duktape_engine/addons/utils/ui/*.c ? <CONFIG_ENGINE_DUKTAPE, AMP_ADVANCED_ADDON_UI>
   - engine/duktape_engine/duktape/*.c ? <CONFIG_ENGINE_DUKTAPE>
   - engine/duktape_engine/startup/app_entry.c ? <CONFIG_ENGINE_DUKTAPE>
@@ -164,7 +162,6 @@ source_file:
   - engine/quickjs_engine/addons/utils/crypto/module_crypto.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_CRYPTO>
   - engine/quickjs_engine/addons/utils/crypto/crypto_adapter.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_CRYPTO>
   - engine/quickjs_engine/addons/utils/crypto/cbc_mode.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_CRYPTO>
-  - engine/quickjs_engine/addons/utils/checksum/module_checksum.c ? <CONFIG_ENGINE_QUICKJS, AMP_CORE_ADDON_CHECKSUM>
   - engine/quickjs_engine/addons/utils/builtin/module_builtin.c ? <CONFIG_ENGINE_QUICKJS>
   - engine/quickjs_engine/addons/hardware/wdg/module_wdg.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_WDG>
   - engine/quickjs_engine/addons/hardware/spi/module_spi.c ? <CONFIG_ENGINE_QUICKJS, AMP_HW_ADDON_SPI>
@@ -208,11 +205,11 @@ source_file:
   - services/amp_utils/*.c
   - services/app_mgr/app_mgr.c
   - services/app_mgr/app_upgrade.c
+  - services/app_mgr/app_upgrade_adapt.c
   - services/board_mgr/*.c
   - services/amp_boot/*.c
   - services/amp_memmgt/*.c
   - example/amp_example.c
-  - utils/checksum/*.c
 
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项
@@ -223,7 +220,6 @@ def_config:                              # 组件的可配置项
     ULOG_CONFIG_POP_FS: 1                #支持存储到文件系统
     AMP_ADVANCED_ADDON_OTA: 0
     AMP_CORE_ADDON_BUILDIN: 1
-    AMP_CORE_ADDON_CHECKSUM: 1
     AMP_CORE_ADDON_SYSTEM: 1
     AMP_CORE_ADDON_FS: 1
     AMP_CORE_ADDON_KV: 1
@@ -260,7 +256,6 @@ def_config:                              # 组件的可配置项
     AMP_ADVANCED_ADDON_KEYPAD: 0
     AMP_ADVANCED_ADDON_UND: 0
     AMP_WIRELESS_ADDON_BT_HOST: 0
-    AMP_UTILS_ADDON_CHECKSUM: 0
     AMP_ADVANCED_ADDON_UI: 0
     AMP_ADVANCED_ADDON_BLECFGNET: 0
 

@@ -15,6 +15,9 @@
 
 int32_t aos_hal_wdg_init(wdg_dev_t *wdg)
 {
+#if (defined(BOARD_HAAS100) || defined(BOARD_HAASEDUK1))
+    hal_wdg_init(wdg);
+#else
 #ifndef AOS_BOARD_HAAS700
     uint32_t flags = 0;
     int32_t ret = 0;
@@ -49,13 +52,16 @@ out:
         p_fd = NULL;
     }
     return ret;
-#else
+#endif
     return -1;
 #endif
 }
 
 void aos_hal_wdg_reload(wdg_dev_t *wdg)
 {
+#if (defined(BOARD_HAAS100) || defined(BOARD_HAASEDUK1))
+    hal_wdg_reload(wdg);
+#else
 #ifndef AOS_BOARD_HAAS700
     int32_t *p_fd = NULL;
     int32_t ret = -1;
@@ -74,13 +80,16 @@ void aos_hal_wdg_reload(wdg_dev_t *wdg)
     }
 
     return;
-#else
+#endif
     return -1;
 #endif
 }
 
 int32_t aos_hal_wdg_finalize(wdg_dev_t *wdg)
 {
+#if (defined(BOARD_HAAS100) || defined(BOARD_HAASEDUK1))
+    hal_wdg_finalize(wdg);
+#else
 #ifndef AOS_BOARD_HAAS700
     int32_t ret = 0;
     int32_t port = 0;
@@ -105,7 +114,7 @@ int32_t aos_hal_wdg_finalize(wdg_dev_t *wdg)
     free(p_fd);
 
     return ret;
-#else
+#endif
     return -1;
 #endif
 }

@@ -1,5 +1,8 @@
 /*
- * Copyright (C) 2015-2020 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2021 Alibaba Group Holding Limited
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  */
 
 #ifndef _BLE_NETCONFIG_H_

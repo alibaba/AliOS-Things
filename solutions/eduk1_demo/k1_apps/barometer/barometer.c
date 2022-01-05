@@ -34,7 +34,7 @@ int barometer_init(void)
         LOGI(EDU_TAG, "spl06_init done\n");
     }
 
-    aos_task_new_ext(&barometer_task_handle, "barometer_task", barometer_task, NULL, 1024, AOS_DEFAULT_APP_PRI);
+    aos_task_new_ext(&barometer_task_handle, "barometer_task", barometer_task, NULL, 1024 * 4, AOS_DEFAULT_APP_PRI);
     LOGI(EDU_TAG, "aos_task_new barometer_task\n");
     return 0;
 }

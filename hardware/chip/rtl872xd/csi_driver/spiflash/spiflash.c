@@ -273,3 +273,5 @@ int csi_flash_init()
 
     return ret;
 }
+
+LEVEL1_DRIVER_ENTRY(csi_flash_init)

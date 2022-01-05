@@ -1,0 +1,43 @@
+This README documents the test cases supported for the 1st ETSI CoAP
+plugtest on March 24/25 in Paris, France.
+<http://www.etsi.org/plugtests/coap/coap.htm>
+
+Legend:
+  [+] full support
+  [o] partial support
+  [-] no support
+  [?] needs check
+  [ ] has open issues
+
+Mandatory Tests
+
+[+] TD_COAP_CORE_01 Perform GET transaction (CON mode)
+[+] TD_COAP_CORE_02 Perform POST transaction (CON mode)
+[+] TD_COAP_CORE_03 Perform PUT transaction (CON mode)
+[+] TD_COAP_CORE_04 Perform DELETE transaction (CON mode)
+[+] TD_COAP_CORE_05 Perform GET transaction (NON mode)
+[+] TD_COAP_CORE_06 Perform POST transaction (NON mode)
+[+] TD_COAP_CORE_07 Perform PUT transaction (NON mode)
+[+] TD_COAP_CORE_08 Perform DELETE transaction (NON mode)
+[+] TD_COAP_CORE_09 Perform GET transaction with delayed response (CON mode, no piggyback)
+[+] TD_COAP_CORE_10 Handle request containing Token option
+[+] TD_COAP_CORE_11 Handle request not containing Token option
+[+] TD_COAP_CORE_12 Handle request containing several Uri-Path options
+[+] TD_COAP_CORE_13 Handle request containing several Uri-Query options
+[?] TD_COAP_CORE_14 Interoperate in lossy context (CON mode, piggybacked response)
+[?] TD_COAP_CORE_15 Interoperate in lossy context (CON mode, delayed response)
+
+Optional Tests
+
+[ ] TD_COAP_LINK_01 Access to well-known interface for resource discovery
+[-] TD_COAP_LINK_02 Use filtered requests for limiting discovery results
+[+] TD_COAP_BLOCK_01 Handle GET blockwise transfer for large resource (early negotiation)
+[+] TD_COAP_BLOCK_02 Handle GET blockwise transfer for large resource (late negotiation)
+[-] TD_COAP_BLOCK_03 Handle PUT blockwise transfer for large resource
+[-] TD_COAP_BLOCK_04 Handle POST blockwise transfer for large resource
+[-] TD_COAP_OBS_01 Handle resource observation
+[-] TD_COAP_OBS_02 Stop resource observation
+[-] TD_COAP_OBS_03 Client detection of deregistration (Max-Age)
+[-] TD_COAP_OBS_04 Server detection of deregistration (client OFF)
+[-] TD_COAP_OBS_05 Server detection of deregistration (explicit RST)
+

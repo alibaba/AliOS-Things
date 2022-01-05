@@ -132,14 +132,22 @@ def burn_bin_files(portnum, baudrate, bin_files):
                 if match:
                     # 进入boot模式，退出
                     break
+
+        match = match_and_send(serialport, b'2ndboot cli menu', b'w', 2)
+        if match:
+            print("[ScriptPrint] check if in boot")
+            match = send_and_match(serialport, b'\n', b'aos boot', 2)
+            if match:
+                # 进入boot模式，退出
+                break
+
         else:
             # 一些solution需要先退出命令行模式回到CLI
             print("[ScriptPrint] change to CLI mode")
             send_and_match(serialport, b'\n\x03', b'', 0) #ctrl-C, ETX, 本文结束
             send_and_match(serialport, b'\n\x04', b'', 0) #ctrl-D, EOT, 传输结束
-            time.sleep(2)
 
-        time.sleep(2)
+        time.sleep(1)
 
     if i >= 9 :
         print("[ScriptPrint] reboot fail")

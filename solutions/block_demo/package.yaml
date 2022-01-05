@@ -1,0 +1,10 @@
+name: block_demo                                # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: master                                    # <必选项> 组件版本号
+description: haas zero code demo example.        # <必选项> 建议至少20字以上
+type: solution                                      # <必选项> 组件类型，为：solution, chip, board, common
+tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
+
+solution:
+  cpu_id: cpu0
+
+hw_info:
