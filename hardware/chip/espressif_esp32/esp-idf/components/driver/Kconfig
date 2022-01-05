@@ -1,0 +1,99 @@
+menu "Driver configurations"
+
+    menu "ADC configuration"
+
+        config ADC_FORCE_XPD_FSM
+            bool "Use the FSM to control ADC power"
+            default n
+            help
+                ADC power can be controlled by the FSM instead of software. This allows the ADC to
+                be shut off when it is not working leading to lower power consumption. However
+                using the FSM control ADC power will increase the noise of ADC.
+
+        config ADC_DISABLE_DAC
+            bool "Disable DAC when ADC2 is used on GPIO 25 and 26"
+            default y
+            help
+                If this is set, the ADC2 driver will disable the output of the DAC corresponding to the specified
+                channel. This is the default value.
+
+                For testing, disable this option so that we can measure the output of DAC by internal ADC.
+
+    endmenu  # ADC Configuration
+
+    menu "SPI configuration"
+
+        config SPI_MASTER_IN_IRAM
+            bool "Place transmitting functions of SPI master into IRAM"
+            default n
+            select SPI_MASTER_ISR_IN_IRAM
+            help
+                Normally only the ISR of SPI master is placed in the IRAM, so that it
+                can work without the flash when interrupt is triggered.
+                For other functions, there's some possibility that the flash cache
+                miss when running inside and out of SPI functions, which may increase
+                the interval of SPI transactions.
+                Enable this to put ``queue_trans``, ``get_trans_result`` and
+                ``transmit`` functions into the IRAM to avoid possible cache miss.
+
+                During unit test, this is enabled to measure the ideal case of api.
+
+        config SPI_MASTER_ISR_IN_IRAM
+            bool "Place SPI master ISR function into IRAM"
+            default y
+            help
+                Place the SPI master ISR in to IRAM to avoid possible cache miss.
+
+                Also you can forbid the ISR being disabled during flash writing
+                access, by add ESP_INTR_FLAG_IRAM when initializing the driver.
+
+        config SPI_SLAVE_IN_IRAM
+            bool "Place transmitting functions of SPI slave into IRAM"
+            default n
+            select SPI_SLAVE_ISR_IN_IRAM
+            help
+                Normally only the ISR of SPI slave is placed in the IRAM, so that it
+                can work without the flash when interrupt is triggered.
+                For other functions, there's some possibility that the flash cache
+                miss when running inside and out of SPI functions, which may increase
+                the interval of SPI transactions.
+                Enable this to put ``queue_trans``, ``get_trans_result`` and
+                ``transmit`` functions into the IRAM to avoid possible cache miss.
+
+        config SPI_SLAVE_ISR_IN_IRAM
+            bool "Place SPI slave ISR function into IRAM"
+            default y
+            help
+                Place the SPI slave ISR in to IRAM to avoid possible cache miss.
+
+                Also you can forbid the ISR being disabled during flash writing
+                access, by add ESP_INTR_FLAG_IRAM when initializing the driver.
+
+    endmenu # SPI Configuration
+
+    menu "UART configuration"
+
+        config UART_ISR_IN_IRAM
+            bool "Place UART ISR function into IRAM"
+            default n
+            help
+                If this option is not selected, UART interrupt will be disabled for a long time and
+                may cause data lost when doing spi flash operation.
+
+    endmenu # UART Configuration
+
+    menu "RTCIO configuration"
+        visible if IDF_TARGET_ESP32
+
+        config RTCIO_SUPPORT_RTC_GPIO_DESC
+            bool "Support array `rtc_gpio_desc` for ESP32"
+            depends on IDF_TARGET_ESP32
+            default n
+            help
+                The the array `rtc_gpio_desc` will don't compile by default.
+                If this option is selected, the array `rtc_gpio_desc` can be compile.
+                If user use this array, please enable this configuration.
+
+    endmenu # RTCIO Configuration
+
+endmenu  # Driver configurations

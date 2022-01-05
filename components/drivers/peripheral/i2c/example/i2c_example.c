@@ -34,7 +34,7 @@ static int32_t vfs_i2c_test(int32_t port, int32_t slave_addr, char *tx_buffer, u
         close(fd);
         return -EIO;
     } else {
-        printf("set addr:%x, config to 0x%x success\n", c.c.addr, name);
+        printf("set addr:%x, config to 0x%s success\n", c.c.addr, name);
     }
 
     // set to 400k by default
@@ -46,7 +46,7 @@ static int32_t vfs_i2c_test(int32_t port, int32_t slave_addr, char *tx_buffer, u
         close(fd);
         return -EIO;
     } else {
-        printf("set freq to %d, config to 0x%x success\n", c.freq, name);
+        printf("set freq to %d, config to %s success\n", c.freq, name);
     }
 
     if (tx_buffer && tx_cnt) {

@@ -154,7 +154,7 @@ STATIC mp_obj_t obj_setOption(size_t n_args, const mp_obj_t *args)
     }
 
     mp_obj_t index = mp_obj_new_str_via_qstr("duty", 4);
-    pwm_device->config.duty_cycle =  (float)mp_obj_get_int(mp_obj_dict_get(args[1], index)) / 100.0;
+    pwm_device->config.duty_cycle = mp_obj_get_int(mp_obj_dict_get(args[1], index));
 
     index = mp_obj_new_str_via_qstr("freq", 4);
     pwm_device->config.freq = mp_obj_get_int(mp_obj_dict_get(args[1], index));
@@ -211,7 +211,7 @@ STATIC mp_obj_t obj_getOption(size_t n_args, const mp_obj_t *args)
     mp_obj_dict_store(dict, mp_obj_new_str("freq", 4),
                             mp_obj_new_int((int)(pwm_device->config.freq)));
     mp_obj_dict_store(dict, mp_obj_new_str("duty", 4),
-                            mp_obj_new_int((int)(pwm_device->config.duty_cycle * 100)));
+                            mp_obj_new_int((int)(pwm_device->config.duty_cycle)));
 
     return dict;
 }

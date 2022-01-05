@@ -59,7 +59,8 @@ int32_t wifi_camera_connect(ucamera_device_t *dev)
 {
     int32_t ret;
 
-    ret = httpclient_conn(&wifi_camera_client, (const char *)WIFICAMERA_URL);
+    printf("dev->url: %s\n", dev->params.wifi.url);
+    ret = httpclient_conn(&wifi_camera_client, (const char *)dev->params.wifi.url);
     if (HTTP_SUCCESS != ret) {
         LOGE(TAG, "http connect failed");
         return -1;
@@ -78,6 +79,27 @@ void wifi_camera_disconnect(ucamera_device_t *dev)
     LOG("disconnect to wifi camera successfully\n");
 }
 
+int32_t wifi_camera_config(ucamera_device_t *dev)
+{
+    int32_t ret;
+    httpclient_t client = {0};
+
+    if (!dev->params.wifi.control_url) {
+        LOGE(TAG, "ev->control_url is null");
+        return -1;
+    }
+
+    ret = httpclient_get(&wifi_camera_client, dev->params.wifi.control_url, &wifi_camera_client_data);
+    if (HTTP_SUCCESS != ret) {
+        LOGE(TAG, "wifi camera config failed");
+        return -1;
+    }
+
+    LOG("wifi_camera_config ok, url: %s", dev->params.wifi.control_url);
+
+    return ret;
+}
+
 frame_buffer_t *wifi_camera_get_frame(ucamera_device_t *dev)
 {
     int ret;
@@ -86,7 +108,7 @@ frame_buffer_t *wifi_camera_get_frame(ucamera_device_t *dev)
         return NULL;
 
     httpclient_reset(&wifi_camera_client_data);
-    ret = httpclient_send(&wifi_camera_client, (const char *)WIFICAMERA_URL, HTTP_GET, &wifi_camera_client_data);
+    ret = httpclient_send(&wifi_camera_client, (const char *)dev->params.wifi.url, HTTP_GET, &wifi_camera_client_data);
     if (HTTP_SUCCESS != ret) {
         LOGE(TAG, "http send request failed");
         return NULL;
@@ -108,7 +130,7 @@ frame_buffer_t *wifi_camera_get_frame(ucamera_device_t *dev)
     dev->frame.len = dev->stream_len;
     dev->frame.width = WIFI_CAMERA_FRAME_WIDTH;
     dev->frame.height = WIFI_CAMERA_FRAME_HEIGHT;
-    dev->frame.format = FRAME_FORMAT_RGB565;
+    dev->frame.format = FRAME_FORMAT_JPEG;
 
     return &dev->frame;
 }
@@ -124,14 +146,15 @@ static ucamera_device_t *wifi_camera_device_create(int devindex)
         return 0;
     }
     device->is_dummy = false;
-    device->width = WIFI_CAMERA_FRAME_WIDTH;
-    device->height = WIFI_CAMERA_FRAME_HEIGHT;
+    device->frame_size.width = WIFI_CAMERA_FRAME_WIDTH;
+    device->frame_size.height = WIFI_CAMERA_FRAME_HEIGHT;
 
     /* Set the function pointers */
     device->camera_init = wifi_camera_init;
     device->camera_uninit = wifi_camera_uninit;
     device->camera_connect = wifi_camera_connect;
     device->camera_disconnect = wifi_camera_disconnect;
+    device->camera_config = wifi_camera_config;
     device->camera_get_frame = wifi_camera_get_frame;
     device->camera_free = wifi_camera_delete;
 
@@ -140,6 +163,6 @@ static ucamera_device_t *wifi_camera_device_create(int devindex)
 }
 
 ucamera_context_t wifi_camera = {
-    WIFI_CAMERA_NAME, "http camera stream over wifi",
+    WIFI_CAMERA_NAME, "http camera stream over wifi", CAM_WIFI_TYPE,
     wifi_camera_device_available, wifi_camera_device_create
 };

@@ -1,0 +1,374 @@
+## 第一部分： 基础信息
+name: espressif_esp32                                     # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: rel_3.3.0                                    # <必选项> 组件版本号
+description: driver & sdk for mcu esp32          # <必选项> 建议至少20字以上
+type: chip                                          # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - base
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+  # - libc_stub: rel_3.3.0
+#   - aos: >=v7.2.0
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  # prebuild_script:
+  cflag: >
+        -mlongcalls -Wno-frame-address -Wno-clobbered -Wno-deprecated-declarations -Wno-missing-field-initializers
+        -fno-tree-switch-conversion -fno-jump-tables -DKERNEL=FREERTOS
+  cxxflag: >
+        -mlongcalls -Wno-frame-address -Wno-clobbered -Wno-deprecated-declarations -Wno-missing-field-initializers
+        -std=gnu++11 -fno-exceptions -fno-rtti -fno-tree-switch-conversion -fno-jump-tables -fpermissive -DKERNEL=FREERTOS
+  ldflag: >
+        -mlongcalls -Wno-frame-address -z muldefs -fno-rtti -lm -lgcc -lstdc++ -lgcov -lc -fno-lto
+        -mfix-esp32-psram-cache-issue  -mfix-esp32-psram-cache-strategy=memw
+        -uesp_app_desc -uvfs_include_syscalls_impl -upthread_include_pthread_impl
+        -upthread_include_pthread_cond_impl  -upthread_include_pthread_local_storage_impl -uapp_main
+        -ucall_user_start_cpu0 -uld_include_panic_highint_hdl -unewlib_include_locks_impl
+        -unewlib_include_heap_impl -unewlib_include_syscalls_impl  -unewlib_include_pthread_impl
+        -u__cxa_guard_dummy -u__cxx_fatal_exception
+        -Wl,--cref -Wl,--Map="aos.map" -Wl,--wrap=vPortCleanUpTCB -Wl,--gc-sections -Wl,--undefined=uxTopUsedPriority
+        -Tesp32.rom.newlib-time.ld -Tesp32.rom.ld  -Tesp32.rom.libgcc.ld  -Tesp32.rom.newlib-data.ld
+        -Tesp32.rom.syscalls.ld -Tesp32.rom.newlib-funcs.ld -Tesp32_out.ld  -Tesp32.project.ld -Tesp32.extram.bss.ld
+        -Tesp32.peripherals.ld -z muldefs
+
+  include:
+    - esp-idf/components/esp_ringbuf/include
+    - esp-idf/components/newlib/platform_include
+    - esp-idf/components/freertos/include
+    - esp-idf/components/freertos/xtensa/include
+    - esp-idf/components/heap/include
+    - esp-idf/components/log/include
+    - esp-idf/components/lwip/include/apps
+    - esp-idf/components/lwip/include/apps/sntp
+    - esp-idf/components/lwip/lwip/src/include
+    - esp-idf/components/lwip/port/esp32/include
+    - esp-idf/components/lwip/port/esp32/include/arch
+    - esp-idf/components/soc/include
+    - esp-idf/components/soc/soc/esp32/include
+    - esp-idf/components/soc/src/esp32/include
+    - esp-idf/components/soc/soc/include
+    - esp-idf/components/esp_rom/include
+    - esp-idf/components/esp_rom/include/esp32
+    - esp-idf/components/esp_rom/esp32
+    - esp-idf/components/esp_common/include
+    - esp-idf/components/esp_system/include
+    - esp-idf/components/esp32/include
+    - esp-idf/components/xtensa/include
+    - esp-idf/components/xtensa/esp32/include
+    - esp-idf/components/driver/include
+    - esp-idf/components/driver/esp32/include
+    - esp-idf/components/efuse/include
+    - esp-idf/components/efuse/esp32/include
+    - esp-idf/components/vfs/include
+    - esp-idf/components/esp_wifi/include
+    - esp-idf/components/esp_event/include
+    - esp-idf/components/esp_netif/include
+    - esp-idf/components/esp_eth/include
+    - esp-idf/components/tcpip_adapter/include
+    - esp-idf/components/esp_ipc/include
+    - esp-idf/components/app_trace/include
+    - esp-idf/components/esp_timer/include
+    - esp-idf/components/mbedtls/port/include
+    - esp-idf/components/mbedtls/mbedtls/include
+    - esp-idf/components/mbedtls/esp_crt_bundle/include
+    - esp-idf/components/app_update/include
+    - esp-idf/components/spi_flash/include
+    - esp-idf/components/bootloader_support/include
+    - esp-idf/components/nvs_flash/include
+    - esp-idf/components/pthread/include
+    - esp-idf/components/esp_gdbstub/include
+    - esp-idf/components/esp_gdbstub/xtensa
+    - esp-idf/components/esp_gdbstub/esp32
+    - esp-idf/components/espcoredump/include
+    - esp-idf/components/wpa_supplicant/include
+    - esp-idf/components/wpa_supplicant/port/include
+    - esp-idf/components/asio/asio/asio/include
+    - esp-idf/components/asio/port/include
+    - esp-idf/components/bt/host/nimble/nimble/porting/nimble/include
+    - esp-idf/components/bt/host/nimble/port/include
+    - esp-idf/components/bt/host/nimble/nimble/nimble/include
+    - esp-idf/components/bt/host/nimble/nimble/nimble/host/include
+    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/ans/include
+    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/bas/include
+    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/dis/include
+    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/gap/include
+    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/gatt/include
+    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/ias/include
+    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/ipss/include
+    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/lls/include
+    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/tps/include
+    - esp-idf/components/bt/host/nimble/nimble/nimble/host/util/include
+    - esp-idf/components/bt/host/nimble/nimble/nimble/host/store/ram/include
+    - esp-idf/components/bt/host/nimble/nimble/nimble/host/store/config/include
+    - esp-idf/components/bt/host/nimble/nimble/porting/npl/freertos/include
+    - esp-idf/components/bt/host/nimble/esp-hci/include
+    - esp-idf/components/fatfs/diskio
+    - esp-idf/components/fatfs/vfs
+    - esp-idf/components/fatfs/src
+    - esp-idf/components/cbor/port/include
+    - esp-idf/components/unity/include
+    - esp-idf/components/unity/unity/src
+    - esp-idf/components/coap/port/include
+    - esp-idf/components/coap/libcoap/include
+    - esp-idf/components/console
+    - esp-idf/components/nghttp/port/include
+    - esp-idf/components/nghttp/nghttp2/lib/includes
+    - esp-idf/components/esp-tls
+    - esp-idf/components/esp_adc_cal/include
+    - esp-idf/components/esp_hid/include
+    - esp-idf/components/tcp_transport/include
+    - esp-idf/components/esp_http_client/include
+    - esp-idf/components/esp_http_server/include
+    - esp-idf/components/esp_https_ota/include
+    - esp-idf/components/protobuf-c/protobuf-c
+    - esp-idf/components/protocomm/include/common
+    - esp-idf/components/protocomm/include/security
+    - esp-idf/components/protocomm/include/transports
+    - esp-idf/components/mdns/include
+    - esp-idf/components/esp_local_ctrl/include
+    - esp-idf/components/sdmmc/include
+    - esp-idf/components/esp_serial_slave_link/include
+    - esp-idf/components/esp_websocket_client/include
+    - esp-idf/components/expat/expat/expat/lib
+    - esp-idf/components/expat/port/include
+    - esp-idf/components/wear_levelling/include
+    - esp-idf/components/freemodbus/common/include
+    - esp-idf/components/idf_test/include
+    - esp-idf/components/idf_test/include/esp32
+    - esp-idf/components/jsmn/include
+    - esp-idf/components/json/cJSON
+    - esp-idf/components/libsodium/libsodium/src/libsodium/include
+    - esp-idf/components/libsodium/port_include
+    - esp-idf/components/mqtt/esp-mqtt/include
+    - esp-idf/components/openssl/include
+    - esp-idf/components/perfmon/include
+    - esp-idf/components/spiffs/include
+    - esp-idf/components/ulp/include
+    - esp-idf/components/wifi_provisioning/include
+    # adf
+    - esp-adf/components/adf_utils/include
+    - esp-adf/components/audio_hal/include
+    - esp-adf/components/audio_pipeline/include
+    - esp-adf/components/audio_sal/include
+    - esp-adf/components/audio_stream/include
+    - esp-adf/components/battery_service/include
+    - esp-adf/components/bluetooth_service/include
+    - esp-adf/components/esp_peripherals/include
+    - esp-adf/components/esp-adf-libs/audio_misc/include
+    - esp-adf/components/esp-adf-libs/esp_audio/include
+    - esp-adf/components/esp-adf-libs/esp_codec/include/codec
+    - esp-adf/components/esp-adf-libs/esp_codec/include/processing
+    - esp-adf/components/esp-adf-libs/esp_sip/include
+    - esp-adf/components/esp-adf-libs/esp_ssdp/include
+    - esp-adf/components/esp-adf-libs/esp_upnp/include
+    - esp-adf/components/esp-adf-libs/mrm_client/include
+    - esp-adf/components/esp-adf-libs/recorder_engine/include
+    - esp-adf/components/audio_board/include
+    - esp-adf/components/audio_board/m5stack_core2
+    - esp-adf/components/esp_peripherals/include
+    - esp-adf/components/esp-sr/acoustic_algorithm/include
+    - esp-adf/components/esp-sr/lib/include
+    - esp-adf/components/esp-sr/esp-tts/esp_tts_chinese/include
+    - esp-adf/components/tone_partition/include
+    - esp-adf/components/esp_peripherals/include
+    - esp-adf/components/esp_peripherals/lib/adc_button
+    - esp-adf/components/esp_peripherals/lib/button
+    - esp-adf/components/esp_peripherals/lib/aw2013
+    - esp-adf/components/esp_peripherals/lib/gpio_isr
+    - esp-adf/components/esp_peripherals/lib/IS31FL3216
+    - esp-adf/components/esp_peripherals/lib/sdcard
+    - esp-adf/components/esp_peripherals/lib/blufi
+    - esp-adf/components/esp_peripherals/lib/touch
+    - esp-adf/components/display_service/include
+    - esp-adf/components/esp_dispatcher/include
+    - esp-adf/components/display_service/led_indicator/include
+    - esp-idf/components/wpa_supplicant/include/esp_supplicant
+    - esp-adf/components/esp_peripherals/driver/i2c_bus
+    - esp-adf/components/audio_hal/driver/include
+
+  libs:
+    - console
+    - esp_gdbstub
+    - esp_netif
+    - esp_websocket_client
+    - json
+    - mqtt
+    - sdmmc
+    - wear_levelling
+    - app_trace
+    - cxx
+    - esp_hid
+    - esp_wifi
+    - liblibsodium
+    - newlib
+    - soc
+    - wifi_provisioning
+    - app_update
+    - driver
+    - esp_http_client
+    - expat
+    - log
+    - nghttp
+    - spiffs
+    - wpa_supplicant
+    - asio
+    - fatfs
+    - efuse
+    - esp_http_server
+    - esp_ringbuf
+    - lwip
+    - nvs_flash
+    - spi_flash
+    - xtensa
+    - bootloader_support
+    - esp_adc_cal
+    - esp_https_ota
+# - freemodbus
+    - openssl
+    - tcpip_adapter
+    - bt
+    - esp_common
+    - esp_serial_slave_link
+    - freertos
+    - mbedcrypto
+    - perfmon
+    - tcp_transport
+    - cbor
+    - espcoredump
+    - esp_ipc
+    - esp_system
+    - mbedtls
+    - protobuf-c
+    - ulp
+    - esp_eth
+    - esp_timer
+    - heap
+    - mbedx509
+    - protocomm
+    - unity
+    - coap
+    - esp_event
+    - esp_local_ctrl
+    - esp-tls
+    - jsmn
+    - mdns
+    - pthread
+    - vfs
+    - coexist
+    - net80211
+    - core
+    - espnow
+    - mesh
+    - pp
+    - smartconfig
+    - phy
+    - rtc
+    - btdm_app
+    - esp32
+    - soc_esp32
+    - hal
+
+    # audio
+    - esp_processing ? <MICROPY_PY_AUDIO>
+    - esp_audio ? <MICROPY_PY_AUDIO>
+    - esp_codec ? <MICROPY_PY_AUDIO>
+
+  libpath:
+    - esp-idf/components/esp_rom/esp32/ld
+    - esp-idf/components/esp32/ld
+    - esp-idf/components/esp_wifi/lib/esp32
+    - esp-idf/components/bt/controller/lib
+    - esp-adf/components/esp-adf-libs/esp_audio/lib/esp32
+    - esp-adf/components/esp-adf-libs/esp_codec/lib/esp32
+    - esp-idf/components/xtensa/esp32
+
+source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+  - esp-adf/components/audio_sal/*.c ? <MICROPY_PY_AUDIO>
+  - esp-adf/components/audio_pipeline/*.c ? <MICROPY_PY_AUDIO>
+  - esp-adf/components/audio_stream/*.c ? <MICROPY_PY_AUDIO>
+  - esp-adf/components/esp-adf-libs/esp_codec/*.c ? <MICROPY_PY_AUDIO>
+  - esp-adf/components/audio_board/m5stack_core2/*.c ? <MICROPY_PY_AUDIO>
+  - esp-adf/components/audio_hal/*.c ? <MICROPY_PY_AUDIO>
+  # - esp-adf/components/esp_peripherals/*.c ? <MICROPY_PY_AUDIO>
+  # - esp-adf/components/esp_peripherals/lib/adc_button/*.c ? <MICROPY_PY_AUDIO>
+  # - esp-adf/components/display_service/*.c ? <MICROPY_PY_AUDIO>
+  - esp-adf/components/esp_dispatcher/*.c ? <MICROPY_PY_AUDIO>
+  # - esp-adf/components/display_service/led_indicator/*.c ? <MICROPY_PY_AUDIO>
+  - esp-adf/components/audio_hal/driver/ns4168/*.c ? <MICROPY_PY_AUDIO>
+  # - esp-adf/components/esp_peripherals/lib/sdcard/*.c ? <MICROPY_PY_AUDIO>
+  # - esp-adf/components/esp_peripherals/driver/i2c_bus/*.c ? <MICROPY_PY_AUDIO>
+
+
+## 第五部分：配置信息
+def_config:                              # 组件的可配置项
+  IDF_VER: "35eebd69"
+  ESP_PLATFORM: 1
+  AOS_CHIP_ESP32: 1
+  OS_FREERTOS: 1
+  MBEDTLS_CONFIG_FILE: "mbedtls/esp_config.h"
+  CONFIG_ESP_DISPATCHER_DELEGATE_TASK_CORE: 0
+  CONFIG_ESP_DISPATCHER_DELEGATE_TASK_PRIO: 10
+  CONFIG_ESP_DISPATCHER_DELEGATE_STACK_SIZE: 4096
+
+hw_info:
+  arch_name: xtensa
+  cpu_name: esp32
+  toolchain_prefix: xtensa-esp32-elf
+  vendor_name: espressif
+  ld_script: _esp32_alios.lds
+  flash_program: release/aos_burn_tool/flash_program.py
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+# install:
+#   - dest: "include"
+#     source:
+#       - hal/2ndboot/*.h
+#       - aos/*.h
+#       - aos/arch/*.h
+#       - drivers/platform/hal/*.h
+#       - drivers/platform/cmsis/inc/*.h
+#       - drivers/rtos/rhino/cmsis/*.h
+#       - drivers/utils/hwtimer_list/*.h
+#       - drivers/platform/hal/haas1000/*.h
+#       - drivers/services/wifi_app/alsa_adapter/*.h
+#   - dest: "lib"
+#     source:
+#       - drivers/libmcuhaas1000.a ? <!CONFIG_A7_DSP_ENABLE>
+#       - drivers/libmcuhaas1000_a7.a ? <CONFIG_A7_DSP_ENABLE>
+
+
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"

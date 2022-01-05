@@ -1,0 +1,65 @@
+menu "Example Configuration"
+
+    config EXAMPLE_SDIO_OVER_SPI
+        bool "Host use SPI bus to communicate with slave"
+        default n
+        help
+            If this is set, the host tries using SPI bus to communicate with slave.
+            Otherwise, the standarad SD bus is used.
+
+    config EXAMPLE_SDIO_4BIT
+        bool "Host tries using 4-bit mode to communicate with slave"
+        default n
+        depends on !EXAMPLE_SDIO_OVER_SPI
+        help
+            If this is set, the host tries using 4-bit mode to communicate with
+            slave. If failed, the communication falls back to 1-bit mode.
+
+            If this is not set, the host uses 1-bit mode. However, CMD1 is still
+            mandatory for interrupts.
+
+            Note that 4-bit mode is not compatible (by default) if the slave is
+            using 3.3V flash which requires a pull-down on the MTDI pin.
+
+    config EXAMPLE_SDIO_HIGHSPEED
+        bool "Host tries using HS mode to communicate with slave"
+        default y
+        help
+            If this is set, the host tries using high-speed mode to communicate
+            with slave. If the slave doesn't support high-speed mode, the
+            communication falls back to default-speed mode. If this is not set,
+            the host uses DS mode.
+
+            If the example does not work, please try disabling the HS mode.
+
+    config EXAMPLE_NO_INTR_LINE
+        bool "The host is not connected to the interrupt line (DAT1) of slave"
+        default n
+        help
+            If this is set, the host example will not check the interrupt line but poll slave
+            registers to see whether the slave has interrupts for the host.
+
+            Working without the interrupt line may increase the CPU load of the host, and do harm
+            to the response speed to slave events, though can save 1 GPIO for other purposes in
+            non-4-bit mode.
+
+    choice EXAMPLE_SLAVE
+        prompt "GPIO to control slave EN in Espressif master-slave board."
+        default EXAMPLE_SLAVE_NONE
+        help
+            If Espressif master-slave board is used, select the correct GPIO to control slave's EN.
+
+        config EXAMPLE_SLAVE_NONE
+            bool "Not using Espressif master-slave board."
+        config EXAMPLE_SLAVE_B1
+            bool "Using slave B1"
+    endchoice
+
+    config EXAMPLE_SLAVE_PWR_NEGTIVE_ACTIVE
+        bool "Slave power control pin is negtive active, otherwise postive active"
+        depends on !EXAMPLE_SLAVE_NONE
+        default n
+        help
+            Slave power control pin is negtive active, otherwise postive active
+
+endmenu

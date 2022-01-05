@@ -6,10 +6,13 @@
 #include "aiot_mqtt_api.h"
 #include "aiot_state_api.h"
 #include "aiot_sysdep_api.h"
+
 #include "amp_platform.h"
-#include "aos/kv.h"
 #include "aos_network.h"
 #include "aos_system.h"
+#ifdef AOS_COMP_KV
+#include "aos/kv.h"
+#endif
 #include "module_aiot.h"
 #include "py_defines.h"
 

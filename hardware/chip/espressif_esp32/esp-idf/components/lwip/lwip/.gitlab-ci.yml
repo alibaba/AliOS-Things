@@ -1,0 +1,66 @@
+stages:
+  - host_test
+  - deploy
+
+image: ${CI_DOCKER_REGISTRY}/esp32-ci-env
+
+variables:
+# tag in lwip-contrib repo, which supports our esp-lwip branch (and it's cherry-picked commits from release branches)
+  LWIP_CONTRIB_TAG: STABLE-2_1_0_RELEASE
+# test timeout is seconds
+  TEST_TIMEOUT: 200
+
+before_script:
+  # Use CI Tools
+  - curl -sSL ${CIT_LOADER_URL} | sh
+  - source citools/import_functions
+
+run_lwip_unittests:
+  stage: host_test
+  tags:
+    - host_test
+  dependencies: []
+  script:
+    # have to clone lwip-contrib repo, as it contains unit test infrastructure
+    - cit_add_ssh_key "${GITLAB_KEY}" "$(cit_parse_url_host ${LWIP_CONTRIB_MIRROR})" "$(cit_parse_url_port ${LWIP_CONTRIB_MIRROR})"
+    - git clone "${LWIP_CONTRIB_MIRROR}" lwip-contrib && cd lwip-contrib && git checkout tags/${LWIP_CONTRIB_TAG}
+    - cd ports/unix/check/
+    # updating environment
+    - export LWIPDIR=../../../../src && export CK_DEFAULT_TIMEOUT=${TEST_TIMEOUT}
+    - export EXTRA_CFLAGS="" && export CC="cc $EXTRA_CFLAGS" && export CCDEP=cc
+    # build and run default lwip tests
+    - make -j 4 check
+    # retest with IP_FORWARD enabled
+    - make clean
+    - export EXTRA_CFLAGS="-DIP_FORWARD=1" && export CC="cc $EXTRA_CFLAGS"
+    - make -j 4 check
+    # retest with IP_FORWARD and IP_NAPT enabled
+    - make clean
+    - export EXTRA_CFLAGS="-DIP_FORWARD=1 -DIP_NAPT=1 -DLWIP_ARCH_CC_H -include cc_esp_platform.h" && export CC="cc $EXTRA_CFLAGS"
+    - make -j 4 check
+    # Please uncomment the below to test IP_FORWARD/IP_NAPT tests with debug output (only ip4_route test suite will be executed)
+    #- make clean
+    #- export EXTRA_CFLAGS="-DIP_FORWARD=1 -DESP_TEST_DEBUG=1 -DIP_NAPT=1 -DLWIP_ARCH_CC_H -include cc_esp_platform.h" && export CC="cc $EXTRA_CFLAGS"
+    #- make -j 4 check
+
+.add_gh_key_remote: &add_gh_key_remote |
+  command -v ssh-agent >/dev/null || exit 1
+  eval $(ssh-agent -s)
+  printf '%s\n' "${GH_PUSH_KEY}" | tr -d '\r' | ssh-add - > /dev/null
+  mkdir -p ~/.ssh && chmod 700 ~/.ssh
+  [[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+  git remote remove github || true
+  git remote add github ${GH_PUSH_REPO}
+
+push_master_to_github:
+  stage: deploy
+  only:
+    - 2.1.2-esp
+  when: on_success
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - *add_gh_key_remote
+    - "[ -n \"${CI_COMMIT_TAG:-}\" ] && git push github ${CI_COMMIT_TAG}"
+    - "[ -z \"${CI_COMMIT_TAG:-}\" ] && git push github ${CI_COMMIT_SHA}:refs/heads/${CI_COMMIT_REF_NAME}"
+

@@ -176,14 +176,19 @@ idf.py -p /dev/cu.SLAB_USBtoUART monitor
 ![Pasted Graphic.tiff](https://img-blog.csdnimg.cn/20210127165159696.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L0hhYVNUZWNo,size_16,color_FFFFFF,t_70)
 
 ### 配置WiFi摄像头IP
-在ucamera/package.yaml中配置WiFi摄像头URL：
+在ucamera/package.yaml中配置WiFi摄像头图像数据URL：
 ```yaml
   WIFICAMERA_URL: "http://192.168.4.1:80/capture"
 ```
 
+在ucamera/package.yaml中配置WiFi摄像头图像大小URL：
+```yaml
+  WIFICAMERA_FRAME_SIZE_CONTROL_URL: "http://192.168.4.1:80/control?var=framesize&val=5" #QVGA 320x240
+```
+
 ## 步骤5 编译固件
 
-在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《AliOS Things集成开发环境使用说明之编译固件》](https://help.aliyun.com/document_detail/302384.html)。
+在示例代码已经添加至组件的配置文件，并且helloworld_demo已添加了对该组件的依赖后，就可以编译helloworld_demo案例来生成固件了，具体编译方法可参考[《HaaS开发环境haas-studio》](https://g.alicdn.com/alios-things-3.3/doc/haas_build_project.html?spm=a2cti.24227744.0.0.4d20691avLk9jA)中的编译固件部分。
 
 ## 步骤6 烧录固件
 

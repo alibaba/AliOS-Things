@@ -1,0 +1,18 @@
+menu "Wi-Fi Provisioning Manager"
+
+    config WIFI_PROV_SCAN_MAX_ENTRIES
+        int "Max Wi-Fi Scan Result Entries"
+        default 16
+        range 1 255
+        help
+            This sets the maximum number of entries of Wi-Fi scan results that will be kept by the provisioning manager
+
+    config WIFI_PROV_AUTOSTOP_TIMEOUT
+        int "Provisioning auto-stop timeout"
+        default 30
+        range 5 600
+        help
+            Time (in seconds) after which the Wi-Fi provisioning manager will auto-stop after connecting to
+            a Wi-Fi network successfully.
+
+endmenu

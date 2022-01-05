@@ -77,7 +77,6 @@ void be_module_node_set_entry(duk_context *ctx, const char *entry);
 /* addons */
 void module_adc_register(void);
 void module_builtin_register(void);
-void module_checksum_register(void);
 void module_dac_register(void);
 void module_gpio_register(void);
 void module_i2c_register(void);

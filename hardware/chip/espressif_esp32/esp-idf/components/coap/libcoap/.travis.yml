@@ -1,0 +1,68 @@
+sudo: required
+language: c
+
+compiler:
+  - gcc
+  - clang
+
+services:
+  - docker
+
+env:
+  - PLATFORM=posix TESTS=yes TLS=no
+  - PLATFORM=posix TESTS=yes TLS=openssl
+  - PLATFORM=posix TESTS=yes TLS=gnutls
+  - PLATFORM=posix TESTS=yes TLS=tinydtls
+  - PLATFORM=contiki TLS=no
+  - PLATFORM=lwip TLS=no
+
+matrix:
+  exclude:
+    - compiler: clang
+      env: PLATFORM=posix TESTS=yes TLS=no
+    - compiler: clang
+      env: PLATFORM=posix TESTS=yes TLS=tinydtls
+    - compiler: clang
+      env: PLATFORM=contiki TLS=no
+    - compiler: clang
+      env: PLATFORM=lwip TLS=no
+
+before_install:
+  - docker build -t obgm/libcoap:travis-env .
+
+branches:
+  only:
+     - master
+     - develop
+     - /^release-.*$/
+     - travis-test
+
+stages:
+  - test
+  - dist
+
+jobs:
+  include:
+    - stage: dist
+      compiler: gcc
+      env:
+        - PLATFORM=posix TESTS=yes TLS=no DOCS=yes
+      before_script:
+      script:
+        - docker run -e CC -e PLATFORM -e TESTS -e DOCS -e TLS obgm/libcoap:travis-env /bin/sh -c "scripts/dist.sh"
+
+# Docker disables IPv6 in containers by default, so re-enable it.
+before_script:
+  # `daemon.json` is normally missing, but let's log it in case that changes.
+  - sudo touch /etc/docker/daemon.json
+  - sudo cat /etc/docker/daemon.json
+  - sudo service docker stop
+  # This needs YAML quoting because of the curly braces.
+  - 'echo ''{"ipv6": true, "fixed-cidr-v6": "2001:db8:1::/64"}'' | sudo tee /etc/docker/daemon.json'
+  - sudo service docker start
+  # Fail early if docker failed on start -- add `- sudo dockerd` to debug.
+  - sudo docker info
+  # Paranoia log: what if our config got overwritten?
+  - sudo cat /etc/docker/daemon.json
+script:
+  - docker run -e CC -e PLATFORM -e TESTS -e DOCS -e TLS obgm/libcoap:travis-env /bin/sh -c "scripts/build.sh"

@@ -18,7 +18,7 @@ void* MLCreateInstance(MLEngineType_t type)
     return (void*)mIHaasML;
 }
 
-void MLDestoryInstance(void* instance)
+void MLDestoryInstance(void *instance)
 {
     LOGD(LOG_TAG, "entern %s;\n", __func__);
     IHaasML* mIHaasML = (IHaasML*)instance;
@@ -30,25 +30,25 @@ void MLDestoryInstance(void* instance)
     delete mIHaasML;
 }
 
-int MLConfig(void* instance, char *key, char *secret, char *region_id,
-        char *endpoint, char *url)
+int MLConfig(void *instance, char *key, char *secret, char *endpoint,
+        char *bucket)
 {
     LOGD(LOG_TAG, "key = %s;\n", key);
     LOGD(LOG_TAG, "secret = %s;\n", secret);
-    LOGD(LOG_TAG, "region_id = %s;\n", region_id);
     LOGD(LOG_TAG, "endpoint = %s;\n", endpoint);
-    LOGD(LOG_TAG, "url = %s;\n", url);
-    IHaasML* mIHaasML = (IHaasML*)instance;
+    LOGD(LOG_TAG, "bucket = %s;\n", bucket);
+
+    IHaasML *mIHaasML = (IHaasML *)instance;
     if (mIHaasML == NULL)
     {
         LOGD(LOG_TAG, "mIHaasML is NULL %s;\n", __func__);
         return -1;
     }
-    int ret = mIHaasML->Config(key, secret, region_id, endpoint, url);
+    int ret = mIHaasML->Config(key, secret, endpoint, bucket);
     return ret;
 }
 
-int MLSetInputData(void* instance, const char* dataPath)
+int MLSetInputData(void *instance, const char *dataPath, const char *compareDataPath)
 {
     LOGD(LOG_TAG, "entern %s;\n", __func__);
     IHaasML* mIHaasML = (IHaasML*)instance;
@@ -57,11 +57,11 @@ int MLSetInputData(void* instance, const char* dataPath)
         LOGD(LOG_TAG, "mIHaasML is NULL %s;\n", __func__);
         return -1;
     }
-    int ret = mIHaasML->SetInputData(dataPath);
+    int ret = mIHaasML->SetInputData(dataPath, compareDataPath);
     return ret;
 }
 
-int MLLoadNet(void* instance, const char* modePath)
+int MLLoadNet(void *instance, const char *modePath)
 {
     LOGD(LOG_TAG, "entern %s;\n", __func__);
     IHaasML* mIHaasML = (IHaasML*)instance;
@@ -74,10 +74,10 @@ int MLLoadNet(void* instance, const char* modePath)
     return ret;
 }
 
-int MLPredict(void* instance)
+int MLPredict(void *instance)
 {
     LOGD(LOG_TAG, "entern %s;\n", __func__);
-    IHaasML* mIHaasML = (IHaasML*)instance;
+    IHaasML *mIHaasML = (IHaasML *)instance;
     if (mIHaasML == NULL)
     {
         LOGD(LOG_TAG, "mIHaasML is NULL %s;\n", __func__);
@@ -87,10 +87,10 @@ int MLPredict(void* instance)
     return ret;
 }
 
-int MLGetPredictResponses(void* instance, char* outResult, int len)
+int MLGetPredictResponses(void *instance, char *outResult, int len)
 {
     LOGD(LOG_TAG, "entern %s;\n", __func__);
-    IHaasML* mIHaasML = (IHaasML*)instance;
+    IHaasML *mIHaasML = (IHaasML *)instance;
     if (mIHaasML == NULL)
     {
         LOGD(LOG_TAG, "mIHaasML is NULL %s;\n", __func__);
@@ -101,10 +101,10 @@ int MLGetPredictResponses(void* instance, char* outResult, int len)
     return ret;
 }
 
-int MLUnLoadNet(void* instance)
+int MLUnLoadNet(void *instance)
 {
     LOGD(LOG_TAG, "entern %s;\n", __func__);
-    IHaasML* mIHaasML = (IHaasML*)instance;
+    IHaasML *mIHaasML = (IHaasML *)instance;
     if (mIHaasML == NULL)
     {
         LOGD(LOG_TAG, "mIHaasML is NULL %s;\n", __func__);

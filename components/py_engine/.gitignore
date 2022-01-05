@@ -1,3 +1,7 @@
 SConscript/*
 build/*
 .DS_Store
+engine/mpy-cross/build/*
+adapter/esp32/build-*/*
+engine/py/__pycache__/*
+engine/mpy-cross/mpy-cross.map

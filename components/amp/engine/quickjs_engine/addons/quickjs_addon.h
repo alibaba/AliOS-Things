@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
  */
 
 #ifndef __AMP_REPL_H
@@ -119,11 +122,7 @@ void module_kv_register(void);
 #endif
 
 #ifdef JSE_ADVANCED_ADDON_AUDIOPLAYER
-void module_audio_register(void);
-#endif
-
-#ifdef JSE_CORE_ADDON_CHECKSUM
-void  module_checksum_register(void);
+void module_audioplayer_register(void);
 #endif
 
 #ifdef JSE_ADVANCED_ADDON_BLECFGNET

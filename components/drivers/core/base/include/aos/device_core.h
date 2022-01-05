@@ -14,13 +14,7 @@
 #endif
 #include <aos/device.h>
 
-struct aos_dev;
-
-typedef struct {
-    void (*unregister)(struct aos_dev *);
-    aos_status_t (*get)(aos_dev_ref_t *);
-    void (*put)(aos_dev_ref_t *);
-} aos_dev_ops_t;
+struct aos_dev_ops;
 
 #ifdef AOS_COMP_VFS
 #define AOS_DEV_NAME_MAX_LEN    63
@@ -34,7 +28,7 @@ typedef struct {
 typedef struct aos_dev {
     aos_dev_type_t type;
     uint32_t id;
-    const aos_dev_ops_t *ops;
+    const struct aos_dev_ops *ops;
 #ifdef AOS_COMP_VFS
     aos_dev_vfs_helper_t vfs_helper;
 #endif
@@ -43,6 +37,12 @@ typedef struct aos_dev {
     aos_mutex_t mutex;
     uint32_t ref_count;
 } aos_dev_t;
+
+typedef struct aos_dev_ops {
+    void (*unregister)(aos_dev_t *);
+    aos_status_t (*get)(aos_dev_ref_t *);
+    void (*put)(aos_dev_ref_t *);
+} aos_dev_ops_t;
 
 #define aos_dev_lock(dev)               do { (void)aos_mutex_lock(&(dev)->mutex, AOS_WAIT_FOREVER); } while (0)
 #define aos_dev_unlock(dev)             do { (void)aos_mutex_unlock(&(dev)->mutex); } while (0)

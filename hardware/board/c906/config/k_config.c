@@ -1,16 +1,6 @@
-/**
-  ******************************************************************************
-  * @file    k_config.c
-  * @author  MCU China FAE team
-  * @version 1.0
-  * @date    05/01/2019
-  * @brief   aos porting layer
-  ******************************************************************************
-  *
-  * COPYRIGHT(c) 2019 STMicroelectronics
-  *
-  ******************************************************************************
-  */
+/*
+ * Copyright (C) 2015-2021 Alibaba Group Holding Limited
+ */
 
 #include <k_api.h>
 #include <assert.h>
@@ -43,6 +33,7 @@ extern size_t __heap_end;
    heap and stack begins from __bss_end__ to _estack */
 k_mm_region_t g_mm_region[1];
 int           g_region_num = 1;
+
 void aos_heap_set()
 {
     g_mm_region[0].start = (uint8_t*)&__heap_start;

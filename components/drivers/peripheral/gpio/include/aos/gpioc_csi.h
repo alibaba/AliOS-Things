@@ -25,6 +25,8 @@ extern "C" {
 #endif
 
 aos_status_t aos_gpioc_csi_register(aos_gpioc_csi_t *gpioc_csi);
+aos_status_t aos_gpioc_csi_register_argumented(aos_gpioc_csi_t *gpioc_csi, uint32_t id, uint32_t num_pins,
+                                               uint32_t default_input_cfg, uint32_t default_output_cfg);
 aos_status_t aos_gpioc_csi_unregister(uint32_t id);
 
 #ifdef __cplusplus

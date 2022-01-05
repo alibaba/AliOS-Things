@@ -1,0 +1,163 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap-server(5)
+==============
+:doctype: manpage
+:man source:   coap-server
+:man version:  @PACKAGE_VERSION@
+:man manual:   coap-server Manual
+
+NAME
+-----
+coap-server - CoAP Server based on libcoap
+
+SYNOPSIS
+--------
+*coap-server* [*-d* max] [*-g* group] [*-l* loss] [*-p* port] [*-v* num]
+              [*-A* address] [*-N*]
+              [[*-k* key] [*-h* hint]]
+              [[*-c* certfile] [*-n*] [*-C* cafile] [*-R* root_cafile]]
+
+DESCRIPTION
+-----------
+*coap-server* is an example server for the 'Constrained Application Protocol`
+(RFC 7252).
+
+OPTIONS - General
+-----------------
+*-d* max::
+   Enable support for creation of dynamic resources when doing a PUT up to a
+   limit of max.  If max is reached, a 4.06 code is returned until one of the
+   dynamic resources has been deleted.
+
+*-g* group::
+   Join specified multicast 'group' on startup.
+
+*-p* port::
+   The 'port' on the given address will be listening for incoming connections.
+   If (D)TLS is supported, then 'port' + 1 will also be listened on for
+   (D)TLS connections.
+   The default port is 5683 if not given any other value.
+
+*-l* list::
+   Fail to send some datagrams specified by a comma separated list of
+   numbers or number ranges (debugging only).
+
+*-l* loss%::
+   Randomly failed to send datagams with the specified probability - 100%
+   all datagrams, 0% no datagrams (debugging only).
+
+*-v* num::
+   The verbosity level to use (default 3, maximum is 9). Above 7, there is
+   increased verbosity in GnuTLS logging.
+
+*-A* addr::
+   The local address of the interface which the server has to listen.
+
+*-N* ::
+   Send NON-confirmable message for \"observe\" responses. If option *-N* is
+   not specified, a confirmable response will be sent.  Even if set, every
+   fifth response will still be sent as a confirmable response
+   (RFC 7641 requirement).
+
+OPTIONS - PSK
+-------------
+(If supported by underlying (D)TLS library)
+
+*-h* hint::
+   Pre-shared key hint to use for inbound connections. The default is 'CoAP'.
+   This cannot be empty if defined.
+
+*-k* key::
+   Pre-shared key to use for inbound connections. This cannot be empty if
+   defined.
+   *Note:* if *-c cafile* is defined, you need to define *-k key* as well to
+   have the server support both PSK and PKI.
+
+OPTIONS - PKI
+-------------
+(If supported by underlying (D)TLS library)
+
+*-c* certfile::
+   Use the specified PEM file which contains the CERTIFICATE and PRIVATE
+   KEY information.
+   *Note:* if *-k key* is defined, you need to define *-c cafile* as well to
+   have the server support both PSK and PKI.
+
+*-n* ::
+   Disable the requirement for clients to have defined client certificates
+
+*-C* cafile::
+  PEM file containing the CA Certificate that was used to sign the certfile
+  defined using *-c certfile*.
+  If defined, then the client will be given this CA Certificate during the TLS
+  set up. Furthermore, this will trigger the validation of the client
+  certificate. If certfile is self-signed (as defined by *-c certfile*), then
+  you need to have on the command line the same filename for both the certfile
+  and cafile (as in  *-c certfile -C certfile*) to trigger validation.
+
+*-R* root_cafile::
+  PEM file containing the set of trusted root CAs that are to be used to
+  validate the server certificate.  The *-C cafile* does not have to be in
+  this list and is "trusted" for the verification.
+  Alternatively, this can point to a directory containing a set of CA PEM files.
+
+
+EXAMPLES
+--------
+* Example
+----
+coap-server -A ::1
+----
+Let the server listen on localhost (port '5683').
+
+* Example
+----
+coap-server -A ::1 -k mysecretKey -h myhint
+----
+Let the server listen on localhost (port '5683' and '5684') with the server
+set up for PSK authentication.
+
+* Example
+----
+coap-server -A ::1 -p 13011
+----
+The same, except the listening port is '13011' (and not the default port
+'5683').
+
+* Example
+----
+coap-server -A 2001:db8:81a8:0:6ef0:dead:feed:beef -v 5
+----
+The listening address is set to '2001:db8:81a8:0:6ef0:dead:feed:beef' and the
+verbosity level is set to '5'.
+
+* Example
+----
+coap-server -A 2001:db8:81a8:0:6ef0:dead:feed:beef -g FF02::FD
+----
+Set listening address to '2001:db8:81a8:0:6ef0:dead:feed:beef' and join the
+All CoAP Nodes multicast group 'FF02::FD'.
+
+FILES
+------
+There are no configuration files.
+
+EXIT STATUS
+-----------
+*0*::
+   Success
+
+*1*::
+   Failure (syntax or usage error; configuration error; document
+   processing failure; unexpected error)
+
+BUGS
+-----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

@@ -74,7 +74,7 @@ void mqtt_recv_handler(void *handle, const aiot_mqtt_recv_t *packet,
     case AIOT_MQTTRECV_SUB_ACK:
         {
             amp_debug(MOD_STR,
-                      "suback, res: -0x%04X, packet id: %d, max qos: %d",
+                      "suback, res: -0x%04X, packet id: %d, max qos: %d\r\n",
                       -packet->data.sub_ack.res, packet->data.sub_ack.packet_id,
                       packet->data.sub_ack.max_qos);
             /* TODO: 处理服务器对订阅请求的回应, 一般不处理 */
@@ -83,10 +83,10 @@ void mqtt_recv_handler(void *handle, const aiot_mqtt_recv_t *packet,
 
     case AIOT_MQTTRECV_PUB:
         {
-            amp_debug(MOD_STR, "pub, qos: %d, topic: %.*s",
+            amp_debug(MOD_STR, "pub, qos: %d, topic: %.*s\r\n",
                       packet->data.pub.qos, packet->data.pub.topic_len,
                       packet->data.pub.topic);
-            amp_debug(MOD_STR, "pub, payload: %.*s",
+            amp_debug(MOD_STR, "pub, payload: %.*s \r\n",
                       packet->data.pub.payload_len, packet->data.pub.payload);
             /* TODO: 处理服务器下发的业务报文 */
         }
@@ -94,7 +94,7 @@ void mqtt_recv_handler(void *handle, const aiot_mqtt_recv_t *packet,
 
     case AIOT_MQTTRECV_PUB_ACK:
         {
-            amp_debug(MOD_STR, "puback, packet id: %d",
+            amp_debug(MOD_STR, "puback, packet id: %d \r\n",
                       packet->data.pub_ack.packet_id);
             /* TODO: 处理服务器对QoS1上报消息的回应, 一般不处理 */
         }
@@ -116,10 +116,10 @@ void mqtt_event_handler(void *handle, const aiot_mqtt_event_t *event,
      */
     case AIOT_MQTTEVT_CONNECT:
         {
-            amp_debug(MOD_STR, "AIOT_MQTTEVT_CONNECT");
+            amp_debug(MOD_STR, "AIOT_MQTTEVT_CONNECT \r\n");
             /* TODO: 处理SDK建连成功, 不可以在这里调用耗时较长的阻塞函数 */
             int js_cb_ref = (int *)userdata;
-            amp_debug(MOD_STR, "js cb ref is: %d", js_cb_ref);
+            amp_debug(MOD_STR, "cb ref is: %d \r\n", js_cb_ref);
             duk_context *ctx = be_get_context();
             be_push_ref(ctx, js_cb_ref);
             duk_push_int(ctx, 9);
@@ -135,7 +135,7 @@ void mqtt_event_handler(void *handle, const aiot_mqtt_event_t *event,
     /* SDK因为网络状况被动断连后, 自动发起重连已成功 */
     case AIOT_MQTTEVT_RECONNECT:
         {
-            amp_debug(MOD_STR, "AIOT_MQTTEVT_RECONNECT");
+            amp_debug(MOD_STR, "AIOT_MQTTEVT_RECONNECT \r\n");
             /* TODO: 处理SDK重连成功, 不可以在这里调用耗时较长的阻塞函数 */
         }
         break;
@@ -148,7 +148,7 @@ void mqtt_event_handler(void *handle, const aiot_mqtt_event_t *event,
                            AIOT_MQTTDISCONNEVT_NETWORK_DISCONNECT)
                               ? ("network disconnect")
                               : ("heartbeat disconnect");
-            amp_debug(MOD_STR, "AIOT_MQTTEVT_DISCONNECT: %s", cause);
+            amp_debug(MOD_STR, "AIOT_MQTTEVT_DISCONNECT: %s \r\n", cause);
             /* TODO: 处理SDK被动断连, 不可以在这里调用耗时较长的阻塞函数 */
         }
         break;
@@ -192,7 +192,7 @@ int32_t mqtt_client_start(void **handle, amp_mqtt_params_t *mqtt_params)
     mqtt_handle = aiot_mqtt_init();
 
     if (mqtt_handle == NULL) {
-        amp_debug(MOD_STR, "aiot_mqtt_init failed");
+        amp_debug(MOD_STR, "aiot_mqtt_init failed \r\n");
         aos_free(mqtt_handle);
         return NULL;
     }
@@ -233,7 +233,7 @@ int32_t mqtt_client_start(void **handle, amp_mqtt_params_t *mqtt_params)
     if (res < STATE_SUCCESS) {
         /* 尝试建立连接失败, 销毁MQTT实例, 回收资源 */
         aiot_mqtt_deinit(&mqtt_handle);
-        amp_debug(MOD_STR, "aiot_mqtt_connect failed: -0x%04X", -res);
+        amp_debug(MOD_STR, "aiot_mqtt_connect failed: -0x%04X \r\n", -res);
         aos_task_exit(0);
         return NULL;
     }
@@ -247,12 +247,12 @@ int32_t mqtt_client_start(void **handle, amp_mqtt_params_t *mqtt_params)
     if (aos_task_new_ext(&mqtt_process_task, "mqtt_process",
                          mqtt_process_thread, mqtt_handle, 1024 * 4,
                          AOS_DEFAULT_APP_PRI) != 0) {
-        amp_debug(MOD_STR, "management mqtt process task create failed!");
+        amp_debug(MOD_STR, "management mqtt process task create failed! \r\n");
         aiot_mqtt_deinit(&mqtt_handle);
         aos_task_exit(0);
         return NULL;
     }
-    amp_debug(MOD_STR, "app mqtt process start");
+    amp_debug(MOD_STR, "app mqtt process start \r\n");
 
     /* 创建一个单独的线程用于执行aiot_mqtt_recv,
      * 它会循环收取服务器下发的MQTT消息, 并在断线时自动重连 */
@@ -262,12 +262,12 @@ int32_t mqtt_client_start(void **handle, amp_mqtt_params_t *mqtt_params)
 
     if (aos_task_new_ext(&mqtt_rec_task, "mqtt_rec", mqtt_recv_thread,
                          mqtt_handle, 1024 * 4, AOS_DEFAULT_APP_PRI) != 0) {
-        amp_debug(MOD_STR, "management mqtt rec task create failed!");
+        amp_debug(MOD_STR, "management mqtt rec task create failed! \r\n");
         aiot_mqtt_deinit(&mqtt_handle);
         aos_task_exit(0);
         return NULL;
     }
-    amp_debug(MOD_STR, "app mqtt rec start");
+    amp_debug(MOD_STR, "app mqtt rec start \r\n");
 
     *handle = mqtt_handle;
 
@@ -289,14 +289,14 @@ int32_t mqtt_client_stop(void **handle)
     res = aiot_mqtt_disconnect(mqtt_handle);
     if (res < STATE_SUCCESS) {
         aiot_mqtt_deinit(&mqtt_handle);
-        amp_debug(MOD_STR, "aiot_mqtt_disconnect failed: -0x%04X", -res);
+        amp_debug(MOD_STR, "aiot_mqtt_disconnect failed: -0x%04X \r\n", -res);
         return -1;
     }
 
     /* 销毁MQTT实例 */
     res = aiot_mqtt_deinit(&mqtt_handle);
     if (res < STATE_SUCCESS) {
-        amp_debug(MOD_STR, "aiot_mqtt_deinit failed: -0x%04X", -res);
+        amp_debug(MOD_STR, "aiot_mqtt_deinit failed: -0x%04X \r\n", -res);
         return -1;
     }
 

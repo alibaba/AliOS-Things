@@ -868,6 +868,11 @@ INPUT                  = ../manual/mainpage.md \
                          ../manual/quickstart.md \
                          ../manual/devtools.md \
                          ../../components/osal_aos/README.md \
+                         ../manual/driver_development.md \
+                         ../manual/driver_development/gpioc_driver_development.md \
+                         ../manual/driver_development/i2c_driver_development.md \
+                         ../manual/driver_development/spi_driver_development.md \
+                         ../manual/driver_development/tty_driver_development.md \
                          ../manual/component.md \
                          ../manual/solution.md \
                          ../manual/contribute.md \
@@ -991,9 +996,12 @@ INPUT                  = ../manual/mainpage.md \
                          ../../components/drivers/peripheral/watchdog/README.md \
                          ../../solutions/lora_p2p_demo/README.md \
                          ../../solutions/ucloud_ai_demo/README.md \
-                         ../../components/drivers/peripheral/adc/include/vfsdev/adc_dev.h \
-                         ../../components/drivers/peripheral/flash/include/vfsdev/flash_dev.h \
-                         ../../components/drivers/peripheral/spi/include/vfsdev/spi_dev.h \
+                         ../../components/drivers/peripheral/adc/include/aos/adc.h \
+                         ../../components/drivers/peripheral/gpio/include/aos/gpioc.h \
+                         ../../components/drivers/peripheral/i2c/include/aos/i2c.h \
+                         ../../components/drivers/peripheral/pwm/include/aos/pwm.h \
+                         ../../components/drivers/peripheral/spi/include/aos/spi.h \
+                         ../../components/drivers/peripheral/uart/include/aos/uart.h \
                          ../../components/oss/README.md \
                          ../../components/uservice/README.md \
                          ../../components/mqtt/README.md \

@@ -5,14 +5,14 @@
 class HaasMLOlda : public IHaasML
 {
 public:
-	HaasMLOlda();
-	virtual ~HaasMLOlda();
+    HaasMLOlda();
+    virtual ~HaasMLOlda();
 
-	virtual int SetInputData(const char* dataPath);
-	virtual int LoadNet(const char* modePath);
-	virtual int Predict();
-	virtual int GetPredictResponses(char* outResult, int len);
-	virtual int UnLoadNet();
+    virtual int SetInputData(const char *dataPath, const char *compareDataPath);
+    virtual int LoadNet(const char *modePath);
+    virtual int Predict();
+    virtual int GetPredictResponses(char *outResult, int len);
+    virtual int UnLoadNet();
 private:
     int uai_get_img_dec_result(int8_t output_softmax[], int result_num, char *result);
     uint32_t  input_scale;

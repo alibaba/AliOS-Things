@@ -589,6 +589,20 @@ int ucloud_ai_demo_main(void *p)
         return -1;
     }
 
+    /*config ucamera*/
+    ret = ucamera_service_config(UCAMERA_CMD_SET_CONTROL_URL, (void *)WIFICAMERA_FRAME_SIZE_CONTROL_URL);
+    if (ret < 0) {
+        LOGE(TAG, "ucamera_service_config frame size failed");
+        return -1;
+    }
+
+    /*start ucamera*/
+    ret = ucamera_service_connect(WIFICAMERA_URL);
+    if (ret < 0) {
+        LOGE(TAG, "ucamera service start fail\n");
+        return -1;
+    }
+
     /*init ai agent service*/
     ret = aiagent_service_init("ucloud-ai", AI_MODEL);
     if (ret < 0) {
@@ -686,6 +700,7 @@ int ucloud_ai_demo_main(void *p)
         ugraphics_flip();
     }
 
+    ucamera_service_disconnect();
     ucamera_service_uninit();
     aiagent_service_uninit();
     LOG("ucloud_ai_demo_main end\n");

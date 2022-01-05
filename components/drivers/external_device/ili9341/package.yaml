@@ -23,6 +23,7 @@ depends:
   - vfs: rel_3.3.0
   - spi: rel_3.3.0
   - gpio: rel_3.3.0
+  - fbdev: rel_3.3.0
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
 #   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效

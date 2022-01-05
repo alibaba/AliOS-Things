@@ -2,8 +2,10 @@
  * Copyright (C) 2020-2021 Alibaba Group Holding Limited
  */
 
-#include <string.h>
 #include <aos/spi_core.h>
+#if AOS_SPI_BUF_SIZE > 0
+#include <string.h>
+#endif
 
 #define XFER_TIMEOUT            1000
 
@@ -20,11 +22,33 @@ void aos_spi_put(aos_spi_ref_t *ref)
     aos_dev_put(ref);
 }
 
+aos_status_t aos_spi_get_info(aos_spi_ref_t *ref, aos_spi_info_t *info)
+{
+    aos_spi_t *spi;
+
+    if (!ref || !aos_dev_ref_is_valid(ref) || !info)
+        return -EINVAL;
+
+    spi = aos_container_of(ref->dev, aos_spi_t, dev);
+    info->flags = spi->flags;
+    info->num_cs = spi->num_cs;
+    info->min_hz = spi->min_hz;
+    info->max_hz = spi->max_hz;
+
+    return 0;
+}
+
 static aos_status_t transfer_sequence(aos_spi_t *spi, const aos_spi_msg_t *msgs, size_t num_msgs)
 {
+#if AOS_SPI_BUF_SIZE > 0
     const aos_spi_msg_t *last_msg = NULL;
     size_t last_pos = 0;
+#endif
 
+    if (spi->ops->transfer_sequence)
+        return spi->ops->transfer_sequence(spi, msgs, num_msgs);
+
+#if AOS_SPI_BUF_SIZE > 0
     if (msgs[0].tx_buf)
         memcpy(spi->tx_buf[0], msgs[0].tx_buf, AOS_SPI_BUF_SIZE < msgs[0].count ? AOS_SPI_BUF_SIZE : msgs[0].count);
 
@@ -49,16 +73,18 @@ static aos_status_t transfer_sequence(aos_spi_t *spi, const aos_spi_msg_t *msgs,
 
         spi->x.timeout = XFER_TIMEOUT;
         spi->x.len = (pos + AOS_SPI_BUF_SIZE < msg->count) ? AOS_SPI_BUF_SIZE : msg->count - pos;
-        spi->x.pos[0] = 0;
-        spi->x.pos[1] = 0;
+        spi->x.head = 0;
+        spi->x.tail = 0;
         msg_tail = (pos + spi->x.len == msg->count);
-        spi->x.flags = (j & 0x1) ? AOS_SPI_XF_BUF_IDX : 0;
+        spi->x.flags = 0;
         spi->x.flags |= (pos == 0) ? AOS_SPI_XF_MSG_HEAD : 0;
         spi->x.flags |= msg_tail ? AOS_SPI_XF_MSG_TAIL : 0;
         spi->x.flags |= (j == 0) ? AOS_SPI_XF_SEQ_HEAD : 0;
         spi->x.flags |= (msg_tail && i + 1 == num_msgs) ? AOS_SPI_XF_SEQ_TAIL : 0;
         spi->x.flags |= msg->rx_buf ? AOS_SPI_XF_RX : 0;
         spi->x.flags |= msg->tx_buf ? AOS_SPI_XF_TX : 0;
+        spi->x.rx_buf = msg->rx_buf ? spi->rx_buf[j & 0x1] : NULL;
+        spi->x.tx_buf = msg->tx_buf ? spi->tx_buf[j & 0x1] : NULL;
 
         ret = spi->ops->start_xfer(spi);
         if (ret)
@@ -115,10 +141,49 @@ static aos_status_t transfer_sequence(aos_spi_t *spi, const aos_spi_msg_t *msgs,
         }
     }
 
-    if (last_msg && last_msg->rx_buf) {
-        int index = (spi->x.flags & AOS_SPI_XF_BUF_IDX) ? 1 : 0;
-        memcpy(&((uint8_t *)last_msg->rx_buf)[last_pos], spi->rx_buf[index], spi->x.len);
+    if (last_msg && last_msg->rx_buf)
+        memcpy(&((uint8_t *)last_msg->rx_buf)[last_pos], spi->x.rx_buf, spi->x.len);
+#else
+    for (size_t i = 0; i < num_msgs; i++) {
+        const aos_spi_msg_t *msg = &msgs[i];
+        uint32_t mask;
+        uint32_t val;
+        aos_status_t ret;
+
+        spi->x.timeout = XFER_TIMEOUT;
+        spi->x.flags = AOS_SPI_XF_MSG_HEAD | AOS_SPI_XF_MSG_TAIL;
+        spi->x.flags |= (i == 0) ? AOS_SPI_XF_SEQ_HEAD : 0;
+        spi->x.flags |= (i + 1 == num_msgs) ? AOS_SPI_XF_SEQ_TAIL : 0;
+        spi->x.flags |= msg->rx_buf ? AOS_SPI_XF_RX : 0;
+        spi->x.flags |= msg->tx_buf ? AOS_SPI_XF_TX : 0;
+        spi->x.cfg = msg->cfg;
+        spi->x.cs = msg->cs;
+        spi->x.hz = msg->hz;
+        spi->x.pre_cs = msg->pre_cs;
+        spi->x.post_cs = msg->post_cs;
+        spi->x.pre_clk = msg->pre_clk;
+        spi->x.post_clk = msg->post_clk;
+        spi->x.len = msg->count;
+        spi->x.head = 0;
+        spi->x.tail = 0;
+        spi->x.rx_buf = msg->rx_buf;
+        spi->x.tx_buf = msg->tx_buf;
+
+        ret = spi->ops->start_xfer(spi);
+        if (ret)
+            return ret;
+
+        mask = EVENT_XFER_COMPLETE | EVENT_XFER_ERROR;
+        if (aos_event_get(&spi->event, mask, AOS_EVENT_OR, &val, spi->x.timeout) || (val & EVENT_XFER_ERROR)) {
+            spi->ops->abort_xfer(spi);
+            aos_event_set(&spi->event, 0, AOS_EVENT_AND);
+            return -EIO;
+        } else {
+            spi->ops->finish_xfer(spi);
+            aos_event_set(&spi->event, 0, AOS_EVENT_AND);
+        }
     }
+#endif
 
     return 0;
 }
@@ -157,25 +222,17 @@ aos_status_t aos_spi_transfer(aos_spi_ref_t *ref, const aos_spi_msg_t *msgs, siz
         if (msg->count == 0 || (!msg->rx_buf && !msg->tx_buf))
             return -EINVAL;
 
-        if ((msg->cfg & AOS_SPI_MCFG_WIDTH_MASK) == AOS_SPI_MCFG_WIDTH_1 &&
-            ((msg->rx_buf && !(spi->flags & AOS_SPI_F_RX_1)) || (msg->tx_buf && !(spi->flags & AOS_SPI_F_TX_1)) ||
-             (msg->rx_buf && msg->tx_buf && !(spi->flags & AOS_SPI_F_FULL_DUPLEX_1))))
-            return -EINVAL;
-
-        if ((msg->cfg & AOS_SPI_MCFG_WIDTH_MASK) == AOS_SPI_MCFG_WIDTH_2 &&
-            ((msg->rx_buf && !(spi->flags & AOS_SPI_F_RX_2)) || (msg->tx_buf && !(spi->flags & AOS_SPI_F_TX_2)) ||
-             (msg->rx_buf && msg->tx_buf && !(spi->flags & AOS_SPI_F_FULL_DUPLEX_2))))
-            return -EINVAL;
-
-        if ((msg->cfg & AOS_SPI_MCFG_WIDTH_MASK) == AOS_SPI_MCFG_WIDTH_4 &&
-            ((msg->rx_buf && !(spi->flags & AOS_SPI_F_RX_4)) || (msg->tx_buf && !(spi->flags & AOS_SPI_F_TX_4)) ||
-             (msg->rx_buf && msg->tx_buf && !(spi->flags & AOS_SPI_F_FULL_DUPLEX_4))))
-            return -EINVAL;
-
-        if ((msg->cfg & AOS_SPI_MCFG_WIDTH_MASK) == AOS_SPI_MCFG_WIDTH_8 &&
-            ((msg->rx_buf && !(spi->flags & AOS_SPI_F_RX_8)) || (msg->tx_buf && !(spi->flags & AOS_SPI_F_TX_8)) ||
-             (msg->rx_buf && msg->tx_buf && !(spi->flags & AOS_SPI_F_FULL_DUPLEX_8))))
-            return -EINVAL;
+        if ((msg->cfg & AOS_SPI_MCFG_WIDTH_MASK) == AOS_SPI_MCFG_WIDTH_1) {
+            if ((msg->cfg & AOS_SPI_MCFG_3WIRE) && !(spi->flags & AOS_SPI_F_3WIRE))
+                return -EINVAL;
+            if (!(msg->cfg & AOS_SPI_MCFG_3WIRE) && !(spi->flags & AOS_SPI_F_4WIRE))
+                return -EINVAL;
+            if ((msg->cfg & AOS_SPI_MCFG_3WIRE) && msg->rx_buf && msg->tx_buf)
+                return -EINVAL;
+        } else {
+            if (msg->rx_buf && msg->tx_buf)
+                return -EINVAL;
+        }
 
         if (msg->cs >= spi->num_cs)
             return -EINVAL;
@@ -214,16 +271,11 @@ static void dev_spi_unregister(aos_dev_t *dev)
 static aos_status_t dev_spi_get(aos_dev_ref_t *ref)
 {
     aos_spi_t *spi = aos_container_of(ref->dev, aos_spi_t, dev);
-    aos_status_t ret;
 
     if (!aos_dev_ref_is_first(ref))
         return 0;
 
-    ret = spi->ops->startup(spi);
-    if (ret)
-        return ret;
-
-    return 0;
+    return spi->ops->startup(spi);
 }
 
 static void dev_spi_put(aos_dev_ref_t *ref)
@@ -249,33 +301,26 @@ aos_status_t aos_spi_register(aos_spi_t *spi)
     if (!spi)
         return -EINVAL;
 
-    if (!spi->ops || !spi->ops->startup || !spi->ops->shutdown ||
-        !spi->ops->start_xfer || !spi->ops->finish_xfer || !spi->ops->abort_xfer)
+    if (!spi->ops || !spi->ops->startup || !spi->ops->shutdown)
+        return -EINVAL;
+
+    if ((!spi->ops->start_xfer || !spi->ops->finish_xfer || !spi->ops->abort_xfer) && !spi->ops->transfer_sequence)
         return -EINVAL;
 
     if (!(spi->flags & AOS_SPI_F_MODE_0) && !(spi->flags & AOS_SPI_F_MODE_1) &&
         !(spi->flags & AOS_SPI_F_MODE_2) && !(spi->flags & AOS_SPI_F_MODE_3))
         return -EINVAL;
 
-    if (!(spi->flags & AOS_SPI_F_RX_1) && !(spi->flags & AOS_SPI_F_RX_2) &&
-        !(spi->flags & AOS_SPI_F_RX_4) && !(spi->flags & AOS_SPI_F_RX_8))
+    if (!(spi->flags & AOS_SPI_F_WIDTH_1) && !(spi->flags & AOS_SPI_F_WIDTH_2) &&
+        !(spi->flags & AOS_SPI_F_WIDTH_4) && !(spi->flags & AOS_SPI_F_WIDTH_8))
         return -EINVAL;
 
-    if (!(spi->flags & AOS_SPI_F_TX_1) && !(spi->flags & AOS_SPI_F_TX_2) &&
-        !(spi->flags & AOS_SPI_F_TX_4) && !(spi->flags & AOS_SPI_F_TX_8))
-        return -EINVAL;
-
-    if (!(spi->flags & AOS_SPI_F_RX_1) || !(spi->flags & AOS_SPI_F_TX_1))
-        spi->flags &= ~AOS_SPI_F_FULL_DUPLEX_1;
-
-    if (!(spi->flags & AOS_SPI_F_RX_2) || !(spi->flags & AOS_SPI_F_TX_2))
-        spi->flags &= ~AOS_SPI_F_FULL_DUPLEX_2;
-
-    if (!(spi->flags & AOS_SPI_F_RX_4) || !(spi->flags & AOS_SPI_F_TX_4))
-        spi->flags &= ~AOS_SPI_F_FULL_DUPLEX_4;
-
-    if (!(spi->flags & AOS_SPI_F_RX_8) || !(spi->flags & AOS_SPI_F_TX_8))
-        spi->flags &= ~AOS_SPI_F_FULL_DUPLEX_8;
+    if (spi->flags & AOS_SPI_F_WIDTH_1) {
+        if (!(spi->flags & AOS_SPI_F_4WIRE) && !(spi->flags & AOS_SPI_F_3WIRE))
+            return -EINVAL;
+    } else {
+        spi->flags &= ~(AOS_SPI_F_4WIRE | AOS_SPI_F_3WIRE);
+    }
 
     if (!(spi->flags & AOS_SPI_F_MSB_FIRST) && !(spi->flags & AOS_SPI_F_LSB_FIRST))
         return -EINVAL;
@@ -295,7 +340,6 @@ aos_status_t aos_spi_register(aos_spi_t *spi)
     spi->dev.vfs_helper.name[0] = '\0';
     spi->dev.vfs_helper.ops = NULL;
 #endif
-    aos_spin_lock_init(&spi->lock);
 
     ret = aos_event_new(&spi->event, 0);
     if (ret)
@@ -310,6 +354,22 @@ aos_status_t aos_spi_register(aos_spi_t *spi)
     return 0;
 }
 
+aos_status_t aos_spi_register_argumented(aos_spi_t *spi, uint32_t id, const aos_spi_ops_t *ops, uint32_t flags,
+                                         uint32_t num_cs, uint32_t min_hz, uint32_t max_hz)
+{
+    if (!spi)
+        return -EINVAL;
+
+    spi->dev.id = id;
+    spi->ops = ops;
+    spi->flags = flags;
+    spi->num_cs = num_cs;
+    spi->min_hz = min_hz;
+    spi->max_hz = max_hz;
+
+    return aos_spi_register(spi);
+}
+
 aos_status_t aos_spi_unregister(uint32_t id)
 {
     return aos_dev_unregister(AOS_DEV_TYPE_SPI, id);
@@ -317,35 +377,31 @@ aos_status_t aos_spi_unregister(uint32_t id)
 
 size_t aos_spi_hard_push(aos_spi_t *spi, void *tx_buf, size_t count)
 {
-    if (spi->x.pos[0] + count > spi->x.len)
-        count = spi->x.len - spi->x.pos[0];
+    if (spi->x.head + count > spi->x.len)
+        count = spi->x.len - spi->x.head;
 
     if ((spi->x.flags & AOS_SPI_XF_TX) && tx_buf) {
-        const uint8_t *buf = spi->tx_buf[(spi->x.flags & AOS_SPI_XF_BUF_IDX) ? 1 : 0];
-
         for (size_t i = 0; i < count; i++)
-            ((uint8_t *)tx_buf)[i] = buf[spi->x.pos[0] + i];
+            ((uint8_t *)tx_buf)[i] = ((const uint8_t *)spi->x.tx_buf)[spi->x.head + i];
     }
 
-    spi->x.pos[0] += count;
+    spi->x.head += count;
 
     return count;
 }
 
 bool aos_spi_hard_pull(aos_spi_t *spi, const void *rx_buf, size_t count)
 {
-    if (spi->x.pos[1] + count > spi->x.pos[0])
-        count = spi->x.pos[0] - spi->x.pos[1];
+    if (spi->x.tail + count > spi->x.head)
+        count = spi->x.head - spi->x.tail;
 
     if ((spi->x.flags & AOS_SPI_XF_RX) && rx_buf) {
-        uint8_t *buf = spi->rx_buf[(spi->x.flags & AOS_SPI_XF_BUF_IDX) ? 1 : 0];
-
         for (size_t i = 0; i < count; i++)
-            buf[spi->x.pos[1] + i] = ((const uint8_t *)rx_buf)[i];
+            ((uint8_t *)spi->x.rx_buf)[spi->x.tail + i] = ((const uint8_t *)rx_buf)[i];
     }
 
-    spi->x.pos[1] += count;
-    if (spi->x.pos[1] == spi->x.len) {
+    spi->x.tail += count;
+    if (spi->x.tail == spi->x.len) {
         aos_event_set(&spi->event, EVENT_XFER_COMPLETE, AOS_EVENT_OR);
         return true;
     }

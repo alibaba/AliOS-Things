@@ -8,12 +8,13 @@
 
 #include "ameba_soc.h"
 
-#include "os_sched.h"
-#include "os_pool.h"
-#include "os_sync.h"
-#include "os_mem.h"
-
-#include "trace_app.h"
+//#include "os_sched.h"
+//#include "os_pool.h"
+//#include "os_sync.h"
+//#include "os_mem.h"
+#include "osif_customer.h"
+#include <mem_types.h>
+//#include "trace_app.h"
 
 #include "hci_uart.h"
 #include "bt_board.h"
@@ -249,7 +250,7 @@ static inline void receive_chars(T_HCI_UART *hci_adapter, int ind)
     }
     while (--max_count > 0);
 
-    /* HCI_PRINT_INFO1("receive_chars: rx_len %u", hci_adapter->rx_len); */
+    /* HCI_PRINT_INFO("receive_chars: rx_len %u", hci_adapter->rx_len); */
     /* FIXME: There is too many rx indication events ? */
     if (ind && hci_adapter->rx_ind)
     {

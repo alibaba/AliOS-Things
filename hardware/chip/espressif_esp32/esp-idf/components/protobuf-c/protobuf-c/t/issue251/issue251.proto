@@ -1,0 +1,11 @@
+message two_oneofs {
+    oneof first_oneof {
+        bool a = 10;
+        bool b = 11;
+    }
+
+    oneof second_oneof {
+        bool c = 20;
+        bool d = 21;
+    }
+}

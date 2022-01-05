@@ -415,13 +415,19 @@ SECTIONS
     KEEP(*(*.post_driver_entry))
     __post_driver_end__ = .;
    } > RAM
+ .symbol_table_entry (.):
+  {
+  __symbol_table_start__ = .;
+   KEEP(*(*.symbol_table_entry))
+  __symbol_table_end__ = .;
+  } > RAM
  __sram_text_data_end_flash__ = __sram_text_data_start_flash__ +
-         SIZEOF(.sram_text) + SIZEOF(.sram_data) +
-         SIZEOF(.core_driver_entry) + SIZEOF(.bus_driver_entry) +
-         SIZEOF(.early_driver_entry) + SIZEOF(.vfs_driver_entry) +
-         SIZEOF(.level0_driver_entry) + SIZEOF(.level1_driver_entry) +
-         SIZEOF(.level2_driver_entry) + SIZEOF(.level3_driver_entry) +
-         SIZEOF(.post_driver_entry);
+        SIZEOF(.sram_text) + SIZEOF(.sram_data) +
+        SIZEOF(.core_driver_entry) + SIZEOF(.bus_driver_entry) +
+        SIZEOF(.early_driver_entry) + SIZEOF(.vfs_driver_entry) +
+        SIZEOF(.level0_driver_entry) + SIZEOF(.level1_driver_entry) +
+        SIZEOF(.level2_driver_entry) + SIZEOF(.level3_driver_entry) +
+        SIZEOF(.post_driver_entry) + SIZEOF(.symbol_table_entry);
  .sram_bss (.) (NOLOAD) : AT (ADDR(.sram_bss))
  {
   __sram_bss_start__ = .;

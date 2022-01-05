@@ -28,16 +28,23 @@ typedef struct _GenerateHumanAnimeStyleStruct {
     int imageLen;
 } GenerateHumanAnimeStyleStruct;
 
+typedef struct _DetectPedestrianStruct {
+    char *type;
+    float score;
+    RectStruct box;
+} DetectPedestrianStruct;
 
 typedef union _FacebodyResultStruct {
     ComparingFaceStruct face;
     RecognizeExpressionStruct expression;
     GenerateHumanAnimeStyleStruct anime;
+    DetectPedestrianStruct pedestrian;
 } FacebodyResultStruct;
 
 int compareFace(char *urlA, char *urlB, AIModelCBFunc cb);
 int recognizeExpression(char *url, AIModelCBFunc cb);
 int generateHumanAnimeStyle(char *url, AIModelCBFunc cb);
+int detectPedestrian(char *url, AIModelCBFunc cb);
 #ifdef __cplusplus
 }
 #endif

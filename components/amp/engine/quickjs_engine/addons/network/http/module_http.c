@@ -136,6 +136,7 @@ static void http_request_notify(void *pdata)
     JS_FreeValue(ctx, args[0]);
     if (msg->header_buffer) {
         JS_FreeValue(ctx, args[1]);
+        amp_free(msg->header_buffer);
     }
     JS_FreeValue(ctx, msg->js_cb_ref);
     if (JS_IsException(val)) {

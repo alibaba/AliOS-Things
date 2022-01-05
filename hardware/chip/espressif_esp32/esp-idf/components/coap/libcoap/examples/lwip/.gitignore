@@ -1,0 +1,7 @@
+# not going for submodules here to keep things easy
+lwip
+lwip-contrib
+
+# never objects, and not the resulting binary
+*.o
+server

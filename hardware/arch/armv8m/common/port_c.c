@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
+ *
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #include <k_api.h>

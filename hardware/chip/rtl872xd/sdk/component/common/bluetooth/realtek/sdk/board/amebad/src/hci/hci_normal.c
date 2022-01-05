@@ -3,16 +3,19 @@
  */
 
 #include <string.h>
-#include "os_task.h"
-#include "os_mem.h"
-#include "os_msg.h"
-#include "trace.h"
+//#include "os_task.h"
+//#include "os_mem.h"
+//#include "os_msg.h"
+//#include "trace.h"
+
 //#include "bt_defs.h"
 //#include "bte_api.h"
+#include "hci_dbg.h"
+#include "osif_customer.h"
 #include "hci_code.h"
 #include "hci_if.h"
 #include "hci_proto.h"
-#include "bt_flags.h"
+//#include "bt_flags.h"
 //#include "otp.h"
 
 /***** Just for compile, need fix *****/
@@ -106,7 +109,7 @@ void hci_if_task(void *p_param)
                 break;
 
             default:
-                HCI_PRINT_ERROR1("hci_if_task: unknown msg 0x%02x", msg);
+                HCI_PRINT_ERROR("hci_if_task: unknown msg 0x%02x", msg);
                 break;
             }
         }
@@ -132,7 +135,7 @@ bool hci_if_open(P_HCI_IF_CALLBACK p_callback)
     }
     else
     {
-        HCI_PRINT_INFO0("hci_if_open: reopen");
+        HCI_PRINT_INFO("hci_if_open: reopen");
     }
 
     return os_msg_send(hci_if.msg_q, &msg, 0);
@@ -141,7 +144,7 @@ bool hci_if_open(P_HCI_IF_CALLBACK p_callback)
 bool hci_if_close(void)
 {
     uint8_t msg = HCI_IF_MSG_CLOSE;
-    HCI_PRINT_INFO0("hci_if_close");
+    HCI_PRINT_INFO("hci_if_close");
 
     return os_msg_send(hci_if.msg_q, &msg, 0);
 }
@@ -151,7 +154,7 @@ bool hci_if_write(uint8_t *p_buf, uint32_t len)
     T_HCI_XMIT_DATA tx_data;
     uint8_t         msg;
 
-    /* HCI_PRINT_TRACE2("hci_if_write: buf %p, len %d", p_buf, len); */
+    /* HCI_PRINT_TRACE("hci_if_write: buf %p, len %d", p_buf, len); */
 
     tx_data.p_buf = p_buf;
     tx_data.len   = len;
@@ -171,7 +174,7 @@ bool hci_if_confirm(uint8_t *p_buf)
 {
     uint8_t msg = HCI_IF_MSG_RX_CFM;
 
-    /* HCI_PRINT_TRACE1("hci_if_confirm: buf %p", p_buf); */
+    /* HCI_PRINT_TRACE("hci_if_confirm: buf %p", p_buf); */
 
     if (os_msg_send(hci_if.cfm_q, &p_buf, 0) == true)
     {
@@ -183,7 +186,7 @@ bool hci_if_confirm(uint8_t *p_buf)
     }
 }
 
-#if F_BT_DEINIT
+//#if F_BT_DEINIT
 extern void hci_h4_pre_deinit(void);
 extern void hci_h4_deinit(void);
 void hci_if_del_task(void)
@@ -216,4 +219,4 @@ void hci_if_deinit(void)
     hci_h4_deinit();
     memset(&hci_if, 0, offsetof(T_HCI_IF, proto));
 }
-#endif
+//#endif

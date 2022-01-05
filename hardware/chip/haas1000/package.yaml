@@ -30,6 +30,7 @@ depends:
   - adc: rel_3.3.0
   - timer: rel_3.3.0
   - watchdog: rel_3.3.0
+# - dm_engine: rel_3.3.0 ? <CONFIG_DM>
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
 #   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
@@ -67,6 +68,7 @@ build_config:
           -std=gnu++11 -fsigned-char -fno-common -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fpermissive -DSNTP_PERIODIC_SYNC_INTERVAL_MS=3600000
           -g -Os
   ldflag: -mthumb -mcpu=cortex-m33 -mfpu=fpv5-sp-d16 -mfloat-abi=hard -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys -nostartfiles --specs=nosys.specs -Wl,-Map="aos.map" --coverage
+  shldflag: -mcpu=cortex-m33 -mthumb -mfpu=fpv5-sp-d16 -mfloat-abi=hard -s -nostartfiles
   asmflag: >
           -mthumb -mcpu=cortex-m33 -mfpu=fpv5-sp-d16 -mfloat-abi=hard -g -Os
           -DCHIP=haas1000 -DKERNEL=RHINO -DCHIP_HAAS1000_ARCH_ENHANCE -DCHIP_HAAS1000 -DMIC_SAMPLERATE=48000 -DMIC_PERIOD_MS=48
@@ -94,7 +96,6 @@ build_config:
     - drivers/platform/drivers/bt/
     - drivers/services/wifi_app/audio_dec/
     - drivers/services/audioflinger/
-    - drivers/net/lwip/src/include/netif/ppp/
     - drivers/net/
     - drivers/apps/common/
     - drivers/services/wifi_app/sniffer/
@@ -152,6 +153,7 @@ source_file:
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y
 def_config:
+  CHIP_HAAS1000: 1
   SWD_ENABLE_AS_DEFAULT: 1
 #  CONFIG_CSI_V1: 1
 #  CONFIG_CSI: "csi1.0"
@@ -182,6 +184,7 @@ def_config:
   SUPPORT_SET_DRIVER_TRACE_FLAG: 1
   AOS_CONFIG_GPIOC_CSI: 1
   __AP_MODE__: 1
+  CONFIG_DM: 0
 chip:
   arch_name: arm
   cpu_name: cortex-m4
@@ -195,9 +198,9 @@ hw_info:
   vendor_name: alibaba IoT
   ld_script: _haas1000_alios.lds
   flash_program: release/aos_burn_tool/flash_program.py
-  # program_data_files:
-  #   - filename: release/write_flash_tool/ota_bin/littlefs.bin
-  #     address: 0xB32000
+#  program_data_files:
+#     - filename: release/write_flash_tool/ota_bin/littlefs.bin
+#       address: 0xB32000
 
 ## 第六部分：安装信息
 # install:

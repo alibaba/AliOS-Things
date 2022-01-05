@@ -8,7 +8,7 @@ class netWork extends events.EventEmitter {
     constructor(options) {
         super();
 
-        if (!options.devType) {
+        if (!options || !options.devType) {
             devType = this.getType();
         }
         else {
@@ -17,7 +17,6 @@ class netWork extends events.EventEmitter {
 
         if(devType != 'wifi' && devType != 'cellular' && devType != 'ethnet') {
             throw new Error('devType only support cellular/wifi/ethnet, please check input!');
-            return;
         }
 
         console.log('devType is ' + devType);
@@ -43,7 +42,7 @@ class netWork extends events.EventEmitter {
 
     _netmgrInit() {
         if (NETMGR.serviceInit() !== 0) {
-            this.emit('error', 'netmgr init error');
+            throw new Error('netmgr init error');
         }
     }
 
@@ -51,8 +50,7 @@ class netWork extends events.EventEmitter {
         console.log('device net name:' + this.name)
         var dev_handler = NETMGR.getDev(this.name);
         if (dev_handler == -1) {
-            console.log('netmgr get dev handle error: ' + this.name);
-            return;
+            throw new Error('netmgr get dev handle error: ' + this.name);
         }
 
         return dev_handler;
@@ -69,7 +67,7 @@ class netWork extends events.EventEmitter {
             }
 
             if (CELLULAR.onConnect(cb.bind(this)) !== 0) {
-                this.emit('error', 'network on cellular status error');
+                throw new Error('network on cellular status error');
             }
             return;
         }
@@ -86,7 +84,7 @@ class netWork extends events.EventEmitter {
             }
 
             if (NETMGR.connect(this.dev_handler, cb_.bind(this)) !== 0) {
-                this.emit('error', 'network on ethnet status error');
+                throw new Error('network on ethnet status error');
             }
             return;
         }
@@ -144,8 +142,7 @@ class netWork extends events.EventEmitter {
     */
     disconnect() {
         if (devType != 'wifi') {
-            console.log('Not wifi dev, can\'t disconnect');
-            return;
+            throw new Error('Not wifi dev, can\'t disconnect');
         }
 
         var ret = NETMGR.disconnect(this.dev_handler);
@@ -198,7 +195,6 @@ class netWork extends events.EventEmitter {
     saveConfig() {
         if (devType == 'cellular') {
             throw new Error('cellular device isn\'t support saveConfig!');
-            return;
         }
 
         var ret = NETMGR.saveConfig(this.dev_handler);
@@ -210,12 +206,10 @@ class netWork extends events.EventEmitter {
     setIfConfig(options) {
         if (devType == 'cellular') {
             throw new Error('setIfConfig: cellular device isn\'t support!');
-            return;
         }
 
         if (!options.hasOwnProperty('dhcp_en')) {
             throw new Error('setIfConfig: property dhcp_en undefined and should be bool type!');
-            return;
         }
 
         options = {
@@ -241,7 +235,6 @@ class netWork extends events.EventEmitter {
     getIfConfig() {
         if (devType == 'cellular') {
             throw new Error('cellular device isn\'t support getIfConfig!');
-            return;
         }
 
         var config = NETMGR.getIfConfig(this.dev_handler);

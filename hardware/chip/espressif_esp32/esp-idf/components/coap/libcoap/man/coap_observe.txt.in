@@ -1,0 +1,395 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap_observe(3)
+=================
+:doctype: manpage
+:man source:   coap_observe
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap_observe, coap_resource_set_get_observable, coap_resource_notify_observers,
+coap_resource_get_uri_path, coap_find_observer, coap_delete_observer,
+coap_delete_observers - work with CoAP observe
+
+SYNOPSIS
+--------
+*#include <coap@LIBCOAP_API_VERSION@/coap.h>*
+
+*void coap_resource_set_get_observable(coap_resource_t *_resource_,
+int _mode_);*
+
+*int coap_resource_notify_observers(coap_resource_t *_resource_,
+const const_string_t *_query_);*
+
+*const coap_string_t *coap_resource_get_uri_path(coap_resource_t *_resource_);*
+
+*coap_subscription_t *coap_find_observer(coap_resource_t *_resource_,
+coap_session_t *_session_, const const_string_t *_token_);*
+
+*int coap_delete_observer(coap_resource_t *_resource_, coap_session_t *_session_,
+const coap_binary_t *_token_);*
+
+*void coap_delete_observers(coap_context_t *_context_, coap_session_t *_session_);*
+
+Link with *-lcoap-@LIBCOAP_API_VERSION@*, *-lcoap-@LIBCOAP_API_VERSION@-gnutls*,
+*-lcoap-@LIBCOAP_API_VERSION@-openssl* or
+*-lcoap-@LIBCOAP_API_VERSION@-tinydtls* depending on your (D)TLS library
+type.
+
+DESCRIPTION
+-----------
+RFC 7641 extends the CoAP protocol to be able to monitor the state of a
+resource over time.
+
+This enables clients to "observe" resources with a defined query, i.e., to
+retrieve a representation of a resource and keep this representation updated
+by the server over a period of time.
+
+The server has to flag a resource as "observable", and then the client has
+to request in a GET request that it wants to observe this resource by the use
+of the COAP_OPTION_OBSERVE Option with a value of COAP_OBSERVE_ESTABLISH.
+Optionally, the client can specify query options for the resource.
+
+To remove the "observe" subscription, the client has to issue a GET request
+with the COAP_OPTION_OBSERVE Option with a value of COAP_OBSERVE_CANCEL.
+Alternatively, the server can remove a subscription by calling
+*coap_delete_observer*() or *coap_delete_observers*(), but this does not
+notify the client that the subscription has been removed.
+
+The underlying library adds in and removes "subscribers" to the resource as
+appropriate in the server side logic.
+
+Within the server application, it needs to determine that there is a change of
+state of the resource under observation, and then cause the CoAP library
+layer to initiate a "fake GET request" so that an observe GET response
+gets sent back to all the clients that are observing the resource.  The
+appropriate GET handler within the server application is called to fill in the
+response packet with the appropriate information. This "fake GET request" is
+triggered by a call to *coap_resource_notify_observers*().
+
+The call to *coap_run_once*() in the main server application i/o loop will do
+all the necessary processing of sending any outstanding "fake GET requests".
+
+Whenever the server sends a copy of the state of the "observed" resource to
+the client, it will use the same token used by the client when the client
+requested the "observe".  The client will receive this observe response
+in the handler defined by *coap_register_response_handler*(3).  It is the
+responsibility of the client application to match the supplied token and
+update the appropriate internal information.
+
+The *coap_resource_set_get_observable*() function enables or disables the
+observable status of the _resource_ by the setting of _mode_.  If _mode_ is
+1, then the _resource_ is observable.  If _mode_ is 0, then the
+_resource_ is no longer observable.
+
+*NOTE:* It is not possible for the Unknown Resource, created by
+*coap_resource_unknown_init*(3), to be observable as the Uri-Path is not known
+when libcoap creates a "fake GET request".  The Unknown Resource PUT
+handler must create a new resource and mark the resource as "observable" if
+a specific resource needs to be observable.  The application must then
+manage the deleteion of the resource at the appropriate time.
+
+*NOTE:* The type (confirmable or non-confirmable) of the triggered observe
+GET response is determined not by the initial GET request, but independently
+by the server as per RFC 7641 3.5. Transmission.  This is controlled by the
+flags (one of COAP_RESOURCE_FLAGS_NOTIFY_NON or COAP_RESOURCE_FLAGS_NOTIFY_CON)
+used when creating the resource using *coap_resource_init*(3).
+Furthermore, the server must send at least one "observe" response as
+confirmable, when generally sending non-confirmable,  every 24 hours.
+libcoap handles this by sending every fifth (COAP_OBS_MAX_NON) response as a
+confirmable response for detection that the client is still responding.
+
+The *coap_resource_notify_observers*() function needs to be called whenever the
+server application determines that there has been a change to the state of
+_resource_, possibly only matching a specific _query_ if _query_ is not NULL.
+
+The *coap_resource_get_uri_path*() function is used to obtain the UriPath of
+the _resource_ definion.
+
+The *coap_find_observer*() function is used to check whether the current GET
+request as determined from _resource_, _session_ and _token_ is currently
+being observed or not.
+
+The *coap_delete_observer*() function deletes the specific observer associated
+with _resource_, _session_ and has _token_.
+
+The *coap_delete_observers*() function is used to delete all observers
+associated with the _session_ that is a part of the _context_.
+
+RETURN VALUES
+-------------
+The *coap_resource_get_uri_path*() function returns the uri_path or NULL if
+there was a failure.
+
+The *coap_find_observer*() function returns the subscription or NULL if there
+was a failure.
+
+The *coap_resource_set_get_observable*() function return 0 on failure, 1 on
+success.
+
+The *coap_delete_observer*() function return 0 on failure, 1 on success.
+
+EXAMPLES
+--------
+*Simple Time Server*
+
+[source, c]
+--
+#include <coap@LIBCOAP_API_VERSION@/coap.h>
+
+coap_resource_t *time_resource = NULL;
+
+static int check_if_time_resource_has_changed(coap_resource_t *resource) {
+  return 1;
+}
+
+/* specific GET "time" handler, called from hnd_get_generic() */
+
+static void
+hnd_get_time(coap_context_t *context, coap_resource_t *resource,
+coap_session_t *session, coap_pdu_t *request, coap_string_t *token,
+coap_string_t *query, coap_pdu_t *response) {
+
+  unsigned char buf[40];
+  size_t len;
+  time_t now;
+
+  /* ... Additional analysis code for resource, request pdu etc.  ... */
+
+  /* After analysis, generate a suitable response */
+
+  /* Note that token, if set, is already in the response pdu */
+
+  now = time(NULL);
+
+  if (query != NULL && coap_string_equal(query, coap_make_str_const("secs"))) {
+    /* Output secs since Jan 1 1970 */
+    len = snprintf((char *)buf, sizeof(buf), "%lu", now);
+  }
+  else {
+    /* Output human-readable time */
+    struct tm *tmp;
+    tmp = gmtime(&now);
+    if (!tmp) {
+      /* If 'now' is not valid */
+      response->code = COAP_RESPONSE_CODE(404);
+      return;
+    }
+    len = strftime((char *)buf, sizeof(buf), "%b %d %H:%M:%S", tmp);
+  }
+  /*
+   * Invoke coap_add_data_blocked_response() to do all the hard work.
+   *
+   * Define the format - COAP_MEDIATYPE_TEXT_PLAIN - to add in
+   * Define how long this response is valid for (secs) - 1 - to add in.
+   *
+   * OBSERVE Option added internally if needed within the function
+   * BLOCK2 Option added internally if output too large
+   * ETAG Option added internally
+   */
+  coap_add_data_blocked_response(resource, session, request, response, token,
+                                 COAP_MEDIATYPE_TEXT_PLAIN, 1,
+                                 len,
+                                 buf);
+
+  /*
+   * As resource->code has been updated in coap_add_data_blocked_response(),
+   * the response pdu will be transmitted by the underlying library.
+   */
+
+}
+
+/* Generic GET handler */
+
+static void
+hnd_get_generic(coap_context_t *ctx, coap_resource_t *resource,
+coap_session_t *session, coap_pdu_t *request, coap_string_t *token,
+coap_string_t *query, coap_pdu_t *response) {
+
+  coap_str_const_t *uri_path = coap_resource_get_uri_path(resource);
+
+  if (!uri_path) {
+    /* Unexpected Failure */
+    response->code = COAP_RESPONSE_CODE(400);
+    return;
+  }
+
+  /* Is this the "time" resource" ? */
+  if (coap_string_equal(uri_path, coap_make_str_const("time"))) {
+    hnd_get_time(ctx, resource, session, request, token, query,
+                 response);
+    return;
+  }
+
+  /* Other resources code */
+
+  /* Failure response */
+  response->code = COAP_RESPONSE_CODE(400);
+}
+
+/* Initialize generic GET handler */
+
+static void
+init_resources(coap_context_t *ctx)
+{
+
+  coap_resource_t *r;
+
+  /* Create a resource to return return or update time */
+  r = coap_resource_init(coap_make_str_const("time"),
+                         COAP_RESOURCE_FLAGS_NOTIFY_CON);
+
+  /* We are using a generic GET handler here */
+  coap_register_handler(r, COAP_REQUEST_GET, hnd_get_generic);
+
+  coap_resource_set_get_observable(r, 1);
+
+  coap_add_resource(ctx, r);
+  time_resource = r;
+
+}
+
+int main(int argc, char *argv[]){
+
+  coap_context_t *ctx = NULL;
+  coap_endpoint_t *ep = NULL;
+  coap_address_t addr;
+  unsigned wait_ms;
+
+  /* Create the libcoap context */
+  ctx = coap_new_context(NULL);
+  if (!ctx) {
+    exit(1);
+  }
+  coap_address_init(&addr);
+  addr.addr.sa.sa_family = AF_INET;
+  addr.addr.sin.sin_port = ntohs(COAP_DEFAULT_PORT);
+  ep = coap_new_endpoint(ctx, &addr, COAP_PROTO_UDP);
+
+  /* Other Set up Code */
+
+  init_resources(ctx);
+
+  wait_ms = COAP_RESOURCE_CHECK_TIME * 1000;
+
+  while (1) {
+    int result = coap_run_once( ctx, wait_ms );
+    if ( result < 0 ) {
+      break;
+    } else if ( result && (unsigned)result < wait_ms ) {
+      /* decrement if there is a result wait time returned */
+      wait_ms -= result;
+    } else {
+      /*
+       * result == 0, or result >= wait_ms
+       * (wait_ms could have decremented to a small value, below
+       * the granularity of the timer in coap_run_once() and hence
+       * result == 0)
+       */
+      time_t t_now = time(NULL);
+      if (t_last != t_now) {
+        /* Happens once per second */
+        int i;
+        t_last = t_now;
+        if (time_resource) {
+          coap_resource_notify_observers(time_resource, NULL);
+        }
+      }
+      if (result) {
+        /* result must have been >= wait_ms, so reset wait_ms */
+        wait_ms = COAP_RESOURCE_CHECK_TIME * 1000;
+      }
+    }
+  }
+  exit(0);
+
+}
+--
+
+*Client Observe Request Setup*
+
+[source, c]
+--
+#include <coap@LIBCOAP_API_VERSION@/coap.h>
+
+/* Usually, requests are sent confirmable */
+
+static unsigned char msgtype = COAP_MESSAGE_CON;
+
+static unsigned int token = 0;
+
+static coap_pdu_t *
+coap_new_request(coap_context_t *context, coap_session_t *session, char request_code,
+coap_optlist_t **options, unsigned char *data, size_t length, int observe) {
+
+  coap_pdu_t *pdu;
+  coap_optlist_t *opt;
+  (void)context;
+
+  /* Create the pdu with the appropriate options */
+  pdu = coap_pdu_init(msgtype, request_code, coap_new_message_id(session),
+                      coap_session_max_pdu_size(session));
+  if (!pdu)
+    return NULL;
+
+  /*
+   * Create uniqueness token for this request for handling unsolicited /
+   * delayed responses
+   */
+  token++;
+  if (!coap_add_token(pdu, sizeof(token), (unsigned char*)&token)) {
+    coap_log(LOG_DEBUG, "cannot add token to request\n");
+    goto error;
+  }
+
+  if (request_code == COAP_REQUEST_GET && observe) {
+    /* Indicate that we want to observe this resource */
+    if (!coap_insert_optlist(options,
+                             coap_new_optlist(COAP_OPTION_OBSERVE,
+                                         COAP_OBSERVE_ESTABLISH, NULL)))
+      goto error;
+  }
+
+  /* ... Other code / options etc. ... */
+
+  /* Add in all the options (after internal sorting) to the pdu */
+  if (!coap_add_optlist_pdu(pdu, options))
+    goto error;
+
+  if (data && length) {
+    /* Add in the specified data */
+    if (!coap_add_data(pdu, length, data))
+      goto error;
+  }
+
+  return pdu;
+
+error:
+
+  coap_delete_pdu(pdu);
+  return NULL;
+
+}
+--
+
+SEE ALSO
+--------
+*coap_attribute*(3), *coap_context*(3), *coap_handler*(3), *coap_pdu_setup*(3)
+and *coap_resource*(3)
+
+FURTHER INFORMATION
+-------------------
+"RFC7252: The Constrained Application Protocol (CoAP)"
+"RFC7641: Observing Resources in the Constrained Application Protocol (CoAP)"
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

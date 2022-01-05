@@ -60,8 +60,6 @@ int32_t py_task_yield(uint32_t timeout)
 
 int32_t py_task_schedule_call(amp_engine_call_t call, void *arg)
 {
-    printf("************* py_task_schedule_call START  *******\r\n");
-
     amp_task_msg_t msg_buf;
     amp_task_msg_t *p_param = &msg_buf;
 
@@ -75,7 +73,6 @@ int32_t py_task_schedule_call(amp_engine_call_t call, void *arg)
     }
 
     aos_queue_send(&amp_task_mq, p_param, sizeof(amp_task_msg_t));
-    printf("************* py_task_schedule_call END *******\r\n");
 
     return 0;
 }
@@ -117,9 +114,8 @@ int32_t py_task_init()
     }
 
     g_init = 1;
-    printf("************* python task init*******\r\n");
 
-    amp_debug(MOD_STR, "pyengine task init");
+    amp_debug(MOD_STR, "pyengine task init \r\n");
     return 0;
 }
 

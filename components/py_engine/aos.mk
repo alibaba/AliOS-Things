@@ -272,14 +272,14 @@ $(NAME)_SOURCES += $(OTA_SRC)
 GLOBAL_CFLAGS += -DPY_BUILD_OTA=1
 endif
 
-ifeq ($(py_build_sntp), y)
+ifeq ($(MICROPY_PY_SNTP), y)
 $(NAME)_SOURCES += $(SNTP_SRC)
-GLOBAL_CFLAGS += -DPY_BUILD_SNTP=1
+GLOBAL_CFLAGS += -DMICROPY_PY_SNTP=1
 endif
 
-ifeq ($(py_build_ucamera), y)
+ifeq ($(MICROPY_PY_UCAMERA), y)
 $(NAME)_SOURCES += $(UCAMERA_SRC)
-GLOBAL_CFLAGS += -DPY_BUILD_UCAMERA=1
+GLOBAL_CFLAGS += -DMICROPY_PY_UCAMERA=1
 endif
 
 ifeq ($(py_build_ulog), y)

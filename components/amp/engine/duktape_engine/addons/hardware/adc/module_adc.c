@@ -89,7 +89,7 @@ static duk_ret_t native_adc_read(duk_context *ctx)
         amp_error(MOD_STR, "board_get_node_by_handle fail!");
         goto out;
     }
-    (void)aos_hal_adc_value_get(adc_device, (void *)&adc_value, 0);
+    (void)aos_hal_adc_raw_value_get(adc_device, (void *)&adc_value, 0);
     amp_debug(MOD_STR, "adc value: %d\n", adc_value);
 out:
     duk_push_int(ctx, adc_value > 0 ? adc_value : -1);

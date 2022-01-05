@@ -351,10 +351,9 @@ std::string AlibabaCloud::OSS::ComputeContentMD5(std::istream& stream)
 
         if (bytesRead > 0)
         {
-            mbedtls_md5_update_ret(&ctx, (const unsigned char*)streamBuffer, static_cast<size_t>(bytesRead));
+            mbedtls_md5_update_ret(&ctx, (const unsigned char *)streamBuffer, static_cast<size_t>(bytesRead));
         }
     }
-
     mbedtls_md5_finish_ret(&ctx, md_value);
     mbedtls_md5_free(&ctx);
 
@@ -441,7 +440,7 @@ std::string AlibabaCloud::OSS::ComputeContentETag(const char * data, size_t size
     mbedtls_md5_free(&ctx);
 #endif
 
-    mbedtls_md5_ret((const unsigned char*)data, size, md_data);
+    mbedtls_md5_ret((const unsigned char *)data, size, md_data);
 
     return HexToString(md_data, 16);
 
@@ -463,7 +462,6 @@ std::string AlibabaCloud::OSS::ComputeContentETag(std::istream& stream)
 #ifdef USE_CRYPTO_MBEDTLS
 	unsigned char md_value[16];
     unsigned int md_len = 16;
-
 	mbedtls_md5_context ctx;
 
     mbedtls_md5_init( &ctx);
@@ -484,10 +482,9 @@ std::string AlibabaCloud::OSS::ComputeContentETag(std::istream& stream)
 
         if (bytesRead > 0)
         {
-            mbedtls_md5_update_ret(&ctx, (const unsigned char*)streamBuffer, static_cast<size_t>(bytesRead));
+            mbedtls_md5_update_ret(&ctx, (const unsigned char *)streamBuffer, static_cast<size_t>(bytesRead));
         }
     }
-
     mbedtls_md5_finish_ret(&ctx, md_value);
 	mbedtls_md5_free(&ctx);
 
@@ -1253,7 +1250,7 @@ TierType AlibabaCloud::OSS::ToTierType(const char *name)
     else return TierType::Standard;
 }
 
-#if !defined(OSS_DISABLE_RESUAMABLE) || !defined(OSS_DISABLE_ENCRYPTION)
+#if (!OSS_DISABLE_RESUAMABLE) || (!OSS_DISABLE_ENCRYPTION)
 std::map<std::string, std::string> AlibabaCloud::OSS::JsonStringToMap(const std::string& jsonStr)
 {
     std::map<std::string, std::string> valueMap;

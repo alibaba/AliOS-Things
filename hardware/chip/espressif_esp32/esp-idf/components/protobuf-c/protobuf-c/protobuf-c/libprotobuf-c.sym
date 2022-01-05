@@ -1,0 +1,28 @@
+LIBPROTOBUF_C_1.0.0 {
+global:
+        protobuf_c_buffer_simple_append;
+        protobuf_c_enum_descriptor_get_value;
+        protobuf_c_enum_descriptor_get_value_by_name;
+        protobuf_c_message_check;
+        protobuf_c_message_descriptor_get_field;
+        protobuf_c_message_descriptor_get_field_by_name;
+        protobuf_c_message_free_unpacked;
+        protobuf_c_message_get_packed_size;
+        protobuf_c_message_init;
+        protobuf_c_message_pack;
+        protobuf_c_message_pack_to_buffer;
+        protobuf_c_message_unpack;
+        protobuf_c_service_descriptor_get_method_by_name;
+        protobuf_c_service_destroy;
+        protobuf_c_service_generated_init;
+        protobuf_c_service_invoke_internal;
+        protobuf_c_version;
+        protobuf_c_version_number;
+local:
+        *;
+};
+
+LIBPROTOBUF_C_1.3.0 {
+global:
+        protobuf_c_empty_string;
+} LIBPROTOBUF_C_1.0.0;

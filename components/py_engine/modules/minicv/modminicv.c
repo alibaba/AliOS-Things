@@ -10,7 +10,7 @@
 extern const mp_obj_type_t minicv_datainput_type;
 extern const mp_obj_type_t minicv_imagecodec_type;
 extern const mp_obj_type_t minicv_imageproc_type;
-#if PY_BUILD_AI
+#if MICROPY_PY_MINICV
 extern const mp_obj_type_t minicv_ml_type;
 #endif
 extern const mp_obj_type_t minicv_ui_type;
@@ -21,7 +21,7 @@ STATIC const mp_rom_map_elem_t minicv_module_globals_table[] = {
     {MP_OBJ_NEW_QSTR(MP_QSTR_DataInput), MP_ROM_PTR(&minicv_datainput_type)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_ImageCodec), MP_ROM_PTR(&minicv_imagecodec_type)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_ImageProc), MP_ROM_PTR(&minicv_imageproc_type)},
-#if PY_BUILD_AI
+#if MICROPY_PY_MINICV
     {MP_OBJ_NEW_QSTR(MP_QSTR_ML), MP_ROM_PTR(&minicv_ml_type)},
 #endif
     {MP_OBJ_NEW_QSTR(MP_QSTR_UI), MP_ROM_PTR(&minicv_ui_type)},

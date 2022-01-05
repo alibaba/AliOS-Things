@@ -19,7 +19,7 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 depends:
   - oss: rel_3.3.0
   - http: rel_3.3.0
-  - mbedtls: rel_3.3.0
+  - mbedtls: rel_3.3.0 ? <!ESP_PLATFORM>
   - jsoncpp: rel_3.3.0
 
 ## 第四部分：编译连接信息
@@ -94,9 +94,9 @@ source_file:
 def_config:                              # 组件的可配置项
   CONFIG_ALICLOUD_FACEBODY_ENABLE: 1
   CONFIG_ALICLOUD_IMAGERECOG_ENABLE: 1
-  CONFIG_ALICLOUD_IMAGEENHAN_ENABLE: 1
+  CONFIG_ALICLOUD_IMAGEENHAN_ENABLE: 0
   CONFIG_ALICLOUD_OBJECTDET_ENABLE: 1
-  CONFIG_ALICLOUD_IMAGESEG_ENABLE: 1
+  CONFIG_ALICLOUD_IMAGESEG_ENABLE: 0
   CONFIG_ALICLOUD_OCR_ENABLE: 1
   CONFIG_ALICLOUD_CHATBOT_ENABLE: 1
   USE_CRYPTO_MBEDTLS: 1

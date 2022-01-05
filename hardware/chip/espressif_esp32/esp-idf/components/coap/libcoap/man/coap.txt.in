@@ -1,0 +1,59 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap(7)
+=======
+:doctype: manpage
+:man source:   coap
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap - Overview of the libcoap library
+
+SYNOPSIS
+--------
+Summary of the different libcoap API manual pages.
+
+DESCRIPTION
+-----------
+
+libcoap is a C implementation of a lightweight application-protocol for
+devices that are constrained by their resources such as computing power, RF
+range, memory, bandwidth, or network packet sizes. This protocol, CoAP, is
+standardized by the IETF as RFC 7252. For further information related to
+CoAP, see http://coap.technology.
+
+Documentation for the specific library calls with examples can be found in the
+man pages referred to in SEE ALSO.
+
+Further information can be found in the include header files with example
+code provided in the examples directory.
+
+*NOTE:* This documentation is a work in progress.  Any missing information can
+be found in the include header files along with example code provided in the
+examples directory.
+
+
+SEE ALSO
+--------
+*coap_attribute*(3), *coap_context*(3), *coap_encryption*(3), *coap_handler*(3),
+*coap_logging*(3), *coap_observe*(3), *coap_pdu_setup*(3), *coap_recovery*(3),
+*coap_resource*(3), *coap_session*(3) and *coap_tls_library*(3)
+
+For example executables, see *coap-client*(5), *coap-rd*(5) and *coap-server*(5)
+
+FURTHER INFORMATION
+-------------------
+See "RFC7252: The Constrained Application Protocol (CoAP)" for further
+information.
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

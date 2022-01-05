@@ -1,0 +1,125 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap_tls_library(3)
+===================
+:doctype: manpage
+:man source:   coap_tls_library
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap_tls_library, coap_dtls_is_supported, coap_tls_is_supported,
+coap_get_tls_library_version, coap_string_tls_version, coap_show_tls_version
+- Work with CoAP contexts
+
+SYNOPSIS
+--------
+*#include <coap@LIBCOAP_API_VERSION@/coap.h>*
+
+*int coap_dtls_is_supported(void);*
+
+*int coap_tls_is_supported(void);*
+
+*coap_tls_version_t *coap_get_tls_library_version(void);*
+
+*char *coap_string_tls_version(char *_buffer_, size_t _bufsize_);
+
+*void coap_show_tls_version(coap_log_t _level_);*
+
+Link with *-lcoap-@LIBCOAP_API_VERSION@*, *-lcoap-@LIBCOAP_API_VERSION@-gnutls*,
+*-lcoap-@LIBCOAP_API_VERSION@-openssl* or
+*-lcoap-@LIBCOAP_API_VERSION@-tinydtls* depending on your (D)TLS library
+type.
+
+DESCRIPTION
+-----------
+When the libcoap library was built, it will have been compiled using a
+specific TLS implementation type (e.g. OpenSSL, GnuTLS, TinyDTLS or noTLS).
+When the libcoap library is linked into an application, it is possible that
+the application needs to dynamically determine whether DTLS or TLS is
+supported, what type of TLS implementation libcoap was compiled with, as well
+as detect what is the version of the currently loaded TLS library is.
+
+*NOTE:* If OpenSSL is being used, then the minimum OpenSSL library version is
+1.1.0.
+
+*NOTE:* If GnuTLS is being used, then the minimum GnuTLS library version is
+3.3.0.
+
+*NOTE:* If GnuTLS is going to interoperate with TinyDTLS, then a minimum
+revision of GnuTLS 3.5.5 which supports CCM algorithms is required
+by TinyDTLS as TinyDTLS currently only supports CCM.
+
+Network traffic can be encrypted or un-encrypted with libcoap - how to set
+this up is described in *coap_context*(3).
+
+Due to the nature of TLS, there can be Callbacks that are invoked as the TLS
+session negotiates encryption algorithms, encryption keys etc.
+Where possible, by default, the CoAP layer handles all this automatically.
+However, there is the flexibility of the Callbacks for imposing additional
+security checks etc. when PKI is being used.  These callbacks need to need to
+match the TLS implementation type.
+
+The *coap_dtls_is_supported*() function returns 1 if support for DTLS is
+enabled, otherwise 0;
+
+The *coap_tls_is_supported*() function returns 1 if support for TLS is
+enabled, otherwise 0;
+
+The *coap_get_tls_library_version*() function returns the TLS implementation
+type and library version in a coap_tls_version_t* structure.
+
+The *coap_string_tls_version*() function is used to update the provided buffer
+with information about the current (D)TLS library that libcoap was built
+against, as well as the current linked version of the (D)TLS library.
+_buffer_ defines the buffer to provide the information and _bufsize_ is the
+size of _buffer_.
+
+The *coap_show_tls_version*() function is used log information about the
+current (D)TLS library that libcoap was built against, as well as the current
+linked version of the (D)TLS library. _level_ defines the minimum logging level
+for this information to be output using coap_log().
+
+[source, c]
+----
+#define COAP_TLS_LIBRARY_NOTLS    0
+#define COAP_TLS_LIBRARY_TINYDTLS 1
+#define COAP_TLS_LIBRARY_OPENSSL  2
+#define COAP_TLS_LIBRARY_GNUTLS   3
+
+typedef struct coap_tls_version_t {
+  uint64_t version; /* (D)TLS runtime Library Version */
+  int type; /* Library type. One of COAP_TLS_LIBRARY_* */
+  uint64_t built_version; /* (D)TLS Built against Library Version */
+}
+----
+
+RETURN VALUES
+-------------
+*coap_dtls_is_supported*() and *coap_tls_is_supported*() functions
+return 0 if there is no support, 1 if support is available.
+
+*coap_get_tls_library_version*() function returns the TLS implementation type
+and library version in a coap_tls_version_t* structure.
+
+*coap_string_tls_version*() function returns a pointer to the provided buffer.
+
+SEE ALSO
+--------
+*coap_context*(3) and *coap_logging*(3).
+
+FURTHER INFORMATION
+-------------------
+See "RFC7252: The Constrained Application Protocol (CoAP)" for further
+information.
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

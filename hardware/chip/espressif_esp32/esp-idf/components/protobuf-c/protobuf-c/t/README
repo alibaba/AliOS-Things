@@ -1,0 +1,38 @@
+There are two tests.
+
+"test-generated-code" is a simple test that can easily be adapted.
+"test-generated-code2" is a comprehensive test.
+
+--
+
+If you have a quick problem, hack at "test-generated-code";
+but i don't want that file to be too hard to navigate,
+so you must eventually add a test to "test-generated-code2".
+
+I appreciate additional test cases!
+Please submit them as issues in the tracking system, or email me.
+
+--
+
+Here are the files involved in each test:
+
+test.proto                      Protobuf declarations for the simple test.
+test.pb-c.c                     Protobuf-C generated code based on test.proto
+test.pb-c.h                     Protobuf-C generated code based on test.proto
+
+test-full.proto                 Protobuf declarations for the exhaustive test.
+test-full.pb-c.c                Protobuf-C generated code based on test-full.proto
+test-full.pb-c.h                Protobuf-C generated code based on test-full.proto
+test-full.pb.cc                 Protobuf (C++) generated code based on test-full.proto
+test-full.pb.h                  Protobuf (C++) generated code based on test-full.proto
+
+generated-code/
+   test-generated-code.c        Actual test code.
+   test-generated-code          Test executable.
+
+generated-code2/
+   cxx-generate-packed-data.cc  C++ code to generated data to compare with C.
+   cxx-generate-packed-data     Program whichs generates data (using C++ api)
+   test-full-cxx-output.inc     Output of cxx-generate-packed-data.
+   test-generated-code2.c       Actual test code.
+   test-generated-code2         Test executable.

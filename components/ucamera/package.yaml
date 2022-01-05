@@ -41,12 +41,14 @@ build_config:
   include:
     - include
     - include/device/wifi
+    - include/device/uart
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
   - src/*.c
-  - src/device/wifi/*.c
+  - src/device/wifi/*.c ? <CONFIG_WIFI_CAMERA_ENABLE>
+  - src/device/uart/*.c ? <CONFIG_UART_CAMERA_ENABLE, MICROPY_PY_UCAMERA>
 #  - example/ucamera_example.c
 
 ## 第五部分：配置信息
@@ -55,6 +57,9 @@ def_config:                              # 组件的可配置项
 
   # wifi camera的http访问地址,用户根据自己摄像头的IP地址进行替换
   WIFICAMERA_URL: "http://192.168.4.1:80/capture"
+
+  # wifi camera配置的http访问地址,用户根据自己摄像头的配置方法进行替换
+  WIFICAMERA_FRAME_SIZE_CONTROL_URL: "http://192.168.43.166:80/control\\?var=framesize\\&val=5" # QVGA 320x240
 
 ## 第六部分：安装信息
 # install:

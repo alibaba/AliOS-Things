@@ -1,16 +1,6 @@
-/**
-  ******************************************************************************
-  * @file    board.c
-  * @author  MCU China FAE team
-  * @version 1.0
-  * @date    05/01/2019
-  * @brief   aos porting layer
-  ******************************************************************************
-  *
-  * COPYRIGHT(c) 2019 STMicroelectronics
-  *
-  ******************************************************************************
-  */
+/*
+ * Copyright (C) 2015-2021 Alibaba Group Holding Limited
+ */
 
 #include <stdint.h>
 #include <stdio.h>
@@ -36,23 +26,6 @@ extern int clock_timer_start(void);
 
 void board_pre_init(void)
 {
-    int32_t ret = 0;
-    /* init the console*/
-    clock_timer_init();
-    clock_timer_start();
-
-    #if 0
-    console_handle = csi_usart_initialize(CONSOLE_IDX, NULL);
-    /* config the UART */
-    ret = csi_usart_config(console_handle, 115200, USART_MODE_ASYNCHRONOUS, USART_PARITY_NONE, USART_STOP_BITS_1, USART_DATA_BITS_8);
-    #endif
-    uart_dev_t uart0;
-    uart0.port = CONSOLE_IDX;
-    ret = hal_uart_init(&uart0);
-
-    if (ret < 0) {
-        return;
-    }
 }
 
 
@@ -79,7 +52,15 @@ void board_tick_init(void)
 */
 void board_stduart_init(void)
 {
+    int32_t ret = 0;
 
+    uart_dev_t uart0;
+    uart0.port = CONSOLE_IDX;
+    ret = hal_uart_init(&uart0);
+
+    if (ret < 0) {
+        return;
+    }
 }
 
 /**
@@ -122,7 +103,6 @@ void board_kinit_init(kinit_t* init_args)
 
 void board_flash_init(void)
 {
-    //flash_partition_init();
 }
 
 /**
@@ -130,8 +110,6 @@ void board_flash_init(void)
 */
 void systick_handler(void)
 {
-  //krhino_intrpt_enter();
   krhino_tick_proc();
-  //krhino_intrpt_exit();
 }
 

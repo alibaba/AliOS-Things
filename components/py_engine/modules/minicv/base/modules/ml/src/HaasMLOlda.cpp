@@ -31,7 +31,7 @@ HaasMLOlda::~HaasMLOlda()
     norm_img_data = NULL;
 }
 
-int HaasMLOlda::SetInputData(const char* dataPath)
+int HaasMLOlda::SetInputData(const char *dataPath, const char *compareDataPath)
 {
     LOGD(LOG_TAG, "entern path = %s;\n", dataPath);
 

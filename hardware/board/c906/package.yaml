@@ -14,10 +14,12 @@ tag: 核心模块                                       # <可选项> 组件分�
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - minilibc: rel_3.3.0
+  - libc_stub: rel_3.3.0
   - init: rel_3.3.0
   - debug: rel_3.3.0
   - smarth_rv64: rel_3.3.0
+  - uart: rel_3.3.0
+  - kv: develop
   # - kernel_init: v7.4_dev
   # - minialsa: v7.4-dev
   # - drv_sdmmc: v7.4-dev
@@ -78,6 +80,11 @@ def_config:
   SYSINFO_ARCH: "C906-RV64"
   SYSINFO_MCU: "smarth_rv64"
   SYSINFO_BOARD: "c906"
+
+  CONFIG_LWIP_VERSION: "lwip2.0.0"
+  CONFIG_LWIP_V200: y
+  WITH_LWIP: 1
+  POSIX_DEVICE_IO_NEED: 1
 
 ## 第六部分：安装信息
 # install:

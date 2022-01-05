@@ -1,0 +1,19 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "photoresistor": {
+      "type": "ADC",
+      "port": 0,
+      "sample": 12000000
+    },
+    "led": {
+      "type": "GPIO",
+      "port": 2,
+      "dir": "output",
+      "pull": "pullup"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

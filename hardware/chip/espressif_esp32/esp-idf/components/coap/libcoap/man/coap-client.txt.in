@@ -1,0 +1,223 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap-client(5)
+==============
+:doctype: manpage
+:man source:   coap-client
+:man version:  @PACKAGE_VERSION@
+:man manual:   coap-client Manual
+
+NAME
+-----
+coap-client - CoAP Client based on libcoap
+
+SYNOPSIS
+--------
+*coap-client* [*-a* addr] [*-b* [num,]size] [*-e* text] [*-f* file] [*-l* loss]
+              [*-m* method] [*-o* file] [*-p* port] [*-r*] [*-s duration*]
+              [*-t* type] [*-v* num] [*-A* type] [*-B* seconds] [*-K* interval]
+              [*-N*] [*-O* num,text] [*-P* addr[:port]] [*-T* token] [*-U*]
+              [[*-k* key] [*-u* user]]
+              [[*-c* certfile] [*-C* cafile] [*-R* root_cafile]] URI
+
+DESCRIPTION
+-----------
+*coap-client* is a CoAP client to communicate with 6LoWPAN devices via
+the protocol CoAP (RFC 7252) using the URI given as argument on the
+command line. The URI must have the scheme 'coap', 'coap+tcp', 'coaps' or
+'coaps+tcp'. 'coaps' and 'coaps+tcp' are only supported when coap-client is
+built with support for secure (D)TLS communication.
+
+If 'coaps' or 'coap+tcp' is being used, provided the CoAP server supports PKI
+and is configured with a Certificate and Private Key, the coap-client does not
+need to have a Pre-Shared Key (-k) or Certificate (-c) configured.
+
+The URI's host part may be a DNS name or a literal IP address. Note that, for
+IPv6 address references, angle brackets are required (c.f. EXAMPLES).
+
+OPTIONS - General
+-----------------
+*-a* addr::
+   The local address of the interface that has to be used.
+
+*-b* [num,]size::
+   The block size to be used in GET/PUT/POST requests (value must be a
+   multiple of 16 not larger than 1024 as libcoap uses a fixed maximum
+   PDU size of 1400 bytes). If 'num' is present, the request
+   chain will start at block 'num'. When the server includes a Block2
+   option in its response to a GET request, coap-client will automatically
+   retrieve the subsequent block from the server until there are no more
+   outstanding blocks for the requested content.
+
+*-e* text::
+   Include text as payload (use percent-encoding for non-ASCII characters).
+
+*-f* file::
+   File to send with PUT/POST (use '-' for STDIN).
+
+*-l* list::
+   Fail to send some datagrams specified by a comma separated list of
+   numbers or number ranges (debugging only).
+
+*-l* loss%::
+   Randomly failed to send datagams with the specified probability - 100%
+   all datagrams, 0% no datagrams (debugging only).
+
+*-m* method::
+   The request method for action (get|put|post|delete), default is 'get'.
+   (Note that the string passed to *-m* is compared case-insensitive.)
+
+*-o* file::
+   A filename to store data retrieved with GET.
+
+*-p* port::
+   The port to listen on.
+
+*-r*::
+   Use reliable protocol (TCP or TLS).
+
+*-s* duration::
+   Subscribe to / observe the resource specified by URI for the given
+   'duration' in seconds.
+
+*-t* type::
+   Content format for given resource for PUT/POST. 'type' must be either
+   a numeric value reflecting a valid CoAP content format or a string
+   describing a registered format. The following registered content format
+   descriptors are supported, with alternative shortcuts given in
+   parentheses:
+
+     text/plain (plain)
+     application/link-format (link, link-format)
+     application/xml (xml)
+     application/octet-stream (binary, octet-stream)
+     application/exi (exi)
+     application/json (json)
+     application/cbor (cbor)
+
+*-v* num::
+   The verbosity level to use (default 3, maximum is 9). Above 7, there is
+   increased verbosity in GnuTLS logging.
+
+*-A* type::
+   Accepted media type. 'type' must be either a numeric value reflecting a
+   valid CoAP content format or a string that specifies a registered format as
+   described for option *-t*.
+
+*-B* seconds::
+   Break operation after waiting given seconds (default is 90).
+
+*-K* interval::
+   Send a ping after interval seconds of inactivity (TCP only).
+   If not specified, keep-alive is disabled (default).
+
+*-N* ::
+   Send NON-confirmable message. If option *-N* is not specified, a
+   confirmable message will be sent.
+
+*-O* num,text::
+   Add option 'num' with contents of 'text' to the request.
+
+*-P* addr[:port]::
+   Address (and port) for proxy to use (automatically adds Proxy-Uri option
+   to request).
+
+*-T* token::
+   Include the 'token' to the request.
+
+*-U* ::
+   Never include Uri-Host or Uri-Port options.
+
+OPTIONS - PSK
+-------------
+(If supported by underlying (D)TLS library)
+
+*-k* key::
+   Pre-shared key for the specified user (*-u* option also required).
+
+*-u* user::
+   User identity for pre-shared key mode (*-k* option also required).
+
+OPTIONS - PKI
+-------------
+(If supported by underlying (D)TLS library)
+
+*-c* certfile::
+   Use the specified PEM file which contains the CERTIFICATE and PRIVATE
+   KEY information.
+
+*-C* cafile::
+  PEM file containing the CA Certificate that was used to sign the certfile
+  defined using *-c certfile*.
+  This will trigger the validation of the server certificate.
+  If certfile is self-signed (as defined by *-c certfile*), then you need to
+  have on the command line the same filename for both the certfile and cafile
+  (as in  *-c certfile -C certfile*) to trigger validation.
+
+*-R* root_cafile::
+  PEM file containing the set of trusted root CAs that are to be used to
+  validate the server certificate.  The *-C cafile* does not have to be in
+  this list and is "trusted" for the verification.
+  Alternatively, this can point to a directory containing a set of CA PEM files.
+
+EXAMPLES
+--------
+* Example
+----
+coap-client coap://coap.me
+----
+Query the resource '/' from server 'coap.me' (using the GET method).
+
+* Example
+----
+coap-client -m get coap://[::1]/
+----
+Query the resource '/' on localhost using the 'GET' method to get back the
+summary defined attributes.
+
+* Example
+----
+coap-client -m get coap://[::1]/.well-known/core
+----
+Query on the resource '.well-known/core' on localhost to get back a list of
+the known resources along with their attribute definitions.
+
+* Example
+----
+echo -n "mode=on" | coap-client -m put \
+coap://[2001:db8:c001:f00d:221:2eff:ff00:2704]:5683/actuators/leds?color=r -f-
+----
+Send text 'mode=on' to resource 'actuators/leds?color=r' on the endpoint with
+address '2001:db8:c001:f00d:221:2eff:ff00:2704' and port '5683'. Note that the
+port '5683' is the default port and isn't actually required in this instance.
+
+* Example
+----
+coap-client -m put coap://[fec0::3]/ck -T 3a -t binary -f to_upload
+----
+Put the contents of file 'to_upload' with content type 'binary' (i.e.
+application/octet-stream) into resource 'ck' on 'fec0::3' using a token of
+'3a' via the 'PUT' method.
+
+FILES
+------
+There are no configuration files.
+
+EXIT STATUS
+-----------
+*0*::
+   Success
+
+*1*::
+   Failure (syntax or usage error; configuration error; document
+   processing failure; unexpected error)
+
+BUGS
+-----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

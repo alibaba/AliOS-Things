@@ -1,0 +1,26 @@
+language: c
+dist: xenial
+compiler:
+  - gcc
+
+addons:
+  apt:
+    sources:
+      - sourceline: "ppa:team-gcc-arm-embedded/ppa"
+    packages:
+      - python3
+      - ruby
+      - gcc-arm-embedded
+
+install:
+  - gem install ceedling
+      
+before_script:
+  - arm-none-eabi-gcc --version
+
+script:
+  # Build all examples
+  - python3 tools/build_all.py
+  # Run unit tests
+  - cd test
+  - ceedling test:all

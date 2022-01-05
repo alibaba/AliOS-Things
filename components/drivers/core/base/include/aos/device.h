@@ -18,6 +18,7 @@ typedef enum {
     AOS_DEV_TYPE_WLAN,
     AOS_DEV_TYPE_BLOCK,
     AOS_DEV_TYPE_FLASH,
+    AOS_DEV_TYPE_FLASHPART,
     AOS_DEV_TYPE_MTD,
     AOS_DEV_TYPE_RTC,
     AOS_DEV_TYPE_SPI,
@@ -25,6 +26,7 @@ typedef enum {
     AOS_DEV_TYPE_ADC,
     AOS_DEV_TYPE_DAC,
     AOS_DEV_TYPE_PWM,
+    AOS_DEV_TYPE_HWTIMER,
 } aos_dev_type_t;
 
 struct aos_dev;

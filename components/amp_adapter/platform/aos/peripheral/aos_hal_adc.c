@@ -59,7 +59,7 @@ out:
 #endif
 }
 
-int32_t aos_hal_adc_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout)
+int32_t aos_hal_adc_raw_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout)
 {
 #ifndef AOS_BOARD_HAAS700
     int32_t *p_fd = NULL;
@@ -86,6 +86,11 @@ int32_t aos_hal_adc_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout
 #else
     return -1;
 #endif
+}
+
+int32_t aos_hal_adc_voltage_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout)
+{
+    return -1;
 }
 
 int32_t aos_hal_adc_finalize(adc_dev_t *adc)

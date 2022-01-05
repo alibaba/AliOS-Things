@@ -1,0 +1,26 @@
+# Copyright (C) 2017 Sebastian Pipping <sebastian@pipping.org>
+# Licensed under the MIT license
+
+language: cpp
+dist: trusty
+
+env:
+  global:
+    - CFLAGS='-g -pipe'
+  matrix:
+    - MODE=address
+    - MODE=distcheck
+    - MODE=lib-coverage
+
+addons:
+  apt:
+    sources:
+      - llvm-toolchain-trusty-4.0
+    packages:
+      - clang-4.0
+      - docbook2x
+      - dos2unix
+      - rpm
+
+script:
+  - ./.travis.sh

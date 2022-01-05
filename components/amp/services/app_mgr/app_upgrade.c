@@ -6,6 +6,7 @@
 #include "amp_platform.h"
 #include "aos_system.h"
 #include "amp_defines.h"
+#include "amp_utils.h"
 #include "app_mgr.h"
 #include "app_upgrade.h"
 #include "ota_agent.h"
@@ -13,15 +14,16 @@
 
 #define MOD_STR "APP_UPGRADE"
 
-#if defined(__ICCARM__)
-#define AMP_WEAK                __weak
-#else
-#define AMP_WEAK                __attribute__((weak))
-#endif
-
 static ota_store_module_info_t module_info[3];
 static ota_service_t internal_ctx = {0};
-static module_version[128];
+static char module_version[128] = {0};
+
+extern int32_t app_js_restart();
+extern void app_js_stop();
+int ota_get_js_install_path(char *store_file_full_path, char *path_buf, int path_buf_len);
+int ota_file_plus_name(char *file_path1, char *file_path2, char *new_path, int new_path_len);
+int ota_service_maindev_fs_start(ota_service_t *ctx);
+void internal_module_upgrade_start(void *ctx);
 
 char *ota_get_module_ver(void* pctx, char *module_name)
 {
@@ -57,7 +59,7 @@ char *ota_get_module_ver(void* pctx, char *module_name)
                 amp_error(MOD_STR, "app.json path get failed!");
             }
         } else if (strncmp(module_name, "default", strlen(module_name)) == 0) {
-            amp_app_version_get(module_version);
+            strncpy(module_version, aos_app_version_get(), sizeof(aos_app_version_get()));
         }
     } else {
         amp_error(MOD_STR, "get store file path failed, path buf too short\n");
@@ -138,22 +140,11 @@ int ota_load_jsapp(void *ota_ctx)
     return ret;
 }
 
-AMP_WEAK int fota_image_local_copy(char *image_name, int image_size)
-{
-    return -1;
-}
-
-AMP_WEAK void internal_sys_upgrade_start(void *ctx)
-{
-    ota_service_maindev_fs_start((ota_service_t *)ctx);
-    return;
-}
-
 int ota_service_maindev_fs_start(ota_service_t *ctx)
 {
     int ret = 0;
     ota_boot_param_t ota_param = {0};
-    ota_store_module_info_t module_info;
+    ota_store_module_info_t module_info = {0};
     if (ctx == NULL) {
         return OTA_DOWNLOAD_INIT_FAIL;
     }
@@ -187,7 +178,7 @@ MAINDEV_FS_EXIT:
         /* give same time to sync err msg to cloud*/
         ota_msleep(3000);
     } else {
-        ret = fota_image_local_copy(module_info.store_path, ota_param.len);
+        ret = aos_fota_image_local_copy(module_info.store_path, ota_param.len);
         if (ret < 0) {
             amp_error(MOD_STR, "ota local copy failed\n");
             if (ctx->report_func.report_status_cb !=  NULL) {
@@ -199,93 +190,6 @@ MAINDEV_FS_EXIT:
     ota_reboot();
     aos_task_exit(0);
     return ret;
-}
-
-AMP_WEAK void internal_module_upgrade_start(void *ctx)
-{
-    int ret = -1;
-    ota_service_t *tmp_ctx = (ota_service_t *)ctx;
-    char version[64] = {0};
-    char js_install_path[64] = {0};
-    char app_js_full_path[128] = {0};
-    ota_store_module_info_t module_info;
-    ota_boot_param_t ota_param = {0};
-    if (tmp_ctx == NULL) {
-        amp_error(MOD_STR, "internal module ota input ctx is null");
-        return ret;
-    }
-
-    ret = ota_read_parameter(&ota_param);
-    if (ret < 0) {
-        amp_error(MOD_STR, "get store ota param info failed\n");
-        goto INTERNAL_M_OTA_OVER;
-    }
-
-    ret = ota_get_module_information(tmp_ctx, tmp_ctx->module_name, &module_info);
-    if (ret < 0) {
-        amp_error(MOD_STR, "get store module info failed\n");
-        goto INTERNAL_M_OTA_OVER;
-    }
-    amp_debug(MOD_STR, "file_path = %s\rn", module_info.store_path);
-
-    ret = ota_download_to_fs_service(ctx, module_info.store_path);
-    if (ret < 0) {
-        amp_error(MOD_STR, "module download failed!");
-        goto INTERNAL_M_OTA_OVER;
-    }
-
-    ret = ota_get_js_install_path(module_info.store_path, js_install_path, sizeof(js_install_path));
-    if (ret < 0) {
-        amp_error(MOD_STR, "get js install path failed!");
-        goto INTERNAL_M_OTA_OVER;
-    }
-
-    ret = ota_install_jsapp(ctx, module_info.store_path, ota_param.len, js_install_path);
-    if (ret < 0) {
-        amp_error(MOD_STR, "module install failed!");
-        goto INTERNAL_M_OTA_OVER;
-    }
-
-    ret = ota_load_jsapp(ctx);
-    if (ret < 0) {
-        amp_error(MOD_STR, "module load failed!");
-        goto INTERNAL_M_OTA_OVER;
-    }
-
-    ret = ota_file_plus_name(js_install_path, "app.json", app_js_full_path, sizeof(app_js_full_path));
-    if ((ret < 0)) {
-        amp_error(MOD_STR, "module get js version failed!");
-        goto INTERNAL_M_OTA_OVER;
-    }
-
-    ret = ota_jsapp_version_get(version, app_js_full_path);
-    if ((ret < 0)) {
-        amp_error(MOD_STR, "app.json path get failed!");
-        goto INTERNAL_M_OTA_OVER;
-    }
-
-    ret = ota_report_module_version(ctx, tmp_ctx->module_name, version);
-    if (ret < 0) {
-        amp_error(MOD_STR, "module report ver failed!");
-        goto INTERNAL_M_OTA_OVER;
-    }
-
-INTERNAL_M_OTA_OVER:
-    if (ret < 0) {
-        amp_error(MOD_STR, "ota module upgrade failed\n");
-        if ((tmp_ctx->report_func.report_status_cb !=  NULL)) {
-            tmp_ctx->report_func.report_status_cb(tmp_ctx->report_func.param, ret);
-        }
-        ota_msleep(3000);
-    } else {
-        amp_debug(MOD_STR, "module download success!");
-    }
-    ret = ota_clear();
-    if (ret < 0) {
-        amp_error(MOD_STR, "clear ota failed\n");
-    }
-    aos_task_exit(0);
-    return;
 }
 
 /* system image upgrade */

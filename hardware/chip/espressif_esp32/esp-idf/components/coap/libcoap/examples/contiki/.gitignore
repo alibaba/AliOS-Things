@@ -1,0 +1,7 @@
+contiki-minimal-net.a
+contiki-minimal-net.map
+contiki/
+obj_minimal-net/
+server.minimal-net
+symbols.c
+symbols.h

@@ -6,6 +6,8 @@
 using namespace std;
 
 #define LOG_TAG "HAAS_ML_CLOUD"
+static ucloud_ai_result_t g_result[16];
+static int g_index = 0;
 
 HaasMLCloud::HaasMLCloud()
 {
@@ -20,16 +22,14 @@ HaasMLCloud::~HaasMLCloud()
 }
 
 int HaasMLCloud::Config(char *key, char *secret, char *endpoint,
-        char *bucket, char *url)
+        char *bucket)
 {
     LOGD(LOG_TAG, "entern\n");
     LOGD(LOG_TAG, "key = %s;\n", key);
     LOGD(LOG_TAG, "secret = %s;\n", secret);
     LOGD(LOG_TAG, "endpoint = %s;\n", endpoint);
     LOGD(LOG_TAG, "bucket = %s;\n", bucket);
-    LOGD(LOG_TAG, "url = %s;\n", url);
-    mFacePath = url;
-    LOGD(LOG_TAG, "mFacePath = %s;\n", mFacePath.c_str());
+
     ucloud_ai_set_key_secret(key, secret);
     ucloud_ai_set_oss_endpoint(endpoint);
     ucloud_ai_set_oss_bucket(bucket);
@@ -37,10 +37,14 @@ int HaasMLCloud::Config(char *key, char *secret, char *endpoint,
     return STATUS_OK;
 }
 
-int HaasMLCloud::SetInputData(const char* dataPath)
+int HaasMLCloud::SetInputData(const char *dataPath, const char *compareDataPath)
 {
-    LOGD(LOG_TAG, "entern dataPath = %s;\n", dataPath);
+    LOGD(LOG_TAG, "entern dataPath = %s, compareDataPath: %s;\n", dataPath, compareDataPath);
     mDataPath = dataPath;
+
+    if (compareDataPath)
+        mFacePath = compareDataPath;
+
     return STATUS_OK;
 }
 
@@ -57,55 +61,125 @@ int HaasMLCloud::Predict()
     int ret = -1;
     std::string mode(mAiMode);
     LOGD(LOG_TAG, "Train mode = %s;\n", mode.c_str());
+    g_index = 0;
+    /*reset result*/
+    memset(g_result, 0, sizeof(ucloud_ai_result_t) * 16);
 
     ret = mode.compare("ObjectDet");
     if (ret == 0)
     {
         LOGD(LOG_TAG, "Get ObjectDet Mode");
-        return PredictObjectDet();
+        ret = PredictObjectDet();
+        goto end;
     }
 
     ret = mode.compare("FacebodyComparing");
     if (ret == 0)
     {
         LOGD(LOG_TAG, "Get FacebodyComparing Mode");
-        return PredictFacebodyComparing();
+        ret = PredictFacebodyComparing();
+        goto end;
     }
 
     ret = mode.compare("AnimeStyle");
     if (ret == 0)
     {
         LOGD(LOG_TAG, "Get AnimeStyle Mode");
-        return PredictAnimeStyle();
+        ret = PredictAnimeStyle();
+        goto end;
     }
 
     ret = mode.compare("RecognizeExpression");
     if (ret == 0)
     {
         LOGD(LOG_TAG, "Get RecognizeExpression Mode");
-        return PredictRecognizeExpression();
+        ret = PredictRecognizeExpression();
+        goto end;
     }
 
     ret = mode.compare("RecognizeCharacter");
     if (ret == 0)
     {
         LOGD(LOG_TAG, "Get RecognizeCharacter Mode");
-        return PredictRecognizeCharacter();
+        ret = PredictRecognizeCharacter();
+        goto end;
     }
 
-    LOGE(LOG_TAG, "AI Mode Par Is illegal\n");
-    return STATUS_ERROR;
+    ret = mode.compare("DetectFruits");
+    if (ret == 0)
+    {
+        LOGD(LOG_TAG, "Get DetectFruits Mode");
+        for (int i = 0; i < g_index; i++)
+        if (g_result[i].imagerecog.fruits.name != NULL)
+        {
+            free(g_result[i].imagerecog.fruits.name);
+            g_result[i].imagerecog.fruits.name = NULL;
+        }
+        ret = PredictDetectFruits();
+        goto end;
+    }
+
+    ret = mode.compare("DetectPedestrian");
+    if (ret == 0)
+    {
+        LOGD(LOG_TAG, "Get DetectPedestrian Mode");
+        for (int i = 0; i < g_index; i++)
+        if (g_result[i].facebody.pedestrian.type != NULL)
+        {
+            free(g_result[i].facebody.pedestrian.type);
+            g_result[i].facebody.pedestrian.type = NULL;
+        }
+        ret = PredictDetectPedestrian();
+        goto end;
+    }
+
+end:
+    if (ret != STATUS_OK)
+        LOGE(LOG_TAG, "AI Mode Par Is illegal\n");
+    return ret;
 }
 
 int HaasMLCloud::GetPredictResponses(char* outResult, int len)
 {
+    int ret = 0, i = 0;
+
     LOGD(LOG_TAG, "entern\n");
-    return STATUS_OK;
+    if (g_index > 0)
+        memcpy(outResult, &g_result[0], sizeof(ucloud_ai_result_t) * g_index);
+
+    return g_index;
 }
 
 int HaasMLCloud::UnLoadNet()
 {
     LOGD(LOG_TAG, "entern\n");
+    int ret = 0;
+    std::string mode(mAiMode);
+
+    ret = mode.compare("DetectFruits");
+    if (ret == 0)
+    {
+        for (int i = 0; i < g_index; i++)
+        if (g_result[i].imagerecog.fruits.name != NULL)
+        {
+            free(g_result[i].imagerecog.fruits.name);
+            g_result[i].imagerecog.fruits.name = NULL;
+        }
+        goto end;
+    }
+
+    ret = mode.compare("DetectPedestrian");
+    if (ret == 0)
+    {
+        for (int i = 0; i < g_index; i++)
+        if (g_result[i].facebody.pedestrian.type != NULL)
+        {
+            free(g_result[i].facebody.pedestrian.type);
+            g_result[i].facebody.pedestrian.type = NULL;
+        }
+        goto end;
+    }
+end:
     return STATUS_OK;
 }
 
@@ -163,22 +237,22 @@ int HaasMLCloud::PredictFacebodyComparing()
 int HaasMLCloud::FacebodyComparingCallback(ucloud_ai_result_t *result)
 {
     LOGD(LOG_TAG, "entern\n");
-    float confidence;
 
     if (!result)
-        return -1;
+        return STATUS_ERROR;
 
     LOGD(LOG_TAG, "Facebody comparing result:\n");
-    confidence = result->facebody.face.confidence;
-    float x = result->facebody.face.location.x;
-    float y = result->facebody.face.location.y;
-    float w = result->facebody.face.location.w;
-    float h = result->facebody.face.location.h;
-    LOGE(LOG_TAG, "confidence: %.1f\n", confidence);
-    LOGE(LOG_TAG, "x: %.1f\n", x);
-    LOGE(LOG_TAG, "y: %.1f\n", y);
-    LOGE(LOG_TAG, "w: %.1f\n", w);
-    LOGE(LOG_TAG, "h: %.1f\n", h);
+
+    if (g_index >= 16)
+        return STATUS_ERROR;
+
+    g_result[g_index].facebody.face.confidence = result->facebody.face.confidence;
+    g_result[g_index].facebody.face.location.x = result->facebody.face.location.x;
+    g_result[g_index].facebody.face.location.y = result->facebody.face.location.y;
+    g_result[g_index].facebody.face.location.w = result->facebody.face.location.w;
+    g_result[g_index].facebody.face.location.h = result->facebody.face.location.x;
+    g_index++;
+
     return STATUS_OK;
 }
 
@@ -238,6 +312,62 @@ int HaasMLCloud::RecognizeExpressionCallback(ucloud_ai_result_t *result)
     LOGE(LOG_TAG, "type: %s, probability: %.1f\n", p_expression, face_probability);
     free(p_expression);
     p_expression = NULL;
+    return STATUS_OK;
+}
+
+int HaasMLCloud::DetectPedestrianCallback(ucloud_ai_result_t *result)
+{
+    LOGD(LOG_TAG, "entern\n");
+
+    if (!result)
+        return STATUS_ERROR;
+
+    LOGD(LOG_TAG, "Detect Fruits result:\n");
+    if (g_index >= 16)
+        return STATUS_ERROR;
+    g_result[g_index].facebody.pedestrian.type = strdup(result->facebody.pedestrian.type);
+    g_result[g_index].facebody.pedestrian.score = result->facebody.pedestrian.score;
+    g_result[g_index].facebody.pedestrian.box.x = result->facebody.pedestrian.box.x;
+    g_result[g_index].facebody.pedestrian.box.y = result->facebody.pedestrian.box.y;
+    g_result[g_index].facebody.pedestrian.box.w = result->facebody.pedestrian.box.w;
+    g_result[g_index].facebody.pedestrian.box.h = result->facebody.pedestrian.box.h;
+    g_index++;
+
+    return STATUS_OK;
+}
+
+int HaasMLCloud::PredictDetectPedestrian()
+{
+    LOGD(LOG_TAG, "entern\n");
+    ucloud_ai_facebody_detect_pedestrian(mDataPath, DetectPedestrianCallback);
+    return STATUS_OK;
+}
+
+int HaasMLCloud::DetectFruitsCallback(ucloud_ai_result_t *result)
+{
+    LOGD(LOG_TAG, "entern\n");
+
+    if (!result)
+        return STATUS_ERROR;
+
+    LOGD(LOG_TAG, "Detect Fruits result:\n");
+    if (g_index >= 16)
+        return STATUS_ERROR;
+    g_result[g_index].imagerecog.fruits.name = strdup(result->imagerecog.fruits.name);
+    g_result[g_index].imagerecog.fruits.score = result->imagerecog.fruits.score;
+    g_result[g_index].imagerecog.fruits.box.x = result->imagerecog.fruits.box.x;
+    g_result[g_index].imagerecog.fruits.box.y = result->imagerecog.fruits.box.y;
+    g_result[g_index].imagerecog.fruits.box.w = result->imagerecog.fruits.box.w;
+    g_result[g_index].imagerecog.fruits.box.h = result->imagerecog.fruits.box.h;
+    g_index++;
+
+    return STATUS_OK;
+}
+
+int HaasMLCloud::PredictDetectFruits()
+{
+    LOGD(LOG_TAG, "entern\n");
+    ucloud_ai_imagerecog_detect_fruits(mDataPath, DetectFruitsCallback);
     return STATUS_OK;
 }
 

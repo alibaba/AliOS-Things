@@ -276,9 +276,6 @@ static void jsengine_register_addons()
 #ifdef JSE_CORE_ADDON_CHARGER
     module_charger_register();
 #endif
-#ifdef JSE_CORE_ADDON_CHECKSUM
-    module_checksum_register();
-#endif
 #ifdef JSE_CORE_ADDON_AT
     module_at_register();
 #endif

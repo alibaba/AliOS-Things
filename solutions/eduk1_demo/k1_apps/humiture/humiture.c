@@ -24,7 +24,7 @@ int humiture_init(void)
     OLED_Clear();
     OLED_Refresh_GRAM();
     running = 1;
-    aos_task_new_ext(&humiture_task_handle, "humiture_task", humiture_task, NULL, 1024, AOS_DEFAULT_APP_PRI);
+    aos_task_new_ext(&humiture_task_handle, "humiture_task", humiture_task, NULL, 1024 * 4, AOS_DEFAULT_APP_PRI);
     LOGI(EDU_TAG, "aos_task_delete humiture_task\n");
     return 0;
 }

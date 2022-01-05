@@ -1,0 +1,33 @@
+########################################################################
+# platform-specific options
+
+ifeq ($(TARGET), econotag)
+CONTIKI_WITH_RPL=0
+CFLAGS += -DUIP_CONF_TCP=0 -DCOAP_MAX_BLOCK_SZX=1
+endif
+
+ifeq ($(TARGET), mbxxx)
+CFLAGS += -DUIP_CONF_TCP=0  -DCOAP_MAX_BLOCK_SZX=1 -DHAVE_ASSERT_H -DHAVE_LIMITS_H
+STM32W_CPUREV=CC
+#STM32W_CPUREV=xB
+endif
+
+# usually, you should not need changing anything beyond this line
+########################################################################
+
+CONTIKI?=../../../..
+
+ifneq ($(NODE_ADDR),)
+      CFLAGS += -DNODE_ADDR=$(NODE_ADDR)
+endif
+
+all: server
+
+CFLAGS += -Os -ffunction-sections
+LDFLAGS += -Wl,--gc-sections,--undefined=_reset_vector__,--undefined=InterruptVectors,--undefined=_copy_data_init__,--undefined=_clear_bss_init__,--undefined=_end_of_init__
+
+CFLAGS += #-DSHORT_ERROR_RESPONSE -DNDEBUG
+
+APPS += libcoap
+
+include $(CONTIKI)/Makefile.include

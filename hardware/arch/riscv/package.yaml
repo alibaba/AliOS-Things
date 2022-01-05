@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: riscv                                          # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                     # <必选项> 组件版本号
+version: rel_3.3.0                                    # <必选项> 组件版本号
 description: arch for riscv
 type: arch                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
@@ -39,14 +39,15 @@ build_config:
   include:
     - include
     - src/<cpu_num>
+  asmflag: -D__ASSEMBLY__
 
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
-  - src/<cpu_num>/cpu_impl.c
-  - src/<cpu_num>/csky_sched.c
-  - src/<cpu_num>/dump_backtrace.c
   - src/<cpu_num>/port_s.S
+  - src/<cpu_num>/startup.S
+  - src/<cpu_num>/dispatcher_s.S
+  - src/<cpu_num>/dispatcher_c.c
   - src/<cpu_num>/port_c.c
   - src/<cpu_num>/panic_c.c
   - src/<cpu_num>/backtrace.c

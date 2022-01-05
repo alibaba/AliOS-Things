@@ -1,7 +1,6 @@
 release/write_flash_gui/log
 release/write_flash_gui/ota_bin/*
 release/release_bin/*
-release/write_flash_gui/productline_cfg.xml
 release/write_flash_gui/ota_bin/
 release/write_flash_tool/ota_bin/
 prebuild/littlefs.bin

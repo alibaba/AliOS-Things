@@ -23,23 +23,23 @@ extern "C" {
 #endif
 
 #ifndef IHS_VALUE
-#define  IHS_VALUE    (20000000)
+#define  IHS_VALUE    (10000000)
 #endif
 
 #ifndef EHS_VALUE
-#define  EHS_VALUE    (20000000)
+#define  EHS_VALUE    (10000000)
 #endif
 
 /* -------------------------  Interrupt Number Definition  ------------------------ */
 
 typedef enum IRQn {
     /* ----------------------  SmartL Specific Interrupt Numbers  --------------------- */
-    Supervisor_Software_IRQn        =   1,     
-    Machine_Software_IRQn           =   3,     
-    Supervisor_Timer_IRQn           =   5,     
-    CORET_IRQn                      =   7,     
-    Supervisor_External_IRQn        =   9,     
-    Machine_External_IRQn           =   11,    
+    Supervisor_Software_IRQn        =   1,
+    Machine_Software_IRQn           =   3,
+    Supervisor_Timer_IRQn           =   5,
+    CORET_IRQn                      =   7,
+    Supervisor_External_IRQn        =   9,
+    Machine_External_IRQn           =   11,
     UART_IRQn                       =   32+0,     /* uart Interrupt */
     TIM0_IRQn                       =   32+2,     /* timer0 Interrupt */
     TIM1_IRQn                       =   32+3,     /* timer1 Interrupt */

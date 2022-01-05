@@ -1,0 +1,6 @@
+The MP3 codec library is based on the original source code found at (https://android.googlesource.com/platform/frameworks/av/+/6d72a80/media/libstagefright/codecs/mp3dec), with modifications done by Espressif to reduce memory consumption and improve processing speed.
+
+The AMR codec library is based on the original source code found at (https://sourceforge.net/projects/opencore-amr/files/opencore-amr/), with modifications done by Espressif to reduce memory consumption and improve processing speed.
+
+The AAC codec library is based on the original source code found at (https://android.googlesource.com/platform/frameworks/av/+/6d72a80/media/libstagefright/codecs/aacdec/), with modifications done by Espressif to reduce memory consumption and improve processing speed.
+

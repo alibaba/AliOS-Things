@@ -3,18 +3,20 @@
  */
 
 #include <string.h>
-#include "os_task.h"
-#include "os_mem.h"
-#include "os_msg.h"
-#include "os_sched.h"
-#include "trace.h"
+//#include "os_task.h"
+//#include "os_mem.h"
+//#include "os_msg.h"
+//#include "os_sched.h"
+//#include "trace.h"
 //#include "bte_api.h"
+#include "hci_dbg.h"
 #include "hci_if.h"
 #include "hci_tp.h"
 //#include "bt_defs.h"
 #include "bt_types.h"
 #include "hci_code.h"
 #include "hci_proto.h"
+#include "osif_customer.h"
 
 /***** Just for compile, need fix *****/
 #define HCI_ACL_HDR_LEN        5   /* packet type (1), handle (2), length (2) */
@@ -166,7 +168,7 @@ void hci_h4_recv(void)
                 break;
 
             default:
-                HCI_PRINT_ERROR1("hci_h4_recv: invalid pkt type %u", hci_h4.hdr_buf[0]);
+                HCI_PRINT_ERROR("hci_h4_recv: invalid pkt type %u", hci_h4.hdr_buf[0]);
                 hci_h4.hdr_offset = 0;
                 hci_h4.payload_len = 0;
                 hci_if.callback(HCI_IF_EVT_ERROR, false, NULL, 0);
@@ -264,7 +266,7 @@ const T_HCI_PROTO hci_h4_proto =
     .cfm    = hci_h4_cfm,
 };
 
-#if F_BT_DEINIT
+//#if F_BT_DEINIT
 void hci_h4_pre_deinit(void)
 {
     hci_tp_del();
@@ -274,4 +276,4 @@ void hci_h4_deinit(void)
 {
     memset(&hci_h4, 0, sizeof(hci_h4));
 }
-#endif
+//#endif

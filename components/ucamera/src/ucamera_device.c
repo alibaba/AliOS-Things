@@ -15,7 +15,12 @@ static ucamera_device_t *g_ucamera_dev = NULL;
 
 /* Available camera context */
 static ucamera_context_t *camera_ctx[] = {
+#if CONFIG_WIFI_CAMERA_ENABLE
     &wifi_camera,
+#endif
+#if CONFIG_UART_CAMERA_ENABLE
+    &uart_camera,
+#endif
     NULL
 };
 
@@ -67,6 +72,7 @@ ucamera_device_t *ucamera_device_init(const char *dev_name)
     }
     g_ucamera_dev = device;
     g_ucamera_dev->name = camera_ctx[i]->name;
+    g_ucamera_dev->type = camera_ctx[i]->type;
 
     /* Initialize the camera device */
     if (g_ucamera_dev->camera_init(g_ucamera_dev) < 0) {

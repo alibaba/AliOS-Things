@@ -21,11 +21,12 @@
 #include "aos_hal_pwm.h"
 #include "aos_hal_spi.h"
 #include "aos_hal_uart.h"
+#include "aos_hal_wdg.h"
 #include "board_config.h"
 #include "cJSON.h"
 #include "ulog/ulog.h"
 
-#define LOG_TAG     "BOARD_MGR"
+#define LOG_TAG "BOARD_MGR"
 
 #define DRIVER_NAME "driver.json"
 
@@ -76,9 +77,11 @@ static void board_set_gpio_default(gpio_dev_t *gpio_device)
 
     gpio_device->port = -1;
     gpio_device->config = OUTPUT_PUSH_PULL;
+#ifndef ESP_PLATFORM
     gpio_device->gpioc = NULL;
     gpio_device->gpioc_index = 0;
     gpio_device->pin_index = 0;
+#endif
     priv->irq_mode = 0;
     priv->js_cb_ref = 0;
     priv->reserved = NULL;
@@ -136,10 +139,11 @@ static int8_t board_parse_gpio(cJSON *gpio, char *id)
                     *config = OUTPUT_PUSH_PULL;
                 else if (strcmp(GPIO_PULL_UP, pull->valuestring) == 0)
                     *config = OUTPUT_OPEN_DRAIN_PULL_UP;
+                else if (strcmp(GPIO_PUSH_PULL, pull->valuestring) == 0)
+                    *config = OUTPUT_PUSH_PULL;
                 else if (strcmp(GPIO_PULL_OPEN, pull->valuestring) == 0)
                     *config = OUTPUT_OPEN_DRAIN_NO_PULL;
-            }
-            else if (strcmp(dir->valuestring, GPIO_DIR_IRQ) == 0) {
+            } else if (strcmp(dir->valuestring, GPIO_DIR_IRQ) == 0) {
                 *config = IRQ_MODE;
 
                 if (strcmp(GPIO_PULL_DOWN, pull->valuestring) == 0)
@@ -148,7 +152,6 @@ static int8_t board_parse_gpio(cJSON *gpio, char *id)
                     *config = INPUT_PULL_UP;
                 else if (strcmp(GPIO_PULL_OPEN, pull->valuestring) == 0)
                     *config = INPUT_HIGH_IMPEDANCE;
-
                 if (strcmp(GPIO_INT_RISING, intMode->valuestring) == 0)
                     priv->irq_mode = IRQ_TRIGGER_RISING_EDGE;
                 else if (strcmp(GPIO_INT_FALLING, intMode->valuestring) == 0)
@@ -582,6 +585,8 @@ static void board_set_adc_default(adc_dev_t *adc_device)
     adc_device->port = 0;
     adc_device->priv = NULL;
     adc_device->config.sampling_cycle = 12000000;
+    adc_device->config.adc_atten = 0;
+    adc_device->config.adc_width = 3;
 }
 
 static int8_t board_parse_adc(cJSON *adc, char *id)
@@ -615,6 +620,16 @@ static int8_t board_parse_adc(cJSON *adc, char *id)
             config->sampling_cycle = temp->valueint;
         }
 
+        temp = cJSON_GetObjectItem(item, ADC_ATTEN);
+        if (NULL != temp && cJSON_Number == temp->type) {
+            config->adc_atten = temp->valueint;
+        }
+
+        temp = cJSON_GetObjectItem(item, ADC_WIDTH);
+        if (NULL != temp && cJSON_Number == temp->type) {
+            config->adc_width = temp->valueint;
+        }
+
         adc_dev_t *new_adc = aos_calloc(1, sizeof(*new_adc));
         if (NULL == new_adc) {
             continue;
@@ -640,6 +655,145 @@ static int8_t board_parse_adc(cJSON *adc, char *id)
     return BOARD_ERR_NONE;
 }
 
+static void board_set_modbus_default(modbus_dev_t *mdobus_device)
+{
+    if (NULL == mdobus_device) {
+        return;
+    }
+    mdobus_device->mode = MBMODE_SERIAL;
+    mdobus_device->port = MODBUS_SERIAL_PORT;
+    mdobus_device->baudrate = 9600;
+    mdobus_device->parity = 0;
+    mdobus_device->timeout = 200;
+}
+
+static int8_t board_parse_modbus(cJSON *modbus, char *id)
+{
+    int32_t index = 0;
+    int8_t ret = -1;
+    cJSON *port = NULL;
+    cJSON *item = NULL;
+    cJSON *temp = NULL;
+    modbus_dev_t device;
+    int8_t size = 1;
+
+    if (size <= 0) {
+        return BOARD_ERR_SIZE_INVALID;
+    }
+    while (index < size) {
+        item = modbus;
+        index += 1;
+        if (NULL == item) {
+            continue;
+        }
+
+        port = cJSON_GetObjectItem(item, MARKER_PORT);
+        if (NULL == port || cJSON_Number != port->type) {
+            continue;
+        }
+
+        board_set_modbus_default(&device);
+
+        temp = cJSON_GetObjectItem(item, MODBUS_MODE);
+        if (NULL != temp && cJSON_Number == temp->type) {
+            device.mode = temp->valueint;
+        }
+
+        if (device.mode == MBMODE_SERIAL) {
+            temp = cJSON_GetObjectItem(item, MODBUS_PORT);
+            if (NULL != temp && cJSON_Number == temp->type) {
+                device.port = temp->valueint;
+            }
+
+            temp = cJSON_GetObjectItem(item, MODBUS_BAUDRATE);
+            if (NULL != temp && cJSON_Number == temp->type) {
+                device.baudrate = temp->valueint;
+            }
+
+            temp = cJSON_GetObjectItem(item, MODBUS_PARITY);
+            if (NULL != temp && cJSON_Number == temp->type) {
+                device.parity = temp->valueint;
+            }
+
+            temp = cJSON_GetObjectItem(item, MODBUS_TIMEOUT);
+            if (NULL != temp && cJSON_Number == temp->type) {
+                device.timeout = temp->valueint;
+            }
+        }
+
+        modbus_dev_t *new_modbus = aos_calloc(1, sizeof(*new_modbus));
+        if (NULL == new_modbus) {
+            continue;
+        }
+
+        const char *modbus_id = strdup(id);
+        *new_modbus = device;
+        ret = board_add_new_item(MODULE_MODBUS, modbus_id, new_modbus);
+        if (0 == ret) {
+            continue;
+        }
+
+        if (NULL != modbus_id) {
+            aos_free(modbus_id);
+            modbus_id = NULL;
+        }
+
+        if (NULL != new_modbus) {
+            aos_free(new_modbus);
+            new_modbus = NULL;
+        }
+    }
+
+    return BOARD_ERR_NONE;
+}
+
+static void board_set_wdt_default(wdg_dev_t *wdt_device)
+{
+    if (NULL == wdt_device) {
+        return;
+    }
+    wdt_device->config.timeout = 3;
+}
+
+static int8_t board_parse_wdt(cJSON *wdt, char *id)
+{
+    int32_t ret = -1;
+    cJSON *temp = NULL;
+    wdg_dev_t *new_wdt = NULL;
+    const char *wdt_id = NULL;
+
+    if ((NULL == wdt) || (NULL == id))
+        return BOARD_ERR_INVALID_ARG;
+
+    new_wdt = aos_malloc(sizeof(*new_wdt));
+    if (NULL == new_wdt)
+        return BOARD_ERR_NO_MEM;
+
+    board_set_wdt_default(new_wdt);
+
+    temp = cJSON_GetObjectItem(wdt, WDT_TIMEOUT);
+    if (NULL != temp && cJSON_Number == temp->type)
+        new_wdt->config.timeout = temp->valueint;
+
+    wdt_id = strdup(id);
+    ret = board_add_new_item(MODULE_WDT, wdt_id, new_wdt);
+    if (0 == ret) {
+        return BOARD_ERR_NONE;
+    }
+
+    if (NULL != wdt_id) {
+        aos_free(wdt_id);
+        wdt_id = NULL;
+    }
+
+    if (NULL != new_wdt) {
+        aos_free(new_wdt);
+        new_wdt = NULL;
+    }
+
+    return ret;
+}
+
 char *board_get_json_buff(const char *json_path)
 {
     void *json_data = NULL;
@@ -652,13 +806,13 @@ char *board_get_json_buff(const char *json_path)
         return (NULL);
     }
 
-    json_fd = aos_open(json_path, O_RDONLY);
+    json_fd = open(json_path, O_RDONLY);
     if (json_fd < 0) {
         LOGE(LOG_TAG, "failed to open json file:%s\n", json_path);
         return (NULL);
     }
 
-    len = aos_lseek(json_fd, 0, SEEK_END);
+    len = lseek(json_fd, 0, SEEK_END);
     if (len < 0) {
         LOGE(LOG_TAG, "failed to seek file\n");
         return (NULL);
@@ -666,13 +820,13 @@ char *board_get_json_buff(const char *json_path)
 
     json_data = aos_calloc(1, sizeof(char) * (len + 1));
     if (NULL == json_data) {
-        aos_close(json_fd);
+        close(json_fd);
         LOGE(LOG_TAG, "failed to calloc data for json_data\n");
         return (NULL);
     }
-    aos_lseek(json_fd, 0, SEEK_SET);
-    aos_read(json_fd, json_data, len);
-    aos_close(json_fd);
+    lseek(json_fd, 0, SEEK_SET);
+    read(json_fd, json_data, len);
+    close(json_fd);
     return json_data;
 }
 
@@ -688,6 +842,10 @@ static parse_json_t g_parse_json[] = {
     { MARKER_SPI, MODULE_SPI, board_parse_spi },
 
     { MARKER_ADC, MODULE_ADC, board_parse_adc },
+
+    { MARKER_MODBUS, MODULE_MODBUS, board_parse_modbus },
+
+    { MARKER_WDT, MODULE_WDT, board_parse_wdt },
 
     { NULL, MODULE_NUMS, NULL },
 };
@@ -893,7 +1051,7 @@ int8_t py_board_attach_item(addon_module_m module, const char *name_id, item_han
         return BOARD_ERR_INVALID_ARG;
     }
     item = board_get_items(module, NULL, name_id);
-    if (NULL == item || 1 == item->status) {
+    if (NULL == item) {
         LOGE(LOG_TAG, "board_get_items failed, name_id = %s\n", name_id);
         return BOARD_ERR_NODE_NOT_EXIST;
     }
@@ -978,24 +1136,24 @@ int32_t py_board_mgr_init()
     }
 
     memset(&g_board_mgr, 0x00, sizeof(g_board_mgr));
-    json_fd = aos_open(sdcard_root_path, O_RDONLY);
+    json_fd = open(sdcard_root_path, O_RDONLY);
     if (json_fd >= 0) {
-        aos_close(json_fd);
+        close(json_fd);
         board_json_path = sdcard_root_path;
     }
 
     if (board_json_path == NULL) {
-        json_fd = aos_open(data_root_path, O_RDONLY);
+        json_fd = open(data_root_path, O_RDONLY);
         if (json_fd >= 0) {
-            aos_close(json_fd);
+            close(json_fd);
             board_json_path = data_root_path;
         }
     }
 
     if (board_json_path == NULL) {
-        json_fd = aos_open(sdcard_board_json_path, O_RDONLY);
+        json_fd = open(sdcard_board_json_path, O_RDONLY);
         if (json_fd >= 0) {
-            aos_close(json_fd);
+            close(json_fd);
             board_json_path = sdcard_board_json_path;
         }
     }
