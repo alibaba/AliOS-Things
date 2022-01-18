@@ -210,6 +210,7 @@ build_config:
     - esp-adf/components/audio_hal/driver/include
 
   libs:
+    - main
     - console
     - esp_gdbstub
     - esp_netif
@@ -246,7 +247,7 @@ build_config:
     - bootloader_support
     - esp_adc_cal
     - esp_https_ota
-# - freemodbus
+    - freemodbus
     - openssl
     - tcpip_adapter
     - bt
@@ -312,21 +313,15 @@ source_file:                             # <可选项> 指定参与编译的源�
   - esp-adf/components/esp-adf-libs/esp_codec/*.c ? <MICROPY_PY_AUDIO>
   - esp-adf/components/audio_board/m5stack_core2/*.c ? <MICROPY_PY_AUDIO>
   - esp-adf/components/audio_hal/*.c ? <MICROPY_PY_AUDIO>
-  # - esp-adf/components/esp_peripherals/*.c ? <MICROPY_PY_AUDIO>
-  # - esp-adf/components/esp_peripherals/lib/adc_button/*.c ? <MICROPY_PY_AUDIO>
-  # - esp-adf/components/display_service/*.c ? <MICROPY_PY_AUDIO>
   - esp-adf/components/esp_dispatcher/*.c ? <MICROPY_PY_AUDIO>
-  # - esp-adf/components/display_service/led_indicator/*.c ? <MICROPY_PY_AUDIO>
   - esp-adf/components/audio_hal/driver/ns4168/*.c ? <MICROPY_PY_AUDIO>
-  # - esp-adf/components/esp_peripherals/lib/sdcard/*.c ? <MICROPY_PY_AUDIO>
-  # - esp-adf/components/esp_peripherals/driver/i2c_bus/*.c ? <MICROPY_PY_AUDIO>
+
 
 
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项
   IDF_VER: "35eebd69"
   ESP_PLATFORM: 1
-  AOS_CHIP_ESP32: 1
   OS_FREERTOS: 1
   MBEDTLS_CONFIG_FILE: "mbedtls/esp_config.h"
   CONFIG_ESP_DISPATCHER_DELEGATE_TASK_CORE: 0
