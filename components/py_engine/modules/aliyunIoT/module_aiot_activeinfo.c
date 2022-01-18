@@ -6,10 +6,6 @@
 #include "aiot_mqtt_api.h"
 #include "aiot_state_api.h"
 #include "aiot_sysdep_api.h"
-
-#include "amp_platform.h"
-#include "aos_network.h"
-#include "aos_system.h"
 #ifdef AOS_COMP_KV
 #include "aos/kv.h"
 #endif
@@ -36,10 +32,9 @@ int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
         return -1;
     }
 
-    res = aiot_devinfo_setopt(devinfo_handle, AIOT_DEVINFOOPT_MQTT_HANDLE,
-                              (void *)mqtt_handle);
+    res = aiot_devinfo_setopt(devinfo_handle, AIOT_DEVINFOOPT_MQTT_HANDLE, (void *)mqtt_handle);
     if (res < STATE_SUCCESS) {
-        amp_debug(MOD_STR, "devinfo set mqtt handle failed");
+        amp_error(MOD_STR, "devinfo set mqtt handle failed, res:-0x%04X.\n", -res);
         aiot_devinfo_deinit(&devinfo_handle);
         return -1;
     }
@@ -56,8 +51,7 @@ int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
     memset(msg, 0, msg_len);
 
     /* devinfo update message */
-    res = snprintf(msg, msg_len, DEVICE_INFO_UPDATE_FMT, APPLICATION,
-                   MODULE_NAME);
+    res = snprintf(msg, msg_len, DEVICE_INFO_UPDATE_FMT, APPLICATION, MODULE_NAME);
     if (res <= 0) {
         amp_debug(MOD_STR, "topic msg generate err");
         aos_free(msg);

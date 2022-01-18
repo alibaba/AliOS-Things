@@ -217,8 +217,8 @@ STATIC mp_obj_t obj_capture(size_t n_args, const mp_obj_t *args)
     frame_buffer_t *frame = NULL;
     mp_obj_t *mp_frame = NULL;
 
-    MP_THREAD_GIL_EXIT();
     /*get one camera frame*/
+    MP_THREAD_GIL_EXIT();
     frame = ucamera_service_get_frame();
     MP_THREAD_GIL_ENTER();
     if (!frame) {
@@ -328,4 +328,4 @@ const mp_obj_module_t ucamera_module = {
 
 MP_REGISTER_MODULE(MP_QSTR_ucamera, ucamera_module, MICROPY_PY_UCAMERA);
 
-#endif
+#endif // MICROPY_PY_SYSTEM

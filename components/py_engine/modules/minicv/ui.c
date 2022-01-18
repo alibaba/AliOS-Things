@@ -51,7 +51,6 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 2)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -73,7 +72,7 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
 
     driver_obj->mType = (UIFrameworkType_t)mp_obj_get_int(args[1]);
     LOGD(LOG_TAG, "%s:mType = %d;\n", __func__, driver_obj->mType);
-    instance = UICreateInstance(driver_obj->mType);
+    void *instance = UICreateInstance(driver_obj->mType);
     driver_obj->mInstance = instance;
     if (instance == NULL)
     {
@@ -89,8 +88,6 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(ui_obj_open, 2, obj_open);
 STATIC mp_obj_t obj_close(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
-    int ret = -1;
-    void* instance = NULL;
     if (n_args < 1)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -123,7 +120,6 @@ STATIC mp_obj_t obj_getDisplayWidth(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 1)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -154,7 +150,6 @@ STATIC mp_obj_t obj_getDisplayHeight(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 1)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -185,7 +180,6 @@ STATIC mp_obj_t obj_getDisplayBacklight(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 1)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -216,7 +210,6 @@ STATIC mp_obj_t obj_setDisplayBacklight(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 2)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -248,7 +241,6 @@ STATIC mp_obj_t obj_getDisplayType(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 1)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -279,7 +271,6 @@ STATIC mp_obj_t obj_getDisplayFreq(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 1)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -310,7 +301,6 @@ STATIC mp_obj_t obj_setDisplayFreq(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 2)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -342,7 +332,6 @@ STATIC mp_obj_t obj_drawPoint(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 4)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -379,7 +368,6 @@ STATIC mp_obj_t obj_drawLine(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 6)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -421,7 +409,6 @@ STATIC mp_obj_t obj_drawRectangle(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 6)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -457,7 +444,6 @@ STATIC mp_obj_t obj_drawCircle(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 5)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -495,7 +481,6 @@ STATIC mp_obj_t obj_drawText(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 8)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -533,7 +518,6 @@ STATIC mp_obj_t obj_drawPixels(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 6)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -572,7 +556,6 @@ STATIC mp_obj_t obj_drawImage(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 6)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -611,7 +594,6 @@ STATIC mp_obj_t obj_updateDisplay(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
     int ret = -1;
-    void* instance = NULL;
     if (n_args < 1)
     {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if MICROPY_PY_TCP
+
 #include "py/builtin.h"
 #include "py/mperrno.h"
 #include "py/obj.h"
@@ -24,8 +26,7 @@ STATIC mp_obj_t obj_createSocket(size_t n_args, const mp_obj_t *args)
     int ret = -1;
     void *instance = NULL;
     if (n_args < 5) {
-        LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__,
-             n_args);
+        LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
         return mp_const_none;
     }
     mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
@@ -38,8 +39,7 @@ STATIC mp_obj_t obj_createSocket(size_t n_args, const mp_obj_t *args)
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_obj_tcp_createSocket, 5,
-                                   obj_createSocket);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_obj_tcp_createSocket, 5, obj_createSocket);
 
 STATIC mp_obj_t obj_send(size_t n_args, const mp_obj_t *args)
 {
@@ -47,8 +47,7 @@ STATIC mp_obj_t obj_send(size_t n_args, const mp_obj_t *args)
     int ret = -1;
     void *instance = NULL;
     if (n_args < 5) {
-        LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__,
-             n_args);
+        LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
         return mp_const_none;
     }
     mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
@@ -69,8 +68,7 @@ STATIC mp_obj_t obj_recv(size_t n_args, const mp_obj_t *args)
     int ret = -1;
     void *instance = NULL;
     if (n_args < 5) {
-        LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__,
-             n_args);
+        LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
         return mp_const_none;
     }
     mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
@@ -87,8 +85,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_obj_tcp_recv, 5, obj_recv);
 
 STATIC const mp_rom_map_elem_t tcp_module_globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_tcp) },
-    { MP_OBJ_NEW_QSTR(MP_QSTR_createSocket),
-      MP_ROM_PTR(&mp_obj_tcp_createSocket) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_createSocket), MP_ROM_PTR(&mp_obj_tcp_createSocket) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_send), MP_ROM_PTR(&mp_obj_tcp_send) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_recv), MP_ROM_PTR(&mp_obj_tcp_recv) },
 };
@@ -99,3 +96,7 @@ const mp_obj_module_t tcp_module = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&tcp_module_globals,
 };
+
+MP_REGISTER_MODULE(MP_QSTR_tcp, tcp_module, MICROPY_PY_TCP);
+
+#endif  // MICROPY_PY_TCP

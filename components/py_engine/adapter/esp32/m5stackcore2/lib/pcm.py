@@ -3,7 +3,6 @@
 @File    :   Player.py
 @Time    :   2021/12/08 20:32:10
 @Author  :   zeta.zz
-@E-mail  :   zeta.zz@alibaba-inc.com
 @License :   (C)Copyright 2015-2021, M5STACK
 @Desc    :   Player I2S driver.
 '''

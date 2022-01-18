@@ -1,0 +1,3 @@
+srctype=dummy
+type=module
+version = 0.2

@@ -2,15 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if MICROPY_PY_BLE
+
+#include "modble.h"
 #include "py/builtin.h"
 #include "py/mperrno.h"
 #include "py/obj.h"
 #include "py/runtime.h"
 #include "py/stackctrl.h"
 #include "ulog/ulog.h"
-#if PY_BUILD_BLE
-
-#include "modble.h"
 
 #define LOG_TAG "ble"
 
@@ -54,7 +54,7 @@ MP_DEFINE_CONST_FUN_OBJ_2(ble_open_obj, ble_open);
 STATIC mp_obj_t ble_startAdv(mp_obj_t *data)
 {
     if (!mp_obj_is_dict_or_ordereddict(data)) {
-        LOGE(LOG_TAG, "%s  data type error,param type must be dict \r\n", __func__);
+        LOGE(LOG_TAG, "%s param type must be dict \r\n", __func__);
         return mp_obj_new_int(MP_EINVAL);
     }
     amp_bt_host_adapter_adv_start_t adv_param = { 0 };
@@ -238,6 +238,6 @@ const mp_obj_module_t mp_module_ble = {
     .globals = (mp_obj_dict_t *)&ble_module_globals,
 };
 
-MP_REGISTER_MODULE(MP_QSTR_ble, mp_module_ble, PY_BUILD_BLE);
+MP_REGISTER_MODULE(MP_QSTR_ble, mp_module_ble, MICROPY_PY_BLE);
 
 #endif

@@ -1,0 +1,6 @@
+srctype = micropython-lib
+type = package
+version = 1.3.4
+author = Paul Sokolovsky
+desc = Lightweight MQTT client for MicroPython.
+long_desc = README.rst

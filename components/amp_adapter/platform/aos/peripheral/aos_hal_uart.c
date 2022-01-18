@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <poll.h>
+#include <errno.h>
 #ifndef AOS_BOARD_HAAS700
 #include <vfsdev/uart_dev.h>
 #endif
@@ -148,6 +149,11 @@ int32_t aos_hal_uart_callback(uart_dev_t *uart, void (*cb)(int, void *, uint16_t
     }
 #endif
     return 0;
+}
+
+int32_t aos_hal_uart_any(uart_dev_t *uart)
+{
+    return hal_uart_any(uart);
 }
 
 int32_t aos_hal_uart_finalize(uart_dev_t *uart)

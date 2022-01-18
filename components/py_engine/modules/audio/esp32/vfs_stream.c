@@ -22,33 +22,36 @@
  *
  */
 
-#include "errno.h"
+#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "errno.h"
+
 #if MICROPY_PY_AUDIO
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include "audio_element.h"
 #include "audio_error.h"
 #include "audio_mem.h"
-
 #include "esp_log.h"
-#include "vfs_stream.h"
-#include "wav_head.h"
-
 #include "extmod/vfs_fat.h"
 #include "py/builtin.h"
 #include "py/runtime.h"
 #include "py/stream.h"
+#include "vfs_stream.h"
+#include "wav_head.h"
 
-#include <sys/stat.h>
-#include <sys/types.h>
-
-#define FILE_WAV_SUFFIX_TYPE "wav"
-#define FILE_OPUS_SUFFIX_TYPE "opus"
-#define FILE_AMR_SUFFIX_TYPE "amr"
+#define FILE_WAV_SUFFIX_TYPE   "wav"
+#define FILE_OPUS_SUFFIX_TYPE  "opus"
+#define FILE_AMR_SUFFIX_TYPE   "amr"
 #define FILE_AMRWB_SUFFIX_TYPE "Wamr"
 
 static const char *TAG = "VFS_STREAM";
+
+// whether to enable file read from LFS, HaaS Python need to set to 1
+#define AUDIO_FILE_LFS (1)
 
 typedef enum {
     STREAM_TYPE_UNKNOW,
@@ -62,7 +65,11 @@ typedef struct vfs_stream {
     audio_stream_type_t type;
     int block_size;
     bool is_open;
+#if AUDIO_FILE_LFS
+    int file;
+#else
     mp_obj_t file;
+#endif
     wr_stream_type_t w_type;
 } vfs_stream_t;
 
@@ -88,6 +95,147 @@ static wr_stream_type_t get_type(const char *str)
     }
 }
 
+#if AUDIO_FILE_LFS
+static esp_err_t _lfs_open(audio_element_handle_t self)
+{
+    vfs_stream_t *vfs = (vfs_stream_t *)audio_element_getdata(self);
+
+    audio_element_info_t info;
+    char *uri = audio_element_get_uri(self);
+    if (uri == NULL) {
+        ESP_LOGE(TAG, "Error, uri is not set");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGW(TAG, "_vfs_open, uri:%s", uri);
+    const char *path = NULL;
+    const char *prefix = "file:/";
+    if (strstr(uri, prefix) != NULL) {
+        path = &uri[strlen(prefix)];
+    }
+
+    audio_element_getinfo(self, &info);
+    if (path == NULL) {
+        ESP_LOGE(TAG, "Error, need file path[%s] to open", uri);
+        return ESP_FAIL;
+    } else {
+        struct stat sb = { 0 };
+        /* check if path exists */
+        if (stat(path, &sb) != 0) {
+            ESP_LOGE(TAG, "Error, path[%s] not exist", path);
+            return ESP_FAIL;
+        } else {
+            info.total_bytes = sb.st_size;
+        }
+    }
+    if (vfs->is_open) {
+        ESP_LOGE(TAG, "already opened");
+        return ESP_FAIL;
+    }
+    if (vfs->type == AUDIO_STREAM_READER) {
+        vfs->file = open(path, O_RDONLY);
+        ESP_LOGI(TAG, "File size is %d byte,pos:%d", (int)info.total_bytes, (int)info.byte_pos);
+    } else if (vfs->type == AUDIO_STREAM_WRITER) {
+        vfs->file = open(path, O_WRONLY);
+        vfs->w_type = get_type(path);
+        if (vfs->file > 0 && STREAM_TYPE_WAV == vfs->w_type) {
+            wav_header_t info = { 0 };
+            write(vfs->file, &info, sizeof(wav_header_t));
+            fsync(vfs->file);
+        } else if (vfs->file > 0 && (STREAM_TYPE_AMR == vfs->w_type)) {
+            write(vfs->file, "#!AMR\n", 6);
+            fsync(vfs->file);
+        } else if (vfs->file > 0 && (STREAM_TYPE_AMRWB == vfs->w_type)) {
+            write(vfs->file, "#!AMR-WB\n", 9);
+            fsync(vfs->file);
+        }
+    } else {
+        ESP_LOGE(TAG, "vfs must be Reader or Writer");
+        return ESP_FAIL;
+    }
+    if (vfs->file <= 0) {
+        ESP_LOGE(TAG, "Failed to open file %s", path);
+        return ESP_FAIL;
+    }
+    vfs->is_open = true;
+    if (info.byte_pos && lseek(vfs->file, info.byte_pos, SEEK_SET) != 0) {
+        ESP_LOGE(TAG, "Failed to seek to %d/%d", (int)info.byte_pos, (int)info.total_bytes);
+        return ESP_FAIL;
+    }
+
+    return audio_element_setinfo(self, &info);
+}
+
+static int _lfs_read(audio_element_handle_t self, char *buffer, int len, TickType_t ticks_to_wait, void *context)
+{
+    vfs_stream_t *vfs = (vfs_stream_t *)audio_element_getdata(self);
+    audio_element_info_t info;
+    audio_element_getinfo(self, &info);
+
+    ESP_LOGD(TAG, "read len=%d, pos=%d/%d", len, (int)info.byte_pos, (int)info.total_bytes);
+    int rlen = read(vfs->file, buffer, len);
+    if (rlen <= 0) {
+        ESP_LOGW(TAG, "No more data,ret:%d", rlen);
+        rlen = 0;
+    } else {
+        info.byte_pos += rlen;
+        audio_element_setinfo(self, &info);
+    }
+    return rlen;
+}
+
+static int _lfs_write(audio_element_handle_t self, char *buffer, int len, TickType_t ticks_to_wait, void *context)
+{
+    vfs_stream_t *vfs = (vfs_stream_t *)audio_element_getdata(self);
+    audio_element_info_t info;
+    audio_element_getinfo(self, &info);
+    int wlen = write(vfs->file, buffer, len);
+    fsync(vfs->file);
+    ESP_LOGD(TAG, "write,%d, errno:%d,pos:%d", wlen, errno, (int)info.byte_pos);
+    if (wlen > 0) {
+        info.byte_pos += wlen;
+        audio_element_setinfo(self, &info);
+    }
+    return wlen;
+}
+
+static esp_err_t _lfs_close(audio_element_handle_t self)
+{
+    vfs_stream_t *vfs = (vfs_stream_t *)audio_element_getdata(self);
+
+    if (AUDIO_STREAM_WRITER == vfs->type && vfs->file && STREAM_TYPE_WAV == vfs->w_type) {
+        wav_header_t *wav_info = (wav_header_t *)audio_malloc(sizeof(wav_header_t));
+
+        AUDIO_MEM_CHECK(TAG, wav_info, return ESP_ERR_NO_MEM);
+
+        if (lseek(vfs->file, 0, SEEK_SET) != 0) {
+            ESP_LOGE(TAG, "Error seek file ,line=%d", __LINE__);
+        }
+        audio_element_info_t info;
+        audio_element_getinfo(self, &info);
+        wav_head_init(wav_info, info.sample_rates, info.bits, info.channels);
+        wav_head_size(wav_info, (uint32_t)info.byte_pos);
+        write(vfs->file, wav_info, sizeof(wav_header_t));
+        fsync(vfs->file);
+        close(vfs->file);
+        audio_free(wav_info);
+    }
+
+    if (vfs->is_open) {
+        close(vfs->file);
+        vfs->file = -1;
+        vfs->is_open = false;
+    }
+    if (AEL_STATE_PAUSED != audio_element_get_state(self)) {
+        audio_element_report_info(self);
+        audio_element_info_t info = { 0 };
+        audio_element_getinfo(self, &info);
+        info.byte_pos = 0;
+        audio_element_setinfo(self, &info);
+    }
+    return ESP_OK;
+}
+#else
 static int get_len(mp_obj_t stream)
 {
     mp_obj_t tell;
@@ -212,25 +360,11 @@ static int _vfs_write(audio_element_handle_t self, char *buffer, int len, TickTy
     return wlen;
 }
 
-static int _vfs_process(audio_element_handle_t self, char *in_buffer, int in_len)
-{
-    int r_size = audio_element_input(self, in_buffer, in_len);
-    int w_size = 0;
-    if (r_size > 0) {
-        w_size = audio_element_output(self, in_buffer, r_size);
-    } else {
-        w_size = r_size;
-    }
-    return w_size;
-}
-
 static esp_err_t _vfs_close(audio_element_handle_t self)
 {
     vfs_stream_t *vfs = (vfs_stream_t *)audio_element_getdata(self);
 
-    if (AUDIO_STREAM_WRITER == vfs->type
-        && vfs->file
-        && STREAM_TYPE_WAV == vfs->w_type) {
+    if (AUDIO_STREAM_WRITER == vfs->type && vfs->file && STREAM_TYPE_WAV == vfs->w_type) {
         wav_header_t *wav_info = (wav_header_t *)audio_malloc(sizeof(wav_header_t));
 
         AUDIO_MEM_CHECK(TAG, wav_info, return ESP_ERR_NO_MEM);
@@ -263,12 +397,25 @@ static esp_err_t _vfs_close(audio_element_handle_t self)
     }
     return ESP_OK;
 }
+#endif
 
 static esp_err_t _vfs_destroy(audio_element_handle_t self)
 {
     vfs_stream_t *vfs = (vfs_stream_t *)audio_element_getdata(self);
     audio_free(vfs);
     return ESP_OK;
+}
+
+static int _vfs_process(audio_element_handle_t self, char *in_buffer, int in_len)
+{
+    int r_size = audio_element_input(self, in_buffer, in_len);
+    int w_size = 0;
+    if (r_size > 0) {
+        w_size = audio_element_output(self, in_buffer, r_size);
+    } else {
+        w_size = r_size;
+    }
+    return w_size;
 }
 
 audio_element_handle_t vfs_stream_init(vfs_stream_cfg_t *config)
@@ -279,8 +426,13 @@ audio_element_handle_t vfs_stream_init(vfs_stream_cfg_t *config)
     AUDIO_MEM_CHECK(TAG, vfs, return NULL);
 
     audio_element_cfg_t cfg = DEFAULT_AUDIO_ELEMENT_CONFIG();
+#if AUDIO_FILE_LFS
+    cfg.open = _lfs_open;
+    cfg.close = _lfs_close;
+#else
     cfg.open = _vfs_open;
     cfg.close = _vfs_close;
+#endif
     cfg.process = _vfs_process;
     cfg.destroy = _vfs_destroy;
     cfg.task_stack = config->task_stack;
@@ -296,10 +448,19 @@ audio_element_handle_t vfs_stream_init(vfs_stream_cfg_t *config)
     vfs->type = config->type;
 
     if (config->type == AUDIO_STREAM_WRITER) {
+#if AUDIO_FILE_LFS
+        cfg.write = _lfs_write;
+#else
         cfg.write = _vfs_write;
+#endif
     } else {
+#if AUDIO_FILE_LFS
+        cfg.read = _lfs_read;
+#else
         cfg.read = _vfs_read;
+#endif
     }
+
     el = audio_element_init(&cfg);
 
     AUDIO_MEM_CHECK(TAG, el, goto _vfs_init_exit);

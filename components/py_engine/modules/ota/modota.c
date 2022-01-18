@@ -5,8 +5,8 @@
 
 #include <stdarg.h>
 #include <string.h>
+
 #if MICROPY_PY_OTA
-#include "aos_system.h"
 #include "board_config.h"
 #include "py/builtin.h"
 #include "py/obj.h"
@@ -14,7 +14,6 @@
 #include "py/stackctrl.h"
 #include "py_defines.h"
 //#include "be_inl.h"
-#include "amp_utils.h"
 #include "app_upgrade.h"
 #include "module_aiot.h"
 #include "ota_agent.h"
@@ -138,10 +137,9 @@ static mp_obj_t ota_upgrade(mp_obj_t data)
     if (res != 0) {
         amp_warn(MOD_STR, "iot create task failed");
         aos_free(ota_package_info);
-        goto out;
     }
-out:
-    mp_obj_new_int(0);
+
+    return mp_obj_new_int(0);
 }
 MP_DEFINE_CONST_FUN_OBJ_1(native_ota_upgrade, ota_upgrade);
 
@@ -241,9 +239,8 @@ static mp_obj_t py_ota_verify(mp_obj_t data)
     if (res != 0) {
         amp_warn(MOD_STR, "iot create task failed");
         aos_free(ota_package_info);
-        goto out;
     }
-out:
+
     return mp_obj_new_int(res);
 }
 MP_DEFINE_CONST_FUN_OBJ_1(native_ota_verify, py_ota_verify);
@@ -320,9 +317,8 @@ static mp_obj_t ota_download(mp_obj_t data)
     if (res != 0) {
         amp_warn(MOD_STR, "iot create task failed");
         aos_free(ota_package_info);
-        goto out;
     }
-out:
+
     return mp_obj_new_int(res);
 }
 MP_DEFINE_CONST_FUN_OBJ_1(native_ota_download, ota_download);
@@ -367,7 +363,7 @@ static mp_obj_t ota_report(mp_obj_t data)
     if (res < 0) {
         amp_error(MOD_STR, "amp pyota report ver failed!");
     }
-out:
+
     return mp_obj_new_int(0);
 }
 MP_DEFINE_CONST_FUN_OBJ_1(native_ota_report, ota_report);
@@ -478,6 +474,7 @@ static int32_t customer_upgrade_cb(void *pctx, char *ver, char *module_name,
         /** todo call ota_trigger_notify */
         py_task_schedule_call(ota_trigger_notify, ota_package_info);
     }
+    return OTA_SUCCESS;
 }
 
 static mp_obj_t ota_init(mp_obj_t data)
@@ -539,7 +536,7 @@ out:
         }
         return mp_obj_new_int(-1);
     }
-    mp_obj_new_int(0);
+    return mp_obj_new_int(0);
 }
 MP_DEFINE_CONST_FUN_OBJ_1(native_ota_init, ota_init);
 
@@ -584,5 +581,6 @@ const mp_obj_module_t mp_module_ota = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&ota_module_globals,
 };
+
 MP_REGISTER_MODULE(MP_QSTR_ota, mp_module_ota, MICROPY_PY_OTA);
 #endif

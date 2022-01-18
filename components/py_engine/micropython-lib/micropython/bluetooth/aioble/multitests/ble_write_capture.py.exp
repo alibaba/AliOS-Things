@@ -1,0 +1,24 @@
+--- instance0 ---
+advertise
+connected
+written b'central0'
+written b'central2'
+written b'central0' True
+written b'central1' True
+written b'central2' True
+written b'central3' True
+written b'central4' True
+--- instance1 ---
+connect
+service UUID('a5a5a5a5-ffff-9999-1111-5a5a5a5a5a5a')
+characteristic UUID('00000000-1111-2222-3333-444444444444') UUID('00000000-1111-2222-3333-555555555555')
+write
+write
+write
+write
+write
+write
+write
+write
+write
+write

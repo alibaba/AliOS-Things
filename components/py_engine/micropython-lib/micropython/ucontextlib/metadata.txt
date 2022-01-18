@@ -1,0 +1,5 @@
+srctype = micropython-lib
+type = module
+version = 0.1.1
+license = Python
+long_desc = Minimal subset of contextlib for MicroPython low-memory ports

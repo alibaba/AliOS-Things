@@ -296,6 +296,14 @@ STATIC mp_obj_t audio_player_resume(mp_obj_t self_in)
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(audio_player_resume_obj, audio_player_resume);
 
+STATIC mp_obj_t audio_player_seek(mp_obj_t self_in, mp_obj_t seek_time_sec_in)
+{
+    audio_player_obj_t *self = self_in;
+    int seek_time_sec = mp_obj_get_int(seek_time_sec_in);
+    return mp_obj_new_int(esp_audio_seek(self->player, seek_time_sec));
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(audio_player_seek_obj, audio_player_seek);
+
 STATIC mp_obj_t audio_player_vol_helper(audio_player_obj_t *self, mp_uint_t n_args, const mp_obj_t *pos_args,
                                         mp_map_t *kw_args)
 {
@@ -399,6 +407,7 @@ STATIC const mp_rom_map_elem_t player_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_stop), MP_ROM_PTR(&audio_player_stop_obj) },
     { MP_ROM_QSTR(MP_QSTR_pause), MP_ROM_PTR(&audio_player_pause_obj) },
     { MP_ROM_QSTR(MP_QSTR_resume), MP_ROM_PTR(&audio_player_resume_obj) },
+    { MP_ROM_QSTR(MP_QSTR_seek), MP_ROM_PTR(&audio_player_seek_obj) },
     { MP_ROM_QSTR(MP_QSTR_vol), MP_ROM_PTR(&audio_player_vol_obj) },
     { MP_ROM_QSTR(MP_QSTR_getVolume), MP_ROM_PTR(&audio_player_get_vol_obj) },
     { MP_ROM_QSTR(MP_QSTR_setVolume), MP_ROM_PTR(&audio_player_set_vol_obj) },

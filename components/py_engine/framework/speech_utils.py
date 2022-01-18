@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 '''
 @File       :    speech_utils.py
-@Description:    file description   
+@Description:    file description
 @Date       :    2021/05/17 11:43:06
 @Author     :    guoliang.wgl
 @version    :    1.0
@@ -79,7 +79,7 @@ def play_voice(data,dir_info):
 
 
 def add_amount(num_str, toneList, formatFlag):
-    global toneDir,tonenameSuffix,tonenameNumb,tonenameNumb1,tonenameDot,tonenameUnit,tonenameHunit 
+    global toneDir,tonenameSuffix,tonenameNumb,tonenameNumb1,tonenameDot,tonenameUnit,tonenameHunit
     num_f = float(num_str)
     numb = int(num_f)
     deci = num_f - numb
@@ -92,14 +92,14 @@ def add_amount(num_str, toneList, formatFlag):
     prevSlotZero = False
     hundredMillionExist = False
     tenThousandExist = False
-    
+
     if (numb < 0 or numb >= 1000000000000):
         print('amount overrange')
         return toneIndex
 
     if (deci < 0.0001 and deci > 0.0):
         deci = 0.0001
-    
+
     i = 2
     while(i >= 0):
 
@@ -112,7 +112,7 @@ def add_amount(num_str, toneList, formatFlag):
         if (subTarget == 0):
             i = i -1
             continue
-            
+
 
 
         if (i == 2):
@@ -140,7 +140,7 @@ def add_amount(num_str, toneList, formatFlag):
             if (slot == 0 and depth == 0):
                 depth = depth - 1
                 continue
-                
+
             if ((subTarget < 20 and depth == 1) or (slot == 0 and prevSlotZero) or (slot == 0 and depth == 0)):
                 pass
             else:
@@ -214,7 +214,7 @@ def download_resource_file(on_request,resDir):
     #             "id":"zfbGet",
     #             "size":40204,
     #             "type":"custom",
-    #             "url":"http://speech-solution.oss-cn-shanghai.aliyuncs.com/speech_model_audio/l5saRiTZw8WaqUV3RRrNJf1SG5C0pw3B/zfbGet.wav?Expires=1634549515&OSSAccessKeyId=LTAIN4oIylhS6P47&Signature=NBX9rRmeGYRjoLceSe9hZl%2BgcyI%3D"
+    #             "url":"http://speech-solution.oss-cn-shanghai.aliyuncs.com/xxxx"
     #         }
     #     ],
     #     "format":"wav",
@@ -237,7 +237,7 @@ def download_resource_file(on_request,resDir):
     def d_cb(data):
         global on_download
         on_download = True
-    
+
     http.download(d_data,d_cb)
 
     while True:

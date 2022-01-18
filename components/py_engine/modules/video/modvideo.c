@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if MICROPY_PY_VIDEO
+
 #include "py/builtin.h"
 #include "py/obj.h"
 #include "py/runtime.h"
@@ -23,3 +25,7 @@ const mp_obj_module_t video_module = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&video_locals_dict,
 };
+
+MP_REGISTER_MODULE(MP_QSTR_video, video_module, MICROPY_PY_VIDEO);
+
+#endif  // MICROPY_PY_VIDEO

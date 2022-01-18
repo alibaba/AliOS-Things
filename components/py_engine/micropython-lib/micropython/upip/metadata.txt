@@ -1,0 +1,7 @@
+srctype = micropython-lib
+type = module
+version = 1.2.4
+author = Paul Sokolovsky
+extra_modules = upip_utarfile
+desc = Simple package manager for MicroPython.
+long_desc = Simple self-hosted package manager for MicroPython (requires usocket, ussl, uzlib, uctypes builtin modules). Compatible only with packages without custom setup.py code.

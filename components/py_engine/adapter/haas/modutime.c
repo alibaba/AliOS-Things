@@ -34,9 +34,6 @@
 #include "py/smallint.h"
 #include "time.h"
 
-// #include "aos_system.h"
-#include "amp_platform.h"
-
 #if MICROPY_PY_UTIME
 
 STATIC mp_obj_t time_localtime(size_t n_args, const mp_obj_t *args)

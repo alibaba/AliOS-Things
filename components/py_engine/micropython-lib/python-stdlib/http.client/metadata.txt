@@ -1,0 +1,4 @@
+srctype = cpython
+type = package
+version = 0.5.1
+depends = email.parser, email.message, socket, collections, urllib.parse, warnings
