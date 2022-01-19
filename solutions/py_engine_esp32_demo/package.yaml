@@ -1,6 +1,6 @@
 
 ## 第一部分： 基础信息
-name: py_engine_esp32_demo                               # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+name: py_engine_esp32_demo                          # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
 version: rel_3.3.0                                    # <必选项> 组件版本号
 description: start python engine esp32 demos        # <必选项> 建议至少20字以上
 type: solution                                      # <必选项> 组件类型，为：solution, board, chip, arch, drv_core, drv_peripheral, drv_external_device, kernel, common, sdk, document
@@ -99,12 +99,14 @@ source_file:
   - "activation/activation.c"
 
 ## 第五部分：配置信息
-esp_system_config: &esp_system_config
-  # Activation start
-  AOS_BUILD_APP: "py_engine"
-  # Activation end
-  ESP_PLATFROM: 1
-  FFCONF_H: "lib/oofatfs/ffconf.h"
+# def_config:                              # 组件的可配置项
+#   CONFIG_DEBUG: y
+#   CONFIG_PARAM_NOT_CHECK: y
+#   CONFIG_CLI: y
+def_config:
+  AOS_BUILD_APP: py_engine
+  ESP_PLATFORM: 1
+  FFCONF_H: lib/oofatfs/ffconf.h
   LFS1_NO_MALLOC: y
   LFS1_NO_DEBUG: y
   LFS1_NO_WARN: y
@@ -120,13 +122,11 @@ esp_system_config: &esp_system_config
   MICROPY_PY_HTTP: 1
   MICROPY_PY_MODBUS: 1
   MICROPY_PY_KV: 1
+  MICROPY_PY_SNTP: 1
   MICROPY_PY_OTA: 1
   MICROPY_PY_DRIVER: 1
-  MICROPY_PY_ALIYUNIOT: 1        # Py_Engine module build linksdk config
-
-def_config:
-  <<: *esp_system_config
-  CONFIG_LWIP_VERSION: "lwip2.0.0"
+  MICROPY_PY_ALIYUNIOT: 1
+  CONFIG_LWIP_VERSION: lwip2.0.0
   HAAS_ACTIVATE_FLAG: y
   SYSINFO_MCU_ESP32: y
   SYSINFO_AOS_VERSION: "AOS-R-3.3.0"

@@ -78,14 +78,13 @@ void aos_sem_signal(aos_sem_t *sem)
 
 void aos_sem_signal_all(aos_sem_t *sem)
 {
-    UBaseType_t count;
     if (sem == NULL || *sem == NULL)
         return;
 
     /* TODO: Keep atomicity between getting count and singal all. */
-    count = uxSemaphoreGetCount((SemaphoreHandle_t)*sem);
-    while (count--)
-        aos_sem_signal(sem);
+    aos_sem_signal(sem);
+
+    return;
 }
 
 bool aos_sem_is_valid(aos_sem_t *sem)

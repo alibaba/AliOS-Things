@@ -8,6 +8,7 @@
 #include "aos/kernel.h"
 #include "ucamera_service.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
 #include "freertos/semphr.h"
 #include "stdatomic.h"
 #include "uart_frame.h"

@@ -168,9 +168,8 @@ STATIC mp_obj_t obj_read(size_t n_args, const mp_obj_t *args)
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
 
-    mp_int_t ret = aos_hal_uart_recv_II(uart_device, bufinfo.buf, bufinfo.len, &recvsize, 0);
+    mp_int_t ret = aos_hal_uart_recv_II(uart_device, bufinfo.buf, bufinfo.len, &recvsize, UART_TIMEOUT);
     if (ret != 0) {
-        LOGE(LOG_TAG, "%s:aos_hal_uart_recv_II failed\n", __func__);
         return MP_ROM_INT(ret);
     } else {
         return MP_ROM_INT(recvsize);

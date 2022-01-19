@@ -59,7 +59,7 @@
 #define MICROPY_USE_INTERNAL_ERRNO          (0) // errno.h from xtensa-esp32-elf/sys-include/sys
 #define MICROPY_USE_INTERNAL_PRINTF         (0) // ESP32 SDK requires its own printf
 #define MICROPY_ENABLE_SCHEDULER            (1)
-#define MICROPY_SCHEDULER_DEPTH             (8)
+#define MICROPY_SCHEDULER_DEPTH             (8 * 2)
 #define MICROPY_VFS                         (1)
 #define MICROPY_VFS_POSIX                   (1)
 
@@ -137,6 +137,7 @@
 #define MICROPY_BLUETOOTH_NIMBLE            (1)
 #define MICROPY_BLUETOOTH_NIMBLE_BINDINGS_ONLY (1)
 #endif
+#define MICROPY_EPOCH_IS_1970               (1)
 #define MICROPY_PY_UASYNCIO                 (1)
 #define MICROPY_PY_UCTYPES                  (1)
 #define MICROPY_PY_UZLIB                    (1)

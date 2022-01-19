@@ -203,7 +203,7 @@ foreach(comp ${AOS_SDK_COMPONENTS})
     micropy_gather_target_properties(${comp})
 endforeach()
 
-target_include_directories(${MICROPY_TARGET} PRIVATE 
+target_include_directories(${MICROPY_TARGET} PRIVATE
     ${AOS_COMPONENTS_DIR}/mbedtls/include
     ${AOS_COMPONENTS_DIR}/mbedtls/platform/include
     ${AOS_COMPONENTS_DIR}/mbedtls/platform/aos/include
@@ -212,17 +212,33 @@ target_include_directories(${MICROPY_TARGET} PRIVATE
     ${AOS_COMPONENTS_DIR}/fatfs/include
     ${AOS_COMPONENTS_DIR}/drivers/peripheral/uart/include
     ${AOS_COMPONENTS_DIR}/drivers/peripheral/gpio/include
+    ${AOS_COMPONENTS_DIR}/drivers/peripheral/flash/include
     ${AOS_COMPONENTS_DIR}/drivers/core/base/include
     ${AOS_COMPONENTS_DIR}/osal_aos/include/
-    ${AOS_HARDWARE_DIR}/chip/haas1000/aos/arch/
-    ${AOS_HARDWARE_DIR}/chip/haas1000/aos
-    ${AOS_HARDWARE_DIR}/chip/haas1000/drivers/rtos/rhino
-    ${AOS_HARDWARE_DIR}/chip/haas1000/drivers/rtos/rhino/include
+    ${AOS_COMPONENTS_DIR}/vfs/include/
     ${AOS_KERNEL_DIR}/rhino/include
-    ${AOS_HARDWARE_DIR}/chip/haas1000/drivers/platform/hal
-    ${AOS_HARDWARE_DIR}/arch/armv7m/include
-    ${AOS_HARDWARE_DIR}/chip/haas1000
+    ${AOS_HARDWARE_DIR}/arch/armv8m/include
 )
+
+if(MICROPY_BOARD STREQUAL "HaaSEDUk1")
+    target_include_directories(${MICROPY_TARGET} PRIVATE
+        ${AOS_HARDWARE_DIR}/chip/haas1000/drivers/platform/hal
+        ${AOS_HARDWARE_DIR}/chip/haas1000
+        ${AOS_HARDWARE_DIR}/chip/haas1000/aos/arch
+        ${AOS_HARDWARE_DIR}/chip/haas1000/aos
+        ${AOS_HARDWARE_DIR}/chip/haas1000/drivers/rtos/rhino
+        ${AOS_HARDWARE_DIR}/chip/haas1000/drivers/rtos/rhino/include
+        ${AOS_HARDWARE_DIR}/board/haaseduk1/config
+    )
+elseif(MICROPY_BOARD STREQUAL "HaaS200")
+    target_include_directories(${MICROPY_TARGET} PRIVATE
+        ${AOS_HARDWARE_DIR}/chip/rtl872xd
+        ${AOS_HARDWARE_DIR}/board/haas200/config
+        ${AOS_HARDWARE_DIR}/chip/rtl872xd/arch
+    )
+endif()
+
+add_definitions("-DRHINO_CONFIG_MM_TLF_BLK_SIZE=0x800")
 
 # Include the main MicroPython cmake rules.
 include(${MICROPY_DIR}/py/mkrules.cmake)

@@ -53,7 +53,7 @@
 #define MICROPY_USE_INTERNAL_ERRNO             (1)
 #define MICROPY_USE_INTERNAL_PRINTF            (0)  // HaaS use its own printf
 #define MICROPY_ENABLE_SCHEDULER               (1)
-#define MICROPY_SCHEDULER_DEPTH                (8)
+#define MICROPY_SCHEDULER_DEPTH                (8 * 2)
 #define MICROPY_VFS                            (1)
 #define MICROPY_VFS_POSIX                      (1)
 #define MICROPY_VFS_POSIX_FILE                 (1)

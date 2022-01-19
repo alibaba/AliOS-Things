@@ -33,9 +33,9 @@ int compareFace(char *urlA, char *urlB, AIModelCBFunc cb)
     request.setImageURLB(tmpImageURLB);
 
     auto outcome =  client.compareFace(request);
-    cout << endl << "facebody describeInstances returned:" << endl;
-    cout << "error code: " << outcome.error().errorCode() << endl;
-    cout << "requestId: " << outcome.result().requestId() << endl << endl;
+    // cout << endl << "facebody describeInstances returned:" << endl;
+    // cout << "error code: " << outcome.error().errorCode() << endl;
+    // cout << "requestId: " << outcome.result().requestId() << endl << endl;
 
     // cout << "confidence:" << outcome.result().getData().confidence << endl;
     // cout << "x:" << outcome.result().getData().rectAList[0] << endl;
@@ -50,6 +50,8 @@ int compareFace(char *urlA, char *urlB, AIModelCBFunc cb)
         result.face.location.w = outcome.result().getData().rectAList[2];
         result.face.location.h = outcome.result().getData().rectAList[3];
         ret = cb((void *)&result);
+    } else {
+        cout << "error code: " << outcome.error().errorCode() << endl;
     }
     ShutdownSdk();
     return ret;
@@ -167,10 +169,10 @@ int detectPedestrian(char *url, AIModelCBFunc cb)
     request.setMethod(HttpRequest::Method::Post);
     request.setImageURL(tmpImageURL);
     auto outcome = client.detectPedestrian(request);
-    cout << endl << "facebody describeInstances returned:" << endl;
-    cout << "error code: " << outcome.error().errorCode() << endl;
-    cout << "requestId: " << outcome.result().requestId() << endl << endl;
-    cout << "results size: " << outcome.result().getData().elements.size() << endl;
+    // cout << endl << "facebody describeInstances returned:" << endl;
+    // cout << "error code: " << outcome.error().errorCode() << endl;
+    // cout << "requestId: " << outcome.result().requestId() << endl << endl;
+    // cout << "results size: " << outcome.result().getData().elements.size() << endl;
 
     for (i = 0; i < outcome.result().getData().elements.size(); i++) {
         // cout << i << "height: " << outcome.result().getData().height << endl;

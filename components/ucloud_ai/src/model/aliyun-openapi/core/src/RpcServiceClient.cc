@@ -21,6 +21,7 @@
 #include <alibabacloud/core/Utils.h>
 #include <iomanip>
 #include <sstream>
+#include <cstring>
 
 #ifdef __cplusplus
 extern "C" {

@@ -195,6 +195,8 @@ elif [ $TARGET_PLATFORM = "ESP32" ]; then
     # 4: copy generated static libs to solutions
     cd build-${TARGET_BOARD}
 
+    mkdir -p ${solution_dir}/esp_sdk/lib
+    mkdir -p ${solution_dir}/esp_sdk/include
     find esp-idf \( -name "*.a" -o  -name "*.ld" \) -exec cp '{}' ${solution_dir}/esp_sdk/lib/ \;
     cp ./esp-idf/mbedtls/mbedtls/library/libmbedtls.a ${solution_dir}/esp_sdk/lib/
     cp -f sdkconfig ${solution_dir}
