@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if MICROPY_PY_UCLOUD_AI
+
 #include "py/builtin.h"
 #include "py/mperrno.h"
 #include "py/obj.h"
@@ -13,7 +15,6 @@
 
 #define LOG_TAG "MOD_UCLOUD_AI"
 
-#if MICROPY_PY_UCLOUD_AI
 extern const mp_obj_type_t chatbot_type;
 
 STATIC mp_obj_t obj_get_token_id(size_t n_args, const mp_obj_t *args)

@@ -1,8 +1,10 @@
 
 #include "base/modules/ml/include/HaasMLCloud.h"
-#include "ulog/ulog.h"
-#include "base/modules/core/include/HaasErrno.h"
+
 #include <string>
+
+#include "base/modules/core/include/HaasErrno.h"
+#include "ulog/ulog.h"
 using namespace std;
 
 #define LOG_TAG "HAAS_ML_CLOUD"
@@ -12,17 +14,14 @@ static int g_index = 0;
 HaasMLCloud::HaasMLCloud()
 {
     LOGD(LOG_TAG, "entern\n");
-	int32_t ret;
 }
 
 HaasMLCloud::~HaasMLCloud()
 {
     LOGD(LOG_TAG, "entern\n");
-    int32_t ret;
 }
 
-int HaasMLCloud::Config(char *key, char *secret, char *endpoint,
-        char *bucket)
+int HaasMLCloud::Config(char *key, char *secret, char *endpoint, char *bucket)
 {
     LOGD(LOG_TAG, "entern\n");
     LOGD(LOG_TAG, "key = %s;\n", key);
@@ -40,7 +39,7 @@ int HaasMLCloud::Config(char *key, char *secret, char *endpoint,
 int HaasMLCloud::SetInputData(const char *dataPath, const char *compareDataPath)
 {
     LOGD(LOG_TAG, "entern dataPath = %s, compareDataPath: %s;\n", dataPath, compareDataPath);
-    mDataPath = dataPath;
+    mDataPath = const_cast<char *>(dataPath);
 
     if (compareDataPath)
         mFacePath = compareDataPath;
@@ -48,10 +47,10 @@ int HaasMLCloud::SetInputData(const char *dataPath, const char *compareDataPath)
     return STATUS_OK;
 }
 
-int HaasMLCloud::LoadNet(const char* modePath)
+int HaasMLCloud::LoadNet(const char *modePath)
 {
     LOGD(LOG_TAG, "entern modePath = %s;\n", modePath);
-    mAiMode = modePath;
+    mAiMode = const_cast<char *>(modePath);
     return STATUS_OK;
 }
 
@@ -66,70 +65,79 @@ int HaasMLCloud::Predict()
     memset(g_result, 0, sizeof(ucloud_ai_result_t) * 16);
 
     ret = mode.compare("ObjectDet");
-    if (ret == 0)
-    {
+    if (ret == 0) {
         LOGD(LOG_TAG, "Get ObjectDet Mode");
         ret = PredictObjectDet();
         goto end;
     }
 
     ret = mode.compare("FacebodyComparing");
-    if (ret == 0)
-    {
+    if (ret == 0) {
         LOGD(LOG_TAG, "Get FacebodyComparing Mode");
         ret = PredictFacebodyComparing();
         goto end;
     }
 
     ret = mode.compare("AnimeStyle");
-    if (ret == 0)
-    {
+    if (ret == 0) {
         LOGD(LOG_TAG, "Get AnimeStyle Mode");
         ret = PredictAnimeStyle();
         goto end;
     }
 
     ret = mode.compare("RecognizeExpression");
-    if (ret == 0)
-    {
+    if (ret == 0) {
         LOGD(LOG_TAG, "Get RecognizeExpression Mode");
         ret = PredictRecognizeExpression();
         goto end;
     }
 
     ret = mode.compare("RecognizeCharacter");
-    if (ret == 0)
-    {
+    if (ret == 0) {
         LOGD(LOG_TAG, "Get RecognizeCharacter Mode");
         ret = PredictRecognizeCharacter();
         goto end;
     }
 
     ret = mode.compare("DetectFruits");
-    if (ret == 0)
-    {
+    if (ret == 0) {
         LOGD(LOG_TAG, "Get DetectFruits Mode");
         for (int i = 0; i < g_index; i++)
-        if (g_result[i].imagerecog.fruits.name != NULL)
-        {
-            free(g_result[i].imagerecog.fruits.name);
-            g_result[i].imagerecog.fruits.name = NULL;
-        }
+            if (g_result[i].imagerecog.fruits.name != NULL) {
+                free(g_result[i].imagerecog.fruits.name);
+                g_result[i].imagerecog.fruits.name = NULL;
+            }
         ret = PredictDetectFruits();
         goto end;
     }
 
     ret = mode.compare("DetectPedestrian");
-    if (ret == 0)
-    {
+    if (ret == 0) {
         LOGD(LOG_TAG, "Get DetectPedestrian Mode");
         for (int i = 0; i < g_index; i++)
-        if (g_result[i].facebody.pedestrian.type != NULL)
-        {
-            free(g_result[i].facebody.pedestrian.type);
-            g_result[i].facebody.pedestrian.type = NULL;
-        }
+            if (g_result[i].facebody.pedestrian.type != NULL) {
+                free(g_result[i].facebody.pedestrian.type);
+                g_result[i].facebody.pedestrian.type = NULL;
+            }
         ret = PredictDetectPedestrian();
+        goto end;
+    }
+
+    ret = mode.compare("RecognizeLicensePlate");
+    if (ret == 0) {
+        LOGD(LOG_TAG, "Get RecognizeLicensePlate Mode");
+        for (int i = 0; i < g_index; i++) {
+            if (g_result[i].ocr.licensePlate.plateNumber != NULL) {
+                free(const_cast<char *>(g_result[i].ocr.licensePlate.plateNumber));
+                g_result[i].ocr.licensePlate.plateNumber = NULL;
+            }
+
+            if (g_result[i].ocr.licensePlate.plateType != NULL) {
+                free(const_cast<char *>(g_result[i].ocr.licensePlate.plateType));
+                g_result[i].ocr.licensePlate.plateType = NULL;
+            }
+        }
+        ret = PredictRecognizeLicensePlate();
         goto end;
     }
 
@@ -139,10 +147,8 @@ end:
     return ret;
 }
 
-int HaasMLCloud::GetPredictResponses(char* outResult, int len)
+int HaasMLCloud::GetPredictResponses(char *outResult, int len)
 {
-    int ret = 0, i = 0;
-
     LOGD(LOG_TAG, "entern\n");
     if (g_index > 0)
         memcpy(outResult, &g_result[0], sizeof(ucloud_ai_result_t) * g_index);
@@ -157,25 +163,37 @@ int HaasMLCloud::UnLoadNet()
     std::string mode(mAiMode);
 
     ret = mode.compare("DetectFruits");
-    if (ret == 0)
-    {
+    if (ret == 0) {
         for (int i = 0; i < g_index; i++)
-        if (g_result[i].imagerecog.fruits.name != NULL)
-        {
-            free(g_result[i].imagerecog.fruits.name);
-            g_result[i].imagerecog.fruits.name = NULL;
-        }
+            if (g_result[i].imagerecog.fruits.name != NULL) {
+                free(g_result[i].imagerecog.fruits.name);
+                g_result[i].imagerecog.fruits.name = NULL;
+            }
         goto end;
     }
 
     ret = mode.compare("DetectPedestrian");
-    if (ret == 0)
-    {
+    if (ret == 0) {
         for (int i = 0; i < g_index; i++)
-        if (g_result[i].facebody.pedestrian.type != NULL)
-        {
-            free(g_result[i].facebody.pedestrian.type);
-            g_result[i].facebody.pedestrian.type = NULL;
+            if (g_result[i].facebody.pedestrian.type != NULL) {
+                free(g_result[i].facebody.pedestrian.type);
+                g_result[i].facebody.pedestrian.type = NULL;
+            }
+        goto end;
+    }
+
+    ret = mode.compare("RecognizeLicensePlate");
+    if (ret == 0) {
+        for (int i = 0; i < g_index; i++) {
+            if (g_result[i].ocr.licensePlate.plateNumber != NULL) {
+                free(const_cast<char *>(g_result[i].ocr.licensePlate.plateNumber));
+                g_result[i].ocr.licensePlate.plateNumber = NULL;
+            }
+
+            if (g_result[i].ocr.licensePlate.plateType != NULL) {
+                free(const_cast<char *>(g_result[i].ocr.licensePlate.plateType));
+                g_result[i].ocr.licensePlate.plateType = NULL;
+            }
         }
         goto end;
     }
@@ -190,13 +208,14 @@ int HaasMLCloud::PredictObjectDet()
     return STATUS_OK;
 }
 
-int HaasMLCloud::ObjectDetectCallback(ucloud_ai_result_t *result)
+int HaasMLCloud::ObjectDetectCallback(void *result_in)
 {
-    int len = 0;
     char *p_type = NULL;
     int x, y, w, h;
     char *type = NULL;
     float score;
+
+    ucloud_ai_result_t *result = (ucloud_ai_result_t *)result_in;
 
     LOGD(LOG_TAG, "entern ObjectDetectCallback:\n");
     if (!result)
@@ -230,14 +249,15 @@ int HaasMLCloud::ObjectDetectCallback(ucloud_ai_result_t *result)
 int HaasMLCloud::PredictFacebodyComparing()
 {
     LOGD(LOG_TAG, "entern\n");
-    ucloud_ai_facebody_comparing_face(mDataPath, mFacePath.c_str(), FacebodyComparingCallback);
+    ucloud_ai_facebody_comparing_face(mDataPath, (char *)mFacePath.c_str(), FacebodyComparingCallback);
     return STATUS_OK;
 }
 
-int HaasMLCloud::FacebodyComparingCallback(ucloud_ai_result_t *result)
+int HaasMLCloud::FacebodyComparingCallback(void *result_in)
 {
     LOGD(LOG_TAG, "entern\n");
 
+    ucloud_ai_result_t *result = (ucloud_ai_result_t *)result_in;
     if (!result)
         return STATUS_ERROR;
 
@@ -256,12 +276,12 @@ int HaasMLCloud::FacebodyComparingCallback(ucloud_ai_result_t *result)
     return STATUS_OK;
 }
 
-int HaasMLCloud::AnimeStyleCallback(ucloud_ai_result_t *result)
+int HaasMLCloud::AnimeStyleCallback(void *result_in)
 {
     LOGD(LOG_TAG, "entern\n");
-    int ret;
     char *url = NULL;
 
+    ucloud_ai_result_t *result = (ucloud_ai_result_t *)result_in;
     if (!result)
         return -1;
 
@@ -285,14 +305,13 @@ int HaasMLCloud::PredictRecognizeExpression()
     return STATUS_OK;
 }
 
-int HaasMLCloud::RecognizeExpressionCallback(ucloud_ai_result_t *result)
+int HaasMLCloud::RecognizeExpressionCallback(void *result_in)
 {
-
     LOGD(LOG_TAG, "entern\n");
-    int len;
     char *expression, *p_expression;
     float face_probability;
 
+    ucloud_ai_result_t *result = (ucloud_ai_result_t *)result_in;
     if (!result)
         return -1;
 
@@ -315,10 +334,11 @@ int HaasMLCloud::RecognizeExpressionCallback(ucloud_ai_result_t *result)
     return STATUS_OK;
 }
 
-int HaasMLCloud::DetectPedestrianCallback(ucloud_ai_result_t *result)
+int HaasMLCloud::DetectPedestrianCallback(void *result_in)
 {
     LOGD(LOG_TAG, "entern\n");
 
+    ucloud_ai_result_t *result = (ucloud_ai_result_t *)result_in;
     if (!result)
         return STATUS_ERROR;
 
@@ -343,10 +363,11 @@ int HaasMLCloud::PredictDetectPedestrian()
     return STATUS_OK;
 }
 
-int HaasMLCloud::DetectFruitsCallback(ucloud_ai_result_t *result)
+int HaasMLCloud::DetectFruitsCallback(void *result_in)
 {
     LOGD(LOG_TAG, "entern\n");
 
+    ucloud_ai_result_t *result = (ucloud_ai_result_t *)result_in;
     if (!result)
         return STATUS_ERROR;
 
@@ -371,15 +392,46 @@ int HaasMLCloud::PredictDetectFruits()
     return STATUS_OK;
 }
 
-int HaasMLCloud::RecognizeCharacterCallback(ucloud_ai_result_t *result)
+int HaasMLCloud::RecognizeLicensePlateCallback(void *result_in)
 {
+    LOGD(LOG_TAG, "entern\n");
 
+    ucloud_ai_result_t *result = (ucloud_ai_result_t *)result_in;
+    if (!result)
+        return STATUS_ERROR;
+
+    LOGD(LOG_TAG, "Detect Fruits result:\n");
+    if (g_index >= 16)
+        return STATUS_ERROR;
+    g_result[g_index].ocr.licensePlate.plateNumber = strdup(result->ocr.licensePlate.plateNumber);
+    g_result[g_index].ocr.licensePlate.plateType = strdup(result->ocr.licensePlate.plateType);
+    g_result[g_index].ocr.licensePlate.confidence = result->ocr.licensePlate.confidence;
+    g_result[g_index].ocr.licensePlate.plateTypeConfidence = result->ocr.licensePlate.plateTypeConfidence;
+    g_result[g_index].ocr.licensePlate.roi.x = result->ocr.licensePlate.roi.x;
+    g_result[g_index].ocr.licensePlate.roi.y = result->ocr.licensePlate.roi.y;
+    g_result[g_index].ocr.licensePlate.roi.w = result->ocr.licensePlate.roi.w;
+    g_result[g_index].ocr.licensePlate.roi.h = result->ocr.licensePlate.roi.h;
+    g_index++;
+
+    return STATUS_OK;
+}
+
+int HaasMLCloud::PredictRecognizeLicensePlate()
+{
+    LOGD(LOG_TAG, "entern\n");
+    ucloud_ai_ocr_recognize_license_plate(mDataPath, RecognizeLicensePlateCallback);
+    return STATUS_OK;
+}
+
+int HaasMLCloud::RecognizeCharacterCallback(void *result_in)
+{
     LOGD(LOG_TAG, "entern\n");
     float probability;
     char *text = NULL;
     int left, top;
     int width, height;
 
+    ucloud_ai_result_t *result = (ucloud_ai_result_t *)result_in;
     if (!result)
         return -1;
 

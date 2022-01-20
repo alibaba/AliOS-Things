@@ -70,7 +70,7 @@ build_config:
         -D_GLIBCXX_HAS_GTHREADS -march=armv8-m.main+dsp -mthumb -mcmse  -mfloat-abi=softfp -mfpu=fpv5-sp-d16 -mlittle-endian
         -std=c++11 -std=gnu++11 -D__FPU_PRESENT -DCONFIG_PLATFORM_8721D -DCONFIG_USE_MBEDTLS_ROM_ALG -DCONFIG_FUNCION_O0_OPTIMIZE
         -DDM_ODM_SUPPORT_TYPE=32 -DUPPER_STACK_USE_NORMAL_HCI -DAMEBAD_BOARD -DLE_4_2 -DCONFIG_ARM -DWITH_LWIP -DBT_RTL
-        -ffunction-sections -fdata-sections -fomit-frame-pointer
+        -ffunction-sections -fdata-sections -fomit-frame-pointer -fpermissive
 
   ldflag: >
           -march=armv8-m.main+dsp -mthumb -mcmse -mfloat-abi=softfp -mfpu=fpv5-sp-d16

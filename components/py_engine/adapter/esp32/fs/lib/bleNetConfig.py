@@ -115,5 +115,11 @@ def stop():
 def getWLAN():
     return _wlan
 
-def status():
+def getBleStatus():
     return _bleNetConfigStatus
+
+def getWiFiStatus():
+    return _wlan.status()
+
+def getWiFiConfig():
+    return _wlan.ifconfig()

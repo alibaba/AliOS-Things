@@ -1,0 +1,5 @@
+srctype = cpython
+type = module
+version = 0.9.3
+# Module uses in *some* functions, but we don't want to depend on it
+#depends = itertools

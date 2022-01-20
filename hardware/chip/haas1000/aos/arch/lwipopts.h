@@ -22,7 +22,6 @@
 
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
-#include "cmsis_os.h"
 
 #define LWIP_NOASSERT			1
 

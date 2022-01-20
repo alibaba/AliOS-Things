@@ -1,9 +1,10 @@
 #include "mphalport.h"
 
-#include <k_api.h>
+#include <inttypes.h>
 #include <unistd.h>
 
 #include "aos/hal/uart.h"
+#include "k_default_config.h"
 #include "mpsalport.h"
 #include "py/mpconfig.h"
 #include "py/mphal.h"
@@ -15,8 +16,7 @@
 #include "py/stream.h"
 
 STATIC uint8_t stdin_ringbuf_array[260];
-ringbuf_t stdin_ringbuf = { stdin_ringbuf_array, sizeof(stdin_ringbuf_array), 0,
-                            0 };
+ringbuf_t stdin_ringbuf = { stdin_ringbuf_array, sizeof(stdin_ringbuf_array), 0, 0 };
 
 static uart_dev_t uart_stdio = { 0 };
 
@@ -27,8 +27,7 @@ static uart_dev_t uart_stdio = { 0 };
 uintptr_t mp_hal_stdio_poll(uintptr_t poll_flags)
 {
     uintptr_t ret = 0;
-    if ((poll_flags & MP_STREAM_POLL_RD) &&
-        stdin_ringbuf.iget != stdin_ringbuf.iput) {
+    if ((poll_flags & MP_STREAM_POLL_RD) && stdin_ringbuf.iget != stdin_ringbuf.iput) {
         ret |= MP_STREAM_POLL_RD;
     }
     return ret;
@@ -146,7 +145,7 @@ mp_uint_t mp_hal_ticks_cpu(void)
 
 void mp_hal_delay_us(mp_uint_t us)
 {
-    tick_t t0 = krhino_sys_tick_get(), t1, dt;
+    uint64_t t0 = krhino_sys_tick_get(), t1, dt;
     uint64_t dtick = us * RHINO_CONFIG_TICKS_PER_SECOND / 1000000L;
     while (1) {
         t1 = krhino_sys_tick_get();
@@ -160,16 +159,16 @@ void mp_hal_delay_us(mp_uint_t us)
 
 void mp_hal_delay_ms(mp_uint_t ms)
 {
-    tick_t t0 = krhino_sys_tick_get(), t1, dt;
+    uint64_t t0 = aos_now_ms(), t1, dt;
     uint64_t dtick = ms * RHINO_CONFIG_TICKS_PER_SECOND / 1000L;
     while (1) {
-        t1 = krhino_sys_tick_get();
+        t1 = aos_now_ms();
         dt = t1 - t0;
         if (dt >= dtick) {
             break;
         }
-        MICROPY_EVENT_POLL_HOOK;
-        krhino_task_sleep(1);
+        MICROPY_EVENT_POLL_HOOK
+        aos_msleep(1);
     }
 }
 
@@ -195,8 +194,7 @@ mp_int_t mp_hal_pin_config_set(mp_hal_pin_obj_t pin_obj, gpio_config_t cfg)
 
     mp_int_t ret = aos_hal_gpio_init(&dev);
     if (0 != ret) {
-        nlr_raise(
-            mp_obj_new_exception_msg(&mp_type_OSError, "pin index out range"));
+        nlr_raise(mp_obj_new_exception_msg(&mp_type_OSError, "pin index out range"));
         return ret;
     }
 
@@ -207,8 +205,7 @@ mp_int_t mp_hal_pin_config_set(mp_hal_pin_obj_t pin_obj, gpio_config_t cfg)
 gpio_config_t mp_hal_pin_config_get(mp_hal_pin_obj_t pin_obj)
 {
     if (pin_obj < 0 || pin_obj > PY_GPIO_NUM_MAX) {
-        nlr_raise(
-            mp_obj_new_exception_msg(&mp_type_OSError, "pin index out range"));
+        nlr_raise(mp_obj_new_exception_msg(&mp_type_OSError, "pin index out range"));
         return 0;
     }
     return mphal_gpio_config_obj_t[pin_obj];
@@ -222,8 +219,7 @@ mp_int_t mp_hal_pin_high(mp_hal_pin_obj_t pin_obj)
 
     mp_int_t ret = aos_hal_gpio_output_high(&dev);
     if (0 != ret) {
-        nlr_raise(
-            mp_obj_new_exception_msg(&mp_type_OSError, "mp_hal_pin_high fail"));
+        nlr_raise(mp_obj_new_exception_msg(&mp_type_OSError, "mp_hal_pin_high fail"));
     }
     return ret;
 }
@@ -236,8 +232,7 @@ mp_int_t mp_hal_pin_low(mp_hal_pin_obj_t pin_obj)
 
     mp_int_t ret = aos_hal_gpio_output_low(&dev);
     if (0 != ret) {
-        nlr_raise(
-            mp_obj_new_exception_msg(&mp_type_OSError, "mp_hal_pin_low fail"));
+        nlr_raise(mp_obj_new_exception_msg(&mp_type_OSError, "mp_hal_pin_low fail"));
     }
     return ret;
 }
@@ -251,8 +246,7 @@ mp_int_t mp_hal_pin_read(mp_hal_pin_obj_t pin_obj)
     mp_int_t value = -1;
     mp_int_t ret = aos_hal_gpio_input_get(&dev, &value);
     if (ret < 0) {
-        nlr_raise(
-            mp_obj_new_exception_msg(&mp_type_OSError, "mp_hal_pin_read fail"));
+        nlr_raise(mp_obj_new_exception_msg(&mp_type_OSError, "mp_hal_pin_read fail"));
         return ret;
     }
     return value;

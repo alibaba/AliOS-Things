@@ -77,21 +77,21 @@ int detectFruits(char *url, AIModelCBFunc cb)
     request.setImageURL(imageURL);
 
     auto outcome = client.detectFruits(request);
-    cout << endl << "imageseg describeInstances returned:" << endl;
-    cout << "error code: " << outcome.error().errorCode() << endl;
-    cout << "requestId: " << outcome.result().requestId() << endl << endl;
+    // cout << endl << "imageseg describeInstances returned:" << endl;
+    // cout << "error code: " << outcome.error().errorCode() << endl;
+    // cout << "requestId: " << outcome.result().requestId() << endl << endl;
 
     for (i = 0; i < outcome.result().getData().elements.size(); i++) {
-        cout << i << "score: " << outcome.result().getData().elements[i].score << endl;
-        cout << i << "name: " << outcome.result().getData().elements[i].name << endl;
+        // cout << i << "score: " << outcome.result().getData().elements[i].score << endl;
+        // cout << i << "name: " << outcome.result().getData().elements[i].name << endl;
         result.fruits.score = outcome.result().getData().elements[i].score;
         name = outcome.result().getData().elements[i].name;
         result.fruits.name = (char *)name.c_str();
 
-        cout << "box.xmin: " << outcome.result().getData().elements[i].box[0] << endl;
-        cout << "box.ymin: " << outcome.result().getData().elements[i].box[1] << endl;
-        cout << "box.xmax: " << outcome.result().getData().elements[i].box[2] << endl;
-        cout << "box.ymax: " << outcome.result().getData().elements[i].box[3] << endl;
+        // cout << "box.xmin: " << outcome.result().getData().elements[i].box[0] << endl;
+        // cout << "box.ymin: " << outcome.result().getData().elements[i].box[1] << endl;
+        // cout << "box.xmax: " << outcome.result().getData().elements[i].box[2] << endl;
+        // cout << "box.ymax: " << outcome.result().getData().elements[i].box[3] << endl;
         result.fruits.box.x = atoi(outcome.result().getData().elements[i].box[0].c_str());
         result.fruits.box.y = atoi(outcome.result().getData().elements[i].box[1].c_str());
         result.fruits.box.w = atoi(outcome.result().getData().elements[i].box[2].c_str()) - result.fruits.box.x;

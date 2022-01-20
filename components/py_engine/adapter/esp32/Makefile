@@ -29,7 +29,7 @@ IDFPY_FLAGS += -D MICROPY_BOARD=$(BOARD) -B $(BUILD) $(CMAKE_ARGS)
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 current_dir := $(abspath $(patsubst %/,%,$(dir $(mkfile_path))))
 
-#FROZEN_MANIFEST ?= ${current_dir}/boards/manifest_release.py
+FROZEN_MANIFEST ?= ${current_dir}/boards/manifest_release.py
 
 ifdef FROZEN_MANIFEST
        IDFPY_FLAGS += -D MICROPY_FROZEN_MANIFEST=$(FROZEN_MANIFEST)

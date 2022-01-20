@@ -24,12 +24,12 @@
           "linux-amd64": {
             "sha256": "674080a12f9c5ebe5a3a5ce51c6deaeffe6dfb06d6416233df86f25b574e9279",
             "size": 85731226,
-            "url": "https://dl.espressif.com/dl/xtensa-esp32-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz"
+            "url": "https://hli.aliyuncs.com/o/config/esp32_toolchain/xtensa-esp32-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz"
           },
           "linux-armel": {
             "sha256": "6771e011dffa2438ef84ff3474538b4a69df8f9d4cfae3b3707ca31c782ed7db",
             "size": 83888892,
-            "url": "https://dl.espressif.com/dl/xtensa-esp32-elf-gcc8_4_0-esp-2020r3-linux-armel.tar.gz"
+            "url": "https://hli.aliyuncs.com/o/config/esp32_toolchain/xtensa-esp32-elf-gcc8_4_0-esp-2020r3-linux-armel.tar.gz"
           },
           "linux-i686": {
             "sha256": "076b7e05304e26aa6ec105c9e0dc74addca079bc2cae6e42ee7575c5ded29877",
@@ -39,7 +39,7 @@
           "macos": {
             "sha256": "6845f786303b26c4a55ede57487ba65bd25737232fe6104be03f25bb62f4631c",
             "size": 92424226,
-            "url": "https://dl.espressif.com/dl/xtensa-esp32-elf-gcc8_4_0-esp-2020r3-macos.tar.gz"
+            "url": "https://hli.aliyuncs.com/o/config/esp32_toolchain/xtensa-esp32-elf-gcc8_4_0-esp-2020r3-macos.tar.gz"
           },
           "name": "esp-2020r3-8.4.0",
           "status": "recommended",
@@ -80,7 +80,7 @@
           "linux-amd64": {
             "sha256": "40fafa47045167feda0cd07827db5207ebfeb4a3b6b24475957a921bc92805ed",
             "size": 86069526,
-            "url": "https://dl.espressif.com/dl/xtensa-esp32s2-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz"
+            "url": "https://hli.aliyuncs.com/o/config/esp32_toolchain/xtensa-esp32s2-elf-gcc8_4_0-esp-2020r3-linux-amd64.tar.gz"
           },
           "linux-armel": {
             "sha256": "6c1efec4c7829202279388ccb388e8a17a34464bc351d677c4f04d95ea4b4ce0",
@@ -95,7 +95,7 @@
           "macos": {
             "sha256": "fe19b0c873879d8d89ec040f4db04a3ab27d769d3fd5f55fe59a28b6b111d09c",
             "size": 92817351,
-            "url": "https://dl.espressif.com/dl/xtensa-esp32s2-elf-gcc8_4_0-esp-2020r3-macos.tar.gz"
+            "url": "https://hli.aliyuncs.com/o/config/esp32_toolchain/xtensa-esp32s2-elf-gcc8_4_0-esp-2020r3-macos.tar.gz"
           },
           "name": "esp-2020r3-8.4.0",
           "status": "recommended",
@@ -143,7 +143,7 @@
           "linux-amd64": {
             "sha256": "3016c4fc551181175bd9979869bc1d1f28fa8efa25a0e29ad7f833fca4bc03d7",
             "size": 8248656,
-            "url": "https://github.com/espressif/binutils-esp32ulp/releases/download/v2.28.51-esp-20191205/binutils-esp32ulp-linux-amd64-2.28.51-esp-20191205.tar.gz"
+            "url": "https://hli.aliyuncs.com/o/config/esp32_toolchain/binutils-esp32ulp-linux-amd64-2.28.51-esp-20191205.tar.gz"
           },
           "linux-armel": {
             "sha256": "88967c086a6e71834282d9ae05841ee74dae1815f27807b25cdd3f7775a47101",
@@ -153,7 +153,7 @@
           "macos": {
             "sha256": "a35d9e7a0445247c7fc9dccd3fbc35682f0fafc28beeb10c94b59466317190c4",
             "size": 8872874,
-            "url": "https://github.com/espressif/binutils-esp32ulp/releases/download/v2.28.51-esp-20191205/binutils-esp32ulp-macos-2.28.51-esp-20191205.tar.gz"
+            "url": "https://hli.aliyuncs.com/o/config/esp32_toolchain/binutils-esp32ulp-macos-2.28.51-esp-20191205.tar.gz"
           },
           "name": "2.28.51-esp-20191205",
           "status": "recommended",
@@ -201,7 +201,7 @@
           "linux-amd64": {
             "sha256": "df7b2ff6c7c718a7cbe3b4b6dbcd68180d835d164d1913bc4698fd3781b9a466",
             "size": 8254018,
-            "url": "https://github.com/espressif/binutils-esp32ulp/releases/download/v2.28.51-esp-20191205/binutils-esp32s2ulp-linux-amd64-2.28.51-esp-20191205.tar.gz"
+            "url": "https://hli.aliyuncs.com/o/config/esp32_toolchain/binutils-esp32s2ulp-linux-amd64-2.28.51-esp-20191205.tar.gz"
           },
           "linux-armel": {
             "sha256": "893b213c8f716d455a6efb2b08b6cf1bc34d08b78ee19c31e82ac44b1b45417e",
@@ -211,7 +211,7 @@
           "macos": {
             "sha256": "5a9bb678a5246638cbda303f523d9bb8121a9a24dc01ecb22c21c46c41184155",
             "size": 8876194,
-            "url": "https://github.com/espressif/binutils-esp32ulp/releases/download/v2.28.51-esp-20191205/binutils-esp32s2ulp-macos-2.28.51-esp-20191205.tar.gz"
+            "url": "https://hli.aliyuncs.com/o/config/esp32_toolchain/binutils-esp32s2ulp-macos-2.28.51-esp-20191205.tar.gz"
           },
           "name": "2.28.51-esp-20191205",
           "status": "recommended",
@@ -327,7 +327,7 @@
           "linux-amd64": {
             "sha256": "77a232510625c23489d9bf1b17bdadf56e95acf8f50ef8ebff51477f23c21ef0",
             "size": 1729401,
-            "url": "https://github.com/espressif/openocd-esp32/releases/download/v0.10.0-esp32-20200709/openocd-esp32-linux64-0.10.0-esp32-20200709.tar.gz"
+            "url": "https://hli.aliyuncs.com/o/config/esp32_toolchain/openocd-esp32-linux64-0.10.0-esp32-20200709.tar.gz"
           },
           "linux-armel": {
             "sha256": "b2cc6b7837f3cac23a752a8c43c6e0b19701ee0ec1eca4896833f0e82746062e",
@@ -337,7 +337,7 @@
           "macos": {
             "sha256": "97cf84dd3dfb129a7d4842599870a3b0dbb40b2713d3c5153738c44907e85d6e",
             "size": 1811755,
-            "url": "https://github.com/espressif/openocd-esp32/releases/download/v0.10.0-esp32-20200709/openocd-esp32-macos-0.10.0-esp32-20200709.tar.gz"
+            "url": "https://hli.aliyuncs.com/o/config/esp32_toolchain/openocd-esp32-macos-0.10.0-esp32-20200709.tar.gz"
           },
           "name": "v0.10.0-esp32-20200709",
           "status": "recommended",

@@ -2,19 +2,10 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include <aos/ble.h>
-#include <aos/errno.h>
-#include <aos/kernel.h>
-#include <atomic.h>
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/conn.h>
-#include <bluetooth/gatt.h>
-#include <bluetooth/uuid.h>
-#include <k_api.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <work.h>
+#include "ulog/ulog.h"
 
 #include "modble.h"
 

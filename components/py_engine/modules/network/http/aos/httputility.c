@@ -7,18 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "amp_platform.h"
 #include "amp_task.h"
-#include "aos_httpc.h"
-#include "aos_network.h"
-#include "aos_socket.h"
-#include "aos_system.h"
-#include "aos_tcp.h"
-#include "be_inl.h"
 #include "board_config.h"
 #include "httpclient.h"
 #include "py_defines.h"
-// #include "http.h"
 #include "amp_list.h"
 #include "cJSON.h"
 

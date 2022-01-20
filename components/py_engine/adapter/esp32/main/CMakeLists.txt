@@ -4,11 +4,18 @@ if(NOT MICROPY_DIR)
 endif()
 
 # Include core source components.
+include(${MICROPY_DIR}/../modules/portmod.cmake)
+include(${MICROPY_DIR}/../external/external.cmake)
+
+# Include port extmod component.
 include(${MICROPY_DIR}/py/py.cmake)
 
 if(NOT CMAKE_BUILD_EARLY_EXPANSION)
     include(${MICROPY_DIR}/py/usermod.cmake)
     include(${MICROPY_DIR}/extmod/extmod.cmake)
+    if(MICROPY_PY_LVGL)
+        include(${MICROPY_DIR}/lib/lv_bindings/mkrules.cmake)
+    endif()
 endif()
 
 set(MICROPY_QSTRDEFS_PORT
@@ -31,8 +38,6 @@ set(MICROPY_SOURCE_LIB
     ${MICROPY_DIR}/lib/littlefs/lfs2.c
     ${MICROPY_DIR}/lib/littlefs/lfs2_util.c
     ${MICROPY_DIR}/lib/mbedtls_errors/mp_mbedtls_errors.c
-    ${MICROPY_DIR}/lib/oofatfs/ff.c
-    ${MICROPY_DIR}/lib/oofatfs/ffunicode.c
 )
 if(IDF_TARGET STREQUAL "esp32c3")
     list(APPEND MICROPY_SOURCE_LIB ${MICROPY_DIR}/shared/runtime/gchelper_generic.c)
@@ -44,7 +49,6 @@ set(MICROPY_SOURCE_DRIVERS
 )
 
 set(MICROPY_SOURCE_PORT
-    ${PROJECT_DIR}/main.c
     ${PROJECT_DIR}/uart.c
     ${PROJECT_DIR}/usb.c
     ${PROJECT_DIR}/usb_serial_jtag.c
@@ -81,6 +85,7 @@ set(MICROPY_SOURCE_PORT
     ${PROJECT_DIR}/mpthreadport.c
     ${PROJECT_DIR}/machine_rtc.c
     ${PROJECT_DIR}/machine_sdcard.c
+    ${PROJECT_DIR}/utility.c
 )
 
 set(MICROPY_SOURCE_QSTR
@@ -90,6 +95,9 @@ set(MICROPY_SOURCE_QSTR
     ${MICROPY_SOURCE_SHARED}
     ${MICROPY_SOURCE_LIB}
     ${MICROPY_SOURCE_PORT}
+    ${MICROPY_SOURCE_MODULES_PORT}
+    ${MICROPY_SOURCE_EXTERNAL}
+    ${LV_SRC}
 )
 
 set(IDF_COMPONENTS
@@ -100,9 +108,12 @@ set(IDF_COMPONENTS
     esp_common
     esp_eth
     esp_event
+    esp_http_client
     esp_ringbuf
     esp_rom
+    esp-tls
     esp_wifi
+    fatfs
     freertos
     heap
     log
@@ -110,6 +121,7 @@ set(IDF_COMPONENTS
     mbedtls
     mdns
     newlib
+    nghttp
     nvs_flash
     sdmmc
     soc
@@ -117,9 +129,8 @@ set(IDF_COMPONENTS
     tcpip_adapter
     ulp
     vfs
-    xtensa
-    fatfs
     wear_levelling
+    xtensa
 )
 
 if(IDF_VERSION_MINOR GREATER_EQUAL 1)
@@ -159,12 +170,18 @@ idf_component_register(
         ${MICROPY_SOURCE_LIB}
         ${MICROPY_SOURCE_DRIVERS}
         ${MICROPY_SOURCE_PORT}
+        ${MICROPY_SOURCE_MODULES_PORT}
+        ${MICROPY_SOURCE_EXTERNAL}
+	    ${LV_SRC}
     INCLUDE_DIRS
         ${MICROPY_INC_CORE}
         ${MICROPY_INC_USERMOD}
         ${MICROPY_PORT_DIR}
         ${MICROPY_BOARD_DIR}
         ${CMAKE_BINARY_DIR}
+        ${MICROPY_INC_MODULES_PORT}
+        ${MICROPY_INC_EXTERNAL}
+	    ${LV_INCLUDE}
     REQUIRES
         ${IDF_COMPONENTS}
 )
@@ -177,29 +194,30 @@ set(MICROPY_CROSS_FLAGS -march=xtensawin)
 
 # Set compile options for this port.
 target_compile_definitions(${MICROPY_TARGET} PUBLIC
+    ${MICROPY_DEF_MODULES_PORT}
     ${MICROPY_DEF_CORE}
     MICROPY_ESP_IDF_4=1
-#    MICROPY_VFS_FAT=1
-#    MICROPY_VFS_LFS2=1
+    ESP_PLATFORM=1
     FFCONF_H=\"${MICROPY_OOFATFS_DIR}/ffconf.h\"
     LFS1_NO_MALLOC LFS1_NO_DEBUG LFS1_NO_WARN LFS1_NO_ERROR LFS1_NO_ASSERT
     LFS2_NO_MALLOC LFS2_NO_DEBUG LFS2_NO_WARN LFS2_NO_ERROR LFS2_NO_ASSERT
+    LV_KCONFIG_IGNORE
 )
 
 # Disable some warnings to keep the build output clean.
 target_compile_options(${MICROPY_TARGET} PUBLIC
     -Wno-clobbered
     -Wno-deprecated-declarations
+    -Wno-missing-field-initializers
     -Wno-implicit-function-declaration
     -Wno-unused-const-variable
     -Wno-format-truncation
-
+    -Wno-pointer-sign
 )
 
 # Add additional extmod and usermod components.
 target_link_libraries(${MICROPY_TARGET} micropy_extmod_btree)
 target_link_libraries(${MICROPY_TARGET} usermod)
-
 
 # Collect all of the include directories and compile definitions for the IDF components.
 foreach(comp ${IDF_COMPONENTS})
@@ -219,3 +237,8 @@ endif()
 
 # Include the main MicroPython cmake rules.
 include(${MICROPY_DIR}/py/mkrules.cmake)
+
+if(MICROPY_PY_LVGL)
+    # Add lv_bindings rules
+    all_lv_bindings()
+endif()

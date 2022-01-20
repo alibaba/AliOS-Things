@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <vfsdev/timer_dev.h>
 
 #include "aos_hal_timer.h"
 #include "py/builtin.h"

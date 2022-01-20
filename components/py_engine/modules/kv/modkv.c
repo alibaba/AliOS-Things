@@ -1,18 +1,19 @@
-#if (MICROPY_PY_KV)
 
-#include "aos/kv.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#if MICROPY_PY_KV
+
+#include "aos/kv.h"
 #include "py/builtin.h"
 #include "py/mperrno.h"
 #include "py/obj.h"
 #include "py/runtime.h"
 #include "ulog/ulog.h"
 
-#define LOG_TAG "DRIVER_KV"
+#define LOG_TAG           "KV"
 
 #define KV_BUFFER_MAX_LEN 256
 
@@ -107,9 +108,9 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(kv_obj_removeStorageSync, 1, obj_removeStorag
 
 STATIC const mp_rom_map_elem_t kv_module_globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_kv) },
-    { MP_ROM_QSTR(MP_QSTR_setStorageSync), MP_ROM_PTR(&kv_obj_setStorageSync) },
-    { MP_ROM_QSTR(MP_QSTR_getStorageSync), MP_ROM_PTR(&kv_obj_getStorageSync) },
-    { MP_ROM_QSTR(MP_QSTR_removeStorageSync), MP_ROM_PTR(&kv_obj_removeStorageSync) },
+    { MP_ROM_QSTR(MP_QSTR_set), MP_ROM_PTR(&kv_obj_setStorageSync) },
+    { MP_ROM_QSTR(MP_QSTR_get), MP_ROM_PTR(&kv_obj_getStorageSync) },
+    { MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&kv_obj_removeStorageSync) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(kv_module_globals, kv_module_globals_table);
@@ -118,4 +119,6 @@ const mp_obj_module_t mp_module_kv = {
     .globals = (mp_obj_dict_t *)&kv_module_globals,
 };
 
-#endif // MICROPY_PY_KV
+MP_REGISTER_MODULE(MP_QSTR_kv, mp_module_kv, MICROPY_PY_KV);
+
+#endif  // MICROPY_PY_KV

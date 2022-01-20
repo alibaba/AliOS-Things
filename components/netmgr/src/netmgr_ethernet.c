@@ -231,6 +231,7 @@ static int eth_disconnected(netmgr_conn_t *conn)
         }
         conn->netif = NULL;
     }
+    event_publish(EVENT_NETMGR_NET_DISCON, NULL);
     return 0;
 }
 

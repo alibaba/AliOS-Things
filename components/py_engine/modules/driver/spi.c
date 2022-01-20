@@ -144,8 +144,9 @@ STATIC mp_obj_t spi_read(size_t n_args, const mp_obj_t *args)
 
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
-
+    MP_THREAD_GIL_EXIT();
     ret = aos_hal_spi_recv(spi_device, bufinfo.buf, bufinfo.len, SPI_TIMEOUT);
+    MP_THREAD_GIL_ENTER();
     if (ret < 0) {
         LOGE(LOG_TAG, "%s: aos_hal_spi_recv failed;\n", __func__);
         return MP_OBJ_NEW_SMALL_INT(ret);
@@ -162,8 +163,9 @@ STATIC mp_obj_t spi_write(size_t n_args, const mp_obj_t *args)
 
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
-
+    MP_THREAD_GIL_EXIT();
     mp_int_t ret = aos_hal_spi_send(spi_device, bufinfo.buf, bufinfo.len, SPI_TIMEOUT);
+    MP_THREAD_GIL_ENTER();
     if (ret < 0) {
         LOGE(LOG_TAG, "%s: hal_spi_send failed;\n", __func__);
         return MP_OBJ_NEW_SMALL_INT(ret);
@@ -182,8 +184,9 @@ STATIC mp_obj_t spi_readAfterWrite(size_t n_args, const mp_obj_t *args)
 
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
     mp_uint_t tx_data = mp_obj_get_int(args[2]);
-
+    MP_THREAD_GIL_EXIT();
     mp_int_t ret = aos_hal_spi_send_recv(spi_device, &tx_data, bufinfo.buf, bufinfo.len, SPI_TIMEOUT);
+    MP_THREAD_GIL_ENTER();
     if (ret < 0) {
         LOGE(LOG_TAG, "aos_hal_spi_send_recv failed\n");
         return MP_OBJ_NEW_SMALL_INT(ret);
@@ -203,9 +206,10 @@ STATIC mp_obj_t spi_readAndWrite(size_t n_args, const mp_obj_t *args)
 
     mp_buffer_info_t write_bufinfo;
     mp_get_buffer_raise(args[2], &write_bufinfo, MP_BUFFER_READ);
-
+    MP_THREAD_GIL_EXIT();
     mp_int_t ret = aos_hal_spi_send_and_recv(spi_device, write_bufinfo.buf, write_bufinfo.len, read_bufinfo.buf,
                                              read_bufinfo.len, SPI_TIMEOUT);
+    MP_THREAD_GIL_ENTER();
     if (ret < 0) {
         LOGE(LOG_TAG, "%s: hal_spi_recv failed;\n", __func__);
         return MP_OBJ_NEW_SMALL_INT(ret);

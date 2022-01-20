@@ -35,6 +35,7 @@
 #include "extmod/machine_signal.h"
 #include "extmod/machine_spi.h"
 #include "extmod/vfs.h"
+#include "extmod/vfs_fat.h"
 #include "gccollect.h"
 #include "shared/runtime/pyexec.h"
 #include "py/gc.h"
@@ -42,16 +43,6 @@
 #include "py/mphal.h"
 #include "py/objstr.h"
 #include "py/runtime.h"
-// #include "irq.h"
-// #include "rng.h"
-// #include "pin.h"
-// #include "timer.h"
-// #include "usb.h"
-// #include "rtc.h"
-// #include "i2c.h"
-// #include "spi.h"
-// #include "uart.h"
-// #include "wdt.h"
 #include <aos/kernel.h>
 
 #if MICROPY_PY_MACHINE

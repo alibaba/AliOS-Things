@@ -1,0 +1,7 @@
+dist_name = ffilib
+srctype = micropython-lib
+type = module
+version = 0.1.3
+author = Damien George
+desc = MicroPython FFI helper module
+long_desc = MicroPython FFI helper module to easily interface with underlying shared libraries

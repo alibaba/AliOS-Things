@@ -2,13 +2,14 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
+#include "aos/kernel.h"
 #include "aiot_dm_api.h"
 #include "aiot_mqtt_api.h"
 #include "py/obj.h"
 #include "py_defines.h"
 #include "stdint.h"
 /* device active info report */
-#define APPLICATION "soundbox"               // product of application
+#define APPLICATION "soundbox"  // product of application
 // #define MODULE_NAME aos_get_platform_type()  // module type
 #define MODULE_NAME "AliOS Things"  // module type
 #ifndef countof
@@ -164,8 +165,8 @@ typedef struct iot_device_hanlde {
 } iot_device_handle_t;
 
 typedef struct iot_gateway_handle {
-    void     *mqtt_handle;
-    void     *subdev_handle;
+    void *mqtt_handle;
+    void *subdev_handle;
     uint16_t keepaliveSec;
     mp_obj_t *callback;
     char g_iot_close_flag;
@@ -209,8 +210,7 @@ typedef struct {
 } iot_mqtt_userdata_t;
 
 /* create mqtt client */
-int32_t pyamp_aiot_mqtt_client_start(void **handle, int keepaliveSec,
-                                     iot_mqtt_userdata_t *userdata);
+int32_t pyamp_aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_userdata_t *userdata);
 
 /* destroy mqtt client */
 int32_t pyamp_aiot_mqtt_client_stop(void **handle);
@@ -225,12 +225,10 @@ void pyamp_aiot_app_mqtt_recv_thread(void *args);
 int32_t pyamp_aiot_app_send_property_post(void *dm_handle, char *params);
 
 /* event post */
-int32_t pyamp_aiot_app_send_event_post(void *dm_handle, char *event_id,
-                                       char *params);
+int32_t pyamp_aiot_app_send_event_post(void *dm_handle, char *event_id, char *params);
 
 /* device dynmic register */
 int32_t pyamp_aiot_dynreg_http(mp_obj_t cb);
 
 /* device active info report */
 int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle);
-

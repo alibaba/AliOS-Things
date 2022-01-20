@@ -7,7 +7,6 @@
 #include <string.h>
 
 #include "aos/kernel.h"
-#include "k_api.h"
 #include "py/builtin.h"
 #include "py/gc.h"
 #include "py/mperrno.h"

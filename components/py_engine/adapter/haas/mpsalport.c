@@ -1,9 +1,9 @@
 #include "mpsalport.h"
 
 #include "aos/kernel.h"
-#include "k_api.h"
 #include "py/mperrno.h"
 #include "ulog/ulog.h"
+#include "k_api.h"
 
 #define LOG_TAG "mp_sal_port"
 

@@ -90,7 +90,7 @@ int32_t aos_hal_adc_raw_value_get(adc_dev_t *adc, uint32_t *output, uint32_t tim
 
 int32_t aos_hal_adc_voltage_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout)
 {
-    return -1;
+    return aos_hal_adc_raw_value_get(adc, output, timeout);
 }
 
 int32_t aos_hal_adc_finalize(adc_dev_t *adc)

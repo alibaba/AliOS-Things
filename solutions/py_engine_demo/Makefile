@@ -20,3 +20,10 @@ clean:
 	$(CPRE) scons -c  --board=$(BOARD)
 	$(CPRE) find . -name "*.[od]" -delete
 	$(CPRE) rm -rf aos_sdk aos.elf aos.map aos.bin generated out
+	$(CPRE) rm -rf *.bin
+	$(CPRE) rm -rf *.xz
+	$(CPRE) rm -rf esp_sdk/lib/*
+	$(CPRE) rm -rf esp_sdk/include/*
+	$(CPRE) rm -rf sdkconfig
+	$(CPRE) rm -rf fs/*
+	$(CPRE) rm -rf ../../components/py_engine/adapter/haas/build-*

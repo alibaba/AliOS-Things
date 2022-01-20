@@ -13,7 +13,6 @@
 #include "amp_task.h"
 #include "amp_utils.h"
 #include "aos/kernel.h"
-#include "aos/vfs.h"
 #include "aos_fs.h"
 #include "aos_system.h"
 #include "app_upgrade.h"

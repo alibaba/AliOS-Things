@@ -168,7 +168,7 @@ int32_t aos_hal_i2c_mem_write(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_ad
     d.data = (unsigned char *)data;
     d.length = size;
     d.maddr = mem_addr;
-    d.mlength = mem_addr_size;
+    d.mlength = mem_addr_size / 8;
     d.timeout = timeout;
 
 
@@ -201,7 +201,7 @@ int32_t aos_hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_add
     d.data = data;
     d.length = size;
     d.maddr = mem_addr;
-    d.mlength = mem_addr_size;
+    d.mlength = mem_addr_size / 8;
     d.timeout = timeout;
 
     ret = ioctl(*p_fd, IOC_I2C_MEM_RX, (unsigned long)&d);

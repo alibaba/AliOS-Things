@@ -1,0 +1,276 @@
++ Version 2.20 (2020.03.04)
+
+  - #61: Fix slow backtracking when parsing strings.
+  - #99: Parser for FuncDecl incorrectly sets declname attribute on return type.
+  - #310: Fix crash when file starts with a semicolon.
+  - #313: Fix array type generation.
+  - #314: Fix failed parsing of unnamed function parameters with array dim
+    qualifiers.
+  - #315: Fix pointer type generation.
+  - #324: Fixes for u/l constant integer suffix.
+  - #346: Fix error transforming an empty switch.
+  - #350: Recognize integer multicharacter constants like 'ABCD'.
+  - #363: Fix incorrect AST when parsing offsetof.
+
++ Version 2.19 (2018.09.19)
+
+  - PR #277: Fix parsing of floating point literals
+  - PR #254: Add support for parsing empty structs
+  - PR #240: Fix enum formatting in generated C code (also #216)
+  - PR #222: Add support for #pragma in struct declarations
+  - There are reports that this release doesn't work with Python 2.6 (#281).
+    Please note that the minimal supported version is 2.7; the required versions
+    are listed in the README file.
+
++ Version 2.18 (2017.07.04)
+
+  - PR #161 & #184: Update bundled PLY version to 3.10
+  - PR #158: Add support for the __int128 type.
+  - PR #169: Handle more tricky TYPEID in declarators.
+  - PR #178: Add columns to the coord of each node
+
++ Version 2.17 (2016.10.29)
+
+  - Again functionality identical to 2.15 and 2.16; the difference is that the
+    tarball now contains Python files with properly set permissions.
+
++ Version 2.16 (2016.10.18)
+
+  - Functionally identical to 2.15, but fixes a packaging problem that caused
+    failed installation (_build_tables wasn't rerun in the pycparser/ dir).
+
++ Version 2.15 (2016.10.18)
+
+  - PR #121: Update bundled PLY version to 3.8
+  - Issue #117: Fix parsing of extra semi-colons inside structure declarations.
+  - PR #109: Update c_generator to add {} around nested named initializers.
+  - PR #101: Added support for parsing pragmas into the AST.
+  - Additional fake headers and typedefs, manifest fixes (#97, #106, #111).
+  - Testing with Python 3.5 instead of 3.3 now (3.4 and 3.5 are the 3.x versions
+    tested).
+  - PR #145: More complete support for offsetof()
+  - Issue #116: Fix line numbers recorded for empty and compound statements.
+  - Minor performance improvement to the invalid string literal regex.
+
++ Version 2.14 (2015.06.09)
+
+  - Added CParser parameter to specify output directory for generated parsing
+    tables (#84).
+  - Removed lcc's cpp and its license from the distribution. Using lcc's cpp
+    is no longer recommended, now that Clang has binary builds available for
+    Windows.
+
++ Version 2.13 (2015.05.12)
+
+  - Added support for offsetof() the way gcc implements it (special builtin
+    that takes a type as an argument).
+  - Added faked va_* macros (these are expected to come from stdarg.h)
+  - Added a bunch more fake headers and typedefs to support parsing C projects
+    like Git and SQLite without modifications to pycparser.
+  - Added support for empty initializer lists (#79).
+
++ Version 2.12 (2015.04.21)
+
+  - This is a fix release for 2.11; the memory optimization with __slots__ on
+    Coord and AST nodes didn't take weakrefs into account, which broke cffi and
+    its many dependents (issue #76). Fixed by adding __weakref__ to __slots__.
+
++ Version 2.11 (2015.04.21)
+
+  - Add support for C99 6.5.3.7 p7 - qualifiers within array dimensions in
+    function declarations. Started with issue #21 (reported with initial patch
+    by Robin Martinjak).
+  - Issue #27: bug in handling of unified wstring literals.
+  - Issue #28: fix coord reporting for 'for' loops.
+  - Added ``examples/using_gcc_E_libc.py`` to demonstrate how ``gcc -E`` can
+    be used instead of ``cpp`` for preprocessing.
+  - Pull request #64: support keywords like const, volatile, restrict and static
+    in dimensions in array declarations.
+  - Reduce memory usage of AST nodes (issue #72).
+  - Parsing order of nested pointer declarations fixed (issue #68).
+
++ Version 2.10 (2013.08.03)
+
+  - A number of improvements in the handling of typedef-name ambiguities,
+    contributed by Sye van der Veen in GitHub issue #1:
+
+    * Allow shadowing of types by identifiers in inner scopes.
+    * Allow struct field names to reside in a separate namespace and have
+      the same names as types.
+    * Allow duplicate typedefs in some cases to mimic real compiler behavior.
+
+  - c_generator error for ExprList in expression context.
+  - Assume default int type for functions whose argument or return types were
+    not specified.
+  - Relax the lexer a bit w.r.t. some integer suffixes and $ in identifier names
+    (which is supported by some other compilers).
+
++ Version 2.09.1 (2012.12.29)
+
+  - No actual functionality changes.
+  - The source distribution was re-packaged to contain the pre-generated Lex and
+    Yacc tables of PLY.
+
++ Version 2.09 (2012.12.27)
+
+  - The pycparser project has moved to Bitbucket. For this version, issue
+    numbers still refer to the old Googlecode project, unless stated otherwise.
+    Starting with the next version all issue numbers will refer to the new
+    Bitbucket project.
+  - pycparser now carries its PLY dependency along. The pycparser/ply directory
+    contains the source of PLY for the currently supported version. This makes
+    distribution and testing easier.
+  - Issue #79: fix generation of new switch/case AST nodes.
+  - Issue #83: fix parsing and C generation to distinguish between initializer
+    lists in declarations and initializing variables with parenthesized
+    comma-separated expressions.
+  - Issue #84: fix C generation for some statements.
+  - Issues #86 and #87: improve location reporting for parse errors.
+  - Issue #89: fix C generation for K&R-style function definitions.
+
++ Version 2.08 (2012.08.10)
+
+  - Issue 73: initial support for #pragma directives. Consume them without
+    errors and ignore (no tokens are returned). Line numbers are preserved.
+  - Issue 68: more correct handling of source files without any actual content.
+  - Issue 69: running all tests will now set appropriate return code.
+  - Better error reporting in case where multiple type specifiers are provided.
+    Also fixes Issue 60.
+  - Issue 63: line endings cleanup for consistent LF ending.
+  - Issues 64 & 65: added some more headers and typedefs to fake includes.
+  - Refactoring the cpp invocation in parse_file into a separate function, which
+    can also be used as a utility.
+  - Issue 74: some Windows include paths were handled incorrectly.
+
++ Version 2.07 (2012.06.16)
+
+  - Issue 54: added an optional parser argument to parse_file
+  - Issue 59: added some more fake headers for C99
+  - Issue 62: correct coord for Ellipsis nodes
+  - Issue 57: support for C99 hexadecimal float constants
+  - Made running tests that call on 'cpp' a bit more robust.
+
++ Version 2.06 (2012.02.04)
+
+  - Issue 48: gracefully handle parsing of empty files
+  - Issues 49 & 50: handle more escaped chars in paths to #line - "..\..\test.h".
+  - Support for C99 _Complex type.
+  - CGenerator moves from examples/ to pycparser/ as a first-class citizen, and
+    added some fixes to it. examples/c-to-c.py still stays as a convenience
+    wrapper.
+  - Fix problem with parsing a file in which the first statement is just a
+    semicolon.
+  - Improved the AST created for switch statements, making it closer to the
+    semantic meaning than to the grammar.
+
++ Version 2.05 (2011.10.16)
+
+  - Added support for the C99 ``_Bool`` type and ``stdbool.h`` header file
+  - Expanded ``examples/explore_ast.py`` with more details on working with the
+    AST
+  - Relaxed the rules on parsing unnamed struct members (helps parse ``windows.h``)
+  - Bug fixes:
+
+    * Fixed spacing issue for some type declarations
+    * Issue 47: display empty statements (lone ';') correctly after parsing
+
++ Version 2.04 (2011.05.21)
+
+  - License changed from LGPL to BSD
+  - Bug fixes:
+
+    * Issue 31: constraining the scope of typedef definitions
+    * Issues 33, 35: fixes for the c-to-c.py example
+
+  - Added C99 integer types to fake headers
+  - Added unit tests for the c-to-c.py example
+
++ Version 2.03 (2011.03.06)
+
+  - Bug fixes:
+
+    * Issue 17: empty file-level declarations
+    * Issue 18: empty statements and declarations in functions
+    * Issue 19: anonymous structs & union fields
+    * Issue 23: fix coordinates of Cast nodes
+
+  - New example added (``examples/c-to-c.py``) for translating ASTs generated
+    by ``pycparser`` back into C code.
+  - ``pycparser`` is now on PyPI (Python Package Index)
+  - Created `FAQ <http://code.google.com/p/pycparser/wiki/FAQ>`_ on
+    the ``pycparser`` project page
+  - Removed support for Python 2.5. ``pycparser`` supports Python 2
+    from 2.6 and on, and Python 3.
+
++ Version 2.02 (2010.12.10)
+
+  * The name of a ``NamedInitializer`` node was turned into a sequence of nodes
+    instead of an attribute, to make it discoverable by the AST node visitor.
+  * Documentation updates
+
++ Version 2.01 (04.12.2010)
+
+  * Removed dependency on YAML. Parsing of the AST node configuration file
+    is done with a simple parser.
+  * Fixed issue 12: installation problems
+
++ Version 2.00 (2010.10.31)
+
+  * Support for C99 (read
+    `this wiki page <http://code.google.com/p/pycparser/wiki/C99support>`_
+    for more information).
+
++ Version 1.08 (2010.10.09)
+
+  * Bug fixes:
+
+    + Correct handling of ``do{} ... while`` statements in some cases
+    + Issues 6 & 7: Concatenation of string literals
+    + Issue 9: Support for unnamed bitfields in structs
+
++ Version 1.07 (2010.05.18)
+
+  * Python 3.1 compatibility: ``pycparser`` was modified to run
+    on Python 3.1 as well as 2.6
+
++ Version 1.06 (2010.04.10)
+
+  * Bug fixes:
+
+    + coord not propagated to FuncCall nodes
+    + lexing of the ^= token (XOREQUALS)
+    + parsing failed on some abstract declarator rules
+
+  * Linux compatibility: fixed end-of-line and ``cpp`` path issues to allow
+    all tests and examples run on Linux
+
++ Version 1.05 (2009.10.16)
+
+  * Fixed the ``parse_file`` auxiliary function to handle multiple arguments to
+    ``cpp`` correctly
+
++ Version 1.04 (2009.05.22)
+
+  * Added the ``fake_libc_include`` directory to allow parsing of C code that
+    uses standard C library include files without dependency on a real C
+    library.
+  * Tested with Python 2.6 and PLY 3.2
+
++ Version 1.03 (2009.01.31)
+
+  * Accept enumeration lists with a comma after the last item (C99 feature).
+
++ Version 1.02 (2009.01.16)
+
+  * Fixed problem of parsing struct/enum/union names that were named similarly
+    to previously defined ``typedef`` types.
+
++ Version 1.01 (2009.01.09)
+
+  * Fixed subprocess invocation in the helper function parse_file - now
+    it's more portable
+
++ Version 1.0 (2008.11.15)
+
+  * Initial release
+  * Support for ANSI C89

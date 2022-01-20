@@ -48,9 +48,9 @@ typedef struct _RecogCharacterStruct {
 } RecogCharacterStruct;
 
 typedef struct _RecogLicensePlateStruct {
-    char *plateNumber;
+    const char *plateNumber;
     float confidence;
-    char *plateType;
+    const char *plateType;
     float plateTypeConfidence;
     struct {
     int x;

@@ -10,7 +10,7 @@
 
 #include "ulog/ulog.h"
 
-#if PY_BUILD_BLE
+#if MICROPY_PY_BLECFG
 
 #define LOG_TAG "bleNetconfig"
 
@@ -167,6 +167,5 @@ const mp_obj_module_t mp_module_blecfg = {
     .globals = (mp_obj_dict_t *)&blecfg_module_globals,
 };
 
-MP_REGISTER_MODULE(MP_QSTR_blecfg, mp_module_blecfg, PY_BUILD_BLE);
-
+MP_REGISTER_MODULE(MP_QSTR_blecfg, mp_module_blecfg, MICROPY_PY_BLECFG);
 #endif

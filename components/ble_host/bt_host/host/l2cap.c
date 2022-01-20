@@ -1111,7 +1111,7 @@ static void le_ecred_conn_req(struct bt_l2cap *l2cap, u8_t ident,
 		goto response;
 	}
 
-	while (buf->len >= sizeof(scid)) {
+	while (buf->len >= sizeof(scid) && i < L2CAP_ECRED_CHAN_MAX) {
 		scid = net_buf_pull_le16(buf);
 
 		result = l2cap_chan_accept(conn, server, scid, mtu, mps,
@@ -1401,6 +1401,13 @@ static void le_ecred_conn_rsp(struct bt_l2cap *l2cap, u8_t ident,
 
 			/* Cancel RTX work */
 			k_delayed_work_cancel(&chan->chan.rtx_work);
+
+			/* bt_spec5.2, multi dcid wrong package received */
+			if (buf->len < 2) {
+				bt_l2cap_chan_remove(conn, &chan->chan);
+				bt_l2cap_chan_del(&chan->chan);
+				continue;
+			}
 
 			dcid = net_buf_pull_le16(buf);
 

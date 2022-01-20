@@ -12,7 +12,6 @@
 #include "esp_log.h"
 #include "esp_netif.h"
 #include "esp_system.h"
-#include "esp_tls.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "hapy_http_client.h"
@@ -276,6 +275,8 @@ static esp_err_t _http_download_event_handler(esp_http_client_event_t *evt)
     case HTTP_EVENT_DISCONNECTED:
         ESP_LOGD(LOG_TAG, "HTTP_EVENT_DISCONNECTED");
         break;
+    default:
+        ESP_LOGD(LOG_TAG, "HTTP_EVENT_DEFAULT");
     }
     return ESP_OK;
 }
@@ -439,7 +440,7 @@ static void task_http_request_func(void *arg)
     } else {
         printf("HTTP POST request failed: %s\r\n", esp_err_to_name(err));
     }
-fail:
+
     if (client != NULL) {
         esp_http_client_close(client);
         esp_http_client_cleanup(client);
@@ -458,8 +459,6 @@ fail:
 
 STATIC mp_obj_t http_download(mp_obj_t data, mp_obj_t callback)
 {
-    int8_t *http_buffer = NULL;
-    int8_t *http_header_buffer = NULL;
     const int8_t *url = NULL;
     const int8_t *filepath = NULL;
 
@@ -488,8 +487,6 @@ MP_DEFINE_CONST_FUN_OBJ_2(mp_obj_http_download, http_download);
 
 static mp_obj_t http_request(mp_obj_t data, mp_obj_t callback)
 {
-    int8_t *http_buffer = NULL;
-    int8_t *http_header_buffer = NULL;
     const int8_t *method = NULL;
     const int8_t *url = NULL;
     int32_t http_method = 0;

@@ -413,6 +413,15 @@ int32_t hal_uart_init(uart_dev_t *uart)
     return 0;
 }
 
+int32_t hal_uart_any(uart_dev_t *uart)
+{
+    /*if uart haven't init free size is zero*/
+    if (uart_ctx[uart->port].init_flag == 0) {
+        return 0;
+    }
+    return uart_ctx[uart->port].rxring_size - _get_uart_ringbuf_freesize(uart->port);
+}
+
 /**
 
  * Transmit data on a UART interface

@@ -24,7 +24,7 @@ int ulog_vprintf(const char *vformat, va_list varg)
     int *out_n;
     unsigned int out_hex_int;
     unsigned int out_unsigned_int;
-    char out_char=NULL;
+    char out_char=0;
     char *out_string=NULL;
     char int_to_string[20];
     double out_f;

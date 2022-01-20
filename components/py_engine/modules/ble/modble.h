@@ -1,34 +1,7 @@
 #ifndef _PY_MODBLE_H_
 #define _PY_MODBLE_H_
 
-#include <aos/ble.h>
-#include <atomic.h>
-#include <ble_netconfig.h>
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/gatt.h>
-#include <bluetooth/uuid.h>
-#include <netmgr.h>
-#include <netmgr_wifi.h>
-
-#include "ulog/ulog.h"
-
-// #define WIFI_DEV_PATH "/dev/wifi0"
-
-// typedef struct amp_wifi_info {
-//     char ssid[128];
-//     char mac[6];
-//     char ip[16];
-//     int rssi;
-// } amp_wifi_info_t;
-
-// enum ble_err {
-//     BLE_ERR_NONE = 0,
-//     BLE_ERR_NET_DEV = -1,
-//     BLE_ERR_NET_IFCONFIG,
-//     BLE_ERR_NET_AP_CNT_INVALID,
-//     BLE_ERR_NET_CONFIG,
-//     BLE_ERROR_NET_AP_CNT_INVALID,
-// };
+#include "aos/ble.h"
 
 enum ble_event {
     BLE_EVENT_NET_STATUS = 0,
@@ -78,6 +51,7 @@ typedef struct {
 int py_bt_host_adapter_init(amp_bt_host_adapter_init_t *init);
 int bt_host_adapter_start_adv(amp_bt_host_adapter_adv_start_t *adv_param);
 int bt_host_adapter_stop_adv(void);
+
 // GATTS
 void native_bt_host_gatts_handle_write(uint8_t data[], size_t len);
 int bt_gatts_adapter_add_service(amp_bt_host_adapter_gatts_srvc_t *srvc);

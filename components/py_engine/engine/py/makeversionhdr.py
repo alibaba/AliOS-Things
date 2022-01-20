@@ -8,7 +8,7 @@ from __future__ import print_function
 
 import sys
 import os
-import datetime
+from datetime import datetime
 import subprocess
 
 
@@ -63,7 +63,7 @@ def get_version_info_from_git():
 
 
 def get_version_info_from_docs_conf():
-    with open(os.path.join(os.path.dirname(sys.argv[0]), "..", "docs", "conf.py")) as f:
+    with open(os.path.join(os.path.dirname(sys.argv[0]), "..", "tools", "conf.py")) as f:
         for line in f:
             if line.startswith("version = release = '"):
                 ver = line.strip().split(" = ")[2].strip("'")
@@ -80,7 +80,11 @@ def make_version_header(filename):
 
     git_tag, git_hash = info
 
-    build_date = datetime.date.today()
+    if( git_tag == git_hash):
+        git_tag = 'v1.17-dirty'
+        git_hash = '7c54b6428-dirty'
+
+    build_date = datetime.now()
     if "SOURCE_DATE_EPOCH" in os.environ:
         build_date = datetime.datetime.utcfromtimestamp(
             int(os.environ["SOURCE_DATE_EPOCH"])
@@ -95,7 +99,7 @@ def make_version_header(filename):
 """ % (
         git_tag,
         git_hash,
-        build_date.strftime("%Y-%m-%d"),
+        build_date.strftime("%Y-%m-%dT%H:%M:%S"),
     )
 
     # Check if the file contents changed from last time
