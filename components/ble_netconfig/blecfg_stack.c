@@ -2,6 +2,7 @@
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
+#include <fcntl.h>
 #include "blecfg_pub.h"
 
 #define UUID_VENDOR_SERVICE                      UUID16_DECLARE(0xFFA0)

@@ -43,8 +43,5 @@ else
 fi
 
 cd ${shelldir}/esp-idf
-./install.sh esp32
-source export.sh
-
-
+./install.sh
 cd ${workdir}

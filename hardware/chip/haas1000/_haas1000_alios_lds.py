@@ -26,20 +26,34 @@ for arg in params:
                 print("ignore %s=%s" %(key, value))
 
 # format string
+# only change aos.map string for path or string
+# HAAS_OTA_BIN_VER no need to change cflag && cxxflag no need this change
 for key in ["cflag", "cxxflag", "asmflag", "ldflag"]:
     if key in key_value.keys():
-        key_value[key] = key_value[key].replace("#", " ")
-        # escape the string: "aos.map" -> \"aos.map\"
-        # but keep \"ALIBABA IOT\"
-        value = ""
-        ch_last = ""
-        for ch in key_value[key]:
-            if (ch == '"') and (ch_last != '\\'):
-                value += '\\'
-            value += ch
-            ch_last = ch
-        # escape the string: \"aos.map\" -> \\\"aos.map\\\"
-        key_value[key] = value.replace('\\\"', '\\\\\\\"')
+        if((key != "cflag") and (key != "cxxflag")):
+            key_value[key] = key_value[key].replace("#", " ")
+            # escape the string: "aos.map" -> \"aos.map\"
+            # but keep \"ALIBABA IOT\"
+            value = ""
+            ch_last = ""
+            for ch in key_value[key]:
+                if (ch == '"') and (ch_last != '\\'):
+                    value += '\\'
+                value += ch
+                ch_last = ch
+            # escape the string: \"aos.map\" -> \\\"aos.map\\\"
+            key_value[key] = value.replace('\\\"', '\\\\\\\"')
+        else:
+            key_value[key] = key_value[key].replace("#", " ")
+            # cflag & cxxflag only have string define, no need change to path
+            value = ""
+            ch_last = ""
+            for ch in key_value[key]:
+                if (ch == '"') and (ch_last != '\\'):
+                    value += '\\'
+                value += ch
+                ch_last = ch
+            key_value[key] = value.replace('\\"', '\\\"')
 
 for key in ["macro_list", "global_inc"]:
     if key in key_value.keys():
@@ -90,7 +104,6 @@ for item in data_list:
     f.write("#endif\n\n")
 
 f.close()
-
 build_cmd = '%s-gcc %s -imacros %s -E -D__ARM__  -D__ALIGN__=4 -P %s/_haas1000_alios.c -o %s/_haas1000_alios.lds' % (key_value["toolchain"], key_value["cflag"], macro_path, comp_path, comp_path)
 print(build_cmd)
 ret = os.system(build_cmd) >> 8
@@ -98,7 +111,6 @@ if ret != 0:
     exit(ret)
 
 # =======================================================    
-
 # result
 print("run external script success")
 exit(0)

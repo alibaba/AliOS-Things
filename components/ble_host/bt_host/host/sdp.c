@@ -1010,6 +1010,12 @@ static u16_t get_att_search_list(struct net_buf *buf, bt_u32_t *filter,
 			return BT_SDP_INVALID_SYNTAX;
 		}
 
+		/* we should check if num_filters out of range */
+		if (*num_filters >= MAX_NUM_ATT_ID_FILTER) {
+			BT_WARN("Malformed packet");
+			return BT_SDP_INVALID_SYNTAX;
+		}
+
 		/* This is an attribute ID */
 		if (data_elem.data_size == 2U) {
 			filter[(*num_filters)++] = 0xffff0000 |

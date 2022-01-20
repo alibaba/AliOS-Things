@@ -3,6 +3,7 @@
 #include <string.h>
 
 #if MICROPY_PY_MODBUS
+
 #include "board_mgr.h"
 #include "mbmaster.h"
 #include "py/builtin.h"

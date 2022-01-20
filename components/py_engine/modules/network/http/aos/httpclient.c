@@ -18,8 +18,8 @@
 static char req_buf[REQ_BUF_SIZE];
 
 /* @brief http response buffer */
-#define RSP_BUF_SIZE 2048
-static char rsp_buf[RSP_BUF_SIZE];
+#define HTTP_RSP_BUF_SIZE 2048
+static char rsp_buf[HTTP_RSP_BUF_SIZE];
 
 #define HTTP_BUFF_SIZE              2048
 #define HTTP_HEADER_SIZE            1024

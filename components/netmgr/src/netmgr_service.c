@@ -8,6 +8,7 @@
 #include <netmgr_wifi.h>
 #include <aos/list.h>
 #include <aos/kv.h>
+#include <fcntl.h>
 
 #include "activation.h"
 

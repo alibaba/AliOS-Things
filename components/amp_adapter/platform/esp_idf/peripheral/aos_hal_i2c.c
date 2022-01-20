@@ -129,6 +129,110 @@ int32_t aos_hal_i2c_master_recv(aos_hal_i2c_dev_t *i2c, uint16_t dev_addr, uint8
     return 0;
 }
 
+typedef struct _hw_i2c_buf_t {
+    size_t len;
+    uint8_t *buf;
+} hw_i2c_buf_t;
+
+static size_t fill_memaddr_buf(uint8_t *memaddr_buf, uint32_t memaddr, uint8_t addrsize)
+{
+    size_t memaddr_len = 0;
+    if ((addrsize & 7) != 0 || addrsize > 32) {
+        printf("invalid addrsize");
+        return -EINVAL;
+    }
+    for (int16_t i = addrsize - 8; i >= 0; i -= 8) {
+        memaddr_buf[memaddr_len++] = memaddr >> i;
+    }
+    return memaddr_len;
+}
+
+static int i2c_hw_transfer(aos_hal_i2c_dev_t *i2c, uint16_t addr, size_t n, hw_i2c_buf_t *bufs, unsigned int flags, bool stop)
+{
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, addr << 1 | (flags & I2C_MASTER_READ), true);
+
+    int data_len = 0;
+    for (; n--; ++bufs) {
+        if (flags & I2C_MASTER_READ) {
+            i2c_master_read(cmd, bufs->buf, bufs->len, n == 0 ? I2C_MASTER_LAST_NACK : I2C_MASTER_ACK);
+        } else {
+            if (bufs->len != 0) {
+                i2c_master_write(cmd, bufs->buf, bufs->len, true);
+            }
+        }
+        data_len += bufs->len;
+    }
+
+    if (stop) {
+        i2c_master_stop(cmd);
+    }
+
+    // TODO proper timeout
+    esp_err_t err = i2c_master_cmd_begin(i2c->port, cmd, 100 * (1 + data_len) / portTICK_RATE_MS);
+    i2c_cmd_link_delete(cmd);
+
+    if (err == ESP_FAIL) {
+        return -ENODEV;
+    } else if (err == ESP_ERR_TIMEOUT) {
+        return -ETIMEDOUT;
+    } else if (err != ESP_OK) {
+        return -abs(err);
+    }
+
+    return data_len;
+}
+
+static int mp_machine_i2c_readfrom(aos_hal_i2c_dev_t *i2c, uint16_t addr, uint8_t *dest, size_t len, bool stop)
+{
+    hw_i2c_buf_t buf = {.len = len, .buf = dest};
+    unsigned int flags = I2C_MASTER_READ;
+    return i2c_hw_transfer(i2c, addr, 1, &buf, flags, stop);
+}
+
+static int mp_machine_i2c_writeto(aos_hal_i2c_dev_t *i2c, uint16_t addr, const uint8_t *src, size_t len, bool stop)
+{
+    hw_i2c_buf_t buf = {.len = len, .buf = src};
+    return i2c_hw_transfer(i2c, addr, 1, &buf, 0, stop);
+}
+
+int32_t aos_hal_i2c_mem_read(aos_hal_i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr, uint16_t mem_addr_size,
+                             uint8_t *data, uint16_t size, uint32_t timeout)
+{
+    uint8_t memaddr_buf[4];
+    size_t memaddr_len = fill_memaddr_buf(&memaddr_buf[0], mem_addr, mem_addr_size);
+    if (!i2c || !data || size == 0)
+        return -EINVAL;
+
+    int ret = mp_machine_i2c_writeto(i2c, dev_addr, memaddr_buf, memaddr_len, false);
+    if (ret != memaddr_len) {
+        // must generate STOP
+        mp_machine_i2c_writeto(i2c, dev_addr, NULL, 0, true);
+        return ret;
+    }
+    return mp_machine_i2c_readfrom(i2c, dev_addr, data, size, true);
+}
+
+int32_t aos_hal_i2c_mem_write(aos_hal_i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr, uint16_t mem_addr_size,
+                              const uint8_t *data, uint16_t size, uint32_t timeout)
+{
+    // Create buffer with memory address
+    uint8_t memaddr_buf[4];
+    size_t memaddr_len = fill_memaddr_buf(&memaddr_buf[0], mem_addr, mem_addr_size);
+
+    if (!i2c || !data || size == 0)
+        return -EINVAL;
+
+    // Create partial write buffers
+    hw_i2c_buf_t bufs[2] = {
+        {.len = memaddr_len, .buf = memaddr_buf},
+        {.len = size, .buf = (uint8_t *)data},
+    };
+    return i2c_hw_transfer(i2c, dev_addr, 2, bufs, 0, true);
+}
+
+/*
 int32_t aos_hal_i2c_mem_write(aos_hal_i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr, uint16_t mem_addr_size,
                               const uint8_t *data, uint16_t size, uint32_t timeout)
 {
@@ -222,3 +326,4 @@ int32_t aos_hal_i2c_mem_read(aos_hal_i2c_dev_t *i2c, uint16_t dev_addr, uint16_t
 
     return 0;
 }
+*/

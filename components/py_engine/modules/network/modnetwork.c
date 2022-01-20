@@ -28,20 +28,20 @@
  * THE SOFTWARE.
  */
 
-#include "modnetwork.h"
-
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "shared/netutils/netutils.h"
+#if MICROPY_PY_NETWORK
 #include "lwip/dns.h"
+#include "modnetwork.h"
 #include "netmgr_wifi.h"
 #include "py/mperrno.h"
 #include "py/mphal.h"
 #include "py/nlr.h"
 #include "py/objlist.h"
 #include "py/runtime.h"
+#include "shared/netutils/netutils.h"
 #include "ulog/ulog.h"
 
 #define LOG_TAG                      "mod_network"
@@ -79,37 +79,27 @@ NORETURN void _haas_wifi_exceptions(wifi_result_t e)
     case RET_WIFI_NOT_INITED:
         mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Not Initialized"));
     case RET_WIFI_STATUS_ERROR:
-        mp_raise_msg(&mp_type_OSError,
-                     MP_ERROR_TEXT("Wifi Request In Error Status"));
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Request In Error Status"));
     case RET_WIFI_SCAN_REQ_FAIL:
-        mp_raise_msg(&mp_type_OSError,
-                     MP_ERROR_TEXT("Wifi Scan Fail To Start"));
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Scan Fail To Start"));
     case RET_WIFI_SCAN_NO_AP_FOUND:
-        mp_raise_msg(&mp_type_OSError,
-                     MP_ERROR_TEXT("Wifi Can Not Find Any SSID"));
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Can Not Find Any SSID"));
     case RET_WIFI_NO_SUITABLE_NETWORK:
-        mp_raise_msg(&mp_type_OSError,
-                     MP_ERROR_TEXT("Wifi No Suitable Network To Connect"));
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi No Suitable Network To Connect"));
     case RET_WIFI_CONN_REQ_FAIL:
-        mp_raise_msg(&mp_type_OSError,
-                     MP_ERROR_TEXT("Wifi Connect Fail To Start"));
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Connect Fail To Start"));
     case RET_WIFI_CONN_FAIL:
-        mp_raise_msg(&mp_type_OSError,
-                     MP_ERROR_TEXT("Wifi Connect Procedure Result In Fail"));
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Connect Procedure Result In Fail"));
     case RET_WIFI_CONN_NO_SSID_CONFIG:
-        mp_raise_msg(&mp_type_OSError,
-                     MP_ERROR_TEXT("Wifi No Saved SSID Config To Connect"));
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi No Saved SSID Config To Connect"));
     case RET_WIFI_DISC_FAIL:
-        mp_raise_msg(&mp_type_OSError,
-                     MP_ERROR_TEXT("Wifi Disconnect Procedure Result In Fail"));
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Disconnect Procedure Result In Fail"));
     case RET_WIFI_WPS_NOT_FOUND:
-        mp_raise_msg(&mp_type_OSError,
-                     MP_ERROR_TEXT("Wifi Can Not Find WPS AP"));
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Can Not Find WPS AP"));
     case RET_WIFI_WPS_REQ_FAIL:
         mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Fail To Start WPS"));
     default:
-        mp_raise_msg_varg(&mp_type_RuntimeError,
-                          MP_ERROR_TEXT("Wifi Unknown Error 0x%04x"), e);
+        mp_raise_msg_varg(&mp_type_RuntimeError, MP_ERROR_TEXT("Wifi Unknown Error 0x%04x"), e);
     }
 }
 
@@ -132,10 +122,8 @@ typedef struct _wlan_if_obj_t {
 } wlan_if_obj_t;
 
 const mp_obj_type_t wlan_if_type;
-STATIC const wlan_if_obj_t wlan_sta_obj = { { &wlan_if_type },
-                                            NETMGR_WIFI_MODE_STA };
-STATIC const wlan_if_obj_t wlan_ap_obj = { { &wlan_if_type },
-                                           NETMGR_WIFI_MODE_AP };
+STATIC const wlan_if_obj_t wlan_sta_obj = { { &wlan_if_type }, NETMGR_WIFI_MODE_STA };
+STATIC const wlan_if_obj_t wlan_ap_obj = { { &wlan_if_type }, NETMGR_WIFI_MODE_AP };
 
 // Set to "true" if haas_wifi_start() was called
 static bool wifi_started = false;
@@ -214,9 +202,8 @@ STATIC void require_if(mp_obj_t wlan_if, int if_no)
 {
     wlan_if_obj_t *self = MP_OBJ_TO_PTR(wlan_if);
     if (self->if_id != if_no) {
-        mp_raise_msg(&mp_type_OSError, if_no == NETMGR_WIFI_MODE_STA
-                                           ? MP_ERROR_TEXT("STA required")
-                                           : MP_ERROR_TEXT("AP required"));
+        mp_raise_msg(&mp_type_OSError,
+                     if_no == NETMGR_WIFI_MODE_STA ? MP_ERROR_TEXT("STA required") : MP_ERROR_TEXT("AP required"));
     }
 }
 
@@ -266,8 +253,7 @@ STATIC mp_obj_t haas_wlan_active(size_t n_args, const mp_obj_t *args)
         HAAS_EXCEPTIONS(haas_wlan_wifi_get_mode(&mode));
     }
 
-    int bit =
-        (self->if_id == NETMGR_WIFI_MODE_STA) ? WIFI_MODE_STA : WIFI_MODE_AP;
+    int bit = (self->if_id == NETMGR_WIFI_MODE_STA) ? WIFI_MODE_STA : WIFI_MODE_AP;
     if (n_args > 1) {
         bool active = mp_obj_is_true(args[1]);
         mode = active ? (mode | bit) : (mode & ~bit);
@@ -288,11 +274,9 @@ STATIC mp_obj_t haas_wlan_active(size_t n_args, const mp_obj_t *args)
     return (mode & bit) ? mp_const_true : mp_const_false;
 }
 
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(haas_wlan_active_obj, 1, 2,
-                                           haas_wlan_active);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(haas_wlan_active_obj, 1, 2, haas_wlan_active);
 
-STATIC mp_obj_t haas_wlan_connect(size_t n_args, const mp_obj_t *pos_args,
-                                  mp_map_t *kw_args)
+STATIC mp_obj_t haas_wlan_connect(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args)
 {
     enum {
         ARG_ssid,
@@ -302,17 +286,14 @@ STATIC mp_obj_t haas_wlan_connect(size_t n_args, const mp_obj_t *pos_args,
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_, MP_ARG_OBJ, { .u_obj = mp_const_none } },
         { MP_QSTR_, MP_ARG_OBJ, { .u_obj = mp_const_none } },
-        { MP_QSTR_bssid,
-          MP_ARG_KW_ONLY | MP_ARG_OBJ,
-          { .u_obj = mp_const_none } },
+        { MP_QSTR_bssid, MP_ARG_KW_ONLY | MP_ARG_OBJ, { .u_obj = mp_const_none } },
     };
 
     wlan_if_obj_t *self = MP_OBJ_TO_PTR(pos_args[0]);
 
     // parse args
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
-    mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args,
-                     MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+    mp_arg_parse_all(n_args - 1, pos_args + 1, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
 
     netmgr_connect_params_t wifi_sta_config = { 0 };
 
@@ -322,13 +303,11 @@ STATIC mp_obj_t haas_wlan_connect(size_t n_args, const mp_obj_t *pos_args,
         const char *p;
         if (args[ARG_ssid].u_obj != mp_const_none) {
             p = mp_obj_str_get_data(args[ARG_ssid].u_obj, &len);
-            memcpy(wifi_sta_config.wifi_params.ssid, p,
-                   MIN(len, sizeof(wifi_sta_config.wifi_params.ssid)));
+            memcpy(wifi_sta_config.wifi_params.ssid, p, MIN(len, sizeof(wifi_sta_config.wifi_params.ssid)));
         }
         if (args[ARG_password].u_obj != mp_const_none) {
             p = mp_obj_str_get_data(args[ARG_password].u_obj, &len);
-            memcpy(wifi_sta_config.wifi_params.pwd, p,
-                   MIN(len, sizeof(wifi_sta_config.wifi_params.pwd)));
+            memcpy(wifi_sta_config.wifi_params.pwd, p, MIN(len, sizeof(wifi_sta_config.wifi_params.pwd)));
         }
         if (args[ARG_bssid].u_obj != mp_const_none) {
             p = mp_obj_str_get_data(args[ARG_bssid].u_obj, &len);
@@ -336,8 +315,7 @@ STATIC mp_obj_t haas_wlan_connect(size_t n_args, const mp_obj_t *pos_args,
                 mp_raise_ValueError(NULL);
             }
             wifi_sta_config.wifi_params.bssid_set = 1;
-            memcpy(wifi_sta_config.wifi_params.bssid, p,
-                   sizeof(wifi_sta_config.wifi_params.bssid));
+            memcpy(wifi_sta_config.wifi_params.bssid, p, sizeof(wifi_sta_config.wifi_params.bssid));
         }
         // HAAS_EXCEPTIONS(haas_wlan_wifi_set_config(NETMGR_WIFI_MODE_STA,
         // &wifi_sta_config));
@@ -360,8 +338,7 @@ STATIC mp_obj_t haas_wlan_disconnect(mp_obj_t self_in)
     HAAS_EXCEPTIONS(netmgr_disconnect(self->hdl));
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(haas_wlan_disconnect_obj,
-                                 haas_wlan_disconnect);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(haas_wlan_disconnect_obj, haas_wlan_disconnect);
 
 STATIC mp_obj_t haas_wlan_status(size_t n_args, const mp_obj_t *args)
 {
@@ -418,8 +395,7 @@ STATIC mp_obj_t haas_wlan_status(size_t n_args, const mp_obj_t *args)
 
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(haas_wlan_status_obj, 1, 2,
-                                           haas_wlan_status);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(haas_wlan_status_obj, 1, 2, haas_wlan_status);
 
 STATIC mp_obj_t haas_wlan_scan(mp_obj_t self_in)
 {
@@ -437,19 +413,15 @@ STATIC mp_obj_t haas_wlan_scan(mp_obj_t self_in)
     // XXX how do we scan hidden APs (and if we can scan them, are they really
     // hidden?)
     MP_THREAD_GIL_EXIT();
-    int ap_num = netmgr_wifi_scan_result(&wifi_ap_records, 16,
-                                         NETMGR_WIFI_SCAN_TYPE_FULL);
+    int ap_num = netmgr_wifi_scan_result(&wifi_ap_records, 16, NETMGR_WIFI_SCAN_TYPE_FULL);
     MP_THREAD_GIL_ENTER();
     if ((ap_num != -1) && (ap_num < 16)) {
         for (uint16_t i = 0; i < ap_num; i++) {
             mp_obj_tuple_t *t = mp_obj_new_tuple(5, NULL);
-            int8_t *x = memchr(wifi_ap_records[i].ssid, 0,
-                               sizeof(wifi_ap_records[i].ssid));
-            int ssid_len = x ? x - wifi_ap_records[i].ssid
-                             : sizeof(wifi_ap_records[i].ssid);
+            int8_t *x = memchr(wifi_ap_records[i].ssid, 0, sizeof(wifi_ap_records[i].ssid));
+            int ssid_len = x ? x - wifi_ap_records[i].ssid : sizeof(wifi_ap_records[i].ssid);
             t->items[0] = mp_obj_new_bytes(wifi_ap_records[i].ssid, ssid_len);
-            t->items[1] = mp_obj_new_bytes(wifi_ap_records[i].bssid,
-                                           sizeof(wifi_ap_records[i].bssid));
+            t->items[1] = mp_obj_new_bytes(wifi_ap_records[i].bssid, sizeof(wifi_ap_records[i].bssid));
             t->items[2] = MP_OBJ_NEW_SMALL_INT(wifi_ap_records[i].ap_power);
             t->items[3] = MP_OBJ_NEW_SMALL_INT(wifi_ap_records[i].channel);
             t->items[4] = MP_OBJ_NEW_SMALL_INT(wifi_ap_records[i].sec_type);
@@ -472,8 +444,7 @@ STATIC mp_obj_t haas_wlan_isconnected(mp_obj_t self_in)
         return mp_obj_new_bool(sta.num != 0);
     }
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_1(haas_wlan_isconnected_obj,
-                                 haas_wlan_isconnected);
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(haas_wlan_isconnected_obj, haas_wlan_isconnected);
 
 STATIC mp_obj_t haas_wlan_ifconfig(size_t n_args, const mp_obj_t *args)
 {
@@ -486,18 +457,15 @@ STATIC mp_obj_t haas_wlan_ifconfig(size_t n_args, const mp_obj_t *args)
             netutils_format_ipv4_addr((uint8_t *)&info.ip_addr, NETUTILS_BIG),
             netutils_format_ipv4_addr((uint8_t *)&info.mask, NETUTILS_BIG),
             netutils_format_ipv4_addr((uint8_t *)&info.gw, NETUTILS_BIG),
-            netutils_format_ipv4_addr((uint8_t *)&info.dns_server,
-                                      NETUTILS_BIG),
+            netutils_format_ipv4_addr((uint8_t *)&info.dns_server, NETUTILS_BIG),
         };
         return mp_obj_new_tuple(4, tuple);
     } else {
         // set
-        if (mp_obj_is_type(args[1], &mp_type_tuple) ||
-            mp_obj_is_type(args[1], &mp_type_list)) {
+        if (mp_obj_is_type(args[1], &mp_type_tuple) || mp_obj_is_type(args[1], &mp_type_list)) {
             mp_obj_t *items;
             mp_obj_get_array_fixed_n(args[1], 4, &items);
-            netutils_parse_ipv4_addr(items[0], (void *)&info.ip_addr,
-                                     NETUTILS_BIG);
+            netutils_parse_ipv4_addr(items[0], (void *)&info.ip_addr, NETUTILS_BIG);
             if (mp_obj_is_integer(items[1])) {
                 // allow numeric mask, i.e.:
                 // 24 -> 255.255.255.0
@@ -506,12 +474,10 @@ STATIC mp_obj_t haas_wlan_ifconfig(size_t n_args, const mp_obj_t *args)
                 uint32_t *m = (uint32_t *)&info.mask;
                 *m = htonl(0xffffffff << (32 - mp_obj_get_int(items[1])));
             } else {
-                netutils_parse_ipv4_addr(items[1], (void *)&info.mask,
-                                         NETUTILS_BIG);
+                netutils_parse_ipv4_addr(items[1], (void *)&info.mask, NETUTILS_BIG);
             }
             netutils_parse_ipv4_addr(items[2], (void *)&info.gw, NETUTILS_BIG);
-            netutils_parse_ipv4_addr(items[3], (void *)&info.dns_server,
-                                     NETUTILS_BIG);
+            netutils_parse_ipv4_addr(items[3], (void *)&info.dns_server, NETUTILS_BIG);
         } else {
             // check for the correct string
             const char *mode = mp_obj_str_get_str(args[1]);
@@ -523,19 +489,16 @@ STATIC mp_obj_t haas_wlan_ifconfig(size_t n_args, const mp_obj_t *args)
         return mp_const_none;
     }
 }
-MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(haas_wlan_ifconfig_obj, 1, 2,
-                                    haas_wlan_ifconfig);
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(haas_wlan_ifconfig_obj, 1, 2, haas_wlan_ifconfig);
 
-STATIC mp_obj_t haas_wlan_config(size_t n_args, const mp_obj_t *args,
-                                 mp_map_t *kwargs)
+STATIC mp_obj_t haas_wlan_config(size_t n_args, const mp_obj_t *args, mp_map_t *kwargs)
 {
     if (n_args != 1 && kwargs->used != 0) {
         mp_raise_TypeError(MP_ERROR_TEXT("either pos or kw args are allowed"));
     }
 
     wlan_if_obj_t *self = MP_OBJ_TO_PTR(args[0]);
-    bool is_wifi = self->if_id == NETMGR_WIFI_MODE_AP ||
-                   self->if_id == NETMGR_WIFI_MODE_STA;
+    bool is_wifi = self->if_id == NETMGR_WIFI_MODE_AP || self->if_id == NETMGR_WIFI_MODE_STA;
 
     netmgr_config_t cfg = { 0 };
     if (is_wifi) {
@@ -702,8 +665,7 @@ STATIC const mp_rom_map_elem_t wlan_if_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_disconnect), MP_ROM_PTR(&haas_wlan_disconnect_obj) },
     { MP_ROM_QSTR(MP_QSTR_status), MP_ROM_PTR(&haas_wlan_status_obj) },
     { MP_ROM_QSTR(MP_QSTR_scan), MP_ROM_PTR(&haas_wlan_scan_obj) },
-    { MP_ROM_QSTR(MP_QSTR_isconnected),
-      MP_ROM_PTR(&haas_wlan_isconnected_obj) },
+    { MP_ROM_QSTR(MP_QSTR_isconnected), MP_ROM_PTR(&haas_wlan_isconnected_obj) },
     { MP_ROM_QSTR(MP_QSTR_config), MP_ROM_PTR(&haas_wlan_config_obj) },
     { MP_ROM_QSTR(MP_QSTR_ifconfig), MP_ROM_PTR(&haas_wlan_ifconfig_obj) },
 };
@@ -720,40 +682,14 @@ STATIC const mp_rom_map_elem_t mp_module_network_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_network) },
     { MP_ROM_QSTR(MP_QSTR___init__), MP_ROM_PTR(&wlan_initialize_obj) },
     { MP_ROM_QSTR(MP_QSTR_WLAN), MP_ROM_PTR(&get_wlan_obj) },
-
-#if MODNETWORK_INCLUDE_CONSTANTS
-    { MP_ROM_QSTR(MP_QSTR_STA_IF), MP_ROM_INT(NETMGR_WIFI_MODE_STA) },
-    { MP_ROM_QSTR(MP_QSTR_AP_IF), MP_ROM_INT(NETMGR_WIFI_MODE_AP) },
-
-#if 0
-    { MP_ROM_QSTR(MP_QSTR_MODE_11B), MP_ROM_INT(WIFI_PROTOCOL_11B) },
-    { MP_ROM_QSTR(MP_QSTR_MODE_11G), MP_ROM_INT(WIFI_PROTOCOL_11G) },
-    { MP_ROM_QSTR(MP_QSTR_MODE_11N), MP_ROM_INT(WIFI_PROTOCOL_11N) },
-
-    { MP_ROM_QSTR(MP_QSTR_AUTH_OPEN), MP_ROM_INT(WIFI_AUTH_OPEN) },
-    { MP_ROM_QSTR(MP_QSTR_AUTH_WEP), MP_ROM_INT(WIFI_AUTH_WEP) },
-    { MP_ROM_QSTR(MP_QSTR_AUTH_WPA_PSK), MP_ROM_INT(WIFI_AUTH_WPA_PSK) },
-    { MP_ROM_QSTR(MP_QSTR_AUTH_WPA2_PSK), MP_ROM_INT(WIFI_AUTH_WPA2_PSK) },
-    { MP_ROM_QSTR(MP_QSTR_AUTH_WPA_WPA2_PSK), MP_ROM_INT(WIFI_AUTH_WPA_WPA2_PSK) },
-    { MP_ROM_QSTR(MP_QSTR_AUTH_WPA2_ENTERPRISE), MP_ROM_INT(WIFI_AUTH_WPA2_ENTERPRISE) },
-    { MP_ROM_QSTR(MP_QSTR_AUTH_MAX), MP_ROM_INT(WIFI_AUTH_MAX) },
-
-    { MP_ROM_QSTR(MP_QSTR_STAT_IDLE), MP_ROM_INT(STAT_IDLE)},
-    { MP_ROM_QSTR(MP_QSTR_STAT_CONNECTING), MP_ROM_INT(STAT_CONNECTING)},
-    { MP_ROM_QSTR(MP_QSTR_STAT_GOT_IP), MP_ROM_INT(STAT_GOT_IP)},
-    { MP_ROM_QSTR(MP_QSTR_STAT_NO_AP_FOUND), MP_ROM_INT(WIFI_REASON_NO_AP_FOUND)},
-    { MP_ROM_QSTR(MP_QSTR_STAT_WRONG_PASSWORD), MP_ROM_INT(WIFI_REASON_AUTH_FAIL)},
-    { MP_ROM_QSTR(MP_QSTR_STAT_BEACON_TIMEOUT), MP_ROM_INT(WIFI_REASON_BEACON_TIMEOUT)},
-    { MP_ROM_QSTR(MP_QSTR_STAT_ASSOC_FAIL), MP_ROM_INT(WIFI_REASON_ASSOC_FAIL)},
-    { MP_ROM_QSTR(MP_QSTR_STAT_HANDSHAKE_TIMEOUT), MP_ROM_INT(WIFI_REASON_HANDSHAKE_TIMEOUT)},
-#endif
-#endif
 };
 
-STATIC MP_DEFINE_CONST_DICT(mp_module_network_globals,
-                            mp_module_network_globals_table);
+STATIC MP_DEFINE_CONST_DICT(mp_module_network_globals, mp_module_network_globals_table);
 
 const mp_obj_module_t mp_module_network = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&mp_module_network_globals,
 };
+
+MP_REGISTER_MODULE(MP_QSTR_network, mp_module_network, MICROPY_PY_NETWORK);
+#endif

@@ -25,7 +25,7 @@ idf_export_main() {
         return 1
     fi
 
-    if [ -z "${IDF_PATH}" ]
+    if [[ -z ${IDF_PATH-} ]]
     then
         # IDF_PATH not set in the environment.
         # If using bash or zsh, try to guess IDF_PATH from script location.

@@ -1,0 +1,5 @@
+srctype = micropython-lib
+type = module
+version = 0.3
+author = Paul Sokolovsky
+depends = os, ffilib

@@ -1,18 +1,11 @@
-#include <stdint.h>
-#include <stdlib.h>
-
-extern const char haas_help_text[];
-
 // Options to control how MicroPython is built for this port,
 // overriding defaults in py/mpconfig.h.
 
-// system endianness
-#define MP_ENDIANNESS_LITTLE                   (1)
+// Board-specific definitions
+#include <stdint.h>
+#include <stdlib.h>
 
-// You can disable the built-in MicroPython compiler by setting the following
-// config option to 0.  If you do this then you won't get a REPL prompt, but you
-// will still be able to execute pre-compiled scripts, compiled with mpy-cross.
-#define MICROPY_ENABLE_COMPILER                (1)
+#include "mpconfigboard.h"
 
 // object representation and NLR handling
 #define MICROPY_OBJ_REPR                       (MICROPY_OBJ_REPR_A)
@@ -60,7 +53,7 @@ extern const char haas_help_text[];
 #define MICROPY_USE_INTERNAL_ERRNO             (1)
 #define MICROPY_USE_INTERNAL_PRINTF            (0)  // HaaS use its own printf
 #define MICROPY_ENABLE_SCHEDULER               (1)
-#define MICROPY_SCHEDULER_DEPTH                (8)
+#define MICROPY_SCHEDULER_DEPTH                (8 * 2)
 #define MICROPY_VFS                            (1)
 #define MICROPY_VFS_POSIX                      (1)
 #define MICROPY_VFS_POSIX_FILE                 (1)
@@ -219,8 +212,7 @@ extern const char haas_help_text[];
 #define mp_builtin_open_obj              mp_vfs_open_obj
 
 // extended modules by HaaS
-#define MICROPY_PY_AOS_SPECIFIC         (1)
-#define MICROPY_QSTR_BYTES_IN_HASH       (1)
+#define MICROPY_PY_AOS_SPECIFIC          (1)
 #define MICROPY_ALLOC_PARSE_CHUNK_INIT   (16)
 #define MICROPY_ENABLE_EXTERNAL_IMPORT   (1)
 #define MICROPY_ENABLE_DYNAMIC_TRIADIC   (0)
@@ -248,8 +240,6 @@ typedef long mp_off_t;
 // board specifics
 #define MICROPY_PY_SYS_PLATFORM      "AliOS-Things"
 #define MICROPY_PY_SYS_NODE          "V3.3"
-#define MICROPY_HW_BOARD_NAME        SYSINFO_BOARD
-#define MICROPY_HW_MCU_NAME          SYSINFO_MCU
 
 #define MP_PLAT_PRINT_STRN(str, len) mp_hal_stdout_tx_strn_cooked(str, len)
 
@@ -310,231 +300,17 @@ typedef long mp_off_t;
 #define MICROPY_PY_UTIME_DEF_WEAK_LINKS
 #endif
 
-#define MICROPY_COMPONENTS_AUDIO   1
-#define MICROPY_COMPONENTS_BLE     1
-#define MICROPY_COMPONENTS_DRIVER  1
-#define MICROPY_COMPONENTS_LINKSDK 1
-#define MICROPY_COMPONENTS_MINICV  0
-#define MICROPY_COMPONENTS_MODBUS  1
-#define MICROPY_COMPONENTS_MQTT    1
-#define MICROPY_COMPONENTS_NETMGR  1
-#define MICROPY_COMPONENTS_NETWORK 1
-#define MICROPY_COMPONENTS_OSS     1
-#define MICROPY_COMPONENTS_OTA     1
-#define MICROPY_COMPONENTS_SNTP    1
-#define MICROPY_COMPONENTS_UCAMERA 0
-#define MICROPY_COMPONENTS_ULOG    1
-
 extern const struct _mp_obj_module_t utime_module;
-extern const struct _mp_obj_module_t driver_module;
-
-#if PY_BUILD_AI
-extern const struct _mp_obj_module_t minicv_module;
-#define MICROPY_PY_MINICV_DEF { MP_ROM_QSTR(MP_QSTR_minicv), MP_ROM_PTR(&minicv_module) },
-#else
-#define MICROPY_PY_MINICV_DEF
-#endif
-
-#if PY_BUILD_OSS
-extern const struct _mp_obj_module_t oss_module;
-#define MICROPY_PY_OSS_DEF { MP_ROM_QSTR(MP_QSTR_OSS), MP_ROM_PTR(&oss_module) },
-#else
-#define MICROPY_PY_OSS_DEF
-#endif
-
-#if PY_BUILD_UCLOUD_AI
-extern const struct _mp_obj_module_t ucloud_ai_module;
-#define MICROPY_PY_UCLOUD_AI_DEF { MP_ROM_QSTR(MP_QSTR_ucloud_ai), MP_ROM_PTR(&ucloud_ai_module) },
-#else
-#define MICROPY_PY_UCLOUD_AI_DEF
-#endif
-
-#if PY_BUILD_AIAGENT
-extern const struct _mp_obj_module_t aiagent_module;
-#define MICROPY_PY_AIAGENT_DEF { MP_ROM_QSTR(MP_QSTR_aiagent), MP_ROM_PTR(&aiagent_module) },
-#else
-#define MICROPY_PY_AIAGENT_DEF
-#endif
-
-#if MICROPY_PY_UCAMERA
-extern const struct _mp_obj_module_t ucamera_module;
-#define MICROPY_PY_UCAMERA_DEF { MP_ROM_QSTR(MP_QSTR_ucamera), MP_ROM_PTR(&ucamera_module) },
-#else
-#define MICROPY_PY_UCAMERA_DEF
-#endif
-#if PY_BUILD_HTTP
-extern const struct _mp_obj_module_t http_module;
-#define MICROPY_PY_HTTP_DEF { MP_ROM_QSTR(MP_QSTR_http), MP_ROM_PTR(&http_module) },
-#else
-#define MICROPY_PY_HTTP_DEF
-#endif
-
-#if PY_BUILD_TCP
-extern const struct _mp_obj_module_t tcp_module;
-#define MICROPY_PY_TCP_DEF { MP_ROM_QSTR(MP_QSTR_tcp), MP_ROM_PTR(&tcp_module) },
-#else
-#define MICROPY_PY_TCP_DEF
-#endif
-
-#if PY_BUILD_UDP
-extern const struct _mp_obj_module_t udp_module;
-#define MICROPY_PY_UDP_DEF { MP_ROM_QSTR(MP_QSTR_udp), MP_ROM_PTR(&udp_module) },
-#else
-#define MICROPY_PY_UDP_DEF
-#endif
-
-#if PY_BUILD_NETMGR
-extern const struct _mp_obj_module_t netmgr_module;
-#define MICROPY_PY_NETMGR_DEF { MP_ROM_QSTR(MP_QSTR_netmgr), MP_ROM_PTR(&netmgr_module) },
-#else
-#define MICROPY_PY_NETMGR_DEF
-#endif
-
-#if PY_BUILD_MQTT
-extern const struct _mp_obj_module_t mqtt_module;
-#define MICROPY_PY_MQTT_DEF { MP_ROM_QSTR(MP_QSTR_mqtt), MP_ROM_PTR(&mqtt_module) },
-#else
-#define MICROPY_PY_MQTT_DEF
-#endif
-
-// #if PY_BUILD_LINKSDK
-// extern const struct _mp_obj_module_t linkkit_module;
-// #define MICROPY_PY_LINKSDK_DEF { MP_ROM_QSTR(MP_QSTR__linkkit), MP_ROM_PTR(&linkkit_module) },
-// #else
-// #define MICROPY_PY_LINKSDK_DEF
-// #endif
-
-#if PY_BUILD_ALIYUNIOT
-extern const struct _mp_obj_module_t aliyunIoT_module;
-#define MICROPY_PY_ALIYUNIOT_DEF { MP_ROM_QSTR(MP_QSTR_aliyunIoT), MP_ROM_PTR(&aliyunIoT_module) },
-#else
-#define MICROPY_PY_ALIYUNIOT_DEF
-#endif
-
-#if PY_BUILD_USOCKET
-extern const struct _mp_obj_module_t mp_module_usocket;
-#define MICROPY_PY_USOCKET_DEF { MP_ROM_QSTR(MP_QSTR_usocket), MP_ROM_PTR(&mp_module_usocket) },
-#else
-#define MICROPY_PY_USOCKET_DEF
-#endif
-
-#if PY_BUILD_UOS
 extern const struct _mp_obj_module_t uos_module;
-#define MICROPY_PY_UOS_DEF { MP_ROM_QSTR(MP_QSTR_uos), MP_ROM_PTR(&uos_module) },
-#else
-#define MICROPY_PY_UOS_DEF
-#endif
-
-#if PY_BUILD_AUDIO
-extern const struct _mp_obj_module_t audio_module;
-#define MICROPY_PY_AUDIO_DEF { MP_ROM_QSTR(MP_QSTR_audio), MP_ROM_PTR(&audio_module) },
-#else
-#define MICROPY_PY_AUDIO_DEF
-#endif
-
-#if MICROPY_PY_SNTP
-extern const struct _mp_obj_module_t sntp_module;
-#define MICROPY_PY_SNTP_DEF { MP_ROM_QSTR(MP_QSTR_sntp), MP_ROM_PTR(&sntp_module) },
-#else
-#define MICROPY_PY_SNTP_DEF
-#endif
-
-#if PY_BUILD_MODBUS
-extern const struct _mp_obj_module_t modbus_module;
-#define MICROPY_PY_MODBUS_DEF { MP_ROM_QSTR(MP_QSTR_modbus), MP_ROM_PTR(&modbus_module) },
-#else
-#define MICROPY_PY_MODBUS_DEF
-#endif
-
-#if PY_BUILD_UGRAPHICS
-extern const struct _mp_obj_module_t ugraphics_module;
-#define MICROPY_PY_UGRAPHICS_DEF { MP_ROM_QSTR(MP_QSTR_ugraphics), MP_ROM_PTR(&ugraphics_module) },
-#else
-#define MICROPY_PY_UGRAPHICS_DEF
-#endif
-
-#if PY_BUILD_ULOG
-extern const struct _mp_obj_module_t ulog_module;
-#define MICROPY_PY_ULOG_DEF { MP_ROM_QSTR(MP_QSTR_ulog), MP_ROM_PTR(&ulog_module) },
-#else
-#define MICROPY_PY_ULOG_DEF
-#endif
-
-#if PY_BUILD_KV
-extern const struct _mp_obj_module_t kv_module;
-#define MICROPY_PY_KV_DEF { MP_ROM_QSTR(MP_QSTR_kv), MP_ROM_PTR(&kv_module) },
-#else
-#define MICROPY_PY_KV_DEF
-#endif
-
-#if PY_BUILD_SYSTEM
-extern const struct _mp_obj_module_t system_module;
-#define MICROPY_PY_SYSTEM_DEF { MP_ROM_QSTR(MP_QSTR_system), MP_ROM_PTR(&system_module) },
-#else
-#define MICROPY_PY_SYSTEM_DEF
-#endif
-
-#if PY_BUILD_OTA
-extern const struct _mp_obj_module_t ota_module;
-#define MICROPY_PY_OTA_DEF { MP_ROM_QSTR(MP_QSTR_ota), MP_ROM_PTR(&ota_module) },
-#else
-#define MICROPY_PY_OTA_DEF
-#endif
-
-#ifdef AOS_BOARD_HAAS700
-
-#if PY_BUILD_VIDEO
-extern const struct _mp_obj_module_t video_module;
-#define MICROPY_PY_VIDEO_DEF { MP_ROM_QSTR(MP_QSTR_video), MP_ROM_PTR(&video_module) },
-#else
-#define MICROPY_PY_VIDEO_DEF
-#endif
-
-#if PY_BUILD_NETWORK
-extern const struct _mp_obj_module_t network_module;
-#define MICROPY_PY_NETWORK_DEF { MP_ROM_QSTR(MP_QSTR_network), MP_ROM_PTR(&network_module) },
-#else
-#define MICROPY_PY_NETWORK_DEF
-#endif
-
-#endif
+extern const struct _mp_obj_module_t mp_module_usocket;
+extern const struct _mp_obj_module_t mp_module_machine;
 
 // clang-format off
-#ifndef AOS_BOARD_HAAS700
-#define MICROPY_PORT_BUILTIN_MODULES    \
-    { MP_ROM_QSTR(MP_QSTR_utime), MP_ROM_PTR(&utime_module) },  \
-    { MP_ROM_QSTR(MP_QSTR_driver), MP_ROM_PTR(&driver_module) }, \
-    MICROPY_PY_UTIME_DEF    \
-    MICROPY_PY_MINICV_DEF   \
-    MICROPY_PY_ALIYUNIOT_DEF \
-    MICROPY_PY_HTTP_DEF     \
-    MICROPY_PY_UDP_DEF      \
-    MICROPY_PY_TCP_DEF      \
-    MICROPY_PY_NETMGR_DEF   \
-    MICROPY_PY_MQTT_DEF     \
-    MICROPY_PY_USOCKET_DEF  \
-    MICROPY_PY_AUDIO_DEF    \
-    MICROPY_PY_UOS_DEF      \
-    MICROPY_PY_OSS_DEF      \
-    MICROPY_PY_UCAMERA_DEF  \
-    MICROPY_PY_SNTP_DEF     \
-    MICROPY_PY_MODBUS_DEF   \
-    MICROPY_PY_UGRAPHICS_DEF \
-    MICROPY_PY_ULOG_DEF     \
-    MICROPY_PY_KV_DEF       \
-    MICROPY_PY_SYSTEM_DEF   \
-    MICROPY_PY_OTA_DEF      \
-    MICROPY_PY_UCLOUD_AI_DEF \
-    MICROPY_PY_AIAGENT_DEF
-#else
-#define MICROPY_PORT_BUILTIN_MODULES                            \
-    { MP_ROM_QSTR(MP_QSTR_utime), MP_ROM_PTR(&utime_module) },  \
-    { MP_ROM_QSTR(MP_QSTR_driver), MP_ROM_PTR(&driver_module) }, \
-    MICROPY_PY_UDP_DEF      \
-    MICROPY_PY_TCP_DEF      \
-    MICROPY_PY_VIDEO_DEF    \
-    MICROPY_PY_NETWORK_DEF
-#endif
+#define MICROPY_PORT_BUILTIN_MODULES \
+    { MP_OBJ_NEW_QSTR(MP_QSTR_utime), (mp_obj_t)&utime_module }, \
+    { MP_OBJ_NEW_QSTR(MP_QSTR_uos), (mp_obj_t)&uos_module }, \
+    { MP_OBJ_NEW_QSTR(MP_QSTR_usocket), (mp_obj_t)&mp_module_usocket }, \
+    { MP_OBJ_NEW_QSTR(MP_QSTR_machine), (mp_obj_t)&mp_module_machine }, 
 // clang-format on
 
 #define MICROPY_PORT_BUILTIN_MODULE_WEAK_LINKS MICROPY_PY_UTIME_DEF_WEAK_LINKS

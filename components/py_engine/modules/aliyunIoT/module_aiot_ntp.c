@@ -2,14 +2,12 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
-#include "amp_platform.h"
-#include "aos_system.h"
-#include "py_defines.h"
+#include "aiot_mqtt_api.h"
+#include "aiot_ntp_api.h"
 #include "aiot_state_api.h"
 #include "aiot_sysdep_api.h"
-#include "aiot_ntp_api.h"
-#include "aiot_mqtt_api.h"
 #include "module_aiot.h"
+#include "py_defines.h"
 
 #define MOD_STR "AIOT_NTP"
 
@@ -35,27 +33,18 @@ static void aiot_device_ntp_notify(void *pdata)
 
     mp_obj_t dict;
     dict = mp_obj_new_dict(8);
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("year", 4),
-                              mp_obj_new_int(param->year));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("month", 5),
-                              mp_obj_new_int(param->month));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("day", 3),
-                              mp_obj_new_int(param->day));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("hour", 4),
-                              mp_obj_new_int(param->hour));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("minute", 6),
-                              mp_obj_new_int(param->minute));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("second", 6),
-                              mp_obj_new_int(param->second));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("msecond", 7),
-                              mp_obj_new_int(param->msecond));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("timestamp", 9),
-                              mp_obj_new_int(param->timestamp));
+    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("year", 4), mp_obj_new_int(param->year));
+    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("month", 5), mp_obj_new_int(param->month));
+    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("day", 3), mp_obj_new_int(param->day));
+    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("hour", 4), mp_obj_new_int(param->hour));
+    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("minute", 6), mp_obj_new_int(param->minute));
+    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("second", 6), mp_obj_new_int(param->second));
+    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("msecond", 7), mp_obj_new_int(param->msecond));
+    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("timestamp", 9), mp_obj_new_int(param->timestamp));
     if (param->cb != MP_OBJ_NULL && mp_obj_is_fun(param->cb)) {
         callback_to_python(param->cb, dict);
     } else {
-        amp_warn(MOD_STR,
-            "param->cb is not function");
+        amp_warn(MOD_STR, "param->cb is not function");
     }
     aos_free(param);
 }
@@ -64,39 +53,35 @@ static void aiot_app_ntp_recv_handler(void *handle, const aiot_ntp_recv_t *packe
 {
     int res = -1;
 
-    hapy_aiot_ntp_notify_param_t *ntp_params;
+    hapy_aiot_ntp_notify_param_t *ntp_params = NULL;
 
     switch (packet->type) {
     case AIOT_NTPRECV_LOCAL_TIME:
         /* print topic name and topic message */
         amp_debug(MOD_STR, "year: %d, month: %d, day: %d, hour: %d, min: %d, sec: %d, msec: %d, timestamp: %d",
-                packet->data.local_time.year,
-                packet->data.local_time.mon,
-                packet->data.local_time.day,
-                packet->data.local_time.hour,
-                packet->data.local_time.min,
-                packet->data.local_time.sec,
-                packet->data.local_time.msec,
-                packet->data.local_time.timestamp
-        );
+                  packet->data.local_time.year, packet->data.local_time.mon, packet->data.local_time.day,
+                  packet->data.local_time.hour, packet->data.local_time.min, packet->data.local_time.sec,
+                  packet->data.local_time.msec, packet->data.local_time.timestamp);
 
         // pyamp_g_ntp_time = packet->data.local_time.timestamp;
         // pyamp_g_up_time = aos_now_ms();
 
         ntp_params = (hapy_aiot_ntp_notify_param_t *)userdata;
 
-        ntp_params->year        = packet->data.local_time.year;
-        ntp_params->month       = packet->data.local_time.mon;
-        ntp_params->day         = packet->data.local_time.day;
-        ntp_params->hour        = packet->data.local_time.hour;
-        ntp_params->minute      = packet->data.local_time.min;
-        ntp_params->second      = packet->data.local_time.sec;
-        ntp_params->msecond     = packet->data.local_time.msec;
-        ntp_params->timestamp   = packet->data.local_time.timestamp;
+        ntp_params->year = packet->data.local_time.year;
+        ntp_params->month = packet->data.local_time.mon;
+        ntp_params->day = packet->data.local_time.day;
+        ntp_params->hour = packet->data.local_time.hour;
+        ntp_params->minute = packet->data.local_time.min;
+        ntp_params->second = packet->data.local_time.sec;
+        ntp_params->msecond = packet->data.local_time.msec;
+        ntp_params->timestamp = packet->data.local_time.timestamp;
 
         break;
     default:
-        aos_free(ntp_params);
+        if (ntp_params != NULL) {
+            aos_free(ntp_params);
+        }
         return;
     }
 
@@ -173,11 +158,11 @@ int32_t hapy_aiot_amp_ntp_service(void *mqtt_handle, mp_obj_t cb)
     ntp_params = aos_malloc(sizeof(hapy_aiot_ntp_notify_param_t));
     if (!ntp_params) {
         amp_error(MOD_STR, "alloc device_ntp_notify_param_t fail");
-        return;
+        return -1;
     }
     memset(ntp_params, 0, sizeof(hapy_aiot_ntp_notify_param_t));
 
-    ntp_params->cb = cb ;
+    ntp_params->cb = cb;
 
     res = aiot_ntp_setopt(ntp_handle, AIOT_NTPOPT_USERDATA, ntp_params);
     if (res < STATE_SUCCESS) {

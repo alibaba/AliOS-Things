@@ -3,6 +3,7 @@
 #include <driver/spi_common.h>
 #include <driver/spi_master.h>
 #include <aos_hal_spi_internal.h>
+#include "esp_log.h"
 
 typedef struct {
     spi_device_handle_t dev_handle;
@@ -237,4 +238,62 @@ int32_t aos_hal_spi_send_and_recv(aos_hal_spi_dev_t *spi, uint8_t *tx_data, uint
                                   uint16_t rx_size, uint32_t timeout)
 {
     return -ENOTSUP;
+    /*
+    if (!spi || !spi->priv || !tx_data || !rx_data || rx_size == 0)
+        return -EINVAL;
+
+    spi_device_handle_t dev_handle = ((spi_pdata_t *)spi->priv)->dev_handle;
+    int bits_to_send = tx_size * 8;
+
+    if (tx_size <= 4) {
+        spi_transaction_t transaction;
+        memset(&transaction, 0, sizeof(spi_transaction_t));
+        if (tx_data != NULL) {
+            memcpy(&transaction.tx_data, tx_data, tx_size);
+        }
+        transaction.flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA;
+        transaction.length = bits_to_send;
+        spi_device_transmit(dev_handle, &transaction);
+
+        if (rx_data != NULL) {
+            memcpy(rx_data, transaction.rx_data, rx_size);
+        }
+    } else {
+        int offset = 0;
+        int bits_remaining = bits_to_send;
+        int max_transaction_bits = 1024 * 8;
+        spi_transaction_t *transaction, *result, transactions[2];
+        int i = 0;
+        spi_device_acquire_bus(dev_handle, portMAX_DELAY);
+
+        while (bits_remaining) {
+            transaction = transactions + i++ % 2;
+            memset(transaction, 0, sizeof(spi_transaction_t));
+
+            transaction->length =
+                bits_remaining > max_transaction_bits ? max_transaction_bits : bits_remaining;
+
+            if (tx_data != NULL) {
+                transaction->tx_buffer = tx_data + offset;
+            }
+            if (rx_data != NULL) {
+                transaction->rx_buffer = rx_data + offset;
+            }
+            spi_device_queue_trans(dev_handle, transaction, portMAX_DELAY);
+            bits_remaining -= transaction->length;
+
+            if (offset > 0) {
+                // wait for previously queued transaction
+                spi_device_get_trans_result(dev_handle, &result, portMAX_DELAY);
+            }
+
+            // doesn't need ceil(); loop ends when bits_remaining is 0
+            offset += transaction->length / 8;
+        }
+        // wait for last transaction
+        spi_device_get_trans_result(dev_handle, &result, portMAX_DELAY);
+        spi_device_release_bus(dev_handle);
+    }
+    return 0;
+    */
 }

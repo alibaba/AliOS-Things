@@ -116,7 +116,7 @@ STATIC mp_obj_t i2c_open(size_t n_args, const mp_obj_t *args)
     }
 
 fail:
-    if (ret < 0) {
+    if (ret != 0) {
         py_board_disattach_item(MODULE_I2C, &(driver_obj->i2c_handle));
     } else {
         g_is_dev_inited[i2c_device->port] = true;

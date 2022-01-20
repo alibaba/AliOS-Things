@@ -359,7 +359,9 @@ err:
 esp_err_t i2c_driver_delete(i2c_port_t i2c_num)
 {
     I2C_CHECK(i2c_num < I2C_NUM_MAX, I2C_NUM_ERROR_STR, ESP_ERR_INVALID_ARG);
-    I2C_CHECK(p_i2c_obj[i2c_num] != NULL, I2C_DRIVER_ERR_STR, ESP_FAIL);
+
+    if (p_i2c_obj[i2c_num] == NULL)
+        return ESP_OK;
 
     i2c_obj_t *p_i2c = p_i2c_obj[i2c_num];
     i2c_hal_disable_intr_mask(&(i2c_context[i2c_num].hal), I2C_INTR_MASK);

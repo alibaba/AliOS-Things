@@ -1,0 +1,4 @@
+srctype = cpython
+type = package
+version = 0.5.3
+depends = re-pcre, uu, base64, binascii, email.utils, email.errors, email.charset

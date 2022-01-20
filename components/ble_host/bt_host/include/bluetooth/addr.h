@@ -11,6 +11,7 @@
 #define ZEPHYR_INCLUDE_BLUETOOTH_ADDR_H_
 
 #include <string.h>
+#include <stdbool.h>
 #include <ble_types/types.h>
 
 #ifdef __cplusplus

@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if MICROPY_PY_UGRAPHICS
+
 #include "py/builtin.h"
 #include "py/obj.h"
 #include "py/runtime.h"
@@ -37,8 +39,7 @@ STATIC mp_obj_t mp_ugraphics_deinit(size_t n_args, const mp_obj_t *args)
 
     return mp_obj_new_int(0);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_deinit_obj, 0,
-                                   mp_ugraphics_deinit);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_deinit_obj, 0, mp_ugraphics_deinit);
 
 STATIC mp_obj_t mp_ugraphics_loadFont(size_t n_args, const mp_obj_t *args)
 {
@@ -56,8 +57,7 @@ STATIC mp_obj_t mp_ugraphics_loadFont(size_t n_args, const mp_obj_t *args)
 
     return MP_OBJ_NEW_SMALL_INT(-status);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_loadFont_obj, 2,
-                                   mp_ugraphics_loadFont);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_loadFont_obj, 2, mp_ugraphics_loadFont);
 
 STATIC mp_obj_t mp_ugraphics_setFontSytle(size_t n_args, const mp_obj_t *args)
 {
@@ -74,8 +74,7 @@ STATIC mp_obj_t mp_ugraphics_setFontSytle(size_t n_args, const mp_obj_t *args)
 
     return mp_obj_new_int(0);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_setFontSytle_obj, 1,
-                                   mp_ugraphics_setFontSytle);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_setFontSytle_obj, 1, mp_ugraphics_setFontSytle);
 
 STATIC mp_obj_t mp_ugraphics_ugraphicsFlip(size_t n_args, const mp_obj_t *args)
 {
@@ -83,8 +82,7 @@ STATIC mp_obj_t mp_ugraphics_ugraphicsFlip(size_t n_args, const mp_obj_t *args)
 
     return mp_obj_new_int(0);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_ugraphicsFlip_obj, 0,
-                                   mp_ugraphics_ugraphicsFlip);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_ugraphicsFlip_obj, 0, mp_ugraphics_ugraphicsFlip);
 
 STATIC mp_obj_t mp_ugraphics_ugraphicsClear(size_t n_args, const mp_obj_t *args)
 {
@@ -92,8 +90,7 @@ STATIC mp_obj_t mp_ugraphics_ugraphicsClear(size_t n_args, const mp_obj_t *args)
 
     return MP_OBJ_NEW_SMALL_INT(-status);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_ugraphicsClear_obj, 0,
-                                   mp_ugraphics_ugraphicsClear);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_ugraphicsClear_obj, 0, mp_ugraphics_ugraphicsClear);
 
 STATIC mp_obj_t mp_ugraphics_setColour(size_t n_args, const mp_obj_t *args)
 {
@@ -110,8 +107,7 @@ STATIC mp_obj_t mp_ugraphics_setColour(size_t n_args, const mp_obj_t *args)
 
     return MP_OBJ_NEW_SMALL_INT(-status);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_setColour_obj, 1,
-                                   mp_ugraphics_setColour);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_setColour_obj, 1, mp_ugraphics_setColour);
 
 STATIC mp_obj_t mp_ugraphics_drawRect(size_t n_args, const mp_obj_t *args)
 {
@@ -134,8 +130,7 @@ STATIC mp_obj_t mp_ugraphics_drawRect(size_t n_args, const mp_obj_t *args)
 
     return MP_OBJ_NEW_SMALL_INT(-status);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_drawRect_obj, 4,
-                                   mp_ugraphics_drawRect);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_drawRect_obj, 4, mp_ugraphics_drawRect);
 
 STATIC mp_obj_t mp_ugraphics_fillRect(size_t n_args, const mp_obj_t *args)
 {
@@ -158,8 +153,7 @@ STATIC mp_obj_t mp_ugraphics_fillRect(size_t n_args, const mp_obj_t *args)
 
     return MP_OBJ_NEW_SMALL_INT(-status);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_fillRect_obj, 4,
-                                   mp_ugraphics_fillRect);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_fillRect_obj, 4, mp_ugraphics_fillRect);
 
 STATIC mp_obj_t mp_ugraphics_drawLine(size_t n_args, const mp_obj_t *args)
 {
@@ -182,8 +176,7 @@ STATIC mp_obj_t mp_ugraphics_drawLine(size_t n_args, const mp_obj_t *args)
 
     return MP_OBJ_NEW_SMALL_INT(-status);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_drawLine_obj, 4,
-                                   mp_ugraphics_drawLine);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_drawLine_obj, 4, mp_ugraphics_drawLine);
 
 STATIC mp_obj_t mp_ugraphics_drawString(size_t n_args, const mp_obj_t *args)
 {
@@ -204,8 +197,7 @@ STATIC mp_obj_t mp_ugraphics_drawString(size_t n_args, const mp_obj_t *args)
 
     return MP_OBJ_NEW_SMALL_INT(-status);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_drawString_obj, 3,
-                                   mp_ugraphics_drawString);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_drawString_obj, 3, mp_ugraphics_drawString);
 
 STATIC mp_obj_t mp_ugraphics_stringWidth(size_t n_args, const mp_obj_t *args)
 {
@@ -219,8 +211,7 @@ STATIC mp_obj_t mp_ugraphics_stringWidth(size_t n_args, const mp_obj_t *args)
 
     return mp_obj_new_int(ret);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_stringWidth_obj, 1,
-                                   mp_ugraphics_stringWidth);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_stringWidth_obj, 1, mp_ugraphics_stringWidth);
 
 STATIC mp_obj_t mp_ugraphics_saveImage(size_t n_args, const mp_obj_t *args)
 {
@@ -236,9 +227,8 @@ STATIC mp_obj_t mp_ugraphics_saveImage(size_t n_args, const mp_obj_t *args)
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[0], &bufinfo, MP_BUFFER_WRITE);
     if (bufinfo.len < len * sizeof(uint16_t)) {
-        mp_raise_msg(&mp_type_ValueError,
-                     MP_ERROR_TEXT("bytearray size should not smaller than "
-                                   "twice of reg_quantity"));
+        mp_raise_msg(&mp_type_ValueError, MP_ERROR_TEXT("bytearray size should not smaller than "
+                                                        "twice of reg_quantity"));
         return mp_const_none;
     }
 
@@ -248,8 +238,7 @@ STATIC mp_obj_t mp_ugraphics_saveImage(size_t n_args, const mp_obj_t *args)
 
     return MP_OBJ_NEW_SMALL_INT(-status);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_saveImage_obj, 3,
-                                   mp_ugraphics_saveImage);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_saveImage_obj, 3, mp_ugraphics_saveImage);
 
 STATIC mp_obj_t mp_ugraphics_drawImage(size_t n_args, const mp_obj_t *args)
 {
@@ -269,43 +258,33 @@ STATIC mp_obj_t mp_ugraphics_drawImage(size_t n_args, const mp_obj_t *args)
 
     return MP_OBJ_NEW_SMALL_INT(-status);
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_drawImage_obj, 3,
-                                   mp_ugraphics_drawImage);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(mp_ugraphics_drawImage_obj, 3, mp_ugraphics_drawImage);
 
 STATIC const mp_rom_map_elem_t ugraphics_module_globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_ugraphics) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_init), MP_ROM_PTR(&mp_ugraphics_init_obj) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_deinit), MP_ROM_PTR(&mp_ugraphics_deinit_obj) },
-    { MP_OBJ_NEW_QSTR(MP_QSTR_loadFont),
-      MP_ROM_PTR(&mp_ugraphics_loadFont_obj) },
-    { MP_OBJ_NEW_QSTR(MP_QSTR_setFontStyle),
-      MP_ROM_PTR(&mp_ugraphics_setFontSytle_obj) },
-    { MP_OBJ_NEW_QSTR(MP_QSTR_ugraphicsFlip),
-      MP_ROM_PTR(&mp_ugraphics_ugraphicsFlip_obj) },
-    { MP_OBJ_NEW_QSTR(MP_QSTR_ugraphicsClear),
-      MP_ROM_PTR(&mp_ugraphics_ugraphicsClear_obj) },
-    { MP_OBJ_NEW_QSTR(MP_QSTR_setColour),
-      MP_ROM_PTR(&mp_ugraphics_setColour_obj) },
-    { MP_OBJ_NEW_QSTR(MP_QSTR_drawRect),
-      MP_ROM_PTR(&mp_ugraphics_drawRect_obj) },
-    { MP_OBJ_NEW_QSTR(MP_QSTR_fillRect),
-      MP_ROM_PTR(&mp_ugraphics_fillRect_obj) },
-    { MP_OBJ_NEW_QSTR(MP_QSTR_drawLine),
-      MP_ROM_PTR(&mp_ugraphics_drawLine_obj) },
-    { MP_OBJ_NEW_QSTR(MP_QSTR_drawString),
-      MP_ROM_PTR(&mp_ugraphics_drawString_obj) },
-    { MP_OBJ_NEW_QSTR(MP_QSTR_stringWidth),
-      MP_ROM_PTR(&mp_ugraphics_stringWidth_obj) },
-    { MP_OBJ_NEW_QSTR(MP_QSTR_saveImage),
-      MP_ROM_PTR(&mp_ugraphics_saveImage_obj) },
-    { MP_OBJ_NEW_QSTR(MP_QSTR_drawImage),
-      MP_ROM_PTR(&mp_ugraphics_drawImage_obj) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_loadFont), MP_ROM_PTR(&mp_ugraphics_loadFont_obj) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_setFontStyle), MP_ROM_PTR(&mp_ugraphics_setFontSytle_obj) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_ugraphicsFlip), MP_ROM_PTR(&mp_ugraphics_ugraphicsFlip_obj) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_ugraphicsClear), MP_ROM_PTR(&mp_ugraphics_ugraphicsClear_obj) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_setColour), MP_ROM_PTR(&mp_ugraphics_setColour_obj) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_drawRect), MP_ROM_PTR(&mp_ugraphics_drawRect_obj) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_fillRect), MP_ROM_PTR(&mp_ugraphics_fillRect_obj) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_drawLine), MP_ROM_PTR(&mp_ugraphics_drawLine_obj) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_drawString), MP_ROM_PTR(&mp_ugraphics_drawString_obj) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_stringWidth), MP_ROM_PTR(&mp_ugraphics_stringWidth_obj) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_saveImage), MP_ROM_PTR(&mp_ugraphics_saveImage_obj) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_drawImage), MP_ROM_PTR(&mp_ugraphics_drawImage_obj) },
 };
 
-STATIC MP_DEFINE_CONST_DICT(ugraphics_module_globals,
-                            ugraphics_module_globals_table);
+STATIC MP_DEFINE_CONST_DICT(ugraphics_module_globals, ugraphics_module_globals_table);
 
 const mp_obj_module_t ugraphics_module = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&ugraphics_module_globals,
 };
+
+MP_REGISTER_MODULE(MP_QSTR_ugraphics, ugraphics_module, MICROPY_PY_UGRAPHICS);
+
+#endif  // MICROPY_PY_UGRAPHICS

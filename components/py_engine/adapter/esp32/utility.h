@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "py/builtin.h"
 #include "py/gc.h"
@@ -14,7 +15,7 @@
 
 extern void mp_hal_wake_main_task_from_isr();
 
-void callback_to_python(mp_obj_t function, mp_obj_t arg);
+bool callback_to_python(mp_obj_t function, mp_obj_t arg);
 
 mp_obj_t mp_obj_new_strn(const char *data);
 

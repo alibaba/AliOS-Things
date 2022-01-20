@@ -1,0 +1,249 @@
+
+## 第一部分： 基础信息
+name: curl                                           # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: master                                     # <必选项> 组件版本号
+description: Curl is a command line tool for transferring data specified with URL syntax.                 # <必选项> 建议至少20字以上
+type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - base
+license: The curl license                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+  - mbedtls: master ? <!ESP_PLATFORM>
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  include:
+    - include
+    - ./lib
+    - ./src
+  define:                               # <可选项> 宏定义, 增加编译器的-D 选项,如：
+      USE_LWIPSOCK: y
+      HAVE_CONFIG_H: y
+      USE_MBEDTLS: y
+      BUILDING_LIBCURL: y
+      CURL_STATICLIB: y
+    #  HAVE_BASENAME: y
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - ./lib/altsvc.c
+  - ./lib/amigaos.c
+  - ./lib/asyn-ares.c
+  - ./lib/asyn-thread.c
+  - ./lib/base64.c
+  - ./lib/cookie.c
+  - ./lib/content_encoding.c
+  - ./lib/conncache.c
+  - ./lib/connect.c
+  - ./lib/curl_addrinfo.c
+  - ./lib/curl_ctype.c
+  - ./lib/curl_des.c
+  - ./lib/curl_endian.c
+  - ./lib/curl_fnmatch.c
+  - ./lib/curl_get_line.c
+  - ./lib/curl_gethostname.c
+  - ./lib/curl_gssapi.c
+  - ./lib/curl_memrchr.c
+  - ./lib/curl_multibyte.c
+  - ./lib/curl_ntlm_core.c
+  - ./lib/curl_ntlm_wb.c
+  - ./lib/curl_path.c
+  - ./lib/curl_range.c
+  - ./lib/curl_rtmp.c
+  - ./lib/curl_sasl.c
+  - ./lib/curl_sspi.c
+  - ./lib/curl_threads.c
+  - ./lib/dict.c
+  - ./lib/doh.c
+  - ./lib/dotdot.c
+  - ./lib/easy.c
+  - ./lib/escape.c
+  - ./lib/file.c
+  - ./lib/fileinfo.c
+  - ./lib/ftp.c
+  - ./lib/ftplistparser.c
+  - ./lib/formdata.c
+  - ./lib/getenv.c
+  - ./lib/getinfo.c
+  - ./lib/gopher.c
+  - ./lib/hash.c
+  - ./lib/hmac.c
+  - ./lib/hostcheck.c
+  - ./lib/hostip.c
+  - ./lib/hostip4.c
+  - ./lib/hostip6.c
+  - ./lib/hostsyn.c 
+  - ./lib/http.c
+  - ./lib/http2.c
+  - ./lib/http_chunks.c
+  - ./lib/http_digest.c
+  - ./lib/http_negotiate.c
+  - ./lib/http_ntlm.c
+  - ./lib/http_proxy.c
+  - ./lib/hostasyn.c
+  - ./lib/idn_win32.c
+  - ./lib/if2ip.c
+  - ./lib/imap.c
+  - ./lib/inet_ntop.c
+  - ./lib/inet_pton.c
+  - ./lib/krb5.c
+  - ./lib/ldap.c
+  - ./lib/llist.c
+  - ./lib/md4.c
+  - ./lib/md5.c
+  - ./lib/memdebug.c
+  - ./lib/mime.c
+  - ./lib/mprintf.c
+  - ./lib/multi.c
+  - ./lib/netrc.c
+  - ./lib/non-ascii.c
+  - ./lib/nonblock.c
+  - ./lib/nwlib.c
+  - ./lib/nwos.c
+  - ./lib/openldap.c
+  - ./lib/parsedate.c
+  - ./lib/pingpong.c
+  - ./lib/pop3.c
+  - ./lib/progress.c
+  - ./lib/psl.c
+  - ./lib/rand.c
+  - ./lib/rtsp.c
+  - ./lib/security.c
+  - ./lib/select.c
+  - ./lib/sendf.c
+  - ./lib/setopt.c
+  - ./lib/share.c
+  - ./lib/slist.c
+  - ./lib/smb.c
+  - ./lib/smtp.c
+  - ./lib/socks.c
+  - ./lib/socks_gssapi.c
+  - ./lib/socks_sspi.c
+  - ./lib/speedcheck.c
+  - ./lib/splay.c
+  - ./lib/sha256.c
+  - ./lib/ssh.c
+  - ./lib/ssh-libssh.c
+  - ./lib/strcase.c
+  - ./lib/strdup.c
+  - ./lib/strerror.c
+  - ./lib/strtoofft.c
+  - ./lib/strtok.c
+  - ./lib/system_win32.c
+  - ./lib/telnet.c
+  - ./lib/tftp.c
+  - ./lib/timeval.c
+  - ./lib/transfer.c
+  - ./lib/url.c
+  - ./lib/urlapi.c
+  - ./lib/vauth/cleartext.c
+  - ./lib/vauth/cram.c
+  - ./lib/vauth/digest.c
+  - ./lib/vauth/digest_sspi.c
+  - ./lib/vauth/krb5_gssapi.c
+  - ./lib/vauth/krb5_sspi.c
+  - ./lib/vauth/ntlm.c
+  - ./lib/vauth/ntlm_sspi.c
+  - ./lib/vauth/oauth2.c
+  - ./lib/vauth/spnego_gssapi.c
+  - ./lib/vauth/spnego_sspi.c
+  - ./lib/vauth/vauth.c
+  - ./lib/version.c
+  - ./lib/vtls/cyassl.c
+  - ./lib/vtls/gskit.c
+  - ./lib/vtls/gtls.c
+  - ./lib/vtls/mbedtls.c
+  - ./lib/vtls/mesalink.c
+  - ./lib/vtls/nss.c
+  - ./lib/vtls/openssl.c
+  - ./lib/vtls/polarssl.c
+  - ./lib/vtls/polarssl_threadlock.c
+  - ./lib/vtls/sectransp.c
+  - ./lib/vtls/schannel.c
+  - ./lib/vtls/schannel_verify.c
+  - ./lib/vtls/vtls.c
+  - ./lib/warnless.c
+  - ./lib/wildcard.c
+  - ./lib/x509asn1.c
+ 
+  # - ./src/slist_wc.c
+  # - ./src/tool_binmode.c
+  # - ./src/tool_bname.c
+  # - ./src/tool_cb_dbg.c
+  # - ./src/tool_cb_hdr.c
+  # - ./src/tool_cb_prg.c
+  # - ./src/tool_cb_rea.c
+  # - ./src/tool_cb_see.c
+  # - ./src/tool_cb_wrt.c
+  # - ./src/tool_cfgable.c
+  # - ./src/tool_convert.c
+  # - ./src/tool_dirhie.c
+  # - ./src/tool_doswin.c
+  # - ./src/tool_easysrc.c
+  # - ./src/tool_filetime.c
+  # - ./src/tool_formparse.c
+  # - ./src/tool_getparam.c
+  # - ./src/tool_getpass.c
+  # - ./src/tool_help.c
+  # - ./src/tool_helpers.c
+  # - ./src/tool_homedir.c
+  # - ./src/tool_libinfo.c
+  # - ./src/tool_main.c
+  # - ./src/tool_metalink.c
+  # - ./src/tool_msgs.c
+  # - ./src/tool_operate.c
+  # - ./src/tool_operhlp.c
+  # - ./src/tool_panykey.c
+  # - ./src/tool_paramhlp.c
+  # - ./src/tool_parsecfg.c
+  # - ./src/tool_setopt.c
+  # - ./src/tool_sleep.c
+  # - ./src/tool_strdup.c
+  # - ./src/tool_urlglob.c
+  # - ./src/tool_util.c
+  # - ./src/tool_writeout.c
+  # - ./src/tool_xattr.c
+#  - ./example/urlapi.c
+
+## 第五部分：配置信息
+def_config:                              # 组件的可配置项
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"

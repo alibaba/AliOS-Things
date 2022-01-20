@@ -715,6 +715,7 @@ void fs_control_cli(const char cmd, const char *param)
     }
 }
 
+#if ULOG_POP_FS_ENABLE
 int ulog_fs_log_file_size(unsigned int filesize)
 {
     if (filesize < ULOG_SIZE) {
@@ -775,6 +776,7 @@ finish:
 
     return ret;
 }
+#endif
 
 /**
  * @brief ulog on fs init

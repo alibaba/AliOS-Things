@@ -11,12 +11,11 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 depends:
   - osal_aos: master
   - amp_adapter: master
-  - cli: "master ? <PY_BUILD_CLI>"
   - linksdk: "master ? <MICROPY_PY_ALIYUNIOT>"
-  - ulog: "master ? <PY_BUILD_ULOG>"
+  - ulog: "master ? <MICROPY_PY_ULOG>"
   - uagent: "master ? <PY_BUILD_UAGENT>"
   - kv: "master ? <MICROPY_PY_KV>"
-  - mbedtls: master? <PY_BUILD_MBEDTLS>
+  - mbedtls: master? <PY_MBEDTLS_ENABLE>
   - cjson: master? <PY_BUILD_CJSON>
   - fatfs: "master ? <PY_BUILD_FATFS>"
   - vfs: master ? <PY_BUILD_VFS>
@@ -25,53 +24,44 @@ depends:
   - ucamera: "master ? <MICROPY_PY_UCAMERA>"
   - netmgr: "master ? <PY_BUILD_NETMGR>"
   - lwip: "master ? <PY_BUILD_LWIP>"
-  - http: "master ? <PY_BUILD_HTTP, USE_AOS_KERNEL>"
-  - mqtt: "master ? <PY_BUILD_MQTT>"
+  - http: "master ? <PY_BUILD_HTTP, HAAS_PLATFORM>"
   - ucloud_ai: "master ? <MICROPY_PY_UCLOUD_AI>"
-  - ai_agent: master ? <MICROPY_PY_UCLOUD_AI>
-  - uvoice: "master ? <PY_BUILD_AUDIO, !ESP_PLATFROM>"
-  - a2sa: "master ? <PY_BUILD_AUDIO, !ESP_PLATFROM>"
-  - ble_netconfig: "master ? <PY_BUILD_BLE>"
-  - ble_host: "master ? <PY_BUILD_BLE>"
-  - sntp: "master ? <MICROPY_PY_SNTP, !ESP_PLATFORM>"
+  - ai_agent: master ? <MICROPY_PY_AIAGENT>
+  - uvoice: "master ? <MICROPY_PY_AUDIO, HAAS_PLATFORM>"
+  - a2sa: "master ? <MICROPY_PY_AUDIO, HAAS_PLATFORM>"
+  - ble_netconfig: "master ? <MICROPY_PY_BLE>"
+  - ble_host: "master ? <MICROPY_PY_BLE>"
+  - sntp: "master ? <MICROPY_PY_SNTP, HAAS_PLATFORM>"
   - ugraphics: "master ? <PY_BUILD_UGRAPHICS>"
   - little_ui: "master ? <MICROPY_PY_LVGL>"
 
 build_config:
-  define:
-    UVOICE_EVENT_BY_BUFFER_QUEUE: "1 ? <PY_BUILD_AUDIO>"
+  prebuild_script: build_cmake.sh
+
   include:
-    # adapter
+  # adapter
     - adapter/
-    - adapter/haas/ ? <USE_AOS_KERNEL>
-    - adapter/esp32/ ? <ESP_PLATFROM>
-    - adapter/esp32/boards/GENERIC/ ? <ESP_PLATFROM>
-    - adapter/esp32/camera/uart_cam/ ? <ESP_PLATFROM>
-    # modules
-    - modules/audio/aos
-    - modules/audio/esp32
-    - modules/ble/
-    - modules/driver/
-    - modules/aliyunIoT/
-    - modules/minicv/
-    - modules/modbus/
-    - modules/mqtt/
-    - modules/netmgr/
-    - modules/netconfig/
-    - modules/network/http/
-    - modules/oss/
-    - modules/ota/
-    - modules/sntp/
-    - modules/ucamera/
-    - modules/ulog/
-    - modules/kv/
+    - adapter/haas/ ? <HAAS_PLATFORM>
+    - adapter/esp32/ ? <ESP_PLATFORM>
+
+    # boards file
+    - adapter/esp32/boards/GENERIC/ ? <ESP_PLATFORM, BOARD_NODEMCU32S>
+    - adapter/esp32/boards/M5STACK_CORE2/ ? <ESP_PLATFORM, BOARD_M5STACKCORE2>
+    - adapter/haas/boards/HaaSEDUk1/ ? <HAAS_PLATFORM>
+    - adapter/haas/boards/HaaS200/ ? <HAAS_PLATFORM>
+
+    # cmake generated files
+    - adapter/esp32/build-GENERIC/ ? <ESP_PLATFORM, BOARD_NODEMCU32S>
+    - adapter/esp32/build-M5STACK_CORE2/ ? <ESP_PLATFORM, BOARD_M5STACKCORE2>
+    - adapter/haas/build-HaaSEDUk1/ ? <HAAS_PLATFORM>
+    - adapter/haas/build-HaaS200/ ? <HAAS_PLATFORM>
+
     # engine
     - engine/
     - engine/py/
     - engine/drivers/
     - engine/extmod/
     - engine/lib/
-    - engine/lib/oofatfs/
     - engine/lib/littlefs/
     - engine/shared/
     - engine/lib/berkeley-db-1.xx/
@@ -84,197 +74,29 @@ build_config:
     - external/app_mgr/ ? <MICROPY_PY_OTA>
     - external/unzip/internal/ ? <MICROPY_PY_OTA>
     - external/unzip/include/ ? <MICROPY_PY_OTA>
-    - external/amp_task/ ? <MICROPY_PY_OTA>
-    - external/amp_utils/ ? <MICROPY_PY_OTA>
-
-  prebuild_script: adapter/esp32/build_esp_sdk.sh ? <ESP_PLATFORM>
+    - modules/display/esp32/ ? <MICROPY_PY_DISPLAY, ESP_PLATFORM>
 
   libs:
-    - ampchannel ? <PY_BUILD_CHANNEL>
+    - ampchannel ? <PY_CHANNEL_ENABLE>
 
   libpath:
     - external/libs/haas1000 ? <BOARD_HAAS100>
     - external/libs/haas1000 ? <BOARD_HAASEDUK1>
     - external/libs/rtl872xd ? <BOARD_HAAS200>
 
-source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+source_file:
   # adapter
-  - adapter/haas/*.c ? <USE_AOS_KERNEL>
-  - adapter/esp32/*.c ? <ESP_PLATFORM>
-  - adapter/esp32/lv_mp.c ? <ESP_PLATFORM>
-  - adapter/esp32/moddisplay.c ? <ESP_PLATFORM>
-  - adapter/esp32/moddisplay_tft.c ? <ESP_PLATFORM, MICROPY_PY_TFT>
-  - adapter/esp32/libs/neopixel.c ? <ESP_PLATFORM, MICROPY_PY_TFT>
-  - adapter/esp32/genhdr/frozen_content.c ? <ESP_PLATFORM>
-  - adapter/esp32/camera/uart_cam/uart_frame.c ? <ESP_PLATFORM, MICROPY_PY_UCAMERA>
-  - adapter/esp32/tft/*.c ? <MICROPY_PY_TFT>
-  - adapter/esp32/tft/font/DefaultFont.c ? <MICROPY_PY_TFT>
-  - adapter/esp32/tft/font/DejaVuSans18.c ? <MICROPY_PY_TFT>
-  - adapter/esp32/tft/font/DejaVuSans24.c ? <MICROPY_PY_TFT>
-  - adapter/esp32/tft/font/DejaVuSans40.c ? <MICROPY_PY_TFT>
-#  - adapter/esp32/camera/uart_cam/cam2core.c ? <ESP_PLATFORM>
-  # engine
-  - engine/py/*.c
-  - engine/drivers/bus/*.c
-  # TODO HAAS
-  - engine/drivers/dht/dht.c
-  - engine/extmod/machine_bitstream.c
-  - engine/extmod/machine_i2c.c
-  # TODO HaaS begin
-  - engine/extmod/machine_mem.c
-  - engine/extmod/machine_pulse.c
-  - engine/extmod/machine_signal.c
-  - engine/extmod/machine_spi.c
-  - engine/extmod/modbluetooth.c
-  # TODO end
-  - engine/extmod/modbtree.c
-  - engine/extmod/modframebuf.c
-  - engine/extmod/modonewire.c
-  - engine/extmod/moduasyncio.c
-  - engine/extmod/modubinascii.c
-  - engine/extmod/moducryptolib.c
-  - engine/extmod/moductypes.c
-  - engine/extmod/moduhashlib.c
-  - engine/extmod/moduheapq.c
-  - engine/extmod/modujson.c
-  - engine/extmod/modurandom.c
-  - engine/extmod/modure.c
-  - engine/extmod/moduselect.c
-  - engine/extmod/modussl_axtls.c
-  - engine/extmod/modussl_mbedtls.c
-  - engine/extmod/modutimeq.c
-  - engine/extmod/moduwebsocket.c
-  - engine/extmod/moduzlib.c
-  - engine/extmod/modwebrepl.c
-  - engine/extmod/uos_dupterm.c
-  - engine/extmod/utime_mphal.c
-  - engine/extmod/vfs.c
-  - engine/extmod/vfs_blockdev.c  ? <MICROPY_VFS_FAT>
-  - engine/extmod/vfs_fat.c  ? <MICROPY_VFS_FAT>
-  - engine/extmod/vfs_fat_diskio.c  ? <MICROPY_VFS_FAT>
-  - engine/extmod/vfs_fat_file.c  ? <MICROPY_VFS_FAT>
-  - engine/extmod/vfs_lfs.c  ? <MICROPY_VFS_FAT>
-  - engine/extmod/vfs_posix.c
-  - engine/extmod/vfs_posix_file.c
-  - engine/extmod/vfs_reader.c
-  - engine/extmod/virtpin.c
-  - engine/extmod/nimble/modbluetooth_nimble.c
-  - engine/extmod/btstack/modbluetooth_btstack.c
-  - engine/lib/berkeley-db-1.xx/btree/bt_close.c
-  - engine/lib/berkeley-db-1.xx/btree/bt_conv.c
-  - engine/lib/berkeley-db-1.xx/btree/bt_debug.c
-  - engine/lib/berkeley-db-1.xx/btree/bt_delete.c
-  - engine/lib/berkeley-db-1.xx/btree/bt_get.c
-  - engine/lib/berkeley-db-1.xx/btree/bt_open.c
-  - engine/lib/berkeley-db-1.xx/btree/bt_overflow.c
-  - engine/lib/berkeley-db-1.xx/btree/bt_page.c
-  - engine/lib/berkeley-db-1.xx/btree/bt_put.c
-  - engine/lib/berkeley-db-1.xx/btree/bt_search.c
-  - engine/lib/berkeley-db-1.xx/btree/bt_seq.c
-  - engine/lib/berkeley-db-1.xx/btree/bt_split.c
-  - engine/lib/berkeley-db-1.xx/btree/bt_utils.c
-  - engine/lib/berkeley-db-1.xx/mpool/mpool.c
-  - engine/lib/rel1.5/*.c
-  #- engine/lib/uzlib/*.c
-  - engine/shared/netutils/*.c
-  - engine/shared/readline/*.c
-  #- engine/shared/runtime TODO
-  - engine/shared/runtime/interrupt_char.c
-  - engine/shared/runtime/pyexec.c
-  - engine/shared/runtime/stdout_helpers.c
-  - engine/shared/runtime/sys_stdio_mphal.c
-  - engine/shared/runtime/gchelper_generic.c ? <!ESP_PLATFROM>
-  - engine/shared/timeutils/*.c
-  - engine/shared/upyteshhelper/*.c
-  # fs
-  - engine/lib/oofatfs/ff.c ? <MICROPY_VFS_FAT>
-  - engine/lib/oofatfs/ffunicode.c ? <MICROPY_VFS_FAT>
-  - engine/lib/littlefs/lfs1.c  ? <MICROPY_VFS_FAT>
-  - engine/lib/littlefs/lfs1_util.c  ? <MICROPY_VFS_FAT>
-  - engine/lib/littlefs/lfs2.c  ? <MICROPY_VFS_FAT>
-  - engine/lib/littlefs/lfs2_util.c  ? <MICROPY_VFS_FAT>
-  - modules/driver/board_mgr.c
-  - modules/driver/moddriver.c ? <MICROPY_PY_DRIVER>
-  - modules/driver/pwm.c ? <MICROPY_PY_DRIVER>
-  - modules/driver/adc.c ? <MICROPY_PY_DRIVER>
-  - modules/driver/timer.c ? <MICROPY_PY_DRIVER>
-  - modules/driver/i2c.c ? <MICROPY_PY_DRIVER>
-  - modules/driver/spi.c ? <MICROPY_PY_DRIVER>
-  - modules/driver/uart.c ? <MICROPY_PY_DRIVER>
-  - modules/driver/gpio.c ? <MICROPY_PY_DRIVER>
-  - modules/driver/wdt.c ? <MICROPY_PY_DRIVER>
-  - modules/aliyunIoT/*.c ? <MICROPY_PY_ALIYUNIOT>
-  - modules/ota/*.c ? <MICROPY_PY_OTA>
-  - modules/oss/modoss.c ? <MICROPY_PY_OSS>
-  #minicv
-  - modules/ucloud_ai/moducloud_ai.c ? <MICROPY_PY_UCLOUD_AI>
-  - modules/ucloud_ai/chatbot.c ? <MICROPY_PY_UCLOUD_AI>
-  - modules/minicv/*.c ? <MICROPY_PY_MINICV>
-  - modules/minicv/base/modules/c/src/*.cpp ? <MICROPY_PY_MINICV>
-  - modules/minicv/base/modules/core/src/HaasImageUtils.cpp ? <MICROPY_PY_MINICV>
-  - modules/minicv/base/modules/ml/src/HaasML.cpp ? <MICROPY_PY_MINICV>
-  - modules/minicv/base/modules/ml/src/HaasMLCloud.cpp ? <MICROPY_PY_MINICV>
-  - modules/minicv/base/modules/ml/src/HaasMLMnn.cpp ? <MICROPY_PY_MINICV>
-  # modbus
-  - modules/modbus/*.c ? <MICROPY_PY_MODBUS>
-  # kv
-  - modules/kv/modkv.c ? <MICROPY_PY_KV>
-  # ulog
-  - modules/ulog/*.c ? <PY_BUILD_ULOG>
-  # network
-  - modules/network/http/aos/modhttp.c ? <MICROPY_PY_HTTP, USE_AOS_KERNEL>
-  - modules/network/http/aos/httpclient.c ? <MICROPY_PY_HTTP, USE_AOS_KERNEL>
-  - modules/network/tcp/modtcp.c ? <PY_BUILD_TCP, USE_AOS_KERNEL>
-  - modules/network/udp/modudp.c ? <PY_BUILD_UDP, USE_AOS_KERNEL>
-  - modules/network/http/esp32/modhttp.c ? <MICROPY_PY_HTTP, ESP_PLATFORM>
-  # audio
-  - modules/audio/aos/*.c ? <PY_BUILD_AUDIO, !ESP_PLATFROM>
-  - modules/audio/esp32/*.c ? <MICROPY_PY_AUDIO, BOARD_M5STACKCORE2>
-  # ble
-  - modules/ble/*.c ? <PY_BUILD_BLE>
-  # system
-  - modules/system/*.c ? <PY_BUILD_SYSTEM>
-  # ucamera
-  - modules/ucamera/*.c ? <MICROPY_PY_UCAMERA>
-  # sntp
-  - modules/sntp/*.c ? <MICROPY_PY_SNTP, !ESP_PLATFORM>
-  - modules/ugraphics/*.c ? <PY_BUILD_UGRAPHICS>
-  # mqtt
-  - modules/mqtt/modmqtt.c ? <PY_BUILD_MQTT>
-  - modules/mqtt/mqttclient.c ? <PY_BUILD_MQTT>
-  # netconfig
-  - modules/netconfig/*.c ? <PY_BUILD_BLE>
-  # netmgr
-  - modules/netmgr/modnetmgr.c ? <PY_BUILD_NETMGR>
+  - adapter/haas/main.c ? <HAAS_PLATFORM>
+  - adapter/esp32/main.c ? <ESP_PLATFORM>
 
   # external
   - external/amp_task/*.c
-  - external/amp_boot/*.c ? <PY_BUILD_BOOT>
-  - external/app_mgr/*.c ? <PY_BUILD_BOOT>
-  - external/app_mgr/app_upgrade.c ? <MICROPY_PY_OTA>
-#  - external/app_mgr/app_mgr.c ? <MICROPY_PY_OTA>
-  - external/app_mgr/app_message.c ? <MICROPY_PY_OTA>
-  - external/unzip/src/*.c ? <MICROPY_PY_OTA>
-  - external/amp_task/*.c ? <MICROPY_PY_OTA>
-  - external/amp_utils/*.c ? <MICROPY_PY_OTA>
+  - external/amp_boot/*.c
+  - external/app_mgr/*.c
+  - external/unzip/src/*.c
+  - external/amp_utils/*.c
 
 def_config:
-  # Activation start
   AOS_BUILD_APP: "py_engine"
-  # CONFIG_DEBUG: 1
-  # Activation end
-
-## 第六部分：安装信息
-# install:
-#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
-#     source:                              # 安装源列表
-#      - src/*.h                           # 支持通配符，相对路径
-
-## 第七部分：导出部分
-# export:
-#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
-#     source:                                # 安装源列表
-#       - "bootimgs/boot"
-#       - "bootimgs/tee"
-#       - "bootimgs/mtb"
-#       - "configs/config.yaml"
+  FFCONF_H: lib/oofatfs/ffconf.h
+  MBEDTLS_NO_PLATFORM_ENTROPY: 1

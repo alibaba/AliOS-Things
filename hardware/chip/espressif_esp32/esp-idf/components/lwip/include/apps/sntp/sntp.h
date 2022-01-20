@@ -19,6 +19,8 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
 /*
  * The time update takes place in the sntp_sync_time() function.
  * The user has the ability to redefine this function in order

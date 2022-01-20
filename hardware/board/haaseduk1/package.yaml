@@ -145,6 +145,15 @@ def_config:
   MTD_PART_ID_ENV:       8
   MTD_PART_ID_KV:        9
   MTD_PART_ID_FACTORY:   10
+
+  MICROPY_PY_AIAGENT: 1
+  MICROPY_PY_AUDIO: 1
+  MICROPY_PY_BLE: 1
+  MICROPY_PY_MINICV: 1
+  MICROPY_PY_BLECFG: 1
+  MICROPY_PY_OSS: 1
+  MICROPY_PY_UCLOUD_AI: 1
+
 ## 第六部分：安装信息
 # install:
 #   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
