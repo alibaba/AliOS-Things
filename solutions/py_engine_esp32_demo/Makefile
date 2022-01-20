@@ -27,3 +27,4 @@ clean:
 	$(CPRE) rm -rf sdkconfig
 	$(CPRE) rm -rf fs/*
 	$(CPRE) rm -rf ../../components/py_engine/adapter/esp32/build-*
+	$(CPRE) rm -rf ../../components/py_engine/engine/mpy-cross/build

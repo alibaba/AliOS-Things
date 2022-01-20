@@ -26,7 +26,7 @@
 #include "cJSON.h"
 #include "ulog/ulog.h"
 
-#define LOG_TAG "BOARD_MGR"
+#define LOG_TAG     "BOARD_MGR"
 
 #define DRIVER_NAME "driver.json"
 
@@ -168,7 +168,7 @@ static int8_t board_parse_gpio(cJSON *gpio, char *id)
                 *config = ANALOG_MODE;
             }
         }
-        gpio_dev_t *new_gpio = aos_calloc(1, sizeof(*new_gpio));
+        gpio_dev_t *new_gpio = (gpio_dev_t *)aos_calloc(1, sizeof(*new_gpio));
         if (NULL == new_gpio) {
             continue;
         }
@@ -304,7 +304,7 @@ static int8_t board_parse_uart(cJSON *uart, char *id)
                 config->parity = EVEN_PARITY;
             }
         }
-        uart_dev_t *new_uart = aos_calloc(1, sizeof(*new_uart));
+        uart_dev_t *new_uart = (uart_dev_t *)aos_calloc(1, sizeof(*new_uart));
         if (NULL == new_uart) {
             continue;
         }
@@ -404,7 +404,7 @@ static int8_t board_parse_i2c(cJSON *i2c, char *id)
             config->dev_addr = temp->valueint;
         }
 
-        i2c_dev_t *new_i2c = aos_calloc(1, sizeof(*new_i2c));
+        i2c_dev_t *new_i2c = (i2c_dev_t *)aos_calloc(1, sizeof(*new_i2c));
         if (NULL == new_i2c) {
             continue;
         }
@@ -492,7 +492,7 @@ static int8_t board_parse_spi(cJSON *spi, char *id)
             config->mode = temp->valueint;
         }
 
-        spi_dev_t *new_spi = aos_calloc(1, sizeof(*new_spi));
+        spi_dev_t *new_spi = (spi_dev_t *)aos_calloc(1, sizeof(*new_spi));
         if (NULL == new_spi) {
             continue;
         }
@@ -552,7 +552,7 @@ static int8_t board_parse_pwm(cJSON *pwm, char *id)
             continue;
         }
         board_set_pwm_default(&device);
-        pwm_dev_t *new_pwm = aos_calloc(1, sizeof(*new_pwm));
+        pwm_dev_t *new_pwm = (pwm_dev_t *)aos_calloc(1, sizeof(*new_pwm));
         if (NULL == new_pwm) {
             continue;
         }
@@ -630,7 +630,7 @@ static int8_t board_parse_adc(cJSON *adc, char *id)
             config->adc_width = temp->valueint;
         }
 
-        adc_dev_t *new_adc = aos_calloc(1, sizeof(*new_adc));
+        adc_dev_t *new_adc = (adc_dev_t *)aos_calloc(1, sizeof(*new_adc));
         if (NULL == new_adc) {
             continue;
         }
@@ -721,7 +721,7 @@ static int8_t board_parse_modbus(cJSON *modbus, char *id)
             }
         }
 
-        modbus_dev_t *new_modbus = aos_calloc(1, sizeof(*new_modbus));
+        modbus_dev_t *new_modbus = (modbus_dev_t *)aos_calloc(1, sizeof(*new_modbus));
         if (NULL == new_modbus) {
             continue;
         }
@@ -798,7 +798,6 @@ char *board_get_json_buff(const char *json_path)
 {
     void *json_data = NULL;
     int len = 0;
-    int32_t curpos = -1;
     int json_fd = -1;
 
     if (NULL == json_path) {
@@ -818,7 +817,7 @@ char *board_get_json_buff(const char *json_path)
         return (NULL);
     }
 
-    json_data = aos_calloc(1, sizeof(char) * (len + 1));
+    json_data = aos_calloc(len + 1, sizeof(char));
     if (NULL == json_data) {
         close(json_fd);
         LOGE(LOG_TAG, "failed to calloc data for json_data\n");
@@ -917,7 +916,7 @@ static int32_t board_parse_json_buff(const char *json_buff)
             LOGD(LOG_TAG, "get page:%s", page->valuestring);
 
             /* add page to dlink */
-            page_entry_t *page_entry = aos_malloc(sizeof(page_entry_t));
+            page_entry_t *page_entry = (page_entry_t *)aos_malloc(sizeof(page_entry_t));
             page_entry->page = strdup(page->valuestring); /* don't forget to free */
             dlist_add_tail(&page_entry->node, &g_pages_list);
         }
@@ -1008,7 +1007,6 @@ static void *board_get_items(addon_module_m module, item_handle_t *handle, const
 
 static int8_t board_add_new_item(addon_module_m module, char *name_id, void *node)
 {
-    board_item_t *item = NULL;
     board_mgr_t *mgr_handle = board_get_handle();
     if (NULL == name_id || NULL == node) {
         return BOARD_ERR_INVALID_ARG;
@@ -1017,7 +1015,7 @@ static int8_t board_add_new_item(addon_module_m module, char *name_id, void *nod
         LOGE(LOG_TAG, "board_get_items failed, name_id = %s\n", name_id);
         return BOARD_ERR_NODE_NOT_EXIST;
     }
-    board_item_t *new_item = aos_calloc(1, sizeof(*new_item));
+    board_item_t *new_item = (board_item_t *)aos_calloc(1, sizeof(*new_item));
     if (NULL == new_item) {
         return BOARD_ERR_NO_MEM;
     }
@@ -1125,10 +1123,10 @@ int32_t py_board_mgr_init()
     char *json = NULL;
     int json_fd = -1;
     char *board_json_path = NULL;
-    char *sdcard_root_path = AMP_FS_EXT_ROOT_DIR "/board.json";
     char *data_root_path = AMP_FS_ROOT_DIR "/board.json";
-    char *sdcard_board_json_path = MP_FS_EXT_ROOT_DIR "/python-apps/driver/board.json";
-    char *data_board_json_path = MP_FS_ROOT_DIR "/python-apps/driver/board.json";
+    char *sdcard_root_path = AMP_FS_EXT_ROOT_DIR "/board.json";
+    char *data_board_json_path = MP_FS_ROOT_DIR "/lib/board.json";
+    char *sdcard_board_json_path = MP_FS_EXT_ROOT_DIR "/lib/board.json";
 
     if (board_init_flag != false) {
         LOGD(LOG_TAG, "board config haas been loaded\n");
@@ -1136,12 +1134,6 @@ int32_t py_board_mgr_init()
     }
 
     memset(&g_board_mgr, 0x00, sizeof(g_board_mgr));
-    json_fd = open(sdcard_root_path, O_RDONLY);
-    if (json_fd >= 0) {
-        close(json_fd);
-        board_json_path = sdcard_root_path;
-    }
-
     if (board_json_path == NULL) {
         json_fd = open(data_root_path, O_RDONLY);
         if (json_fd >= 0) {
@@ -1150,16 +1142,22 @@ int32_t py_board_mgr_init()
         }
     }
 
+    json_fd = open(sdcard_root_path, O_RDONLY);
+    if (json_fd >= 0) {
+        close(json_fd);
+        board_json_path = sdcard_root_path;
+    }
+
     if (board_json_path == NULL) {
-        json_fd = open(sdcard_board_json_path, O_RDONLY);
+        json_fd = open(data_board_json_path, O_RDONLY);
         if (json_fd >= 0) {
             close(json_fd);
-            board_json_path = sdcard_board_json_path;
+            board_json_path = data_board_json_path;
         }
     }
 
     if (board_json_path == NULL) {
-        board_json_path = data_board_json_path;
+        board_json_path = sdcard_board_json_path;
     }
 
     LOGD(LOG_TAG, "board_json_path = %s;\n", board_json_path);

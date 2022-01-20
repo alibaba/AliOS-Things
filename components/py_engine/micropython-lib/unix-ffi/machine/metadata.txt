@@ -1,0 +1,5 @@
+srctype = micropython-lib
+type = package
+version = 0.2.1
+author = Paul Sokolovsky
+depends = ffilib, os, signal

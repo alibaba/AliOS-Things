@@ -208,7 +208,7 @@ static void py_engine_task(void *p)
     aos_task_exit(0);
 }
 
-#if PY_BUILD_CHANNEL
+#if PY_CHANNEL_ENABLE
 static void network_func(void *argv)
 {
     while (!aos_get_network_status()) {
@@ -242,6 +242,8 @@ static void python_entry(int32_t argc, int8_t **argv)
         return;
     }
 }
+
+char *board_get_json_buff(const char *json_path);
 
 static aos_log_level_t get_logLevel()
 {
@@ -310,7 +312,7 @@ void haas_main(int32_t argc, int8_t **argv)
 {
     int32_t ret = -1;
 
-#if PY_BUILD_BOOT
+#if PY_BOOT_ENABLE
     aos_cli_suspend();
     pyamp_boot_main();
     aos_cli_resume();
@@ -340,7 +342,7 @@ void haas_main(int32_t argc, int8_t **argv)
         return;
     }
 
-#if PY_BUILD_CHANNEL
+#if PY_CHANNEL_ENABLE
     aos_task_t network_task;
     /* network start */
     ret = aos_task_new_ext(&network_task, "mpy_network", network_func, NULL, 1024 * 4, AOS_DEFAULT_APP_PRI);
@@ -448,17 +450,20 @@ int32_t mpy_init(mpy_thread_args *args)
     mp_obj_list_init(mp_sys_path, 0);
     mp_obj_list_append(mp_sys_path,
                        MP_OBJ_NEW_QSTR(MP_QSTR_));  // current dir (or base dir of the script)
-
+    // add /data/pyamp to system path
     int8_t *path = MP_FS_ROOT_DIR "/pyamp";
     mp_obj_list_append(mp_sys_path, mp_obj_new_str_via_qstr(path, strlen(path)));
 
-    path = MP_FS_ROOT_DIR "/lib/micropython";
+    // add /data/lib to system path
+    path = MP_FS_ROOT_DIR "/lib";
     mp_obj_list_append(mp_sys_path, mp_obj_new_str_via_qstr(path, strlen(path)));
 
-    path = MP_FS_ROOT_DIR "/lib/micropython/uasyncio";
+    // add /sdcard/pyamp to system path
+    path = MP_FS_EXT_ROOT_DIR "/pyamp";
     mp_obj_list_append(mp_sys_path, mp_obj_new_str_via_qstr(path, strlen(path)));
 
-    path = MP_FS_EXT_ROOT_DIR "/lib/micropython";
+    // add /sdcard/lib to system path
+    path = MP_FS_EXT_ROOT_DIR "/lib";
     mp_obj_list_append(mp_sys_path, mp_obj_new_str_via_qstr(path, strlen(path)));
 
     mp_obj_list_init(mp_sys_argv, 0);

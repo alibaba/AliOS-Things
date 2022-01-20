@@ -35,7 +35,7 @@ public:
         * @endcode
         */
     virtual int Config(char *key, char *secret, char *endpoint,
-            char *bucket) {}
+            char *bucket) { return 0; }
     /**
         * @brief        set input data(come frome HaasDataInput)
         * @param[in]    dataPath : The path of DataSource

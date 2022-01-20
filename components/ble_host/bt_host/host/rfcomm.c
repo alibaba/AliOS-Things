@@ -1049,7 +1049,14 @@ static void rfcomm_handle_msc(struct bt_rfcomm_session *session,
 {
 	struct bt_rfcomm_msc *msc = (void *)buf->data;
 	struct bt_rfcomm_dlc *dlc;
-	u8_t dlci = BT_RFCOMM_GET_DLCI(msc->dlci);
+	u8_t dlci;
+
+	/* we should check rfcomm packet length */
+	if (buf->len < sizeof(struct bt_rfcomm_msc)) {
+		return;
+	}
+
+	dlci = BT_RFCOMM_GET_DLCI(msc->dlci);
 
 	BT_DBG("dlci %d", dlci);
 
@@ -1088,8 +1095,15 @@ static void rfcomm_handle_rls(struct bt_rfcomm_session *session,
 			      struct net_buf *buf, u8_t cr)
 {
 	struct bt_rfcomm_rls *rls = (void *)buf->data;
-	u8_t dlci = BT_RFCOMM_GET_DLCI(rls->dlci);
+	u8_t dlci;
 	struct bt_rfcomm_dlc *dlc;
+
+	/* we should check rfcomm packet length */
+	if (buf->len < sizeof(struct bt_rfcomm_rls)) {
+		return;
+	}
+
+	dlci = BT_RFCOMM_GET_DLCI(rls->dlci);
 
 	BT_DBG("dlci %d", dlci);
 
@@ -1111,10 +1125,17 @@ static void rfcomm_handle_rpn(struct bt_rfcomm_session *session,
 			      struct net_buf *buf, u8_t cr)
 {
 	struct bt_rfcomm_rpn default_rpn, *rpn = (void *)buf->data;
-	u8_t dlci = BT_RFCOMM_GET_DLCI(rpn->dlci);
+	u8_t dlci;
 	u8_t data_bits, stop_bits, parity_bits;
 	/* Exclude fcs to get number of value bytes */
 	u8_t value_len = buf->len - 1;
+
+	/* we should check rfcomm packet length */
+	if (buf->len < sizeof(struct bt_rfcomm_rpn)) {
+		return;
+	}
+
+	dlci = BT_RFCOMM_GET_DLCI(rpn->dlci);
 
 	BT_DBG("dlci %d", dlci);
 
@@ -1158,6 +1179,11 @@ static void rfcomm_handle_pn(struct bt_rfcomm_session *session,
 {
 	struct bt_rfcomm_pn *pn = (void *)buf->data;
 	struct bt_rfcomm_dlc *dlc;
+
+	/* we should check rfcomm packet length */
+	if (buf->len < sizeof(struct bt_rfcomm_pn)) {
+		return;
+	}
 
 	dlc = rfcomm_dlcs_lookup_dlci(session->dlcs, pn->dlci);
 	if (!dlc) {
@@ -1290,6 +1316,11 @@ static void rfcomm_handle_msg(struct bt_rfcomm_session *session,
 		break;
 	case BT_RFCOMM_TEST:
 		if (!cr) {
+			break;
+		}
+
+		/* we should check rfcomm packet length */
+		if (!buf->len) {
 			break;
 		}
 		rfcomm_send_test(session, BT_RFCOMM_MSG_RESP_CR, buf->data,
@@ -1467,6 +1498,13 @@ static int rfcomm_recv(struct bt_l2cap_chan *chan, struct net_buf *buf)
 
 	fcs_len = (frame_type == BT_RFCOMM_UIH) ? BT_RFCOMM_FCS_LEN_UIH :
 		   BT_RFCOMM_FCS_LEN_NON_UIH;
+
+	/* should check the length for rfcomm packet */
+	if (buf->len < (sizeof(*hdr) + 1 + fcs_len)) {
+		BT_ERR("Too small RFCOMM Frame");
+		return 0;
+	}
+
 	fcs = *(net_buf_tail(buf) - 1);
 	if (!rfcomm_check_fcs(fcs_len, buf->data, fcs)) {
 		BT_ERR("FCS check failed");

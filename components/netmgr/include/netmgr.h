@@ -4,8 +4,9 @@
 
 #ifndef NETMGR_H
 #define NETMGR_H
-#include <sys/socket.h>
+
 #include <stdbool.h>
+#include "lwip/ip_addr.h"
 
 #ifdef __cplusplus
 extern "C" {

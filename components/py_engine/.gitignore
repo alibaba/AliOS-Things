@@ -5,3 +5,6 @@ engine/mpy-cross/build/*
 adapter/esp32/build-*/*
 engine/py/__pycache__/*
 engine/mpy-cross/mpy-cross.map
+adapter/esp32/genhdr/mpversion.h
+adapter/haas/genhdr/mpversion.h
+adapter/haas/build-*/*

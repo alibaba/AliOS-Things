@@ -59,7 +59,7 @@
 #define MICROPY_USE_INTERNAL_ERRNO          (0) // errno.h from xtensa-esp32-elf/sys-include/sys
 #define MICROPY_USE_INTERNAL_PRINTF         (0) // ESP32 SDK requires its own printf
 #define MICROPY_ENABLE_SCHEDULER            (1)
-#define MICROPY_SCHEDULER_DEPTH             (8)
+#define MICROPY_SCHEDULER_DEPTH             (8 * 2)
 #define MICROPY_VFS                         (1)
 #define MICROPY_VFS_POSIX                   (1)
 
@@ -137,6 +137,7 @@
 #define MICROPY_BLUETOOTH_NIMBLE            (1)
 #define MICROPY_BLUETOOTH_NIMBLE_BINDINGS_ONLY (1)
 #endif
+#define MICROPY_EPOCH_IS_1970               (1)
 #define MICROPY_PY_UASYNCIO                 (1)
 #define MICROPY_PY_UCTYPES                  (1)
 #define MICROPY_PY_UZLIB                    (1)
@@ -201,7 +202,7 @@
 // extra built in names to add to the global namespace
 #define MICROPY_PORT_BUILTINS \
     { MP_OBJ_NEW_QSTR(MP_QSTR_input), (mp_obj_t)&mp_builtin_input_obj }, \
-    { MP_OBJ_NEW_QSTR(MP_QSTR_open), (mp_obj_t)&mp_builtin_open_obj }, \
+    { MP_OBJ_NEW_QSTR(MP_QSTR_open), (mp_obj_t)&mp_builtin_open_obj },
 
 // extra built in modules to add to the list of known ones
 extern const struct _mp_obj_module_t esp_module;
@@ -213,23 +214,6 @@ extern const struct _mp_obj_module_t mp_module_machine;
 extern const struct _mp_obj_module_t mp_module_network;
 extern const struct _mp_obj_module_t mp_module_onewire;
 
-#if MICROPY_PY_LVGL
-extern const struct _mp_obj_module_t mp_module_lvgl;
-extern const struct _mp_obj_module_t mp_module_display;
-#define MICROPY_PORT_LVGL_DEF \
-    { MP_OBJ_NEW_QSTR(MP_QSTR_lvgl), (mp_obj_t)&mp_module_lvgl }, \
-    { MP_OBJ_NEW_QSTR(MP_QSTR_display), (mp_obj_t)&mp_module_display },
-
-// lvesp needs to delete the timer task upon soft reset
-
-extern void lv_deinit(void);
-#define MICROPY_PORT_DEINIT_FUNC lv_deinit()
-
-#else
-#define MICROPY_PORT_LVGL_DEF
-#endif
-
-
 #define MICROPY_PORT_BUILTIN_MODULES \
     { MP_OBJ_NEW_QSTR(MP_QSTR_esp), (mp_obj_t)&esp_module }, \
     { MP_OBJ_NEW_QSTR(MP_QSTR_esp32), (mp_obj_t)&esp32_module }, \
@@ -239,7 +223,6 @@ extern void lv_deinit(void);
     { MP_OBJ_NEW_QSTR(MP_QSTR_machine), (mp_obj_t)&mp_module_machine }, \
     { MP_OBJ_NEW_QSTR(MP_QSTR_network), (mp_obj_t)&mp_module_network }, \
     { MP_OBJ_NEW_QSTR(MP_QSTR__onewire), (mp_obj_t)&mp_module_onewire }, \
-    MICROPY_PORT_LVGL_DEF \
 
 #define MP_STATE_PORT MP_STATE_VM
 
@@ -259,7 +242,8 @@ struct _machine_timer_obj_t;
 
 #if MICROPY_BLUETOOTH_NIMBLE
 struct mp_bluetooth_nimble_root_pointers_t;
-#define MICROPY_PORT_ROOT_POINTER_BLUETOOTH_NIMBLE struct _mp_bluetooth_nimble_root_pointers_t *bluetooth_nimble_root_pointers;
+#define MICROPY_PORT_ROOT_POINTER_BLUETOOTH_NIMBLE \
+    struct _mp_bluetooth_nimble_root_pointers_t *bluetooth_nimble_root_pointers;
 #else
 #define MICROPY_PORT_ROOT_POINTER_BLUETOOTH_NIMBLE
 #endif
@@ -287,7 +271,9 @@ void *esp_native_code_commit(void *, size_t, void *);
 #define MICROPY_END_ATOMIC_SECTION(state) portEXIT_CRITICAL_NESTED(state)
 
 #if MICROPY_PY_USOCKET_EVENTS
-#define MICROPY_PY_USOCKET_EVENTS_HANDLER extern void usocket_events_handler(void); usocket_events_handler();
+#define MICROPY_PY_USOCKET_EVENTS_HANDLER     \
+    extern void usocket_events_handler(void); \
+    usocket_events_handler();
 #else
 #define MICROPY_PY_USOCKET_EVENTS_HANDLER
 #endif
@@ -326,6 +312,7 @@ typedef long mp_off_t;
 
 // board specifics
 #define MICROPY_PY_SYS_PLATFORM "esp32"
+#define MICROPY_PY_SYS_NODE     "V3.3"
 
 #ifndef MICROPY_HW_ENABLE_MDNS_QUERIES
 #define MICROPY_HW_ENABLE_MDNS_QUERIES      (1)

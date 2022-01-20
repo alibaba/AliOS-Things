@@ -3403,7 +3403,7 @@ static void parse_read_by_uuid(struct bt_conn *conn,
 	const struct bt_att_read_type_rsp *rsp = pdu;
 
 	/* Parse values found */
-	for (length--, pdu = rsp->data; length;
+	for (length--, pdu = rsp->data; length >= 2 && length >= rsp->len;
 	     length -= rsp->len, pdu = (const u8_t *)pdu + rsp->len) {
 		const struct bt_att_data *data = pdu;
 		u16_t handle;

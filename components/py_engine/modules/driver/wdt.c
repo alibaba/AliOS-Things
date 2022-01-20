@@ -47,7 +47,7 @@ typedef struct {
     mp_obj_base_t Base;
     // a member created by us
     char *ModuleName;
-    wdg_dev_t wdg_dev;
+    item_handle_t wdg_dev;
 } mp_wdg_obj_t;
 
 void wdg_obj_print(const mp_print_t *print, mp_obj_t self_in,

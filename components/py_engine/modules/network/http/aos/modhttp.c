@@ -2,27 +2,22 @@
  * Copyright (C) 2015-2019 Alibaba Group Holding Limited
  */
 
+#include <fcntl.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "aos_httpc.h"
-#include "aos_network.h"
-#include "aos_socket.h"
-#include "aos_system.h"
-#include "aos_tcp.h"
+#if MICROPY_PY_HTTP
+
+#include "aos/kernel.h"
+#include "cJSON.h"
 #include "httpclient.h"
 #include "py/builtin.h"
 #include "py/mperrno.h"
 #include "py/obj.h"
 #include "py/runtime.h"
 #include "ulog/ulog.h"
-// #include "amp_task.h"
-// #include "be_inl.h"
-// #include "http.h"
-#include "cJSON.h"
-// #include "amp_list.h"
 
 #define LOG_TAG                     "MOD-HTTP"
 
@@ -613,4 +608,4 @@ const mp_obj_module_t mp_module_http = {
 };
 
 MP_REGISTER_MODULE(MP_QSTR_http, mp_module_http, MICROPY_PY_HTTP);
-
+#endif

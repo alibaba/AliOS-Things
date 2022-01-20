@@ -1,0 +1,5 @@
+srctype = micropython-lib
+type = module
+version = 0.1
+author = Riccardo Magliocchetti
+depends = ffilib

@@ -45,14 +45,11 @@
 #include "py/runtime.h"
 #include "py/runtime0.h"
 #include "py/stream.h"
-// #include "mdns.h"
-// #include "modnetwork.h"
 
-#include "lwip/igmp.h"
-#include "lwip/ip4.h"
-#include "lwip/netdb.h"
 #include "lwip/sockets.h"
-// #include "esp_log.h"
+#include "lwip/netdb.h"
+#include "lwip/ip4.h"
+#include "lwip/igmp.h"
 
 #define SOCKET_POLL_US        (100000)
 #define MDNS_QUERY_TIMEOUT_MS (5000)

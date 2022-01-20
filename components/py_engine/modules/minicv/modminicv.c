@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#if MICROPY_PY_MINICV
+
 #include "py/obj.h"
 #include "py/runtime.h"
 #include "py/builtin.h"
@@ -10,9 +12,7 @@
 extern const mp_obj_type_t minicv_datainput_type;
 extern const mp_obj_type_t minicv_imagecodec_type;
 extern const mp_obj_type_t minicv_imageproc_type;
-#if MICROPY_PY_MINICV
 extern const mp_obj_type_t minicv_ml_type;
-#endif
 extern const mp_obj_type_t minicv_ui_type;
 extern const mp_obj_type_t minicv_videocodec_type;
 
@@ -21,9 +21,7 @@ STATIC const mp_rom_map_elem_t minicv_module_globals_table[] = {
     {MP_OBJ_NEW_QSTR(MP_QSTR_DataInput), MP_ROM_PTR(&minicv_datainput_type)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_ImageCodec), MP_ROM_PTR(&minicv_imagecodec_type)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_ImageProc), MP_ROM_PTR(&minicv_imageproc_type)},
-#if MICROPY_PY_MINICV
     {MP_OBJ_NEW_QSTR(MP_QSTR_ML), MP_ROM_PTR(&minicv_ml_type)},
-#endif
     {MP_OBJ_NEW_QSTR(MP_QSTR_UI), MP_ROM_PTR(&minicv_ui_type)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_VideoCodec), MP_ROM_PTR(&minicv_videocodec_type)},
 };
@@ -35,4 +33,7 @@ const mp_obj_module_t minicv_module = {
     .globals = (mp_obj_dict_t *)&minicv_module_globals,
 };
 
+MP_REGISTER_MODULE(MP_QSTR_minicv, minicv_module, MICROPY_PY_MINICV);
+
+#endif // MICROPY_PY_MINICV
 

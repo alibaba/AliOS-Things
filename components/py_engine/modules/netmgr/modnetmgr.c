@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#if MICROPY_PY_NETMGR
+
 #include <uservice/eventid.h>
 #include <uservice/uservice.h>
 
@@ -354,3 +357,7 @@ const mp_obj_module_t netmgr_module = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&hapy_netmgr_module_globals,
 };
+
+MP_REGISTER_MODULE(MP_QSTR_netmgr, netmgr_module, MICROPY_PY_NETMGR);
+
+#endif  // MICROPY_PY_NETMGR

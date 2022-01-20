@@ -349,6 +349,11 @@ static int l2cap_br_info_rsp(struct bt_l2cap_br *l2cap, u8_t ident,
 
 	switch (type) {
 	case BT_L2CAP_INFO_FEAT_MASK:
+		/* we should check rfcomm packet length */
+		if (buf->len < 4) {
+			err = -EINVAL;
+			break;
+		}
 		l2cap->info_feat_mask = net_buf_pull_le32(buf);
 		BT_DBG("remote info mask 0x%08x", l2cap->info_feat_mask);
 
@@ -359,6 +364,11 @@ static int l2cap_br_info_rsp(struct bt_l2cap_br *l2cap, u8_t ident,
 		l2cap_br_get_info(l2cap, BT_L2CAP_INFO_FIXED_CHAN);
 		return 0;
 	case BT_L2CAP_INFO_FIXED_CHAN:
+		/* we should check rfcomm packet length */
+		if (buf->len < 1) {
+			err = -EINVAL;
+			break;
+		}
 		l2cap->info_fixed_chan = net_buf_pull_u8(buf);
 		BT_DBG("remote fixed channel mask 0x%02x",
 		       l2cap->info_fixed_chan);

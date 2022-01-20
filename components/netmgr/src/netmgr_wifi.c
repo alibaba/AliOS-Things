@@ -908,6 +908,7 @@ static int wifi_disconnected(netmgr_conn_t* conn)
     if(0 != (ret = ioctl(conn->hdl, WIFI_DEV_CMD_DISCONNECT, NULL))) {
         NETMGR_WIFI_LOGI("%s:%d disconnect failed\n", __func__, __LINE__);
     }
+    event_publish(EVENT_NETMGR_NET_DISCON, NULL);
     NETMGR_WIFI_LOGI("%s:%d do disconnect\n", __func__, __LINE__);
     return 0;
 }

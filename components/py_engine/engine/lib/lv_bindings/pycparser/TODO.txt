@@ -1,0 +1,43 @@
+Todo
+----
+
+Version Update
+--------------
+
+setup.py, __init__.py, README, CHANGES
+- Make sure _build_tables was run in pycparser/
+- If PLY version changes, note it in README and ply/LICENSE
+- Run tox tests
+
+python setup.py sdist
+
+Copy the newly created tarball and untar it; check that the permissions of
+Python files in the pycparser/ directory are OK. Check to see that lextab.py and
+yacctab.py are there.
+
+Now create a new virtualenv and in it install the tarball with
+`pip install <tarballname>`. See that pycparser is importable in the Python
+interpreter of this virtualenv; run pycparser tests from this virtualenv.
+
+After this it's OK to rerun `python3.6 -m twine upload dist/*` to push to PyPI
+(older Pythons use a deprecated API for PyPI uploading).
+
+- Tag in git. When pushing to GitHub, git push --tags
+
+Misc
+----
+
+yacc optimization:
+- If parsetab.py/pyc doesn't exist in the path, the table will be reconstructed
+  anyway, regardless of the optimize parameter
+- If it does exist:
+  - If optimize=True, the table will be loaded unconditionally
+  - If optimize=False, the table will be loaded only if it's older than the
+    grammar
+
+lex optimization:
+- If optimize=False, the lexical table is re-computed and is not saved to a
+  lextab file
+- If optimize=True:
+  - If lextab.py/pyc exists in the path, it will be loaded unconditionally
+  - If lextab.py/pyc doesn't exist, it will be created and loaded

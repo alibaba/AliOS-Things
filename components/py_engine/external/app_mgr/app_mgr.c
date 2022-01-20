@@ -6,7 +6,6 @@
 #include "amp_platform.h"
 #include "amp_task.h"
 #include "aos/kernel.h"
-#include "aos/vfs.h"
 #include "aos_fs.h"
 #include "aos_system.h"
 #include "aos_tcp.h"

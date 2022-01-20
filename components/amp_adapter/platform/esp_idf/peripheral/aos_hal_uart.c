@@ -1,6 +1,8 @@
 #include <errno.h>
-#include <driver/uart.h>
+#include <driver/uart_select.h>
 #include <aos_hal_uart_internal.h>
+#include "esp_log.h"
+#include <soc/uart_caps.h>
 
 int32_t aos_hal_uart_init(aos_hal_uart_dev_t *uart)
 {
@@ -83,18 +85,34 @@ int32_t aos_hal_uart_init(aos_hal_uart_dev_t *uart)
         return -EINVAL;
     }
 
-    (void)uart_driver_delete(uart->port);
+    if (uart_is_driver_installed(uart->port)) {
+        if (uart_set_baudrate(uart->port, config.baud_rate) != ESP_OK)
+            return -EINVAL;
 
-    if (uart_param_config(uart->port, &config) != ESP_OK)
-        return -EINVAL;
+        if (uart_set_parity(uart->port, config.parity) != ESP_OK)
+            return -EINVAL;
 
-    if (uart_driver_install(uart->port, 256, 256, 0, NULL, 0) != ESP_OK)
-        return -EINVAL;
+        if (uart_set_word_length(uart->port, config.data_bits) != ESP_OK)
+            return -EINVAL;
 
-    if (uart_set_pin(uart->port, tx_io_num, rx_io_num, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE) != ESP_OK) {
-        (void)uart_driver_delete(uart->port);
-        return -EINVAL;
+        if (uart_set_stop_bits(uart->port, config.stop_bits) != ESP_OK)
+            return -EINVAL;
+    } else {
+        if (uart_driver_install(uart->port, 256, 256, 0, NULL, 0) != ESP_OK)
+            return -EINVAL;
+
+        if (uart_set_pin(uart->port, tx_io_num, rx_io_num, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE) != ESP_OK) {
+            (void)uart_driver_delete(uart->port);
+            return -EINVAL;
+        }
+
+        if (uart_param_config(uart->port, &config) != ESP_OK) {
+            (void)uart_driver_delete(uart->port);
+            return -EINVAL;
+        }
     }
+
+    (void)uart_flush_input(uart->port);
 
     return 0;
 }
@@ -103,13 +121,6 @@ int32_t aos_hal_uart_finalize(aos_hal_uart_dev_t *uart)
 {
     if (!uart)
         return -EINVAL;
-
-    if (uart_wait_tx_done(uart->port, portMAX_DELAY) != ESP_OK)
-        return -EIO;
-
-    if (uart_driver_delete(uart->port) != ESP_OK)
-        return -EINVAL;
-
     return 0;
 }
 
@@ -151,4 +162,45 @@ int32_t aos_hal_uart_send(aos_hal_uart_dev_t *uart, const void *data, uint32_t s
         return -EIO;
 
     return 0;
+}
+
+int32_t aos_hal_uart_any(aos_hal_uart_dev_t *uart)
+{
+    int32_t rx_buf_size;
+    uart_get_buffered_data_len(uart->port, &rx_buf_size);
+    return rx_buf_size;
+}
+
+static struct aos_hal_uart_dev_t* uart_dev_table[UART_NUM_MAX] = {NULL};
+
+static void select_notif_callback_isr(uart_port_t uart_num, uart_select_notif_t uart_select_notif, BaseType_t *task_woken)
+{
+    size_t rx_data_len = 0;
+    char data[256] = {0};
+    if (!uart_dev_table[uart_num])
+        return;
+
+    aos_hal_uart_dev_t *uart_dev = uart_dev_table[uart_num];
+    switch (uart_select_notif) {
+    case UART_SELECT_READ_NOTIF:
+        memset(data, 0, sizeof(data));
+        rx_data_len = uart_read_bytes(uart_num, data, sizeof(data), 0);
+        uart_dev->cb(uart_num, data, (uint16_t)rx_data_len, uart_dev->userdata);
+        break;
+    case UART_SELECT_WRITE_NOTIF:
+    case UART_SELECT_ERROR_NOTIF:
+        break;
+    }
+}
+
+int32_t aos_hal_uart_callback(aos_hal_uart_dev_t *uart, void (*cb)(int, void *, uint16_t, void *), void *userdata)
+{
+    if (uart->port < 0 || uart->port > UART_NUM_MAX - 1) {
+        return -EINVAL;
+    }
+    uart->cb = cb;
+    uart->userdata = userdata;
+    uart_dev_table[uart->port] = uart;
+    uart_set_select_notif_callback(uart->port, select_notif_callback_isr);
+    return -ENOTSUP;
 }

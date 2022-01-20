@@ -236,19 +236,19 @@ int recognizeLicensePlate(char *url, AIModelCBFunc cb)
     request.setImageURL(imageURL);
 
     auto outcome = client.recognizeLicensePlate(request);
-    cout << endl << "ocr recognizeCharacter describeInstances returned:" << endl;
-    cout << "error code: " << outcome.error().errorCode() << endl;
-    cout << "requestId: " << outcome.result().requestId() << endl << endl;
+    // cout << endl << "ocr recognizeCharacter describeInstances returned:" << endl;
+    // cout << "error code: " << outcome.error().errorCode() << endl;
+    // cout << "requestId: " << outcome.result().requestId() << endl << endl;
 
     for (i = 0; i < outcome.result().getData().plates.size(); i++) {
-        cout << "plateNumber: " << outcome.result().getData().plates[i].plateNumber << endl;
-        cout << "confidence: " << outcome.result().getData().plates[i].confidence << endl;
-        cout << "plateType: " << outcome.result().getData().plates[i].plateType << endl;
-        cout << "plateTypeConfidence: " << outcome.result().getData().plates[i].plateTypeConfidence << endl;
-        cout << "roi.x: " << outcome.result().getData().plates[i].roi.x << endl;
-        cout << "roi.y: " << outcome.result().getData().plates[i].roi.y << endl;
-        cout << "roi.w: " << outcome.result().getData().plates[i].roi.w << endl;
-        cout << "roi.h: " << outcome.result().getData().plates[i].roi.h << endl;
+        // cout << "plateNumber: " << outcome.result().getData().plates[i].plateNumber << endl;
+        // cout << "confidence: " << outcome.result().getData().plates[i].confidence << endl;
+        // cout << "plateType: " << outcome.result().getData().plates[i].plateType << endl;
+        // cout << "plateTypeConfidence: " << outcome.result().getData().plates[i].plateTypeConfidence << endl;
+        // cout << "roi.x: " << outcome.result().getData().plates[i].roi.x << endl;
+        // cout << "roi.y: " << outcome.result().getData().plates[i].roi.y << endl;
+        // cout << "roi.w: " << outcome.result().getData().plates[i].roi.w << endl;
+        // cout << "roi.h: " << outcome.result().getData().plates[i].roi.h << endl;
 
         result.licensePlate.plateNumber = outcome.result().getData().plates[i].plateNumber.c_str();
         result.licensePlate.confidence = outcome.result().getData().plates[i].confidence;

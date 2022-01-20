@@ -84,7 +84,7 @@ STATIC mp_obj_t madc_read_u16(mp_obj_t self_in)
 {
     MADC_CHECK_PARAMS();
     mp_int_t output = -1;
-    mp_int_t ret = aos_hal_adc_value_get(&self->dev, &output, 0);
+    mp_int_t ret = aos_hal_adc_voltage_value_get(&self->dev, &output, 0);
     if (ret != 0) {
         LOGE(LOG_TAG, "ADC read fail with ret=%d\n", ret);
         return MP_OBJ_NEW_SMALL_INT(ret);

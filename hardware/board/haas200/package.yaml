@@ -106,7 +106,7 @@ def_config:
   MTD_PART_ID_FS:    7
 # Py_Engine module build flag.
   PY_BUILD_OSS: 0                 # Py_Engine module build oss config
-  PY_BUILD_AUDIO: 0               # Py_Engine module build voice config
+  MICROPY_PY_AUDIO: 0               # Py_Engine module build voice config
   PY_BUILD_AI: 0                  # Py_Engine module build ai config
   PY_BUILD_AIAGENT: 0              # Py_Engine module build ai_agent config
   PY_BUILD_UCLOUD_AI: 0            # Py_Engine module build ucloud_ai config

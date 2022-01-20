@@ -146,13 +146,6 @@ void mp_hal_delay_ms(uint32_t ms) {
     uint64_t us = ms * 1000;
     uint64_t dt;
     uint64_t t0 = esp_timer_get_time();
-
-    /***********************************************************
-    * HaaS Python commente out following code as issue 5344
-    * Python engine will block and never return for audio play
-    * https://github.com/micropython/micropython/issues/5344
-    ***********************************************************/
-#if 0
     for (;;) {
         mp_handle_pending(true);
         MICROPY_PY_USOCKET_EVENTS_HANDLER
@@ -171,19 +164,6 @@ void mp_hal_delay_ms(uint32_t ms) {
             MP_THREAD_GIL_ENTER();
         }
     }
-#else
-    for (;;) {
-        MICROPY_EVENT_POLL_HOOK
-        uint64_t t1 = esp_timer_get_time();
-        dt = t1 - t0;
-        if (dt + portTICK_PERIOD_MS * 1000 >= us) {
-            // doing a vTaskDelay would take us beyond requested delay time
-            break;
-        }
-        ulTaskNotifyTake(pdFALSE, 1);
-    }
-#endif
-
     if (dt < us) {
         // do the remaining delay accurately
         mp_hal_delay_us(us - dt);

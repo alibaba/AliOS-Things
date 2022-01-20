@@ -1,0 +1,4 @@
+srctype = cpython
+type = package
+version = 0.5.1
+depends = warnings, email.feedparser, email.message, email.internal

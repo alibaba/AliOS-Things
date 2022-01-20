@@ -445,6 +445,45 @@ STATIC mp_obj_t obj_getPredictResponses(size_t n_args, const mp_obj_t *args)
                     mp_obj_list_append(ret_list, dict);
                 }
                 return ret_list;
+            } else if (!strcmp(driver_obj->mNetName, "RecognizeLicensePlate")) {
+                ret_len =
+                    MLGetPredictResponses(driver_obj->mInstance, (char *)&result[0], sizeof(ucloud_ai_result_t) * 16);
+                if (ret_len <= 0) {
+                    LOGE(LOG_TAG, "MLGetPredictResponses failed\n");
+                    return mp_const_none;
+                }
+
+                mp_obj_t dict = mp_obj_new_dict(8);
+                mp_obj_t ret_list = mp_obj_new_list(0, NULL);
+
+                for (i = 0; i < ret_len; i++) {
+                    LOGD(LOG_TAG, "plateNumber: %s\n", result[i].ocr.licensePlate.plateNumber);
+                    LOGD(LOG_TAG, "confidence: %.1f\n", result[i].ocr.licensePlate.confidence);
+                    LOGD(LOG_TAG, "plateType: %s\n", result[i].ocr.licensePlate.plateType);
+                    LOGD(LOG_TAG, "plateTypeConfidence: %.1f\n", result[i].ocr.licensePlate.plateTypeConfidence);
+                    LOGD(LOG_TAG, "x: %d\n", result[i].ocr.licensePlate.roi.x);
+                    LOGD(LOG_TAG, "y: %d\n", result[i].ocr.licensePlate.roi.y);
+                    LOGD(LOG_TAG, "w: %d\n", result[i].ocr.licensePlate.roi.w);
+                    LOGD(LOG_TAG, "h: %.1f\n", result[i].ocr.licensePlate.roi.h);
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("plateNumber")),
+                                      mp_obj_new_strn(result[i].ocr.licensePlate.plateNumber));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("confidence")),
+                                      mp_obj_new_float(result[i].ocr.licensePlate.confidence));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("plateType")),
+                                      mp_obj_new_strn(result[i].ocr.licensePlate.plateType));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("plateTypeConfidence")),
+                                      mp_obj_new_float(result[i].ocr.licensePlate.plateTypeConfidence));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("x")),
+                                      mp_obj_new_int(result[i].ocr.licensePlate.roi.x));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("y")),
+                                      mp_obj_new_int(result[i].ocr.licensePlate.roi.y));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("w")),
+                                      mp_obj_new_int(result[i].ocr.licensePlate.roi.w));
+                    mp_obj_dict_store(dict, MP_OBJ_NEW_QSTR(qstr_from_str("h")),
+                                      mp_obj_new_int(result[i].ocr.licensePlate.roi.h));
+                    mp_obj_list_append(ret_list, dict);
+                }
+                return ret_list;
             }
         }
         else
@@ -452,6 +491,8 @@ STATIC mp_obj_t obj_getPredictResponses(size_t n_args, const mp_obj_t *args)
             return mp_const_none;
         }
     }
+
+    return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(ml_obj_getPredictResponses, 2, obj_getPredictResponses);
 

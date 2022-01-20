@@ -1,0 +1,6 @@
+srctype = micropython-lib
+type = module
+version = 0.5.1
+author = Paul Sokolovsky
+desc = HTTP client module for MicroPython uasyncio module
+long_desc = README

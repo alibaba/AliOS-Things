@@ -49,9 +49,10 @@
 #include "py/objtuple.h"
 #include "py/runtime.h"
 #include "ulog/ulog.h"
+#include "diskio.h"
 
 #if MICROPY_VFS_POSIX
-#include "vfs_posix.h"
+#include "extmod/vfs_posix.h"
 #endif
 
 #define LOG_TAG "MOD_OS"
@@ -83,6 +84,28 @@ STATIC mp_obj_t os_uname(void)
     return (mp_obj_t)&os_uname_info_obj;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(os_uname_obj, os_uname);
+
+STATIC mp_obj_t os_version(void)
+{
+    char version[40] = { 0 };
+    sprintf(version, "%s-v%s", MICROPY_SW_VENDOR_NAME, SYSINFO_SYSTEM_VERSION);
+    return mp_obj_new_str(version, strlen(version));
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(os_version_obj, os_version);
+
+STATIC mp_obj_t os_version_info(void)
+{
+    char version_info[80] = { 0 };
+#ifdef MICROPY_HW_BOARD_TYPE
+    sprintf(version_info, "%s-%s-%s-v%s-%s", MICROPY_SW_VENDOR_NAME, MICROPY_HW_MCU_NAME, MICROPY_HW_BOARD_TYPE,
+            SYSINFO_SYSTEM_VERSION, MICROPY_BUILD_DATE);
+#else
+    sprintf(version_info, "%s-%s-v%s-%s", MICROPY_SW_VENDOR_NAME, MICROPY_HW_MCU_NAME, SYSINFO_SYSTEM_VERSION,
+            MICROPY_BUILD_DATE);
+#endif
+    return mp_obj_new_str(version_info, strlen(version_info));
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(os_version_info_obj, os_version_info);
 
 STATIC mp_obj_t os_urandom(mp_obj_t num)
 {
@@ -838,7 +861,7 @@ STATIC mp_obj_t mod_os_file_getpos(mp_obj_t stream_in)
         mp_raise_OSError(EINVAL);
         return mp_const_false;
     } else {
-        fpos_t pos = 0;
+        fpos_t pos;
         int ret = fgetpos(stream, &pos);
         if (ret == 0) {
             return mp_obj_new_int(pos);
@@ -900,6 +923,8 @@ STATIC const mp_rom_map_elem_t os_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_uos) },
     { MP_ROM_QSTR(MP_QSTR_uname), MP_ROM_PTR(&os_uname_obj) },
     { MP_ROM_QSTR(MP_QSTR_urandom), MP_ROM_PTR(&os_urandom_obj) },
+    { MP_ROM_QSTR(MP_QSTR_version), MP_ROM_PTR(&os_version_obj) },
+    { MP_ROM_QSTR(MP_QSTR_version_info), MP_ROM_PTR(&os_version_info_obj) },
 
 #if MICROPY_PY_OS_DUPTERM
     { MP_ROM_QSTR(MP_QSTR_dupterm), MP_ROM_PTR(&mp_uos_dupterm_obj) },

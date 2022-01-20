@@ -1,0 +1,5 @@
+srctype = micropython-lib
+type = module
+version = 0.1
+author = Paul Sokolovsky
+desc = Make and parse DNS packets (Sans I/O approach).

@@ -1,0 +1,4 @@
+uaiohttpclient is an HTTP client module for MicroPython uasyncio module,
+with API roughly compatible with aiohttp (https://github.com/KeepSafe/aiohttp)
+module. Note that only client is implemented, for server see picoweb
+microframework.

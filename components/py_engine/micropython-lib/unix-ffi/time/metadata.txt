@@ -1,0 +1,4 @@
+srctype = micropython-lib
+type = module
+version = 0.5
+depends = ffilib

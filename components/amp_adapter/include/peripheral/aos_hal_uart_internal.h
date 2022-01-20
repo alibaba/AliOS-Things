@@ -98,6 +98,8 @@ typedef struct {
     uint8_t                 port;   /**< uart port */
     aos_hal_uart_config_t   config; /**< uart config */
     void                    *priv;  /**< priv data */
+    void (*cb)(int, void *, uint16_t, void *);
+    void                    *userdata;
 } aos_hal_uart_dev_t;
 #endif /* HAL_UART_H */
 
