@@ -130,3 +130,69 @@ ret = uart.open("serial2")
 buf = bytearray([0x01, 0x02, 0x03, 0x04])
 ret = uart.write(buf)
 ```
+
+
+## any - 查看是否有数据
+
+* 函数功能：  
+查看UART接收buffer中的数据长度
+
+* 函数原型：
+> UART.any()
+
+* 参数说明：
+
+无
+
+* 返回值：  
+成功：0或者Buffer中数据的长度；失败：负整数。
+
+* 示例代码：
+
+```python
+from driver import UART
+uart = UART()
+ret = uart.open("serial2")
+uart.any()
+uart.close()
+```
+
+
+## on - 注册UART异步接收函数
+
+* 函数功能：  
+注册UART数据异步接收函数
+
+* 函数原型：
+> UART.on(cb)
+
+* 参数说明：
+
+| 属性 | 类型 | 必填 | 描述 |
+| --- | --- | --- | --- |
+| func | function | 是 | UART异步接收数据回调函数 |
+
+* 返回值：  
+成功：0或者Buffer中数据的长度；失败：负整数。
+
+* cb(data)参数说明：
+| 属性 | 类型 | 必填 | 描述 |
+| --- | --- | --- | --- |
+| data | bytearray | 是 | UART数据 |
+
+
+* 示例代码：
+
+```python
+from driver import UART
+
+def cb(data):
+    print(data)
+
+uart = UART()
+ret = uart.open("serial2")
+uart.on(cb)
+buf = bytearray([0x01,0x02,0x03,0x04])
+uart.write(bytearray)
+uart.close()
+```

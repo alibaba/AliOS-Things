@@ -25,6 +25,7 @@ depends:
 supported_boards:
   - nodemcu32s: rel_3.3.0
   - m5stackcore2: rel_3.3.0
+  - pywifiesp32: rel_3.3.0
 
 ## 第三部分：板级信息
 # hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段
@@ -127,7 +128,6 @@ def_config:
   MICROPY_PY_DRIVER: 1
   MICROPY_PY_ALIYUNIOT: 1
   CONFIG_LWIP_VERSION: lwip2.0.0
-  HAAS_ACTIVATE_FLAG: y
   SYSINFO_MCU_ESP32: y
   SYSINFO_AOS_VERSION: "AOS-R-3.3.0"
   SYSINFO_PARTNER: "AliOS Things Team"

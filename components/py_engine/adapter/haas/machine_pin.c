@@ -65,7 +65,7 @@ STATIC void machine_pin_isr_handler(void *arg)
     machine_pin_obj_t *self = (machine_pin_obj_t *)arg;
     mp_obj_t callback = self->callback;
     if (callback != mp_const_none && mp_obj_is_callable(callback)) {
-        callback_to_python(callback, self);
+        callback_to_python_LoBo(callback, self, NULL);
     }
 }
 

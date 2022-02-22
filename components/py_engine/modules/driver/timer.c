@@ -97,10 +97,7 @@ STATIC void driver_timer_disable(timer_dev_t *tim)
 STATIC void driver_timer_isr(void *self_in)
 {
     driver_timer_obj_t *self = (driver_timer_obj_t *)self_in;
-    mp_obj_t callback = self->callback;
-    if (callback != mp_const_none && mp_obj_is_callable(callback)) {
-        callback_to_python(callback, self);
-    }
+    callback_to_python_LoBo(self->callback, MP_OBJ_FROM_PTR(self), NULL);
 }
 
 STATIC mp_int_t driver_timer_enable(driver_timer_obj_t *self)

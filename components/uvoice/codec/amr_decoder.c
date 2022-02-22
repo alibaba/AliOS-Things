@@ -75,6 +75,11 @@ static int amr_decoder_process(void *priv, const uint8_t *buffer, int nbytes)
 		return -1;
 	}
 
+	if (rem_size < strlen(AMR_MAGIC_NUMBER)) {
+		M_LOGE("invalid input buffer size %d\n", rem_size);
+		return -1;
+	}
+
 	out_buffer = mdecoder->buffer_out;
 
 	if (!mdecoder->running) {

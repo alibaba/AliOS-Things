@@ -8,7 +8,6 @@ and an IR LED in a single package.
 from micropython import const
 from driver import I2C
 from utime import sleep_ms
-import math
 
 # System Register
 AP3216C_SYS_CONFIGURATION_REG    = const(0x00)
@@ -92,41 +91,29 @@ AP3216C_PS_LOW_THRESHOLD_H   = const(0x14)
 AP3216C_PS_HIGH_THRESHOLD_L  = const(0x15)
 AP3216C_PS_HIGH_THRESHOLD_H  = const(0x16)
 
-class AP3216CError(Exception):
-    def __init__(self, value=0, msg="ap3216c common error"):
-        self.value = value
-        self.msg = msg
-
-    def __str__(self):
-        return "Error code:%d, Error message: %s" % (self.value, str(self.msg))
-
-    __repr__ = __str__
-
 class AP3216C(object):
     """
     This class implements ap3216c chip's defs.
     """
-    def __init__(self,i2cObj):
-        self.i2cDev = None
-        if not isinstance(i2cObj, I2C):
-            raise ValueError("parameter is not an ADC object")
-        self.i2cDev = i2cObj
-
-    def open(self, devid):
-        self.i2cDev = I2C()
-        self.i2cDev.open(devid)
+    def __init__(self, i2cDev):
+        self._i2cDev = None
+        if not isinstance(i2cDev, I2C):
+            raise ValueError("parameter is not an I2C object")
+        # make AP3216C's internal object points to i2cDev
+        self._i2cDev = i2cDev
+        self.init()
 
 # 写寄存器的值
     def write_reg(self, addr, data):
         msgbuf = bytearray([data])
-        self.i2cDev.writeReg(addr, msgbuf)
-        print("--> write addr " + str(addr) + ", value = " + str(msgbuf))
+        self._i2cDev.memWrite(msgbuf, addr, 1)
+        # print("--> write addr " + str(addr) + ", value = " + str(msgbuf))
 
 # 读寄存器的值
     def read_regs(self, addr, len):
         buf = bytearray(len)
-        self.i2cDev.readReg(addr, buf)
-        print("--> read " + str(len) + " bytes from addr " + str(addr) + ", " + str(len) + " bytes value = " + str(buf))
+        self._i2cDev.memRead(buf, addr, 1)
+        # print("--> read " + str(len) + " bytes from addr " + str(addr) + ", " + str(len) + " bytes value = " + str(buf))
         return buf
 
     # 软件复位传感器
@@ -134,11 +121,7 @@ class AP3216C(object):
         self.write_reg(AP3216C_SYS_CONFIGURATION_REG, AP3216C_MODE_SW_RESET); # reset
 
     def read_low_and_high(self, reg, len):
-        # buf
-
-        # buf[0] = self.read_regs(reg, len) # 读低字节
-        # buf[1] = self.read_regs(reg + 1, len)  # 读高字节
-        data = self.read_regs(reg, len)[0] | (self.read_regs(reg + 1, len)[0] << len * 8) # 合并数据
+        data = self.read_regs(reg, len)[0] | (self.read_regs(reg + 1, len)[0] << len * 8) # 读低字节 - 读高字节 - 合并数据
 
         if (data > (1 << 15)):
             data = data - (1<<16)
@@ -152,10 +135,25 @@ class AP3216C(object):
         return IntStatus # 返回状态
 
     def ap3216c_int_init(self):
-        print("ap3216c_int_init")
+        #print("ap3216c_int_init")
+        pass
+
     #配置 中断输入引脚
     def ap3216c_int_Config(self):
-        print("ap3216c_int_Config")
+        #print("ap3216c_int_Config")
+        pass
+
+    #初始化入口
+    def init(self):
+        # reset ap3216c
+        self.reset_sensor()
+        sleep_ms(100)
+        self.ap3216c_set_param(AP3216C_SYSTEM_MODE, AP3216C_MODE_ALS_AND_PS)
+        sleep_ms(150) # delay at least 112.5ms
+
+        self.ap3216c_int_Config()
+        self.ap3216c_int_init()
+
 
     # This function reads light by ap3216c sensor measurement
     # @param no
@@ -164,7 +162,7 @@ class AP3216C(object):
     def ap3216c_read_ambient_light(self):
         read_data = self.read_low_and_high(AP3216C_ALS_DATA_L_REG, 1)
         range = self.ap3216c_get_param(AP3216C_ALS_RANGE)
-        print("ap3216c_read_ambient_light read_data is " , read_data, range)
+        #print("ap3216c_read_ambient_light read_data is " , read_data, range)
         if (range == AP3216C_ALS_RANGE_20661):
             brightness = 0.35 * read_data # sensor ambient light converse to reality
         elif (range == AP3216C_ALS_RANGE_5162):
@@ -181,7 +179,7 @@ class AP3216C(object):
     #@return the proximity data.
     def ap3216c_read_ps_data(self):
         read_data = self.read_low_and_high(AP3216C_PS_DATA_L_REG, 1) # read two data
-        print("ap3216c_read_ps_data read_data is " , read_data)
+        #print("ap3216c_read_ps_data read_data is " , read_data);
         if (1 == ((read_data >> 6) & 0x01 or (read_data >> 14) & 0x01)) :
             return 55555 # 红外过高（IR），PS无效 返回一个 55555 的无效数据
 
@@ -199,35 +197,13 @@ class AP3216C(object):
     #@return the ir data.
     def ap3216c_read_ir_data(self):
         read_data = self.read_low_and_high(AP3216C_IR_DATA_L_REG, 1) # read two data
-        print("ap3216c_read_ir_data read_data is" , read_data)
+        #print("ap3216c_read_ir_data read_data is" , read_data);
         proximity = (read_data & 0x0003) + ((read_data >> 8) & 0xFF)
         # sensor proximity converse to reality
         if (proximity > (1 << 15)) :
             proximity = proximity - (1<<16)
+
         return proximity
-
-    #初始化入口
-    def start(self):
-        # reset ap3216c
-        self.reset_sensor()
-        sleep_ms(100)
-        self.ap3216c_set_param(AP3216C_SYSTEM_MODE, AP3216C_MODE_ALS_AND_PS)
-        sleep_ms(150) # delay at least 112.5ms
-
-        self.ap3216c_int_Config()
-        self.ap3216c_int_init()
-
-    def getIR(self):
-        read_data = self.ap3216c_read_ir_data()
-        return read_data
-
-    def getPS(self):
-        read_data = self.ap3216c_read_ps_data()
-        return read_data
-
-    def getLightness(self):
-        read_data = self.ap3216c_read_ambient_light()
-        return read_data
 
     #This function sets parameter of ap3216c sensor
     #@param cmd the parameter cmd of device
@@ -319,5 +295,32 @@ class AP3216C(object):
 
         return value
 
-    def close(self):
-        self.i2cDev.close()
+    def getData(self):
+        ap3216c_dict = {'brightness': 0, 'ir': 0, 'ps': 0}
+
+        if not self._i2cDev:
+            raise ValueError("i2cObj is not initialized")
+
+        brightness = self.ap3216c_read_ambient_light()
+        ir_data = self.ap3216c_read_ir_data()
+        ps_data = self.ap3216c_read_ps_data()
+        ap3216c_dict['brightness'] = brightness
+        ap3216c_dict['ir'] = ir_data
+        ap3216c_dict['ps'] = ps_data
+        return ap3216c_dict
+
+    def getIlluminance(self):
+        if not self._i2cDev:
+            raise ValueError("i2cObj is not initialized")
+
+        return self.ap3216c_read_ambient_light()
+
+    def isProximate(self):
+        if not self._i2cDev:
+            raise ValueError("i2cObj is not initialized")
+
+        ps = self.ap3216c_read_ps_data()
+        if ((ps >> 15) & 1):
+            return True
+        else:
+            return False

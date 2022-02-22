@@ -76,7 +76,7 @@ STATIC void machine_soft_timer_isr(void *timer, void *self_in)
     machine_soft_timer_obj_t *self = (machine_soft_timer_obj_t *)MP_OBJ_TO_PTR(self_in);
     mp_obj_t callback = self->callback;
     if (callback != mp_const_none && mp_obj_is_callable(callback)) {
-        callback_to_python(callback, self);
+        callback_to_python_LoBo(callback, self, NULL);
     }
 }
 

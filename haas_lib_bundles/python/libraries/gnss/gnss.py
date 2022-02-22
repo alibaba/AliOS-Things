@@ -20,9 +20,8 @@ class GNSS(object):
         recvsize = self.uartObj.read(sentence)
         if(recvsize):
             # print(sentence)
-            sentence = sentence.decode()
             # 解析地理位置信息
             for c in sentence:
-                self.gnss.update(c)
+                self.gnss.update(chr(c))
             print(self.gnss.longitude, self.gnss.latitude, self.gnss.altitude)
         return self.gnss

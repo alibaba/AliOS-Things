@@ -166,13 +166,14 @@ static void guiTask(void *pvParameter)
 /**********************
  *   APPLICATION MAIN
  **********************/
-STATIC mp_obj_t app_display_all(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args)
+STATIC mp_obj_t app_monkey_test(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args)
 {
-    driver_init();
-    drawDisplay();
+    lv_monkey_init();
+    
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mp_display_all_obj, 0, app_display_all);
+
+STATIC MP_DEFINE_CONST_FUN_OBJ_KW(mp_monkey_test, 0, app_monkey_test);
 
 static lv_disp_draw_buf_t disp_buf;
 static lv_disp_drv_t disp_drv;
@@ -252,7 +253,7 @@ STATIC const mp_rom_map_elem_t display_lvgl_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_touch_read), MP_ROM_PTR(&PTR_OBJ(touch_read)) },
     // for test start
     { MP_ROM_QSTR(MP_QSTR_draw), MP_ROM_PTR(&mp_display_draw_obj) },
-    { MP_ROM_QSTR(MP_QSTR_test), MP_ROM_PTR(&mp_display_all_obj) },
+    { MP_ROM_QSTR(MP_QSTR_monkey_test), MP_ROM_PTR(&mp_monkey_test) },
     // for test end
 };
 STATIC MP_DEFINE_CONST_DICT(display_lvgl_locals_dict, display_lvgl_locals_dict_table);

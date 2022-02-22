@@ -478,6 +478,54 @@ SERVICES = (HR_SERVICE, UART_SERVICE,)
 * 示例：
 无
 
+## gatts_indicate - 发送指示请求
+* 函数功能:
+向连接的客户端发送指示请求
+
+* 注意事项：
+   无论客户端是否订阅了此特征值，都会发送通知。
+   在确认（或失败，如超时）时，将触发_IRQ_GATTS_INDICATE_DONE 事件
+
+* 函数原型：
+> BLE.gatts_indicate( conn_handle , value_handle  )
+
+* 参数说明:
+
+|参数|类型|必选参数？|说明|
+|-----|----|:---:|----|
+|conn_handle|整型|是|连接句柄|
+|value_handle|整型|是|值句柄|
+
+* 返回值:
+无
+
+* 示例：
+无
+
+## gatts_set_buffer - 设置缓冲区
+* 函数功能:
+设置值的内部缓冲区大小（与Byte为单位），默认值是20.
+
+* 注意事项：
+   无
+
+* 函数原型：
+> BLE.gatts_set_buffer ( value_handle , len , append = False)
+
+* 参数说明:
+
+|参数|类型|必选参数？|说明|
+|-----|----|:---:|----|
+|value_handle|整型|是|值句柄|
+|len|整型|是|缓冲区大小|
+|append|布尔值|否|为True时，将使所有远程写入追加到当前值，而不是覆盖当前值，执行gatts_read读取值后该值清零|
+
+* 返回值:
+无
+
+* 示例：
+无
+
 ## gattc_discover_services - 查询服务
 
 GATT 客户端（Client）可发现和读取/写入远程GATT服务上的特征。

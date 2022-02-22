@@ -87,7 +87,7 @@ aos_status_t aos_timer_create(aos_timer_t *timer, void (*fn)(void *, void *), vo
     return aos_timer_new_ext(timer, fn, arg, ms, repeat, auto_run);
 }
 
-int aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *),
+aos_status_t aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *),
                   void *arg, uint32_t ms, bool repeat)
 {
     return aos_timer_new_ext(timer, fn, arg, ms, repeat, 1);
@@ -112,7 +112,7 @@ void aos_timer_free(aos_timer_t *timer)
     return ;
 }
 
-int aos_timer_start(aos_timer_t *timer)
+aos_status_t aos_timer_start(aos_timer_t *timer)
 {
     /* verify param */
     if (timer == NULL) {

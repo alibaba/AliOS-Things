@@ -4,24 +4,24 @@
 
 ## 背景知识
 &emsp;&emsp;
-要进行人员入侵监控，需要有摄像头再结合人体检测，本章中使用阿里云视觉智能开放平台中人体检测来进行人体检测，通过整合云端AI能力充分发挥端智能的能力。在检测到人员入侵后进行报警，报警的方式可以有显示屏提醒通知、语音报警通知或者短信电话通知等。这里我们使用LCD显示报警。
+要进行人员入侵监控，需要有摄像头再结合人体检测，本章中使用HaaS云端积木中人体检测来进行人体检测，通过整合云端AI能力充分发挥端智能的能力。在检测到人员入侵后进行报警，报警的方式可以有显示屏提醒通知、语音报警通知或者短信电话通知等。这里我们使用LCD显示报警。
 
 
 <br>
 
 ## 准备
 
-1. M5Stack-Core2开发板    一套
-2. M5Stack ESP32摄像头    一个
-3. 连接线                 一根
+1. M5Stack Core2开发板       一套
+2. M5Stack Unit CAM摄像头    一个
+3. 连接线                    一根
 
 涉及到的硬件购买链接如下，仅供参考，不负责商家发货的品质保障等问题！
 
 | 名称 | 数量 | 参考链接 |
 | --- | --- | --- |
-| M5Stack-Core2开发版 | 1 | [M5Stack-Core2](https://item.taobao.com/item.htm?spm=a1z10.5-c-s.w4002-22404213529.17.732749d8usCqYX&id=625561056791) |
-| microUSB数据线 | 1 | M5Stack-Core2自带 |
-| 摄像头 | 1 | [M5Stack ESP32摄像头](https://item.taobao.com/item.htm?spm=a1z10.5-c-s.w4002-22404213529.29.698e2d4844EBZF&id=643872470244) |
+| M5Stack Core2开发版 | 1 | [M5Stack Core2](https://item.taobao.com/item.htm?spm=a1z10.5-c-s.w4002-22404213529.17.732749d8usCqYX&id=625561056791) |
+| microUSB数据线 | 1 | M5Stack Core2开发套件自带 |
+| 摄像头 | 1 | [M5Stack Unit CAM摄像头](https://item.taobao.com/item.htm?spm=a1z10.5-c-s.w4002-22404213529.29.698e2d4844EBZF&id=643872470244) |
 | 连接线 | 1条 | [M5Stack GROVE连接线](https://item.taobao.com/item.htm?spm=a1z10.5-c-s.w4002-22404213529.11.6b6d5f86B5IYMF&id=610410604759) 请选用10cm长即可 |
 
 &emsp;&emsp;
@@ -32,17 +32,14 @@
 <br>
 
 ## 云端平台功能开通
-在本案例中涉及到两个云端平台功能：
-1. 使用[对象存储OSS](https://help.aliyun.com/document_detail/52830.html?spm=5176.8465980.0.dexternal.4e7014509ELP9t)将图像上传到OSS中创建好的Bucket。
-2. 使用[视觉智能开放平台](https://vision.aliyun.com/experience/detail?spm=a211p3.14471187.J_7524944390.35.5303797d4MxgC9&tagName=facebody&children=DetectPedestrian)免费开通人体检测功能。
+在本案例中涉及到云端平台功能都聚合在HaaS云端积木中，所以无需单独使用 **对象存储OSS** 和 **视觉智能开发平台**。
+
 
 &emsp;&emsp;
 因此，整个步骤分为：
-1. 注册阿里云账号获取AccessKey和Secret
-2. 使用对象存储OSS创建Bucket并获取OSS Endpoint
-3. 开通阿里云视觉智能开放平台人体检测识别功能
-4. 设备端配置云端账号信息
-5. 推送脚本到M5Stack Core2并运行人体检测识别
+1. 注册阿里云账号并登录阿里云账号；
+2. 在HaaS官网中的云端积木控制台创建设备；
+3. 推送脚本到M5Stack Core2并进行人体检测；
 
 ## 注册阿里云账号
 &emsp;&emsp;
@@ -50,81 +47,54 @@
 
 <br>
 
-1. **获取AccessKey和Secret**
+## HaaS云端积木平台
+
+1. **登录HaaS官网**
 
 &emsp;&emsp;
-登录[Access Key管理页面](https://ram.console.aliyun.com/manage/ak)，创建并获取**AccessKey ID**和**AccessKey Secret**，使用子用户缩小权限范围，账号更加安全。
+进入阿里云官网，[HaaS官网](https://haas.iot.aliyun.com/) 。
+<div align="center">
+<img src=./../../../images/AI_HaaS官网.png width=80%/>
+</div>
 
 <br>
 
-2. **创建子用户**
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/106917/1630931942553-f0649f29-162e-4d9d-8b1f-8d4c1d2a834a.png#clientId=u91568700-09eb-4&from=paste&height=488&id=i9IXd&margin=%5Bobject%20Object%5D&name=image.png&originHeight=976&originWidth=2874&originalType=binary&ratio=1&size=660204&status=done&style=none&taskId=uccb3ec0f-4d91-435c-b8c5-6f1cbeb04af&width=1437)
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/106917/1630932751015-c8227004-1aaf-470e-941a-e356dafac4fe.png#clientId=u91568700-09eb-4&from=paste&height=305&id=Ubs3m&margin=%5Bobject%20Object%5D&name=image.png&originHeight=610&originWidth=2878&originalType=binary&ratio=1&size=311231&status=done&style=none&taskId=u31d28fe8-6903-42b9-ba97-af687633334&width=1439)
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/106917/1630932878834-473b5812-5d0d-4b3c-856c-080c145c44e3.png#clientId=u91568700-09eb-4&from=paste&height=375&id=ixY5r&margin=%5Bobject%20Object%5D&name=image.png&originHeight=750&originWidth=2878&originalType=binary&ratio=1&size=265601&status=done&style=none&taskId=u1ccd53fb-dd44-4d4f-9a1c-e2e949d8905&width=1439)
+2. **进入HaaS云端积木控制台**
+
+&emsp;&emsp;
+如**上图**所示，点击右上角的“控制台”，进入HaaS云端积木的控制台页面。
+
+<div align="center">
+<img src=./../../../images/AI_HaaS控制台.png width=80%/>
+</div>
 
 <br>
 
-3. **获取Key和Secret**
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/106917/1630933021351-6e87582c-221e-45f9-b880-1b460dfff392.png#clientId=u91568700-09eb-4&from=paste&height=331&id=MVsNC&margin=%5Bobject%20Object%5D&name=image.png&originHeight=662&originWidth=2878&originalType=binary&ratio=1&size=319964&status=done&style=none&taskId=u6928ce75-4a3c-48ae-95c9-2722c2e6273&width=1439)
-通过下载csv文件，或者复制方式保存AccessKey ID和Secret，在设备端需要填入这两个信息。
 
+3. **创建设备**
+
+&emsp;&emsp;
+在左侧导航栏设备管理中，可以看到产品和设备选项，点击“产品”，可以看到平台默认创建了“haas_正式游客产品”这个产品；
+所以开发者只需要创建设备即可。点击“批量添加”， 添加方式为“自动生成”， 申请数量可填为“1”个，即可完成新设备的创建。
+<div align="center">
+<img src=./../../../images/AI_创建设备.png width=60%/>
+</div>
+<div align="center">
+<img src=./../../../images/AI_创建设备_设备信息.png width=60%/>
+</div>
 <br>
 
-## 对象存储OSS应用
-1. **创建OSS Bucket**
+4. **获取设备的三元组**
 
 &emsp;&emsp;
-登陆OSS控制台[https://oss.console.aliyun.com/](https://oss.console.aliyun.com/overview)创建Bucket，创建时地域**一定要选择上海**。
-<br />
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/106917/1611044636741-8cdf7526-5df4-4c07-9b7d-a607eb4a6f16.png#align=left&display=inline&height=298&margin=%5Bobject%20Object%5D&name=image.png&originHeight=596&originWidth=2552&size=333576&status=done&style=none&width=1276)
-<br />
-地域请选择上海：
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/106917/1611044802058-75241eeb-5ce8-4eec-ada2-ebfc3108ce91.png#align=left&display=inline&height=652&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1304&originWidth=2550&size=826075&status=done&style=none&width=1275)
-<br />
-创建完成后可以获得Endpoint及Bucket域名信息：
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/106917/1611044974987-ad66470c-c304-4b75-848d-77ad18cbf4b2.png#align=left&display=inline&height=642&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1284&originWidth=2554&size=565310&status=done&style=none&width=1277)<br />在Bucket创建好后，从上图我们可以看到：<br />**Endpoint：oss**-cn-shanghai.aliyuncs.com<br />**BucketName**：就是我们创建Bucket取的名字oss-ai-dev。
-
-> 权限设置
-
-&emsp;&emsp;
-Bucket ACL设置为公共读，否则可能会出现访问不了的问题：<br />![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/106917/1611817137461-d4ff15a8-6d28-4f11-aa81-ce8fcabcbb45.png#align=left&display=inline&height=311&margin=%5Bobject%20Object%5D&name=image.png&originHeight=622&originWidth=2556&size=249226&status=done&style=none&width=1278)
-
+在设备的列表中，新创建的设备上点击“查看”,就可以获得设备的三元组信息，之后这个三元组信息会在设备端代码中使用到。
+<div align="center">
+<img src=./../../../images/AI_查看设备信息.png width=80%/>
+</div>
+<div align="center">
+<img src=./../../../images/AI_设备三元组.png width=80%/>
+</div>
 <br>
-
-2. **获取OSS Endpoint**
-![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/106917/1611818799287-36f1eb93-3790-4c76-a4bf-cdf3c5e3992f.png#align=left&display=inline&height=1302&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1302&originWidth=2556&size=622552&status=done&style=none&width=2556)
-
-<br>
-
-## 开通阿里云视觉智能开放平台人体检测功能
-
-> 功能描述
-
-&emsp;&emsp;
-阿里云视觉智能开放平台人体检测功能检测图像中的人体，并输出图像中人体所在坐标，可同时识别图片中的复数人体。
-![](https://img.alicdn.com/tfs/TB1h4apzpT7gK0jSZFpXXaTkpXa-1024-683.jpg)
-> 特色优势
-* 支持多角度检测：针对正面，侧面，高角度等拍摄的图像，都可以准确检测出人脸。
-* 抗遮挡能力强：对于人体被少部分遮挡的场景，仍可以准确检测出人体。
-
-> 输入限制
-* 图片格式：JPEG、JPG、PNG、BMP。
-* 图片大小：图片大小不超过3M。
-* URL地址中不能包含中文字符。
-
-### 功能开通
-&emsp;&emsp;
-登陆[视觉智能开放平台](https://vision.aliyun.com/experience/detail?spm=a211p3.14471187.J_7524944390.35.5303797d4MxgC9&tagName=facebody&children=DetectPedestrian)免费开通人体检测功能。
-![](../../../图片/4_人员入侵报警系统_免费开通1.png)
-
-&emsp;&emsp;
-选择地域为上海，勾选同意协议，每个账号2QPS免费调用。
-![](../../../图片/4_人员入侵报警系统_免费开通2.png)
-
-### 功能体验
-&emsp;&emsp;
-开发者在实际在设备端使用前，可以尝试上传人体照片在产品体验页面进行体验。
-![](../../../图片/4_人员入侵报警系统_体验.png)
 
 ## 设备端开发
 
@@ -160,27 +130,15 @@ PWD='Your-AP-Password'
 &emsp;&emsp;
 修改完成之后connect_wifi函数就会连接读者自己设定的路由器。
 
-2. **修改设备端访问Key和Secret**
+2. **修改设备的三元组信息**
 
 &emsp;&emsp;
-按照[获取Key和Secret]获取ACCESS_KEY和ACCESS_SECRET，填入main.py中：
+按照[获取设备的三元组]获取三元组信息，填入main.py中：
 ```python
-# 阿里云访问账号
-ACCESS_KEY = 'Your-Access-Key'
-ACCESS_SECRET = 'Your-Access-Secret'
-```
-
-3. **设备端配置云端账号信息**
-
-&emsp;&emsp;
-配置云端信息账号信息以及对象存储OSS信息：
-
-&emsp;&emsp;
-按照[创建Bucket]获取OSS_BUCKET，填入main.py中：
-```python
-# OSS对象存储配置
-OSS_ENDPOINT = "oss-cn-shanghai.aliyuncs.com"
-OSS_BUCKET = "Your-OSS-Bucket"
+# HaaS设备三元组
+productKey = "Your-ProductKey"
+deviceName  = "Your-devicename"
+deviceSecret  = "Your-deviceSecret"
 ```
 
 ## 运行结果
@@ -192,31 +150,23 @@ OSS_BUCKET = "Your-OSS-Bucket"
 &emsp;&emsp;
 推送此脚本到M5Stack之后，串口会周期性的打印如下日志，并且检测到人体后会在屏幕上显示红色Pedestrian Detected!!!字样。
 ```log
-I (46439) phy: phy_version: 4500, 0cd6843, Sep 17 2020, 15:37:07, 0, 0
-wifi is connecting...
-wifi is connecting...
-wifi is connecting...
-wifi is connecting...
-wifi is connected
-IP: 192.168.43.168
+Wi-Fi is connecting...
+Wi-Fi is connecting...
+Wi-Fi is connecting...
+Wi-Fi is connecting...
+Wi-Fi is connecting...
+Wi-Fi is connected
+IP: 192.168.0.158
 NTP start
 NTP done
-[makeRequest]response_code: 200
-content: http://oss-ai-dev.oss-cn-shanghai.aliyuncs.com/oss%2Ftest.jpg
-
-facebody describeInstances returned:
-error code: 
-requestId: 1BA46D64-F4BF-5571-804D-7447FB731041
-
-results size: 1
-[{'w': 296.0, 'h': 240.0, 'y': 0.0, 'score': 0.5187755, 'x': 0.0, 'type': 'person'}]
-[makeRequest]response_code: 200
-content: http://oss-ai-dev.oss-cn-shanghai.aliyuncs.com/oss%2Ftest.jpg
-
-facebody describeInstances returned:
-error code: 
-requestId: A5D40D5C-F3DA-531F-8C46-28F5C4486D92
-
-results size: 1
-[{'w': 190.0, 'h': 217.0, 'y': 23.0, 'score': 0.8994341, 'x': 0.0, 'type': 'person'}]
+establish tcp connection with server(host='a1kJJvGN9ko.iot-as-mqtt.cn-shanghai.aliyuncs.com', port=[443])
+tcp_connect: can only connect from state CLOSED
+success to establish tcp, fd=54
+link platform connected
+capture time : 205
+image time : 130
+{'ext': '{"data":"{\\"elements\\":[{\\"boxes\\":[0,1,317,240],\\"score\\":0.7398064,\\"type\\":\\"person\\"}],\\"height\\":240,\\"width\\":320}","result":"success"}', 'commandName': 'DetectPedestrianReply', 'commandType': 'haas.faas', 'argInt': 1}
+Pedestrian Detected
+get response time : 553
 Pedestrian Detected!!!
+```

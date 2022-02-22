@@ -1,0 +1,28 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "ssd1306": {
+      "type": "I2C",
+      "port": 0,
+      "addrWidth": 7,
+      "freq": 400000,
+      "mode": "master",
+      "devAddr": 60
+    },
+    "mlx90614": {
+      "type": "I2C",
+      "port": 0,
+      "addrWidth": 7,
+      "freq": 50000,
+      "mode": "master",
+      "devAddr": 90
+    },
+    "buzzer": {
+      "type": "PWM",
+      "port": 25
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

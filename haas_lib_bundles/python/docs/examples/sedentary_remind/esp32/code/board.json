@@ -1,0 +1,23 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "ssd1306": {
+      "type": "I2C",
+      "port": 0,
+      "addrWidth": 7,
+      "freq": 400000,
+      "mode": "master",
+      "devAddr": 60
+    },
+    "ir": {
+      "type": "GPIO",
+      "port": 32,
+      "dir": "irq",
+      "pull": "pullup",
+      "intMode": "both"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

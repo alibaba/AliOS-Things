@@ -7,7 +7,7 @@
 当前只支持Nor flash设备
 
 
-## setStorageSync - 写入kv键值对
+## set - 写入kv键值对
 
 * 参数说明：  
 
@@ -27,7 +27,7 @@ import kv
 TEST_KEY   = 'test_kv_key'
 TEST_VALUE = 'test_kv_value'
 
-ret = kv.setStorageSync(TEST_KEY, TEST_VALUE)
+ret = kv.set(TEST_KEY, TEST_VALUE)
 print(ret)
 ```
 * 输出：
@@ -37,7 +37,7 @@ print(ret)
 ```
 
 
-## getStorageSync  - 根据key值获取value值
+## get  - 根据key值获取value值
 
 * 参数说明：  
 
@@ -51,7 +51,7 @@ key|String|是|kv中的key值
 * 示例： 
 
 ```python
-val = kv.getStorageSync(TEST_KEY)
+val = kv.get(TEST_KEY)
 print(val)
 ```
 * 输出：
@@ -61,7 +61,7 @@ test_kv_value
 ```
 
 
-## removeStorageSync  - 删除kv键值对
+## remove  - 删除kv键值对
 
 * 参数说明：  
 
@@ -75,7 +75,7 @@ kv键值对删除成功返回0；删除失败返回非0
 * 示例： 
 
 ```python
-val = kv.removeStorageSync(TEST_KEY)
+val = kv.remove(TEST_KEY)
 print(val)
 ```
 * 输出：
@@ -94,22 +94,22 @@ TEST_KEY   = 'test_kv_key'
 TEST_VALUE = 'test_kv_value'
 
 """
-测试标题：setStorageSync/getStorageSync API功能测试
+测试标题：set/get API功能测试
 输入条件：key-val键值对(String类型)
 测试步骤：
     1. 写入kv键值对key-value
     2. 读出键值对，检查读出的value值
 预期结果：读出的value与写入的相同
 """
-ret = kv.setStorageSync(TEST_KEY, TEST_VALUE)
+ret = kv.set(TEST_KEY, TEST_VALUE)
 if ret == 0:
 	print("kv set success")
 
-val = kv.getStorageSync(TEST_KEY)
+val = kv.get(TEST_KEY)
 if val == TEST_VALUE:
     print("kv get success")
 
-ret = kv.removeStorageSync(TEST_KEY)
+ret = kv.remove(TEST_KEY)
 if ret == 0:
 	print("kv del success")
 ```

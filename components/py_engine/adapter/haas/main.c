@@ -40,6 +40,7 @@
 
 static int8_t *stack_top = NULL;
 static bool isPythonRunning = false;
+static uint32_t stack_size = 1024;
 
 #if MICROPY_ENABLE_GC
 static int8_t *heap = NULL;
@@ -126,6 +127,13 @@ static uint8_t *is_mainpy_exist()
         printf(" ==== python execute from %s ====\n", AMP_PY_ENTRY_BAK);
         fclose(fd);
         return AMP_PY_ENTRY_BAK;
+    }
+
+    fd = fopen(MP_PY_ENTRY_BAK, "r");
+    if (fd != NULL) {
+        printf(" ==== python execute from %s ====\n", MP_PY_ENTRY_BAK);
+        fclose(fd);
+        return MP_PY_ENTRY_BAK;
     }
 
     return NULL;
@@ -353,11 +361,14 @@ void haas_main(int32_t argc, int8_t **argv)
 #endif
 
     /* Check whether we have main.py to execute */
-    uint8_t *path = is_mainpy_exist();
-    if (path != NULL) {
-        uint8_t *argv[2] = { "python", path };
-        python_entry(2, &argv);
-    }
+    // defalut entry python engine
+    // uint8_t *path = is_mainpy_exist();
+    // if (path != NULL) {
+    //     uint8_t *argv[2] = { "python", path };
+    //     python_entry(2, &argv);
+    // }
+        uint8_t *param[1] = { "python" };
+        python_entry(1, &param);
 }
 
 static void handle_unzip_cmd(int32_t argc, int8_t **argv)
@@ -405,7 +416,6 @@ void do_str(const int8_t *src, mp_parse_input_kind_t input_kind)
 int32_t mpy_init(mpy_thread_args *args)
 {
     int32_t ret = -1;
-    uint32_t stack_size = 1024;
 
     mp_stdin_init(MP_REPL_UART_PORT, MP_REPL_UART_BAUDRATE);
 
@@ -415,58 +425,13 @@ int32_t mpy_init(mpy_thread_args *args)
     mp_thread_init(stack_addr, stack_size);
 #endif
 
-    mp_stack_set_top(stack_top);
-
-    // adjust the stack_size to provide room to recover from hitting the
-    // limit
-#if MICROPY_STACK_CHECK
-    mp_stack_ctrl_init();
-    mp_stack_set_limit(stack_size * sizeof(cpu_stack_t) - 1024);
-#endif
-
 #if MICROPY_ENABLE_GC
     heap = (int8_t *)malloc(MICROPY_GC_HEAP_SIZE);
     if (NULL == heap) {
         LOGE(LOG_TAG, "mpy_init: heap alloc fail!\r\n");
         return -1;
     }
-    gc_init(heap, heap + MICROPY_GC_HEAP_SIZE);
 #endif
-
-    mp_init();
-
-#if MICROPY_VFS_POSIX
-    {
-        // Mount the host FS at the root of our internal VFS
-        ret = mount_fs("/");
-        if (ret != 0) {
-            printf(" !!!!!!!! %s, %d, faild to mount fs !!!!!!!!\n", __func__, __LINE__);
-        }
-        MP_STATE_VM(vfs_cur) = MP_STATE_VM(vfs_mount_table);
-    }
-#endif
-
-    /*set default mp_sys_path*/
-    mp_obj_list_init(mp_sys_path, 0);
-    mp_obj_list_append(mp_sys_path,
-                       MP_OBJ_NEW_QSTR(MP_QSTR_));  // current dir (or base dir of the script)
-    // add /data/pyamp to system path
-    int8_t *path = MP_FS_ROOT_DIR "/pyamp";
-    mp_obj_list_append(mp_sys_path, mp_obj_new_str_via_qstr(path, strlen(path)));
-
-    // add /data/lib to system path
-    path = MP_FS_ROOT_DIR "/lib";
-    mp_obj_list_append(mp_sys_path, mp_obj_new_str_via_qstr(path, strlen(path)));
-
-    // add /sdcard/pyamp to system path
-    path = MP_FS_EXT_ROOT_DIR "/pyamp";
-    mp_obj_list_append(mp_sys_path, mp_obj_new_str_via_qstr(path, strlen(path)));
-
-    // add /sdcard/lib to system path
-    path = MP_FS_EXT_ROOT_DIR "/lib";
-    mp_obj_list_append(mp_sys_path, mp_obj_new_str_via_qstr(path, strlen(path)));
-
-    mp_obj_list_init(mp_sys_argv, 0);
 
     return 0;
 }
@@ -518,54 +483,146 @@ int32_t is_download_mode(uint32_t wait_time_ms)
 
 int32_t mpy_run(int32_t argc, int8_t *argv[])
 {
+    int32_t ret = 0;
     int32_t mode = 0;
-#if 0
-    mode = is_download_mode(300); /* Only available on HaaS506 */
+
+soft_reset:
+
+    mp_stack_set_top(stack_top);
+    // adjust the stack_size to provide room to recover from hitting the
+    // limit
+#if MICROPY_STACK_CHECK
+    mp_stack_ctrl_init();
+    mp_stack_set_limit(stack_size * sizeof(cpu_stack_t) - 1024);
+#endif
+    // reinit gc
+#if MICROPY_ENABLE_GC
+    gc_init(heap, heap + MICROPY_GC_HEAP_SIZE);
 #endif
 
-    if (argc >= 2 && mode == 0) {
-        int8_t *filename = argv[1];
-        int8_t filepath[256] = { 0 };
+    mp_init();
 
-        if (filename[0] != '/') {
-            getcwd(filepath, sizeof(filepath));
-            strcat(filepath, "/");
-            strcat(filepath, filename);
-        } else {
-            strcpy(filepath, filename);
+#if MICROPY_VFS_POSIX
+    {
+        // Mount the host FS at the root of our internal VFS
+        ret = mount_fs("/");
+        if (ret != 0) {
+            printf(" !!!!!!!! %s, %d, faild to mount fs !!!!!!!!\n", __func__, __LINE__);
         }
+        MP_STATE_VM(vfs_cur) = MP_STATE_VM(vfs_mount_table);
+    }
+#endif
 
-        int8_t *p = strrchr(filepath, '/');
-        size_t len = 0;
-        mp_obj_t *path_items = NULL;
-        mp_obj_list_get(mp_sys_path, &len, &path_items);
+    /*set default mp_sys_path*/
+    mp_obj_list_init(mp_sys_path, 0);
+    mp_obj_list_append(mp_sys_path,
+                       MP_OBJ_NEW_QSTR(MP_QSTR_));  // current dir (or base dir of the script)
+    // add /data/pyamp to system path
+    int8_t *path = MP_FS_ROOT_DIR "/pyamp";
+    mp_obj_list_append(mp_sys_path, mp_obj_new_str_via_qstr(path, strlen(path)));
 
-        if (p >= filepath) {
-            path_items[0] = mp_obj_new_str_via_qstr(filepath, p - filepath);
-        } else {
-            path_items[0] = mp_obj_new_str_via_qstr(filepath, filepath - p);
-        }
+    // add /data/lib to system path
+    path = MP_FS_ROOT_DIR "/lib";
+    mp_obj_list_append(mp_sys_path, mp_obj_new_str_via_qstr(path, strlen(path)));
 
-        set_sys_argv(argv, argc, 1);
+    // add /sdcard/pyamp to system path
+    path = MP_FS_EXT_ROOT_DIR "/pyamp";
+    mp_obj_list_append(mp_sys_path, mp_obj_new_str_via_qstr(path, strlen(path)));
 
-        if (filepath != NULL) {
-            pyexec_file(filepath);
+    // add /sdcard/lib to system path
+    path = MP_FS_EXT_ROOT_DIR "/lib";
+    mp_obj_list_append(mp_sys_path, mp_obj_new_str_via_qstr(path, strlen(path)));
+
+    mp_obj_list_init(mp_sys_argv, 0);
+
+// #if 0
+    // mode = is_download_mode(300); /* Only available on HaaS506 */
+// #endif
+
+    // if (argc >= 2 && mode == 0) {
+    //     int8_t *filename = argv[1];
+    //     int8_t filepath[256] = { 0 };
+
+    //     if (filename[0] != '/') {
+    //         getcwd(filepath, sizeof(filepath));
+    //         strcat(filepath, "/");
+    //         strcat(filepath, filename);
+    //     } else {
+    //         strcpy(filepath, filename);
+    //     }
+
+    //     int8_t *p = strrchr(filepath, '/');
+    //     size_t len = 0;
+    //     mp_obj_t *path_items = NULL;
+    //     mp_obj_list_get(mp_sys_path, &len, &path_items);
+
+    //     if (p >= filepath) {
+    //         path_items[0] = mp_obj_new_str_via_qstr(filepath, p - filepath);
+    //     } else {
+    //         path_items[0] = mp_obj_new_str_via_qstr(filepath, filepath - p);
+    //     }
+
+    //     set_sys_argv(argv, argc, 1);
+
+    //     if (filepath != NULL) {
+    //         pyexec_file(filepath);
+    //     }
+    // }
+
+    // run boot-up scripts
+    // pyexec_frozen_module("_boot.py");
+    // do not delete this message, haas studio need use this message judge python status
+    printf(" ==== python execute bootpy ====\n");
+    pyexec_file_if_exists("boot.py");
+    if (pyexec_mode_kind == PYEXEC_MODE_FRIENDLY_REPL) {
+        char *path = is_mainpy_exist();
+        if (path != NULL) {
+            // do not delete this message, haas studio need use this message judge python status
+            printf(" ==== python execute from %s ====\n", path);
+            int ret = pyexec_file_if_exists(path);
+            if (ret & PYEXEC_FORCED_EXIT) {
+                goto soft_reset_exit;
+            #if 1
+            } else if (ret & PYEXEC_FORCED_QUIT) {
+                goto soft_quit_exit;
+            #endif
+            }
         }
     }
+
     {
         for (;;) {
             if (pyexec_mode_kind == PYEXEC_MODE_RAW_REPL) {
-                if (pyexec_raw_repl() != 0) {
+                ret = pyexec_raw_repl();
+                #if MICROPY_PY_AOS_QUIT
+                if (ret == PYEXEC_FORCED_QUIT) {
+                    goto soft_quit_exit;
+                }
+                #endif
+                if (ret != 0) {
                     break;
                 }
             } else {
-                if (pyexec_friendly_repl() != 0) {
+                ret = pyexec_friendly_repl();
+                #if MICROPY_PY_AOS_QUIT
+                if (ret == PYEXEC_FORCED_QUIT) {
+                    goto soft_quit_exit;
+                }
+                #endif
+                if (ret != 0) {
                     break;
                 }
             }
         }
     }
+
+soft_reset_exit:
     mp_deinit();
+    #if MICROPY_PY_AOS_QUIT
+    goto soft_reset;
+    #endif
+
+soft_quit_exit:
     return 0;
 }
 

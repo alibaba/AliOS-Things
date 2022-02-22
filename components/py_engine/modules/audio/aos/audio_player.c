@@ -343,15 +343,7 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_1(uvoice_getVolume_obj, uvoice_getVolume);
 static void uvoice_player_state_notify(void *arg)
 {
     uvoice_player_obj_t *audioplayer = (uvoice_player_obj_t *)arg;
-
-    mp_obj_t state;
-    state = mp_obj_new_dict(1);
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(state), mp_obj_new_str("state", 5),
-                              mp_obj_new_int(audioplayer->state));
-
-    if (audioplayer->callback != mp_const_none) {
-        callback_to_python(audioplayer->callback, state);
-    }
+    callback_to_python_LoBo(audioplayer->callback, MP_OBJ_NEW_SMALL_INT(1), NULL);
 }
 
 static void uvoice_player_state_cb(uvoice_event_t *event, void *data)

@@ -2,7 +2,7 @@
 
 **[更正文档](https://gitee.com/alios-things/documentation/edit/rel_3.3.0/developer/contribute_code.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://help.aliyun.com/document_detail/302301.html)**
 
-项目地址：[https://gitee.com/alios-things/AliOS-Things](https://gitee.com/alios-things/AliOS-Things)
+项目地址：[https://gitee.com/alios-things-admin/AliOS-Things](https://gitee.com/alios-things-admin/AliOS-Things)
 
 AliOS Things为开发者在Gitee平台上提供了贡献代码的入口，开发者可以在AliOS Things项目下找到想到修改的仓库进行代码提交，具体步骤如下。
 

@@ -37,6 +37,9 @@
 #define CHAR_CTRL_P (16)
 #define CHAR_CTRL_U (21)
 #define CHAR_CTRL_W (23)
+#if MICROPY_PY_AOS_QUIT
+#define CHAR_CTRL_X (24)
+#endif
 
 void readline_init0(void);
 int readline(vstr_t *line, const char *prompt);
