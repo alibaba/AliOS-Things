@@ -4,9 +4,9 @@ set -e
 
 if [ "$(uname)" == "Darwin" ]; then
     os="Darwin"
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then   
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     os="Linux"
-elif ["$(expr substr $(uname -s) 1 10)"=="MINGW32_NT"];then    
+elif ["$(expr substr $(uname -s) 1 10)"=="MINGW32_NT"];then
     os="Win32"
 fi
 echo "os is $os"
@@ -92,11 +92,11 @@ elif [[ $macro_list =~ "HAAS200" ]]; then
 elif [[ $macro_list =~ "HAAS506" ]]; then
     TARGET_BOARD="HaaS506"
     TARGET_PLATFORM="HAAS"
-elif [[ $macro_list =~ "BOARD_M5STACKCORE2" ]]; then
+elif [[ $macro_list =~ "M5STACKCORE2" ]]; then
     TARGET_BOARD="M5STACK_CORE2"
     TARGET_PLATFORM="ESP32"
-elif [[ $macro_list =~ "GENERIC" ]]; then
-    TARGET_BOARD="GENERIC"
+elif [[ $macro_list =~ "NODEMCU32C3" ]]; then
+    TARGET_BOARD="GENERIC_C3"
     TARGET_PLATFORM="ESP32"
 else
     TARGET_BOARD="GENERIC"
@@ -119,7 +119,7 @@ do
         echo "$element"
         if [[ $element =~ $mpy_module_value ]]; then
             echo "set(${element%=*} TRUE)" >> ${modules_dir}/config.cmake
-        else 
+        else
             echo "set(${element%=*} FALSE)" >> ${modules_dir}/config.cmake
         fi
     elif [[ $element =~ "SYSINFO_SYSTEM_VERSION" ]]; then
@@ -127,6 +127,7 @@ do
         echo "list(APPEND MICROPY_DEF_MODULES_PORT ${element})" >> ${modules_dir}/config.cmake
     fi
 done
+echo "list(APPEND MICROPY_DEF_MODULES_PORT ${TARGET_BOARD})" >> ${modules_dir}/config.cmake
 
 # =======================================================
 if [ $TARGET_PLATFORM = "HAAS" ]; then
@@ -176,9 +177,14 @@ elif [ $TARGET_PLATFORM = "ESP32" ]; then
     rm -rf ${solution_dir}/esp_sdk/lib/*
 
     # 1: prepare IDF env
-    ${comp_dir}/../../hardware/chip/espressif_esp32/build.sh
-    . ${comp_dir}/../../hardware/chip/espressif_esp32/esp-idf/export.sh
-    export ADF_PATH=${comp_dir}/../../hardware/chip/espressif_esp32/esp-adf
+    if [ ${TARGET_BOARD} = "GENERIC_C3" ]; then
+        ${comp_dir}/../../hardware/chip/espressif_esp32_c3/build.sh
+        . ${comp_dir}/../../hardware/chip/espressif_esp32_c3/esp-idf/export.sh
+    else
+        ${comp_dir}/../../hardware/chip/espressif_esp32/build.sh
+        . ${comp_dir}/../../hardware/chip/espressif_esp32/esp-idf/export.sh
+        export ADF_PATH=${comp_dir}/../../hardware/chip/espressif_esp32/esp-adf
+    fi
 
     # 2：prepare fs for esp target
     port_dir=${comp_dir}/adapter/esp32

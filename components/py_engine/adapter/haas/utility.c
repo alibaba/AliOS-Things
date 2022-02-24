@@ -28,11 +28,11 @@
 
 #include "utility.h"
 
-bool callback_to_python(mp_obj_t function, mp_obj_t arg)
+bool callback_to_python_LoBo(mp_obj_t function, mp_obj_t arg, void *carg)
 {
     bool ret = false;
     if (function != MP_OBJ_NULL && mp_obj_is_callable(function)) {
-        ret = mp_sched_schedule(function, MP_OBJ_FROM_PTR(arg));
+        ret = mp_sched_schedule_LoBo(function, arg, carg);
         if (ret == false) {
             printf("[utility]: schedule queue is full !!!!\r\n");
         }

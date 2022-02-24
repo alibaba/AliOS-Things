@@ -160,10 +160,10 @@ static esp_err_t event_handler(void *ctx, system_event_t *event) {
             ESP_LOGI("network", "GOT_IP");
             wifi_sta_connected = true;
             wifi_sta_disconn_reason = 0; // Success so clear error. (in case of new error will be replaced anyway)
-#if defined(HAAS_ACTIVATE_FLAG)
+
             extern int activation_report(void);
             activation_report(); // report HaaS activation info once.
-#endif
+
             #if MICROPY_HW_ENABLE_MDNS_QUERIES || MICROPY_HW_ENABLE_MDNS_RESPONDER
             if (!mdns_initialised) {
                 mdns_init();

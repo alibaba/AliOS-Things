@@ -249,6 +249,10 @@ STATIC mp_obj_t mp_builtin_input(size_t n_args, const mp_obj_t *args) {
     }
     if (line.len == 0 && ret == CHAR_CTRL_D) {
         mp_raise_type(&mp_type_EOFError);
+    #if MICROPY_PY_AOS_QUIT
+    } else if (line.len == 0 && ret == CHAR_CTRL_X) {
+        mp_raise_type(&mp_type_EOFError);
+    #endif
     }
     return mp_obj_new_str_from_vstr(&mp_type_str, &line);
 }

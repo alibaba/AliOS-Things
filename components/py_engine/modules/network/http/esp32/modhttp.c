@@ -154,37 +154,26 @@ static int32_t hapy_http_construct_header(char *buf, uint16_t buf_size, const ch
 static void http_request_notify(hapy_http_param_t *http_param_request, int8_t *header_buf, int8_t *body_buf)
 {
     char dummy_buf[2] = { 0 };
+    mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
 
-    mp_obj_t dict = mp_obj_new_dict(2);
     if (header_buf != NULL) {
-        mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("header", strlen("header")),
-                          mp_obj_new_str(header_buf, strlen(header_buf)));
+        make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_STR, strlen(header_buf), header_buf, "header");
     } else {
-        mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("header", strlen("header")),
-                          mp_obj_new_str(dummy_buf, strlen(dummy_buf)));
+        make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_STR, strlen(dummy_buf), dummy_buf, "header");
     }
 
     if (body_buf != NULL) {
-        mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("body", strlen("body")),
-                          mp_obj_new_str(body_buf, strlen(body_buf)));
+        make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_STR, strlen(body_buf), body_buf, "body");
     } else {
-        mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("body", strlen("body")),
-                          mp_obj_new_str(dummy_buf, strlen(dummy_buf)));
+        make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_STR, strlen(dummy_buf), dummy_buf, "body");
     }
 
-    mp_obj_t callback = http_param_request->cb;
-    if (callback != MP_OBJ_NULL && mp_obj_is_callable(callback)) {
-        callback_to_python(callback, dict);
-    }
+    callback_to_python_LoBo(http_param_request->cb, mp_const_none, carg);
 }
 
 static void http_download_notify(hapy_http_param_t *http_param_download, http_dl_status ret)
 {
-    mp_obj_t callback = http_param_download->cb;
-    ESP_LOGD(LOG_TAG, "callback = %p\n", callback);
-    if (callback != MP_OBJ_NULL && mp_obj_is_callable(callback)) {
-        callback_to_python(callback, mp_obj_new_int(ret));
-    }
+    callback_to_python_LoBo(http_param_download->cb, MP_OBJ_NEW_SMALL_INT(ret), NULL);
 }
 
 static esp_err_t _http_request_event_handler(esp_http_client_event_t *evt)

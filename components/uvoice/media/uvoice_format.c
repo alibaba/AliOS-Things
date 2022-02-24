@@ -107,6 +107,11 @@ static int mp3_id3v2_parse(media_info_t *info, char *data, int size)
 	unsigned int end = MIN(id3v2_frame_size, size - pos);
 	int i, j;
 
+	if (pos + sizeof(struct mp3_id3v2_frame_header) <= end) {
+		M_LOGW("mp3 id3v2 frame formate invalid \n");
+		return -1;
+	}
+
 	while (pos <= end) {
 		memcpy(&header, data + pos ,
 			sizeof(struct mp3_id3v2_frame_header));
@@ -119,7 +124,10 @@ static int mp3_id3v2_parse(media_info_t *info, char *data, int size)
 			pos++;
 			continue;
 		}
-
+		if (frame_size + sizeof(struct mp3_id3v2_frame_header) < frame_size) {
+			M_LOGW("mp3 id3v2 frame size %d invalid \n", frame_size);
+			return -1;
+		}
 		if (!memcmp(header.id, "TIT2", 4)) {
 			pos += frame_size + sizeof(struct mp3_id3v2_frame_header);
 			if (pos > end)
@@ -228,7 +236,7 @@ bool wav_format_check(char *buffer, int size)
 
 bool mp3_format_check(char *data, int size)
 {
-	if (!data || size < strlen("ID3")) {
+	if (!data || size < sizeof(struct mp3_id3v2_desc)) {
 		M_LOGE("arg invalid !\n");
 		return false;
 	}
@@ -296,7 +304,7 @@ bool amr_format_check(char *buffer, int size)
 
 bool amrwb_format_check(char *buffer, int size)
 {
-	if (!buffer || size < 8) {
+	if (!buffer || size < strlen("#!AMR-WB\n")) {
 		M_LOGE("arg invalid !\n");
 		return false;
 	}

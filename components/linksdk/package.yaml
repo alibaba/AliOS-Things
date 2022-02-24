@@ -53,6 +53,7 @@ build_config:
     - components/data-model
     - components/subdev
     - components/devinfo
+    - components/mqtt-upload
 #    - components/diag
     - components/dynreg
 #    - components/dynreg-mqtt
@@ -75,6 +76,7 @@ source_file:
   - "external/*.c"
   - "portfiles/aiot_port/aos_port.c"
   - "components/devinfo/*.c"
+  - components/mqtt-upload/*.c
 #  - "components/diag/*.c"
   - "components/dynreg/*.c"
 #  - "components/dynreg-mqtt/*.c"
@@ -101,6 +103,7 @@ install:
       - core/*.h
       - core/utils/*.h
       - core/sysdep/*.h
+      - components/mqtt-upload/*.h
       - components/bootstrap/*.h
       - components/data-model/*.h
       - components/devinfo/*.h

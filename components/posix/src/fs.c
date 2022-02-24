@@ -1,8 +1,9 @@
 /*
- * Copyright (C) 2015-2021 Alibaba Group Holding Limited
+ * Copyright (C) 2015-2022 Alibaba Group Holding Limited
  */
 
 #include <stddef.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/statfs.h>
@@ -163,4 +164,30 @@ int utime(const char *path, const struct utimbuf *buf)
     CHECK_AOS_RET(ret);
 
     return ret;
+}
+
+int ftruncate(int fd, off_t size)
+{
+    int ret;
+
+    if ((fd < 0) || (size < 0))
+        return -EINVAL;
+
+    ret = aos_ftruncate(fd, size);
+    CHECK_AOS_RET(ret);
+
+    return 0;
+}
+
+int truncate(const char *path, off_t size)
+{
+    int ret;
+
+    if ((path == NULL) || (path[0] == '\0') || (size < 0))
+        return -EINVAL;
+
+    ret = aos_truncate(path, size);
+    CHECK_AOS_RET(ret);
+
+    return 0;
 }

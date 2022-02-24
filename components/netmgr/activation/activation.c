@@ -27,6 +27,8 @@
 #define ACTIVATION_DEBUG(fmt, ...)  LOGD(TAG, fmt, ##__VA_ARGS__)
 
 #ifdef AOS_COMP_KV
+// should upgrade ACTIVATION_VERSION each time you want to change activation report's format
+#define ACTIVATION_VERSION 2
 static int g_activation_report = 0;
 #endif
 
@@ -76,9 +78,14 @@ int activation_get_report_msg(char *report_msg, int len)
             memcpy(version, kernel_version + strlen(SYSINFO_KERNEL_VERSION_PREFIX), strlen(kernel_version) - strlen(SYSINFO_KERNEL_VERSION_PREFIX));
             snprintf(report_msg, len, "V=%s", version);
         } else {
-            ACTIVATION_ERR("%s:%d kernel version error\n", __func__, __LINE__);
+            printf("%s:%d kernel version error\n", __func__, __LINE__);
         }
+    } else if ((len >= (strlen("V=") + strlen(SYSINFO_KERNEL_VERSION) + 1))) {
+        snprintf(report_msg, len, "V=%s", SYSINFO_KERNEL_VERSION);
+    } else {
+        snprintf(report_msg, len, "V=%s", "toolong");
     }
+
     snprintf(report_msg + strlen(report_msg), len - strlen(report_msg), "&O=%s", "Anolis Things");
 #else
     snprintf(report_msg, len, "V=%s", "invalid");
@@ -266,10 +273,11 @@ int activation_report(void)
     int ret = -1;
     struct addrinfo hints, *addr_list, *cur;
 
-#ifdef AOS_COMP_KV
+#if defined(AOS_COMP_KV) && !defined(SYSINFO_FORCE_UPDATE)
     int activation_len = sizeof(g_activation_report);
-    if (!aos_kv_get("activation_report",
-        &g_activation_report, &activation_len)) {
+    ret = aos_kv_get("activation_report",
+        &g_activation_report, &activation_len);
+    if (!ret && (g_activation_report == ACTIVATION_VERSION)) {
         return 0;
     }
 #endif
@@ -340,12 +348,13 @@ int activation_report(void)
     if ((ret != -1) && (ret != 0)) {
         ret = activation_parse_data(g_response_data);
         if (ret == 0) {
-#ifdef AOS_COMP_KV
-            g_activation_report = 1;
+#if defined(AOS_COMP_KV) && !defined(SYSINFO_FORCE_UPDATE)
+            g_activation_report = ACTIVATION_VERSION;
             if (aos_kv_set("activation_report", &g_activation_report, sizeof(g_activation_report), 1)) {
-                ACTIVATION_ERR("set report_device_info kv failed\n");
+                printf("set report_device_info kv failed\n");
             }
 #endif
+            ACTIVATION_INFO("activation report success\n");
         } else {
             ACTIVATION_ERR("activation report failed\n");
         }

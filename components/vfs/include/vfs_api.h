@@ -117,6 +117,27 @@ int32_t vfs_do_pollfd(int32_t fd, int32_t flag, vfs_poll_notify_t notify,
 uint32_t vfs_lseek(int32_t fd, int64_t offset, int32_t whence);
 
 /**
+ * @brief truncate a file to a specified size
+ *
+ * @param[in] path the file path of the file
+ * @param[in] size the new size of the file
+ *
+ * @return 0 on success, negative error on failure
+ *
+ */
+int32_t vfs_truncate(const char *path, int64_t size);
+
+/**
+ * @brief truncate a file to a specified size
+ *
+ * @param[in] fd the file descriptor of the file
+ * @param[in] size the new size of the file
+ * @return 0 on success, negative error on failure
+ *
+ */
+int32_t vfs_ftruncate(int32_t fd, int64_t size);
+
+/**
  * @brief Flush any buffers associated with the file
  *
  * @param[in] fd the file descriptor of the file

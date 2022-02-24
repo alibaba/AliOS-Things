@@ -539,8 +539,13 @@ static char *path_convert(const char *path, int *idx)
 
     memset(target_path, 0, len + 1);
     if (len > 0) {
-        p = (char *)(path + prefix + 1);
-        memcpy(target_path, p, len - 1);
+        if (0 == strcmp(mountpath, "/")) {
+            p = (char *)(path + prefix);
+            memcpy(target_path, p, len);
+        } else {
+            p = (char *)(path + prefix + 1);
+            memcpy(target_path, p, len - 1);
+        }
     }
 
     target_path[len] = '\0';
@@ -1020,6 +1025,24 @@ static int32_t lfs_vfs_stat(vfs_file_t *fp, const char *path, vfs_stat_t *st)
     return ret;
 }
 
+static int32_t lfs_vfs_truncate(vfs_file_t *fp, int64_t size)
+{
+    int32_t ret;
+
+    lfs_file_t *file = (lfs_file_t *)(fp->f_arg);
+
+    int idx;
+    idx = vfs_to_lfs_idx(fp);
+    if (idx < 0 || idx >= CONFIG_LITTLEFS_CNT)
+        return -1;
+
+    lfs_lock(g_lfs_manager[idx]->lock);
+    ret = lfs_file_truncate(g_lfs_manager[idx]->lfs, file, size);
+    lfs_unlock(g_lfs_manager[idx]->lock);
+
+    return lfs_ret_value_convert(ret);
+}
+
 static int32_t lfs_vfs_access(vfs_file_t *fp, const char *path, int mode)
 {
     vfs_stat_t s;
@@ -1411,6 +1434,7 @@ static vfs_filesystem_ops_t littlefs_ops = {
     .seekdir    = &lfs_vfs_seekdir,
     .ioctl      = NULL,
     .utime      = &lfs_vfs_utime,
+    .truncate   = &lfs_vfs_truncate,
 };
 
 static int lfs_format_and_mount(int i)

@@ -215,10 +215,10 @@ ulog.warn('TEST','test log here')
 [  47.433]<W>TEST test log here
 ```
 
-## error - debug日志
+## error - error日志
 
 * 函数功能：  
-记录debug级别日志
+记录error级别日志
 
 * 函数原型：
 > ulog.error(tag, msg)

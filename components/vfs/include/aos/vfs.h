@@ -257,6 +257,27 @@ int aos_do_pollfd(int fd, int flag, poll_notify_t notify, void *fds, void *arg);
 off_t aos_lseek(int fd, off_t offset, int whence);
 
 /**
+ * @brief truncate a file to a specified size
+ *
+ * @param[in] fd the file descriptor of the file
+ * @param[in] size the new size of the file
+ * @return 0 on success, negative error on failure
+ *
+ */
+int aos_ftruncate(int fd, off_t size);
+
+/**
+ * @brief truncate a file to a specified size
+ *
+ * @param[in] path the file path of the file
+ * @param[in] size the new size of the file
+ *
+ * @return 0 on success, negative error on failure
+ *
+ */
+int aos_truncate(const char *path, off_t size);
+
+/**
  * @brief aos_sync causes the pending modifications of the specified file to
  *        be written to the underlying filesystems.
  *

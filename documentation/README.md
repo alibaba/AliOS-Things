@@ -11,12 +11,15 @@
 ```tree
 .
 ├── aos-studio            # 开发环境aos-studio使用说明。
-├── aos-tools             # 构建工具aos-tools使用说明
+├── aos-tools             # 构建工具aos-tools使用说明。
+├── coding                # AliOS Things C语言代码规范说明。
+├── debug-tools           # Debug 工具使用说明。
 ├── developer             # 为开发者贡献文档、贡献代码提供操作指南。
-├── doxygen               # 使用doxygen自动生成文档页面的配置文件及样式文件
-├── manual                # loopback测试代码
+├── doxygen               # 使用doxygen自动生成文档页面的配置文件及样式文件。
+├── haas-studio           # haas-studio 使用说明。
+├── manual                # loopback测试代码。
 ├── quickstart            # 为用户提供基于HaaS100或HaaS EDU k1等硬件，快速搭建开发环境、下载源码、运行简单示例工程或设备连接阿里云示例工程的方法。
-└── yaml                  # 构建配置package.yaml的使用方法
+└── yaml                  # 构建配置package.yaml的使用方法。
 
 ```
 

@@ -1,3 +1,0 @@
-srctype = cpython
-type = package
-version = 1.0.1

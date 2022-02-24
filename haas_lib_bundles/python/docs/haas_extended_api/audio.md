@@ -64,6 +64,7 @@ from audio import Player
 player = Player()
 ret = player.open()
 print(ret)
+player.close()
 ```
 
 * 输出：
@@ -98,7 +99,6 @@ player = Player()
 player.open()
 ret = player.close()
 print(ret)
-player.close()
 ```
 
 * 输出：
@@ -138,7 +138,48 @@ player = Player()
 ret = player.open()
 ret = player.play(uri='file://lib/audio/test.mp3', sync=True)
 print(ret)
+player.stop()
 player.close()
+```
+
+* 输出：
+
+```
+0
+```
+
+## stop - 播放器停止
+
+* 函数功能：
+播放器停止
+
+* 注意事项：
+需确保证Player处于打开状态
+
+* 函数原型：
+> Player.stop()
+
+* 参数说明：
+无
+
+* 返回值：
+成功则返回0，失败返回错误码
+
+* 示例： 
+
+```python
+
+from audio import Player
+import utime
+
+player = Player()
+player.open()
+player.play(uri='file://lib/audio/test.mp3', sync=False)
+utime.sleep(3)
+ret = player.stop()
+player.close()
+print(ret)
+
 ```
 
 * 输出：
@@ -177,6 +218,7 @@ player.play(uri='file://lib/audio/test.mp3', sync=False)
 utime.sleep(3)
 ret = player.pause()
 print(ret)
+player.stop()
 player.close()
 
 ```
@@ -219,6 +261,8 @@ player.pause()
 utime.sleep(1)
 ret = player.resume()
 print(ret)
+utime.sleep(5)
+player.stop()
 player.close()
 
 ```
@@ -241,6 +285,7 @@ player.close()
 > Player.setVolume(vol)
 
 * 参数说明：  
+  
 |参数|类型|必选参数？|说明|
 |-----|----|:---:|----|
 |vol|int|是|音频音量，取值范围为[0,100], 0表示静音 |
@@ -334,6 +379,7 @@ player.open()
 player.play(uri='file://lib/audio/test.mp3', sync=False)
 ret = player.getState()
 print(ret)
+player.stop()
 player.close()
 
 ```
@@ -373,6 +419,7 @@ player.play(uri='file://lib/audio/test.mp3', sync=False)
 utime.sleep(3)
 ret = player.getPosition()
 print(ret)
+player.stop()
 player.close()
 
 ```
@@ -411,6 +458,7 @@ player.open()
 player.play(uri='file://lib/audio/test.mp3', sync=False)
 ret = player.getDuration()
 print(ret)
+player.stop()
 player.close()
 
 ```
@@ -418,6 +466,48 @@ player.close()
 * 输出（这里test.mp3时长为12秒）：
 ```
 12000
+```
+
+## seek - 播放器播放进度控制
+
+* 函数功能：  
+播放器播放进度控制
+
+* 注意事项：  
+无
+
+* 函数原型：
+> Player.seek(seek_time_sec))
+
+* 参数说明：  
+
+|参数|类型|必选参数？|说明|
+|-----|----|:---:|----|
+|seek_time_sec|int|是|播放控制进度，单位是秒 |
+
+* 返回值：  
+成功则返回0，失败返回错误码
+
+* 示例： 
+
+```python
+
+from audio import Player
+
+player = Player()
+player.open()
+player.play(uri='file://lib/audio/test.mp3', sync=False)
+ret = player.seek(3)
+print(ret)
+player.stop()
+player.close()
+
+```
+
+* 输出：
+
+```
+0
 ```
 
 ## on - 注册Player异步回调函数

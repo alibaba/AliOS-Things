@@ -73,6 +73,7 @@ typedef struct _mp_framebuf_p_t {
 #define FRAMEBUF_GS8      (6)
 #define FRAMEBUF_MHLSB    (3)
 #define FRAMEBUF_MHMSB    (4)
+#define FRAMEBUF_RGB888   (7)
 
 // constants for fonts
 // 支持中英文 12-32
@@ -179,6 +180,29 @@ STATIC void rgb565_fill_rect(const mp_obj_framebuf_t *fb, unsigned int x, unsign
     }
 }
 
+// Functions for RGB888 format
+
+STATIC void rgb888_setpixel(const mp_obj_framebuf_t *fb, unsigned int x, unsigned int y, uint32_t col)
+{
+    ((uint8_t *)fb->buf)[(x + y * fb->stride) * 3] = col >> 16;               // r
+    ((uint8_t *)fb->buf)[(x + y * fb->stride) * 3 + 1] = (col & 0x00ff00) >> 8;   // g
+    ((uint8_t *)fb->buf)[(x + y * fb->stride) * 3 + 2] = col & 0x0000ff;      // b
+}
+
+STATIC uint32_t rgb888_getpixel(const mp_obj_framebuf_t *fb, unsigned int x, unsigned int y)
+{
+    return ((uint32_t *)fb->buf)[(x + y * fb->stride) * 3] >> 8;
+}
+
+STATIC void rgb888_fill_rect(const mp_obj_framebuf_t *fb, unsigned int x, unsigned int y, unsigned int w, unsigned int h, uint32_t col)
+{
+    for (unsigned int xx = x; xx < x + w; xx++) {
+        for (unsigned int yy = y; yy < y + h; yy++) {
+            rgb888_setpixel(fb, xx, yy, col);
+        }
+    }
+}
+
 // Functions for GS2_HMSB format
 
 STATIC void gs2_hmsb_setpixel(const mp_obj_framebuf_t *fb, unsigned int x, unsigned int y, uint32_t col) {
@@ -281,6 +305,7 @@ STATIC mp_framebuf_p_t formats[] = {
     [FRAMEBUF_GS8] = {gs8_setpixel, gs8_getpixel, gs8_fill_rect},
     [FRAMEBUF_MHLSB] = {mono_horiz_setpixel, mono_horiz_getpixel, mono_horiz_fill_rect},
     [FRAMEBUF_MHMSB] = {mono_horiz_setpixel, mono_horiz_getpixel, mono_horiz_fill_rect},
+    [FRAMEBUF_RGB888] = {rgb888_setpixel, rgb888_getpixel, rgb888_fill_rect},
 };
 
 static inline void setpixel(const mp_obj_framebuf_t *fb, unsigned int x, unsigned int y, uint32_t col) {
@@ -327,23 +352,24 @@ STATIC mp_obj_t framebuf_make_new(const mp_obj_type_t *type, size_t n_args, size
     }
 
     switch (o->format) {
-        case FRAMEBUF_MVLSB:
-        case FRAMEBUF_RGB565:
-            break;
-        case FRAMEBUF_MHLSB:
-        case FRAMEBUF_MHMSB:
-            o->stride = (o->stride + 7) & ~7;
-            break;
-        case FRAMEBUF_GS2_HMSB:
-            o->stride = (o->stride + 3) & ~3;
-            break;
-        case FRAMEBUF_GS4_HMSB:
-            o->stride = (o->stride + 1) & ~1;
-            break;
-        case FRAMEBUF_GS8:
-            break;
-        default:
-            mp_raise_ValueError(MP_ERROR_TEXT("invalid format"));
+    case FRAMEBUF_MVLSB:
+    case FRAMEBUF_RGB565:
+    case FRAMEBUF_RGB888:
+        break;
+    case FRAMEBUF_MHLSB:
+    case FRAMEBUF_MHMSB:
+        o->stride = (o->stride + 7) & ~7;
+        break;
+    case FRAMEBUF_GS2_HMSB:
+        o->stride = (o->stride + 3) & ~3;
+        break;
+    case FRAMEBUF_GS4_HMSB:
+        o->stride = (o->stride + 1) & ~1;
+        break;
+    case FRAMEBUF_GS8:
+        break;
+    default:
+        mp_raise_ValueError(MP_ERROR_TEXT("invalid format"));
     }
 
     return MP_OBJ_FROM_PTR(o);
@@ -1069,6 +1095,7 @@ STATIC const mp_rom_map_elem_t framebuf_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_MVLSB), MP_ROM_INT(FRAMEBUF_MVLSB) },
     { MP_ROM_QSTR(MP_QSTR_MONO_VLSB), MP_ROM_INT(FRAMEBUF_MVLSB) },
     { MP_ROM_QSTR(MP_QSTR_RGB565), MP_ROM_INT(FRAMEBUF_RGB565) },
+    { MP_ROM_QSTR(MP_QSTR_RGB888), MP_ROM_INT(FRAMEBUF_RGB888) },
     { MP_ROM_QSTR(MP_QSTR_GS2_HMSB), MP_ROM_INT(FRAMEBUF_GS2_HMSB) },
     { MP_ROM_QSTR(MP_QSTR_GS4_HMSB), MP_ROM_INT(FRAMEBUF_GS4_HMSB) },
     { MP_ROM_QSTR(MP_QSTR_GS8), MP_ROM_INT(FRAMEBUF_GS8) },

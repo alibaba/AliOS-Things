@@ -1,3 +1,0 @@
-srctype = cpython
-type = package
-version = 2.4.0-4

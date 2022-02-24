@@ -1,3 +1,0 @@
-srctype = micropython-lib
-type = module
-version = 1.0.1

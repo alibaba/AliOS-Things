@@ -576,10 +576,10 @@ std::shared_ptr<HttpResponse> CurlHttpClient::makeRequest(const std::shared_ptr<
     CURLcode res = curl_easy_perform(curl);
     long response_code= 0;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
-    printf("[%s]response_code: %d\n", __func__, response_code);
     if (res == CURLE_OK) {
         response->setStatusCode(response_code);
     } else {
+        printf("[%s]response_code: %d\n", __func__, response_code);
         response->setStatusCode(res + ERROR_CURL_BASE);
         switch (res) {
         case 23: //CURLE_WRITE_ERROR

@@ -26,7 +26,7 @@ gpio = GPIO()
 打开GPIO设备节点，并根据节点的配置信息初始化GPIO。
 
 * 函数原型：
-> GPIO.open(node)
+> GPIO.open(nodeName)
 
 * 参数说明
 
@@ -46,12 +46,33 @@ board.json中的GPIO类型设备属性配置项说明如下：
 * 返回值：  
 成功：0；失败：故障码。
 
-* 示例代码：
+* 示例： 
+
 ```python
+# 假设25号端口外接一个led，在board.json中将此端口命名为"led"，则board.json中的内容如下：
+'''
+{
+    "name": "board-name",
+    "version": "1.0.0",
+    "io": {
+        "led": {
+        "type": "GPIO",
+        "port": 25,
+        "dir": output,
+        "pull": "pullup"
+        }
+    }
+}
+'''
+
 from driver import GPIO
-gpio = GPIO()
-ret = gpio.open("gpio32")
+
+led = GPIO()
+ret = led.open("led")
+
+print(ret)
 ```
+
 ## close - 关闭GPIO设备
 
 * 函数原型：
@@ -66,11 +87,10 @@ ret = gpio.open("gpio32")
 * 示例代码：
 ```python
 from driver import GPIO
-gpio = GPIO()
-ret = gpio.open("gpio32")
-ret = gpio.close()
+led = GPIO()
+ret = led.open("led")
+ret = led.close()
 ```
-
 ## read - 获取GPIO设备输入电平
 
 * 函数原型：
@@ -88,11 +108,10 @@ ret = gpio.close()
 
 ```python
 from driver import GPIO
-gpio = GPIO()
-ret = gpio.open("gpio32")
-ret = gpio.read()
+led = GPIO()
+ret = led.open("led")
+ret = led.read()
 ```
-
 ## write - 设置GPIO设备输出电平
 
 * 函数原型：  
@@ -111,9 +130,9 @@ ret = gpio.read()
 
 ```python
 from driver import GPIO
-gpio = GPIO()
-ret = gpio.open("gpio32")
-ret = gpio.write(1)
+led = GPIO()
+ret = led.open("led")
+ret = led.write(1)
 ```
 
 ## on - 设置GPIO设备中断回调函数
@@ -133,6 +152,22 @@ ret = gpio.write(1)
 * 示例代码：
 
 ```python
+'''
+{
+    "name": "board-name",
+    "version": "1.0.0",
+    "io": {
+        "gpio_irq": {
+            "type": "GPIO",
+            "port": 32,
+            "dir": "irq",
+            "pull": "pullup",
+            "intMode": "falling"
+        }
+    }
+}
+'''
+
 from driver import GPIO
 
 irq_times = 0
@@ -141,7 +176,69 @@ def irq_handler(data):
     global irq_times
     irq_times += 1
 
-gpio = GPIO()
-ret = gpio.open("gpio32")
-ret = gpio.on(irq_handler)
+gpio_irq = GPIO()
+ret = gpio_irq.open("gpio_irq")
+ret = gpio_irq.on(irq_handler)
+
+```
+
+* 使用实例：
+
+```python
+# 通过33号端口控制32号端口产生10次中断
+'''
+{
+    "name": "board-name",
+    "version": "1.0.0",
+    "io": {
+        "gpio_irq": {
+        "type": "GPIO",
+        "port": 32,
+        "dir": "irq",
+        "pull": "pullup",
+        "intMode": "falling"
+        },
+        "gpio_irq_ctl": {
+        "type": "GPIO",
+        "port": 33,
+        "dir": "output"
+        }
+    }
+}
+'''
+
+from driver import GPIO
+
+irq_times = 0
+
+def irq_handler(data):
+    global irq_times
+    irq_times += 1
+
+# main entry
+if __name__ == "__main__":
+    times = 10
+    gpio_irq = GPIO()
+    gpio_irq.open("gpio_irq")
+    gpio_irq.on(irq_handler)
+    gpio_irq_ctl = GPIO()
+    gpio_irq_ctl.open("gpio_irq_ctl")
+    i = times
+    while i > 0 :
+        i -= 1
+        utime.sleep_ms(10)
+        gpio_irq_ctl.write(1)
+        utime.sleep_ms(10)
+        gpio_irq_ctl.write(0)
+    utime.sleep_ms(50)
+    global irq_times
+    gpio_irq_ctl.close()
+    gpio_irq.close()
+    print("irq_times ", irq_times)
+```
+
+* 输出：
+
+```python
+  irq_times 10
 ```

@@ -49,7 +49,7 @@ static void wifi_event_cb(uint32_t event_id, const void *param, void *context)
             break;
         }
 
-        callback_to_python(on_wifi_event_cb, mp_obj_new_int(event));
+        callback_to_python_LoBo(on_wifi_event_cb, MP_OBJ_NEW_SMALL_INT(event), NULL);
     }
 }
 

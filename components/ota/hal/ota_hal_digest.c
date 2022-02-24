@@ -56,7 +56,7 @@ void ota_md5_init(ota_md5_context *ctx)
 
 void ota_md5_starts(ota_md5_context *ctx)
 {
-    mbedtls_md5_starts((mbedtls_md5_context *)ctx);
+    mbedtls_md5_starts_ret((mbedtls_md5_context *)ctx);
 }
 
 void ota_md5_update(ota_md5_context *ctx, const unsigned char *input, unsigned int ilen)
