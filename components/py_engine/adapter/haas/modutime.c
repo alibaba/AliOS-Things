@@ -43,7 +43,7 @@ STATIC mp_obj_t time_localtime(size_t n_args, const mp_obj_t *args)
     if (n_args == 0 || args[0] == mp_const_none) {
         struct timeval tv;
         gettimeofday(&tv, NULL);
-        seconds = tv.tv_sec;
+        seconds = tv.tv_sec + 3600 * 8;
     } else {
         seconds = mp_obj_get_int(args[0]);
     }

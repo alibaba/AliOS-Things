@@ -1,4 +1,0 @@
-srctype = cpython
-type = module
-version = 3.4.2-3
-depends = warnings, hashlib

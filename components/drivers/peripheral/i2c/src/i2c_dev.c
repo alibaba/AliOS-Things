@@ -196,7 +196,7 @@ int i2c_device_ioctl (file_t *f, int cmd, unsigned long arg) {
 
             ret = aos_i2c_slave_addr_set(slave, d->addr);
             if (ret) {
-                ddkc_err("set slave address:0x%x to i2c failed, ret:%d\r\n", c->c.addr, ret);
+                ddkc_err("set slave address:0x%x to i2c failed, ret:%d\r\n", d->addr, ret);
                 return ret;
             }
 
@@ -227,7 +227,7 @@ int i2c_device_ioctl (file_t *f, int cmd, unsigned long arg) {
 
             ret = aos_i2c_slave_addr_set(slave, d->addr);
             if (ret) {
-                ddkc_err("set slave address:0x%x to i2c failed, ret:%d\r\n", c->c.addr, ret);
+                ddkc_err("set slave address:0x%x to i2c failed, ret:%d\r\n", d->addr, ret);
                 return ret;
             }
 

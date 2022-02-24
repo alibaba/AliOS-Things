@@ -168,7 +168,7 @@ aos_task_t aos_task_self(void)
     return task;
 }
 
-int aos_task_key_create(aos_task_key_t *key)
+aos_status_t aos_task_key_create(aos_task_key_t *key)
 {
     // todo
     /*
@@ -201,7 +201,7 @@ void aos_task_key_delete(aos_task_key_t key)
     */
 }
 
-int aos_task_setspecific(aos_task_key_t key, void *vp)
+aos_status_t aos_task_setspecific(aos_task_key_t key, void *vp)
 {
     // todo
     /*

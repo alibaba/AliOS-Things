@@ -36,11 +36,8 @@ typedef struct {
 void gpio_driver_irq_handler(int polarity, void *arg)
 {
     mp_gpio_obj_t *self = (mp_gpio_obj_t *)arg;
-    int32_t level = 0;
-    if (self->callback != mp_const_none) {
-        level = aos_hal_gpio_get(self->gpio_device);
-        callback_to_python(self->callback, mp_obj_new_int(level));
-    }
+    int32_t level = aos_hal_gpio_get(self->gpio_device);
+    callback_to_python_LoBo(self->callback, MP_OBJ_NEW_SMALL_INT(level), NULL);
 }
 
 void gpio_obj_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind)

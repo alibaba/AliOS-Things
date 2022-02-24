@@ -11,11 +11,11 @@
 #include "py/mperrno.h"
 #include "py/obj.h"
 #include "py/runtime.h"
-#include "py/stackctrl.h"
+#include "py/mpstate.h"
 
 extern void mp_hal_wake_main_task_from_isr();
 
-bool callback_to_python(mp_obj_t function, mp_obj_t arg);
+bool callback_to_python_LoBo(mp_obj_t function, mp_obj_t arg, void *carg);
 
 mp_obj_t mp_obj_new_strn(const char *data);
 

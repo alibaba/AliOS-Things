@@ -137,6 +137,11 @@ int readline_process_char(int c) {
         if (CHAR_CTRL_A <= c && c <= CHAR_CTRL_E && vstr_len(rl.line) == rl.orig_line_len) {
             // control character with empty line
             return c;
+        #if MICROPY_PY_AOS_QUIT
+        } else if (c == CHAR_CTRL_X && vstr_len(rl.line) == rl.orig_line_len) {
+            // CTRL-Q with non-empty line is delete-at-cursor
+            return c;
+        #endif
         } else if (c == CHAR_CTRL_A) {
             // CTRL-A with non-empty line is go-to-start-of-line
             goto home_key;

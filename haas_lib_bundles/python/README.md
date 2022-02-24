@@ -5,18 +5,18 @@
 &emsp;&emsp;
 对于初学者，我们建议您从开发板快速开始入门。
 * [ESP32快速开始](docs/startup/ESP32_startup.md)
-* HaaS EDU K1快速开始（即将上线）
+* [HaaS EDU K1快速开始](docs/startup/HaaS_EDU_K1_startup.md)
 
 &emsp;&emsp;
 快速入门完成之后，建议您进入HaaS Python官网中[趣味案例专区](https://haas.iot.aliyun.com/solution)，趣味对应的markdown文档链接如下：
-* [起夜灯](./docs/examples/human_detector/esp32/README.md)
-* [燃气检测系统](./docs/examples/gas_detector/esp32/README.md)
-* [甲醛检测系统](./docs/examples/hcho_detector/esp32/README.md)
-* [花卉养殖](./docs/examples/floriculture/esp32/README.md)
-* [火焰检测](./docs/examples/fire_detector/esp32/README.md)
-* [智慧路灯](./docs/examples/smart_public_lighting/esp32/README.md)
-* [车辆定位](./docs/examples/vehicle_location/esp32/README.md)
-
+* ESP32开发板
+  * [起夜灯](./docs/examples/human_detector/esp32/README.md)
+  * [燃气检测系统](./docs/examples/gas_detector/esp32/README.md)
+  * [甲醛检测系统](./docs/examples/hcho_detector/esp32/README.md)
+  * [花卉养殖](./docs/examples/floriculture/esp32/README.md)
+  * [火焰检测](./docs/examples/fire_detector/esp32/README.md)
+  * [智慧路灯](./docs/examples/smart_public_lighting/esp32/README.md)
+  * [车辆定位](./docs/examples/vehicle_location/esp32/README.md)
 
 &emsp;&emsp;
 如果您想更详细的了解如何从浅到深完成一个完整的物联网应用的开发，建议您进入我们的[学习中心](https://haas.iot.aliyun.com/learning)进行学习。
@@ -97,13 +97,13 @@ HaaS Python是阿里云IoT团队最新研发的一套低代码编程框架，兼
 1. 更好的解决数据上云问题
 
 &emsp;&emsp;
-物联网中最常用的场景是数据上云及远程设备控制，针对这点，Python轻应用提供了简单易用支持Python应用快速移植的硬件访问接口Driver库及包括Socket，HTTP，HTTPS，Websocket，MQTT及aliyunIoT（连接阿里云物联网平台的SDK）在内的多种网络功能。以下是基于Python轻应用框架实现远程控制开发板LED灯的例子。可以看出只需要数十行代码就可以完成物联网设备数据上云及远程控制的功能。
+物联网中最常用的场景是数据上云及远程设备控制，针对这点，Python轻应用提供了简单易用支持Python应用快速移植的硬件访问接口Driver库及包括Socket，HTTP，HTTPS，Websocket，MQTT及aliyunIoT（连接阿里云物联网平台的SDK）在内的多种网络功能。以下是基于Python轻应用框架实现远程控制开发板LED灯的例子。可以看出只需要数十行代码(以ESP32平台为例)就可以完成物联网设备数据上云及远程控制的功能。
 
 
  ```python
 
  '''
-NodeMCU-32开发板上board.json配置如下：
+ESP32开发板上board.json配置如下：
  {
   "name": "esp32",
   "version": "1.0.0",

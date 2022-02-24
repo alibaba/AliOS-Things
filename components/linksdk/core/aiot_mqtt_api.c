@@ -2040,7 +2040,7 @@ static int32_t _core_mqtt_pub_handler(core_mqtt_handle_t *mqtt_handle, uint8_t *
         packet_id |= input[idx++];
 
     }
-
+    remain_len -= idx;
     if (_core_mqtt_5_feature_is_enabled(mqtt_handle)) {
         uint32_t property_len = 0;
         uint8_t offset = 0;
@@ -2279,7 +2279,9 @@ static void _core_mqtt_subunsuback_handler(core_mqtt_handle_t *mqtt_handle, uint
             return;
         }
         idx = idx + offset + property_len;
-
+        if (idx +1 > len) {
+            return;
+        }
         /* Suback Flags */
         if (packet_type == CORE_MQTT_SUBACK_PKT_TYPE) {
             if (input[idx] == CORE_MQTT_SUBACK_RCODE_MAXQOS0 ||

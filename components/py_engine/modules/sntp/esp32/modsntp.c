@@ -4,68 +4,80 @@
 
 #if MICROPY_PY_SNTP
 
-#include "esp_sntp.h"
-#include "py/builtin.h"
-#include "py/obj.h"
-#include "py/runtime.h"
-#include "py/stackctrl.h"
-#include "sntp/sntp.h"
 #include "esp_log.h"
+#include "esp_sntp.h"
+#include "py/obj.h"
+#include "sntp/sntp.h"
 
-#define LOG_TAG "MOD_SNTP"
+#define TAG "MOD_SNTP"
 
-static char *m_sntp_servaddr[] = {
-    "cn.pool.ntp.org",
-    "0.cn.pool.ntp.org",
-    "1.cn.pool.ntp.org",
-};
-
-STATIC mp_obj_t mp_sntp_settime(size_t n_args, const mp_obj_t *args)
+static bool obtain_time(const char *serv_addr)
 {
-    char *server = "ntp.ntsc.ac.cn";
-    size_t len;
-    mp_obj_t *items = NULL;
-    time_t now = 0;
-    struct tm timeinfo = { 0 };
-    char *timezone = NULL;
-
-    if (n_args == 1) {
-        timezone = mp_obj_str_get_str(args[0]);
-        for (int i = 0; i < 3; ++i) {
-            sntp_setservername(i, m_sntp_servaddr[i]);
-        }
-    } else if (n_args == 2) {
-        timezone = mp_obj_str_get_str(args[0]);
-        server = (char *)mp_obj_str_get_str(args[1]);
-        sntp_setservername(0, server);
-    } else {
-        for (int i = 0; i < 3; ++i) {
-            sntp_setservername(i, m_sntp_servaddr[i]);
-        }
+    if (sntp_enabled()) {
+        sntp_stop();
     }
 
     sntp_setoperatingmode(SNTP_OPMODE_POLL);
-
-#ifdef CONFIG_SNTP_TIME_SYNC_METHOD_SMOOTH
-    sntp_set_sync_mode(SNTP_SYNC_MODE_SMOOTH);
-#endif
+    sntp_setservername(0, serv_addr);
     sntp_init();
-    if (n_args > 0) {
-        setenv("TZ", timezone, 1);
-        tzset();
-    }
+
+    // wait for time to be set
+    time_t now = 0;
+    struct tm timeinfo = { 0 };
+    int retry_count = 20;
     int retry = 0;
-    const int retry_count = 10;
     while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < retry_count) {
-        ESP_LOGI(LOG_TAG, "Waiting for system time to be set... (%d/%d)", retry, retry_count);
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "Waiting for system time to be set... (%d/%d)", retry, retry_count);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
+
+    if (retry == retry_count) {
+        ESP_LOGE(TAG, "Failed to get sntp time within %d seconds", retry_count);
+        return false;
+    }
+
     time(&now);
     localtime_r(&now, &timeinfo);
-    sntp_stop();
-    return mp_const_none;
+
+    return true;
 }
 
+STATIC mp_obj_t mp_sntp_settime(size_t n_args, const mp_obj_t *args)
+{
+    char *timezone = "CST-8";
+    char *serv_addr = "cn.pool.ntp.org";
+
+    if (n_args == 1) {
+        timezone = mp_obj_str_get_str(args[0]);
+    } else if (n_args == 2) {
+        timezone = mp_obj_str_get_str(args[0]);
+        serv_addr = mp_obj_str_get_str(args[1]);
+    }
+
+    time_t now;
+    struct tm timeinfo;
+    time(&now);
+    localtime_r(&now, &timeinfo);
+    // Is time set? If not, tm_year will be (1970 - 1900).
+    if (timeinfo.tm_year < (2016 - 1900)) {
+        ESP_LOGI(TAG, "Time is not set yet. Connecting to WiFi and getting time over NTP.");
+        if (obtain_time(serv_addr) == false) {
+            sntp_stop();
+            return MP_OBJ_NEW_SMALL_INT(-1);
+        }
+        // update 'now' variable with current time
+        time(&now);
+    }
+
+    char strftime_buf[64] = { 0 };
+    setenv("TZ", timezone, 1);
+    tzset();
+    localtime_r(&now, &timeinfo);
+    strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+    ESP_LOGI(TAG, "The current date/time in China is: %s", strftime_buf);
+
+    return MP_OBJ_NEW_SMALL_INT(0);
+}
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_sntp_settime_obj, 0, 2, mp_sntp_settime);
 
 STATIC const mp_rom_map_elem_t sntp_module_globals_table[] = {

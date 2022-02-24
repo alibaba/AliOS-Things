@@ -258,6 +258,10 @@ static int m4aac_get_sample_size_info(m4a_decoder_t *m4adec, const uint8_t *buff
     count = UINT32_BIG_2_LIT(count);
 
     offset += sizeof(box_stsz_t);
+    if (count * sizeof(uint32_t) < count || count * sizeof(uint32_t) + 256 < 256) {
+        m4adec->unproc_size = buff_size - offset;
+        return 0;
+    }
     sample_size_buf = (uint32_t *)((uint32_t)buffer + offset);
     sample_size = (uint32_t *)calloc(count * sizeof(uint32_t) + 256, 1);
 

@@ -129,6 +129,7 @@ struct vfs_filesystem_ops {
     int32_t       (*pathconf)  (vfs_file_t *fp, const char *path, int name);
     int32_t       (*fpathconf) (vfs_file_t *fp, int name);
     int32_t       (*utime)     (vfs_file_t *fp, const char *path, const vfs_utimbuf_t *times);
+    int32_t       (*truncate)  (vfs_file_t *fp, int64_t length);
 };
 
 #if VFS_CONFIG_DEBUG > 0

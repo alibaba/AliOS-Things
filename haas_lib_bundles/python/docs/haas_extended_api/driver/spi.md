@@ -35,7 +35,7 @@ spi = SPI()
 | --- | --- | --- | --- |
 | node | String | 是 | 待操作的SPI设备节点，定义在board.json文件中。 |
 
-board.json中的UART类型设备属性配置项说明如下：
+board.json中的SPI类型设备属性配置项说明如下：
 
 |属性字段|数据类型|属性值|必选项？|字段说明|
 |-----|:---:|----|:---:|----|
@@ -49,9 +49,25 @@ board.json中的UART类型设备属性配置项说明如下：
 * 示例代码：
 
 ```python
+{
+  "name": "board-name",
+  "version": "1.0.0",
+  "io": {
+    "spi_bmp280": {
+      "type": "SPI",
+      "port": 3,
+      "mode": "master",
+      "freq": 2000000
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
+```
+```python
 from driver import SPI
 spi = SPI()
-ret = spi.open("spi3")
+ret = spi.open("spi_bmp280")
 ```
 
 ## close - 关闭SPI设备
@@ -70,7 +86,7 @@ ret = spi.open("spi3")
 ```python
 from driver import SPI
 spi = SPI()
-ret = spi.open("spi3")
+ret = spi.open("spi_bmp280")
 ret = spi.close()
 ```
 
@@ -94,8 +110,8 @@ ret = spi.close()
 ```python
 from driver import SPI
 spi = SPI()
-ret = spi.open("spi3")
-buf = bytearray(8)
+ret = spi.open("spi_bmp280")
+buf = bytearray([0xAA, 0xAA, 0xAA, 0xAA])
 ret = spi.read(buf)
 ```
 
@@ -119,8 +135,8 @@ ret = spi.read(buf)
 ```python
 from driver import SPI
 spi = SPI()
-ret = spi.open("spi3")
-buf = bytearray([0x0D])
+ret = spi.open("spi_bmp280")
+buf = bytearray([0xF4 & 0x7F, 0x02, 0x03, 0x04])
 ret = spi.write(buf)
 ```
 
@@ -145,7 +161,7 @@ ret = spi.write(buf)
 ```python
 from driver import SPI
 spi = SPI()
-ret = spi.open("spi3")
+ret = spi.open("spi_bmp280")
 buf = bytearray(8)
 ret = spi.readAfterWrite(buf, 0x0D)
 ```

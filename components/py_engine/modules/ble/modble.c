@@ -19,22 +19,19 @@ STATIC mp_obj_t cb_ble_event[BLE_EVENT_MAX] = { 0 };
 void native_bt_host_gatts_handle_write(uint8_t *data, size_t len)
 {
     mp_obj_t cb_chara_written = cb_ble_event[BLE_EVENT_CHARA_WRITTEN];
-    if (cb_chara_written != mp_const_none && mp_obj_is_callable(cb_chara_written)) {
-        mp_obj_t data_bytes = mp_obj_new_bytes(data, len);
-        callback_to_python(cb_chara_written, data_bytes);
-    }
+    mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_SINGLE);
+    make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_BYTES, len, data, NULL);
+    callback_to_python_LoBo(cb_chara_written, mp_const_none, carg);
 }
 
 void py_ble_event_notify(int16_t handle, int32_t state)
 {
     mp_obj_t cb_net_status = cb_ble_event[BLE_EVENT_NET_STATUS];
-    if (cb_net_status != mp_const_none && mp_obj_is_callable(cb_net_status)) {
-        mp_obj_t data_dict = mp_obj_new_dict(2);
-        mp_obj_dict_store(data_dict, MP_ROM_QSTR(qstr_from_str("handle")), mp_obj_new_int(handle));
-        mp_obj_dict_store(data_dict, MP_ROM_QSTR(qstr_from_str("state")), mp_obj_new_int(state));
 
-        callback_to_python(cb_net_status, data_dict);
-    }
+    mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
+    make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_INT, handle, NULL, NULL);
+    make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_INT, state, NULL, NULL);
+    callback_to_python_LoBo(cb_net_status, mp_const_none, carg);
 }
 
 /**************************************************/

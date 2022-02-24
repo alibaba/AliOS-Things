@@ -11,6 +11,7 @@
 #define VFS_PATH_MAX 256
 static char g_current_working_directory[VFS_PATH_MAX] = "/";
 
+#if ESP_IDF_VERSION <= ESP_IDF_VERSION_VAL(4, 2, 0)
 char *getcwd(char *buf, size_t size)
 {
     if (buf == NULL) {
@@ -29,6 +30,7 @@ int chdir(const char *path)
     strncpy(g_current_working_directory, path, strlen(path) + 1);
     return 0;
 }
+#endif
 
 int statfs(const char *path, struct statfs *buf)
 {

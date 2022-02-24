@@ -4,7 +4,7 @@ ucamera组件是摄像头图像数据处理中间框架，目前支持wifi摄像
 
 -  注意事项：
    - WiFi摄像头支持ESP32 EYE/CAM，[购买链接](https://detail.tmall.com/item.htm?spm=a230r.1.14.1.150d6a6ftZ6h4K&id=611790371635&ns=1&abbucket=3)。
-   - Uart摄像头支持M5Stack的Unit CAM，[购买连接](https://item.taobao.com/item.htm?spm=a1z10.5-c-s.w4002-22404213529.29.698e2d4844EBZF&id=643872470244)，搭配M5Stack-Core2使用。
+   - Uart摄像头支持M5Stack的Unit CAM，[购买连接](https://item.taobao.com/item.htm?spm=a1z10.5-c-s.w4002-22404213529.29.698e2d4844EBZF&id=643872470244)，搭配M5Stack Core2开发板使用。
 
 ## init - 初始化摄像头
 
@@ -174,17 +174,28 @@ if ret == 0:
 设置摄像头分辨率为320x240
 设置摄像头LED灯亮度为1000
 ```
-## setProp - 设置摄像头属性
 
--  函数功能：  
-获取摄像头属性
+## 使用实例
 
--  注意事项：  
-暂不支持
+```python
+import ucamera
+import display
+"""
+获取摄像头画面，并在显示屏上显示
+"""
+# 创建lcd display对象
+disp = display.TFT()
+disp.clear()
 
--  函数原型： 
-> ucamera.getProp(cmd, value)
-
+# 初始化摄像头
+ucamera.init('uart', 33, 32)
+ucamera.setProp(ucamera.SET_FRAME_SIZE, ucamera.SIZE_320X240)
+# 采集摄像头画面
+frame = ucamera.capture()
+if frame != None:
+    # 显示图片
+    disp.image(0, 20, frame, 0)
+```
 
 
 

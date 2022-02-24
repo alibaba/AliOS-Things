@@ -230,5 +230,8 @@ int32_t pyamp_aiot_app_send_event_post(void *dm_handle, char *event_id, char *pa
 /* device dynmic register */
 int32_t pyamp_aiot_dynreg_http(mp_obj_t cb);
 
+/* upload by mqtt */
+char *pyamp_aiot_upload_mqtt(void *mqtt_handle, char *file_name, char *data, int32_t data_len, mp_obj_t cb);
+
 /* device active info report */
 int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle);

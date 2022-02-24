@@ -58,6 +58,7 @@ STATIC mp_obj_t audio_mod_verno(void)
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(audio_mod_verno_obj, audio_mod_verno);
 
+extern const mp_obj_type_t audio_snd_type;
 extern const mp_obj_type_t audio_player_type;
 extern const mp_obj_type_t audio_recorder_type;
 
@@ -66,6 +67,7 @@ STATIC const mp_rom_map_elem_t audio_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_mem_info), MP_ROM_PTR(&audio_mem_info_obj) },
     { MP_ROM_QSTR(MP_QSTR_verno), MP_ROM_PTR(&audio_mod_verno_obj) },
 
+    { MP_ROM_QSTR(MP_QSTR_Snd), MP_ROM_PTR(&audio_snd_type) },
     { MP_ROM_QSTR(MP_QSTR_Player), MP_ROM_PTR(&audio_player_type) },
     { MP_ROM_QSTR(MP_QSTR_Recorder), MP_ROM_PTR(&audio_recorder_type) },
 

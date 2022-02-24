@@ -213,6 +213,8 @@
 
 // extended modules by HaaS
 #define MICROPY_PY_AOS_SPECIFIC          (1)
+// use this define for CTRL+Q to exit python engine
+#define MICROPY_PY_AOS_QUIT              (1)
 #define MICROPY_ALLOC_PARSE_CHUNK_INIT   (16)
 #define MICROPY_ENABLE_EXTERNAL_IMPORT   (1)
 #define MICROPY_ENABLE_DYNAMIC_TRIADIC   (0)

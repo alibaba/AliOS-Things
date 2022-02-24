@@ -169,7 +169,7 @@ if __name__ == '__main__':
 
     # 初始化LED所连接GPIO
     alarmLed = GPIO()
-    alarmLed.open('led')       # 加湿器使用board.json中led_r节点定义的GPIO，对应LED灯
+    alarmLed.open('led')          # LED报警灯使用board.json中名为led的节点中定义的GPIO进行控制
     led_control(alarmOn)          # 关闭报警灯
 
     # 请替换物联网平台申请到的产品和设备信息,可以参考文章:https://blog.csdn.net/HaaSTech/article/details/114360517

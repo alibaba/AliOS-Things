@@ -68,7 +68,7 @@ source_file:
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y
 def_config:
-  SYSINFO_SYSTEM_VERSION: "1.0.1"          # Anolis Things系统版本信息
+  SYSINFO_SYSTEM_VERSION: "1.0.3"          # Anolis Things系统版本信息
   OSAL_RHINO: 1
   AOS_HAL: 1
 

@@ -7,7 +7,7 @@
       "port": 0,
       "sampling": 12000000
     },
-    "led_r": {
+    "led": {
       "type": "GPIO",
       "port": 25,
       "dir": "output",
