@@ -79,6 +79,17 @@
 
 # Release Note
 
+
+## 2022-02-24
+- JavaScript轻应用：
+- python轻应用：新增ESP32模组支持；适配<HaaS2.0轻应用统一编程标准>；组件采用CMake编译；新增micropython-lib部分组件；适配aliyunIoT，display组件
+- amp_adapter新增ESP32模组支持
+- osal_aos新增freertos系统支持 
+- solutions：新增py_engine_esp32_demo工程
+- haas_lib_bundles：新增haas_lib_bundles文件夹，包括轻应用文档及相关案例
+- hardware：新增nodemcu32s开发板
+
+
 ## 2021-10-12
 - JavaScript轻应用：IoT-Device修复publish内存泄漏问题、优化物模型初始化流程；IoT-Gateway增加NTP时间获取功能、完善拓扑管理、子设备注册和登陆登出等API；新增以太网配网功能，支持静态IP配网；新增UDP功能；更新JS轻应用版本信息获取接口；修复setTimeout、SPI的write问题等
 - python轻应用：micropython引擎升级到V1.17；API对齐HaaS轻应用接口标准；新增BLE支持；GPIO适配层重构；封装Python视觉AI接口
