@@ -33,7 +33,7 @@ depends:
   - ble_host: "master ? <MICROPY_PY_BLE>"
   - sntp: "master ? <MICROPY_PY_SNTP, HAAS_PLATFORM>"
   - ugraphics: "master ? <PY_BUILD_UGRAPHICS>"
-  - little_ui: "master ? <MICROPY_PY_LVGL>"
+  # - little_ui: "master ? <MICROPY_PY_LVGL>"
 
 build_config:
   prebuild_script: build_cmake.sh
