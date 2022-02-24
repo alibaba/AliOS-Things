@@ -128,12 +128,13 @@ def_config:
 
   # littlefs config
   CONFIG_LITTLEFS_CNT: 1 # lfs supports up to 2 partitions, please choose 1 or 2 here
-  CONFIG_LFS_MOUNTPOINT: "/data" # the mount path of the lfs partition
+  CONFIG_LFS_MOUNTPOINT: "/" # the mount path of the lfs partition
   CONFIG_LFS_PROG_SIZE: 1024 # the mininal programable size, usually page size for nand and any size for nor
   CONFIG_LFS_PAGE_NUM_PER_BLOCK: 4 # choose the right value for nand, and usually any value for nor
   CONFIG_LFS_BLOCK_NUMS: 1198 # the total block count for lfs parition
 
   # MTD partition config to support mtd vfs apis(open/close/read/write/ioctl).
+  VFS_CONFIG_ROOTFS:     1
   MTD_PART_ID_BOOT:      0
   MTD_PART_ID_ENV2:      1
   MTD_PART_ID_2ND_BOOT:  2

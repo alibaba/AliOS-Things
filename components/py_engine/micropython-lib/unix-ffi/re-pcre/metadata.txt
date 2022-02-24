@@ -1,6 +1,0 @@
-name = re
-srctype = micropython-lib
-type = module
-version = 0.2.5
-author = Paul Sokolovsky
-depends = ffilib

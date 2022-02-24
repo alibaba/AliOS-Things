@@ -42,7 +42,7 @@ void aos_queue_free(aos_queue_t *queue)
     return;
 }
 
-int aos_queue_send(aos_queue_t *queue, void *msg, unsigned int size)
+aos_status_t aos_queue_send(aos_queue_t *queue, void *msg, size_t size)
 {
     QueueHandle_t p_handle;
 
@@ -56,8 +56,7 @@ int aos_queue_send(aos_queue_t *queue, void *msg, unsigned int size)
     return xQueueSend(p_handle, msg, portMAX_DELAY) == pdPASS ? 0 : -1;
 }
 
-int aos_queue_recv(aos_queue_t *queue, unsigned int ms, void *msg,
-                   unsigned int *size)
+aos_status_t aos_queue_recv(aos_queue_t *queue, uint32_t ms, void *msg, size_t *size)
 {
     QueueHandle_t p_handle;
 
@@ -80,7 +79,7 @@ void *aos_queue_buf_ptr(aos_queue_t *queue)
     return NULL;
 }
 
-int aos_queue_get_count(aos_queue_t *queue)
+aos_status_t aos_queue_get_count(aos_queue_t *queue)
 {
     QueueHandle_t p_handle;
 

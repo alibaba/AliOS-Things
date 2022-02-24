@@ -1,4 +1,0 @@
-srctype = cpython
-type = module
-version = 0.5.2
-depends = os, os.path, re-pcre

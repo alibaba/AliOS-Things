@@ -78,6 +78,16 @@ off_t aos_lseek(int fd, off_t offset, int whence)
     return _vfs_to_aos_res(vfs_lseek(fd, offset, whence));
 }
 
+int aos_ftruncate(int fd, off_t size)
+{
+    return _vfs_to_aos_res(vfs_ftruncate(fd, size));
+}
+
+int aos_truncate(const char *path, off_t size)
+{
+    return _vfs_to_aos_res(vfs_truncate(path, size));
+}
+
 int aos_sync(int fd)
 {
     return _vfs_to_aos_res(vfs_sync(fd));

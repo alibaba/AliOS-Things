@@ -19,7 +19,6 @@ depends:
   - osal_aos: master
   - py_engine: master
   - haaseduk1:  master
-  
 supported_boards:
   - haas100: master
   - haas200: master
@@ -119,6 +118,7 @@ source_file:
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y
 def_config:
+  VFS_CONFIG_DEVICE_NODES: 256
   HAAS_PLATFORM: 1
   CLI_IOBOX_ENABLE: 1
   ULOG_CONFIG_ASYNC: 0
@@ -156,6 +156,14 @@ def_config:
   MICROPY_PY_UGRAPHICS: 0
   MICROPY_PY_ULOG: 1
   MICROPY_PY_VIDEO: 0
+  SYSINFO_PARTNER: AliOS Things Team
+  SYSINFO_APP_NET: MQTT/HTTPS
+  SYSINFO_PROJECT: HaaS Inside
+  SYSINFO_FRAMEWORK: HaaS Python
+  SYSINFO_NETWORK: WIFI/BT
+  SYSINFO_DEVICE_TYPE: solo
+  SYSINFO_CLOUD_TYPE: aliyun
+  SYSINFO_FORCE_UPDATE: 1
 
 ## 第六部分：安装信息
 # install:

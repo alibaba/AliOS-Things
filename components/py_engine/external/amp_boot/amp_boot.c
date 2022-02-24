@@ -5,7 +5,7 @@
 #include "amp_boot.h"
 #include "app_mgr.h"
 
-#define AMP_BOOT_WAIT_TIME 500
+#define AMP_BOOT_WAIT_TIME 1000
 #define AMP_BOOT_MAX_KV_LEN 256
 
 #define AMP_BOOT_KV_VALUE_END_STR "[amp_value_end]\n"

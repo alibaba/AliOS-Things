@@ -36,6 +36,9 @@
 #ifndef RHINO_CONFIG_MM_BLK_SIZE
 #define RHINO_CONFIG_MM_BLK_SIZE             256
 #endif
+#ifndef RHINO_CONFIG_MM_MINISIZEBIT
+#define RHINO_CONFIG_MM_MINISIZEBIT          6
+#endif
 #ifndef RHINO_CONFIG_MM_MAXMSIZEBIT
 #define RHINO_CONFIG_MM_MAXMSIZEBIT          28
 #endif

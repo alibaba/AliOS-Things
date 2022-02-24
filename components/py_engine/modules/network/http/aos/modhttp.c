@@ -134,23 +134,16 @@ int32_t pyamp_httpc_construct_header(char *buf, uint16_t buf_size, const char *n
 
 static void http_request_notify(void *pdata)
 {
-    mp_obj_t dict = MP_OBJ_NULL;
-
     http_param_t *msg = (http_param_t *)pdata;
     LOGD(LOG_TAG, "buf is %s \r\n", msg->rec_data_buffer);
     LOGD(LOG_TAG, "buf len is %d \r\n", strlen(msg->rec_data_buffer));
     LOGD(LOG_TAG, "header is %s \r\n", msg->rec_header_buffer);
     LOGD(LOG_TAG, "buf len is %d \r\n", strlen(msg->rec_header_buffer));
 
-    dict = mp_obj_new_dict(2);
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("header", 6),
-                      mp_obj_new_str(msg->rec_header_buffer, strlen(msg->rec_header_buffer)));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("body", 4),
-                      mp_obj_new_str(msg->rec_data_buffer, strlen(msg->rec_data_buffer)));
-
-    if (msg->cb != MP_OBJ_NULL && mp_obj_is_callable(msg->cb)) {
-        callback_to_python(msg->cb, dict);
-    }
+    mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
+    make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_STR, strlen(msg->rec_header_buffer), msg->rec_header_buffer, "header");
+    make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_STR, strlen(msg->rec_data_buffer), msg->rec_data_buffer, "body");
+    callback_to_python_LoBo(msg->cb, mp_const_none, carg);
 }
 
 static void http_download_notify(void *pdata)
@@ -159,9 +152,9 @@ static void http_download_notify(void *pdata)
     LOGD(LOG_TAG, "buf is %s \r\n", msg->rec_data_buffer);
     LOGD(LOG_TAG, "buf len is %d \r\n", strlen(msg->rec_data_buffer));
 
-    if (msg->cb != MP_OBJ_NULL && mp_obj_is_callable(msg->cb)) {
-        callback_to_python(msg->cb, mp_obj_new_str(msg->rec_data_buffer, strlen(msg->rec_data_buffer)));
-    }
+    mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_SINGLE);
+    make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_STR, strlen(msg->rec_data_buffer), msg->rec_data_buffer, NULL);
+    callback_to_python_LoBo(msg->cb, mp_const_none, carg);
 }
 
 static char customer_header[HTTP_HEADER_SIZE] = { 0 };

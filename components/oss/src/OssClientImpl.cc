@@ -163,7 +163,6 @@ void OssClientImpl::addHeaders(const std::shared_ptr<HttpRequest> &httpRequest, 
         // printf("----- time %lld ---------\r\n",t);
 #else
         std::time_t t = std::time(nullptr);
-
 #endif
         t += getRequestDateOffset();
 #if ESP_PLATFORM

@@ -10,17 +10,17 @@
 
 ## 准备
 
-1. M5Stack-Core2开发板    一套
-2. M5Stack ESP32摄像头    一个
-3. 连接线                 一根
+1. M5Stack Core2开发板       一套
+2. M5Stack Unit CAM摄像头    一个
+3. 连接线                    一根
 
 涉及到的硬件购买链接如下，仅供参考，不负责商家发货的品质保障等问题！
 
 | 名称 | 数量 | 参考链接 |
 | --- | --- | --- |
-| M5Stack-Core2开发版 | 1 | [M5Stack-Core2](https://item.taobao.com/item.htm?spm=a1z10.5-c-s.w4002-22404213529.17.732749d8usCqYX&id=625561056791) |
-| microUSB数据线 | 1 | M5Stack-Core2自带 |
-| 摄像头 | 1 | [M5Stack ESP32摄像头](https://item.taobao.com/item.htm?spm=a1z10.5-c-s.w4002-22404213529.29.698e2d4844EBZF&id=643872470244) |
+| M5Stack Core2开发版 | 1 | [M5Stack Core2](https://item.taobao.com/item.htm?spm=a1z10.5-c-s.w4002-22404213529.17.732749d8usCqYX&id=625561056791) |
+| microUSB数据线 | 1 | M5Stack Core2开发套件自带 |
+| 摄像头 | 1 | [M5Stack Unit CAM摄像头](https://item.taobao.com/item.htm?spm=a1z10.5-c-s.w4002-22404213529.29.698e2d4844EBZF&id=643872470244) |
 | 连接线 | 1条 | [M5Stack GROVE连接线](https://item.taobao.com/item.htm?spm=a1z10.5-c-s.w4002-22404213529.11.6b6d5f86B5IYMF&id=610410604759) 请选用10cm长即可 |
 
 &emsp;&emsp;
@@ -33,7 +33,7 @@
 ## 云端平台功能开通
 在本案例中涉及到两个云端平台功能：
 1. 使用[对象存储OSS](https://help.aliyun.com/document_detail/52830.html?spm=5176.8465980.0.dexternal.4e7014509ELP9t)将图像上传到OSS中创建好的Bucket。
-2. 使用[视觉智能开放平台](https://vision.aliyun.com/experience/detail?spm=a211p3.14020179.J_7524944390.8.66cd4850LUzVoZ&tagName=imagerecog&children=DetectFruits)免费开通车牌识别功能。
+2. 使用[视觉智能开放平台](https://vision.aliyun.com/experience/detail?spm=a211p3.14020179.J_7524944390.8.66cd4850LUzVoZ&tagName=imagerecog&children=LicensePlateRecognization)免费开通车牌识别功能。
 
 &emsp;&emsp;
 因此，整个步骤分为：
@@ -121,7 +121,7 @@ Bucket ACL设置为公共读，否则可能会出现访问不了的问题：<br 
 
 ### 功能体验
 &emsp;&emsp;
-开发者在实际在设备端使用前，可以尝试上传水果照片在产品体验页面进行体验。
+开发者在实际在设备端使用前，可以尝试上传车牌照片在产品体验页面进行体验。
 ![](../../../图片/3_车牌AI识别系统_体验.png)
 
 
@@ -201,22 +201,8 @@ wifi is connected
 IP: 192.168.43.168
 NTP start
 NTP done
-[makeRequest]response_code: 200
-content: http://oss-ai-dev.oss-cn-shanghai.aliyuncs.com/oss%2Ftest.jpg
-
-None
-[makeRequest]response_code: 200
-content: http://oss-ai-dev.oss-cn-shanghai.aliyuncs.com/oss%2Ftest.jpg
-
-imageseg describeInstances returned:
-error code: 
-requestId: F75D361A-3F9D-5D4D-B3B9-D75B4A3F5988
-
-plateNumber: 浙AAB787
-plateType: 小型汽车
-confidence: 0.998855
-plateTypeConfidence: 1.000000
-x: 872890180
-y: 4
-w: 4
-h: 2
+[{'h': 1066548168, 'confidence': 0.9983626, 'plateNumber': '\u7ca4BP57E7', 'plateType': '\u5c0f\u578b\u6c7d\u8f66', 'y': -1287651329, 'plateTypeConfidence': 0.8658112, 'x': 4, 'w': 1066548252}]
+License Plate Recognized!!!
+License Plate Recognized!!!
+License Plate Recognized!!!
+```

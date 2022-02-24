@@ -20,17 +20,20 @@ import time
 resDir = "/data/pyamp/resource/"
 tonepathConnected = AUDIO_HEADER + resDir + "connected.wav"
 tonepathPowerOn = AUDIO_HEADER + resDir + "poweron.wav"
+
 # 三元组信息
 productKey = "产品密钥"
 deviceName = "设备名称"
 deviceSecret = "设备密钥"
+
+# Wi-Fi SSID和Password设置
+wifiSsid = "请填写您的路由器名称"
+wifiPassword = "请填写您的路由器密码"
+
 # 回调函数状态
 on_request = False
 on_play = False
 iot_connected = False
-# Wi-Fi SSID和Password设置
-wifi_ssid = "请填写您的路由器名称"
-wifi_password = "请填写您的路由器密码"
 
 # 等待Wi-Fi成功连接到路由器
 def get_wifi_status():

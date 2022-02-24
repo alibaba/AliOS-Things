@@ -57,9 +57,35 @@ extern mp_dynamic_compiler_t mp_dynamic_compiler;
 #define MP_SCHED_LOCKED (-1)
 #define MP_SCHED_PENDING (0) // 0 so it's a quick check in the VM
 
+// HaaS modify begin
+/**************************************************************************************************
+Define macro MP_SCHED_CALLBACK_ARGS_LoBo to implement modification on mp_sched_schedule
+from MicroPython_ESP32_psRAM_LoBo(https://github.com/loboris/MicroPython_ESP32_psRAM_LoBo)
+commit 0de63ef395dec7fe0318610388968e17766b339f
+Author: Boris Lovosevic <loboris@gmail.com>
+Date:   Wed Feb 28 14:46:02 2018 +0100
+
+    Changed the method of passing parameters from tasks/events/interrupts to MicroPython callbacks
+      Updated MicroPython scheduler functions
+      Updated all affected modules
+
+As mentioned in https://docs.micropython.org/en/latest/reference/isr_rules.html:
+Avoid memory allocation: no appending to lists or insertion into dictionaries, no floating point.
+commit 0de63ef solve this limitation and aos apply this patch directly.
+*************************************************************************************************/
+// MP_SCHED_CALLBACK_ARGS_LoBo SHOULD BE SET TO 1, DO NOT MODIFY
+#define MP_SCHED_CALLBACK_ARGS_LoBo     (1)
+#if !MP_SCHED_CALLBACK_ARGS_LoBo
+#error MP_SCHED_CALLBACK_ARGS_LoBo should be set to 1.
+#endif
+// HaaS modify end
+
 typedef struct _mp_sched_item_t {
     mp_obj_t func;
     mp_obj_t arg;
+#if MP_SCHED_CALLBACK_ARGS_LoBo
+    void     *carg;
+#endif
 } mp_sched_item_t;
 
 // This structure hold information about the memory allocation system.

@@ -185,7 +185,7 @@ class Speaker:
                 break
             else:
                 time.sleep(1)
-        response = json.loads(cb_data['header'])
+        response = json.loads(cb_data['body'])
         audio = response['audios'][0]
         format = audio['format']
         id = audio['id']

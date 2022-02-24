@@ -76,6 +76,10 @@ static int amrwb_decoder_process(void *priv, const uint8_t *buffer, int nbytes)
 
 	if (!mdecoder->running) {
 		#ifndef IF2
+		if (rem_size < strlen(AMRWB_MAGIC_NUMBER)) {
+			M_LOGE("invalid input buffer size %d\n", rem_size);
+			return -1;
+		}
 		if (memcmp(buffer, AMRWB_MAGIC_NUMBER, strlen(AMRWB_MAGIC_NUMBER))) {
 			M_LOGE("amrwb magic number not found !\n");
 			return -1;

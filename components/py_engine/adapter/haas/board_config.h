@@ -6,7 +6,7 @@
 #define __AMP_MACHINE_CONFIG_H__
 
 /* python engine root dir define */
-#define MP_FS_ROOT_DIR                 "/data"
+#define MP_FS_ROOT_DIR                 "/"
 #define MP_FS_EXT_ROOT_DIR             "/sdcard"
 
 #define AMP_FS_ROOT_DIR                MP_FS_ROOT_DIR "/pyamp"

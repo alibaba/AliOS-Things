@@ -279,13 +279,13 @@ def_config:
   # __FPU_PRESENT: 1
   # CMSIS_DSP_LIB: 1
   # hardware module numbers config - used in VFS drivers
-  CONFIG_ADC_NUM: 1
+  CONFIG_ADC_NUM: 8
   CONFIG_DAC_NUM: 0
   CONFIG_GPIO_NUM: 64
   CONFIG_I2C_NUM: 1
   CONFIG_PWM_NUM: 18
   CONFIG_SPI_NUM: 3
-  CONFIG_TIMER_NUM: 1
+  CONFIG_TIMER_NUM: 4
   CONFIG_UART_NUM: 4
 
   AOS_CONFIG_TTY_CSI: 1

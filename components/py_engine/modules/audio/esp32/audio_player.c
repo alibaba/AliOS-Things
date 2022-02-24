@@ -69,15 +69,7 @@ STATIC void audio_state_cb(esp_audio_state_t *state, void *ctx)
 {
     audio_player_obj_t *self = (audio_player_obj_t *)ctx;
     memcpy(&self->state, state, sizeof(esp_audio_state_t));
-    if (self->callback != mp_const_none) {
-        mp_obj_dict_t *dict = mp_obj_new_dict(1);
-
-        mp_obj_dict_store(dict, MP_ROM_QSTR(MP_QSTR_state), MP_OBJ_TO_PTR(mp_obj_new_int(state->status)));
-        // mp_obj_dict_store(dict, MP_ROM_QSTR(MP_QSTR_err_msg), MP_OBJ_TO_PTR(mp_obj_new_int(state->err_msg)));
-        // mp_obj_dict_store(dict, MP_ROM_QSTR(MP_QSTR_media_src), MP_OBJ_TO_PTR(mp_obj_new_int(state->media_src)));
-
-        callback_to_python(self->callback, dict);
-    }
+    callback_to_python_LoBo(self->callback, MP_OBJ_NEW_SMALL_INT(state->status), NULL);
 }
 
 STATIC int _http_stream_event_handle(http_stream_event_msg_t *msg)

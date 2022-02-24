@@ -50,8 +50,10 @@ STATIC mp_obj_t uart_obj_make_new(const mp_obj_type_t *type, size_t n_args, size
 STATIC void uart_callback(int uart_num, void *data, uint16_t size, void *udata)
 {
     mp_uart_obj_t *driver_obj = (mp_uart_obj_t *)udata;
-    char *rx_data = (char *)data;
-    callback_to_python(driver_obj->callback, mp_obj_new_bytearray(size, rx_data));
+
+    mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_SINGLE);
+    make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_BYTES, size, data, NULL);
+    callback_to_python_LoBo(driver_obj->callback, mp_const_none, carg);
 }
 
 STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
@@ -168,7 +170,10 @@ STATIC mp_obj_t obj_read(size_t n_args, const mp_obj_t *args)
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
 
-    mp_int_t ret = aos_hal_uart_recv_II(uart_device, bufinfo.buf, bufinfo.len, &recvsize, UART_TIMEOUT);
+    mp_int_t ret = aos_hal_uart_recv_II(uart_device, bufinfo.buf, bufinfo.len, &recvsize, 0);
+    if (ret == -ETIMEDOUT) {
+        ret = 0;
+    }
     if (ret != 0) {
         return MP_ROM_INT(ret);
     } else {
@@ -257,6 +262,25 @@ STATIC mp_obj_t obj_setBaudRate(size_t n_args, const mp_obj_t *args)
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(uart_obj_setBaudRate, 2, obj_setBaudRate);
 
+STATIC mp_obj_t uart_any(size_t n_args, const mp_obj_t *args)
+{
+    uart_dev_t *uart_device = NULL;
+    mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_uart_obj_t *driver_obj = (mp_uart_obj_t *)self;
+    if (driver_obj == NULL) {
+        LOGE(LOG_TAG, "driver_obj is NULL\n");
+        return mp_const_none;
+    }
+
+    uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
+    if (NULL == uart_device) {
+        LOGE(LOG_TAG, "%s: py_board_get_node_by_handle failed;\n", __func__);
+        return mp_const_none;
+    }
+
+    return MP_OBJ_NEW_SMALL_INT(aos_hal_uart_any(uart_device));
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(uart_obj_any, 1, uart_any);
 
 STATIC mp_obj_t obj_on(size_t n_args, const mp_obj_t *args)
 {
@@ -289,13 +313,13 @@ STATIC mp_obj_t obj_on(size_t n_args, const mp_obj_t *args)
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(uart_obj_on, 2, 3, obj_on);
 
-
 STATIC const mp_rom_map_elem_t uart_locals_dict_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_UART) },
     { MP_ROM_QSTR(MP_QSTR_open), MP_ROM_PTR(&uart_obj_open) },
     { MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&uart_obj_close) },
     { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&uart_obj_read) },
     { MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&uart_obj_write) },
+    { MP_ROM_QSTR(MP_QSTR_any), MP_ROM_PTR(&uart_obj_any) },
     { MP_ROM_QSTR(MP_QSTR_on), MP_ROM_PTR(&uart_obj_on) },
 };
 

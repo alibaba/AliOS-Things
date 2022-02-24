@@ -45,12 +45,14 @@ build_config:
     - adapter/esp32/ ? <ESP_PLATFORM>
 
     # boards file
+    - adapter/esp32/boards/GENERIC_C3/ ? <ESP_PLATFORM, BOARD_NODEMCU32C3>
     - adapter/esp32/boards/GENERIC/ ? <ESP_PLATFORM, BOARD_NODEMCU32S>
     - adapter/esp32/boards/M5STACK_CORE2/ ? <ESP_PLATFORM, BOARD_M5STACKCORE2>
     - adapter/haas/boards/HaaSEDUk1/ ? <HAAS_PLATFORM>
     - adapter/haas/boards/HaaS200/ ? <HAAS_PLATFORM>
 
     # cmake generated files
+    - adapter/esp32/build-GENERIC_C3/ ? <ESP_PLATFORM, BOARD_NODEMCU32C3>
     - adapter/esp32/build-GENERIC/ ? <ESP_PLATFORM, BOARD_NODEMCU32S>
     - adapter/esp32/build-M5STACK_CORE2/ ? <ESP_PLATFORM, BOARD_M5STACKCORE2>
     - adapter/haas/build-HaaSEDUk1/ ? <HAAS_PLATFORM>

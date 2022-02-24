@@ -7,7 +7,8 @@
   * 该功能目前未实现数据加密，WiFi配网信息均以明文传输
 
 * 使用指南：  
-该功能可以使用“HaaS”小程序的配网工具进行配网，开发者也可以在其他平台自行实现相关的功能，数据交互满足通信格式即可。
+该功能可以使用“HaaS小程序“的配网工具进行配网，开发者也可以在其他平台自行实现相关的功能，数据交互满足通信格式即可。
+![图片](https://img.alicdn.com/imgextra/i2/O1CN01M2kfiM1T1yn8rAQgS_!!6000000002323-0-tps-918-1481.jpg)
 
 * 通信格式：  
 设备接收到的配网指令为以下格式的字符串
@@ -84,17 +85,17 @@ import bleNetConfig
 bleNetConfig.start()
 ```
 
-## status - 获取蓝牙配网的状态信息
+## getBleStatus - 获取蓝牙配网的状态信息
 
 * 函数功能：  
 该方法返回蓝牙配网状态。
 
 * 函数原型：
-> bleNetConfig.status()
+> bleNetConfig.getBleStatus()
 
 * 注意事项：
   * 该方法只关心配网过程中蓝牙交互的状态。
-  * WLAN有关的状态，开发者可以通过调用 bleNetConfig.getWLAN().status() 方法获取。
+  * WLAN有关的状态，开发者可以通过调用 bleNetConfig.getWiFiStatus() 方法获取。
 
 * 返回值：  
 根据配网状态的不同，分别返回以下状态：
@@ -115,8 +116,7 @@ try:
 except Exception as e:
     raise e
 
-wlan = bleNetConfig.getWLAN()
-print(wlan.status())
+print(bleNetConfig.getBleStatus())
 ```
 
 ## getWLAN - 获取用于连接的WLAN对象
@@ -143,6 +143,61 @@ except Exception as e:
 
 wlan = bleNetConfig.getWLAN()
 print(wlan.status())
+```
+
+## getWiFiStatus - 获取蓝牙配网的状态信息
+
+* 函数功能：  
+该方法返回WiFi连接状态。
+
+* 函数原型：
+> bleNetConfig.getWiFiStatus()
+
+* 返回值：  
+根据网络连接状态的不同，分别返回以下状态：
+
+| 常量定义                     | 常量值 | 常量说明               |
+| ---------------------------- | ------ | ---------------------- |
+| bleNetConfig.WIFI_IDLE       | 1000   | 无连接/无活动          |
+| bleNetConfig.WIFI_CONNECTING | 1001   | WiFi连接中             |
+| bleNetConfig.WIFI_GOT_IP     | 1010   | WiFi连接成功并获取到IP |
+
+* 示例： 
+
+```python
+import bleNetConfig
+
+try:
+    bleNetConfig.start()
+except Exception as e:
+    raise e
+
+print(bleNetConfig.getWiFiStatus())
+```
+
+## getWiFiConfig - 获取WiFi网络配置信息
+
+* 函数功能：  
+获取IP级网络接口参数：IP 地址、子网掩码、网关和 DNS服务器。
+
+* 函数原型：
+> bleNetConfig.getWiFiConfig()
+
+* 返回值：  
+此方法返回一个包含 IP 地址、子网掩码、网关和 DNS服务器 的 4 元组。
+
+* 示例： 
+
+```python
+import bleNetConfig
+
+if(bleNetConfig.getWiFiStatus() == bleNetConfig.WIFI_GOT_IP):
+    print(bleNetConfig.getWiFiConfig())
+```
+
+* 输出：
+```
+('192.168.0.4', '255.255.255.0', '192.168.0.1', '8.8.8.8')
 ```
 
 ## stop - 停止配网
@@ -177,18 +232,18 @@ import time
 print('Start BLE Net Config.')
 
 bleNetConfig.start()
-wlan = bleNetConfig.getWLAN()
 
-while(!wlan.isconnected()):
-    status = bleNetConfig.status()
-    if(status == bleNetConfig.BLE_CONNECTED):
+while(bleNetConfig.getWiFiStatus() != bleNetConfig.WIFI_GOT_IP):
+    bleStatus = bleNetConfig.getBleStatus()
+    if(bleStatus == bleNetConfig.BLE_CONNECTED):
         print('BLE_CONNECTED')
-    elif(status == bleNetConfig.BLE_COMMINICATING):
+    elif(bleStatus == bleNetConfig.BLE_COMMINICATING):
         print('BLE_COMMINICATING')
-    elif(status == bleNetConfig.BLE_DISCONNECTED):
+    elif(bleStatus == bleNetConfig.BLE_DISCONNECTED):
         print('BLE_DISCONNECTED')
 
     time.sleep(1)
+    # 在此时打开小程序进行连接
 
 print('Wi-Fi connected.')
 

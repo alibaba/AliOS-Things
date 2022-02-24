@@ -11,7 +11,10 @@
 #endif
 #include "module_aiot.h"
 #include "py/mperrno.h"
+#include "py/mpstate.h"
+#include "py/runtime.h"
 #include "py_defines.h"
+#include "py/mpthread.h"
 
 #define MOD_STR       "AIOT_DEVICE"
 
@@ -109,28 +112,23 @@ static void subcribe_cb(void *handle, const aiot_mqtt_recv_t *packet, void *user
 
     switch (packet->type) {
     case AIOT_MQTTRECV_PUB:
+        {
+            mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
+            make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_STR, packet->data.pub.topic_len, packet->data.pub.topic,
+                            "topic");
+            make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_STR, packet->data.pub.payload_len, packet->data.pub.payload,
+                            "payload");
+            mp_obj_t callback = iot_device_handle->callback[ON_SUBCRIBE];
+            callback_to_python_LoBo(callback, mp_const_none, carg);
 
-        ret_dict = mp_obj_new_dict(2);
-        mp_obj_dict_store(MP_OBJ_FROM_PTR(ret_dict), mp_obj_new_str("topic", 5),
-                          mp_obj_new_str(packet->data.pub.topic, packet->data.pub.topic_len));
-        mp_obj_dict_store(MP_OBJ_FROM_PTR(ret_dict), mp_obj_new_str("payload", 7),
-                          mp_obj_new_str(packet->data.pub.payload, packet->data.pub.payload_len));
-        mp_obj_t callback = iot_device_handle->callback[ON_SUBCRIBE];
-        if (callback != MP_OBJ_NULL && mp_obj_is_fun(callback)) {
-            callback_to_python(callback, ret_dict);
-        } else {
-            amp_warn(MOD_STR,
-                     "iot_device_handle->cb_on_subcribe is "
-                     "not function\r\n");
+            break;
         }
-        // aos_free(packet->data.pub.topic);
-        // aos_free(packet->data.pub.payload);
-        break;
     default:
         break;
     }
 }
 
+/* cb call to python */
 static void aiot_device_notify(void *pdata)
 {
     device_notify_param_t *param = (device_notify_param_t *)pdata;
@@ -141,65 +139,45 @@ static void aiot_device_notify(void *pdata)
     if (param->dm_recv) {
         switch (param->dm_recv_type) {
         case AIOT_DMRECV_PROPERTY_SET:
+            {
+                mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
+                make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_INT, param->ret_code, NULL, "code");
+                make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_INT, param->msg_id, NULL, "msg_id");
+                make_carg_entry(carg, 2, MP_SCHED_ENTRY_TYPE_INT, param->params_len, NULL, "params_len");
+                make_carg_entry(carg, 3, MP_SCHED_ENTRY_TYPE_STR, param->params_len, param->params, "params");
+                callback = param->iot_device_handle->callback[ON_PROPS];
+                callback_to_python_LoBo(callback, mp_const_none, carg);
 
-            dict = mp_obj_new_dict(4);
-            mp_obj_dict_store(dict, mp_obj_new_str("code", 4), mp_obj_new_int(param->ret_code));
-            mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("msg_id", 6), mp_obj_new_int(param->msg_id));
-            mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("params_len", 10),
-                              mp_obj_new_int(param->params_len));
-            mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("params", 6),
-                              mp_obj_new_str(param->params, param->params_len));
-            callback = param->iot_device_handle->callback[ON_PROPS];
-            if (callback != MP_OBJ_NULL && mp_obj_is_fun(callback)) {
-                callback_to_python(callback, dict);
-            } else {
-                amp_warn(MOD_STR,
-                         "param->iot_device_handle->cb_property_set is "
-                         "not function\r\n");
+                aos_free(param->params);
+                break;
             }
-            aos_free(param->params);
-            break;
+
         case AIOT_DMRECV_ASYNC_SERVICE_INVOKE:
-            amp_debug(MOD_STR, "AIOT_DMRECV_ASYNC_SERVICE_INVOKE CASE\r\n");
+            {
+                mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
+                make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_INT, param->ret_code, NULL, "code");
+                make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_INT, param->msg_id, NULL, "msg_id");
+                make_carg_entry(carg, 2, MP_SCHED_ENTRY_TYPE_STR, strlen(param->service_id), param->service_id, "service_id");
+                make_carg_entry(carg, 3, MP_SCHED_ENTRY_TYPE_INT, param->params_len, NULL, "params_len");
+                make_carg_entry(carg, 4, MP_SCHED_ENTRY_TYPE_STR, param->params_len, param->params, "params");
+                callback = param->iot_device_handle->callback[ON_SERVICE];
+                callback_to_python_LoBo(callback, mp_const_none, carg);
 
-            dict = mp_obj_new_dict(5);
-            mp_obj_dict_store(dict, mp_obj_new_str("code", 4), mp_obj_new_int(param->ret_code));
-            mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("msg_id", 6), mp_obj_new_int(param->msg_id));
-            mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("service_id", 10),
-                              mp_obj_new_str(param->service_id, strlen(param->service_id)));
-            mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("params_len", 10),
-                              mp_obj_new_int(param->params_len));
-            mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("params", 6),
-                              mp_obj_new_str(param->params, param->params_len));
-            callback = param->iot_device_handle->callback[ON_SERVICE];
-            if (callback != MP_OBJ_NULL && mp_obj_is_fun(callback)) {
-                callback_to_python(callback, dict);
-            } else {
-                amp_warn(MOD_STR,
-                         "param->iot_device_handle->cb_on_service_invoke is "
-                         "not function\r\n");
+                aos_free(param->service_id);
+                aos_free(param->params);
+                break;
             }
-            aos_free(param->service_id);
-            aos_free(param->params);
-            break;
         case AIOT_DMRECV_RAW_DATA:
+            {
+                mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
+                make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_INT, param->params_len, NULL, "params_len");
+                make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_STR, param->params_len, param->params, "params");
+                callback = param->iot_device_handle->callback[ON_RAWDATA];
+                callback_to_python_LoBo(callback, mp_const_none, carg);
 
-            dict = mp_obj_new_dict(2);
-            mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("params_len", 10),
-                              mp_obj_new_int(param->params_len));
-            mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("params", 6),
-                              mp_obj_new_bytearray(param->params_len, param->params));
-            callback = param->iot_device_handle->callback[ON_RAWDATA];
-            if (callback != MP_OBJ_NULL && mp_obj_is_fun(callback)) {
-                callback_to_python(callback, dict);
-            } else {
-                amp_warn(MOD_STR,
-                         "param->iot_device_handle->cb_on_rw_data is "
-                         "not function\r\n");
+                aos_free(param->params);
+                break;
             }
-
-            aos_free(param->params);
-            break;
         default:
             aos_free(param);
             return;
@@ -208,17 +186,15 @@ static void aiot_device_notify(void *pdata)
         switch (param->event_type) {
         case AIOT_MQTTEVT_CONNECT:
         case AIOT_MQTTEVT_DISCONNECT:
-            dict = mp_obj_new_dict(1);
-            mp_obj_dict_store(dict, mp_obj_new_str("code", 4), mp_obj_new_int(param->ret_code));
-            callback = param->iot_device_handle->callback[param->cb_type];
-            if (callback != MP_OBJ_NULL && mp_obj_is_fun(callback)) {
-                callback_to_python(callback, dict);
-            } else {
-                amp_warn(MOD_STR,
-                         "param->iot_device_handle->cb_on_connect_status is "
-                         "not function\r\n");
+            {
+                mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
+                make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_INT, param->ret_code, NULL, "code");
+                callback = param->iot_device_handle->callback[param->cb_type];
+                callback_to_python_LoBo(callback, mp_const_none, carg);
+
+                aos_free(param->params);
+                break;
             }
-            break;
         default:
             aos_free(param);
             return;
@@ -226,28 +202,6 @@ static void aiot_device_notify(void *pdata)
     } else {
         switch (param->recv_type) {
         case AIOT_MQTTRECV_PUB:
-            // amp_error(MOD_STR, "AIOT_MQTTRECV_PUB  by device notify\r\n");
-            // amp_error(MOD_STR, " topic is %s\r\n ",param->payload);
-            // amp_error(MOD_STR, " topic is %s\r\n ",param->topic);
-
-            // dict = mp_obj_new_dict(3);
-            // mp_obj_dict_store(dict, mp_obj_new_str("code", 4),
-            //                 mp_obj_new_int(param->ret_code));
-            // mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("topic", 5),
-            //                   mp_obj_new_str(param->topic, param->topic_len));
-            // mp_obj_dict_store(
-            //     MP_OBJ_FROM_PTR(dict), mp_obj_new_str("payload", 7),
-            //     mp_obj_new_str(param->payload, param->payload_len));
-            // if (mp_obj_is_fun(param->iot_device_handle->callback[ON_SUBCRIBE])) {
-            //     callback_to_python(
-            //         param->iot_device_handle->callback[ON_SUBCRIBE], dict);
-            // } else {
-            //     amp_error(MOD_STR,
-            //                 "iot_device_handle->cb_on_subcribe is "
-            //                 "not function");
-            // }
-            // aos_free(param->topic);
-            // aos_free(param->payload);
             break;
         default:
             aos_free(param);
@@ -306,7 +260,8 @@ static void aiot_app_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv
             //     aiot_dm_msg_t msg;
             //     memset(&msg, 0, sizeof(aiot_dm_msg_t));
             //     msg.type = AIOT_DMMSG_PROPERTY_SET_REPLY;
-            //     msg.data.property_set_reply.msg_id = recv->data.property_set.msg_id;
+            //     msg.data.property_set_reply.msg_id =
+            //     recv->data.property_set.msg_id;
             //     msg.data.property_set_reply.code = 200;
             //     msg.data.property_set_reply.data = "{}";
             //     int32_t res = aiot_dm_send(dm_handle, &msg);
@@ -342,12 +297,13 @@ static void aiot_app_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv
             //     aiot_dm_msg_t msg;
             //     memset(&msg, 0, sizeof(aiot_dm_msg_t));
             //     msg.type = AIOT_DMMSG_ASYNC_SERVICE_REPLY;
-            //     msg.data.async_service_reply.msg_id = recv->data.async_service_invoke.msg_id;
+            //     msg.data.async_service_reply.msg_id =
+            //     recv->data.async_service_invoke.msg_id;
             //     msg.data.async_service_reply.code = 200;
-            //     msg.data.async_service_reply.service_id = "ToggleLightSwitch";
-            //     msg.data.async_service_reply.data = "{\"dataA\": 20}";
-            //     int32_t res = aiot_dm_send(dm_handle, &msg);
-            //     if (res < 0) {
+            //     msg.data.async_service_reply.service_id =
+            //     "ToggleLightSwitch"; msg.data.async_service_reply.data =
+            //     "{\"dataA\": 20}"; int32_t res = aiot_dm_send(dm_handle,
+            //     &msg); if (res < 0) {
             //         printf("aiot_dm_send failed\r\n");
             //     }
             // }
@@ -375,13 +331,15 @@ static void aiot_app_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv
             //     aiot_dm_msg_t msg;
             //     memset(&msg, 0, sizeof(aiot_dm_msg_t));
             //     msg.type = AIOT_DMMSG_SYNC_SERVICE_REPLY;
-            //     msg.data.sync_service_reply.rrpc_id = recv->data.sync_service_invoke.rrpc_id;
-            //     msg.data.sync_service_reply.msg_id = recv->data.sync_service_invoke.msg_id;
+            //     msg.data.sync_service_reply.rrpc_id =
+            //     recv->data.sync_service_invoke.rrpc_id;
+            //     msg.data.sync_service_reply.msg_id =
+            //     recv->data.sync_service_invoke.msg_id;
             //     msg.data.sync_service_reply.code = 200;
-            //     msg.data.sync_service_reply.service_id = "SetLightSwitchTimer";
-            //     msg.data.sync_service_reply.data = "{}";
-            //     int32_t res = aiot_dm_send(dm_handle, &msg);
-            //     if (res <0) {
+            //     msg.data.sync_service_reply.service_id =
+            //     "SetLightSwitchTimer"; msg.data.sync_service_reply.data =
+            //     "{}"; int32_t res = aiot_dm_send(dm_handle, &msg); if (res
+            //     <0) {
             //         printf("aiot_dm_send failed\r\n");
             //     }
             // }
@@ -424,7 +382,24 @@ static void aiot_app_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv
 
     py_task_schedule_call(aiot_device_notify, param);
 }
+/* cb register */
+STATIC mp_obj_t aiot_register_cb(mp_obj_t self_in, mp_obj_t id, mp_obj_t func)
+{
+    int callback_id = mp_obj_get_int(id);
 
+    linksdk_device_obj_t *self = self_in;
+    if (self == NULL) {
+        return mp_obj_new_int(-1);
+    }
+    if (self->iot_device_handle->callback == NULL) {
+        return mp_obj_new_int(-1);
+    }
+    self->iot_device_handle->callback[callback_id] = func;
+    return mp_obj_new_int(0);
+}
+MP_DEFINE_CONST_FUN_OBJ_3(native_aiot_register_cb, aiot_register_cb);
+
+/* connect event */
 static void aiot_connect_event(iot_device_handle_t *iot_device_handle)
 {
     int res = 0;
@@ -513,6 +488,52 @@ static void aiot_mqtt_message_cb(iot_mqtt_message_t *message, void *userdata)
     py_task_schedule_call(aiot_device_notify, param);
 }
 
+/* dynmic register */
+static mp_obj_t aiot_dynreg(mp_obj_t self_in, mp_obj_t data, mp_obj_t cb)
+{
+    int ret = -1;
+    char *productKey = NULL;
+    char *deviceName = NULL;
+    char *productSecret = NULL;
+    linksdk_device_obj_t *self = self_in;
+    if (self_in == NULL) {
+        mp_raise_OSError(ENOENT);
+        return mp_obj_new_int(ret);
+    }
+
+    if (!mp_obj_is_dict_or_ordereddict(data)) {
+        amp_error(MOD_STR, "%s  param1 type error,param type must be dict\r\n", __func__);
+        return mp_obj_new_int(-1);
+    }
+
+    mp_obj_t index = mp_obj_new_str_via_qstr("productKey", 10);
+    productKey = mp_obj_str_get_str(mp_obj_dict_get(data, index));
+
+    index = mp_obj_new_str_via_qstr("productSecret", 13);
+    productSecret = mp_obj_str_get_str(mp_obj_dict_get(data, index));
+
+    index = mp_obj_new_str_via_qstr("deviceName", 10);
+    deviceName = mp_obj_str_get_str(mp_obj_dict_get(data, index));
+
+    amp_debug(MOD_STR, "productKey: %s\r\n", productKey);
+    amp_debug(MOD_STR, "productSecret: %s\r\n", productSecret);
+    amp_debug(MOD_STR, "deviceName: %s\r\n", deviceName);
+
+    aos_kv_set(AMP_CUSTOMER_PRODUCTKEY, productKey, IOTX_PRODUCT_KEY_LEN, 1);
+    aos_kv_set(AMP_CUSTOMER_DEVICENAME, deviceName, IOTX_DEVICE_NAME_LEN, 1);
+    aos_kv_set(AMP_CUSTOMER_PRODUCTSECRET, productSecret, IOTX_PRODUCT_SECRET_LEN, 1);
+
+    ret = pyamp_aiot_dynreg_http(cb);
+    if (ret < STATE_SUCCESS) {
+        amp_debug(MOD_STR, "device dynmic register failed\r\n");
+        return mp_obj_new_int(ret);
+    }
+
+    return mp_obj_new_int(0);
+}
+MP_DEFINE_CONST_FUN_OBJ_3(native_aiot_dynreg, aiot_dynreg);
+
+/* device connect task */
 static void aiot_device_connect(void *pdata)
 {
     int res = -1;
@@ -560,49 +581,8 @@ static void aiot_device_connect(void *pdata)
     aos_task_exit(0);
 }
 
-/* post rawdata */
-static mp_obj_t aiot_postRaw(mp_obj_t self_in, mp_obj_t data)
-{
-    int res = -1;
-    mp_obj_t bytearray = NULL;
-
-    linksdk_device_obj_t *self = self_in;
-    if (self_in == NULL) {
-        mp_raise_OSError(ENOENT);
-        return mp_obj_new_int(res);
-    }
-
-    if (!mp_obj_is_dict_or_ordereddict(data)) {
-        amp_error(MOD_STR, "%s  data type error,param type must be dict\r\n", __func__);
-        return mp_obj_new_int(-1);
-    }
-
-    mp_obj_t index = mp_obj_new_str_via_qstr("param", 5);
-    bytearray = mp_obj_dict_get(data, index);
-    if (!bytearray) {
-        amp_error(MOD_STR, "%s  params data type error,param data type must be bytearray\r\n", __func__);
-        return mp_obj_new_int(-1);
-    }
-    mp_buffer_info_t bufinfo;
-    mp_get_buffer_raise(bytearray, &bufinfo, MP_BUFFER_READ);
-
-    if (self->iot_device_handle->dm_handle == NULL)
-        return mp_obj_new_int(-1);
-
-    res = aiot_app_send_rawdata_post(self->iot_device_handle->dm_handle, bufinfo.buf, bufinfo.len);
-    if (res < STATE_SUCCESS) {
-        amp_error(MOD_STR, "property post failed, res:-0x%04X.\r\n", -res);
-        return mp_obj_new_int(res);
-    }
-
-    return mp_obj_new_int(0);
-}
-MP_DEFINE_CONST_FUN_OBJ_2(native_aiot_postRaw, aiot_postRaw);
-
 /*************************************************************************************
  * Function:    native_aiot_create_device
- * Description: js native addon for UDP.createSocket();
- * Called by:   js api
  * Input:       none
  * Output:      return socket fd when create socket success,
  *            return error number when create socket fail
@@ -630,7 +610,7 @@ static mp_obj_t aiot_create_device(mp_obj_t self_in, mp_obj_t data)
         mp_raise_OSError(ENOENT);
         return mp_obj_new_int(-1);
     } else {
-            linksdk_device_is_used = true;
+        linksdk_device_is_used = true;
     }
 
     if (!mp_obj_is_dict_or_ordereddict(data)) {
@@ -681,6 +661,43 @@ failed:
 
 MP_DEFINE_CONST_FUN_OBJ_2(native_aiot_create_device, aiot_create_device);
 
+/* post props */
+static mp_obj_t aiot_postProps(mp_obj_t self_in, mp_obj_t data)
+{
+    int res = -1;
+    char *payload_str = NULL;
+    amp_debug(MOD_STR, "native_aiot_postProps is called.\r\n");
+
+    linksdk_device_obj_t *self = self_in;
+    if (self_in == NULL) {
+        mp_raise_OSError(ENOENT);
+        return mp_obj_new_int(res);
+    }
+
+    if (!mp_obj_is_dict_or_ordereddict(data)) {
+        amp_error(MOD_STR, "%s  data type error,param type must be dict\r\n", __func__);
+        return mp_obj_new_int(-1);
+    }
+
+    mp_obj_t index = mp_obj_new_str_via_qstr("params", 6);
+    payload_str = mp_obj_str_get_str(mp_obj_dict_get(data, index));
+
+    amp_debug(MOD_STR, "PostProps payload is %s\r\n", payload_str);
+
+    if (self->iot_device_handle->dm_handle == NULL) {
+        amp_error(MOD_STR, "*****dm handle is null\r\n");
+        return mp_obj_new_int(-1);
+    }
+    res = pyamp_aiot_app_send_property_post(self->iot_device_handle->dm_handle, payload_str);
+    if (res < STATE_SUCCESS) {
+        amp_error(MOD_STR, "property post failed, res:-0x%04X\r\n", -res);
+        return mp_obj_new_int(res);
+    }
+
+    return mp_obj_new_int(0);
+}
+MP_DEFINE_CONST_FUN_OBJ_2(native_aiot_postProps, aiot_postProps);
+
 /* post event */
 static mp_obj_t aiot_postEvent(mp_obj_t self_in, mp_obj_t data)
 {
@@ -724,12 +741,11 @@ static mp_obj_t aiot_postEvent(mp_obj_t self_in, mp_obj_t data)
 }
 MP_DEFINE_CONST_FUN_OBJ_2(native_aiot_postEvent, aiot_postEvent);
 
-/* post props */
-static mp_obj_t aiot_postProps(mp_obj_t self_in, mp_obj_t data)
+/* post rawdata */
+static mp_obj_t aiot_postRaw(mp_obj_t self_in, mp_obj_t data)
 {
     int res = -1;
-    char *payload_str = NULL;
-    amp_debug(MOD_STR, "native_aiot_postProps is called.\r\n");
+    mp_obj_t bytearray = NULL;
 
     linksdk_device_obj_t *self = self_in;
     if (self_in == NULL) {
@@ -742,24 +758,27 @@ static mp_obj_t aiot_postProps(mp_obj_t self_in, mp_obj_t data)
         return mp_obj_new_int(-1);
     }
 
-    mp_obj_t index = mp_obj_new_str_via_qstr("params", 6);
-    payload_str = mp_obj_str_get_str(mp_obj_dict_get(data, index));
-
-    amp_debug(MOD_STR, "PostProps payload is %s\r\n", payload_str);
-
-    if (self->iot_device_handle->dm_handle == NULL) {
-        amp_error(MOD_STR, "*****dm handle is null\r\n");
+    mp_obj_t index = mp_obj_new_str_via_qstr("param", 5);
+    bytearray = mp_obj_dict_get(data, index);
+    if (!bytearray) {
+        amp_error(MOD_STR, "%s  params data type error,param data type must be bytearray\r\n", __func__);
         return mp_obj_new_int(-1);
     }
-    res = pyamp_aiot_app_send_property_post(self->iot_device_handle->dm_handle, payload_str);
+    mp_buffer_info_t bufinfo;
+    mp_get_buffer_raise(bytearray, &bufinfo, MP_BUFFER_READ);
+
+    if (self->iot_device_handle->dm_handle == NULL)
+        return mp_obj_new_int(-1);
+
+    res = aiot_app_send_rawdata_post(self->iot_device_handle->dm_handle, bufinfo.buf, bufinfo.len);
     if (res < STATE_SUCCESS) {
-        amp_error(MOD_STR, "property post failed, res:-0x%04X\r\n", -res);
+        amp_error(MOD_STR, "property post failed, res:-0x%04X.\r\n", -res);
         return mp_obj_new_int(res);
     }
 
     return mp_obj_new_int(0);
 }
-MP_DEFINE_CONST_FUN_OBJ_2(native_aiot_postProps, aiot_postProps);
+MP_DEFINE_CONST_FUN_OBJ_2(native_aiot_postRaw, aiot_postRaw);
 
 /*  onprops */
 static mp_obj_t aiot_onProps(mp_obj_t self_in, mp_obj_t data)
@@ -783,6 +802,94 @@ static mp_obj_t aiot_onService(mp_obj_t self_in, mp_obj_t data)
     return mp_obj_new_int(res);
 }
 MP_DEFINE_CONST_FUN_OBJ_2(native_aiot_onService, aiot_onService);
+
+/* get ntp time */
+static mp_obj_t hapy_get_ntp_time(mp_obj_t self_in, mp_obj_t cb)
+{
+    int res = -1;
+    linksdk_device_obj_t *self = self_in;
+    if (self_in == NULL) {
+        return mp_obj_new_int(-1);
+    }
+    iot_device_handle_t *iot_device_handle = self->iot_device_handle;
+    if (!iot_device_handle) {
+        amp_error(MOD_STR, "parameter must be handle\r\n");
+        return mp_obj_new_int(-1);
+    }
+    res = hapy_aiot_amp_ntp_service(iot_device_handle->mqtt_handle, cb);
+    if (res < STATE_SUCCESS) {
+        amp_error(MOD_STR, "device get ntp failed\r\n");
+        return mp_obj_new_int(res);
+    }
+
+    return mp_obj_new_int(0);
+}
+MP_DEFINE_CONST_FUN_OBJ_2(native_aiot_get_ntp_time, hapy_get_ntp_time);
+
+/* upload File */
+static mp_obj_t aiot_uploadFile(mp_obj_t self_in, mp_obj_t data, mp_obj_t cb)
+{
+    int ret = -1;
+
+    char *upload_id = NULL;
+    linksdk_device_obj_t *self = (linksdk_device_obj_t *)MP_OBJ_TO_PTR(self_in);
+    mp_buffer_info_t bufinfo;
+
+    // if (self_in == NULL) {
+    //     goto out;
+    // }
+
+    iot_device_handle_t *iot_device_handle = self->iot_device_handle;
+    if (!iot_device_handle) {
+        amp_error(MOD_STR, "parameter must be handle\r\n");
+        goto out;
+    }
+    char *filename = (char *)mp_obj_str_get_str(data);
+    MP_THREAD_GIL_EXIT();
+    upload_id = pyamp_aiot_upload_mqtt(iot_device_handle->mqtt_handle, filename, NULL, 0, cb);
+    MP_THREAD_GIL_ENTER();
+    if (!upload_id) {
+        amp_error(MOD_STR, "aiot upload file failed!\r\n");
+        goto out;
+    }
+    return mp_obj_new_str(upload_id, strlen(upload_id));
+out:
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_3(native_aiot_uploadFile, aiot_uploadFile);
+
+/* upload Content */
+static mp_obj_t aiot_uploadContent(size_t n_args, const mp_obj_t *args)
+{
+    int ret = -1;
+
+    char *upload_id = NULL;
+    linksdk_device_obj_t *self = (linksdk_device_obj_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_obj_t file_name = args[1];
+    mp_obj_t data = args[2];
+    mp_obj_t cb = args[3];
+    mp_buffer_info_t bufinfo;
+
+    iot_device_handle_t *iot_device_handle = self->iot_device_handle;
+    if (!iot_device_handle) {
+        amp_error(MOD_STR, "parameter must be handle\r\n");
+        goto out;
+    }
+    char *filename = (char *)mp_obj_str_get_str(file_name);
+    mp_get_buffer_raise(data, &bufinfo, MP_BUFFER_READ);
+    // printf("bufinfo len 0x%x\n", bufinfo.len);
+    MP_THREAD_GIL_EXIT();
+    upload_id = pyamp_aiot_upload_mqtt(iot_device_handle->mqtt_handle, filename, bufinfo.buf, bufinfo.len, cb);
+    MP_THREAD_GIL_ENTER();
+    if (!upload_id) {
+        amp_error(MOD_STR, "aiot upload content failed!\r\n");
+        goto out;
+    }
+    return mp_obj_new_str(upload_id, strlen(upload_id));
+out:
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(native_aiot_uploadContent, 3, aiot_uploadContent);
 
 /* publish */
 static mp_obj_t aiot_publish(mp_obj_t self_in, mp_obj_t data)
@@ -815,8 +922,9 @@ static mp_obj_t aiot_publish(mp_obj_t self_in, mp_obj_t data)
     qos = mp_obj_get_int(mp_obj_dict_get(data, index));
     amp_debug(MOD_STR, "publish topic: %s, payload: %s, payload_len is %d , qos is: %d\r\n", topic, payload,
               payload_len, qos);
-
+    MP_THREAD_GIL_EXIT();
     res = aiot_mqtt_pub(self->iot_device_handle->mqtt_handle, topic, payload, payload_len, qos);
+    MP_THREAD_GIL_ENTER();
     if (res < STATE_SUCCESS) {
         amp_error(MOD_STR, "aiot app mqtt publish failed\r\n");
         return mp_obj_new_int(res);
@@ -892,7 +1000,7 @@ static mp_obj_t aiot_subscribe(mp_obj_t self_in, mp_obj_t data)
         aiot_mqtt_sub(self->iot_device_handle->mqtt_handle, topic, subcribe_cb, (uint8_t)qos, self->iot_device_handle);
     if (res < STATE_SUCCESS) {
         amp_error(MOD_STR, "aiot app mqtt subscribe failed\r\n");
-       return mp_obj_new_int(res);
+        return mp_obj_new_int(res);
     } else {
         amp_info(MOD_STR, "subcribe topic: %s  succeed\r\n", topic);
     }
@@ -941,68 +1049,7 @@ out:
 }
 MP_DEFINE_CONST_FUN_OBJ_1(native_aiot_device_close, aiot_device_close);
 
-STATIC mp_obj_t aiot_register_cb(mp_obj_t self_in, mp_obj_t id, mp_obj_t func)
-{
-    int callback_id = mp_obj_get_int(id);
-
-    linksdk_device_obj_t *self = self_in;
-    if (self == NULL) {
-        return mp_obj_new_int(-1);
-    }
-    if (self->iot_device_handle->callback == NULL) {
-        return mp_obj_new_int(-1);
-    }
-    self->iot_device_handle->callback[callback_id] = func;
-    return mp_obj_new_int(0);
-}
-MP_DEFINE_CONST_FUN_OBJ_3(native_aiot_register_cb, aiot_register_cb);
-
-/* dynmic register */
-static mp_obj_t aiot_dynreg(mp_obj_t self_in, mp_obj_t data, mp_obj_t cb)
-{
-    int ret = -1;
-    char *productKey = NULL;
-    char *deviceName = NULL;
-    char *productSecret = NULL;
-    linksdk_device_obj_t *self = self_in;
-    if (self_in == NULL) {
-        mp_raise_OSError(ENOENT);
-        return mp_obj_new_int(ret);
-    }
-
-    if (!mp_obj_is_dict_or_ordereddict(data)) {
-        amp_error(MOD_STR, "%s  param1 type error,param type must be dict\r\n", __func__);
-        return mp_obj_new_int(-1);
-    }
-
-    mp_obj_t index = mp_obj_new_str_via_qstr("productKey", 10);
-    productKey = mp_obj_str_get_str(mp_obj_dict_get(data, index));
-
-    index = mp_obj_new_str_via_qstr("productSecret", 13);
-    productSecret = mp_obj_str_get_str(mp_obj_dict_get(data, index));
-
-    index = mp_obj_new_str_via_qstr("deviceName", 10);
-    deviceName = mp_obj_str_get_str(mp_obj_dict_get(data, index));
-
-    amp_debug(MOD_STR, "productKey: %s\r\n", productKey);
-    amp_debug(MOD_STR, "productSecret: %s\r\n", productSecret);
-    amp_debug(MOD_STR, "deviceName: %s\r\n", deviceName);
-
-    aos_kv_set(AMP_CUSTOMER_PRODUCTKEY, productKey, IOTX_PRODUCT_KEY_LEN, 1);
-    aos_kv_set(AMP_CUSTOMER_DEVICENAME, deviceName, IOTX_DEVICE_NAME_LEN, 1);
-    aos_kv_set(AMP_CUSTOMER_PRODUCTSECRET, productSecret, IOTX_PRODUCT_SECRET_LEN, 1);
-
-    ret = pyamp_aiot_dynreg_http(cb);
-    if (ret < STATE_SUCCESS) {
-        amp_debug(MOD_STR, "device dynmic register failed\r\n");
-        return mp_obj_new_int(ret);
-    }
-
-    return mp_obj_new_int(0);
-}
-MP_DEFINE_CONST_FUN_OBJ_3(native_aiot_dynreg, aiot_dynreg);
-
-/* dynmic register */
+/* get device handle */
 static mp_obj_t get_device_handle(mp_obj_t self_in)
 {
     int res = -1;
@@ -1022,33 +1069,51 @@ out:
 }
 MP_DEFINE_CONST_FUN_OBJ_1(native_aiot_get_device_handle, get_device_handle);
 
-/* dynmic register */
-static mp_obj_t hapy_get_ntp_time(mp_obj_t self_in, mp_obj_t cb)
+/* get device info */
+static mp_obj_t aiot_getDeviceInfo(mp_obj_t self_in)
 {
     int res = -1;
-    linksdk_device_obj_t *self = self_in;
     if (self_in == NULL) {
-        return mp_obj_new_int(-1);
+        goto out;
     }
-    iot_device_handle_t *iot_device_handle = self->iot_device_handle;
-    if (!iot_device_handle) {
-        amp_error(MOD_STR, "parameter must be handle\r\n");
-        return mp_obj_new_int(-1);
-    }
-    res = hapy_aiot_amp_ntp_service(iot_device_handle->mqtt_handle, cb);
-    if (res < STATE_SUCCESS) {
-        amp_error(MOD_STR, "device dynmic register failed\r\n");
-        return mp_obj_new_int(res);
-    }
+    /* get device tripple info */
+    char productKey[IOTX_PRODUCT_KEY_LEN] = { 0 };
+    char productSecret[IOTX_PRODUCT_SECRET_LEN] = { 0 };
+    char deviceName[IOTX_DEVICE_NAME_LEN] = { 0 };
+    char deviceSecret[IOTX_DEVICE_SECRET_LEN] = { 0 };
 
-    return mp_obj_new_int(0);
+    int productKeyLen = IOTX_PRODUCT_KEY_LEN;
+    int productSecretLen = IOTX_PRODUCT_SECRET_LEN;
+    int deviceNameLen = IOTX_DEVICE_NAME_LEN;
+    int deviceSecretLen = IOTX_DEVICE_SECRET_LEN;
+
+    aos_kv_get(AMP_CUSTOMER_PRODUCTKEY, productKey, &productKeyLen);
+    aos_kv_get(AMP_CUSTOMER_PRODUCTSECRET, productSecret, &productSecretLen);
+    aos_kv_get(AMP_CUSTOMER_DEVICENAME, deviceName, &deviceNameLen);
+    aos_kv_get(AMP_CUSTOMER_DEVICESECRET, deviceSecret, &deviceSecretLen);
+    // dict solution
+    mp_obj_t aiot_deviceinfo_dict = mp_obj_new_dict(4);
+    mp_obj_dict_store(aiot_deviceinfo_dict, MP_OBJ_NEW_QSTR(qstr_from_str("productKey")),
+                        mp_obj_new_str(productKey, strlen(productKey)));
+    mp_obj_dict_store(aiot_deviceinfo_dict, MP_OBJ_NEW_QSTR(qstr_from_str("productSecret")),
+                        mp_obj_new_str(productSecret, strlen(productSecret)));
+    mp_obj_dict_store(aiot_deviceinfo_dict, MP_OBJ_NEW_QSTR(qstr_from_str("deviceName")),
+                        mp_obj_new_str(deviceName, strlen(deviceName)));
+    mp_obj_dict_store(aiot_deviceinfo_dict, MP_OBJ_NEW_QSTR(qstr_from_str("deviceSecret")),
+                        mp_obj_new_str(deviceSecret, strlen(deviceSecret)));
+    return aiot_deviceinfo_dict;
+out:
+    return mp_obj_new_int((mp_int_t)0);
 }
-MP_DEFINE_CONST_FUN_OBJ_2(native_aiot_get_ntp_time, hapy_get_ntp_time);
+MP_DEFINE_CONST_FUN_OBJ_1(native_aiot_getDeviceInfo, aiot_getDeviceInfo);
 
 STATIC const mp_rom_map_elem_t linkkit_device_locals_dict_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR_on), MP_ROM_PTR(&native_aiot_register_cb) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_connect), MP_ROM_PTR(&native_aiot_create_device) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_getDeviceHandle), MP_ROM_PTR(&native_aiot_get_device_handle) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_getDeviceInfo), MP_ROM_PTR(&native_aiot_getDeviceInfo) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_uploadFile), MP_ROM_PTR(&native_aiot_uploadFile) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_uploadContent), MP_ROM_PTR(&native_aiot_uploadContent) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_register), MP_ROM_PTR(&native_aiot_dynreg) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_subscribe), MP_ROM_PTR(&native_aiot_subscribe) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_unsubscribe), MP_ROM_PTR(&native_aiot_unsubscribe) },
@@ -1070,17 +1135,20 @@ STATIC const mp_rom_map_elem_t linkkit_device_locals_dict_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR_ON_SUBCRIBE), MP_ROM_INT(ON_SUBCRIBE) },
 
 };
-
 STATIC MP_DEFINE_CONST_DICT(linksdk_device_locals_dict, linkkit_device_locals_dict_table);
 
 STATIC void linksdk_device_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind)
 {
+    linksdk_device_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    mp_printf(print, "aiot_device");
 }
 
 STATIC mp_obj_t linksdk_device_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args)
 {
     if (linksdk_device_is_inited == true) {
-        amp_error(MOD_STR, "linksdk_device is limited to one instance running at a time, pls check it\r\n");
+        amp_error(MOD_STR,
+                  "linksdk_device is limited to one instance running at a "
+                  "time, pls check it\r\n");
         return MP_OBJ_NULL;
     }
     linksdk_device_is_inited = true;
@@ -1104,7 +1172,6 @@ STATIC mp_obj_t linksdk_device_make_new(const mp_obj_type_t *type, size_t n_args
 
     device_obj->iot_device_handle = iot_device_handle;
     device_obj->base.type = &linksdk_device_type;
-
 
     return MP_OBJ_FROM_PTR(device_obj);
 }

@@ -42,6 +42,7 @@ source_file:
   - src/iobox/mv.c ? <CLI_IOBOX_ENABLE>
   - src/iobox/rm.c ? <CLI_IOBOX_ENABLE>
   - src/iobox/touch.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/truncate.c ? <CLI_IOBOX_ENABLE>
   - src/iobox/pwd.c ? <CLI_IOBOX_ENABLE>
   - src/iobox/hexdump.c ? <CLI_IOBOX_ENABLE>
   - src/iobox/path_helper.c ? <CLI_IOBOX_ENABLE>

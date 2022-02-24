@@ -7,6 +7,7 @@
 #include "aiot_state_api.h"
 #include "aiot_sysdep_api.h"
 #include "module_aiot.h"
+#include "py/runtime.h"
 #include "py_defines.h"
 
 #define MOD_STR "AIOT_NTP"
@@ -31,21 +32,17 @@ static void aiot_device_ntp_notify(void *pdata)
 {
     hapy_aiot_ntp_notify_param_t *param = (hapy_aiot_ntp_notify_param_t *)pdata;
 
-    mp_obj_t dict;
-    dict = mp_obj_new_dict(8);
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("year", 4), mp_obj_new_int(param->year));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("month", 5), mp_obj_new_int(param->month));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("day", 3), mp_obj_new_int(param->day));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("hour", 4), mp_obj_new_int(param->hour));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("minute", 6), mp_obj_new_int(param->minute));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("second", 6), mp_obj_new_int(param->second));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("msecond", 7), mp_obj_new_int(param->msecond));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("timestamp", 9), mp_obj_new_int(param->timestamp));
-    if (param->cb != MP_OBJ_NULL && mp_obj_is_fun(param->cb)) {
-        callback_to_python(param->cb, dict);
-    } else {
-        amp_warn(MOD_STR, "param->cb is not function");
-    }
+    mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
+    make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_INT, param->year, NULL, "year");
+    make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_INT, param->month, NULL, "month");
+    make_carg_entry(carg, 2, MP_SCHED_ENTRY_TYPE_INT, param->day, NULL, "day");
+    make_carg_entry(carg, 3, MP_SCHED_ENTRY_TYPE_INT, param->hour, NULL, "hour");
+    make_carg_entry(carg, 4, MP_SCHED_ENTRY_TYPE_INT, param->minute, NULL, "minute");
+    make_carg_entry(carg, 5, MP_SCHED_ENTRY_TYPE_INT, param->second, NULL, "second");
+    make_carg_entry(carg, 6, MP_SCHED_ENTRY_TYPE_INT, param->msecond, NULL, "msecond");
+    make_carg_entry(carg, 7, MP_SCHED_ENTRY_TYPE_INT, param->timestamp / 1000, NULL, "timestamp");
+    callback_to_python_LoBo(param->cb, mp_const_none, carg);
+
     aos_free(param);
 }
 
@@ -58,7 +55,9 @@ static void aiot_app_ntp_recv_handler(void *handle, const aiot_ntp_recv_t *packe
     switch (packet->type) {
     case AIOT_NTPRECV_LOCAL_TIME:
         /* print topic name and topic message */
-        amp_debug(MOD_STR, "year: %d, month: %d, day: %d, hour: %d, min: %d, sec: %d, msec: %d, timestamp: %d",
+        amp_debug(MOD_STR,
+                  "year: %d, month: %d, day: %d, hour: %d, min: %d, sec: %d, "
+                  "msec: %d, timestamp: %d",
                   packet->data.local_time.year, packet->data.local_time.mon, packet->data.local_time.day,
                   packet->data.local_time.hour, packet->data.local_time.min, packet->data.local_time.sec,
                   packet->data.local_time.msec, packet->data.local_time.timestamp);

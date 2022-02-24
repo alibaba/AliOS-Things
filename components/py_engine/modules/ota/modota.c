@@ -47,21 +47,16 @@ typedef enum {
     ON_UPGRADE = 4,
 } ota_cb_func_t;
 
-static mp_obj_t ota_on_trigger;
-static mp_obj_t ota_on_download;
-static mp_obj_t ota_on_verify;
-static mp_obj_t ota_on_upgrade;
+static mp_obj_t ota_on_trigger = MP_OBJ_NULL;
+static mp_obj_t ota_on_download = MP_OBJ_NULL;
+static mp_obj_t ota_on_verify = MP_OBJ_NULL;
+static mp_obj_t ota_on_upgrade = MP_OBJ_NULL;
 
 static void ota_install_notify(void *pdata)
 {
     ota_package_info_t *ota_package_info = (ota_package_info_t *)pdata;
 
-    if (mp_obj_is_fun(ota_on_upgrade)) {
-        callback_to_python(ota_on_upgrade,
-                           mp_obj_new_int(ota_package_info->res));
-    } else {
-        amp_error(MOD_STR, "ota_on_trigger is not function");
-    }
+    callback_to_python_LoBo(ota_on_upgrade, MP_OBJ_NEW_SMALL_INT(ota_package_info->res), NULL);
 
     aos_free(ota_package_info);
 }
@@ -147,12 +142,7 @@ static void ota_verify_notify(void *pdata)
 {
     ota_package_info_t *ota_package_info = (ota_package_info_t *)pdata;
 
-    if (mp_obj_is_fun(ota_on_verify)) {
-        callback_to_python(ota_on_verify,
-                           mp_obj_new_int(ota_package_info->res));
-    } else {
-        amp_error(MOD_STR, "ota_on_verify is not function");
-    }
+    callback_to_python_LoBo(ota_on_verify, MP_OBJ_NEW_SMALL_INT(ota_package_info->res), NULL);
 
     aos_free(ota_package_info);
 }
@@ -249,12 +239,7 @@ static void ota_download_notify(void *pdata)
 {
     ota_package_info_t *ota_package_info = (ota_package_info_t *)pdata;
 
-    if (mp_obj_is_fun(ota_on_download)) {
-        callback_to_python(ota_on_download,
-                           mp_obj_new_int(ota_package_info->res));
-    } else {
-        amp_error(MOD_STR, "ota_on_download is not function");
-    }
+    callback_to_python_LoBo(ota_on_download, MP_OBJ_NEW_SMALL_INT(ota_package_info->res), NULL);
 
     aos_free(ota_package_info);
 }
@@ -372,22 +357,6 @@ static void ota_trigger_notify(void *pdata)
 {
     ota_package_info_t *ota_package_info = (ota_package_info_t *)pdata;
 
-    mp_obj_t dict = mp_obj_new_dict(4);
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("length", 6),
-                      mp_obj_new_int(ota_package_info->length));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("module_name", 11),
-                      mp_obj_new_str(ota_package_info->module_name,
-                                     strlen(ota_package_info->module_name)));
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("version", 7),
-                      mp_obj_new_str(ota_package_info->version,
-                                     strlen(ota_package_info->version)));
-    mp_obj_dict_store(
-        MP_OBJ_FROM_PTR(dict), mp_obj_new_str("url", 3),
-        mp_obj_new_str(ota_package_info->url, strlen(ota_package_info->url)));
-    mp_obj_dict_store(
-        MP_OBJ_FROM_PTR(dict), mp_obj_new_str("hash", 4),
-        mp_obj_new_str(ota_package_info->hash, strlen(ota_package_info->hash)));
-
     const char *hash_type = NULL;
     if (ota_package_info->hash_type == 0) {
         hash_type = "null";
@@ -398,19 +367,16 @@ static void ota_trigger_notify(void *pdata)
     } else {
         hash_type = "sha512";
     }
-    mp_obj_dict_store(MP_OBJ_FROM_PTR(dict), mp_obj_new_str("hash_type", 9),
-                      mp_obj_new_str(hash_type, strlen(hash_type)));
 
-    amp_debug(MOD_STR, "module_name is %s  ; length is %d",
-              ota_package_info->module_name,
-              strlen(ota_package_info->module_name));
-    amp_debug(MOD_STR, "version is %s ;  length is %d",
-              ota_package_info->version, strlen(ota_package_info->version));
-    if (mp_obj_is_fun(ota_on_trigger)) {
-        callback_to_python(ota_on_trigger, dict);
-    } else {
-        amp_error(MOD_STR, "ota_on_trigger is not function");
-    }
+    mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
+    make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_INT, ota_package_info->length, NULL, "length");
+    make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_STR, strlen(ota_package_info->module_name), ota_package_info->module_name, "module_name");
+    make_carg_entry(carg, 2, MP_SCHED_ENTRY_TYPE_STR, strlen(ota_package_info->version), ota_package_info->version, "version");
+    make_carg_entry(carg, 3, MP_SCHED_ENTRY_TYPE_STR, strlen(ota_package_info->url), ota_package_info->url, "url");
+    make_carg_entry(carg, 4, MP_SCHED_ENTRY_TYPE_STR, strlen(ota_package_info->hash), ota_package_info->hash, "hash");
+    make_carg_entry(carg, 5, MP_SCHED_ENTRY_TYPE_STR, strlen(hash_type), hash_type, "hash_type");
+
+    callback_to_python_LoBo(ota_on_trigger, mp_const_none, carg);
 
     aos_free(ota_package_info);
 }

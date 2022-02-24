@@ -1,6 +1,6 @@
 # ESP32 快速开始
 &emsp;&emsp;
-ESP32是开源世界中被开发者普遍使用的开发板，在ESP32中同样可以使用Python语言基于HaaS开发框架进行轻应用开发。前提是ESP32设备中有烧录HaaS开发团队发布的ESP32 HaaS Python标准固件。
+ESP32是开源世界中被开发者普遍使用的开发板，在ESP32设备上同样可以使用Python语言基于HaaS开发框架进行轻应用开发。前提是ESP32设备中有烧录HaaS开发团队发布的ESP32 HaaS Python标准固件。
 
 &emsp;&emsp;
 本文则主要介绍如何烧录ESP32 HaaS标准固件并在此基础上完成helloworld Python程序的运行。
@@ -10,18 +10,32 @@ ESP32是开源世界中被开发者普遍使用的开发板，在ESP32中同样�
 &emsp;&emsp;
 请通过下面固件列表链接下载开发板对应的固件压缩包并解压，解压完成后可以看到其目录结构如下：
 ```
-├── HaaSPython-esp32-{board}-{xxx}.bin   # HaaS官方固件，{board}为开发版型号，{xxx}为版本号
+├── HaaSPython-ESP32-{xxx}.bin   # HaaS官方固件，{xxx}为版本号
 ```
-
 &emsp;&emsp;
-### ESP32 NodeMCU固件列表
-* [ESP32-NodeMCU最新固件](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-esp32-nodemcu32s.zip)
+### HaaS Python ESP32标准固件列表
+* [HaaSPython-ESP32-v1.0.1](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP32-v1.0.1.zip)
+  <details>
+  <summary>版本更新说明（2021-01-13）</summary>
 
-&emsp;&emsp;
-历史版本：
-* [ESP32-NodeMCU-V0.1.3](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-esp32-nodemcu32s-v0.1.3.bin.zip)
+  * 动态生成QSTR功能
+  * UART增加on/any函数
+  * aliyunIoT修复内存泄漏及postProp返回值问题
+  * 修复部分BUG
 
-* [ESP32-NodeMCU-V0.1.2](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-esp32-nodemcu32s-v0.1.2.zip)
+* [HaaSPython-ESP32-v1.0.0](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP32-v1.0.0.zip)
+
+  <details>
+  <summary>版本更新说明（2021-12-30）</summary>
+
+  * 新增ESP32开发板NodeMCU-32支持
+  * 新增HaaS小程序，方便快速体验数据上云功能
+  * 升级HaaS Studio - 精简IDE开发流程，支持固件一键烧写
+  * 兼容MicroPython v1.17
+  * 支持快速连接阿里云物联网云平台（aliyunIoT），支持设备模式和网关模式
+  * 扩展Driver、KV、http、BLE配网、OTA和Modbus等功能
+  * 优化ESP32 IDF内存分配机制
+  </details>
 
 ## PC环境准备
 &emsp;&emsp;
@@ -94,11 +108,11 @@ zsh: no matches found: /dev/tty.usb*
 
 # 接入ESP32之后
 (base) ➜  ~ ls /dev/tty.usb*
-/dev/tty.usbserial-0001
+/dev/tty.usbserial-1410
 ```
 
 &emsp;&emsp;
-其中接入ESP32之后新出现的"/dev/tty.usbserial-0001"即为ESP32所对应的串口。
+其中接入ESP32之后新出现的"/dev/tty.usbserial-1410"即为ESP32所对应的串口。
 > 注意：每台PC的串口可能都不一样，上面只是笔者电脑上面的串口信息。
 <br>
 
@@ -110,7 +124,7 @@ zsh: no matches found: /dev/tty.usb*
 <div align="center">
 <img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_固件烧录.png width=75%/>
 </div>
-2. 选择好ESP32对应的“串口名字”和固件所在路径（上面“ESP32 HaaS固件下载”步骤中解压出来的名为HaaSPython-esp32-{board}-{xxx}.bin的文件）之后点击“开始烧录”按钮，HaaS Studio便会将此固件烧录到开发板中，如下图所示。
+2. 选择好ESP32对应的“串口名字”和固件所在路径（上面“ESP32 HaaS固件下载”步骤中解压出来的名为HaaSPython-ESP32-{xxx}.bin的文件）之后点击“开始烧录”按钮，HaaS Studio便会将此固件烧录到开发板中，如下图所示。
 
 > 下图中是笔者电脑中的串口好和固件名称，请读者按照根据串口和固件实际路径进行选择。
 
@@ -121,10 +135,10 @@ zsh: no matches found: /dev/tty.usb*
 </div>
 
 &emsp;&emsp;
-烧录过程中命令行窗口会输出如下日志，烧录完成，中断日志中会提示"Hash of data verified."。
+烧录过程中命令行窗口会输出如下日志，烧录完成，终端日志中会提示"Hash of data verified."。
 
 ```
-Serial port /dev/cu.usbserial-0001
+Serial port /dev/tty.usbserial-1410
 Connecting.......
 Detecting chip type... Unsupported detection protocol, switching and trying again...
 Connecting....
@@ -157,6 +171,20 @@ Hard resetting via RTS pin...
 
 &emsp;&emsp;
 经过上面的步骤HaaS Python ESP32固件就烧录到ESP32开发板中去了。
+
+### 固件版本确认
+&emsp;&emsp;
+固件烧录完成后，如何确认固件真的有更新到硬件中呢？可以通过如下的方法确认：
+
+&emsp;&emsp;
+通过串口工具打开ESP32开发板（注意波特率选择115200），此时敲击回车会出现“>>>”符号，">>>"代表已经进入到Python的REPL模式中。在REPL模式中输入“import uos; uos.version_info()”指令回车执行，HaaS Python则会将版本号信息输出到串口中。如下图所示，其版本信息遵循“HaaSPython-ESP32-\<version>-\<buildtime>”的格式，其中：
+* \<version\>：代表HaaS Python版本号。
+* \<buildtime\>：代表固件编译时间。
+> MACOS建议使用picocom串口工具；Windows系统推荐使用Putty串口工具。
+
+<div align="center">
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/HaaSPython_版本号确认.png width=80%/>
+</div>
 
 ## ESP32 helloworld例程
 
@@ -196,7 +224,7 @@ Hard resetting via RTS pin...
 
 &emsp;&emsp;
 &emsp;&emsp;
-点击HaaS-Studio的“部署运行”按钮（<img src=./../images/1_HaaS_Studio_部署运行.png width=5%/>），HaaS-Studio会将脚本推送到开发板上。
+点击HaaS-Studio的“部署运行”按钮（<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_部署运行.png width=5%/>），HaaS-Studio会将脚本推送到开发板上。
 
 &emsp;&emsp;
 脚本推送完成后，VS Code的命令行窗口会有如下提示：

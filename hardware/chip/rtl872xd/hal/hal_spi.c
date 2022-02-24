@@ -91,12 +91,12 @@ int32_t hal_spi_init(spi_dev_t *spi)
 	spi_b.spi_idx = MBED_SPI1;
 
 
-	if(spi->config.mode == HAL_SPI_MODE_MASTER)
+	if(spi->config.role == HAL_SPI_MODE_MASTER)
 		spi_slave = 0;
-	else if(spi->config.mode == HAL_SPI_MODE_SLAVE)
+	else if(spi->config.role == HAL_SPI_MODE_SLAVE)
 		spi_slave = 1;
 	else
-		printf("ERROR: SPI Config Mode Set ERROR = %d", spi->config.mode);
+		printf("ERROR: SPI Config Role Set ERROR = %d", spi->config.role);
 
 	spi_init(spi_dev[port].dev, spi_dev[port].spi_mosi, 
 			spi_dev[port].spi_miso,
@@ -111,12 +111,12 @@ int32_t hal_spi_send(spi_dev_t *spi, const uint8_t *data, uint16_t size, uint32_
         int spi_slave;
 	int port = spi->port;
 
-        if(spi->config.mode == HAL_SPI_MODE_MASTER)
+        if(spi->config.role == HAL_SPI_MODE_MASTER)
                 spi_slave = 0;
-        else if(spi->config.mode == HAL_SPI_MODE_SLAVE)
+        else if(spi->config.role == HAL_SPI_MODE_SLAVE)
                 spi_slave = 1;
         else
-                printf("ERROR: SPI Config Mode Set ERROR = %d", spi->config.mode);
+                printf("ERROR: SPI Config Role Set ERROR = %d", spi->config.role);
 
 	if(spi_slave){
                 spi_irq_hook(spi_dev[port].dev,(spi_irq_handler) Slave_tr_done_callback, (uint32_t)spi_dev[port].dev);
@@ -145,12 +145,12 @@ int32_t hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t time
         int spi_slave;
 	int port = spi->port;
 
-        if(spi->config.mode == HAL_SPI_MODE_MASTER)
+        if(spi->config.role == HAL_SPI_MODE_MASTER)
                 spi_slave = 0;
-        else if(spi->config.mode == HAL_SPI_MODE_SLAVE)
+        else if(spi->config.role == HAL_SPI_MODE_SLAVE)
                 spi_slave = 1;
         else
-                printf("ERROR: SPI Config Mode Set ERROR = %d", spi->config.mode);
+                printf("ERROR: SPI Config Role Set ERROR = %d", spi->config.role);
 
         if(spi_slave){
                 spi_irq_hook(spi_dev[port].dev,(spi_irq_handler) Slave_tr_done_callback, (uint32_t)spi_dev[port].dev);
@@ -178,25 +178,29 @@ int32_t hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t time
 int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint8_t *rx_data,
                           uint16_t size, uint32_t timeout)
 {
-        int spi_slave = 0;
-	int port = spi->port;
+    int ret;
+    int spi_slave = 0;
+    int port = spi->port;
 
-        if(spi->config.mode != HAL_SPI_MODE_MASTER)
-                printf("ERROR: Only support SPI Master Mode Send and RECV \n\r");
+    if (spi->config.role != HAL_SPI_MODE_MASTER) {
+        printf("ERROR: Only support SPI Master Role Send and RECV \n\r");
+        return -1;
+    }
 
-        spi_irq_hook(spi_dev[port].dev,(spi_irq_handler) Master_tr_done_callback, (uint32_t)spi_dev[port].dev);
-	spi_master_write_read_stream(spi_dev[port].dev, tx_data, rx_data, size);
-        aos_sem_wait(&master_rx_down_sema, timeout);
+    spi_irq_hook(spi_dev[port].dev,(spi_irq_handler) Master_tr_done_callback, (uint32_t)spi_dev[port].dev);
+    ret = spi_master_write_read_stream(spi_dev[port].dev, tx_data, rx_data, size);
+    aos_sem_wait(&master_rx_down_sema, timeout);
+    return ret;
 }
 
 int32_t hal_spi_finalize(spi_dev_t *spi)
 {
-	spi_free(spi_dev[spi->port].dev);
-	aos_sem_free(&slave_tx_down_sema);
-        aos_sem_free(&slave_rx_down_sema);
-        aos_sem_free(&master_tx_down_sema);
-        aos_sem_free(&master_rx_down_sema);
-
+    spi_free(spi_dev[spi->port].dev);
+    aos_sem_free(&slave_tx_down_sema);
+    aos_sem_free(&slave_rx_down_sema);
+    aos_sem_free(&master_tx_down_sema);
+    aos_sem_free(&master_rx_down_sema);
+    return 0;
 }
 
 

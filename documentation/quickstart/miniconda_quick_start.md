@@ -44,7 +44,7 @@ install_miniconda.bat
 
 ```shell
 conda create -y -n tool_env && conda activate tool_env && conda install -y pip \
-    && pip install -i http://11.238.148.46:9002/ --trusted-host 11.238.148.46 -U aos-tools \
+    && pip install -U aos-tools \
     && conda install -y git \
     && curl https://mirrors.tuna.tsinghua.edu.cn/git/git-repo -o repo && chmod +x repo \
     && mv repo $(dirname $(which python))/
@@ -100,7 +100,7 @@ yaml语法请参考：[https://www.runoob.com/w3cnote/yaml-intro.html](https://w
 haas100上电，连接usb线。如果无法识别串口的，请安装[驱动](https://cn.silabs.com/developers/usb-to-uart-bridge-vcp-drivers)。
 ```shell
 cd solutions/helloworld_demo
-aos burn
+aos burn -b haas100
 ```
 选择烧录用的串口。如果烧录失败，可尝试换另一个CP2102N的串口试下。
 ![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2021/png/57453/1615536230465-d44c77a0-9a9a-4e04-8086-256af14319a3.png#crop=0&crop=0&crop=1&crop=1&height=139&id=RGjGD&margin=%5Bobject%20Object%5D&name=image.png&originHeight=277&originWidth=1552&originalType=binary&ratio=1&rotation=0&showTitle=false&size=136233&status=done&style=none&title=&width=776)

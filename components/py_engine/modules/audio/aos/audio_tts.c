@@ -34,9 +34,9 @@
 
 extern const mp_obj_type_t uvoice_tts_type;
 
-static mp_obj_t callback_url = mp_const_none;
-static mp_obj_t callback_data = mp_const_none;
-static mp_obj_t callback_event = mp_const_none;
+static mp_obj_t callback_url = MP_OBJ_NULL;
+static mp_obj_t callback_data = MP_OBJ_NULL;
+static mp_obj_t callback_event = MP_OBJ_NULL;
 
 // this is the actual C-structure for our new object
 typedef struct {
@@ -71,32 +71,26 @@ STATIC mp_obj_t uvoice_tts_new(const mp_obj_type_t *type, size_t n_args, size_t 
 
 STATIC mp_int_t alicoud_tts_event(tts_event_e event, char *info)
 {
-    if (callback_event != mp_const_none) {
-        mp_obj_t event_dict = mp_obj_new_dict(2);
-        mp_obj_dict_store(event_dict, MP_OBJ_NEW_QSTR(qstr_from_str("event")), mp_obj_new_int(event));
-        mp_obj_dict_store(event_dict, MP_OBJ_NEW_QSTR(qstr_from_str("info")), mp_obj_new_strn(info));
-
-        callback_to_python(callback_event, event_dict);
-    }
+    mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
+    make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_INT, event, NULL, "event");
+    make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_STR, info, info, "info");
+    callback_to_python_LoBo(callback_event, mp_const_none, carg);
 }
 
 STATIC mp_int_t alicloud_tts_recv_data(uint8_t *buffer, mp_int_t nbytes, mp_int_t index)
 {
-    if (callback_data != mp_const_none) {
-        mp_obj_t data_dict = mp_obj_new_dict(3);
-        mp_obj_dict_store(data_dict, MP_OBJ_NEW_QSTR(qstr_from_str("buffer")), mp_obj_new_bytes(buffer, nbytes));
-        mp_obj_dict_store(data_dict, MP_OBJ_NEW_QSTR(qstr_from_str("nbytes")), mp_obj_new_int(nbytes));
-        mp_obj_dict_store(data_dict, MP_OBJ_NEW_QSTR(qstr_from_str("index")), mp_obj_new_int(index));
-
-        callback_to_python(callback_data, data_dict);
-    }
+    mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
+    make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_BYTES, nbytes, buffer, "buffer");
+    make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_INT, nbytes, NULL, "nbytes");
+    make_carg_entry(carg, 2, MP_SCHED_ENTRY_TYPE_INT, index, NULL, "index");
+    callback_to_python_LoBo(callback_data, mp_const_none, carg);
 }
 
 STATIC mp_int_t alicloud_tts_recv_url(char *tts_url)
 {
-    if (callback_url != mp_const_none) {
-        callback_to_python(callback_url, mp_obj_new_str(tts_url, strlen(tts_url)));
-    }
+    mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_SINGLE);
+    make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_STR, strlen(tts_url), tts_url, NULL);
+    callback_to_python_LoBo(callback_url, mp_const_none, carg);
 }
 
 STATIC mp_obj_t uvoice_tts_init(mp_obj_t self_in, mp_obj_t aicloud_type_in, mp_obj_t config_in)

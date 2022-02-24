@@ -117,7 +117,7 @@ STATIC int aiagent_python_cb(ai_result_t *result)
 {
     /*TODO, need to optimize for callback*/
     if (aiagent_obj && (aiagent_obj->callback != mp_const_none)) {
-        callback_to_python(aiagent_obj->callback, mp_const_none);
+        callback_to_python_LoBo(aiagent_obj->callback, mp_const_none, NULL);
     }
     return 0;
 }

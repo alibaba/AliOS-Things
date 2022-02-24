@@ -125,7 +125,7 @@
 #endif
 
 #ifndef RHINO_CONFIG_TICKS_PER_SECOND
-#define RHINO_CONFIG_TICKS_PER_SECOND        100
+#define RHINO_CONFIG_TICKS_PER_SECOND        1000
 #endif
 
 /* kernel intrpt config */
