@@ -28,6 +28,8 @@ CXX += -m32
 LD += -m32
 endif
 
+LV_BINDINGS_EXIT = 0
+ifeq ($(LV_BINDINGS_EXIT),1)
 # LittlevGL
 LV_BINDINGS_EXTERNAL = 1
 
@@ -85,6 +87,7 @@ $(LODEPNG_C): $(LODEPNG_DIR)/lodepng.cpp $(LODEPNG_DIR)/*
 	cp $< $@
 
 SRC_MOD += $(subst $(TOP)/,,$(LODEPNG_C) $(MP_LODEPNG_C) $(LODEPNG_MODULE))
+endif
 
 # External modules written in C.
 ifneq ($(USER_C_MODULES),)
