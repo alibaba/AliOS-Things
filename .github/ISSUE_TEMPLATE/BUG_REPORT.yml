@@ -1,0 +1,78 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug Report]: "
+labels: ["bug"]
+assignees:
+  - octocat
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details
+      description: How can we get in touch with you if we need more info?
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen?
+      placeholder: Tell us what you see!
+      value: "A bug happened!\n运行环境:\n固件版本:"
+    validations:
+      required: true
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: What version of our software are you running?
+      options:
+        - master (Default)
+        - rel_3.3.0 (Main)
+    validations:
+      required: true
+  - type: dropdown
+    id: solutions
+    attributes:
+      label: What soultions are you seeing the problem on?
+      multiple: true
+      options:
+        - amp_demo
+        - audio_demo
+        - auto_demo
+        - block_demo
+        - eduk1_demo
+        - flower_demo
+        - genie_mesh_demo
+        - haas_dev_demo
+        - helloworld_demo
+        - javascript_demo
+        - kws_demo
+        - linkit_genie_demo
+        - linksdk_demo
+        - linksdk_gateway_demo
+        - lora_p2p_demo
+        - miniapp_agent_demo
+        - ota_demo
+        - photocapture_demo
+        - py_engine_demo
+        - py_engine_esp32_demo
+        - qrcode_demo
+        - relay_demo
+        - rfid_demo
+        - tflite_micro_speech_demo
+        - ucloud_ai_demo
+        - videopreview_demo
+        - videortsp_demo
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output.
+      render: shell
