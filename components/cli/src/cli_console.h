@@ -103,7 +103,7 @@ void check_console_task_exit(void);
 
 int cli_task_set_console(void *task_handle, void *console);
 
-char *cli_task_get_console(void *task_handle);
+void *cli_task_get_console(void *task_handle);
 
 void cli_console_remove_task_list_node(cli_console *console, void *task);
 

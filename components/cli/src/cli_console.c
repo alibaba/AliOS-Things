@@ -244,7 +244,7 @@ static inline void cli_console_shared_sem_post(aos_sem_t *sem)
     aos_sem_signal(sem);
 }
 
-char *cli_task_get_console(void *task_handle)
+void *cli_task_get_console(void *task_handle)
 {
     ktask_t *task = (ktask_t *)task_handle;
     void *cli_console = NULL;

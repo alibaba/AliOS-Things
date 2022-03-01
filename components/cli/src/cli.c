@@ -75,7 +75,7 @@ extern uint32_t vfs_get_match_dev_node(const char *name, char *match_name);
 int32_t cli_va_printf(const char *fmt, va_list va);
 int32_t cli_printf(const char *fmt, ...);
 
-static inline void cli_prefix_print(void)
+void cli_prefix_print(void)
 {
 #if CLI_IOBOX_ENABLE
     char _buf[PATH_MAX] = {0};
@@ -716,7 +716,7 @@ static void cli_down_history(char *inaddr)
  *  Ctrl K               Delete to the end of the line
  *  Ctrl U               Delete the entire line
  */
-static int32_t cli_get_input(char *inbuf, uint32_t size)
+int32_t cli_get_input(char *inbuf, uint32_t size)
 {
     char c;
     uint32_t i;

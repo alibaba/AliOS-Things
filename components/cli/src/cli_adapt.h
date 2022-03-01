@@ -41,6 +41,16 @@ void cli_task_exit(void);
 int32_t cli_getchar(char *inbuf);
 
 /**
+ * @brief Output character to cli
+ *
+ * @param[out] ch the character to be outputed
+ *
+ * @return the number of the character
+ *
+ */
+int32_t cli_putchar(char ch);
+
+/**
  * @brief Put the message via uart
  *
  * @param[in] msg pointer to the message
