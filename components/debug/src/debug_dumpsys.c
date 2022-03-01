@@ -232,7 +232,7 @@ static void task_bt(char *buf, int32_t len, int32_t argc, char **argv)
             task_id = (uint32_t)strtoul(argv[1], 0, 10);
             break;
         default:
-            aos_cli_printf("task_bt <taskid>\r\n"
+            aos_cli_printf("taskbt <taskid>\r\n"
                            "taskid : task id\r\n");
             return;
     }
@@ -255,7 +255,7 @@ static void task_btn(char *buf, int32_t len, int32_t argc, char **argv)
     if (argc == 2) {
         debug_backtrace_task(argv[1], aos_cli_printf);
     } else {
-        aos_cli_printf("task_btn <taskname>\r\n");
+        aos_cli_printf("taskbtn <taskname>\r\n");
     }
 }
 
