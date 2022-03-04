@@ -1,0 +1,80 @@
+{
+    "name": "haas506",
+    "version": "1.0.0",
+    "io": {
+      "KEY1": {
+        "type": "GPIO",
+        "port": 44,
+        "dir": "irq",
+        "pull": "pullup",
+        "intMode": "rising"
+      }, 
+      "wdt": {
+        "type": "WDT",
+        "timeout": 100
+      },     
+      "led1": {
+        "type": "GPIO",
+        "port": 7,
+        "dir": "output",
+        "pull": "pulldown"
+      },
+      "led_g": {
+        "type": "GPIO",
+        "port": 32,
+        "dir": "output",
+        "pull": "pulldown"
+      },
+      "cs": {
+        "type": "GPIO",
+        "port": 15,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "rst":{
+        "type":"GPIO",
+        "port": 31,
+        "dir": "output",
+        "pull":"pullup"
+      },         
+      "SPI0": {
+        "type": "SPI",
+        "port": 0,
+        "mode": "master",
+        "freq": 2000000
+      },
+      "serial1": {
+        "type": "UART",
+        "port": 0,
+        "dataWidth": 8,
+        "baudRate": 115200,
+        "stopBits": 1,
+        "flowControl": "disable",
+        "parity": "none",
+        "timeout": 1000
+      },
+      "serial2": {
+        "type": "UART",
+        "port": 1,
+        "dataWidth": 8,
+        "baudRate": 9600,
+        "stopBits": 1,
+        "flowControl": "disable",
+        "parity": "none",
+        "timeout": 1000
+      },
+      "serial3": {
+        "type": "UART",
+        "port": 2,
+        "dataWidth": 8,
+        "baudRate": 115200,
+        "stopBits": 1,
+        "flowControl": "disable",
+        "parity": "none",
+        "timeout": 1000
+      }
+    },
+    "debugLevel": "ERROR",
+    "repl": "enable",
+    "replPort": 0
+  }
