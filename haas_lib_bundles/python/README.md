@@ -5,7 +5,9 @@
 &emsp;&emsp;
 对于初学者，我们建议您从开发板快速开始入门。
 * [ESP32快速开始](docs/startup/ESP32_startup.md)
+* [HaaS100快速开始](docs/startup/HaaS100_startup.md)
 * [HaaS EDU K1快速开始](docs/startup/HaaS_EDU_K1_startup.md)
+* [HaaS506快速开始](docs/startup/HaaS506_startup.md)
 
 &emsp;&emsp;
 快速入门完成之后，建议您进入HaaS Python官网中[趣味案例专区](https://haas.iot.aliyun.com/solution)，趣味对应的markdown文档链接如下：
@@ -28,37 +30,37 @@
 
 |库名称|库说明|超链接|
 |:-:|:-|:-:|
-|math|数学函数|[点我查看说明](docs/standard_api/math)|
-|ubinascii|二进制/ASCII转换|[点我查看说明](docs/standard_api/ubinascii)|
-|ucollections|容器|[点我查看说明](docs/standard_api/ucollections)|
-|uhashlib|散列算法|[点我查看说明](docs/standard_api/uhashlib)|
-|uio|输入/输出流|[点我查看说明](docs/standard_api/uio)|
-|ujson|JSON编解码|[点我查看说明](docs/standard_api/json)|
-|uos|基础系统操作模块|[点我查看说明](docs/standard_api/uos)|
-|usocket|socket模块|[点我查看说明](docs/standard_api/usocket)|
-|ustruct|打包和解压原始数据类型|[点我查看说明](docs/standard_api/ustruct)|
-|sys|系统相关函数|[点我查看说明](docs/standard_api/sys)|
-|utime|时间相关函数|[点我查看说明](docs/standard_api/utime)|
-|uzlib|zlib解压缩|[点我查看说明](docs/standard_api/uzlib)|
-|_thread|底层多线程|[点我查看说明](docs/standard_api/_thread)|
-|bluetooth|蓝牙BLE功能|[点我查看说明](docs/standard_api/bluetooth)|
+|math|数学函数|[点我查看说明](docs/standard_api/math.md)|
+|ubinascii|二进制/ASCII转换|[点我查看说明](docs/standard_api/ubinascii.md)|
+|ucollections|容器|[点我查看说明](docs/standard_api/ucollections.md)|
+|uhashlib|散列算法|[点我查看说明](docs/standard_api/uhashlib.md)|
+|uio|输入/输出流|[点我查看说明](docs/standard_api/uio.md)|
+|ujson|JSON编解码|[点我查看说明](docs/standard_api/json.md)|
+|uos|基础系统操作模块|[点我查看说明](docs/standard_api/uos.md)|
+|usocket|socket模块|[点我查看说明](docs/standard_api/usocket.md)|
+|ustruct|打包和解压原始数据类型|[点我查看说明](docs/standard_api/ustruct.md)|
+|sys|系统相关函数|[点我查看说明](docs/standard_api/sys.md)|
+|utime|时间相关函数|[点我查看说明](docs/standard_api/utime.md)|
+|uzlib|zlib解压缩|[点我查看说明](docs/standard_api/uzlib.md)|
+|_thread|底层多线程|[点我查看说明](docs/standard_api/_thread.md)|
+|bluetooth|蓝牙BLE功能|[点我查看说明](docs/standard_api/bluetooth.md)|
 
 * HaaS Python扩展API
 
 |库名称|库说明|超链接|
 |:-|:-|:-:|
-|aliyunIoT Device|物联网平台设备类功能|[点我查看说明](docs/haas_extended_api/aliyunIoT/device)|
-|aliyunIoT Gateway|物联网平台网关类功能|[点我查看说明](docs/haas_extended_api/aliyunIoT/gateway)|
-|kv|键值对存储系统|[点我查看说明](docs/haas_extended_api/kv)|
-|OSS|阿里云存储服务|[点我查看说明](docs/haas_extended_api/oss)|
-|audio| 音频录制和播放|[点我查看说明](docs/haas_extended_api/audio)|
-|bleNetConfig|蓝牙配网功能|[点我查看说明](docs/haas_extended_api/bleNetConfig)|
-|http|HTTP模块|[点我查看说明](docs/haas_extended_api/http)|
-|modbus|Modbus协议|[点我查看说明](docs/haas_extended_api/modbus)|
-|ulog|log分级打印模块|[点我查看说明](docs/haas_extended_api/ulog)|
-|OTA|Python轻应用在线更新|[点我查看说明](docs/haas_extended_api/ota)|
-|ucamera| 摄像头功能模块|[点我查看说明](docs/haas_extended_api/ucamera)|
-|AI|人工智能功能模块|[点我查看说明](docs/haas_extended_api/AI)|
+|aliyunIoT Device|物联网平台设备类功能|[点我查看说明](docs/haas_extended_api/aliyunIoT/device.md)|
+|aliyunIoT Gateway|物联网平台网关类功能|[点我查看说明](docs/haas_extended_api/aliyunIoT/gateway.md)|
+|kv|键值对存储系统|[点我查看说明](docs/haas_extended_api/kv.md)|
+|OSS|阿里云存储服务|[点我查看说明](docs/haas_extended_api/oss.md)|
+|audio| 音频录制和播放|[点我查看说明](docs/haas_extended_api/audio.md)|
+|bleNetConfig|蓝牙配网功能|[点我查看说明](docs/haas_extended_api/bleNetConfig.md)|
+|http|HTTP模块|[点我查看说明](docs/haas_extended_api/http.md)|
+|modbus|Modbus协议|[点我查看说明](docs/haas_extended_api/modbus.md)|
+|ulog|log分级打印模块|[点我查看说明](docs/haas_extended_api/ulog.md)|
+|OTA|Python轻应用在线更新|[点我查看说明](docs/haas_extended_api/ota.md)|
+|ucamera| 摄像头功能模块|[点我查看说明](docs/haas_extended_api/ucamera.md)|
+|AI|人工智能功能模块|[点我查看说明](docs/haas_extended_api/AI.md)|
 
 * HaaS Python硬件积木驱动库
 
