@@ -1,0 +1,78 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "haas-studio: Config",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "make",
+        "@haaseduk1",
+        "-c",
+        "config"
+      ],
+      "presentation": {
+        "focus": true
+      }
+    },
+    {
+      "label": "haas-studio: Make",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "make"
+      ],
+      "presentation": {
+        "focus": true
+      }
+    },
+    {
+      "label": "haas-studio: Burn",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "burn"
+      ],
+      "presentation": {
+        "focus": true
+      }
+    },
+    {
+      "label": "haas-studio: Serial Monitor",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "monitor",
+        "",
+        "1500000"
+      ],
+      "presentation": {
+        "focus": true,
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "haas-studio: Clean",
+      "type": "shell",
+      "command": "aos",
+      "args": [
+        "make",
+        "clean"
+      ],
+      "presentation": {
+        "focus": true
+      }
+    },
+    {
+      "label": "dummy_aos3.3.0",
+      "command": "pwd"
+    }
+  ],
+  "windows": {
+    "options": {
+      "env": {
+        "PATH": "C:\\ProgramData\\aos\\miniconda3;C:\\ProgramData\\aos\\miniconda3\\Scripts;C:\\ProgramData\\aos\\miniconda3\\Library\\bin;${env:PATH}"
+      }
+    }
+  }
+}
