@@ -1,3 +1,4 @@
+
 # 人体存在传感器
 
 
@@ -60,20 +61,25 @@
 </table>
 <br>
 
+
 ## 2.准备
+
 （1）硬件器材
 1. HaaS 506开发板一套
 2. 5.8G雷达感应传感器模块一个
 3. 连接线若干
+
 <br>
 
 
 
 （2）硬件模块接线
+
 <div align="center">
 <img src=./../../../images/haas506案例图片/haas506_雷达人体检测.jpg width=80%/>
 </div>
 <br>
+
 
 
  （3）将音频文件放置于当前工程文件夹内
@@ -135,7 +141,6 @@ no body
 no body
 no body
 detect body
+
 ......
 ```
-
-
