@@ -79,6 +79,31 @@
 
 # Release Note
 
+## 20220222
+- py_engine： 新增ESP32模组芯片支持，删除冗余的micropython-lib文件
+- oasl_aos： 修改不匹配的返回类型
+- posix： 增加ESP_IDF_VERSION以区分不同的IDF版本
+- ota： 用mbedtls_md5_starts_ret替换mbedtls_md5_starts
+- amp_adapter: 支持IDF4.4
+- nodemcu_c3: 新增ESP32-C3开发板支持
+
+## 20220119
+- py_engine: 修改python引擎程编译方式为CMake，
+- HaaS200 支持HaaS-Python 2.0标准
+
+## 20211220
+- haas1000： 解决手动重启设备无法进行烧录的问题
+- rtl872xd： 解决手动重启设备无法进行烧录的问题
+- documentation： 添加驱动开发说明
+- haas_lib_bundles_python： HaaS2.0 API说明文档、趣味案例和硬件积木驱动
+- riscv64位架构支持
+
+## 20211025
+- posix： 清理warning, 支持scandir api
+- haas1000 ,haas200, pwm组件支持 pwm的南向接口
+- 修复timer oneshot模式下reload失效问题
+- 解决在windows下编译eduk1时提示命令过长，无法生成lds文件引起的编译失败问题
+
 ## 2021-10-12
 - JavaScript轻应用：IoT-Device修复publish内存泄漏问题、优化物模型初始化流程；IoT-Gateway增加NTP时间获取功能、完善拓扑管理、子设备注册和登陆登出等API；新增以太网配网功能，支持静态IP配网；新增UDP功能；更新JS轻应用版本信息获取接口；修复setTimeout、SPI的write问题等
 - python轻应用：micropython引擎升级到V1.17；API对齐HaaS轻应用接口标准；新增BLE支持；GPIO适配层重构；封装Python视觉AI接口
