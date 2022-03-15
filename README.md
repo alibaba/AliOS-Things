@@ -79,7 +79,7 @@
 
 # Release Note
 
-## 20220222
+## 2022-02-22
 - py_engine： 新增ESP32模组芯片支持，删除冗余的micropython-lib文件
 - oasl_aos： 修改不匹配的返回类型
 - posix： 增加ESP_IDF_VERSION以区分不同的IDF版本
@@ -87,18 +87,18 @@
 - amp_adapter: 支持IDF4.4
 - nodemcu_c3: 新增ESP32-C3开发板支持
 
-## 20220119
+## 2022-01-19
 - py_engine: 修改python引擎程编译方式为CMake，
 - HaaS200 支持HaaS-Python 2.0标准
 
-## 20211220
+## 2021-12-20
 - haas1000： 解决手动重启设备无法进行烧录的问题
 - rtl872xd： 解决手动重启设备无法进行烧录的问题
 - documentation： 添加驱动开发说明
 - haas_lib_bundles_python： HaaS2.0 API说明文档、趣味案例和硬件积木驱动
 - riscv64位架构支持
 
-## 20211025
+## 2021-10-25
 - posix： 清理warning, 支持scandir api
 - haas1000 ,haas200, pwm组件支持 pwm的南向接口
 - 修复timer oneshot模式下reload失效问题
