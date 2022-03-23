@@ -53,12 +53,6 @@ build_config:
     - tools
   internal_include:
     - hal
-    - 2ndboot/include
-    - 2ndboot/updater/include
-    - 2ndboot/updater/xz/linux/lib/xz
-    - 2ndboot/updater/xz/linux/include/linux
-    - tools/xz/include
-
   libs:
 
 
