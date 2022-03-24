@@ -31,28 +31,28 @@ static uint8_t g_mqtt_recv_thread_running = 0;
 
 aiot_subdev_dev_t g_subdev[] = {
     {
-        "a13FN5TplKq",
-        "subdev_basic_demo_01",
-        "768XBgQwgOakz3K4uhOiLeeh9xjJQx6h",
-        "y7GSILD480lBSsP8"
+        "",
+        "",
+        "",
+        ""
     },
     {
-        "a13FN5TplKq",
-        "subdev_basic_demo_02",
-        "iwTZrbjbgNVChfuJkihjE5asekoyKoYv",
-        "y7GSILD480lBSsP8"
+        "",
+        "",
+        "",
+        ""
     },
     {
-        "a13FN5TplKq",
-        "subdev_basic_demo_03",
-        "fdutq35iKMYdcWWBuIINY26hsNhgFXWE",
-        "y7GSILD480lBSsP8"
+        "",
+        "",
+        "",
+        ""
     },
     {
-        "a13FN5TplKq",
-        "subdev_basic_demo_04",
-        "HCKv50YqgwdKhy5cE0Vz4aydmK2ojPvr",
-        "y7GSILD480lBSsP8"
+        "",
+        "",
+        "",
+        ""
     }
 };
 
