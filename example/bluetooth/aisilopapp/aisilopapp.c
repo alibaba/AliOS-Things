@@ -23,7 +23,7 @@ uart_dev_t uart_0;
 extern uint32_t *fetch_ali_context();
 
 
-uint8_t const m_secret[40] = "sFqTYrjneyyEUlhbZpdOwsDPmShLwMNH8ZHdqLWL";
+uint8_t const m_secret[40] = "";
 static uint8_t m_addr[BD_ADDR_LEN] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06};
 
 #define MOD "aisapp"
@@ -149,14 +149,14 @@ static void ali_lib_init(void)
     init_alink.auth_type         = ALI_AUTH_BY_PRODUCT_SECRET;
     memcpy(init_alink.bd_addr, bd_addr, BD_ADDR_LEN);
 
-    init_alink.secret_len        = strlen("gjeRzfwWcMg8Rw036OjsPEreGPDMl1wI");
-    memcpy(init_alink.secret, "gjeRzfwWcMg8Rw036OjsPEreGPDMl1wI", init_alink.secret_len);
+    init_alink.secret_len        = strlen("");
+    memcpy(init_alink.secret, "", init_alink.secret_len);
 
-    init_alink.product_key_len   = strlen("a13wpkvcQDQ");
-    memcpy(init_alink.product_key, "a13wpkvcQDQ", init_alink.product_key_len);
+    init_alink.product_key_len   = strlen("");
+    memcpy(init_alink.product_key, "", init_alink.product_key_len);
 
-    init_alink.device_key_len    = strlen("mSLKAvSYdQz5JsshCyTE");
-    memcpy(init_alink.device_key, "mSLKAvSYdQz5JsshCyTE", init_alink.device_key_len);
+    init_alink.device_key_len    = strlen("");
+    memcpy(init_alink.device_key, "", init_alink.device_key_len);
 
     memcpy(init_alink.version, SOFTWARE_VERSION, SOFTWARE_VERSION_LEN);
 
