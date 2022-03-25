@@ -6,5 +6,5 @@ release/write_flash_tool/ota_bin/
 prebuild/littlefs.bin
 aos/dsp/best2300wp_a7*
 _haas1000_alios.lds
-prebuild/data
+# prebuild/data
 .package.yaml

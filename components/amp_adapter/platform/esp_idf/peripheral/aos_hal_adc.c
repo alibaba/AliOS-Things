@@ -200,6 +200,7 @@ int32_t aos_hal_adc_voltage_value_get(adc_dev_t *adc, uint32_t *output, uint32_t
     }
 
     switch (adc_bit_width) {
+#if CONFIG_IDF_TARGET_ESP32
     case ADC_WIDTH_BIT_9:
         dmax = 511;
         break;
@@ -212,6 +213,7 @@ int32_t aos_hal_adc_voltage_value_get(adc_dev_t *adc, uint32_t *output, uint32_t
     case ADC_WIDTH_BIT_12:
         dmax = 4095;
         break;
+#endif
     default:
         dmax = 4095;
         break;

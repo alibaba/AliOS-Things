@@ -886,12 +886,13 @@ int32_t spi_master_write_stream(spi_t *obj, char *tx_buffer, uint32_t length)
   * @brief  master send & recv target length data use interrupt mode.
   * @param  obj: spi master object define in application software.
   * @param  tx_buffer: buffer to be written to Tx FIFO.
+  * @param  tx_size: number of data bytes to be send.
   * @param  rx_buffer: buffer to save data read from SPI FIFO.
-  * @param  length: number of data bytes to be send & recv.
+  * @param  rx_size: number of data bytes to be recv.
   * @retval  : stream init status
   */
-int32_t spi_master_write_read_stream(spi_t *obj, char *tx_buffer,
-        char *rx_buffer, uint32_t length)
+int32_t spi_master_write_read_stream(spi_t *obj, char *tx_buffer, uint32_t tx_size,
+        char *rx_buffer, uint32_t rx_size)
 {
 	uint8_t  spi_idx = obj->spi_idx &0x0F;
 	PHAL_SSI_ADAPTOR ssi_adapter = &ssi_adapter_g[spi_idx];
@@ -908,9 +909,9 @@ int32_t spi_master_write_read_stream(spi_t *obj, char *tx_buffer,
 
 	obj->state |= SPI_STATE_RX_BUSY;
 	/* as Master mode, sending data will receive data at sametime */
-	if ((ret = ssi_int_read(ssi_adapter, rx_buffer, length)) == _TRUE) {
+	if ((ret = ssi_int_read(ssi_adapter, rx_buffer, rx_size)) == _TRUE) {
 		obj->state |= SPI_STATE_TX_BUSY;
-		if ((ret=ssi_int_write(ssi_adapter, (u8 *) tx_buffer, length)) != _TRUE) {
+		if ((ret=ssi_int_write(ssi_adapter, (u8 *) tx_buffer, tx_size)) != _TRUE) {
 			obj->state &= ~(SPI_STATE_RX_BUSY|SPI_STATE_TX_BUSY);
 			// Disable RX IRQ
 			SSI_INTConfig(ssi_adapter->spi_dev, (BIT_IMR_RXFIM | BIT_IMR_RXOIM | BIT_IMR_RXUIM), DISABLE);

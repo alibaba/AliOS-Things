@@ -175,8 +175,8 @@ int32_t hal_spi_recv(spi_dev_t *spi, uint8_t *data, uint16_t size, uint32_t time
  *
  * @return  0, on success;  EIO : if the SPI device could not be initialised
  */
-int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint8_t *rx_data,
-                          uint16_t size, uint32_t timeout)
+int32_t hal_spi_sends_recvs(spi_dev_t *spi, uint8_t *tx_data, uint16_t tx_size,
+                        uint8_t *rx_data, uint16_t rx_size, uint32_t timeout)
 {
     int ret;
     int spi_slave = 0;
@@ -188,9 +188,15 @@ int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint8_t *rx_data,
     }
 
     spi_irq_hook(spi_dev[port].dev,(spi_irq_handler) Master_tr_done_callback, (uint32_t)spi_dev[port].dev);
-    ret = spi_master_write_read_stream(spi_dev[port].dev, tx_data, rx_data, size);
+    ret = spi_master_write_read_stream(spi_dev[port].dev, tx_data, tx_size, rx_data, rx_size);
     aos_sem_wait(&master_rx_down_sema, timeout);
     return ret;
+}
+
+int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data, uint8_t *rx_data,
+                          uint16_t size, uint32_t timeout)
+{
+    return hal_spi_sends_recvs(spi, tx_data, 1, rx_data, size, timeout);
 }
 
 int32_t hal_spi_finalize(spi_dev_t *spi)
