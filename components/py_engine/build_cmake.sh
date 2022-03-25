@@ -169,6 +169,9 @@ if [ $TARGET_PLATFORM = "HAAS" ]; then
     fi
     cp -rf libmicropython.a ${solution_dir}/aos_sdk/lib/
 
+    # 4、copy driver libs to prebuild data
+    source $comp_dir/build_lib_copy.sh $TARGET_BOARD
+
 elif [ $TARGET_PLATFORM = "ESP32" ]; then
     # ESP32 platform build
     echo "Start build ESP32 target"

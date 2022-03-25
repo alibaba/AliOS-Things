@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: rtl872xd                                      # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: master                                    # <必选项> 组件版本号
+version: rel_3.3.0                                    # <必选项> 组件版本号
 description: BSP of chip rtl872xd                           # <必选项> 建议至少20字以上
 type: chip                                          # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
@@ -16,29 +16,29 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - armv8m: master
-  - rhino: master
-  - lwip: master
-  - libc_stub: master
-  - osal_aos: master
- # - uservice: master
-  - i2c: master
-  - spi: master
-  - flash: master
-  - gpio: master
-  - uart: master
-  - pwm: master
-  - adc: master
-  # - wifi: master
-  - timer: master
-  - watchdog: master
-  - mbedtls: master
-  - csi: master
-  - cli: master
-  - debug: master
-  - uservice: master
-  - a2sa: master
-# - dm_engine: master ? <CONFIG_DM>
+  - armv8m: rel_3.3.0
+  - rhino: rel_3.3.0
+  - lwip: rel_3.3.0
+  - libc_stub: rel_3.3.0
+  - osal_aos: rel_3.3.0
+ # - uservice: rel_3.3.0
+  - i2c: rel_3.3.0
+  - spi: rel_3.3.0
+  - flash: rel_3.3.0
+  - gpio: rel_3.3.0
+  - uart: rel_3.3.0
+  - pwm: rel_3.3.0
+  - adc: rel_3.3.0
+  # - wifi: rel_3.3.0
+  - timer: rel_3.3.0
+  - watchdog: rel_3.3.0
+  - mbedtls: rel_3.3.0
+  - csi: rel_3.3.0
+  - cli: rel_3.3.0
+  - debug: rel_3.3.0
+  - uservice: rel_3.3.0
+  - a2sa: rel_3.3.0
+# - dm_engine: rel_3.3.0 ? <CONFIG_DM>
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项

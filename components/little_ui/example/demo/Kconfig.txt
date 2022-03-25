@@ -1,0 +1,29 @@
+# Kconfig for lv_demos v7.4.0
+
+menu "lv_demos configuration"
+
+    config LV_EX_PRINTF
+        bool "Enable printf-ing data in demos and examples."
+    
+    choice LV_EX_CHOICE
+        prompt "Select the demo you want to run."
+        default LV_USE_DEMO_WIDGETS
+
+        config LV_USE_DEMO_WIDGETS
+            bool "Show demo widgets."
+
+        config LV_USE_DEMO_KEYPAD_AND_ENCODER
+            bool "Demonstrate the usage of encoder and keyboard."
+
+        config LV_USE_DEMO_BENCHMARK
+            bool "Benchmark your system."
+
+        config LV_USE_DEMO_STRESS
+            bool "Stress test for LVGL."
+    endchoice
+    
+    config LV_DEMO_WIDGETS_SLIDESHOW
+        bool "Slide demo widgets automatically."
+        depends on LV_USE_DEMO_WIDGETS
+        default y
+endmenu
