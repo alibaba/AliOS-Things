@@ -155,7 +155,7 @@ int32_t spi_master_write_stream(spi_t *obj, char *tx_buffer, uint32_t length);
   * @param  length: number of data bytes to be send & recv.
   * @retval  : stream init status
   */
-int32_t spi_master_write_read_stream(spi_t *obj, char *tx_buffer, char *rx_buffer, uint32_t length);
+int32_t spi_master_write_read_stream(spi_t *obj, char *tx_buffer, uint32_t tx_size, char *rx_buffer, uint32_t rx_size);
 
 /**
   * @brief  slave recv target length data use interrupt mode and timeout mechanism.

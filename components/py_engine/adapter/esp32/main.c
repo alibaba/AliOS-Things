@@ -48,6 +48,8 @@
 #include <unistd.h>
 
 #include "board_config.h"
+#include "board_mgr.h"
+#include "cJSON.h"
 #include "esp_log.h"
 #include "esp_partition.h"
 #include "esp_system.h"
@@ -313,6 +315,76 @@ static void queue_handler_task(void *p)
     }
 }
 
+void get_logLevel(uint16_t *esp_ll, uint16_t *aos_ll)
+{
+    int32_t ret = -1;
+    int8_t logLevelStr[16] = { 0 };
+    int8_t *data_root_path = AMP_FS_ROOT_DIR "/board.json";
+    int8_t *board_json_path = NULL; /*MP_FS_ROOT_DIR "/python-apps/driver/board.json";*/
+
+    if (esp_ll == NULL || aos_ll == NULL) {
+        printf(" args null !!!!\r\n");
+        return;
+    }
+
+    FILE *json_fd = fopen(data_root_path, "r");
+    if (json_fd != NULL) {
+        fclose(json_fd);
+        board_json_path = data_root_path;
+    }
+
+    int8_t *json_buff = board_get_json_buff(board_json_path);
+    if (NULL == json_buff) {
+        goto debugLevel_kv; /* get debugLevel from kv */
+    }
+
+    cJSON *root = cJSON_Parse(json_buff);
+    if (NULL == root) {
+        goto debugLevel_kv; /* get debugLevel from kv */
+    }
+
+    cJSON *debug = cJSON_GetObjectItem(root, APP_CONFIG_DEBUG);
+    if (debug != NULL) {
+        if (!cJSON_IsString(debug)) {
+            goto debugLevel_kv;
+        } else {
+            strcpy(logLevelStr, debug->valuestring);
+            goto debugLevel_parser;
+        }
+    }
+
+debugLevel_kv:
+    if (json_buff != NULL) {
+        aos_free(json_buff);
+    }
+
+    int32_t len = sizeof(logLevelStr);
+    ret = aos_kv_get(APP_CONFIG_DEBUG, logLevelStr, &len);
+    if (ret != 0) {
+        uint8_t *set_value = "ERROR";
+        aos_kv_set(APP_CONFIG_DEBUG, set_value, strlen(set_value), 1);
+        strcpy(logLevelStr, set_value);
+    }
+
+debugLevel_parser:
+    if (strcmp(logLevelStr, "DEBUG") == 0) {
+        *esp_ll = ESP_LOG_DEBUG;
+        *aos_ll = AOS_LL_DEBUG;
+    } else if (strcmp(logLevelStr, "INFO") == 0) {
+        *esp_ll = ESP_LOG_INFO;
+        *aos_ll = AOS_LL_INFO;
+    } else if (strcmp(logLevelStr, "WARN") == 0) {
+        *esp_ll = ESP_LOG_WARN;
+        *aos_ll = AOS_LL_WARN;
+    } else if (strcmp(logLevelStr, "NONE") == 0) {
+        *esp_ll = ESP_LOG_NONE;
+        *aos_ll = AOS_LL_NONE;
+    } else {
+        *esp_ll = ESP_LOG_ERROR;
+        *aos_ll = AOS_LL_ERROR;
+    }
+}
+
 void app_main(void)
 {
     esp_err_t ret = nvs_flash_init();
@@ -328,10 +400,17 @@ void app_main(void)
     }
 #endif
 
-    ulog_init();
-
+    /* register little fs */
     littlefs_register();
 
+    /* ulog init and set log level */
+    ulog_init();
+    uint16_t esp_ll, aos_ll;
+    get_logLevel(&esp_ll, &aos_ll);
+    esp_log_level_set("*", (esp_log_level_t)esp_ll);
+    aos_set_log_level((aos_log_level_t)aos_ll);
+
+    /* create queue_handler task */
     TaskHandle_t mp_queue_task_handle;
     ret = xTaskCreatePinnedToCore(queue_handler_task, "queue_handler", 1024 * 8 / sizeof(StackType_t), NULL,
                                   ESP_TASK_PRIO_MIN + 3, &mp_queue_task_handle, MP_TASK_COREID);
@@ -340,6 +419,7 @@ void app_main(void)
         return;
     }
 
+    /* create python main task */
     ret = xTaskCreatePinnedToCore(mp_task, "mp_task", MP_TASK_STACK_SIZE / sizeof(StackType_t), NULL, MP_TASK_PRIORITY,
                                   &mp_main_task_handle, MP_TASK_COREID);
     if (ret != pdPASS) {

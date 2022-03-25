@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: py_engine
-version: master
+version: rel_3.3.0
 description: "component built by cmake"             # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
@@ -9,31 +9,31 @@ tag:                                                # <可选项> 组件分类�
 license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
 
 depends:
-  - osal_aos: master
-  - amp_adapter: master
-  - linksdk: "master ? <MICROPY_PY_ALIYUNIOT>"
-  - ulog: "master ? <MICROPY_PY_ULOG>"
-  - uagent: "master ? <PY_BUILD_UAGENT>"
-  - kv: "master ? <MICROPY_PY_KV>"
-  - mbedtls: master? <PY_MBEDTLS_ENABLE>
-  - cjson: master? <PY_BUILD_CJSON>
-  - fatfs: "master ? <PY_BUILD_FATFS>"
-  - vfs: master ? <PY_BUILD_VFS>
-  - mbmaster: "master ? <MICROPY_PY_MODBUS>"
-  - oss: "master ? <MICROPY_PY_OSS>"
-  - ucamera: "master ? <MICROPY_PY_UCAMERA>"
-  - netmgr: "master ? <PY_BUILD_NETMGR>"
-  - lwip: "master ? <PY_BUILD_LWIP>"
-  - http: "master ? <PY_BUILD_HTTP, HAAS_PLATFORM>"
-  - ucloud_ai: "master ? <MICROPY_PY_UCLOUD_AI>"
-  - ai_agent: master ? <MICROPY_PY_AIAGENT>
-  - uvoice: "master ? <MICROPY_PY_AUDIO, HAAS_PLATFORM>"
-  - a2sa: "master ? <MICROPY_PY_AUDIO, HAAS_PLATFORM>"
-  - ble_netconfig: "master ? <MICROPY_PY_BLE>"
-  - ble_host: "master ? <MICROPY_PY_BLE>"
-  - sntp: "master ? <MICROPY_PY_SNTP, HAAS_PLATFORM>"
-  - ugraphics: "master ? <PY_BUILD_UGRAPHICS>"
-  # - little_ui: "master ? <MICROPY_PY_LVGL>"
+  - osal_aos: rel_3.3.0
+  - amp_adapter: rel_3.3.0
+  - linksdk: "rel_3.3.0 ? <MICROPY_PY_ALIYUNIOT>"
+  - ulog: "rel_3.3.0 ? <MICROPY_PY_ULOG>"
+  - uagent: "rel_3.3.0 ? <PY_BUILD_UAGENT>"
+  - kv: "rel_3.3.0 ? <MICROPY_PY_KV>"
+  - mbedtls: rel_3.3.0? <PY_MBEDTLS_ENABLE>
+  - cjson: rel_3.3.0? <PY_BUILD_CJSON>
+  - fatfs: "rel_3.3.0 ? <PY_BUILD_FATFS>"
+  - vfs: rel_3.3.0 ? <PY_BUILD_VFS>
+  - mbmaster: "rel_3.3.0 ? <MICROPY_PY_MODBUS>"
+  - oss: "rel_3.3.0 ? <MICROPY_PY_OSS>"
+  - ucamera: "rel_3.3.0 ? <MICROPY_PY_UCAMERA>"
+  - netmgr: "rel_3.3.0 ? <PY_BUILD_NETMGR>"
+  - lwip: "rel_3.3.0 ? <PY_BUILD_LWIP>"
+  - http: "rel_3.3.0 ? <PY_BUILD_HTTP, HAAS_PLATFORM>"
+  - ucloud_ai: "rel_3.3.0 ? <MICROPY_PY_UCLOUD_AI>"
+  - ai_agent: rel_3.3.0 ? <MICROPY_PY_AIAGENT>
+  - uvoice: "rel_3.3.0 ? <MICROPY_PY_AUDIO, HAAS_PLATFORM>"
+  - a2sa: "rel_3.3.0 ? <MICROPY_PY_AUDIO, HAAS_PLATFORM>"
+  - ble_netconfig: "rel_3.3.0 ? <MICROPY_PY_BLE>"
+  - ble_host: "rel_3.3.0 ? <MICROPY_PY_BLE>"
+  - sntp: "rel_3.3.0 ? <MICROPY_PY_SNTP, HAAS_PLATFORM>"
+  - ugraphics: "rel_3.3.0 ? <PY_BUILD_UGRAPHICS>"
+  - little_ui: "rel_3.3.0 ? <MICROPY_PY_LVGL>"
 
 build_config:
   prebuild_script: build_cmake.sh

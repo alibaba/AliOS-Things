@@ -1,6 +1,6 @@
 ## 第一部分： 基础信息
 name: amp_adapter                                   # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: master                                    # <必选项> 组件版本号
+version: rel_3.3.0                                    # <必选项> 组件版本号
 description: HaaS轻应用适配层                        # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
@@ -19,17 +19,17 @@ license: Apache-2.0 License                        # <可选项> 源代码的许
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - osal_aos: master ? <!ESP_PLATFORM>
-  - ulog: master ? <!ESP_PLATFORM>
-  - kv: master ? <!ESP_PLATFORM>
-  - mbedtls: master ? <!ESP_PLATFORM>
-  - cjson: master ? <!ESP_PLATFORM>
-  - linksdk: master ? <!ESP_PLATFORM>
-  - ota: master ? <!ESP_PLATFORM>
-  - netmgr: master ? <!ESP_PLATFORM>
-  - littlefs: master ? <!ESP_PLATFORM>
-  - http: master ? <!ESP_PLATFORM>
-  - udisplay: master ? <!ESP_PLATFORM>
+  - osal_aos: rel_3.3.0 ? <!ESP_PLATFORM>
+  - ulog: rel_3.3.0 ? <!ESP_PLATFORM>
+  - kv: rel_3.3.0 ? <!ESP_PLATFORM>
+  - mbedtls: rel_3.3.0 ? <!ESP_PLATFORM>
+  - cjson: rel_3.3.0 ? <!ESP_PLATFORM>
+  - linksdk: rel_3.3.0 ? <!ESP_PLATFORM>
+  - ota: rel_3.3.0 ? <!ESP_PLATFORM>
+  - netmgr: rel_3.3.0 ? <!ESP_PLATFORM>
+  - littlefs: rel_3.3.0 ? <!ESP_PLATFORM>
+  - http: rel_3.3.0 ? <!ESP_PLATFORM>
+  - udisplay: rel_3.3.0 ? <!ESP_PLATFORM>
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项

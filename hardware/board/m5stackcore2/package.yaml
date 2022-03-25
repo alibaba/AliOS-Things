@@ -1,0 +1,50 @@
+
+## 第一部分： 基础信息
+name: m5stackcore2                                      # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: rel_3.3.0                                   # <必选项> 组件版本号
+description: m5stackcore2 board configure.             # <必选项> 建议至少20字以上
+type: board                                        # <必选项> 组件类型，为：solution, chip, board, common
+
+tag: 核心模块                                      # <可选项> 组件分类，缺省值： ''
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+  - espressif_esp32: rel_3.3.0
+
+board:
+  chip_name: espressif_esp32
+
+build_config:
+  libs:
+    - lvgl ? <MICROPY_PY_LVGL>
+
+def_config:
+  BOARD_M5STACKCORE2: 1
+  MICROPY_PY_OSS: 1
+  MICROPY_PY_UCLOUD_AI: 1
+  MICROPY_PY_MINICV: 1
+  MICROPY_PY_LVGL: 1
+  MICROPY_PY_AUDIO: 1
+  MICROPY_PY_SNTP: 1
+
+  # littlefs config
+  CONFIG_LITTLEFS_CNT: 1 # lfs supports up to 2 partitions, please choose 1 or 2 here
+  CONFIG_LFS_MOUNTPOINT: "" # the mount path of the lfs partition
+  CONFIG_MAX_FILES: 10 # concurrently opened files num
+  CONFIG_LFS_PROG_SIZE: 256
+  CONFIG_LFS_PAGE_NUM_PER_BLOCK: 16
+  LFS_CONFIG_DEBUG: 0
+  LFS_CONFIG_TRACE: 0
+  # CONFIG_LFS_PROG_SIZE: 1024 # the mininal programable size, usually page size for nand and any size for nor
+  #  CONFIG_LFS_PAGE_NUM_PER_BLOCK: 4 # choose the right value for nand, and usually any value for nor
+  #  CONFIG_LFS_BLOCK_NUMS: 1198 # the total block count for lfs parition
+  MICROPY_PY_UCAMERA: 1
+  MICROPY_PY_DISPLAY: 1
+  MICROPY_PY_DISPLAY_TFT: 1
+  MICROPY_PY_DISPLAY_LVGL: 1
+  CONFIG_UART_CAMERA_ENABLE: 1
