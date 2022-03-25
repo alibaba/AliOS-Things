@@ -18,6 +18,10 @@ BLE_CONNECTED = const(0x00)
 BLE_DISCONNECTED = const(0x01)
 BLE_COMMINICATING = const(0x02)
 
+WIFI_IDLE = 1000
+WIFI_CONNECTING = 1001
+WIFI_GOT_IP = network.STAT_GOT_IP
+
 NUS_UUID = 0xFFA0
 RX_UUID = 0xFFA2
 TX_UUID = 0xFFA3
@@ -109,6 +113,7 @@ def start():
 
 def stop():
     global _ble,_bleNetConfigStatus
+    _ble.irq(None)
     _ble.active(False)
     _bleNetConfigStatus = BLE_DISCONNECTED
 

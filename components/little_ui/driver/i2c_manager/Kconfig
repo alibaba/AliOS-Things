@@ -1,0 +1,17 @@
+config HAVE_I2C_MANAGER
+def_bool y
+
+menu "I2C Port Settings"
+
+    rsource "i2c_manager/Kconfig"
+    
+    config I2C_MANAGER_I2CDEV
+        bool "i2cdev compatibility"
+        help
+            This allows you to run code that was written for i2cdev, another
+            i2c port abstraction layer. I2C Manager keeps doing what it does
+            and additionally emulates i2cdev if you use this feature. Make 
+            sure to remove the other 'i2cdev.c' and 'i2cdev.h' files. See the 
+            README for further details.
+
+endmenu

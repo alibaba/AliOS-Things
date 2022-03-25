@@ -175,23 +175,37 @@ STATIC mp_obj_t spi_write(size_t n_args, const mp_obj_t *args)
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(spi_write_obj, 2, spi_write);
 
+extern int32_t aos_hal_spi_sends_recvs(spi_dev_t *spi, uint8_t *tx_data, uint32_t tx_size,
+                            uint8_t *rx_data, uint32_t rx_size, uint32_t timeout);
 STATIC mp_obj_t spi_readAfterWrite(size_t n_args, const mp_obj_t *args)
 {
     SPI_CHECK_PARAMS(3);
     SPI_NODE_GET();
 
-    mp_buffer_info_t bufinfo;
+    mp_buffer_info_t bufinfo_rx;
+    mp_get_buffer_raise(args[1], &bufinfo_rx, MP_BUFFER_WRITE);
 
-    mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_WRITE);
-    mp_uint_t tx_data = mp_obj_get_int(args[2]);
+    mp_buffer_info_t bufinfo_tx;
+    mp_get_buffer_raise(args[2], &bufinfo_tx, MP_BUFFER_READ);
+
     MP_THREAD_GIL_EXIT();
-    mp_int_t ret = aos_hal_spi_send_recv(spi_device, &tx_data, bufinfo.buf, bufinfo.len, SPI_TIMEOUT);
+    mp_int_t ret = -1;
+    if (bufinfo_tx.len == 1) {
+        ret = aos_hal_spi_send_recv(spi_device, bufinfo_tx.buf, bufinfo_rx.buf, bufinfo_rx.len, SPI_TIMEOUT);
+    } else {
+        if (bufinfo_tx.len != bufinfo_rx.len) {
+            mp_raise_ValueError(MP_ERROR_TEXT("TX and RX buffer should have same length"));
+        }
+        ret = aos_hal_spi_sends_recvs(spi_device, bufinfo_tx.buf, bufinfo_tx.len, bufinfo_rx.buf, bufinfo_rx.len,
+                                      SPI_TIMEOUT);
+    }
     MP_THREAD_GIL_ENTER();
+
     if (ret < 0) {
         LOGE(LOG_TAG, "aos_hal_spi_send_recv failed\n");
         return MP_OBJ_NEW_SMALL_INT(ret);
     } else {
-        return MP_OBJ_NEW_SMALL_INT(bufinfo.len);
+        return MP_OBJ_NEW_SMALL_INT(bufinfo_rx.len);
     }
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(spi_readAfterWrite_obj, 3, spi_readAfterWrite);

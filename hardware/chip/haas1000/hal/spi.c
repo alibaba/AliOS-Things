@@ -471,7 +471,7 @@ OUT:
  * @return  0, on success;  EIO : if the SPI device could not be initialised
  */
 // Half duplex send+recv
-int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data,
+int32_t hal_spi_sends_recvs(spi_dev_t *spi, uint8_t *tx_data, uint16_t tx_size,
 						  uint8_t *rx_data, uint16_t rx_size, uint32_t timeout)
 {
 	int ret = 0;
@@ -504,7 +504,7 @@ int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data,
 	hal_cache_sync(HAL_CACHE_ID_D_CACHE); //PSRAM must sync cache to memory when used dma
 	if (spi->config.t_mode == SPI_TRANSFER_DMA)
 	{
-		ret = spi_ctx[spi->port].spi_dma_send(tx_data, 1, spi_ctx[spi->port].spi_dma_irq);
+        ret = spi_ctx[spi->port].spi_dma_send(tx_data, tx_size, spi_ctx[spi->port].spi_dma_irq);
 		if (osSemaphoreWait(spi_ctx[spi->port].spi_dma_semaphore, timeout) <= 0)
 		{
 			TRACE("spi dma tail send timeout");
@@ -513,11 +513,11 @@ int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data,
 	}
 	else
 	{
-		spi_ctx[spi->port].spi_send(tx_data, 1);
+        spi_ctx[spi->port].spi_send(tx_data, tx_size);
 	}
 	do
 	{
-		uint32_t remainder = len <= SPI_DMA_MAX ? len  : SPI_DMA_MAX;
+        uint32_t remainder = len <= SPI_DMA_MAX ? len : SPI_DMA_MAX;
 		hal_cache_sync(HAL_CACHE_ID_I_CACHE);//PSRAM must sync cache to memory when used dma
 		if (spi->config.t_mode == SPI_TRANSFER_DMA)
 		{
@@ -548,6 +548,12 @@ OUT:
 	osMutexRelease(spi_ctx[spi->port].spi_mutex_id);
 	free(cmd);
 	return ret;
+}
+
+int32_t hal_spi_send_recv(spi_dev_t *spi, uint8_t *tx_data,
+                          uint8_t *rx_data, uint16_t rx_size, uint32_t timeout)
+{
+    return hal_spi_sends_recvs(spi, tx_data, 1, rx_data, rx_size, timeout);
 }
 
 /**

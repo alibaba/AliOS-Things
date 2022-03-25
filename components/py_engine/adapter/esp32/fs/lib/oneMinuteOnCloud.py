@@ -245,6 +245,10 @@ def ble_irq(event, data):
 
                 if(cmdd['cmd'] == 'PullCode'):
                     global pull_code_state
+
+                    if('main.py' in os.listdir('/data/pyamp')):
+                        os.remove('/data/pyamp/main.py')
+
                     if(_wlan.isconnected() is False):
                         print(_wlan.isconnected())
                         ret = {'cmd':'PullCode', 'ret':{'state':'NO_NETWORK'}}
@@ -292,6 +296,8 @@ if('WiFi.json' in os.listdir('/')):
             print('autoConnect')
             _wlan.active(True)
             _wlan.connect(wificonf['ssid'], wificonf['pswd'],)
+            if('main.py' in os.listdir('/data/pyamp')):
+                os.remove('/WiFi.json')
     except Exception as e:
         print('try WiFi autoConnect, found')
         print(e)

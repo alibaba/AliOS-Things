@@ -208,8 +208,8 @@ int32_t aos_hal_spi_recv(aos_hal_spi_dev_t *spi, uint8_t *data, uint32_t size, u
     return 0;
 }
 
-int32_t aos_hal_spi_send_recv(aos_hal_spi_dev_t *spi, uint8_t *tx_data, uint8_t *rx_data,
-                              uint32_t rx_size, uint32_t timeout)
+int32_t aos_hal_spi_sends_recvs(aos_hal_spi_dev_t *spi, uint8_t *tx_data, uint32_t tx_size, uint8_t *rx_data,
+                                uint32_t rx_size, uint32_t timeout)
 {
     spi_transaction_t trans_desc = {
         .flags = 0,
@@ -220,10 +220,11 @@ int32_t aos_hal_spi_send_recv(aos_hal_spi_dev_t *spi, uint8_t *tx_data, uint8_t 
         .rx_data = { 0, 0, 0, 0, },
     };
 
-    if (!spi || !spi->priv || !tx_data || !rx_data || rx_size == 0)
+    if (!spi || !spi->priv || !tx_data || rx_size == 0 || !rx_data || rx_size == 0) {
         return -EINVAL;
+    }
 
-    trans_desc.length = 1 * 8;
+    trans_desc.length = tx_size * 8;
     trans_desc.tx_buffer = tx_data;
     trans_desc.rxlength = rx_size * 8;
     trans_desc.rx_buffer = rx_data;
@@ -232,6 +233,12 @@ int32_t aos_hal_spi_send_recv(aos_hal_spi_dev_t *spi, uint8_t *tx_data, uint8_t 
         return -EIO;
 
     return 0;
+}
+
+int32_t aos_hal_spi_send_recv(aos_hal_spi_dev_t *spi, uint8_t *tx_data, uint8_t *rx_data, uint32_t rx_size,
+                              uint32_t timeout)
+{
+    return aos_hal_spi_sends_recvs(spi, tx_data, 1, rx_data, rx_size, timeout);
 }
 
 int32_t aos_hal_spi_send_and_recv(aos_hal_spi_dev_t *spi, uint8_t *tx_data, uint16_t tx_size, uint8_t *rx_data,
