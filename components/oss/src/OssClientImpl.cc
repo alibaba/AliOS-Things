@@ -169,7 +169,7 @@ void OssClientImpl::addHeaders(const std::shared_ptr<HttpRequest> &httpRequest, 
         time_t now;
         struct tm *timeinfo = NULL;
         char GMT_DATA_TIME[30];
-        now = time(NULL);
+        now = time(NULL) - 3600 * 8;
         timeinfo = localtime(&now);
         memset(GMT_DATA_TIME, 0, sizeof(GMT_DATA_TIME));
         strftime(GMT_DATA_TIME, sizeof(GMT_DATA_TIME), "%a, %d %b %Y %H:%M:%S GMT", timeinfo);
