@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: m5stackcore2                                      # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                   # <必选项> 组件版本号
+version: master                                   # <必选项> 组件版本号
 description: m5stackcore2 board configure.             # <必选项> 建议至少20字以上
 type: board                                        # <必选项> 组件类型，为：solution, chip, board, common
 
@@ -14,7 +14,7 @@ tag: 核心模块                                      # <可选项> 组件分�
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
 depends:
-  - espressif_esp32: rel_3.3.0
+  - espressif_esp32: master
 
 board:
   chip_name: espressif_esp32
