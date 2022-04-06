@@ -1,0 +1,13 @@
+{
+    "version": "1.0.0",
+    "io": {
+        "led": {
+            "type": "GPIO",
+            "port": 36,
+            "dir": "output",
+            "pull": "pulldown"
+        }
+    },
+    "debugLevel": "DEBUG",
+    "repl": "disable"
+}
