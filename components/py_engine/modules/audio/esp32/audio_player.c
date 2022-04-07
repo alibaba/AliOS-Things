@@ -347,8 +347,6 @@ STATIC MP_DEFINE_CONST_FUN_OBJ_2(audio_player_set_vol_obj, audio_player_set_vol)
 STATIC mp_obj_t audio_player_state(mp_obj_t self_in)
 {
     audio_player_obj_t *self = self_in;
-    mp_obj_dict_t *dict = mp_obj_new_dict(3);
-
     return mp_obj_new_int(self->state.status);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(audio_player_state_obj, audio_player_state);
