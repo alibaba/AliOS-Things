@@ -11,5 +11,5 @@ class FIRE(object):
     def getVoltage(self):
         if self.adcObj is None:
             raise ValueError("invalid ADC object")
-        value = self.adcObj.read()
+        value = self.adcObj.readVoltage()
         return value

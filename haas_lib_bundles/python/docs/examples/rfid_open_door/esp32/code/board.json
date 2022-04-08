@@ -1,0 +1,33 @@
+{
+  "name": "haasedu",
+  "version": "1.0.0",
+  "io": {
+    "mfrc522": {
+      "type": "SPI",
+      "port": 3,
+      "mode": "master",
+      "freq": 1000000
+    },
+    "mfrc522_sda": {
+      "type": "GPIO",
+      "port": 4,
+      "dir": "output"
+    },
+    "mfrc522_rst": {
+      "type": "GPIO",
+      "port": 5,
+      "dir": "output"
+    },
+    "buzzer": {
+      "type": "GPIO",
+      "port": 2,
+      "dir": "output"
+    },
+    "servo": {
+      "type": "PWM",
+      "port": 27
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

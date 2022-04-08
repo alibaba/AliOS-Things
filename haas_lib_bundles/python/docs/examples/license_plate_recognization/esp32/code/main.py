@@ -7,28 +7,36 @@
 @version    :    1.0
 '''
 
+from aliyunIoT import Device
 import display      # 显示库
-import uai          # AI识别库
 import network      # 网络库
 import ucamera      # 摄像头库
 import utime        # 延时函数在utime库中
-import oss          # 对象存储库
 import _thread      # 线程库
 import sntp         # 网络时间同步库
-
-# 阿里云访问账号
-ACCESS_KEY = 'Your-Access-Key'
-ACCESS_SECRET = 'Your-Access-Secret'
-
-# OSS对象存储配置
-OSS_ENDPOINT = "oss-cn-shanghai.aliyuncs.com"
-OSS_BUCKET = "Your-OSS-Bucket"
+import ujson as json
 
 # Wi-Fi SSID和Password设置
 SSID='Your-AP-SSID'
 PWD='Your-AP-Password'
 
-# 网络连接函数
+# HaaS设备三元组
+productKey = "Your-ProductKey"
+deviceName  = "Your-devicename"
+deviceSecret  = "Your-deviceSecret"
+
+g_lk_connect = False
+g_lk_service = False
+detected = False
+
+key_info = {
+    'region' : 'cn-shanghai' ,
+    'productKey': productKey ,
+    'deviceName': deviceName ,
+    'deviceSecret': deviceSecret ,
+    'keepaliveSec': 60
+}
+
 def connect_wifi(ssid, pwd):
     # 引用全局变量
     global disp
@@ -37,14 +45,14 @@ def connect_wifi(ssid, pwd):
     wlan.active(True)
     wlan.connect(ssid, pwd)
     while True:
-        print('wifi is connecting...')
+        print('Wi-Fi is connecting...')
         # 显示网络连接中
-        disp.text(20, 30, 'wifi is connecting...', disp.RED)
+        disp.text(20, 30, 'Wi-Fi is connecting...', disp.RED)
         # 网络连接成功后，更新显示字符
         if (wlan.isconnected() == True):
-            print('wifi is connected')
-            disp.textClear(20, 30, 'wifi is connecting...')
-            disp.text(20, 30, 'wifi is connected', disp.RED)
+            print('Wi-Fi is connected')
+            disp.textClear(20, 30, 'Wi-Fi is connecting...')
+            disp.text(20, 30, 'Wi-Fi is connected', disp.RED)
             ip = wlan.ifconfig()[0]
             print('IP: %s' %ip)
             disp.text(20, 50, ip, disp.RED)
@@ -60,42 +68,73 @@ def connect_wifi(ssid, pwd):
         utime.sleep_ms(500)
     utime.sleep(2)
 
-def recognizePlateLicenceThread():
-    # 引用全局变量
-    global detected, plateNumber
-    # 创建AI对象
-    ai = uai.AI(uai.AI_ENGINE_ALIYUN, ACCESS_KEY, ACCESS_SECRET)
+def cb_lk_service(data):
+    global g_lk_service, detected, plateNumber
+    # dev.publish(compare_reply)
+    print(data)
+    #resp = json.loads(data)
+    if data != None:
+        params = data['params']
+        params_dict = json.loads(params)
+        # print(params_dict)
+        ext = params_dict['ext']
+        ext_dict = json.loads(ext)
+        result = ext_dict['result']
+        if result == 'success':
+            g_confidence = ext_dict['confidence']
+            if g_confidence > 0.7 :
+                plateNumber = ext_dict['plateNumber']
+                print('detect: ' + plateNumber)
+                detected = True
+            else:
+                detected = False
+        else:
+            print('do not detect!')
+            detected = False
+    g_lk_service = True
 
+def cb_lk_connect(data):
+    global g_lk_connect
+    print('link platform connected')
+    g_lk_connect = True
+
+
+def detectCarNo(frame, fileName, productKey, devName, devSecret) :
+    start = utime.ticks_ms()
+    global dev
+    # 上传图片到LP
+    fileid = dev.uploadContent(fileName, frame, None)
+    if fileid != None:
+        ext = { 'filePosition':'lp', 'fileName': fileName, 'fileId': fileid }
+        ext_str = json.dumps(ext)
+        all_params = {'id': 1, 'version': '1.0', 'params': { 'eventType': 'haas.faas', 'eventName': 'ocrCarNo', 'argInt': 1, 'ext': ext_str }}
+        all_params_str = json.dumps(all_params)
+        upload_file = {
+            'topic': '/sys/' + productKey + '/' + deviceName + '/thing/event/hli_event/post',
+            'qos': 1,
+            'payload': all_params_str
+        }
+
+        # 上传完成通知HaaS聚合平台
+        # print(upload_file)
+        dev.publish(upload_file)
+
+        while g_lk_service == False:
+            continue
+    else:
+        print('filedid is none, upload content fail')
+    time_diff = utime.ticks_diff(utime.ticks_ms(), start)
+    print('get response time : %d' % time_diff)
+
+# 识别线程函数
+def detectCarNoThread():
+    global frame
     while True:
         if frame != None:
-            # 上传图片到OSS
-            image = oss.uploadContent(ACCESS_KEY, ACCESS_SECRET, OSS_ENDPOINT, OSS_BUCKET, frame, "oss/test.jpg")
-            if image != None:
-                # 进行车牌识别
-                resp = ai.recognizeLicensePlate(image)
-                # 解析识别结果
-                if (resp != None):
-                    i = 0
-                    while (i < len(resp)):
-                        print(resp)
-                        plateNumber = resp[i]['plateNumber']
-                        plateType = resp[i]['plateType']
-                        confidence = resp[i]['confidence']
-                        plateTypeConfidence = resp[i]['plateTypeConfidence']
-                        x = resp[i]['x']
-                        y = resp[i]['y']
-                        w = resp[i]['w']
-                        h = resp[i]['h']
-                        # 当得分 > 0.6，表示识别成功
-                        if confidence > 0.6:
-                            detected = True
-                            # 休眠识别线程，切换到显示线程
-                            utime.sleep(2)
-                        else:
-                            detected = False
-                        i += 1
-                else:
-                    detected = False
+            detectCarNo(frame, 'car.jpg', productKey, deviceName, deviceSecret)
+            utime.sleep_ms(1000)
+        else:
+            utime.sleep_ms(1000)
 
 # 显示线程函数
 def displayThread():
@@ -107,7 +146,9 @@ def displayThread():
     textShowFlag = False
     while True:
         # 采集摄像头画面
+        # print('start to capture')
         frame = ucamera.capture()
+        # print('end to capture')
         if frame != None:
             if detected == True:
                 # 清除屏幕内容
@@ -116,34 +157,45 @@ def displayThread():
                     clearFlag = True
                 # 设置文字字体
                 disp.font(disp.FONT_DejaVu40)
-                # 显示识别的车牌号
+                # 显示识别结果
                 disp.text(25, 90, plateNumber, disp.RED)
                 disp.text(25, 130, 'Recognized!!!', disp.RED)
-                print('License Plate Recognized!!!')
+                utime.sleep_ms(1000)
                 textShowFlag = False
             else:
                 # 显示图像
+                # print('start to display')
                 disp.image(0, 20, frame, 0)
+                utime.sleep_ms(100)
                 if textShowFlag == False:
                     # 设置显示字体
                     disp.font(disp.FONT_DejaVu18)
                     # 显示文字
-                    disp.text(2, 0, 'Recognizing License Plate...', disp.WHITE)
+                    disp.text(2, 0, 'Recognizing ...', disp.WHITE)
                     textShowFlag = True
                 clearFlag = False
 
+# 多线程案例
 def main():
     # 全局变量
-    global disp, frame, detected, plateNumber
-    frame = None
-    detected = False
-    plateNumber = None
-
+    global disp, dev, frame, detected
     # 创建lcd display对象
     disp = display.TFT()
+    frame = None
+    detected = False
 
     # 连接网络
     connect_wifi(SSID, PWD)
+
+    # 设备初始化
+    dev = Device()
+    dev.on(Device.ON_CONNECT, cb_lk_connect)
+    dev.on(Device.ON_SERVICE, cb_lk_service)
+    dev.connect(key_info)
+
+    while True:
+        if g_lk_connect:
+            break
 
     # 初始化摄像头
     ucamera.init('uart', 33, 32)
@@ -152,14 +204,14 @@ def main():
     try:
         # 启动显示线程
         _thread.start_new_thread(displayThread, ())
-        # 设置车牌识别线程stack
-        _thread.stack_size(15 * 1024)
-        # 启动车牌识别线程
-        _thread.start_new_thread(recognizePlateLicenceThread, ())
+
+        # 设置识别线程stack
+        _thread.stack_size(20 * 1024)
+        # 启动识别线程
+        _thread.start_new_thread(detectCarNoThread, ())
     except:
        print("Error: unable to start thread")
 
-    # 主线程IDLE
     while True:
         utime.sleep_ms(1000)
 

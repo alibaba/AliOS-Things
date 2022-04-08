@@ -13,5 +13,5 @@ class MQ2(object):
         if self.adcObj is None:
             raise ValueError("invalid ADC object")
 
-        value = self.adcObj.read()
+        value = self.adcObj.readVoltage()
         return value

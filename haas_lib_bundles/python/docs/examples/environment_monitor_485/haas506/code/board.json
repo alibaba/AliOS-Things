@@ -1,0 +1,36 @@
+{
+  "name": "haas506",
+  "version": "1.0.0",
+  "io": {
+      "modbus_485_4800": {
+          "type": "MODBUS",
+          "mode": 0,
+          "port": 2,
+          "baudrate": 4800,
+          "priority": 0,
+          "timeout": 200
+      },
+      "modbus_485_9600": {
+        "type": "MODBUS",
+        "mode": 0,
+        "port": 2,
+        "baudrate": 9600,
+        "priority": 0,
+        "timeout": 200
+      },
+      "cloud_led": {
+        "type": "GPIO",
+        "port": 9,
+        "dir": "output",
+        "pull": "pulldown"
+      },
+      "net_led": {
+        "type": "GPIO",
+        "port": 7,
+        "dir": "output",
+        "pull": "pulldown"
+      }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

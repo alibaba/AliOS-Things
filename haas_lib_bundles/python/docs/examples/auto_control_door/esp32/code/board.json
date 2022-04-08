@@ -1,0 +1,18 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "ir": {
+      "type": "GPIO",
+      "port": 13,
+      "dir": "input",
+      "pull": "pullup"
+    },
+    "servo": {
+      "type": "PWM",
+      "port": 5
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
