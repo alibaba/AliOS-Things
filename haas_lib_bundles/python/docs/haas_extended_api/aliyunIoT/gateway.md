@@ -5,10 +5,12 @@
 Gateway是aliyunIoT模块的一个实例类，提供端侧网关能力，支持为不具备联网能力的设备接入到物联网云端平台。使用时，由网关建立子设备与物联网平台之间的连接，包括把子设备拓扑上报到云端、协助子设备登录到云端、把子设备的数据上传到云端以及把云端的数据或控制命令转发到子设备。
 
 请使用下面的代码导入aliyunIoT模块：
+
 ```python
 from aliyunIoT import Gateway
 ```
 请使用下面的代码连接Wi-Fi: essid和passwd请填写为实际的路由器名称及密码。
+
 ```python
 import network                   # Wi-Fi功能所在库
 import utime                     # 延时API所在组件
@@ -34,8 +36,8 @@ else:
 connecting to network...
 connect succeed!  ('192.168.170.30', '255.255.255.0', '192.168.170.26', '192.168.170.26')
 ```
-> 1、为了节约篇幅，接下去的各接口示例代码都在前一个案例基础上追加即可。
->
+
+> 1、为了节约篇幅，接下去的各接口示例代码都在前一个案例基础上追加即可。<br>
 > 2、在示例以及输出结果中对敏感数据做了替换处理。
 
 ## gateway - 初始化
@@ -50,9 +52,10 @@ connect succeed!  ('192.168.170.30', '255.255.255.0', '192.168.170.26', '192.168
 
 - 参数说明：
 无
-- 返回值说明:
+- 返回值说明：
 成功：Gateway实例，失败：None。
-- 函数示例
+- 函数示例：
+
 ```python
 from aliyunIoT import Gateway     # iot组件是连接阿里云物联网平台的组件
 
@@ -67,18 +70,19 @@ else:
 ```shell
 create gateway succeed!
 ```
+
 ## connect - 连接物联网平台
 
 - 函数功能：通过已经申请好的三元组信息连接物联网平台。
 - 注意事项：确保网络连接成功并且已经创建gateway对象。
 - 函数原型：
 > connect(data)
-- 参数说明
+- 参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | data | dictionary | 是 | 在[物联网平台](https://iot.console.aliyun.com/product)创建的三元组信息 |
 
-- data结构说明
+- data结构说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | deviceName | String | 是 | 物联网平台上注册的deviceName |
@@ -91,6 +95,7 @@ create gateway succeed!
 - 返回值：
 成功返回0， 其他表示失败。
 - 函数示例：
+
 ```python
 # 请首先添加连接Wi-Fi连接代码
 
@@ -134,7 +139,7 @@ aliyunIoT_gateway.end()
 utime.sleep(2)
 ```
 
-- 输出结果:
+- 输出结果：
 ```shell
 sleep for 1 s
 tcp_connect: can only connect from state CLOSED
@@ -142,6 +147,7 @@ success to establish tcp, fd=54
 物联网平台连接成功
 sleep for 2s
 ```
+
 ## on - 监听回调函数
 
 - 函数功能：注册Gateway的回调函数，在相应事件触发时回调。
@@ -168,6 +174,7 @@ sleep for 2s
     | ON_SUBREGISTER | 子设备绑定 |
 
 - 函数示例：
+
 ```shell
 参考上个接口-connect案例
 ```
@@ -182,11 +189,12 @@ sleep for 2s
 - gatewayInfo结构说明
     | 参数 | 类型 | 说明 |
     | --- | --- | --- |
-    | deviceName | String | 物联网平台上注册的deviceName​ |
-    | deviceSecret | String | 物联网平台上注册的deviceSecre​ |
-    | productKey | String | 物联网平台上注册的productKey​ |
-    | productSecret | String| 物联网平台上注册的productSecret​ |
+    | deviceName | String | 物联网平台上注册的deviceName |
+    | deviceSecret | String | 物联网平台上注册的deviceSecre |
+    | productKey | String | 物联网平台上注册的productKey |
+    | productSecret | String| 物联网平台上注册的productSecret |
 - 函数示例
+
 ```python
 from aliyunIoT import Gateway
 
@@ -215,6 +223,7 @@ get gatewayinfo succeed
 - 参数说明：无
 - 返回值说明：成功，gateway实例；失败，None。
 - 函数示例：
+
 ```python
 from aliyunIoT import Gateway
 aliyunIoT_gateway = Gateway()
@@ -226,10 +235,13 @@ if handle != None:
 else:
     print('get device handle failed')
 ```
-- 输出结果:
+
+- 输出结果：
+
 ```shell
 get gateway handle successfully
 ```
+
 ## getNtpTime - 获取网络时间
 - 函数功能：从物联网平台获得网络时间。
 - 注意事项：确保网络以及物联网平台连接成功并且已经创建gateway对象。
@@ -240,11 +252,11 @@ get gateway handle successfully
     | --- | --- | --- | --- |
     | cb | func | 是 | 回调函数 |
 - 返回值说明：成功：Gateway实例，失败：None
-- 参数说明:
+- 参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | data | dictionary | 是 | 时间字典文件 |
-- data参数说明:
+- data参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | year | String | 是 | 年 |
@@ -254,6 +266,7 @@ get gateway handle successfully
     | msecond | String | 是 | 毫秒 |
     | timestamp | int | 是 | 时间戳 |
 - 函数示例：
+
 ```python
 # 请首先添加连接Wi-Fi连接代码
 
@@ -297,20 +310,23 @@ print('sleep for 2s')
 aliyunIoT_gateway.end()
 utime.sleep(2)
 ```
-- 输出结果:
+
+- 输出结果：
+
 ```shell
 success to establish tcp, fd=54
 sleep for 1 s
 timestamp: 1645005337
 sleep for 2s
 ```
+
 ## addTopo - 添加子设备
 
 - 函数功能：对网关设备添加子设备。
 - 注意事项：确保网络以及物联网平台连接成功并且已经创建gateway对象。网关设备跟子设备需要提前注册。
-- 函数原型
+- 函数原型：
 > addTopo(subdev_info)
-- 参数说明
+- 参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | subdev_info | dictionary | 是 | 子设备信息 |
@@ -323,8 +339,11 @@ sleep for 2s
     | productSecret | String | 否 | 物联网平台上注册的productSecret |
     | region | String | 否 | 阿里云region，默认值：cn-shanghai |
     | keepaliveSec | int | 否 | 物联网平台上注册的keepaliveSec |
-- 返回值说明：成功：0，失败：非0整数。
+- 返回值说明：
+成功：0，失败：非0整数。
+
 - 函数示例：
+
 ```python
 from aliyunIoT import Gateway
 
@@ -389,21 +408,23 @@ aliyunIoT_gateway.end()
 utime.sleep(2)
 ```
 
-- 输出
+- 输出：
+
 ```shell
 sleep for on_topo_add 1 s
 enter on_topo_add
 sleep for 2s
 ```
+
 ## getTopo - 获取子设备
 - 函数功能：获得该网关已经添加过子设备列表，结果在msg中查看。
 - 注意事项：确保网络以及物联网平台连接成功。操作之前确保已经添加了子设备到该网关。
-- 函数原型
+- 函数原型：
 > getTopo()
 - 参数说明：无
 - 返回值说明：成功，0；失败，非0整数
-- 函数示例
-在上个案例的基础上添加如下getTopo示例：
+- 函数示例：**（在上个案例的基础上添加如下代码）**
+
 ```python
 g_topogot_flag = False
 
@@ -424,12 +445,15 @@ while(True):
 print('sleep for 2s')
 aliyunIoT_gateway.end()
 ```
-- 输出
+
+- 输出：
+
 ```shell
 sleep for on_topo_get 1 s
 {'code': 0, 'message': '[{"deviceSecret":"xxx","productKey":"xxx","deviceName":"xxx"},{"deviceSecret":"xxx","productKey":"xxx","deviceName":"xxx"}]'}
 sleep for 2s
 ```
+
 ## login - 子设备登陆
 - 函数功能：子设备登陆。
 - 注意事项：确保网络以及物联网平台连接成功。
@@ -442,9 +466,8 @@ sleep for 2s
 
 - subdev_info 参数说明：subdev_info参数同上
 - 返回值说明：成功：0, 失败：非0整数
-- 函数示例：
+- 函数示例：**（在上个案例的基础上添加如下代码）**
 
-在上个案例的基础上添加如下代码：
 ```python
 g_login_flag = False
 
@@ -463,7 +486,7 @@ while(True):
         utime.sleep(1)
 ```
 
-- 输出
+- 输出：
 ```shell
 sleep for on_login 1 s
 login out succeed
@@ -478,7 +501,7 @@ login out succeed
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | subdev_register_info | dict | 是 | 子设备三元组集（不包含deviceSecret） |
-- subdev_register_info参数说明:
+- subdev_register_info参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | deviceName | String | 是 | 物联网平台上注册的deviceName |
@@ -487,11 +510,11 @@ login out succeed
     | region | String | 否 | 阿里云region，默认值：cn-shanghai |
     | keepaliveSec | int | 否 | 物联网平台上注册的keepaliveSec |
 
-- 返回值说明:
+- 返回值说明：
 成功：0，失败：非0整数
-- 函数示例：
 
-在上个案例的基础上添加如下代码：
+- 函数示例：**（在上个案例的基础上添加如下代码）**
+
 ```python
 subdev_register_info = [
     {
@@ -526,7 +549,8 @@ while(True):
         utime.sleep(1)
 ```
 
-- 输出
+- 输出：
+
 ```shell
 sleep for on_subregister 1 s
 subdevice register succeed
@@ -541,7 +565,7 @@ subdevice register succeed
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | data | dictionary | 是 | tpoic信息 |
-- data参数说明:
+- data参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | topic | String | 是 | 创建时指定 |
@@ -549,9 +573,8 @@ subdevice register succeed
     | payload | String | 否 | 描述信息 |
 
 - 返回值说明：成功，0；失败，非0整数
-- 函数示例：
+- 函数示例：**（在上个案例的基础上添加如下代码）**
 
-在上个案例的基础上添加如下代码：
 ```python
 # 测试topic
 topic_test_info = {
@@ -570,11 +593,13 @@ else:
 
 测试topic需要预先在物联网平台上创建，本案例中创建了aos_test，其中**产品key**、**设备名称**需要手动创建。
 
-- 输出
+- 输出：
+
 ```shell
 [   7.040]<I>AIOT_GATEWAY subcribe topic: /xxx/xxx/user/aos_test  succeed
 topic subscribe succeed
 ```
+
 ## publish - 发布
 
 - 函数功能：发布消息到指定topic。
@@ -593,8 +618,8 @@ topic subscribe succeed
     | payload | String | 否 | 描述信息 |
 
 - 返回值说明：成功：0, 失败：非0整数
-- 函数示例：
-在上个案例的基础上添加如下代码： **​**
+- 函数示例：**（在上个案例的基础上添加如下代码）**
+
 ```python
 g_subcribe_count = False
 def on_subcribe(data):
@@ -611,29 +636,34 @@ while(True):
         print('sleep for publsih_subcribe 1 s')
         utime.sleep(1)
 ```
+
 - 输出
+
 ```shell
 sleep for publsih_subcribe 1 s
 topic publsih succeed
 ```
+
 ## unsubscribe - 取消订阅
 - 函数功能：取消订阅自定义topic。
 - 注意事项：确保网络以及物联网平台连接成功，并且该topic已经订阅。
 - 函数原型：
 > unsubscribe(data)
-- 参数说明
+- 参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | data | dictionary | 是 | tpoic信息 |
-- data参数说明
+- data参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | topic | String | 是 | 创建时指定 |
     | qos | int | 是 | 0，1 |
     | payload | String | 否 | 描述信息 |
-- 返回值说明：成功，0；失败，非0整数
-- 函数示例：
-在上个案例的基础上添加如下代码：
+- 返回值说明：
+成功，0；失败，非0整数。
+
+- 函数示例：**（在上个案例的基础上添加如下代码）**
+
 ```python
 # unsubcribe
 ret = aliyunIoT_gateway.unsubscribe(topic_test_info)
@@ -645,7 +675,7 @@ else:
 
 测试topic需要预先在物联网平台上创建，案例中创建了aos_test，其中“产品key”、“设备名称”需要手动创建。
 
-- 输出
+- 输出：
 ```shell
 topic unsubscribe succeed
 ```
@@ -661,9 +691,8 @@ topic unsubscribe succeed
     | subdev_info | 数组 | 是 | 子设备列表 |
 - subdev_info 参数说明：subdev_info参数同上
 - 返回值说明：成功，0；失败，非0整数
-- 函数示例：
+- 函数示例：**（在上个案例的基础上添加如下代码）**
 
-在上个案例的基础上添加如下代码：
 ```python
 g_logout_flag = False
 
@@ -682,12 +711,11 @@ while(True):
         utime.sleep(1)
 ```
 
-- 输出
+- 输出：
 ```shell
 sleep for on_logout 1 s
 login out succeed
 ```
-
 
 ## removeTopo - 删除子设备
 
@@ -696,15 +724,20 @@ login out succeed
 - 函数原型：
 > removeTopo(subdev_info)
 
-- 参数说明
+- 参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | subdev_info | 数组 | 是 | 子设备列表 |
-- subdev_info 参数说明：subdev_info参数同上
-- 返回值说明：成功，0；失败，非0整数
-- 函数示例：
-在上个案例的基础上添加如下代码：
+- subdev_info 参数说明：
+subdev_info参数同上
+
+- 返回值说明：
+成功，0；失败，非0整数
+
+- 函数示例：**（在上个案例的基础上添加如下代码）**
+
 ```python
+
 g_removetopo_flag = False
 
 def on_topo_remove(data):
@@ -722,7 +755,8 @@ while(True):
         utime.sleep(1)
 ```
 
-- 输出
+- 输出：
+
 ```shell
 sleep for on_topo_remove 1 s
 topo remove succeed
@@ -730,11 +764,16 @@ topo remove succeed
 ## end - 结束
 
 - 函数功能：close gateway对象，销毁资源。
-- 注意事项:：无
+- 注意事项：无
 - 函数原型：
 > end()
-- 参数说明：无
-- 返回值说明：成功，0；失败，非0整数。
+
+- 参数说明：
+无
+
+- 返回值说明：
+成功，0；失败，非0整数。
+
 - 函数示例：
 ```python
 ret = aliyunIoT_gateway.end()
@@ -744,7 +783,7 @@ else:
     print('getway end failed')
 ```
 
-- 输出
+- 输出：
 ```shell
 getway end succeed
 ```

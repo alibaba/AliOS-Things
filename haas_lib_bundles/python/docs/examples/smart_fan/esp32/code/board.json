@@ -1,0 +1,20 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "fan": {
+      "type": "PWM",
+      "port": 25
+    },
+    "aht21b": {
+        "type": "I2C",
+        "port": 0,
+        "addrWidth": 7,
+        "freq": 400000,
+        "mode": "master",
+        "devAddr": 56
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

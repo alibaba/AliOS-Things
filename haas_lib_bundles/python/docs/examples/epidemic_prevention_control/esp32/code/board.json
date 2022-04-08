@@ -1,0 +1,28 @@
+{
+  "name": "nodemcu32s",
+  "version": "1.0.0",
+  "io": {
+    "ir": {
+      "type": "GPIO",
+      "port": 2,
+      "dir": "input",
+      "pull": "pullup"
+    },
+    "trig": {
+      "type": "GPIO",
+      "port": 25,
+      "dir": "output",
+      "pull": "pullup"
+    },
+    "echo": {
+      "type": "GPIO",
+      "port": 26,
+      "dir": "input",
+      "pull": "pullup"
+    },
+    "servo": {
+      "type": "PWM",
+      "port": 27
+    }
+  }
+}

@@ -106,13 +106,13 @@ class AP3216C(object):
 # 写寄存器的值
     def write_reg(self, addr, data):
         msgbuf = bytearray([data])
-        self._i2cDev.memWrite(msgbuf, addr, 1)
+        self._i2cDev.memWrite(msgbuf, addr, 8)
         # print("--> write addr " + str(addr) + ", value = " + str(msgbuf))
 
 # 读寄存器的值
     def read_regs(self, addr, len):
         buf = bytearray(len)
-        self._i2cDev.memRead(buf, addr, 1)
+        self._i2cDev.memRead(buf, addr, 8)
         # print("--> read " + str(len) + " bytes from addr " + str(addr) + ", " + str(len) + " bytes value = " + str(buf))
         return buf
 
@@ -298,9 +298,6 @@ class AP3216C(object):
     def getData(self):
         ap3216c_dict = {'brightness': 0, 'ir': 0, 'ps': 0}
 
-        if not self._i2cDev:
-            raise ValueError("i2cObj is not initialized")
-
         brightness = self.ap3216c_read_ambient_light()
         ir_data = self.ap3216c_read_ir_data()
         ps_data = self.ap3216c_read_ps_data()
@@ -309,12 +306,14 @@ class AP3216C(object):
         ap3216c_dict['ps'] = ps_data
         return ap3216c_dict
 
+    # 获取光照强度值
     def getIlluminance(self):
         if not self._i2cDev:
             raise ValueError("i2cObj is not initialized")
 
         return self.ap3216c_read_ambient_light()
 
+    # 获取接近状态：接近返回True，否则返回False
     def isProximate(self):
         if not self._i2cDev:
             raise ValueError("i2cObj is not initialized")
@@ -324,3 +323,38 @@ class AP3216C(object):
             return True
         else:
             return False
+
+if __name__ == "__main__":
+    '''
+    The below i2c configuration is needed in your board.json.
+    "ap3216c": {
+      "type": "I2C",
+      "port": 1,
+      "addrWidth": 7,
+      "freq": 100000,
+      "mode": "master",
+      "devAddr": 30
+    }
+    '''
+    print("Testing ap3216c ...")
+
+    i2cDev = I2C()
+    i2cDev.open("ap3216c")
+
+    ap3216cDev = AP3216C(i2cDev)
+
+    illuminance = ap3216cDev.getIlluminance()
+    print("The illuminance is:", illuminance)
+
+    proxi = ap3216cDev.isProximate()
+    print("The proximity state is", proxi)
+
+    data = ap3216cDev.getData()
+
+    print("The total datais: ", data)
+
+    i2cDev.close()
+
+    del ap3216cDev
+    print("Test ap3216c done!")
+

@@ -1,0 +1,37 @@
+{
+    "name": "haasedu",
+    "version": "1.0.0",
+    "io": {
+
+      "led_b": {
+        "type": "GPIO",
+        "port": 19,
+        "dir": "output",
+        "pull": "pullup"
+      },
+
+      "led_g": {
+        "type": "GPIO",
+        "port": 18,
+        "dir": "output",
+        "pull": "pullup"
+      },
+
+      "led_r": {
+        "type": "GPIO",
+        "port": 17,
+        "dir": "output",
+        "pull": "pullup"
+      },
+
+      "heartbeat": {
+        "type": "ADC",
+        "port": 0,
+        "sampling": 12000000,
+        "atten": 3,
+        "width": 3
+      }
+    },
+    "debugLevel": "ERROR",
+    "repl": "disable"
+  }

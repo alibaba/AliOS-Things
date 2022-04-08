@@ -1,0 +1,225 @@
+{
+    "name": "haasedu",
+    "version": "1.0.0",
+    "io": {
+      "ap3216c": {
+        "type": "I2C",
+        "port": 1,
+        "addrWidth": 7,
+        "freq": 100000,
+        "mode": "master",
+        "devAddr": 30
+      },
+      "mpu6050": {
+        "type": "I2C",
+        "port": 1,
+        "addrWidth": 7,
+        "freq": 100000,
+        "mode": "master",
+        "devAddr": 105
+      },
+      "si7006": {
+        "type": "I2C",
+        "port": 1,
+        "addrWidth": 7,
+        "freq": 400000,
+        "mode": "master",
+        "devAddr": 64
+      },
+      "spl06": {
+        "type": "I2C",
+        "port": 1,
+        "addrWidth": 7,
+        "freq": 400000,
+        "mode": "master",
+        "devAddr": 119
+      },
+      "qmc5883": {
+        "type": "I2C",
+        "port": 1,
+        "addrWidth": 7,
+        "freq": 400000,
+        "mode": "master",
+        "devAddr": 13
+      },
+      "cht8305": {
+        "type": "I2C",
+        "port": 1,
+        "addrWidth": 7,
+        "freq": 400000,
+        "mode": "master",
+        "devAddr": 64
+      },
+      "qmi8610": {
+        "type": "I2C",
+        "port": 1,
+        "addrWidth": 7,
+        "freq": 100000,
+        "mode": "master",
+        "devAddr": 106
+      },
+      "qmp6988": {
+        "type": "I2C",
+        "port": 1,
+        "addrWidth": 7,
+        "freq": 100000,
+        "mode": "master",
+        "devAddr": 86
+      },
+      "qmc6310": {
+        "type": "I2C",
+        "port": 1,
+        "addrWidth": 7,
+        "freq": 100000,
+        "mode": "master",
+        "devAddr": 28
+      },
+      "ADC2": {
+        "type": "ADC",
+        "port": 2,
+        "sampling": 12000000
+      },
+      "GPIO2": {
+        "type": "GPIO",
+        "port": 2,
+        "dir": "irq",
+        "pull": "pullup",
+        "intMode": "rising"
+      },
+      "GPIO3": {
+        "type": "GPIO",
+        "port": 3,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "GPIO4": {
+        "type": "GPIO",
+        "port": 4,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "GPIO5": {
+        "type": "GPIO",
+        "port": 5,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "GPIO6": {
+        "type": "GPIO",
+        "port": 6,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "GPIO7": {
+        "type": "GPIO",
+        "port": 7,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "GPIO19": {
+        "type": "GPIO",
+        "port": 19,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "GPIO22": {
+        "type": "GPIO",
+        "port": 22,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "KEY_1": {
+        "type": "GPIO",
+        "port": 23,
+        "dir": "irq",
+        "pull": "pullup",
+        "intMode": "rising"
+      },
+      "KEY_2": {
+        "type": "GPIO",
+        "port": 20,
+        "dir": "irq",
+        "pull": "pullup",
+        "intMode": "rising"
+      },
+      "KEY_3": {
+        "type": "GPIO",
+        "port": 21,
+        "dir": "irq",
+        "pull": "pullup",
+        "intMode": "rising"
+      },
+      "KEY_4": {
+        "type": "GPIO",
+        "port": 26,
+        "dir": "irq",
+        "pull": "pullup",
+        "intMode": "rising"
+      },
+      "I2C1": {
+        "type": "I2C",
+        "port": 1,
+        "addrWidth": 7,
+        "freq": 100000,
+        "mode": "master",
+        "devAddr": 60
+      },
+      "led_r": {
+        "type": "GPIO",
+        "port": 36,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "led_g": {
+        "type": "GPIO",
+        "port": 35,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "led_b": {
+        "type": "GPIO",
+        "port": 34,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "SPI0": {
+        "type": "SPI",
+        "port": 0,
+        "mode": "master",
+        "freq": 2000000
+      },
+      "oled_spi": {
+        "type": "SPI",
+        "port": 1,
+        "mode": "master",
+        "freq": 26000000
+      },
+      "oled_dc": {
+        "type": "GPIO",
+        "port": 28,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "oled_res": {
+        "type": "GPIO",
+        "port": 30,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "serial2": {
+        "type": "UART",
+        "port": 2,
+        "dataWidth": 8,
+        "baudRate": 115200,
+        "stopBits": 1,
+        "flowControl": "disable",
+        "parity": "none"
+      },
+      "pwm0": {
+        "type": "PWM",
+        "port": 0
+      }
+    },
+    "debugLevel": "ERROR",
+    "repl": "disable"
+  }
