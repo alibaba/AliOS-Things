@@ -165,7 +165,7 @@ if __name__ == '__main__':
     alarm_control(alarm_on)         # 关闭报警灯
 
     wlan = network.WLAN(network.STA_IF)    #创建WLAN对象
-    # 请替换物联网平台申请到的产品和设备信息,可以参考文章:https://blog.csdn.net/HaaSTech/article/details/114360517
+    # 请替换物联网平台申请到的产品和设备信息,可以参考README
     get_wifi_status()
 
     connect_lk(productKey, deviceName, deviceSecret)

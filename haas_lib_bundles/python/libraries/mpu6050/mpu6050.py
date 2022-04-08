@@ -101,7 +101,7 @@ class MPU6050(object):
             raise ValueError("parameter is not an I2C object")
         # make MPU6050's internal object points to i2cDev
         self._i2cDev = i2cDev
-        # 初始化MPU6050传感器 
+        # 初始化MPU6050传感器
         r = self.init()
         if r != 0:
             raise ValueError("MPU6050 init error")
@@ -133,21 +133,21 @@ class MPU6050(object):
     # fsr:0,±250dps;1,±500dps;2,±1000dps;3,±2000dps
     # 返回值:0,设置成功
     # 其他,设置失败
-    def MPU_Set_Gyro_Fsr(self, fsr):
+    def setGyroFsr(self, fsr):
         return self.i2c_write_byte(MPU_GYRO_CFG_REG, fsr << 3) # 设置陀螺仪满量程范围
 
     # 设置MPU6050加速度传感器满量程范围
     # fsr:0,±2g;1,±4g;2,±8g;3,±16g
     # 返回值:0,设置成功
     # 其他,设置失败
-    def MPU_Set_Accel_Fsr(self, fsr):
+    def setAccelFsr(self, fsr):
         return self.i2c_write_byte(MPU_ACCEL_CFG_REG, fsr << 3) # 设置加速度传感器满量程范围
 
     # 设置MPU6050的数字低通滤波器
     # lpf:数字低通滤波频率(Hz)
     # 返回值:0,设置成功
     # 其他,设置失败
-    def MPU_Set_LPF(self, lpf):
+    def setLPF(self, lpf):
         if (lpf >= 188):
             data = 1
         elif (lpf >= 98):
@@ -167,14 +167,14 @@ class MPU6050(object):
     # rate:4~1000(Hz)
     # 返回值:0,设置成功
     # 其他,设置失败
-    def MPU_Set_Rate(self, rate):
+    def setRate(self, rate):
         if (rate > 1000):
             rate = 1000
         if (rate < 4):
             rate = 4
         data = 1000 // rate - 1
         self.i2c_write_byte(MPU_SAMPLE_RATE_REG, data) # 设置数字低通滤波器
-        return self.MPU_Set_LPF(rate / 2) # 自动设置LPF为采样率的一半
+        return self.setLPF(rate / 2) # 自动设置LPF为采样率的一半
 
     # 得到温度值
     # 返回值:温度值
@@ -182,7 +182,6 @@ class MPU6050(object):
         buf = bytearray(2)
         buf = self.i2c_read_len(MPU_TEMP_OUTH_REG, 2)
         raw  = (buf[0] << 8) | buf[1]
-        #print("get_Temperature:",buf[0], buf[1], raw)
         if (raw > (1 << 15)):
             raw = raw - (1<<16)
 
@@ -194,7 +193,7 @@ class MPU6050(object):
     # gx,gy,gz:陀螺仪x,y,z轴的原始读数(带符号)
     # 返回值:0,成功
     # 其他,错误代码
-    def getGyro(self):
+    def getGyroscope(self):
         buf = bytearray(6)
 
         buf = self.i2c_read_len(MPU_GYRO_XOUTH_REG, 6)
@@ -238,12 +237,12 @@ class MPU6050(object):
 
     def getData(self):
         global mpu6050_dict
-        mpu6050_dict['temp'] = self.get_Temperature()
-        arr = self.get_Gyroscope()
+        mpu6050_dict['temp'] = self.getTemperature()
+        arr = self.getGyroscope()
         mpu6050_dict['gyroX'] = arr[0]
         mpu6050_dict['gyroY'] = arr[1]
         mpu6050_dict['gyroZ'] = arr[2]
-        brr = self.get_Accelerometer()
+        brr = self.getAcceleration()
         mpu6050_dict['accX'] = brr[0]
         mpu6050_dict['accY'] = brr[1]
         mpu6050_dict['accZ'] = brr[2]
@@ -258,9 +257,9 @@ class MPU6050(object):
         self.i2c_write_byte(MPU_PWR_MGMT1_REG, 0X80)  # 复位MPU6050
         sleep_ms(200)
         self.i2c_write_byte(MPU_PWR_MGMT1_REG, 0X00)  # 唤醒MPU6050
-        self.MPU_Set_Gyro_Fsr(3)                      # 陀螺仪传感器,±2000dps
-        self.MPU_Set_Accel_Fsr(0)                     # 加速度传感器,±2g
-        self.MPU_Set_Rate(50)                         # 设置采样率50Hz
+        self.setGyroFsr(3)                      # 陀螺仪传感器,±2000dps
+        self.setAccelFsr(0)                     # 加速度传感器,±2g
+        self.setRate(50)                         # 设置采样率50Hz
         self.i2c_write_byte(MPU_INT_EN_REG, 0X00)     # 关闭所有中断
         self.i2c_write_byte(MPU_USER_CTRL_REG, 0X00)  # I2C主模式关闭
         self.i2c_write_byte(MPU_FIFO_EN_REG, 0X00)    # 关闭FIFO
@@ -270,45 +269,7 @@ class MPU6050(object):
             # 器件ID正确
             self.i2c_write_byte(MPU_PWR_MGMT1_REG, 0X01) # 设置CLKSEL,PLL X轴为参考
             self.i2c_write_byte(MPU_PWR_MGMT2_REG, 0X00) # 加速度与陀螺仪都工作
-            self.MPU_Set_Rate(50)                        # 设置采样率为50Hz
+            self.setRate(50)                        # 设置采样率为50Hz
             return 0
         else:
             return 1
-
-if __name__ == "__main__":
-    '''
-    The below i2c configuration is needed in your board.json.
-    "mpu6050": {
-        "type": "I2C",
-        "port": 1,
-        "addrWidth": 7,
-        "freq": 100000,
-        "mode": "master",
-        "devAddr": 105
-    }
-    '''
-    print("Testing mpu6050 ...")
-
-    i2cDev = I2C()
-    i2cDev.open("mpu6050")
-
-    mpu6050Dev = MPU6050(i2cDev)
-
-    t = mpu6050Dev.getTemperature()
-    print("The temperature is:", t)
-
-    acc = mpu6050Dev.getAcceleration()
-    print("The Acceleration data is:", acc)
-
-    gyro = mpu6050Dev.getGyro()
-
-    print("The Gyro data is: ", gyro)
-
-    data = mpu6050Dev.getData()
-    print("The mpu6050 data is: ", gyro)
-
-    i2cDev.close()
-
-    del mpu6050Dev
-    print("Test mpu6050 done!")
-

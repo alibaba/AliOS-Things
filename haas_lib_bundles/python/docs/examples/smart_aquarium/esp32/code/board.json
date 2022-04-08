@@ -1,0 +1,47 @@
+{
+    "name": "esp32",
+    "version": "1.0.0",
+    "io": {
+      "tds": {
+        "type": "ADC",
+        "port": 0,
+        "sampling": 12000000
+      },
+      "ds18b20": {
+        "type": "GPIO",
+        "port": 12
+      },
+      "hx710_clk": {
+        "type": "GPIO",
+        "port": 27,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "hx710_data": {
+        "type": "GPIO",
+        "port": 14,
+        "dir": "input",
+        "pull": "pullup"
+      },
+      "relay_1": {
+        "type": "GPIO",
+        "port": 4,
+        "dir": "output",
+        "pull": "pulldown"
+      },
+      "relay_2": {
+        "type": "GPIO",
+        "port": 0,
+        "dir": "output",
+        "pull": "pulldown"
+      },
+      "relay_3": {
+        "type": "GPIO",
+        "port": 2,
+        "dir": "output",
+        "pull": "pulldown"
+      }
+    },
+    "debugLevel": "ERROR",
+    "repl": "disable"
+  }

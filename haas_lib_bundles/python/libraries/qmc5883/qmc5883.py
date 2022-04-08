@@ -127,12 +127,12 @@ class QMC5883(object):
         return self.devRegReadNByte(reg, len)
 
     def _reconfig(self):
-        self.qmc5883lWriteRegister(addr, QMC5883L_CONFIG, oversampling | g_range | rate | mode)
+        self._WriteRegister(addr, QMC5883L_CONFIG, oversampling | g_range | rate | mode)
         sleep_ms(50)
-        self.qmc5883lWriteRegister(addr, QMC5883L_CONFIG2, 0x1)
+        self._WriteRegister(addr, QMC5883L_CONFIG2, 0x1)
 
     def _reset(self):
-        self.qmc5883lWriteRegister(addr, QMC5883L_RESET, 0x01)
+        self._WriteRegister(addr, QMC5883L_RESET, 0x01)
         sleep_ms(500)
         self._reconfig()
         sleep_ms(50)

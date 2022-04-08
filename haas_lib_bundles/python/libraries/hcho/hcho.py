@@ -18,7 +18,7 @@ class HCHO(object):
         total = 0
         i = 0
         for i in range(32):
-            value = self.adcObj.read()
+            value = self.adcObj.readVoltage()
             total += value
             # print(value)
             if (min >= value):

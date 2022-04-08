@@ -303,8 +303,8 @@ import utime
 import network  # 导入network库
 import usocket  # 导入usocket库
 
-wifiSsid = "haas-open"
-wifiPassword = "12345678"
+wifiSsid = "路由器名称"
+wifiPassword = "路由器密码"
 
 
 if __name__ == '__main__':

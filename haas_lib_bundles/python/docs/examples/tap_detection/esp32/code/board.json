@@ -1,0 +1,16 @@
+{
+  "name": "board-name",
+  "version": "1.0.0",
+  "io": {
+    "mpu6886": {
+      "type": "I2C",
+      "port": 0,
+      "addrWidth": 7,
+      "freq": 400000,
+      "mode": "master",
+      "devAddr": 104
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

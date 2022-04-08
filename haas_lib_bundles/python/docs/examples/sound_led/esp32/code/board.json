@@ -1,0 +1,27 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "hw181_adc": {
+      "type": "ADC",
+      "port": 6,
+      "sampling": 12000000,
+      "atten": 3,
+      "width": 3
+    },
+    "rgbR": {
+      "type": "PWM",
+      "port": 19
+    },
+    "rgbG": {
+      "type": "PWM",
+      "port": 18
+    },
+    "rgbB": {
+      "type": "PWM",
+      "port": 5
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

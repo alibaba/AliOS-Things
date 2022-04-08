@@ -150,7 +150,7 @@ ret = spi.write(buf)
 | 属性 | 类型 | 必填 | 描述 |
 | --- | --- | --- | ---
 | buf | bytearray | 是 | 接收数据的存储数组，期待接收的字节数为`buf`的长度。 |
-| data | int | 是 | 期待发送的数据，长度固定为1字节。 |
+| data | bytearray | 是 | 发送数据的存储数组，期待发送的字节数为`data`的长度。 |
 
 * 返回值：  
    - 0或正整数：真实接收到的数据字节数。
@@ -162,6 +162,7 @@ ret = spi.write(buf)
 from driver import SPI
 spi = SPI()
 ret = spi.open("spi_bmp280")
-buf = bytearray(8)
-ret = spi.readAfterWrite(buf, 0x0D)
+buf = bytearray(1)
+data = bytearray([0xD0])
+ret = spi.readAfterWrite(buf, data)
 ```

@@ -57,6 +57,10 @@ HaaS 506开发板在出厂时已经烧录了最新的固件，但由于固件一
 ├── Readme.txt
 ├── Release notes.xls
 <br>
+* 其他工具
+   * [python源码加密工具](https://hli.aliyuncs.com/o/config/mpy-cross/mpy-cross.zip)
+   * [haas506-m601合并烧写包工具v2.2](https://hli.aliyuncs.com/o/config/pacmerge2.2-601/pacmerge2.2-601.zip)
+<br>
 
 
 第二步：分别安装下载好的USB驱动和固件烧录工具
