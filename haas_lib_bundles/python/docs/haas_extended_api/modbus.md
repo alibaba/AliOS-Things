@@ -15,7 +15,7 @@ Python 轻应用Modbus基于485串口实现的RTU模式能力，暂不支持ASCI
 |modbus.PARITY_ODD|1|串口使用奇校验|
 |modbus.PARITY_EVEN|2|串口使用偶校验|
 
-|常量|常亮数值|常量说明|
+|错误码|错误码数值|错误码说明|
 |:-|:-|:-|
 |MB_SUCCESS|0|成功|
 |MB_MUTEX_ERROR|-1|互斥失败|
@@ -63,12 +63,12 @@ board.json中的UART类型设备属性配置项说明如下：
 <br>
 
 * 返回值：  
-打开Modbus设备成功返回0；打开UART设备失败返回失败错误码
+打开Modbus设备成功返回0；打开Modbus设备失败返回错误码（具体错误码请参考前述常量说明中的错误码说明，下同）。
 
 * 示例： 
 
 ```python
-# 请确保board.json中包含名为rfid的节点
+# 请确保board.json中包含名为mb1的节点
 '''
 {
     "name": "board-name",
@@ -526,16 +526,16 @@ md.deinit()
 (0, 1)
 ```
 
-## recv - 从机读取主机数据
+## send - 从机发送数据到主机
 
 * 函数功能：  
-该函数仅供从机使用，用来接收主机发送的请求命令。接收的超时参数由 modbus.init 初始化时指定的 timeout 决定，默认为200毫秒。
+该函数仅供从机使用，用来发送响应数据到主机。
 
 * 注意事项：  
 需确保此Modbus处于init状态
 
 * 函数原型：  
-> modbus.recv()
+> modbus.send(slave_addr, data, timeout)
 
 * 参数说明：
 * 
@@ -571,10 +571,10 @@ md.deinit()
 (0, 128)
 ```
 
-## send - 从机发行响应数据到主机
+## recv - 从机接收主机发送的数据
 
 * 函数功能：  
-该函数仅供从机使用，用于发送响应数据给主机。接收的超时参数由 modbus.init 初始化时指定的 timeout 决定，默认为200毫秒。
+该函数仅供从机使用，用于接收主机发送的命令。接收的超时参数由 modbus.init 初始化时指定的 timeout 决定，默认为200毫秒。
 
 * 注意事项：  
 需确保此Modbus处于init状态

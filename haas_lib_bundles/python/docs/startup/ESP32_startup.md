@@ -3,9 +3,9 @@
 ESP32是开源世界中被开发者普遍使用的开发板，在ESP32设备上同样可以使用Python语言基于HaaS开发框架进行轻应用开发。前提是ESP32设备中有烧录HaaS开发团队发布的ESP32 HaaS Python标准固件。
 
 &emsp;&emsp;
-本文则主要介绍如何烧录ESP32 HaaS标准固件并在此基础上完成helloworld Python程序的运行。
+本文则主要介绍如何烧录ESP32 HaaS Python标准固件并在此基础上完成helloworld Python程序的运行。
 
-## ESP32 HaaS固件下载
+## HaaS Python固件版本列表
 
 &emsp;&emsp;
 请通过下面固件列表链接下载开发板对应的固件压缩包并解压，解压完成后可以看到其目录结构如下：
@@ -14,14 +14,21 @@ ESP32是开源世界中被开发者普遍使用的开发板，在ESP32设备上�
 ```
 &emsp;&emsp;
 ### HaaS Python ESP32标准固件列表
+* [HaaSPython-ESP32-v1.0.2](https://hli.aliyuncs.com/p/config/HaaS_Python/HaaSPython-ESP32-v1.0.2.zip)
+  * 版本更新说明（2022-01-20）
+    * aliyunIoT库功能优化
+    * 案例可运行硬件增加对01 Studio开发板支持
+
 * [HaaSPython-ESP32-v1.0.1](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP32-v1.0.1.zip)
+
   <details>
-  <summary>版本更新说明（2021-01-13）</summary>
+  <summary>版本更新说明（2022-01-13）</summary>
 
   * 动态生成QSTR功能
   * UART增加on/any函数
   * aliyunIoT修复内存泄漏及postProp返回值问题
   * 修复部分BUG
+  </details>
 
 * [HaaSPython-ESP32-v1.0.0](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP32-v1.0.0.zip)
 
@@ -37,7 +44,7 @@ ESP32是开源世界中被开发者普遍使用的开发板，在ESP32设备上�
   * 优化ESP32 IDF内存分配机制
   </details>
 
-## PC环境准备
+## ESP32开发环境准备
 &emsp;&emsp;
 将ESP32开发板用Micro-USB数据线和电脑USB口相连。
 
@@ -51,12 +58,19 @@ HaaS Studio目前是以插件的形式安装在VS Code（Visual Studio Code）�
 读者请到[微软官方网站](https://code.visualstudio.com/)上下载 VS Code 安装包并进行安装，VS Code安装包要求不低于版本 1.57。
 
 &emsp;&emsp;
+vscode有release版本(蓝色图标)和insider版本(绿色图标)，请安装蓝色图标的release版本。
+
+&emsp;&emsp;
 VS Code安装包下载网站： https://code.visualstudio.com/
 
 > 推荐 Windows 系统版本为 win10， MacOS 版本不低于 10.15。
 <br>
 
 #### 安装haas-studio插件
+
+> 安装完 VS Code之后，windows用户请注意使用管理员权限打开(vscode插件会安装相关工具到C盘，需要管理员权限)
+
+> 请勿修改vscode插件加载位置，需要使用默认位置
 
 &emsp;&emsp;
 安装完 VS Code之后，请按照下图中数字的指示步骤完成haas-studio插件的安装。
@@ -66,17 +80,39 @@ VS Code安装包下载网站： https://code.visualstudio.com/
 </div>
 
 &emsp;&emsp;
-插件安装完成后，则 VS Code 左下角的状态栏会显示"快速开始"的图标，如下图所示。
+插件第一次安装完成后，会提示安装相关工具才能激活插件，请同意安装相关工具。第一次新建或者打开python轻应用工程，也会安装轻应用开发相关工具，同样需要同意安装。
 
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_新建工程按钮.png width=80%/>
+<img src=../images/haas-studio-tool-install.png width=80%/>
 </div>
 
 &emsp;&emsp;
-如果你已经打开了某个Python工程，则会在VS Code底部的状态栏显示如下一排按钮，这些按钮的功能如下图所示：
+插件安装完成后，则 VSCode 左下角的状态栏会显示"快速开始"的图标，如下图所示。
+
+<div align="center">
+<img src=../images/haas-studio-startup-page.png width=80%/>
+</div>
+
+&emsp;&emsp;
+一般情况下，左下角只会显示快速开始图标，如果打开或者新建了某个Python工程，则会在VSCode底部的状态栏展开如下一排按钮，这些按钮的功能如下图所示：
 
 <div align="center">
 <img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_Python工程按钮.png width=40%/>
+</div>
+
+&emsp;&emsp;
+为了方便开发，还可以打开高级串口模式，在当前的工程目录下，存在.vscode这样一个文件夹，找到里面的settings.json文件，将pythonAdvanced选项设置成enable即可，打开方式如下：
+* 注意高级模式某些平台可能不支持，比如低版本的linux，M1系列MACOS等，如果平台不支持，会自动设置成 disable。
+
+<div align="center">
+<img src=../images/haas-studio-python-advance.png width=80%/>
+</div>
+
+&emsp;&emsp;
+python高级模式打开之后，这些按钮的功能变成如下图所示：
+
+<div align="center">
+<img src=../images/haas-studio-python-advance-enable.png width=40%/>
 </div>
 
 ### ESP32串口名称确认
@@ -108,11 +144,11 @@ zsh: no matches found: /dev/tty.usb*
 
 # 接入ESP32之后
 (base) ➜  ~ ls /dev/tty.usb*
-/dev/tty.usbserial-1410
+/dev/tty.usbserial-0001
 ```
 
 &emsp;&emsp;
-其中接入ESP32之后新出现的"/dev/tty.usbserial-1410"即为ESP32所对应的串口。
+其中接入ESP32之后新出现的"/dev/tty.usbserial-0001"即为ESP32所对应的串口。
 > 注意：每台PC的串口可能都不一样，上面只是笔者电脑上面的串口信息。
 <br>
 
@@ -131,14 +167,14 @@ zsh: no matches found: /dev/tty.usb*
 > 如果“串口名字”下拉框中没有正确的串口号，可以拔插ESP32的USB口后，点击“刷新”按钮刷新串口列表。
 
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_固件烧录_开始烧录.png width=85%/>
+<img src=../images/haas-studio-firmware-burn.png width=85%/>
 </div>
 
 &emsp;&emsp;
 烧录过程中命令行窗口会输出如下日志，烧录完成，终端日志中会提示"Hash of data verified."。
 
 ```
-Serial port /dev/tty.usbserial-1410
+Serial port /dev/cu.usbserial-0001
 Connecting.......
 Detecting chip type... Unsupported detection protocol, switching and trying again...
 Connecting....
@@ -177,14 +213,16 @@ Hard resetting via RTS pin...
 固件烧录完成后，如何确认固件真的有更新到硬件中呢？可以通过如下的方法确认：
 
 &emsp;&emsp;
-通过串口工具打开ESP32开发板（注意波特率选择115200），此时敲击回车会出现“>>>”符号，">>>"代表已经进入到Python的REPL模式中。在REPL模式中输入“import uos; uos.version_info()”指令回车执行，HaaS Python则会将版本号信息输出到串口中。如下图所示，其版本信息遵循“HaaSPython-ESP32-\<version>-\<buildtime>”的格式，其中：
+通过串口工具打开ESP32开发板串口（注意波特率选择115200），此时在串口工具中敲击回车会出现“>>>”符号，">>>"代表已经进入到Python的REPL模式中。在REPL模式中输入“import uos; uos.version_info()”指令回车执行，HaaS Python则会将版本号信息输出到串口中。如下图所示，其版本信息遵循“HaaSPython-ESP32-\<version>-\<buildtime>”的格式，其中：
 * \<version\>：代表HaaS Python版本号。
 * \<buildtime\>：代表固件编译时间。
 > MACOS建议使用picocom串口工具；Windows系统推荐使用Putty串口工具。
 
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/HaaSPython_版本号确认.png width=80%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/HaaSPython_版本号确认.png width=50%/>
 </div>
+
+> 打开串口工具后，敲回车后如果未出现">>>"符号，则一般是因为您的开发板正在运行Python脚本。此时，可以同时按下Ctrl+C两个按键，尝试打断当前的python脚本。如果按很多次Ctrl+C之后仍然没有出现">>>"，则大概率是因为开发板运行的程序死机，可以尝试按住“Ctrl+C”再对开发板进行硬件复位。
 
 ## ESP32 helloworld例程
 
@@ -278,7 +316,7 @@ if __name__ == '__main__':
 ```
 
 &emsp;&emsp;
-helloworld例程运行起来就说明HaaS Python开发环境安装好了。接下来是对公测案例的说明。
+helloworld例程运行起来就说明HaaS Python开发环境安装好了。
 
 &emsp;&emsp;
 快速入门完成之后，建议您进入我们的[趣味案例专区](https://haas.iot.aliyun.com/solution)，快速体验更多有意思的案例。
@@ -291,4 +329,33 @@ helloworld例程运行起来就说明HaaS Python开发环境安装好了。接�
 
 &emsp;&emsp;
 如果您想看HaaS Python都提供哪些库和API，请点击左侧导航栏查看。
+
+## ESP32开发板列表
+&emsp;&emsp;
+HaaS Python固件在如下ESP32系列的开发板上都经过了功能验证，开发者可以根据自己的洗好选择合适的开发板。
+
+### 乐鑫 ESP32_DevKitC
+&emsp;&emsp;
+HaaS Python固件刷入乐鑫ESP32_DevKitC开发版之后，开发板端口详细定义及说明请参考下图：
+
+<div align="center">
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/ESP32_DevKitc_GPIO_mapping.png width=150%/>
+</div>
+
+### 安信可 NodeMCU-32S
+&emsp;&emsp;
+HaaS Python固件刷入安信可NODEMCU-32开发版之后，开发板端口详细定义及说明请参考下图：
+
+<div align="center">
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/ESP32_NodeMCU-32S_GPIO_mapping.png width=150%/>
+</div>
+
+### 01Studio pyWiFi-ESP32
+&emsp;&emsp;
+HaaS Python固件刷入01Studio pyWiFi-ESP32开发版之后，开发板端口详细定义及说明请参考下图：
+<div align="center">
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/ESP32_pyWiFi-ESP32_GPIO_mapping.png width=150%/>
+</div>
+
+
 <br>

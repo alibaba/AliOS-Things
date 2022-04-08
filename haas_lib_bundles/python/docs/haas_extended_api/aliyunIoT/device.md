@@ -13,6 +13,7 @@ AliyunIoT模块可以帮助设备厂商将设备安全地接入到阿里云IoT�
 - 服务(service)
 云端到设备端的服务调用；
 > 注意，需要确保网络连接成功，下面是连接Wi-Fi的示例代码。
+
 ```python
 import network                   # Wi-Fi功能所在库
 import utime                     # 延时API所在组件
@@ -53,6 +54,7 @@ connect succeed!  ('192.168.170.30', '255.255.255.0', '192.168.170.26', '192.168
 - 返回值说明：
 成功，device实例；失败，None
 - 函数示例
+
 ```python
 from aliyunIoT import Device     # iot组件是连接阿里云物联网平台的组件
 
@@ -556,6 +558,7 @@ success to establish tcp, fd=54
 
 - 返回值说明：成功，0；失败，非0整数
 - 函数示例
+
 ```python
 # 请首先添加连接WIFI连接代码
 
@@ -634,6 +637,7 @@ RAW数据上报成功
 
 - 返回值说明：成功，uploadID（字符串类型）；失败，None
 - 函数示例
+
 ```python
 # 请首先添加连接WIFI连接代码
 
@@ -667,8 +671,17 @@ aliyunIoT_device.on(aliyunIoT_device.ON_CONNECT, on_connect)
 # 启动连接阿里云物联网平台过程
 aliyunIoT_device.connect(key_info)# 请首先添加连接WIFI连接代码
 
-# 上传根目录的1.jpg到物联网平台，图片大小建议小于10K.
-ret = aliyunIoT_device.uploadFile("1.jpg", None)
+# 等待设备成功连接到物联网平台
+while(True):
+    if iot_connected:
+        print('物联网平台连接成功')
+        break
+    else:
+        print('sleep for 1 s')
+        utime.sleep(1)
+
+# 上传1.jpg到物联网平台，图片大小建议小于10K.
+ret = aliyunIoT_device.uploadFile("data/pyamp/1.jpg", None)
 if ret != None :
   print('图片上传成功')
 else :
@@ -680,6 +693,7 @@ aliyunIoT_device.end()
 - 输出
 
 ```shell
+sleep for 1 s
 tcp_connect: can only connect from state CLOSED
 success to establish tcp, fd=54
 物联网平台连接成功
@@ -734,15 +748,22 @@ aliyunIoT_device.on(aliyunIoT_device.ON_CONNECT, on_connect)
 # 启动连接阿里云物联网平台过程
 aliyunIoT_device.connect(key_info)# 请首先添加连接WIFI连接代码
 
-# 上传根目录的1.jpg到物联网平台，图片大小建议小于10K.
-ret = aliyunIoT_device.uploadFile("1.jpg", None)
+# 等待设备成功连接到物联网平台
+while(True):
+    if iot_connected:
+        print('物联网平台连接成功')
+        break
+    else:
+        print('sleep for 1 s')
+        utime.sleep(1)
 
-# 上传根目录的1.jpg到物联网平台
+# 上传1.jpg到物联网平台，建议小于10k
 import os
-fileName = "1.jpg"
-f = open(fileName, "r")
+f = open("data/pyamp/1.jpg", "r")
 frame = f.read()
 
+#设定上传后的名字为aa.jpg
+fileName = "aa.jpg"
 fileid = aliyunIoT_device.uploadContent(fileName, frame, None)
 if fileid != None :
   print('图片上传成功')
@@ -754,6 +775,7 @@ aliyunIoT_device.end()
 ```
 - 输出
 ```shell
+sleep for 1 s
 tcp_connect: can only connect from state CLOSED
 success to establish tcp, fd=54
 物联网平台连接成功
@@ -778,6 +800,7 @@ success to establish tcp, fd=54
 
 - 返回值说明：成功，0 ；失败，非0整数
 - 函数示例
+
 ```python
 # 请首先添加连接WIFI连接代码
 
@@ -823,8 +846,7 @@ while(True):
 # 测试topic
 topic_test_info = {
     'topic': '/' + productKey  + '/' + deviceName + '/user/aos_test',
-    'qos': 1,
-    'payload': 'device publish and subcribe test'
+    'qos': 1
 }
 
 ret = aliyunIoT_device.subscribe(topic_test_info)
@@ -870,6 +892,7 @@ Topic订阅成功
 
 - 返回值说明：成功，0；失败，非0整数
 - 函数示例
+
 ```python
 # 请首先添加连接WIFI连接代码
 
@@ -1023,8 +1046,7 @@ while(True):
 # 测试topic
 topic_test_info = {
     'topic': '/' + productKey  + '/' + deviceName + '/user/aos_test',
-    'qos': 1,
-    'payload': 'device publish and subcribe test'
+    'qos': 1
 }
 ret = aliyunIoT_device.unsubscribe(topic_test_info)
 if ret == 0 :

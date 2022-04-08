@@ -1,0 +1,59 @@
+{
+  "name": "haas506",
+  "version": "1.0.0",
+  "io": {
+      "modbus_485_4800": {
+          "type": "MODBUS",
+          "mode": 0,
+          "port": 2,
+          "baudrate": 4800,
+          "priority": 0,
+          "timeout": 200
+      },
+      "cloud_led": {
+        "type": "GPIO",
+        "port": 9,
+        "dir": "output",
+        "pull": "pulldown"
+      },
+      "net_led": {
+        "type": "GPIO",
+        "port": 7,
+        "dir": "output",
+        "pull": "pulldown"
+      },
+      "electric_relay1_0": {
+        "type": "GPIO",
+        "port": 16,
+        "dir": "output",
+        "pull": "pulldown"
+      },
+      "electric_relay1_1": {
+        "type": "GPIO",
+        "port": 17,
+        "dir": "output",
+        "pull": "pulldown"
+      },
+      "electric_relay1_2": {
+        "type": "GPIO",
+        "port": 18,
+        "dir": "output",
+        "pull": "pulldown"
+      },
+      "ADC1": {
+        "type": "ADC",
+        "port": 1,
+        "sampling": 12000000
+      },
+      "ina219": {
+        "type": "I2C",
+        "port": 0,
+        "addrWidth": 7,
+        "freq": 400000,
+        "mode": "master",
+        "devAddr": 64
+      }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

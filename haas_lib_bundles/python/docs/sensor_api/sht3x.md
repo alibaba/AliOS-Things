@@ -172,7 +172,6 @@ humidity is 60%H
     "debugLevel": "ERROR",
     "repl": "disable"
 }
-  
 ```
 ```python
 # Python代码

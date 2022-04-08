@@ -1,0 +1,19 @@
+{
+  "name": "nodemcu32s",
+  "version": "1.0.0",
+  "io": {
+    "gp2y10out": {
+      "type": "ADC",
+      "port": 0,
+      "atten": 2,
+      "width": 3,
+      "sampling": 12000000
+    },
+    "gp2y10led": {
+      "type": "GPIO",
+      "port": 26,
+      "dir": "output",
+      "pull": "pullup"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "ir": {
+      "type": "GPIO",
+      "port": 36,
+      "dir": "input",
+      "pull": "pullup"
+    },
+    "mq136":{
+      "type": "ADC",
+      "port": 39,
+      "sampling": 12000000,
+      "atten": 3,
+      "width": 3
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

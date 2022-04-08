@@ -13,6 +13,7 @@ import network      # 网络库
 import ucamera      # 摄像头库
 import utime        # 延时函数在utime库中
 import sntp         # 网络时间同步库
+import _thread      # 线程库
 import ujson as json
 
 # Wi-Fi SSID和Password设置
@@ -142,13 +143,70 @@ def detectFruits(frame, fileName, productKey, devName, devSecret) :
     time_diff = utime.ticks_diff(utime.ticks_ms(), start)
     print('get response time : %d' % time_diff)
 
-# 单线程案例
-def main():
-    global disp, dev, g_score
-    dev = Device()
-    disp = display.TFT()
+# 识别线程函数
+def detectFruitsThread():
+    global frame
+    while True:
+        if frame != None:
+            detectFruits(frame, 'fruits.jpg', productKey, deviceName, deviceSecret)
+            utime.sleep_ms(1000)
+        else:
+            utime.sleep_ms(1000)
 
+# 显示线程函数
+def displayThread():
+    # 引用全局变量
+    global disp, frame, detected
+    # 定义清屏局部变量
+    clearFlag = False
+    # 定义显示文本局部变量
+    textShowFlag = False
+    while True:
+        # 采集摄像头画面
+        # print('start to capture')
+        frame = ucamera.capture()
+        # print('end to capture')
+        if frame != None:
+            if detected == True:
+                # 清除屏幕内容
+                if clearFlag == False:
+                    disp.clear()
+                    clearFlag = True
+                # 设置文字字体
+                disp.font(disp.FONT_DejaVu40)
+                # 显示识别结果
+                disp.text(40, 80, name, disp.RED)
+                disp.text(40, 120, 'Deteted!!!', disp.RED)
+                print('Fruits Detected!!!')
+                utime.sleep_ms(1000)
+                textShowFlag = False
+            else:
+                # 显示图像
+                # print('start to display')
+                disp.image(0, 20, frame, 0)
+                utime.sleep_ms(100)
+                if textShowFlag == False:
+                    # 设置显示字体
+                    disp.font(disp.FONT_DejaVu18)
+                    # 显示文字
+                    disp.text(2, 0, 'Recognizing ...', disp.WHITE)
+                    textShowFlag = True
+                clearFlag = False
+
+# 多线程案例
+def main():
+    # 全局变量
+    global disp, dev, frame, detected
+    # 创建lcd display对象
+    disp = display.TFT()
+    frame = None
+    detected = False
+
+    # 连接网络
     connect_wifi(SSID, PWD)
+
+    # 设备初始化
+    dev = Device()
     dev.on(Device.ON_CONNECT, cb_lk_connect)
     dev.on(Device.ON_SERVICE, cb_lk_service)
     dev.connect(key_info)
@@ -157,32 +215,22 @@ def main():
         if g_lk_connect:
             break
 
+    # 初始化摄像头
     ucamera.init('uart', 33, 32)
     ucamera.setProp(ucamera.SET_FRAME_SIZE, ucamera.SIZE_320X240)
 
+    try:
+        # 启动显示线程
+        _thread.start_new_thread(displayThread, ())
+        # 设置识别线程stack
+        _thread.stack_size(20 * 1024)
+        # 启动识别线程
+        _thread.start_new_thread(detectFruitsThread, ())
+    except:
+       print("Error: unable to start thread")
+
     while True:
-        g_lk_service = False
-        start = utime.ticks_ms()
-        frame = ucamera.capture()
-        time_diff = utime.ticks_diff(utime.ticks_ms(), start)
-        print('capture time : %d' % time_diff)
-
-        start = utime.ticks_ms()
-        disp.image(0, 0, frame, 0)
-        time_diff = utime.ticks_diff(utime.ticks_ms(), start)
-        print('image time : %d' % time_diff)
-
-        detectFruits(frame, 'fruits.jpg', productKey, deviceName, deviceSecret)
-
-        if (g_score > 0.6):
-            disp.clear()
-            disp.font(disp.FONT_DejaVu40)
-            # 显示识别结果
-            disp.text(40, 80, name, disp.RED)
-            disp.text(40, 120, 'Deteted!!!', disp.RED)
-            print('Fruits Detected!!!')
-            utime.sleep_ms(1000)
-            g_score = 0
+        utime.sleep_ms(1000)
 
 if __name__ == '__main__':
     main()

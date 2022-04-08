@@ -1,0 +1,32 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "ir": {
+      "type": "GPIO",
+      "port": 19,
+      "dir": "input",
+      "pull": "pullup"
+    },
+    "led01": {
+      "type": "GPIO",
+      "port": 28,
+      "dir": "output",
+      "pull": "pullup"
+    },
+    "led02": {
+      "type": "GPIO",
+      "port": 36,
+      "dir": "output",
+      "pull": "pullup"
+    },
+    "led03": {
+      "type": "GPIO",
+      "port": 39,
+      "dir": "output",
+      "pull": "pullup"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

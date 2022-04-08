@@ -38,7 +38,7 @@ class SPL06(object):
         if (mode == 0):
             Reg = bytearray([addr])
             self._i2cDev.write(Reg)
-            sleep_ms(30)
+            sleep_ms(10)
             tmp = bytearray(1)
             self._i2cDev.read(tmp)
             #print("<-- read addr " + str(addr) + ", value = " + str(tmp[0]))
@@ -358,7 +358,7 @@ class SPL06(object):
             traw_sc * (c01) + \
             traw_sc * praw_sc * ((c11) + praw_sc * (c21))
 
-        pressure = pcomp / 100 # convert to mb
+        pressure = pcomp
         #print("pressure: %d" %pressure)
 
         # local_pressure = 1010.5 # Look up local sea level pressure on
@@ -375,17 +375,17 @@ class SPL06(object):
         spl06_dict['altitude'] = round(altitude, 1)
         return spl06_dict
 
-    def getCtemp(self):
-        return self.getData['Ctemp']
+    def getTemperature(self):
+        return self.getData()['Ctemp']
 
-    def getFtemp(self):
-        return self.getData['Ftemp']
+    def getFTemperature(self):
+        return self.getData()['Ftemp']
 
     def getPressure(self):
-        return self.getData['pressure']
+        return self.getData()['pressure']
 
     def getAltitude(self):
-        return self.getData['altitude']
+        return self.getData()['altitude']
 
 if __name__ == "__main__":
     '''
@@ -404,14 +404,12 @@ if __name__ == "__main__":
     i2cDev = I2C()
     i2cDev.open("spl06")
 
-    spl06Dev = SPL06(i2cDev)
+    baroDev = SPL06(i2cDev)
 
-    ctemp = spl06Dev.getCtemp()
-    ftemp = spl06Dev.getFtemp()
-    pressure = spl06Dev.getPressure()
-    altitude = spl06Dev.getAltitude()
-    print("ctemp:%f, ftemp:%f, pressure:%f, altitude:%f" % (ctemp, ftemp, pressure, altitude))
+    pressure = baroDev.getPressure()
+    print("pressure:%f" % (pressure))
     i2cDev.close()
 
-    del spl06Dev
+    del baroDev
+    i2cDev.close()
     print("Test spl06 done!")

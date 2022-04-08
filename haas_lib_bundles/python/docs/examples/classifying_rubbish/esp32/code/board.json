@@ -1,0 +1,14 @@
+{
+  "name": "m5stackcore2",
+  "version": "1.0.0",
+  "io": {
+    "ir": {
+      "type": "GPIO",
+      "port": 27,
+      "dir": "input",
+      "pull": "pullup"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
