@@ -315,7 +315,7 @@ int mbedtls_pkcs12_derivation( unsigned char *data, size_t datalen,
         }
 
         use_len = ( datalen > hlen ) ? hlen : datalen;
-        use_len = ( use_len < MBEDTLS_MD_MAX_SIZE) ? use_len : MBEDTLS_MD_MAX_SIZE;
+        use_len = (use_len > MBEDTLS_MD_MAX_SIZE) ? MBEDTLS_MD_MAX_SIZE: use_len;
         memcpy( p, hash_output, use_len );
         datalen -= use_len;
         p += use_len;

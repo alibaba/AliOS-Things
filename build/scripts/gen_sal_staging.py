@@ -1,21 +1,15 @@
 import os
 import sys
 import click
-import re
-import codecs
 
-if sys.version_info[0] < 3:
-    reload(sys)
-    sys.setdefaultencoding('UTF8')
+reload(sys)
+sys.setdefaultencoding('UTF8')
 
 scriptdir = os.path.dirname(os.path.abspath(__file__))
 templates = {
-    "nbiot": ["templates/sal_nbiot_template", "components/peripherals/iot_comm_module/sal/nbiot"],
-    "gprs": ["templates/sal_gprs_template", "components/peripherals/iot_comm_module/sal/gprs"],
-    "wifi": ["templates/sal_wifi_template", "components/peripherals/iot_comm_module/sal/wifi"],
-    "lte": ["templates/sal_lte_template", "components/peripherals/iot_comm_module/sal/lte"],
-    "eth": ["templates/sal_eth_template", "components/peripherals/iot_comm_module/sal/eth"],
-    "other": ["templates/sal_other_template", "components/peripherals/iot_comm_module/sal/other"],
+    "gprs": ["templates/sal_gprs_template", "drivers/sal/gprs"],
+    "wifi": ["templates/sal_wifi_template", "drivers/sal/wifi"],
+    "lte": ["templates/sal_lte_template", "drivers/sal/lte"],
 }
 
 
@@ -25,7 +19,7 @@ def copy_template(tempfile, templatedir, destdir, drivername):
     contents = []
     # Replace drivername from file contents
 
-    with codecs.open(os.path.join(templatedir, tempfile), "r", encoding="UTF-8") as f:
+    with open(os.path.join(templatedir, tempfile), "r") as f:
         for line in f.readlines():
             if "@drivername@" in line:
                 line = line.replace("@drivername@", drivername)
@@ -46,62 +40,49 @@ def copy_template(tempfile, templatedir, destdir, drivername):
 
     # Write to destfile
     if contents:
-        with codecs.open(os.path.join(destdir, destfile), "w", encoding='utf-8') as f:
+        with open(os.path.join(destdir, destfile), "w") as f:
             for line in contents:
                 f.write(line)
 
-def update_config(destdir, devicetype, drivername):
-    configfile = os.path.join(destdir, "..", "..", "Config.in")
-    if os.path.isfile(configfile):
-        newf = []
-        exist = False
-        newline = "\n    config AOS_SAL_%s_%s\n" % (devicetype.upper(), drivername.upper())
-        newline2 = "        bool %s.%s\n" % (devicetype, drivername)
 
-        with codecs.open(configfile, 'r', encoding='utf-8') as f:
-            for l in f.readlines():
-                newf.extend([l])
-                if re.findall(r'.*bool \"Null\".*', l):
-                    newf.extend([newline])
-                    newf.extend([newline2])
-                if newline.strip() in l or newline2.strip() in l:
-                    exist = True
+def update_configin(configin_file, devicetype, drivername):
+    """ Update Config.in in paraent directory """
+    contents = []
+    source_found = "no"
+    default_found = "no"
+    with open(configin_file, "r") as f:
+        for line in f.readlines():
+            if "default" in line:
+                default_found = "yes"
 
-        if exist:
-            newf.remove(newline)
-            newf.remove(newline2)
+            if default_found == "yes" and "default" not in line:
+                contents += ['    default AOS_COMP_DEVICE_SAL_%s if BSP_EXTERNAL_%s_MODULE = "%s.%s"\n' %
+                             (drivername.upper(), devicetype.upper(), devicetype, drivername)]
+                default_found = "no"
 
-        if newf:
-            with codecs.open(configfile, 'w', encoding='utf-8') as f:
-                for l in newf:
-                    f.write(l)
+            if "source" in line:
+                source_found = "yes"
 
-def update_mk(destdir, devicetype, drivername):
-    mkfile = os.path.join(destdir, "..", "..", "aos.mk")
-    if os.path.isfile(mkfile):
-        newline = "$(NAME)_COMPONENTS-$(AOS_SAL_%s_%s) := device_sal_%s" % \
-                  (devicetype.upper(), drivername.upper(), drivername)
+            if source_found == "yes" and "source" not in line:
+                contents += ['source "drivers/sal/%s/%s/Config.in"\n' % (devicetype, drivername)]
+                source_found = "no"
 
-        with codecs.open(mkfile, 'r', encoding='utf-8') as f:
-            l = f.readline()
-            while l:
-                if newline.strip() in l:
-                    exist = True
-                    return
-                l = f.readline()
+            contents += [line]
 
-        with codecs.open(mkfile, 'a', encoding='utf-8') as f:
-            f.write("\n" + newline)
+    with open(configin_file, "w") as f:
+        for line in contents:
+            f.write(line)
+
 
 @click.command()
 @click.argument("drivername", metavar="[DRIVERNAME]")
 @click.option("-m", "--mfname", help="The manufacturer of device")
-@click.option("-t", "--devicetype", required=True, type=click.Choice(["nbiot", "gprs", "wifi", "lte", "eth", "other"]), help="The type of device")
+@click.option("-t", "--devicetype", required=True, type=click.Choice(["gprs", "wifi", "lte"]), help="The type of device")
 @click.option("-a", "--author", help="The author of driver")
 def cli(drivername, mfname, devicetype, author):
     """ Create sal driver staging from template """
     templatedir = os.path.join(scriptdir, templates[devicetype][0])
-    destdir = os.path.join(scriptdir, "..", "..", templates[devicetype][1], drivername)
+    destdir = os.path.join(scriptdir, "../../", templates[devicetype][1], drivername)
     destdir = os.path.abspath(destdir)
 
     if os.path.isdir(destdir):
@@ -110,19 +91,13 @@ def cli(drivername, mfname, devicetype, author):
     else:
         os.makedirs(destdir)
 
-    if not os.path.isdir(templatedir):
-        click.echo("[Error] The driver templete is not evailable yet!\n")
-        return 1
-
     sources = os.listdir(templatedir)
     for tempfile in sources:
         copy_template(tempfile, templatedir, destdir, drivername)
 
-    # update Config.in
-    update_config(destdir, devicetype, drivername)
-
-    # update aos.mk
-    update_mk(destdir, devicetype, drivername)
+    configin_file = os.path.join(scriptdir, "../../drivers/sal/%s/Config.in" % devicetype)
+    if os.path.isfile(configin_file):
+        update_configin(configin_file, devicetype, drivername)
 
     click.echo("[Info] Drivers Initialized at: %s" % destdir)
 

@@ -1,0 +1,5 @@
+menuconfig AOS_COMP_U_FLASH_TEST
+    bool "flash test module"
+    default n
+    help
+        AliOS flash test module

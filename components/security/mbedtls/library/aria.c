@@ -559,7 +559,7 @@ int mbedtls_aria_crypt_ecb( mbedtls_aria_context *ctx,
     GET_UINT32_LE( d, input, 12 );
 
     i = 0;
-    while( 1 && i <= MBEDTLS_ARIA_MAX_ROUNDS)
+    while( 1 )
     {
         a ^= ctx->rk[i][0];
         b ^= ctx->rk[i][1];

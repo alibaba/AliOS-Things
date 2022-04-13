@@ -2,13 +2,37 @@
 
 import os, sys
 import re
-from lib.comp import find_comp_mkfile, get_comp_name
+
+def find_comp_mkfile(dirname):
+    """ Find component makefiles from dirname """
+    mklist = []
+    for root, dirs, files in os.walk(dirname):
+        if 'out' in root or 'build' in root or 'publish' in root:
+            continue
+
+        if 'aos.mk' in files:
+            mklist += ["%s/aos.mk" % root]
+            continue
+
+    return mklist
+
+def get_comp_name(mkfile):
+    """ Get comp name from mkfile """
+    name = None
+    patten = re.compile(r'^NAME.*=\s*(.*)\s*')
+    with open(mkfile, 'r') as f:
+        for line in f.readlines():
+            match = patten.match(line)
+            if match:
+                 name = match.group(1)
+
+    return name
 
 def get_comp_optname(compname, mkfile):
     """ Return config option name of comp """
     optname = None
     compname = compname.upper().replace("-", "_")
-    if "application/" in mkfile:
+    if "app/" in mkfile:
         optname = "AOS_APP_%s" % compname.replace("APP_", "")
     elif "board/" in mkfile:
         optname = "AOS_BOARD_%s" % compname.replace("BOARD_", "")
@@ -24,19 +48,16 @@ def get_comp_optname(compname, mkfile):
 def get_app_name(mkfile):
     """ Return app dir name as app name """
     name = None
-    patten = re.compile(r".*(application/example/example_legacy/|application/example/|application/profile/|test/develop/)(.*)/aos.mk")
+    patten = re.compile(r".*(projects/example/|projects/profile/|test/develop/)(.*)/aos.mk")
     match = patten.match(mkfile)
     if match:
         name = match.group(2).replace("/", ".")
 
     if not name:
-        patten = re.compile(r".*/application/(\w*/)?(.*)/aos.mk")
+        patten = re.compile(r".*/projects/(\w*/)?(.*)/aos.mk")
         match = patten.match(mkfile)
         if match:
             name = match.group(2).replace("/", ".")
-
-    if not name:
-        name = get_comp_name(mkfile)
 
     return name
 
@@ -45,12 +66,12 @@ def get_board_name(mkfile):
     name = None
     patten = re.compile(r".*(board/)(.*)/aos.mk")
     match = patten.match(mkfile)
-    if match:	
+    if match:
         name = match.group(2).replace("/", ".")
-        name = name.replace("board_legacy.", "")
+
     return name
 
-def write_config_file(source_root, config_file, mklist, appdir=None):
+def write_config_file(source_root, config_file, mklist):
     """ Parse comps and write data to total config file """
     # contents will be wrote to config file
     conf_dict = {}
@@ -58,30 +79,24 @@ def write_config_file(source_root, config_file, mklist, appdir=None):
     config_keys = []
     # comp name defined by NAME
     real_names = []
-    app_src_dir = [os.path.join(source_root, "application").replace("\\", "/"), os.path.join(source_root, "test", "develop").replace("\\", "/")]
-    board_src_dir = [os.path.join(source_root, "platform", "board").replace("\\", "/")]
-    appdir = os.environ.get("APPDIR")
-    if appdir:
-        appdir = appdir.replace("\\", "/")
-        app_src_dir.append(appdir)
-        board_src_dir.append(os.path.join(appdir, "board").replace("\\", "/"))
 
     for mkfile in mklist:
         comptype = "normal"
         aliasname = ""
         mkfile = mkfile.replace("\\", "/")
+
         name = get_comp_name(mkfile)
         if not name:
             continue
 
         real_names += [name]
 
-        if any(item in mkfile for item in board_src_dir):
-            comptype = "board"
-            aliasname = get_board_name(mkfile)    
-        elif any(item in mkfile for item in app_src_dir):
+        if "app/" in mkfile or "test/develop/" in mkfile:
             comptype = "app"
             aliasname = get_app_name(mkfile)
+        elif "board/" in mkfile:
+            comptype = "board"
+            aliasname = get_board_name(mkfile)
         else:
             pass
 
@@ -89,21 +104,10 @@ def write_config_file(source_root, config_file, mklist, appdir=None):
             conf_dict[name] = { "mkfile": mkfile, "aliasname": aliasname, "type": comptype }
             config_keys += [name]
         else:
-            if appdir:
-                # Override board and app component with the one from appdir
-                if appdir in mkfile and "/board/" in mkfile:
-                    conf_dict[name] = { "mkfile": mkfile, "aliasname": aliasname, "type": comptype }
-                elif os.path.join(appdir, "aos.mk") == mkfile:
-                    conf_dict[name] = { "mkfile": mkfile, "aliasname": aliasname, "type": comptype }
-                else:
-                    print("[WARNING]: Duplicate component found: %s" % name)
-                    print("- %s: %s" % (name, conf_dict[name]))
-                    print("- %s: %s" % (name, mkfile))
-            else:
-                print("[ERROR]: Duplicate component found: %s" % name)
-                print("- %s: %s" % (name, conf_dict[name]))
-                print("- %s: %s" % (name, mkfile))
-                return 1
+            print "[ERROR]: Duplicate component found: %s" % name
+            print "- %s: %s" % (name, conf_dict[name])
+            print "- %s: %s" % (name, mkfile)
+            return 1
 
     with open (config_file, 'w') as f:
         f.write("REAL_COMPONENTS := %s\n" % " ".join(real_names))
@@ -131,21 +135,16 @@ def main(argv):
 
     source_root = argv[1]
     config_file = argv[2]
-    print("Parsing all components ...")
+    print "Parsing all components ..."
     mklist = find_comp_mkfile(source_root)
 
     appdir = os.environ.get("APPDIR")
-    ret = 0
     if appdir:
         mklist += find_comp_mkfile(appdir)
-        ret = write_config_file(source_root, config_file, mklist, appdir)
-    else:
-        ret = write_config_file(source_root, config_file, mklist)
 
+    ret = write_config_file(source_root, config_file, mklist)
     if ret:
-        print("Failed to create %s ...\n" % config_file)
-        return 1
-    return 0
+        print "Failed to create %s ...\n" % config_file
 
 if __name__ == "__main__":
     ret = main(sys.argv)

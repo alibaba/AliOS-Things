@@ -1,0 +1,38 @@
+menuconfig AOS_COMP_NAND_KV
+    bool "Key-value Storage for NAND"
+    default n
+    help
+      lightweight key-value storage module for NAND Flash
+
+if AOS_COMP_NAND_KV
+# Configurations for component kv
+
+config KV_CONFIG_MAX_KEY_LEN
+    int "The maximum length of key buffer (bytes)"
+    default 128
+    help
+        This option sets the maximum length of key buffer.
+        the value could be 32, 64, 128, 256 ...
+        the default is 128.
+
+config KV_CONFIG_MAX_VAL_LEN
+    int "The maximum length of value buffer (bytes)"
+    default 512
+    help
+        This options sets the maximum length of value buffer.
+        the value could be 32, 64, 128, 256, 512, 1024 ...
+        the default is 512.
+
+config KV_CONFIG_PAGE_SIZE
+    int "The size of a flash page (bytes)"
+    default 4096
+    help
+        The size of a flash page, in byte unit.
+
+config KV_CONFIG_BLOCK_SIZE
+    int "The size of a flash block (bytes, spare area excluded)"
+    default 262144
+    help
+        The size of a flash block, in byte unit. Spare area not included.
+
+endif

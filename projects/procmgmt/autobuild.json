@@ -1,0 +1,18 @@
+[
+    {
+        "board": "vexpressa9-mk",
+        "os": "linux",
+        "params": "MBINS=app"
+    },
+    {
+        "board": "haas100-mk",
+        "os": "linux",
+        "params": "MBINS=app MBINS_APP=app1",
+        "extraOps": "cp out/uapp_helloworld1@haas100-mkapp/binary/uapp_helloworld1@haas100-mk.app.bin vendor/haas/mcu/prebuild/data && aos make alios_kernel@haas100-mk -c config
+ && aos make MBINS=kernel",
+        "products": {
+            "ota_rtos.bin": "vendor/haas/mcu/release/write_flash_gui/ota_bin/ota_rtos.bin",
+            "littlefs.bin": "vendor/haas/mcu/release/write_flash_gui/ota_bin/littlefs.bin"
+        }
+    }
+]

@@ -1,0 +1,19 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_SOCKET_RPC_CLIENT
+    bool "socket rpc client"
+    default n
+    help
+        socket rpc client implementation
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_SOCKET_RPC_CLIENT
+    bool "socket rpc client"
+    default n
+    help
+        socket rpc client implementation
+endif
+
+###################################################################
+# Component configuration items

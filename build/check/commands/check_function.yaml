@@ -1,0 +1,12 @@
+---
+01:
+  name: flake8
+  help: "Check python syntax with flake8"
+  script: "check_python_syntax_flake8.py"
+  requires:
+    - flake8
+
+02:
+  name: test
+  help: "Test for check"
+  script: ""

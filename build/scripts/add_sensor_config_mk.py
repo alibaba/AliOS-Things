@@ -5,7 +5,7 @@ file_name = sys.argv[1]
 para = sys.argv[2]
 
 #file_name = "config_mk.py"
-#para = "'./drivers/sensor/drv/drv_temp_humi_sensirion_shtc1.cccccc',"
+#para = "'./component/component_legacy/sensor/drv/drv_temp_humi_sensirion_shtc1.cccccc',"
 
 lines=[]
 ret = -1;
@@ -21,7 +21,7 @@ while line:
 	num = num+1
 	lines.append(line)
 	for word in line.split():
-	
+
 		if (search_flag == -1):
 			ret = str(word).find("'name':'sensor'")
 			if ret != -1:
@@ -35,7 +35,7 @@ while line:
 		if ret != -1:
 			sys.exit(0)
 	line = fd_out.readline()
-	
+
 fd_out.close()
 
 

@@ -470,13 +470,11 @@ int mbedtls_pem_write_buffer( const char *header, const char *footer,
     while( use_len )
     {
         len = ( use_len > 64 ) ? 64 : use_len;
-        if (c != NULL) {
-            memcpy( p, c, len );
-            use_len -= len;
-            p += len;
-            c += len;
-            *p++ = '\n';
-        }
+        memcpy( p, c, len );
+        use_len -= len;
+        p += len;
+        c += len;
+        *p++ = '\n';
     }
 
     memcpy( p, footer, strlen( footer ) );

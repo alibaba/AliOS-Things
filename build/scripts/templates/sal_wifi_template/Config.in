@@ -1,3 +1,2 @@
 config AOS_COMP_DEVICE_SAL_@DRIVERNAME@
-    bool "wifi.@drivername@"
-    default y
+    bool "@DRIVERNAME@"

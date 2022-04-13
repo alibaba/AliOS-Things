@@ -1,0 +1,5 @@
+config AOS_COMP_USPACE_RPC
+    bool "User Space RPC API Support"
+    default y
+    help
+        User space RPC (Remote Procedure Call) API support.

@@ -1,0 +1,16 @@
+
+config AOS_COMP_USYSCALL
+    bool "Userspace Syscall"
+    default n
+    help
+        "User mode system call implementation"
+
+if AOS_COMP_USYSCALL
+
+    config CONFIG_HAL_FLASH_SYSCALL
+        bool "HAL Flash Syscall"
+        default n
+        help
+            "enalbe hal flash syscall"
+
+endif

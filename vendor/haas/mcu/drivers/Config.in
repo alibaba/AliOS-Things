@@ -1,0 +1,4 @@
+config AOS_MCU_V_COMMON_DRV
+    bool "aos_mcu_v_common_drv"
+    help
+        common driver for haas1000.

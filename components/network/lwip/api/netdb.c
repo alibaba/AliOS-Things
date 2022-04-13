@@ -58,7 +58,7 @@ struct gethostbyname_r_helper {
 
 /** h_errno is exported in netdb.h for access by applications. */
 #if LWIP_DNS_API_DECLARE_H_ERRNO
-int h_errno;
+//int h_errno;
 #endif /* LWIP_DNS_API_DECLARE_H_ERRNO */
 
 /** define "hostent" variables storage: 0 if we use a static (but unprotected)
@@ -285,7 +285,6 @@ lwip_getaddrinfo(const char *nodename, const char *servname,
   if ((nodename == NULL) && (servname == NULL)) {
     return EAI_NONAME;
   }
-
   if (hints != NULL) {
     ai_family = hints->ai_family;
     if ((ai_family != AF_UNSPEC)
@@ -301,7 +300,6 @@ lwip_getaddrinfo(const char *nodename, const char *servname,
   } else {
     ai_family = AF_UNSPEC;
   }
-
   if (servname != NULL) {
     /* service name specified: convert to port number
      * @todo?: currently, only ASCII integers (port numbers) are supported (AI_NUMERICSERV)! */
@@ -310,7 +308,6 @@ lwip_getaddrinfo(const char *nodename, const char *servname,
       return EAI_SERVICE;
     }
   }
-
   if (nodename != NULL) {
     /* service location specified, try to resolve */
     if ((hints != NULL) && (hints->ai_flags & AI_NUMERICHOST)) {
@@ -389,7 +386,6 @@ lwip_getaddrinfo(const char *nodename, const char *servname,
     ai->ai_family = AF_INET;
 #endif /* LWIP_IPV4 */
   }
-
   /* set up addrinfo */
   if (hints != NULL) {
     /* copy socktype & protocol from hints if specified */

@@ -1,0 +1,6 @@
+config RHINO_CONFIG_IPC
+    bool "Inter-Proccess Communication"
+    default y
+    help
+        "enable inter-process communication"
+

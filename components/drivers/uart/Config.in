@@ -1,0 +1,6 @@
+menuconfig AOS_COMP_U_UART
+    select AOS_COMP_DEVICEVFS
+    bool "uart core module"
+    default n
+    help
+        AliOS uart module core layer

@@ -69,7 +69,12 @@ endif
 # Returns a the location of the given component relative to source-tree-root
 # rather than from the cwd
 # $(1) is component
-GET_BARE_LOCATION =$(patsubst $(call ESCAPE_BACKSLASHES,$(subst :,/,$(SOURCE_ROOT)))%,%,$(strip $(subst :,/,$($(1)_LOCATION))))
+GET_BARE_LOCATION =$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROOT))%,%,$(strip $(subst :,/,$($(1)_LOCATION))))
+
+define SELF_BUILD_RULE
+$(LIBS_DIR)/$(notdir $($(1)_SELF_BUIlD_COMP_targets)): $(OUTPUT_DIR)/config.mk
+	bash $($(1)_LOCATION)$($(1)_SELF_BUIlD_COMP_scripts) $(LIBS_DIR)  $(HOST_OS) $(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX) $(OUTPUT_DIR)/config.mk
+endef
 
 ###############################################################################
 # MACRO: BUILD_C_RULE
@@ -90,9 +95,9 @@ endef
 # Compiles a C language header file to ensure it is stand alone complete
 # $(1) is component, $(2) is the source header file
 define CHECK_HEADER_RULE
-$(eval $(1)_CHECK_HEADER_LIST+=$(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2:.h=.chk) )
-.PHONY: $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2:.h=.chk)
-$(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2:.h=.chk): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2)).d
+$(eval $(1)_CHECK_HEADER_LIST+=$(OUTPUT_DIR)/$(MODULES_DIR)/$(strip $($(1)_LOCATION))$(2:.h=.chk) )
+.PHONY: $(OUTPUT_DIR)/$(MODULES_DIR)/$(strip $($(1)_LOCATION))$(2:.h=.chk)
+$(OUTPUT_DIR)/$(MODULES_DIR)/$(strip $($(1)_LOCATION))$(2:.h=.chk): $(strip $($(1)_LOCATION))$(2) $(CONFIG_FILE) $$(dir $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))$(2)).d
 	$(QUIET)$(ECHO) Checking header  $(2)
 	$(QUIET)$(CCACHE) $(CC) -c $(AOS_SDK_CFLAGS) $(filter-out -pedantic -Werror, $($(1)_CFLAGS) $(C_BUILD_OPTIONS) ) $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES) -o $$@ $$<
 endef
@@ -130,7 +135,8 @@ endef
 define BUILD_COMPONENT_RULES
 
 $(eval SUFFIX := $(2))
-$(eval LINK_LIBS +=$(if $(strip $($(1)_SOURCES)),$(LIBS_DIR)/$(1)$(SUFFIX).a))
+$(eval TEMP_SUFFIX := $(if $(findstring dynamic, $($(1)_LIBRARY_TYPE)), .so, .a))
+$(eval LINK_LIBS +=$(if $(strip $($(1)_SOURCES)),$(LIBS_DIR)/$(1)$(SUFFIX)$(TEMP_SUFFIX)))
 $(eval LINK_LIBS +=$(if $($(1)_SELF_BUIlD_COMP_targets),$(LIBS_DIR)/$(notdir $($(1)_SELF_BUIlD_COMP_targets) )))
 
 ifneq ($($(1)_PRE_BUILD_TARGETS),)
@@ -140,25 +146,31 @@ endif
 # Make a list of the object files that will be used to build the static library
 $(eval $(1)_LIB_OBJS := $(addprefix $(strip $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(1))),  $(filter %.o, $($(1)_SOURCES:.cc=.o) $($(1)_SOURCES:.cpp=.o) $($(1)_SOURCES:.c=.o) $($(1)_SOURCES:.s=.o) $($(1)_SOURCES:.S=.o)))  $(patsubst %.c,%.o,$(call RESOURCE_FILENAME, $($(1)_RESOURCES))))
 
-
 $(LIBS_DIR)/$(1)$(SUFFIX).c_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)
 	$(eval $(1)_C_OPTS:=$(subst $(COMMA),$$(COMMA), $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_SPECIFIC_DEPS_FLAG) $(COMPILER_UNI_CFLAGS) $($(1)_CFLAGS) $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES)))
+	$(eval $(1)_C_OPTS+=$(if $(findstring $(1), $(AOS_GCOV_COMPONENTS)), -fprofile-arcs -ftest-coverage, ))
 	$(eval C_OPTS_FILE := $($(1)_C_OPTS) )
 	$$(call WRITE_FILE_CREATE, $$@, $(C_OPTS_FILE))
 	$$(file >$$@, $(C_OPTS_FILE) )
 
 $(LIBS_DIR)/$(1)$(SUFFIX).cpp_opts: $($(1)_PRE_BUILD_TARGETS) $(CONFIG_FILE) | $(LIBS_DIR)
 	$(eval $(1)_CPP_OPTS:=$(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_SPECIFIC_DEPS_FLAG) $($(1)_CXXFLAGS)  $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES))
+	$(eval $(1)_CPP_OPTS+=$(if $(findstring $(1), $(AOS_GCOV_COMPONENTS)), -fprofile-arcs -ftest-coverage, ))
 	$$(file >$$@, $($(1)_CPP_OPTS) )
 
 $(LIBS_DIR)/$(1)$(SUFFIX).as_opts: $(CONFIG_FILE) | $(LIBS_DIR)
-	$(eval $(1)_S_OPTS:=$(CPU_ASMFLAGS) $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_UNI_SFLAGS) $($(1)_ASMFLAGS) $($(1)_INCLUDES) $(AOS_SDK_INCLUDES))
+	$(eval $(1)_S_OPTS:=$(CPU_ASMFLAGS) $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_UNI_SFLAGS) $($(1)_ASMFLAGS) $($(1)_INCLUDES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES))
+	$(eval $(1)_S_OPTS+=$(if $(findstring $(1), $(AOS_GCOV_COMPONENTS)), -fprofile-arcs -ftest-coverage, ))
 	$(eval S_OPTS_FILE := $($(1)_S_OPTS) )
 	$$(file >$$@, $(S_OPTS_FILE) )
 
 $(LIBS_DIR)/$(1)$(SUFFIX).ar_opts: $(CONFIG_FILE) | $(LIBS_DIR)
 	$(QUIET)$$(call WRITE_FILE_CREATE, $$@ ,$($(1)_LIB_OBJS))
 
+$(LIBS_DIR)/$(1)$(SUFFIX).ld_opts: $(CONFIG_FILE) | $(LIBS_DIR)
+	$(eval $(1)_LD_OPTS:=$($(1)_LDFLAGS))
+	$(eval LD_OPTS_FILE := $($(1)_LD_OPTS) )
+	$$(file >$$@, $(LD_OPTS_FILE) )
 
 # Allow checking of completeness of headers
 $(foreach src, $(if $(findstring 1,$(CHECK_HEADERS)), $(filter %.h, $($(1)_CHECK_HEADERS)), ),$(eval $(call CHECK_HEADER_RULE,$(1),$(src))))
@@ -169,32 +181,40 @@ $(LIBS_DIR)/$(1)$(SUFFIX).a: $$($(1)_LIB_OBJS) $($(1)_CHECK_HEADER_LIST) $(LIBS_
 	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(LIBS_DIR)/$(1)$(SUFFIX).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
 ifeq ($(1),sensor)
 ifeq ($(COMPILER), armcc)
-	$(QUIET)$(AR) --zs $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/$(MODULES_DIR)/components/peripherals/sensor/sensor.sym
+	$(QUIET)$(AR) --zs $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/$(MODULES_DIR)/component/component_legacy/sensor/sensor.sym
 else ifeq ($(COMPILER), rvct)
-	$(QUIET)$(AR) --zs $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/$(MODULES_DIR)/components/peripherals/sensor/sensor.sym
+	$(QUIET)$(AR) --zs $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/$(MODULES_DIR)/component/component_legacy/sensor/sensor.sym
 else ifeq ($(COMPILER), iar)
-	$(QUIET)$(AR) --symbols $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/$(MODULES_DIR)/components/peripherals/sensor/sensor.sym
+	$(QUIET)$(AR) --symbols $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/$(MODULES_DIR)/component/component_legacy/sensor/sensor.sym
 else
-	$(QUIET)$(OBJDUMP) -t -w $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/$(MODULES_DIR)/components/peripherals/sensor/sensor.sym
+	$(QUIET)$(OBJDUMP) -t -w $(OUTPUT_DIR)/libraries/sensor.a > $(OUTPUT_DIR)/$(MODULES_DIR)/component/component_legacy/sensor/sensor.sym
 endif
-	$(QUIET)python $(SCRIPTS_PATH)/gen_sensor_cb.py tool_$(COMPILER) $(OUTPUT_DIR)/$(MODULES_DIR)/components/peripherals/sensor/sensor.sym $(OUTPUT_DIR)/$(MODULES_DIR)/components/peripherals/sensor/sensor_config.c
+	@python $(SCRIPTS_PATH)/gen_sensor_cb.py tool_$(COMPILER) $(OUTPUT_DIR)/$(MODULES_DIR)/component/component_legacy/sensor/sensor.sym $(OUTPUT_DIR)/$(MODULES_DIR)/component/component_legacy/sensor/sensor_config.c
 
 ifeq ($(IDE),iar)
-	$(QUIET)python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/$(MODULES_DIR)/components/peripherals/sensor/sensor_config.c
-	$(QUIET)python build/scripts/iar.py $(CLEANED_BUILD_STRING)
+	@python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/$(MODULES_DIR)/component/component_legacy/sensor/sensor_config.c
+	@python build/scripts/iar.py $(CLEANED_BUILD_STRING)
 else ifeq ($(IDE),keil)
-	$(QUIET)python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/$(MODULES_DIR)/components/peripherals/sensor/sensor_config.c
-	$(QUIET)python build/scripts/keil.py $(CLEANED_BUILD_STRING)
+	@python $(SCRIPTS_PATH)/add_sensor_config_mk.py $(SCRIPTS_PATH)/config_mk.py $(OUTPUT_DIR)/$(MODULES_DIR)/component/component_legacy/sensor/sensor_config.c
+	@python build/scripts/keil.py $(CLEANED_BUILD_STRING)
 endif
 
-	$(CC) $(sensor_C_OPTS) $(OUTPUT_DIR)/$(MODULES_DIR)/components/peripherals/sensor/sensor_config.c -o $(OUTPUT_DIR)/$(MODULES_DIR)/components/peripherals/sensor/sensor_config.o
+	$(CC) $(sensor_C_OPTS) $(OUTPUT_DIR)/$(MODULES_DIR)/component/component_legacy/sensor/sensor_config.c -o $(OUTPUT_DIR)/$(MODULES_DIR)/component/component_legacy/sensor/sensor_config.o
 	$(QUIET)rm -rf $(OUTPUT_DIR)/libraries/sensor.a
-	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OUTPUT_DIR)/$(MODULES_DIR)/components/peripherals/sensor/sensor_config.o $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(OUTPUT_DIR)/libraries/$(1)$(SUFFIX).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
+	$(QUIET)$(AR) $(AOS_SDK_ARFLAGS) $(COMPILER_SPECIFIC_ARFLAGS_CREATE) $$@ $(OUTPUT_DIR)/$(MODULES_DIR)/component/component_legacy/sensor/sensor_config.o $(OPTIONS_IN_FILE_OPTION_PREFIX)$(OPTIONS_IN_FILE_OPTION)$(OUTPUT_DIR)/libraries/$(1)$(SUFFIX).ar_opts$(OPTIONS_IN_FILE_OPTION_SUFFIX)
 endif
 ifeq ($(COMPILER),)
 	$(QUIET)$(STRIP) -g -o $(OUTPUT_DIR)/libraries/$(1)$(SUFFIX).stripped.a $(OUTPUT_DIR)/libraries/$(1)$(SUFFIX).a
 endif
+# So Target for build-from-source
+$(LIBS_DIR)/$(1)$(SUFFIX).so: $$($(1)_LIB_OBJS) $($(1)_CHECK_HEADER_LIST) $(LIBS_DIR)/$(1)$(SUFFIX).ld_opts
+	$(QUIET)$(CC) -nostdlib $$($(1)_LD_OPTS) -o $$@ $$($(1)_LIB_OBJS)
+ifeq ($(COMPILER),)
+	$(QUIET)$(STRIP) -g -o $(OUTPUT_DIR)/libraries/$(1)$(SUFFIX).stripped.so $(OUTPUT_DIR)/libraries/$(1)$(SUFFIX).so
+endif
+
 # Create targets to built the component's source files into object files
+$(if $($(1)_SELF_BUIlD_COMP_scripts), $(eval $(call SELF_BUILD_RULE,$(1))))
 $(foreach src, $(filter %.c, $($(1)_SOURCES)),$(eval $(call BUILD_C_RULE,$(1),$(src),$(SUFFIX))))
 $(foreach src, $(filter %.cpp, $($(1)_SOURCES)) $(filter %.cc, $($(1)_SOURCES)),$(eval $(call BUILD_CPP_RULE,$(1),$(src),$(SUFFIX))))
 $(foreach src, $(filter %.s %.S, $($(1)_SOURCES)),$(eval $(call BUILD_S_RULE,$(1),$(src),$(SUFFIX))))
@@ -379,27 +399,27 @@ endif # Linux64
 endif # Linux32
 endif # Win32
 
-XZ_CMD = $(if $(wildcard $(XZ)),$(XZ) -f --lzma2=dict=32KiB --check=crc32 -k $(OTA_BIN_OUTPUT_FILE),$(error xz need to be installed))
-MD5_CMD = $(QUIET) $(PYTHON) $(SCRIPTS_PATH)/ota_gen_md5_bin.py $(OTA_BIN_OUTPUT_FILE) -m $(IMAGE_MAGIC)
-XZ_MD5 = $(QUIET) $(PYTHON) $(SCRIPTS_PATH)/ota_gen_md5_bin.py $(OTA_BIN_OUTPUT_FILE).xz -m $(IMAGE_MAGIC)
-README = $(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(AOS_CONFIG)
+XZ_CMD = if [ -f $(XZ) ]; then $(XZ) -f --lzma2=dict=32KiB --check=crc32 -k $(OTA_BIN_OUTPUT_FILE); else echo "xz need be installed"; fi
+MD5_CMD = $(QUIET) $(PYTHON) $(SCRIPTS_PATH)/ota_gen_md5_bin.py -i $(OTA_BIN_OUTPUT_FILE) -m $(IMAGE_MAGIC)
+XZ_MD5 = $(QUIET) $(PYTHON) $(SCRIPTS_PATH)/ota_gen_md5_bin.py -i $(OTA_BIN_OUTPUT_FILE).xz -m $(IMAGE_MAGIC)
+README = $(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config.mk
 
 $(EXTRA_POST_BUILD_TARGETS): build_done
 
 $(BUILD_STRING): $(if $(EXTRA_POST_BUILD_TARGETS),$(EXTRA_POST_BUILD_TARGETS),build_done)
 ifneq ($(AOS_2NDBOOT_SUPPORT),yes)
 ifneq ($(PING_PONG_OTA),1)
-ifneq ($(CUSTOM_OTA),1)
+ifneq ($(BREEZE_OTA),1)
 	$(info Generate Raw OTA image: $(OTA_BIN_OUTPUT_FILE) ...)
 	$(QUIET)$(CP) $(BIN_OUTPUT_FILE) $(OTA_BIN_OUTPUT_FILE)
 	$(MD5_CMD)
 	$(info Generate Compressed OTA image: $(OTA_BIN_OUTPUT_FILE).xz ...)
 	$(XZ_CMD)
 	$(XZ_MD5)
-endif
-endif
-endif
 	$(README)
+endif
+endif
+endif
 
 %.compile: $(LINK_LIBS)
 	$(QUIET)$(ECHO) Build libraries complete

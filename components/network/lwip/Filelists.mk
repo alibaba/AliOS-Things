@@ -46,8 +46,7 @@ COREFILES=core/init.c \
 	core/tcp_in.c \
 	core/tcp_out.c \
 	core/timeouts.c \
-	core/udp.c \
-	core/pkt_print.c
+	core/udp.c
 
 CORE4FILES=core/ipv4/autoip.c \
 	core/ipv4/dhcp.c \
@@ -79,8 +78,8 @@ APIFILES=api/api_lib.c \
 	api/tcpip.c
 
 # NETIFFILES: Files implementing various generic network interface functions
-NETIFFILES=netif/ethernet.c
-#	netif/slipif.c
+NETIFFILES=netif/ethernet.c \
+	netif/slipif.c
 
 # SIXLOWPAN: 6LoWPAN
 SIXLOWPAN=netif/lowpan6.c \
@@ -181,11 +180,16 @@ DHCPDFILES=apps/dhcpd/dhcps.c
 
 # PINGFILES: PING client files
 PINGFILES=apps/ping/ping.c \
-          apps/ping/ping_cli.c
+          apps/ping/ping_cli.c \
+		  apps/ping/net_deamon.c
 
 # SENDFILEFILES: SENDFILE client/server files
 SENDFILEFILES=apps/sendfile/sendfile.c \
           apps/sendfile/sendfile_cli.c
+
+# IFCONFIGFILEFILES: IFCONFIG files
+IFCONFIGFILES=apps/ifconfig/ifconfig.c \
+          apps/ifconfig/ifconfig_cli.c
 
 # DNSCLIFILES: DNS command line files
 DNSCLIFILES = apps/dns/dns_cli.c
@@ -195,6 +199,15 @@ ARPCLIFILES = apps/arp/arp_cli.c
 
 # LSFDCLIFILES: LSFD command line files
 LSFDCLIFILES = apps/lsfd/lsfd_cli.c
+
+# PKTPRINTFILES: PKTPRINT command line files
+PKTPRINTFILES = core/pkt_print.c
+
+# LWIPRPCFILES: LWIPRPCFILES files
+LWIPRPCFILES = rpc/server/lwip_rpc_init.c \
+	rpc/server/lwip_rpc_socket.c \
+	rpc/server/lwip_rpc_task.c \
+	rpc/server/lwip_rpc_vfs.c
 
 # LWIPAPPFILES: All LWIP APPs
 LWIPAPPFILES=$(SNMPFILES) \

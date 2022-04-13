@@ -1,6 +1,0 @@
-menu "3rdparty Testcase Configuration"
-
-source "test/testcase/3rdparty/experimental/fs/spiffs/Config.in"
-source "test/testcase/3rdparty/experimental/fs/fatfs/Config.in"
-
-endmenu

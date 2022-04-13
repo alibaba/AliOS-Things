@@ -44,9 +44,12 @@
 #if LWIP_SOCKET /* don't build if not configured for use in lwipopts.h */
 
 #include <stddef.h> /* for size_t */
+#define __NEED_struct_iovec
+#define __NEED_sa_family_t
+#include <bits/alltypes.h>
 
 #ifndef LWIP_PRIVATE_FD_SET
-#include <sys/time.h>
+#include <sys/select.h>
 #endif
 
 #include "lwip/ip_addr.h"
@@ -60,7 +63,7 @@ extern "C" {
 
 /* If your port already typedef's sa_family_t, define SA_FAMILY_T_DEFINED
    to prevent this code from redefining it. */
-#if !defined(sa_family_t) && !defined(SA_FAMILY_T_DEFINED)
+#if !defined(sa_family_t) && !defined(SA_FAMILY_T_DEFINED) && !defined(__DEFINED_sa_family_t)
 typedef u8_t sa_family_t;
 #endif
 /* If your port already typedef's in_port_t, define IN_PORT_T_DEFINED
@@ -153,12 +156,12 @@ struct lwip_setgetsockopt_data {
 };
 #endif /* !LWIP_TCPIP_CORE_LOCKING */
 
-#if !defined(iovec)
-struct iovec {
-  void  *iov_base;
-  size_t iov_len;
-};
-#endif
+//#if !defined(iovec)
+//struct iovec {
+//  void  *iov_base;
+//  size_t iov_len;
+//};
+//#endif
 
 struct msghdr {
   void         *msg_name;
@@ -223,6 +226,8 @@ struct linger {
 #define  SOL_PACKET  263      /* options for packet level */
 
 #define AF_UNSPEC       0
+#define AF_UNIX         1
+#define AF_LOCAL        AF_UNIX
 #define AF_INET         2
 #if LWIP_IPV6
 #define AF_INET6        10
@@ -234,6 +239,8 @@ struct linger {
 #define PF_INET6        AF_INET6
 #define PF_UNSPEC       AF_UNSPEC
 #define PF_PACKET       AF_PACKET
+#define PF_UNIX         AF_UNIX
+#define PF_LOCAL        AF_LOCAL
 
 #define IPPROTO_IP      0
 #define IPPROTO_ICMP    1
@@ -493,8 +500,11 @@ struct ifreq {
 
 /* File status flags and file access modes for fnctl,
    these are bits in an int. */
+
+#define O_LARGEFILE 0400000
+
 #ifndef O_NONBLOCK
-#define O_NONBLOCK  1 /* nonblocking I/O */
+#define O_NONBLOCK  04000 /* nonblocking I/O */
 #endif
 #ifndef O_NDELAY
 #define O_NDELAY    1 /* same as O_NONBLOCK, for compatibility */
@@ -508,23 +518,23 @@ struct ifreq {
 
 /* FD_SET used for lwip_select */
 #ifndef FD_SET
-#undef  FD_SETSIZE
-/* Make FD_SETSIZE match NUM_SOCKETS in socket.c */
-#define FD_SETSIZE    MEMP_NUM_NETCONN
-#define FDSETSAFESET(n, code) do { \
-  if (((n) - LWIP_SOCKET_OFFSET < (MEMP_NUM_NETCONN * 2)) && (((int)(n) - LWIP_SOCKET_OFFSET) >= 0)) { \
-  code; }} while(0)
-#define FDSETSAFEGET(n, code) (((n) - LWIP_SOCKET_OFFSET < (MEMP_NUM_NETCONN * 2)) && (((int)(n) - LWIP_SOCKET_OFFSET) >= 0) ?\
-  (code) : 0)
-#define FD_SET(n, p)  FDSETSAFESET(n, (p)->fd_bits[((n)-LWIP_SOCKET_OFFSET)/8] |=  (1 << (((n)-LWIP_SOCKET_OFFSET) & 7)))
-#define FD_CLR(n, p)  FDSETSAFESET(n, (p)->fd_bits[((n)-LWIP_SOCKET_OFFSET)/8] &= ~(1 << (((n)-LWIP_SOCKET_OFFSET) & 7)))
-#define FD_ISSET(n,p) FDSETSAFEGET(n, (p)->fd_bits[((n)-LWIP_SOCKET_OFFSET)/8] &   (1 << (((n)-LWIP_SOCKET_OFFSET) & 7)))
-#define FD_ZERO(p)    memset((void*)(p), 0, sizeof(*(p)))
 
-typedef struct fd_set
-{
-  unsigned char fd_bits [(FD_SETSIZE * 2 + 7) / 8];
+#define FD_SETSIZE 1024
+
+#if FD_SETSIZE < (MEMP_NUM_NETCONN * 3)
+#error "The size of FD set is limited, please reduce the config value of MEMP_NUM_NETCONN!!!!"
+#endif
+
+typedef unsigned long fd_mask;
+
+typedef struct {
+	unsigned long fds_bits[FD_SETSIZE / 8 / sizeof(long)];
 } fd_set;
+
+#define FD_ZERO(s) do { int __i; unsigned long *__b=(s)->fds_bits; for(__i=sizeof (fd_set)/sizeof (long); __i; __i--) *__b++=0; } while(0)
+#define FD_SET(d, s)   ((s)->fds_bits[(d)/(8*sizeof(long))] |= (1UL<<((d)%(8*sizeof(long)))))
+#define FD_CLR(d, s)   ((s)->fds_bits[(d)/(8*sizeof(long))] &= ~(1UL<<((d)%(8*sizeof(long)))))
+#define FD_ISSET(d, s) !!((s)->fds_bits[(d)/(8*sizeof(long))] & (1UL<<((d)%(8*sizeof(long)))))
 
 #elif LWIP_SOCKET_OFFSET
 #error LWIP_SOCKET_OFFSET does not work with external FD_SET!
@@ -545,12 +555,14 @@ typedef struct fd_set
 /* reserved socketd for posix standard file descriptors */
 #define POSIX_EVB_SOCKET_RESERVED_START 0
 #define POSIX_EVB_SOCKET_RESERVED_END 2
-#define NUM_PACKET_SOCKETS  4 
-#define LWIP_PACKET_SOCKET_OFFSET (FD_AOS_SOCKET_OFFSET + FD_AOS_NUM_SOCKETS)
 #define FD_AOS_NUM_SOCKETS (MEMP_NUM_NETCONN-(POSIX_EVB_SOCKET_RESERVED_END-POSIX_EVB_SOCKET_RESERVED_START+1))
-#define FD_AOS_NUM_EVENTS MEMP_NUM_NETCONN
 #define FD_AOS_SOCKET_OFFSET (LWIP_SOCKET_OFFSET+(POSIX_EVB_SOCKET_RESERVED_END-POSIX_EVB_SOCKET_RESERVED_START+1))
-#define FD_AOS_EVENT_OFFSET (FD_AOS_SOCKET_OFFSET + FD_AOS_NUM_SOCKETS + NUM_PACKET_SOCKETS)
+#define NUM_PACKET_SOCKETS  4
+#define LWIP_PACKET_SOCKET_OFFSET (FD_AOS_SOCKET_OFFSET + FD_AOS_NUM_SOCKETS)
+#define FD_AOS_NUM_EVENTS (MEMP_NUM_NETCONN - NUM_PACKET_SOCKETS)
+#define FD_AOS_EVENT_OFFSET (LWIP_PACKET_SOCKET_OFFSET + NUM_PACKET_SOCKETS)
+#define FD_UDS_SOCKET_NUM   (MEMP_NUM_NETCONN)
+#define FD_UDS_SOCKET_OFFSET (FD_AOS_EVENT_OFFSET + FD_AOS_NUM_EVENTS)
 
 /** LWIP_TIMEVAL_PRIVATE: if you want to use the struct timeval provided
  * by your system, set this to 0 and include <sys/time.h> in cc.h */
@@ -729,8 +741,10 @@ static inline int eventfd(unsigned int initval, int flags)
 #define select(maxfdp1,readset,writeset,exceptset,timeout)     lwip_select(maxfdp1,readset,writeset,exceptset,timeout)
 /** @ingroup socket */
 #define ioctlsocket(s,cmd,argp)                   lwip_ioctl(s,cmd,argp)
+/** @ingroup socket */
 /* This is a fix for newlibc does not define HAVE_FCNTL */
-#define fcntl(s,cmd,val)                          _fcntl_r(0,s,cmd,val)
+int aos_wrapper_fcntl(int fd, int cmd, int arg);
+#define fcntl(s,cmd,val)                          lwip_fcntl(s,cmd,val)
 
 #else
 /** @ingroup socket */
@@ -769,6 +783,7 @@ static inline int eventfd(unsigned int initval, int flags)
 #define select(maxfdp1,readset,writeset,exceptset,timeout)     lwip_select(maxfdp1,readset,writeset,exceptset,timeout)
 /** @ingroup socket */
 #define ioctlsocket(s,cmd,argp)                   lwip_ioctl(s,cmd,argp)
+
 #if LWIP_POSIX_SOCKETS_IO_NAMES
 /** @ingroup socket */
 #define read(s,mem,len)                           lwip_read(s,mem,len)

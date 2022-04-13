@@ -114,7 +114,8 @@
                                } \
                              } while(0)
 
-#if PKTPRINT_DEBUG
+#ifdef WITH_LWIP_PKTPRINT
+void lwip_pkt_print(char* note_ptr, void *pbuf, void* netif);
 #define LWIP_PKTDEBUGF(note_ptr, pbuf, netif) do { \
                                s16_t debug = PKTPRINT_DEBUG; \
                                if ( \

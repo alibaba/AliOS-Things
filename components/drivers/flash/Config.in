@@ -1,0 +1,6 @@
+menuconfig AOS_COMP_U_FLASH
+    select AOS_COMP_DEVICEVFS
+    bool "flash core module"
+    default n
+    help
+        AliOS flash module flash layer

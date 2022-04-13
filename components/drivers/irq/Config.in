@@ -1,0 +1,11 @@
+#
+# The configs required by AliOS Things
+#
+config AOS_COMP_IRQ
+    bool "general irq Enable"
+    default n
+
+menu "irq configuration"
+# Add component configs here ...
+endmenu
+

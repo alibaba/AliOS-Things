@@ -2324,10 +2324,6 @@ mbedtls_pk_type_t mbedtls_ssl_get_ciphersuite_sig_alg( const mbedtls_ssl_ciphers
     defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
 int mbedtls_ssl_ciphersuite_uses_ec( const mbedtls_ssl_ciphersuite_t *info )
 {
-    if (info == NULL) {
-        return (0);
-    }
-
     switch( info->key_exchange )
     {
         case MBEDTLS_KEY_EXCHANGE_ECDHE_RSA:

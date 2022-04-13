@@ -391,7 +391,7 @@ ip4_input(struct pbuf *p, struct netif *inp)
   int check_ip_src = 1;
 #endif /* IP_ACCEPT_LINK_LAYER_ADDRESSING || LWIP_IGMP */
 
-  LWIP_PKTDEBUGF("LwIP_recv", p, inp);
+  LWIP_PKTDEBUGF("LwIP_recv", (void*)p, (void*)inp);
 
   IP_STATS_INC(ip.recv);
   MIB2_STATS_INC(mib2.ipinreceives);
@@ -936,7 +936,7 @@ ip4_output_if_opt_src(struct pbuf *p, const ip4_addr_t *src, const ip4_addr_t *d
   LWIP_DEBUGF(IP_DEBUG, ("ip4_output_if: %c%c%"U16_F"\n", netif->name[0], netif->name[1], (u16_t)netif->num));
   ip4_debug_print(p);
 
-  LWIP_PKTDEBUGF("LwIP_send", p, netif);
+  LWIP_PKTDEBUGF("LwIP_send", (void*)p, (void*)netif);
 
 #if ENABLE_LOOPBACK
   if (ip4_addr_cmp(dest, netif_ip4_addr(netif))

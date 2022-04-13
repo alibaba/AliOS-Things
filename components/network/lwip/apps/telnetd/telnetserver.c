@@ -36,18 +36,23 @@
 #include "lwip/tcp.h"
 #include <stdio.h>
 #include <inttypes.h>
+
+#undef TAG
 #define TAG "TELNETD"
 /*--------------------------------------------------------------------------------------------------------*/
 /* PRIVATE DEFINES */
 /*--------------------------------------------------------------------------------------------------------*/
 #define SIZE_TOSTRING_BUFFER 512U
 
-#define TELNET_PORT 23U
+#define TELNET_PORT 4322U
 
 #define ERROR_MESSAGE_HEADER "\n\r--------------------\n\rError Message\n\r\tMessage: %s\n\r--------------------\n\r\x1E"
 #define STATUS_MESSAGE_HEADER "\n\r--------------------\n\rStatus Message\n\r\tMessage: %s\n\r--------------------\n\r\x1E"
 #define DEBUG_MESSAGE_HEADER "\n\r--------------------\n\rDebug Message\n\r\tMessage: %s\n\r--------------------\n\r\x1E"
 #define COMMAND_DATA_MESSAGE_HEADER "\n\r--------------------\n\rCommand Data Message\n\r\tMessage: %s\n\r--------------------\n\r\x1E"
+
+extern int32_t telnet_console_create(int argc, char **argv);
+extern int telnet_console_destory(void);
 
 //#define TELNET_DEBUG
 //#define TELNET_CHAR_DEBUG
@@ -230,6 +235,7 @@ static err_t TelnetAccept(void *arg, struct tcp_pcb *pcb, err_t err) {
 #ifdef TELNET_DEBUG
 	LOGD(TAG, "[Telnet Server] Telnet Server Connected. Welcome.\n\r");
 #endif
+    telnet_console_create(0, NULL);
 	/* Return a success code. */
 	ret_err = ERR_OK;
 	return ret_err;
@@ -331,9 +337,9 @@ static err_t TelnetSent(void *arg, struct tcp_pcb *pcb, u16_t len) {
  */
 static void TelnetError(void *arg, err_t err) {
 	LWIP_UNUSED_ARG(err);
-	//#ifdef TELNET_DEBUG
+	#ifdef TELNET_DEBUG
 	LOGD(TAG, "[Telnet Server] Telnet error received: %i\n\r", err);
-	//#endif
+	#endif
 	TelnetServer_t* server;
 	server = (TelnetServer_t*) arg;
 	if (server != NULL) {
@@ -438,7 +444,7 @@ TelnetStatus_t InitializeTelnetServer(void) {
  * @retval none
  */
 void TelnetClose(void) {
-	LOGD(TAG, "Closing telnet connection.\n\r");
+	//LOGD(TAG, "Closing telnet connection.\n\r");
 	struct tcp_pcb *pcb = telnet_server.pcb;
 
 	/* Remove all callbacks */
@@ -454,6 +460,7 @@ void TelnetClose(void) {
 	/* Close tcp connection */
 	tcp_close(pcb);
 	IsConnected = false;
+    telnet_console_destory();
 
 	/* Re-initialize the Telnet Server */
 	InitializeTelnetServer();

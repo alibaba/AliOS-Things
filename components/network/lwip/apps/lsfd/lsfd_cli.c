@@ -13,15 +13,19 @@ struct cli_command lsfd_cmd[] = {
 };
 static void lsfd_help_command(void)
 {
-    LWIP_DEBUGF( LSFD_DEBUG, ("Usage: lsfd        Show socket fd info\n"));
-    LWIP_DEBUGF( LSFD_DEBUG, ("Eample:\n"));
-    LWIP_DEBUGF( LSFD_DEBUG, ("lsfd\n"));
+    LWIP_DEBUGF( SOCKET_ALLOC_DEBUG, ("Usage: lsfd\n"));
+    LWIP_DEBUGF( SOCKET_ALLOC_DEBUG, ("Eample:\n"));
+    LWIP_DEBUGF( SOCKET_ALLOC_DEBUG, ("lsfd\n"));
 }
 
 static void lsfd_exec_command(void)
 {
+#ifdef CONFIG_GENIE_DEBUG
     extern void print_sock_alloc_info(void);
     print_sock_alloc_info();
+#else
+    LWIP_DEBUGF( SOCKET_ALLOC_DEBUG, ("Not available!\n"));
+#endif
 }
 
 static void lsfd_command(char *buffer, int32_t buf_len, int32_t argc, char **argv)
@@ -36,7 +40,7 @@ static void lsfd_command(char *buffer, int32_t buf_len, int32_t argc, char **arg
 
 int32_t lsfd_cli_register(void)
 {
-    if (cli_register_commands(lsfd_cmd, 1)) {
+    if (aos_cli_register_commands(lsfd_cmd, 1)) {
         return 0;
     }
 

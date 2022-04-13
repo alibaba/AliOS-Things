@@ -17,7 +17,7 @@ def process_config_mk(config_mk_file, filename):
                 config_mk_replace = True
     
     if config_mk_replace:
-        #auto component change config.mk.   
+        #auto component change config.mk.
         buf = ""
         for line in config_mk_lines:
             buf += line + "\n"
@@ -26,7 +26,7 @@ def process_config_mk(config_mk_file, filename):
         with open(config_mk_file, "w") as config_mk:
             config_mk.write(config_mk_str)
 
-def process_component_test(source_directory):    
+def process_component_test(source_directory):
     global config_mk_str
 
     test_register_src = "testcase_register.c"
@@ -34,10 +34,10 @@ def process_component_test(source_directory):
     code_list = []
 
     source_codes = "/*\n * warning: testcase collection code is auto generate, please don't change!!!\n */\n\n"
-    source_codes += "#include \"aos/kernel.h\"\n\n"
-
+    #source_codes += "#include \"aos/kernel.h\"\n\n"
     components = re.findall(r"COMPONENTS\s+\:\=\s+.+\n", config_mk_str)[0]
     for name in components.split(" "):
+        #stip useless char
         name = name.strip()
         if name.endswith("_test"):
             location = name + "_LOCATION\s+\:\=\s+.+"
@@ -51,6 +51,7 @@ def process_component_test(source_directory):
                         for code in re.findall("AOS_TESTCASE\s*\((.+\)\s*;)", codes):
                             code_list.append(code[:len(code)-2])
 
+    
     for code in code_list:
         source_codes +=  "extern void %s(void);\n"%(code)
 
@@ -118,7 +119,7 @@ def main():
     with open(sys.argv[1], "r") as f:
         config_mk_str = f.read()
 
-        #process_component_init(sys.argv[2])
+        process_component_init(sys.argv[2])
         process_component_test(sys.argv[2])
 
 if __name__ == "__main__":

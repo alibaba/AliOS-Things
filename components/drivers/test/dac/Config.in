@@ -1,0 +1,6 @@
+menuconfig AOS_COMP_U_DAC_TEST
+    select AOS_COMP_DEVICEVFS
+    bool "dac core module"
+    default n
+    help
+        AliOS dac test module

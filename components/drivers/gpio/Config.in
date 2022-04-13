@@ -1,0 +1,6 @@
+menuconfig AOS_COMP_U_GPIO
+    select AOS_COMP_DEVICEVFS
+    bool "gpio core module"
+    default n
+    help
+        AliOS gpio module core layer

@@ -2,7 +2,7 @@
  * Copyright (C) 2018 Alibaba Group Holding Limited
  */
 #include "lwip/opt.h"
-#if PKTPRINT_DEBUG
+#ifdef WITH_LWIP_PKTPRINT
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,8 +91,8 @@ typedef enum
 /* IP4 packet info struct */
 typedef struct
 {
-    u32_t   ip_src;
-    u32_t   ip_dst;
+    u8_t*   ip_src;
+    u8_t*   ip_dst;
     u16_t   len;
     u16_t   id;
     u16_t   offset;
@@ -136,6 +136,7 @@ typedef struct
     u16_t   seq;
     u8_t    padding[2];
 } DBG_ICMP_T;
+
 /* IGMP packet info struct */
 
 typedef struct
@@ -205,22 +206,45 @@ static char s_subtrans_type[STL_MAX][16] =
     "ICMP_PINGREP"
 };
 
+#if 0
+//TODO: show more info about tcp state
+/* TCP state */
+static char s_tcp_state[TCPS_MAX][24] =
+{
+    "TCPS_CLOSED",          // 0 - closed */
+    "TCPS_LISTEN",          // 1 - listening for connection */
+    "TCPS_SYN_SENT",        // 2 - active, have sent syn */
+    "TCPS_SYN_RECEIVED",    // 3 - have send and received syn */
+    // states < "TCPS_ESTABLISHED are those where connections not established
+    "TCPS_ESTABLISHED",     // 4 - established */
+    "TCPS_CLOSE_WAIT",      // 5 - rcvd fin, waiting for close */
+    // states > "TCPS_CLOSE_WAIT are those where user has closed
+    "TCPS_FIN_WAIT_1",      // 6 - have closed, sent fin */
+    "TCPS_CLOSING",         // 7 - closed xchd FIN; await FIN ACK */
+    "TCPS_LAST_ACK",        // 8 - had fin and close; await FIN ACK */
+    // states > "TCPS_CLOSE_WAIT && < "TCPS_FIN_WAIT_2 await ACK of FIN */
+    "TCPS_FIN_WAIT_2",      // 9 - have closed, fin is acked
+    "TCPS_TIME_WAIT"        // 10 - in 2*msl quiet wait after close */
+};
+#endif
+
 /* default: print all */
-static int pktprint_debug_level = 0;
+static int pktprint_debug_level = 1;
 
 /* how packet info that contain the specified port */
 static int filter_flag = 0;
 static int filter_port = 0;
 
-#if 0
-void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
+void lwip_pkt_print(char* note_ptr, void *buf, void* net)
 {
     int  len = 0;
     unsigned char* ptr = NULL;
     DBG_PKT_INFO_T dbg_pkt_info;
+    struct pbuf *pbuf = (struct pbuf *) buf;
+    struct netif *netif = (struct netif *) net;
 
     if(pbuf == NULL){
-	return ;
+	    return ;
     }
 
     ptr = pbuf->payload;
@@ -236,7 +260,8 @@ void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
     memset(&dbg_pkt_info, 0, sizeof(DBG_PKT_INFO_T));
 
     /* check if IP v4 header */
-    if( 0x40 == (ptr[0] & 0xF0) ) {
+    if( 0x40 == (ptr[0] & 0xF0) )
+    {
         DBG_IP4_T* ip4_ptr = &(dbg_pkt_info.nl.ip4);
         u8_t ip4_hlen = 0;
         ip4_ptr->hlen = 4*(ptr[0] & 0x0F);
@@ -254,8 +279,8 @@ void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
         ip4_ptr->id = (u16_t)(256*ptr[4] + ptr[5]);
         ip4_ptr->offset = 2064*(0x1F & ptr[6]) + 8*ptr[7];   /* 2064 = 256*8 */
         ip4_ptr->type = ptr[9];
-        ip4_ptr->ip_src = ntohl(*((u32_t*)(ptr + 12)));
-        ip4_ptr->ip_dst = ntohl(*((u32_t*)(ptr + 16)));
+        ip4_ptr->ip_src = (uint8_t*)(ptr + 12);
+        ip4_ptr->ip_dst = (uint8_t*)(ptr + 16);
 
         /* classify IP sub-type */
         switch( ip4_ptr->type ){
@@ -307,13 +332,16 @@ void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
                 tcp_ptr->ack = ntohl(*((u32_t*)(ptr+ip4_hlen+8)));
                 tcp_ptr->dlen = (u16_t)(ip4_ptr->len - ip4_ptr->hlen - (ptr[ip4_hlen+12]>>2));
                 tcp_ptr->wnd = (u16_t)(256*ptr[ip4_hlen+14] + ptr[ip4_hlen+15]);
+
                 switch( ptr[ip4_hlen+13] ){
                 case TCPF_SYN:          dbg_pkt_info.subtrans = STL_TCP_SYN;          break;
                 case TCPF_RST:          dbg_pkt_info.subtrans = STL_TCP_RST;          break;
                 case TCPF_ACK:          dbg_pkt_info.subtrans = STL_TCP_ACK;
-                                        if(pktprint_debug_level == 1) {
+                                        if(pktprint_debug_level == 1)
+                                        {
                                             if((tcp_ptr->port_src != filter_port)
-                                              && (tcp_ptr->port_dst != filter_port)) {
+                                              && (tcp_ptr->port_dst != filter_port))
+                                            {
                                                 filter_flag = 1;
                                             }
                                         }
@@ -322,9 +350,11 @@ void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
                 case TCPF_SYNACK:       dbg_pkt_info.subtrans = STL_TCP_SYNACK;       break;
                 case TCPF_RSTACK:       dbg_pkt_info.subtrans = STL_TCP_RSTACK;       break;
                 case TCPF_PSHACK:       dbg_pkt_info.subtrans = STL_TCP_PSHACK;
-                                        if(pktprint_debug_level == 1) {
+                                        if(pktprint_debug_level == 1)
+                                        {
                                             if((tcp_ptr->port_src != filter_port)
-                                              && (tcp_ptr->port_dst != filter_port)) {
+                                              && (tcp_ptr->port_dst != filter_port))
+                                            {
                                                 filter_flag = 1;
                                             }
                                         }
@@ -344,22 +374,22 @@ void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
                 udp_ptr->port_src = (u16_t)(256*ptr[ip4_hlen]   + ptr[ip4_hlen+1]);
                 udp_ptr->port_dst = (u16_t)(256*ptr[ip4_hlen+2] + ptr[ip4_hlen+3]);
                 udp_ptr->len = (u16_t)(256*ptr[ip4_hlen+4] + ptr[ip4_hlen+5]);
-                if((1 == pktprint_debug_level)
-                   && (udp_ptr->port_src != filter_port)
-                   && (udp_ptr->port_dst != filter_port)) {
-                    filter_flag = 1;
-                }
                 /* switch for source port */
                 switch(udp_ptr->port_src){
                 case PORT_DHCP_CLT: dbg_pkt_info.subtrans = STL_UDP_DHCPREQ;  break;
                 case PORT_DHCP_SRV: dbg_pkt_info.subtrans = STL_UDP_DHCPREP;  break;
                 case PORT_DNS:      dbg_pkt_info.subtrans = STL_UDP_DNS;      break;
                 default:
+                    if((1 == pktprint_debug_level) && (udp_ptr->port_src != filter_port) && (udp_ptr->port_dst != filter_port))
+                    {
+                        filter_flag = 1;
+                    }
                     break;
                 }
                 /* check type for dest port */
                 if( PORT_DNS == udp_ptr->port_dst ){
                     dbg_pkt_info.subtrans = STL_UDP_DNS;
+                    filter_flag = 0;
                 }
             }
             break;
@@ -371,83 +401,126 @@ void lwip_pkt_print(char* note_ptr, struct pbuf *pbuf, struct netif* netif)
         }
     }
 
-    if(dbg_pkt_info.net == NL_IP4) {
+    if(dbg_pkt_info.net == NL_IP4)
+    {
         DBG_IP4_T *ip4_ptr = &(dbg_pkt_info.nl.ip4);
         char * type_ptr = NULL;
         char info_str[PKT_INFO_BUFF_SIZE] = {0};
 
         /* set type string */
-        if( STL_NONE != dbg_pkt_info.subtrans ) {
+        if( STL_NONE != dbg_pkt_info.subtrans )
+        {
            type_ptr = s_subtrans_type[dbg_pkt_info.subtrans];
         }
-        else if( TL_NONE != dbg_pkt_info.trans ) {
+        else if( TL_NONE != dbg_pkt_info.trans )
+        {
            type_ptr = s_trans_type[dbg_pkt_info.trans];
         }
-        else {
+        else
+        {
            type_ptr = s_net_type[dbg_pkt_info.net];
         }
 
         switch( dbg_pkt_info.net ) {
            case NL_IP4:
-            if( 0 == ip4_ptr->offset ) {
+              if( 0 == ip4_ptr->offset )
+              {
                  /* set packet info string by transportation type*/
-                switch( dbg_pkt_info.trans ) {
+                 switch( dbg_pkt_info.trans )
+                 {
                     case TL_ICMP:
+                    {
                         DBG_ICMP_T* icmp_ptr = &(dbg_pkt_info.tl.icmp);
                         snprintf(info_str, (PKT_INFO_BUFF_SIZE-1),
                           "Type(%d), Code(%d), Id(%x), Seq(%x)",
                            icmp_ptr->type, icmp_ptr->code, icmp_ptr->id, icmp_ptr->seq);
+                    }
                     break;
                     case TL_IGMP:
+                    {
                         DBG_IGMP_T* igmp_ptr = &(dbg_pkt_info.tl.igmp);
                         snprintf(info_str, (PKT_INFO_BUFF_SIZE-1),
                           "Type(%d), GroupAddr(0x%08x)",
-                        igmp_ptr->type, (uint32_t)igmp_ptr->group_addr);
+                          igmp_ptr->type, (uint32_t)igmp_ptr->group_addr);
+                    }
                     break;
                     case TL_TCP:
+                    {
                        DBG_TCP_T* tcp_ptr = &(dbg_pkt_info.tl.tcp);
                        snprintf(info_str, (PKT_INFO_BUFF_SIZE-1),
                         "S:%x, A:%x, W:%d, l:%d, %d -> %d",
                         tcp_ptr->seq, tcp_ptr->ack, tcp_ptr->wnd,
                         tcp_ptr->dlen, tcp_ptr->port_src, tcp_ptr->port_dst);
+                    }
                     break;
                     case TL_UDP:
+                    {
                         DBG_UDP_T* udp_ptr = &(dbg_pkt_info.tl.udp);
                         snprintf(info_str, (PKT_INFO_BUFF_SIZE-1),
                           "%d -> %d", udp_ptr->port_src, udp_ptr->port_dst);
+                    }
                     break;
                     default:
                        //error
                     break;
                 }
-                if((pktprint_debug_level == 2)
-                   || ((pktprint_debug_level == 1)
-                   && (filter_flag == 0))) {
-                    LWIP_DEBUGF(PKTPRINT_DEBUG, ("[ LwIP ] %s, pkt:%p, netif(%p), IPID(%x), %s, %s(%d)\n",
-                        note_ptr, pbuf, netif, ip4_ptr->id, info_str,
-                        type_ptr, ip4_ptr->len));
+                if((pktprint_debug_level == 2)||((pktprint_debug_level == 1)&&(filter_flag == 0)))
+                {
+                    LWIP_DEBUGF(PKTPRINT_DEBUG, ("[ LwIP ] %s, pkt:%p, netif(%p), %u.%u.%u.%u -> %u.%u.%u.%u IPID(%x), %s, %s(%d)\n",
+                    note_ptr, pbuf, netif,
+                    ip4_ptr->ip_src[0],
+                    ip4_ptr->ip_src[1],
+                    ip4_ptr->ip_src[2],
+                    ip4_ptr->ip_src[3],
+                    ip4_ptr->ip_dst[0],
+                    ip4_ptr->ip_dst[1],
+                    ip4_ptr->ip_dst[2],
+                    ip4_ptr->ip_dst[3],
+                    ip4_ptr->id, info_str,
+                   type_ptr, ip4_ptr->len));
                 }
             }
-            else {
-                if(pktprint_debug_level) {
-                    LWIP_DEBUGF(PKTPRINT_DEBUG, ("[ LwIP ] %s, pkt:%p, netif(%p), IPID(%x), FRAG_OFFSET(%d), %s(%d)\n",
-                   note_ptr, pbuf, netif, ip4_ptr->id, ip4_ptr->offset,
+            else
+            {
+                if(pktprint_debug_level)
+                {
+                    LWIP_DEBUGF(PKTPRINT_DEBUG, ("[ LwIP ] %s, pkt:%p, netif(%p), %u.%u.%u.%u -> %u.%u.%u.%u IPID(%x), FRAG_OFFSET(%d), %s(%d)\n",
+                    note_ptr, pbuf, netif,
+                    ip4_ptr->ip_src[0],
+                    ip4_ptr->ip_src[1],
+                    ip4_ptr->ip_src[2],
+                    ip4_ptr->ip_src[3],
+                    ip4_ptr->ip_dst[0],
+                    ip4_ptr->ip_dst[1],
+                    ip4_ptr->ip_dst[2],
+                    ip4_ptr->ip_dst[3],
+                    ip4_ptr->id, ip4_ptr->offset,
                    type_ptr, ip4_ptr->len));
                 }
             }
             break;
             case NL_NONE:
             default:
-            if(pktprint_debug_level) {
-                LWIP_DEBUGF(PKTPRINT_DEBUG, ("[ LwIP ] %s, pkt:%p, netif(%p), UNKNOWN TYPE(%d)\n",
-                  note_ptr, pbuf, netif, pbuf->len));
+               if(pktprint_debug_level)
+               {
+                    LWIP_DEBUGF(PKTPRINT_DEBUG, ("[ LwIP ] %s, pkt:%p, netif(%p), %u.%u.%u.%u -> %u.%u.%u.%u UNKNOWN TYPE(%d)\n",
+                    note_ptr, pbuf, netif,
+                    ip4_ptr->ip_src[0],
+                    ip4_ptr->ip_src[1],
+                    ip4_ptr->ip_src[2],
+                    ip4_ptr->ip_src[3],
+                    ip4_ptr->ip_dst[0],
+                    ip4_ptr->ip_dst[1],
+                    ip4_ptr->ip_dst[2],
+                    ip4_ptr->ip_dst[3],
+                   pbuf->len));
                }
            break;
 
       }
    }
 }
-#endif
+
 void _cli_pktprint_help_command(void)
 {
     LWIP_DEBUGF(PKTPRINT_DEBUG, ("Usage: pktprint  [debug_level]\n"));
@@ -483,14 +556,18 @@ void pktprint_command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
         LWIP_DEBUGF(PKTPRINT_DEBUG, ("pkt_print the specified port =%d\n", filter_port));
     }
     else if ( strcmp( argv[1], "-p" ) == 0 ) {
-        if(pktprint_debug_level != 1) {
+        if(pktprint_debug_level != 1)
+        {
             LWIP_DEBUGF(PKTPRINT_DEBUG, ("pktprint debug level should set to 1 first\n"));
         }
-        else {
-            if( argc == 3) {
+        else
+        {
+            if( argc == 3)
+            {
                 filter_port = atoi(argv[2]);
             }
-            else {
+            else
+            {
                 LWIP_DEBUGF(PKTPRINT_DEBUG, ("Invalid command, please use pktprint -h\n"));
             }
         }
@@ -499,13 +576,16 @@ void pktprint_command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char 
         filter_port = 0;
     }
     else if ( strcmp( argv[1], "-t" ) == 0 ) {
-        if( argc == 3) {
+        if( argc == 3)
+        {
             pktprint_debug_level = atoi(argv[2]);
-            if(pktprint_debug_level < 0 && pktprint_debug_level > 3 ) {
+            if(pktprint_debug_level < 0 && pktprint_debug_level > 3 )
+            {
                 LWIP_DEBUGF(PKTPRINT_DEBUG, ("Invalid command, please use pktprint -h\n"));
             }
         }
-        else {
+        else
+        {
             LWIP_DEBUGF(PKTPRINT_DEBUG, ("Invalid command, please use pktprint -h\n"));
         }
     }
@@ -521,11 +601,9 @@ struct cli_command pktprint_message_cmd[] = {
 int pktprint_cli_register( void )
 {
 
-    if( 0 == aos_cli_register_commands( pktprint_message_cmd, 1 ) ) {
+    if( 0 == aos_cli_register_commands( pktprint_message_cmd, 1 ) )
         return ERR_OK;
-    }
-    else {
+    else
         return ERR_VAL;
-    }
 }
 #endif /* PKTPRINT_DEBUG */

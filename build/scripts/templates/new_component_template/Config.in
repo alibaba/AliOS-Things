@@ -2,18 +2,13 @@
 # The configs required by AliOS Things
 #
 config AOS_COMP_@COMPONENTNAME@
-    bool 
-    default y
+    bool "@componentname@ Enable"
+    default n
 
 menu "@componentname@ configuration"
 # Add component configs here ...
 
 
-# optional dependency component selection sample
-#config @COMPONENTNAME@_CONDITIION1
-#   bool "Enable optional_comp_name"
-#   default n
-#   help
 
 endmenu
 

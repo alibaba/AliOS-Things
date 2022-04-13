@@ -1,0 +1,6 @@
+menuconfig AOS_COMP_U_ADC
+    select AOS_COMP_DEVICEVFS
+    bool "adc core module"
+    default n
+    help
+        AliOS adc module core layer

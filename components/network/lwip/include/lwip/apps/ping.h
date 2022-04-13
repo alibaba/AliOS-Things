@@ -1,3 +1,6 @@
+/*
+ * Copyright (C) 2017-2019 Alibaba Group Holding Limited
+ */
 #ifndef LWIP_PING_H
 #define LWIP_PING_H
 

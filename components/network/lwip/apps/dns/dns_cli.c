@@ -41,8 +41,6 @@ static void dns_req_command(char *name)
 
 static void dns_command(char *buffer, int32_t buf_len, int32_t argc, char **argv)
 {
-    int32_t index = 0;
-
     if (argc < 2) {
         LWIP_DEBUGF( DNSCLI_DEBUG, ("%s, invalid command\n", __func__));
         dns_help_command();
@@ -58,7 +56,7 @@ static void dns_command(char *buffer, int32_t buf_len, int32_t argc, char **argv
 
 int32_t dns_cli_register(void)
 {
-    if (cli_register_commands(dns_cmd, 1)) {
+    if (aos_cli_register_commands(dns_cmd, 1)) {
         return 0;
     }
 

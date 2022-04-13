@@ -2,13 +2,17 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#include <fcntl.h>
+#include <pthread.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <k_api.h>
+#include <sys/types.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <hal2vfs/io_flash.h>
 
 #include "lfs.h"
 #include "lfs_util.h"
@@ -16,6 +20,7 @@
 
 #include "aos/errno.h"
 #include "aos/kernel.h"
+#include "aos/vfs.h"
 
 #include "aos/hal/flash.h"
 
@@ -27,15 +32,15 @@
 #include <time.h>
 #endif
 
-#include "vfs_types.h"
-#include "vfs_api.h"
+#include "fs/vfs_types.h"
+#include "fs/vfs_api.h"
 #include "fs/littlefs.h"
 
 /* lookahead size should be 8 bytes aligned */
 #define _ALIGN8(n) ((n+7) & (~7))
-#define DATA_LOOKAHEAD_SIZE (_ALIGN8(DATA_BLOCK_NUMS>>4) > 16 ? _ALIGN8(DATA_BLOCK_NUMS>>4) : 16)
+#define DATA_LOOKAHEAD_SIZE (_ALIGN8((DATA_BLOCK_NUMS>>4)) > 16 ? _ALIGN8((DATA_BLOCK_NUMS>>4)) : 16)
 #if defined(CONFIG_MULTI_FS)
-#define SYSTEM_LOOKAHEAD_SIZE (_ALIGN8(SYSTEM_BLOCK_NUMS>>4) > 16 ? _ALIGN8(SYSTEM_BLOCK_NUMS>>4) : 16)
+#define SYSTEM_LOOKAHEAD_SIZE (_ALIGN8((SYSTEM_BLOCK_NUMS>>4)) > 16 ? _ALIGN8((SYSTEM_BLOCK_NUMS>>4)) : 16)
 #endif /* CONFIG_MULTI_FS */
 
 #define WAIT_FOREVER 0xFFFFFFFF
@@ -69,6 +74,7 @@ typedef struct {
     lfs_t             *lfs;
     lfs_lock_t        *lock;
     hal_partition_t   part;
+    int               fd;
     char              *mountpath;
     bool              mounted;
 } lfs_manager_t;
@@ -110,6 +116,7 @@ static int vfs_to_lfs_idx(vfs_file_t *vfs)
     return -1;
 }
 
+#if defined(AOS_COMP_NFTL) || defined(NFTL_GC_NOTIFY)
 static int get_partition_from_cfg(const struct lfs_config *cfg)
 {
     int i = 0;
@@ -124,18 +131,32 @@ static int get_partition_from_cfg(const struct lfs_config *cfg)
 
     return HAL_PARTITION_ERROR;
 }
+#endif
+
+static int get_fd_from_cfg(const struct lfs_config *cfg)
+{
+    int i = 0;
+
+    while (i < LITTLEFS_CNT) {
+        if (g_lfs_manager[i]->config == cfg) {
+            return g_lfs_manager[i]->fd;
+        } else {
+            i++;
+        }
+    }
+
+    return -1;
+}
 
 static int32_t littlefs_block_read(const struct lfs_config *c, lfs_block_t block,
                              lfs_off_t off, void *dst, lfs_size_t size)
 {
     int ret;
 
+#ifdef AOS_COMP_NFTL
     int idx = get_partition_from_cfg(c);
     if (idx < 0) return idx;
 
-    FLASH_TRACE("%d %d %d %d", idx, block, off, size);
-
-#ifdef AOS_COMP_NFTL
     int target_partition;
     switch (idx) {
         /* DATA */
@@ -148,9 +169,20 @@ static int32_t littlefs_block_read(const struct lfs_config *c, lfs_block_t block
     }
     ret = nftl_flash_read(target_partition, block, off, dst, size);
 #else
+    int fd = get_fd_from_cfg(c);
+    if (fd < 0) return fd;
+
     uint32_t addr;
     addr = c->block_size * block + off;
-    ret = hal_flash_read(idx, &addr, dst, size);
+
+    off_t _ret = lseek(fd, (off_t)addr, SEEK_SET);
+    if (_ret == -1) return _ret;
+
+    ret = read(fd, dst, size);
+    if (ret == size)
+        ret = 0;
+    else
+        LFS_ERROR("%s target size:%d, actual size: %d", __func__, size, ret);
 #endif
 
     if (ret) LFS_ERROR("%s ret: %d", __func__, ret);
@@ -162,20 +194,11 @@ static int32_t littlefs_block_write(const struct lfs_config *c, lfs_block_t bloc
 {
     int ret;
 
+#ifdef AOS_COMP_NFTL
+    int target_partition;
     int idx = get_partition_from_cfg(c);
     if (idx < 0) return idx;
 
-    FLASH_TRACE("%d %d %d %d", idx, block, off, size);
-
-#ifdef CONFIG_LFS_SYSTEM_READONLY
-    if (idx == HAL_PARTITION_LITTLEFS2 || idx == HAL_PARTITION_LITTLEFS3) {
-        LFS_WARN("parition %d is not allowed to write!", idx);
-        return LFS_ERR_IO;
-    }
-#endif
-
-#ifdef AOS_COMP_NFTL
-    int target_partition;
     switch (idx) {
         /* DATA */
         case HAL_PARTITION_LITTLEFS: target_partition = NFTL_PARTITION2; break;
@@ -186,13 +209,24 @@ static int32_t littlefs_block_write(const struct lfs_config *c, lfs_block_t bloc
         default: LFS_ERROR("%s invalid parition number %d", __func__, idx); return LFS_ERR_IO;
     }
     ret = nftl_flash_write(target_partition, block, off, dst, size);
+    if (ret) LFS_ERROR("%s ret: %d", __func__, ret);
 #else
+    int fd = get_fd_from_cfg(c);
+    if (fd < 0) return fd;
+
     uint32_t addr;
     addr = c->block_size * block + off;
-    ret = hal_flash_write(idx, &addr, dst, size);
+
+    off_t _ret = lseek(fd, (off_t)addr, SEEK_SET);
+    if (_ret == -1) return _ret;
+
+    ret = write(fd, dst, size);
+    if (ret == size)
+        ret = 0;
+    else
+        LFS_ERROR("%s target size:%d, actual size:%d", __func__, size, ret);
 #endif
 
-    if (ret) LFS_ERROR("%s ret: %d", __func__, ret);
 
     return ret == 0 ? ret : LFS_ERR_CORRUPT;
 }
@@ -201,19 +235,10 @@ static int32_t littlefs_block_erase(const struct lfs_config *c, lfs_block_t bloc
 {
     int ret;
 
+#ifdef AOS_COMP_NFTL
     int idx = get_partition_from_cfg(c);
     if (idx < 0) return idx;
 
-    FLASH_TRACE("%d %d", idx, block);
-
-#ifdef CONFIG_LFS_SYSTEM_READONLY
-    if (idx == HAL_PARTITION_LITTLEFS2 || idx == HAL_PARTITION_LITTLEFS3) {
-        LFS_WARN("parition %d is not allowed to erase!", idx);
-        return LFS_ERR_IO;
-    }
-#endif
-
-#ifdef AOS_COMP_NFTL
     int target_partition;
     switch (idx) {
         /* DATA */
@@ -226,9 +251,16 @@ static int32_t littlefs_block_erase(const struct lfs_config *c, lfs_block_t bloc
     }
     ret = nftl_flash_erase(target_partition, block);
 #else
+    int fd = get_fd_from_cfg(c);
+    if (fd < 0) return fd;
+
     uint32_t addr;
     addr = c->block_size * block;
-    ret = hal_flash_erase(idx, addr, c->block_size);
+
+    off_t _ret = lseek(fd, (off_t)addr, SEEK_SET);
+    if (_ret == -1) return _ret;
+
+    ret = ioctl(fd, IOC_FLASH_ERASE_FLASH, c->block_size);
 #endif
 
     if (ret) LFS_ERROR("%s ret: %d", __func__, ret);
@@ -492,6 +524,8 @@ static int32_t _lfs_deinit(void)
         aos_free(g_lfs_manager[i]);
     #endif
 
+        close(g_lfs_manager[i]->fd);
+
         g_lfs_manager[i] = NULL;
 
         i++;
@@ -502,9 +536,9 @@ static int32_t _lfs_deinit(void)
 
 #ifdef LFS_STATIC_OBJECT
 static lfs_manager_t native_lfs_manager[LITTLEFS_CNT] = {
-    {NULL, NULL, NULL, HAL_PARTITION_LITTLEFS},
+    {NULL, NULL, NULL, HAL_PARTITION_LITTLEFS, -1, NULL, false},
 #if defined(CONFIG_MULTI_FS)
-    {NULL, NULL, NULL, HAL_PARTITION_LITTLEFS2},
+    {NULL, NULL, NULL, HAL_PARTITION_LITTLEFS2, -1, NULL, false},
 #endif /* CONFIG_MULTI_FS */
 };
 
@@ -528,7 +562,8 @@ static lfs_lock_t native_lfs_lock[LITTLEFS_CNT];
 
 static int32_t _lfs_init(void)
 {
-    int i = 0;
+    int i = 0, fd;
+    char dev_str[16];
 
     /* Create LFS struct */
     while (i < LITTLEFS_CNT) {
@@ -561,6 +596,19 @@ static int32_t _lfs_init(void)
         }
 #endif /* CONFIG_MULTI_FS */
 
+        // open flash device
+        memset(dev_str, 0, sizeof(dev_str));
+        snprintf(dev_str, sizeof(dev_str) - 1,
+                 "/dev/flash%d", g_lfs_manager[i]->part);
+        fd = open(dev_str, 0);
+        if (fd < 0) {
+            // TODO: close open fd?
+            LFS_ERROR("Faild to open device %s", dev_str);
+            goto ERROR;
+        }
+
+        g_lfs_manager[i]->fd = fd;
+
         /* Set LFS default config */
         g_lfs_manager[i]->config = &default_cfg[i];
 
@@ -585,7 +633,7 @@ static int32_t _lfs_init(void)
     #ifdef AOS_COMP_NFTL
         default_cfg[i].block_cycles = -1;
     #else
-        default_cfg[i].block_cycles = 1000;
+        default_cfg[i].block_cycles = 500;
     #endif
 
 #ifdef CONFIG_LFS_SYSTEM_READONLY
@@ -761,6 +809,11 @@ static uint32_t lfs_vfs_lseek(vfs_file_t *fp, int64_t off, int32_t whence)
 {
     int32_t ret;
 
+    if (off > (int64_t)((lfs_off_t)(-1))) {
+        LFS_ERROR("%s unsupported offset %lld", __func__, off);
+        return LFS_ERR_INVAL;
+    }
+
     lfs_file_t *file = (lfs_file_t *)(fp->f_arg);
 
     int idx;
@@ -847,6 +900,14 @@ static int32_t lfs_vfs_stat(vfs_file_t *fp, const char *path, vfs_stat_t *st)
         st->st_modtime = t;
 #endif
     }
+
+#ifdef AOS_MCU_HAAS1000_FLASH
+    #define HAAS1000_FLASH_SIZE 16*1024*1024
+    #define DEFAULT_DIR_SIZE 16*1024*1024
+    if(st->st_size > HAAS1000_FLASH_SIZE) {
+        st->st_size = 0;
+    }
+#endif
 
     aos_free(target_path);
 
@@ -1302,7 +1363,11 @@ int lfs_vfs_mount(void)
             g_partition_formatted[i] = false;
         }
 
-        LFS_ASSERT(ret >= 0);
+        //LFS_ASSERT(ret >= 0);
+        if (ret < 0) {
+            LFS_ERROR("Attention: failed to mount %s filesystem!!!", g_lfs_manager[i]->mountpath);
+            goto ERROR;
+        }
 
         g_lfs_manager[i]->mounted = true;
         lfs_unlock(g_lfs_manager[i]->lock);
@@ -1398,8 +1463,8 @@ int32_t littlefs_register(void)
         while (i < LITTLEFS_CNT) {
             LFS_ASSERT(g_lfs_manager[i]->mountpath != NULL);
             LFS_WARN("Registering %s ...", g_lfs_manager[i]->mountpath);
-            ret = vfs_register_fs(g_lfs_manager[i]->mountpath,
-                                  &littlefs_ops, NULL);
+            ret = aos_register_fs(g_lfs_manager[i]->mountpath,
+                                  (fs_ops_t *)&littlefs_ops, NULL);
             if (ret != 0) return ret;
             i++;
         }
@@ -1425,7 +1490,7 @@ int32_t littlefs_unregister(void)
     while (i < LITTLEFS_CNT) {
         LFS_ASSERT(g_lfs_manager[i]->mountpath != NULL);
         LFS_WARN("Unregistering %s ...", g_lfs_manager[i]->mountpath);
-        ret = vfs_unregister_fs(g_lfs_manager[i]->mountpath);
+        ret = aos_unregister_fs(g_lfs_manager[i]->mountpath);
         if (ret != 0) return ret;
         i++;
     }

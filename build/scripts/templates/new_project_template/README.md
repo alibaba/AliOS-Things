@@ -2,11 +2,10 @@
 
 ```sh
 @projectname@
+├── @projectname@.c # @projectname@ source code
 ├── Config.in       # kconfig file
 ├── aos.mk          # aos build system file(for make)
-├── app.config      # aos app config file
-├── main.c          # program entry main()
-└── app_main.c      # application entry application_start()
+└── k_app_config.h  # aos app config file
 ```
 
 ## Introduction
@@ -22,6 +21,9 @@ The **@projectname@** ...
 ### Build
 
 ```sh
+# generate @projectname@@@boardname@ default config
+aos make @projectname@@@boardname@ -c config
+
 # build
 aos make
 ```

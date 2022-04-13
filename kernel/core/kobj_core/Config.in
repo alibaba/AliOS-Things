@@ -1,0 +1,8 @@
+config AOS_COMP_KOBJ_CORE
+    bool
+    default n
+    help
+      kernel object framework. Kernel is used to manage kernel resource.
+      For example, task, process, IPC, memory etc. User code should call
+      kernel function though system object mechanism.
+

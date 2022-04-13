@@ -1,0 +1,8 @@
+menu "User space Configuration"
+
+source "kernel/core/mk/uspace_lib/parcel/Config.in"
+source "kernel/core/mk/uspace_lib/rpc/Config.in"
+source "kernel/core/mk/uspace_lib/lwip/Config.in"
+source "kernel/core/mk/uspace_lib/pm/Config.in"
+
+endmenu

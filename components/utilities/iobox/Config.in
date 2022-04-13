@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_IOBOX
+    bool "iobox"
+    default n
+    help
+
+if AOS_COMP_IOBOX
+# Configurations for component iobox
+endif

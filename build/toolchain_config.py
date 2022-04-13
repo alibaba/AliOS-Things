@@ -1,9 +1,6 @@
 # Download toolchain automatically
 auto_download = "yes"
 
-# Search board from specific directories
-board_dirs = ["platform/board/board_legacy"]
-
 # Available toolchains
 toolchains = {
     'arm-none-eabi':{
@@ -16,6 +13,17 @@ toolchains = {
         'Linux32_url': 'https://gitee.com/alios-things/gcc-arm-none-eabi-linux.git',
         'Linux64_url': 'https://gitee.com/alios-things/gcc-arm-none-eabi-linux.git',
         'OSX_url': 'https://gitee.com/alios-things/gcc-arm-none-eabi-osx.git',
+        },
+    'arm-alios-eabi':{
+        'name': 'gcc-arm-alios-eabi',
+        'path': 'build/compiler/gcc-arm-alios-eabi',
+        'command': 'arm-alios-eabi-gcc',
+        'version': 'all',
+        'use_global': False,
+        'Win32_url': '',
+        'Linux32_url': '',
+        'Linux64_url': 'https://gitee.com/alios-things/gcc-arm-alios-eabi-musl-linux.git',
+        'OSX_url': '',
         },
     'xtensa-esp32':{
         'name': 'gcc-xtensa-esp32',
@@ -83,11 +91,9 @@ boards = {
     'aaboard_demo':[toolchains['arm-none-eabi']],
     'amebaz_dev':[toolchains['arm-none-eabi']],
     'ap80a0':[toolchains['arm-none-eabi']],
-    'asr5501':[toolchains['arm-none-eabi']],
     'atsame54-xpro':[toolchains['arm-none-eabi']],
     'b_l475e':[toolchains['arm-none-eabi']],
     'bk7231devkitc':[toolchains['arm-none-eabi']],
-    'bk7231sdevkitc':[toolchains['arm-none-eabi']],
     'bk7231udevkitc':[toolchains['arm-none-eabi']],
     'cy8ckit-062':[toolchains['arm-none-eabi']],
     'developerkit':[toolchains['arm-none-eabi']],
@@ -160,5 +166,8 @@ boards = {
     'xr809':[toolchains['arm-none-eabi']],
     'wm_w600_kit':[toolchains['arm-none-eabi']],
     'xm510_evb':[toolchains['arm-none-eabi']],
-    'haas100':[toolchains['arm-none-eabi']],
+    'haas100-mk':[toolchains['arm-alios-eabi']],
+    'vexpressa9-mk':[toolchains['arm-alios-eabi']],
 }
+
+board_dirs = ["vendor/allwinner/board", "vendor/mtk8153/board", "vendor/vexpress/board", "vendor/raspberry-pi/board", "vendor/haas/board"]

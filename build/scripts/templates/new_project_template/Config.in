@@ -1,10 +1,6 @@
 #
 # The configs required by AliOS Things
 #
-config AOS_CREATE_PROJECT
-    bool 
-    default y
-    
 config AOS_BUILD_BOARD
     string
     default "@boardname@"
@@ -13,27 +9,13 @@ config AOS_BUILD_APP
     string
     default "@projectname@"
 
-config AOS_SDK_PATH
-    string
-    option env="AOS_SDK_PATH"
-
-config USER_APP_PATH
-    string
-    option env="APPDIR"
-
 #
 # The configs for app @projectname@
 #
 config AOS_APP_@PROJECTNAME@
-    bool 
+    bool "AOS_APP_@PROJECTNAME@"
     default y
 
-menu "@PROJECTNAME@"
+if AOS_APP_@PROJECTNAME@
 # Add more configs here ...
-
-config SYSINFO_APP_VERSION
-    string "Firmware Version"
-    default "app-1.0.0-20200214.140831"
-    help
-        application main firmware version
-endmenu
+endif

@@ -1,0 +1,11 @@
+create libhaas1000_usb.a
+addmod usb_audio.o
+addmod usb_audio_sync.o
+addmod usb_cdc.o
+addmod usb_dev_desc.o
+addmod usb_hcd.o
+addmod usb_hcd_test.o
+addmod usb_host.o
+addmod usb_mass_storage.o
+save
+end

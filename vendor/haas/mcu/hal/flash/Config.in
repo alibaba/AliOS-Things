@@ -1,0 +1,8 @@
+config AOS_MCU_V_FLASH_DRV
+    select AOS_MCU_V_COMMON_DRV
+    select AOS_MCU_V_REG_DRV
+    select AOS_BOARD_V_PARTITION_DRV
+    select AOS_MCU_OTA_ADAPT
+    bool "aos_mcu_v_flash_drv"
+    help
+        flash haas1000.

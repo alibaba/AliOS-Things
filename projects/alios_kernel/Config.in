@@ -1,0 +1,30 @@
+config AOS_APP_ALIOS_KERNEL
+    bool "alios_kernel"
+    select AOS_COMP_OSAL_AOS
+    select AOS_CONFIG_USER_SPACE
+    select AOS_COMP_KV
+    select AOS_COMP_ULOG
+    select AOS_COMP_CLI
+    select AOS_COMP_VFS
+    select AOS_COMP_LWIP
+    # select AOS_COMP_NETMGR # if build netmgr in kernel need open it
+    #select AOS_COMP_EPOLL
+    #select AOS_COMP_SELECT
+    select AOS_COMP_ROMFS
+    help
+        alios kernel
+
+if AOS_APP_ALIOS_KERNEL
+# Configurations for app helloworld
+config AOS_KERNEL_MODE
+    bool
+    default y
+
+config LFS_CONFIG_IN_KERNEL
+    bool "littlefs in kernel"
+    select AOS_COMP_LITTLEFS
+    select AOS_COMP_IOBOX
+    default n
+    help
+        "set littlefs component in kernel"
+endif

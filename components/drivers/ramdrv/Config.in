@@ -1,0 +1,6 @@
+menuconfig AOS_COMP_U_RAMDRV
+    select AOS_COMP_DEVICEVFS
+    bool "ram driver module"
+    default n
+    help
+        AliOS ram test module core layer

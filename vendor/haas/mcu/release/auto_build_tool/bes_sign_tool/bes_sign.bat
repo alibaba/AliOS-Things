@@ -1,0 +1,1 @@
+java -cp bcprov-jdk15on-152.jar;. DumpPublicKey %1 %2

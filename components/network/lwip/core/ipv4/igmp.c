@@ -94,7 +94,8 @@ Steve Reynolds
 #include "lwip/stats.h"
 #include "lwip/prot/igmp.h"
 
-#include "string.h"
+#include <stdlib.h>
+#include <string.h>
 
 static struct igmp_group *igmp_lookup_group(struct netif *ifp, const ip4_addr_t *addr);
 static err_t  igmp_remove_group(struct netif* netif, struct igmp_group *group);

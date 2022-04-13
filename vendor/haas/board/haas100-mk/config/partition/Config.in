@@ -1,0 +1,4 @@
+config AOS_BOARD_V_PARTITION_DRV
+    bool "partition_conf"
+    help
+        partition config.

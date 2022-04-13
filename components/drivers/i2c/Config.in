@@ -1,0 +1,6 @@
+menuconfig AOS_COMP_U_I2C
+    select AOS_COMP_DEVICEVFS
+    bool "i2c core module"
+    default n
+    help
+        AliOS i2c module core layer

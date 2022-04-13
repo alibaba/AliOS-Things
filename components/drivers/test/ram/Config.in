@@ -1,0 +1,5 @@
+menuconfig AOS_COMP_U_RAM_TEST
+    bool "ram driver test module"
+    default n
+    help
+        AliOS ramdriver test module

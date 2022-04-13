@@ -1,0 +1,7 @@
+config AOS_MCU_V_REG_DRV
+    bool "aos_mcu_v_reg_drv"
+    help
+        register map function on haas1000.
+
+
+

@@ -1,0 +1,6 @@
+menuconfig AOS_COMP_U_TIMER
+    select AOS_COMP_DEVICEVFS
+    bool "timer core module"
+    default n
+    help
+        AliOS timer module core layer

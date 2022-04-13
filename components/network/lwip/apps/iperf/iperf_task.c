@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
 #include "lwip/debug.h"
 #include "lwip/sockets.h"
 #include "lwip/apps/iperf_task.h"
@@ -23,7 +25,7 @@
  *                    Constants
  ******************************************************/
 
-#define MAX_WIN_SIZE (20*1024)
+#define MAX_WIN_SIZE (1024*1024)
 
 /* Private macro */
 #define IPERF_DEFAULT_PORT  5001 //Port to listen
@@ -155,20 +157,21 @@ void iperf_udp_run_server( char *parameters[] )
     struct ip_mreq group;
     int server_port;
     int i;
-    count_t pkt_count;
-    count_t tmp_count;
+    count_t pkt_count = {0, 0, 0, 0, 0};
+    count_t tmp_count = {0, 0, 0, 0, 0};
     int nbytes = 0; /* the number of read */
     int total_send = 0; /* the total number of send  */
     int mcast_tag = 0; /* the tag of parameter "-B"  */
     int interval_tag = 0; /* the tag of parameter "-i"  */
     char *mcast;
-#if defined(IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE) && defined(IPERF_DEBUG)
     int send_bytes = 0; /* the number of send */
     int tmp = 0;
 #endif
     char *buffer = (char*) malloc( IPERF_TEST_BUFFER_SIZE );
 
-    uint32_t t1, t2, curr_t, curr_h_ms, t2_h_ms, t1_h_ms, tmp_t, tmp_h_ms, offset_t1, offset_t2, offset_time;
+    uint32_t t1, t2, curr_t, curr_h_ms, t2_h_ms, tmp_t, tmp_h_ms, offset_t1, offset_t2, offset_time;
+    uint32_t t1_h_ms = 0;
     UDP_datagram *udp_h;
     client_hdr *client_h;
     client_hdr client_h_trans;
@@ -178,48 +181,51 @@ void iperf_udp_run_server( char *parameters[] )
     int udp_h_id = 0;
 
     memset( buffer, 0, IPERF_TEST_BUFFER_SIZE );
-    //Statistics init
-    pkt_count = iperf_reset_count( pkt_count );
-    tmp_count = iperf_reset_count( tmp_count );
+
     server_port = 0;
     t1 = 0;
     t2 = 0;
-    int offset = IPERF_COMMAND_BUFFER_SIZE / sizeof(char *);
+    int offset = IPERF_COMMAND_BUFFER_SIZE / sizeof(char);
 
     //Handle input parameters
     if ( g_iperf_is_tradeoff_test_client == 0 ) {
-        for ( i = 0; i < 13; i++ ) {
+        for ( i = 0; i < IPERF_COMMAND_BUFFER_NUM; i++ ) {
             if ( strcmp( (char *) &parameters[i * offset], "-p" ) == 0 ) {
                 i++;
                 server_port = atoi( (char *) &parameters[i * offset] );
             } else if ( strcmp( (char *) &parameters[i * offset], "-n" ) == 0 ) {
                 i++;
                 total_send = iperf_format_transform( (char *) &parameters[i * offset] );
-                LWIP_DEBUGF( IPERF_DEBUG, ("Set number to transmit = %d Bytes", total_send ));
-            } else if ( strcmp( (char *) &parameters[i * offset], "-B" ) == 0 ) {
+                LWIP_DEBUGF( IPERF_DEBUG, ("Set number to transmit = %d Bytes\n", total_send ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("iperf udp -n not support\n" ));
+                (void) total_send;
+            }
+            else if ( strcmp( (char *) &parameters[i * offset], "-B" ) == 0 ) {
                 i++;
                 mcast = (char *) &parameters[i * offset];
                 mcast_tag = 1;
-                LWIP_DEBUGF( IPERF_DEBUG, ("Join Multicast %s", mcast) );
+                LWIP_DEBUGF( IPERF_DEBUG, ("Join Multicast %s\n", mcast) );
             } else if ( strcmp( (char *) &parameters[i * offset], "-i" ) == 0 ) {
                 interval_tag = 1;
-                LWIP_DEBUGF( IPERF_DEBUG, ("Set 10 seconds between periodic bandwidth reports" ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("Set 10 seconds between periodic bandwidth reports\n" ));
             }
         }
     }
 
     // Create a new UDP connection handle
     if ( (sockfd = socket( AF_INET, SOCK_DGRAM, 0 )) < 0 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] sockfd = %d", __FUNCTION__, __LINE__, sockfd ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] sockfd = %d\n", __FUNCTION__, __LINE__, sockfd ));
         if ( parameters ) {
             free( parameters );
         }
+        free(buffer);
         aos_task_exit(0);
+        return ;
     }
 
     socklen_t len = sizeof(timeout);
     if ( setsockopt( sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, len ) < 0 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("Setsockopt failed - cancel receive timeout" ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("Setsockopt failed - cancel receive timeout\n" ));
     }
 
     // Bind to port and any IP address
@@ -228,10 +234,10 @@ void iperf_udp_run_server( char *parameters[] )
     servaddr.sin_addr.s_addr = htonl( INADDR_ANY );
     if ( server_port == 0 ) {
         servaddr.sin_port = htons( IPERF_DEFAULT_PORT );
-        LWIP_DEBUGF( IPERF_DEBUG, ("Default server port = %d", IPERF_DEFAULT_PORT ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("Default server port = %d\n", IPERF_DEFAULT_PORT ));
     } else {
         servaddr.sin_port = htons( server_port );
-        LWIP_DEBUGF( IPERF_DEBUG, ("Set server port = %d", server_port ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("Set server port = %d\n", server_port ));
     }
 
     //Multicast settings
@@ -240,20 +246,23 @@ void iperf_udp_run_server( char *parameters[] )
         group.imr_interface.s_addr = htonl( INADDR_ANY );
 
         if ( setsockopt( sockfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *) &group, sizeof(struct ip_mreq) ) < 0 ) {
-            LWIP_DEBUGF( IPERF_DEBUG, ("Setsockopt failed - multicast settings" ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Setsockopt failed - multicast settings\n" ));
         }
     }
 
     if ( (bind( sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr) )) < 0 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d]", __FUNCTION__, __LINE__ ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d]\n", __FUNCTION__, __LINE__ ));
         if ( parameters ) {
             free( parameters );
         }
+        free(buffer);
+        close( sockfd );
         aos_task_exit(0);
+        return ;
     }
 
     cli_len = sizeof(cliaddr);
-
+    offset_time = 0;
     // Wait and check the request
     do {
         // Handles request
@@ -292,7 +301,7 @@ void iperf_udp_run_server( char *parameters[] )
                     , __FUNCTION__, __LINE__, client_h_trans.flags, client_h_trans.num_threads, client_h_trans.port, client_h_trans.buffer_len, client_h_trans.win_band, client_h_trans.amount);
 #endif
 
-#if defined(IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE) && defined(IPERF_DEBUG)
             if (tmp != nbytes) {
                 DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, "[%s:%d] nbytes=%d ", __FUNCTION__, __LINE__, nbytes);
             } else {
@@ -307,6 +316,7 @@ void iperf_udp_run_server( char *parameters[] )
                 iperf_get_current_time( &t1, &t1_h_ms );
                 t1_h_ms = (t1_h_ms / 100) % 10;
             }
+            t2_h_ms = 0;
 
             // Report by second
             if ( (pkt_count.times >= 1 && interval_tag > 0) ) {
@@ -378,23 +388,24 @@ void iperf_udp_run_server( char *parameters[] )
                     client_h_trans.flags = (int32_t) 0;
 
                     // send the server report to client-side
-#if defined(IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE) && defined(IPERF_DEBUG)
                     send_bytes =
 #endif
                     sendto( sockfd, buffer, nbytes, 0, (struct sockaddr *) &cliaddr, cli_len );
                     client_h_trans.flags = old_flag;
                 }
 
-#if defined(IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE) && defined(IPERF_DEBUG)
                 DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, "[%s:%d]send_bytes = %d, nbytes = %d,", __FUNCTION__, __LINE__, send_bytes, nbytes);
 #endif
+                (void) send_bytes;
 
                 client_h = (client_hdr *) &buffer[12];
                 client_h_trans.flags = (int32_t) (ntohl( client_h->flags ));
 
                 // Tradeoff mode
                 if ( IPERF_HEADER_VERSION1 & client_h_trans.flags ) {
-                    LWIP_DEBUGF( IPERF_DEBUG, ("Tradeoff mode, client-side start." ));
+                    LWIP_DEBUGF( IPERF_DEBUG, ("Tradeoff mode, client-side start.\n" ));
 
                     g_iperf_is_tradeoff_test_server = 1;
                     g_iperf_server_addr = cliaddr.sin_addr.s_addr;
@@ -403,7 +414,7 @@ void iperf_udp_run_server( char *parameters[] )
 
                 }
 
-                LWIP_DEBUGF( IPERF_DEBUG, ("Data transfer is finished." ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("Data transfer is finished.\n" ));
                 //TODO: send report to other side
                 break;
             }
@@ -415,10 +426,10 @@ void iperf_udp_run_server( char *parameters[] )
 
     } while ( 0 );
 
-    LWIP_DEBUGF( IPERF_DEBUG, (" UDP server close socket!" ));
+    LWIP_DEBUGF( IPERF_DEBUG, (" UDP server close socket!\n" ));
     close( sockfd );
 
-    LWIP_DEBUGF( IPERF_DEBUG, ("If you want to execute iperf server again, please enter \"iperf -s -u\"." ));
+    LWIP_DEBUGF( IPERF_DEBUG, ("If you want to execute iperf server again, please enter \"iperf -s -u\".\n" ));
 
     if ( parameters ) {
         free( parameters );
@@ -427,6 +438,7 @@ void iperf_udp_run_server( char *parameters[] )
     // For tradeoff mode, task will be deleted in iperf_udp_run_client
     if ( g_iperf_is_tradeoff_test_client == 0 ) {
         aos_task_exit(0);
+        return ;
     }
 }
 
@@ -437,8 +449,8 @@ void iperf_tcp_run_server( char *parameters[] )
     socklen_t clilen;
     int server_port;
     int i;
-    count_t pkt_count;
-    count_t tmp_count;
+    count_t pkt_count = {0, 0, 0, 0, 0};
+    count_t tmp_count = {0, 0, 0, 0, 0};
     int nbytes = 0; /* the number of read */
     int total_rcv = 0; /* the total number of receive  */
     int num_tag = 0; /* the tag of parameter "-n"  */
@@ -447,19 +459,16 @@ void iperf_tcp_run_server( char *parameters[] )
     int tmp = 0;
 #endif
     uint32_t t1, t2, curr_t;
-    int offset = IPERF_COMMAND_BUFFER_SIZE / sizeof(char *);
+    int offset = IPERF_COMMAND_BUFFER_SIZE / sizeof(char);
     char *buffer = (char*) malloc( IPERF_TEST_BUFFER_SIZE );
     uint32_t timeout;
     timeout = 20 * 1000; //set recvive timeout = 20(sec)
 
     memset( buffer, 0, IPERF_TEST_BUFFER_SIZE );
-    //Statistics init
-    pkt_count = iperf_reset_count( pkt_count );
-    tmp_count = iperf_reset_count( tmp_count );
     server_port = 0;
 
     //Handle input parameters
-    for ( i = 0; i < 9; i++ ) {
+    for ( i = 0; i < IPERF_COMMAND_BUFFER_NUM; i++ ) {
         if ( strcmp( (char *) &parameters[i * offset], "-p" ) == 0 ) {
             i++;
             server_port = atoi( (char *) &parameters[i * offset] );
@@ -467,28 +476,27 @@ void iperf_tcp_run_server( char *parameters[] )
             i++;
             total_rcv = iperf_format_transform( (char *) &parameters[i * offset] );
             num_tag = 1;
-            LWIP_DEBUGF( IPERF_DEBUG, ("Set number to receive = %d Bytes", total_rcv ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Set number to receive = %d Bytes\n", total_rcv ));
         } else {
             if ( strcmp( (char *) &parameters[i * offset], "-i" ) == 0 ) {
             interval_tag = 1;
-                LWIP_DEBUGF( IPERF_DEBUG, ( "Set 10 seconds between periodic bandwidth reports" ));
+                LWIP_DEBUGF( IPERF_DEBUG, ( "Set 10 seconds between periodic bandwidth reports\n" ));
             }
         }
     }
 
     // Create a new TCP connection handle
     if ( (listenfd = socket( AF_INET, SOCK_STREAM, 0 )) < 0 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] listenfd = %d", __FUNCTION__, __LINE__, listenfd ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] listenfd = %d\n", __FUNCTION__, __LINE__, listenfd ));
         if ( parameters ) {
             free( parameters );
         }
+        free(buffer);
         aos_task_exit(0);
+        return ;
     }
 
     socklen_t len = sizeof(timeout);
-    if ( setsockopt( listenfd, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, len ) < 0 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("Setsockopt failed - cancel receive timeout" ));
-    }
 
     do {
         // Bind to port and any IP address
@@ -497,21 +505,23 @@ void iperf_tcp_run_server( char *parameters[] )
         servaddr.sin_addr.s_addr = htonl( INADDR_ANY );
         if ( server_port == 0 ) {
             servaddr.sin_port = htons( IPERF_DEFAULT_PORT );
-            LWIP_DEBUGF( IPERF_DEBUG, ("Default server port = %d", IPERF_DEFAULT_PORT ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Default server port = %d\n", IPERF_DEFAULT_PORT ));
         }
         else {
             servaddr.sin_port = htons( server_port );
-            LWIP_DEBUGF( IPERF_DEBUG, ("Set server port = %d", server_port ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Set server port = %d\n", server_port ));
         }
 
         if ( (bind( listenfd, (struct sockaddr *) &servaddr, sizeof(servaddr) )) < 0 ) {
-            LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] ", __FUNCTION__, __LINE__ ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] listenfd = %d bind failed, errno %d\n",
+                        __func__, __LINE__, listenfd, errno ));
             break;
         }
 
         // Put the connection into LISTEN state
         if ( (listen( listenfd, 1024 )) < 0 ) {
-            LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] ", __FUNCTION__, __LINE__ ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] listenfd = %d listen failed, errno %d\n",
+                        __FUNCTION__, __LINE__, listenfd, errno));
             break;
         }
 
@@ -519,15 +529,20 @@ void iperf_tcp_run_server( char *parameters[] )
         if ( setsockopt( listenfd, SOL_SOCKET, SO_RCVBUF, (char *) &buflen, sizeof(buflen) ) < 0 ) {
                 LWIP_DEBUGF( IPERF_DEBUG, ("Setsockopt failed - cancel receive buf len\n" ));
         }
+
         do {
             if ( server_port != 0 ) {
-                LWIP_DEBUGF( IPERF_DEBUG, ("Listen...(port = %d)", server_port ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("Listen...(port = %d)\n", server_port ));
             } else {
-                LWIP_DEBUGF( IPERF_DEBUG, ("Listen...(port = %d)", IPERF_DEFAULT_PORT ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("Listen...(port = %d)\n", IPERF_DEFAULT_PORT ));
             }
             // Block and wait for an incoming connection
             if ( (connfd = accept( listenfd, (struct sockaddr *) &cliaddr, &clilen )) != -1 ) {
-                LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] Accept... (sockfd=%d)", __FUNCTION__, __LINE__, connfd ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] Accept... (sockfd=%d)\n", __FUNCTION__, __LINE__, connfd ));
+
+                if ( setsockopt( connfd, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, len ) < 0 ) {
+                    LWIP_DEBUGF( IPERF_DEBUG, ("Setsockopt failed - cancel receive timeout\n" ));
+                }
 
                 //Connection
                 do {
@@ -536,7 +551,7 @@ void iperf_tcp_run_server( char *parameters[] )
                     if ( pkt_count.times == 1 ) {
                         iperf_get_current_time( &t1, 0 );
                     }
-#if defined(IPERF_DEBUG_ENABLE)
+#if defined(IPERF_DEBUG_ENABLE) && defined(IPERF_DEBUG)
                     if (tmp != nbytes) {
                         DBGPRINT_IPERF(IPERF_DEBUG_RECEIVE, "[%s:%d] nbytes=%d ", __FUNCTION__, __LINE__, nbytes);
                     } else {
@@ -550,7 +565,7 @@ void iperf_tcp_run_server( char *parameters[] )
 
                     //Reach total receive number "-n"
                     if ( total_rcv < 0 ) {
-                        LWIP_DEBUGF( IPERF_DEBUG, ("Finish Receiving" ));
+                        LWIP_DEBUGF( IPERF_DEBUG, ("Finish Receiving\n" ));
                         break;
                     }
                     if ( pkt_count.times >= 1 && interval_tag > 0 ) {
@@ -569,7 +584,7 @@ void iperf_tcp_run_server( char *parameters[] )
                     iperf_get_current_time( &t2, 0 );
                 }
 
-                LWIP_DEBUGF( IPERF_DEBUG, ("Close socket!" ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("Close socket!\n" ));
                 //Get report
                 iperf_display_report( "[Total]TCP Server", t2 - t1, 0, pkt_count );
 
@@ -587,12 +602,13 @@ void iperf_tcp_run_server( char *parameters[] )
 
         close( listenfd );
         if ( num_tag == 0 ) {
-            LWIP_DEBUGF( IPERF_DEBUG, ("Close socket!" ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Close socket!\n" ));
             iperf_display_report( "[Total]TCP Server ", t2 - t1, 0, pkt_count );
         }
     } while ( 0 ); //Loop just once
 
-    LWIP_DEBUGF( IPERF_DEBUG, ("If you want to execute iperf server again, please enter \"iperf -s\"." ));
+    LWIP_DEBUGF( IPERF_DEBUG, ("If you want to execute iperf server again, please enter \"iperf -s\".\n" ));
+    close( listenfd );
 
     if ( parameters ) {
         free( parameters );
@@ -607,8 +623,8 @@ void iperf_tcp_run_client( char *parameters[] )
     int sockfd;
     struct sockaddr_in servaddr;
     char *Server_IP;
-    count_t pkt_count;
-    count_t tmp_count;
+    count_t pkt_count = {0, 0, 0, 0, 0};
+    count_t tmp_count = {0, 0, 0, 0, 0};
     int nbytes = 0; /* the number of send */
     int total_send = 0; /* the total number of transmit  */
     int num_tag = 0; /* the tag of parameter "-n"  */
@@ -618,8 +634,6 @@ void iperf_tcp_run_client( char *parameters[] )
     uint32_t t1, t2, curr_t;
     int offset = IPERF_COMMAND_BUFFER_SIZE / sizeof(char *);
     char *buffer = (char*) malloc( IPERF_TEST_BUFFER_SIZE );
-    pkt_count = iperf_reset_count( pkt_count );
-    tmp_count = iperf_reset_count( tmp_count );
     win_size = 0;
     send_time = 0;
     server_port = 0;
@@ -629,22 +643,22 @@ void iperf_tcp_run_client( char *parameters[] )
     //Handle input parameters
     Server_IP = (char *) &parameters[0];
 
-    LWIP_DEBUGF( IPERF_DEBUG, ("Servr IP %s ", Server_IP ));
-    for ( i = 1; i < 18; i++ ) {
+    LWIP_DEBUGF( IPERF_DEBUG, ("Servr IP %s \n", Server_IP ));
+    for ( i = 1; i < IPERF_COMMAND_BUFFER_NUM; i++ ) {
         if ( strcmp( (char *) &parameters[i * offset], "-w" ) == 0 ) {
             i++;
             win_size = iperf_format_transform( (char *) &parameters[i * offset] );
             if ( win_size > MAX_WIN_SIZE ) {
-                LWIP_DEBUGF( IPERF_DEBUG, ("Win size too big, set to %d ", MAX_WIN_SIZE ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("Win size too big, set to %d \n", MAX_WIN_SIZE ));
                 win_size = MAX_WIN_SIZE;
             }
-            LWIP_DEBUGF( IPERF_DEBUG, ("Set window size = %d Bytes", win_size ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Set window size = %d Bytes\n", win_size ));
         }
 
         else if ( strcmp( (char *) &parameters[i * offset], "-t" ) == 0 ) {
             i++;
             send_time = atoi( (char *) &parameters[i * offset] );
-            LWIP_DEBUGF( IPERF_DEBUG, ("Set send times = %d (secs)", atoi( (char *) &parameters[i * offset] ) ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Set send times = %d (secs)\n", atoi( (char *) &parameters[i * offset] ) ));
         }
         else if ( strcmp( (char *) &parameters[i * offset], "-p" ) == 0 ) {
             i++;
@@ -653,25 +667,25 @@ void iperf_tcp_run_client( char *parameters[] )
         else if ( strcmp( (char *) &parameters[i * offset], "-d" ) == 0 ) {
             i++;
             pkt_delay = atoi( (char *) &parameters[i * offset] );
-            LWIP_DEBUGF( IPERF_DEBUG, ("Set packet delay = %d (ms)", atoi( (char *) &parameters[i * offset] ) ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Set packet delay = %d (ms)\n", atoi( (char *) &parameters[i * offset] ) ));
         } else if ( strcmp( (char *) &parameters[i * offset], "-n" ) == 0 ) {
             i++;
             total_send = iperf_format_transform( (char *) &parameters[i * offset] );
             num_tag = 1;
-            LWIP_DEBUGF( IPERF_DEBUG, ("Set number to transmit = %d Bytes", total_send ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Set number to transmit = %d Bytes\n", total_send ));
         } else if ( strcmp( (char *) &parameters[i * offset], "-S" ) == 0 ) {
             i++;
             tos = atoi( (char *) &parameters[i * offset] );
-            LWIP_DEBUGF( IPERF_DEBUG, ("Set TOS = %d", atoi( (char *) &parameters[i * offset] ) ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Set TOS = %d\n", atoi( (char *) &parameters[i * offset] ) ));
         } else if ( strcmp( (char *) &parameters[i * offset], "-i" ) == 0 ) {
             interval_tag = 1;
-            LWIP_DEBUGF( IPERF_DEBUG, ("Set 10 seconds between periodic bandwidth reports" ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Set 10 seconds between periodic bandwidth reports\n" ));
         }
     }
 
     if ( win_size == 0 ) {
         win_size = 1460;
-        LWIP_DEBUGF( IPERF_DEBUG, ("Default window size = %d Bytes", win_size ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("Default window size = %d Bytes\n", win_size ));
     }
     if ( send_time == 0 ) {
         if ( num_tag == 1 ) {
@@ -679,21 +693,27 @@ void iperf_tcp_run_client( char *parameters[] )
         }
         else {
             send_time = 10;
-            LWIP_DEBUGF( IPERF_DEBUG, ("Default send times = %d (secs)", send_time ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Default send times = %d (secs)\n", send_time ));
         }
     }
 
     // Create a new TCP connection handle
     if ( (sockfd = socket( AF_INET, SOCK_STREAM, 0 )) < 0 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] sockfd = %d", __FUNCTION__, __LINE__, sockfd ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] sockfd = %d\n", __FUNCTION__, __LINE__, sockfd ));
         if ( parameters ) {
             free( parameters );
         }
+        free(buffer);
         aos_task_exit(0);
+        return ;
     }
 
     if ( setsockopt( sockfd, IPPROTO_IP, IP_TOS, &tos, sizeof(tos) ) < 0 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("Set TOS: fail!" ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("Set TOS: fail!\n" ));
+    }
+    int buflen = 64240;
+    if ( setsockopt( sockfd, SOL_SOCKET, SO_RCVBUF, (char *) &buflen, sizeof(buflen) ) < 0 ) {
+        LWIP_DEBUGF( IPERF_DEBUG, ("Setsockopt failed - cancel receive buf len\n" ));
     }
     // Bind to port and IP
     memset( &servaddr, 0, sizeof(servaddr) );
@@ -701,20 +721,22 @@ void iperf_tcp_run_client( char *parameters[] )
     servaddr.sin_addr.s_addr = inet_addr( Server_IP );
     if ( server_port == 0 ) {
         servaddr.sin_port = htons( IPERF_DEFAULT_PORT );
-        LWIP_DEBUGF( IPERF_DEBUG, ("Default server port = %d", IPERF_DEFAULT_PORT ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("Default server port = %d\n", IPERF_DEFAULT_PORT ));
     } else {
         servaddr.sin_port = htons( server_port );
-        LWIP_DEBUGF( IPERF_DEBUG, ("Set server port = %d", server_port ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("Set server port = %d\n", server_port ));
     }
 
     if ( (connect( sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr) )) < 0 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("Connect failed, sockfd is %d, addr is \"%s\"", (int) sockfd,
+        LWIP_DEBUGF( IPERF_DEBUG, ("Connect failed, sockfd is %d, addr is \"%s\"\n", (int) sockfd,
                 ((struct sockaddr *) &servaddr)->sa_data ));
         close( sockfd );
         if ( parameters ) {
             free( parameters );
         }
+        free(buffer);
         aos_task_exit(0);
+        return ;
     }
 
     iperf_get_current_time( &t1, 0 );
@@ -732,7 +754,7 @@ void iperf_tcp_run_client( char *parameters[] )
         }
         //Reach total receive number "-n"
         if ( total_send < 0 ) {
-            LWIP_DEBUGF( IPERF_DEBUG, ("Finish Sending" ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Finish Sending\n" ));
             break;
         }
 
@@ -754,7 +776,7 @@ void iperf_tcp_run_client( char *parameters[] )
     iperf_get_current_time( &t2, 0 );
 
     close( sockfd );
-    LWIP_DEBUGF( IPERF_DEBUG, ("Close socket!" ));
+    LWIP_DEBUGF( IPERF_DEBUG, ("Close socket!\n" ));
     free( buffer );
     iperf_display_report( "[Total]TCP Client", t2 - t1, 0, pkt_count );
 
@@ -769,8 +791,8 @@ void iperf_udp_run_client( char *parameters[] )
     int sockfd;
     struct sockaddr_in servaddr;
     char *Server_IP = 0;
-    count_t pkt_count;
-    count_t tmp_count;
+    count_t pkt_count = {0, 0, 0, 0, 0};
+    count_t tmp_count = {0, 0, 0, 0, 0};
     int nbytes = 0; /* the number of send */
     int total_send = 0; /* the total number of transmit  */
     int num_tag = 0; /* the tag of parameter "-n"  */
@@ -789,9 +811,6 @@ void iperf_udp_run_client( char *parameters[] )
         buffer[i] = (i % 10 + '0');
     }
     memset( buffer, 0, IPERF_TEST_BUFFER_SIZE );
-    //Statistics init
-    pkt_count = iperf_reset_count( pkt_count );
-    tmp_count = iperf_reset_count( tmp_count );
     data_size = 0;
     send_time = 0;
     server_port = 0;
@@ -803,60 +822,60 @@ void iperf_udp_run_client( char *parameters[] )
     //Handle input parameters
     if ( g_iperf_is_tradeoff_test_server == 0 ) {
         Server_IP = (char *) &parameters[0];
-        for ( i = 1; i < 18; i++ ) {
+        for ( i = 1; i < IPERF_COMMAND_BUFFER_NUM; i++ ) {
             if ( strcmp( (char *) &parameters[i * offset], "-l" ) == 0 ) {
                 i++;
                 data_size = iperf_format_transform( (char *) &parameters[i * offset] );
-                LWIP_DEBUGF( IPERF_DEBUG, ("Set datagram size = %d Bytes", data_size ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("Set datagram size = %d Bytes\n", data_size ));
             } else if ( strcmp( (char *) &parameters[i * offset], "-t" ) == 0 ) {
                 i++;
                 send_time = atoi( (char *) &parameters[i * offset] );
-                LWIP_DEBUGF( IPERF_DEBUG, ("Set send times = %d (secs)", atoi( (char *) &parameters[i * offset] ) ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("Set send times = %d (secs)\n", atoi( (char *) &parameters[i * offset] ) ));
             } else if ( strcmp( (char *) &parameters[i * offset], "-p" ) == 0 ) {
                 i++;
                 server_port = atoi( (char *) &parameters[i * offset] );
             } else if ( strcmp( (char *) &parameters[i * offset], "-d" ) == 0 ) {
                 i++;
                 pkt_delay = atoi( (char *) &parameters[i * offset] );
-                LWIP_DEBUGF( IPERF_DEBUG, ("Set packet delay = %d (ms)", atoi( (char *) &parameters[i * offset] ) ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("Set packet delay = %d (ms)\n", atoi( (char *) &parameters[i * offset] ) ));
             } else if ( strcmp( (char *) &parameters[i * offset], "-n" ) == 0 ) {
                 i++;
                 total_send = iperf_format_transform( (char *) &parameters[i * offset] );
                 num_tag = 1;
-                LWIP_DEBUGF( IPERF_DEBUG, ("Set number to transmit = %d Bytes", total_send ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("Set number to transmit = %d Bytes\n", total_send ));
             } else if ( strcmp( (char *) &parameters[i * offset], "-S" ) == 0 ) {
                 i++;
                 tos = atoi( (char *) &parameters[i * offset] );
-                LWIP_DEBUGF( IPERF_DEBUG, ("Set TOS = %d", atoi( (char *) &parameters[i * offset] ) ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("Set TOS = %d\n", atoi( (char *) &parameters[i * offset] ) ));
             } else if ( strcmp( (char *) &parameters[i * offset], "-b" ) == 0 ) {
                 i++;
-                LWIP_DEBUGF( IPERF_DEBUG, ("Set bandwidth = %s", (char *) &parameters[i * offset] ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("Set bandwidth = %s\n", (char *) &parameters[i * offset] ));
                 bw = iperf_format_transform( (char *) &parameters[i * offset] );
                 if ( bw > 15728640 || bw <= 0 ) {
                     bw = 15728640; /* Change from 2621440 to 15728640 */
                     LWIP_DEBUGF( IPERF_DEBUG, ("Upper limit of bandwith setting = 60Mbits/sec\n" ));
                 }
-                LWIP_DEBUGF( IPERF_DEBUG, ("bandwidth = %d", bw ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("bandwidth = %d\n", bw ));
             } else if ( strcmp( (char *) &parameters[i * offset], "-i" ) == 0 ) {
                 interval_tag = 1;
-                LWIP_DEBUGF( IPERF_DEBUG, ("Set 10 seconds between periodic bandwidth reports" ));
+                LWIP_DEBUGF( IPERF_DEBUG, ("Set 10 seconds between periodic bandwidth reports\n" ));
             } else if ( strcmp( (char *) &parameters[i * offset], "-r" ) == 0 ) {
                 tradeoff_tag = 1;
-                LWIP_DEBUGF( IPERF_DEBUG, ( "Set to tradeoff mode" ));
+                LWIP_DEBUGF( IPERF_DEBUG, ( "Set to tradeoff mode\n" ));
             }
         }
     }
 
     if ( data_size == 0 ) {
         data_size = 1460;
-        LWIP_DEBUGF( IPERF_DEBUG, ("Default datagram size = %d Bytes", data_size ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("Default datagram size = %d Bytes\n", data_size ));
     }
 
     if ( bw > 0 ) {
         pkt_delay = (1000 * data_size) / bw;
 
         // pkt_dalay add 1ms regularly to reduce the offset
-        pkt_delay_offset = (((1000 * data_size) % bw) * 60 / bw);
+        pkt_delay_offset = (((1000 * data_size) % bw) * 10 / bw);
         if ( pkt_delay_offset ) {
             pkt_delay_offset = 10 / pkt_delay_offset;
         }
@@ -867,21 +886,23 @@ void iperf_udp_run_client( char *parameters[] )
             send_time = 999999;
         } else {
             send_time = 10;
-            LWIP_DEBUGF( IPERF_DEBUG, ("Default send times = %d (secs)", send_time ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Default send times = %d (secs)\n", send_time ));
         }
     }
 
     // Create a new TCP connection handle
     if ( (sockfd = socket( AF_INET, SOCK_DGRAM, 0 )) < 0 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] sockfd = %d", __FUNCTION__, __LINE__, sockfd ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("[%s:%d] sockfd = %d\n", __FUNCTION__, __LINE__, sockfd ));
         if ( parameters ) {
             free( parameters );
         }
+        free(buffer);
         aos_task_exit(0);
+        return ;
     }
 
     if ( setsockopt( sockfd, IPPROTO_IP, IP_TOS, &tos, sizeof(tos) ) < 0 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("Set TOS: fail!" ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("Set TOS: fail!\n" ));
     }
 
     // Bind to port and IP
@@ -893,23 +914,25 @@ void iperf_udp_run_client( char *parameters[] )
     } else {
         servaddr.sin_addr.s_addr = g_iperf_server_addr;
     }
-    LWIP_DEBUGF( IPERF_DEBUG, ("Server address = %x", (unsigned int) servaddr.sin_addr.s_addr ));
+    LWIP_DEBUGF( IPERF_DEBUG, ("Server address = %x\n", (unsigned int) servaddr.sin_addr.s_addr ));
 
     if ( server_port == 0 ) {
         servaddr.sin_port = htons( IPERF_DEFAULT_PORT );
-        LWIP_DEBUGF( IPERF_DEBUG, ("Default server port = %d", IPERF_DEFAULT_PORT ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("Default server port = %d\n", IPERF_DEFAULT_PORT ));
     } else {
         servaddr.sin_port = htons( server_port );
-        LWIP_DEBUGF( IPERF_DEBUG, ("Set server port = %d", server_port ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("Set server port = %d\n", server_port ));
     }
 
     if ( (connect( sockfd, (struct sockaddr *) &servaddr, sizeof(servaddr) )) < 0 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ( "Connect failed" ));
+        LWIP_DEBUGF( IPERF_DEBUG, ( "Connect failed\n" ));
         close( sockfd );
         if ( parameters ) {
             free( parameters );
         }
+        free(buffer);
         aos_task_exit(0);
+        return ;
     }
 
     // Init UDP data header
@@ -947,7 +970,7 @@ void iperf_udp_run_client( char *parameters[] )
 
         iperf_get_current_time( &curr_t, &current_tick );
 
-        if ((pkt_delay_offset != 0) && ((udp_h_id % pkt_delay_offset) == 0 )) {
+        if ( (pkt_delay_offset != 0) && (udp_h_id % pkt_delay_offset) == 0 ) {
             current_sleep = pkt_delay - (current_tick - last_tick - last_sleep) + 1;
         } else {
             current_sleep = pkt_delay - (current_tick - last_tick - last_sleep);
@@ -976,7 +999,7 @@ void iperf_udp_run_client( char *parameters[] )
 
         //Reach total receive number "-n"
         if ( total_send < 0 ) {
-            LWIP_DEBUGF( IPERF_DEBUG, ("Finish Sending" ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Finish Sending\n" ));
             break;
         }
 
@@ -1006,12 +1029,12 @@ void iperf_udp_run_client( char *parameters[] )
 
     //TODO: receive the report from server side and print out
 
-    LWIP_DEBUGF( IPERF_DEBUG, ("UDP Client close socket!" ));
+    LWIP_DEBUGF( IPERF_DEBUG, ("UDP Client close socket!\n" ));
     close( sockfd );
 
     // tradeoff testing
     if ( tradeoff_tag == 1 ) {
-        LWIP_DEBUGF( IPERF_DEBUG, ("Tradoff test, start server-side." ));
+        LWIP_DEBUGF( IPERF_DEBUG, ("Tradoff test, start server-side.\n" ));
         g_iperf_is_tradeoff_test_client = 1;
         iperf_udp_run_server( NULL );
         g_iperf_is_tradeoff_test_client = 0;
@@ -1025,6 +1048,7 @@ void iperf_udp_run_client( char *parameters[] )
     // For tradeoff mode, task will be deleted in iperf_udp_run_server
     if ( g_iperf_is_tradeoff_test_server == 0 ) {
         aos_task_exit(0);
+        return ;
     }
 }
 
@@ -1154,7 +1178,7 @@ count_t iperf_diff_count( count_t pkt_count, count_t tmp_count )
             pkt_count.MBytes = 1023;
             pkt_count.KBytes = 1023;
         } else {
-            LWIP_DEBUGF( IPERF_DEBUG, ("Warning: Diff data is wrong." ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Warning: Diff data is wrong.\n" ));
         }
     }
 
@@ -1168,7 +1192,7 @@ count_t iperf_diff_count( count_t pkt_count, count_t tmp_count )
             pkt_count.GBytes--;
             pkt_count.MBytes = 1023;
         } else {
-            LWIP_DEBUGF( IPERF_DEBUG, ("Warning: Diff data is wrong." ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Warning: Diff data is wrong.\n" ));
         }
     }
 
@@ -1179,7 +1203,7 @@ count_t iperf_diff_count( count_t pkt_count, count_t tmp_count )
         if ( pkt_count.GBytes > 0 ) {
             pkt_count.GBytes--;
         } else {
-            LWIP_DEBUGF( IPERF_DEBUG, ("Warning: Diff data is wrong." ));
+            LWIP_DEBUGF( IPERF_DEBUG, ("Warning: Diff data is wrong.\n" ));
         }
     }
 

@@ -1,0 +1,83 @@
+config AOS_APP_MAIN_DRIVER
+    bool "main_driver"
+    select AOS_COMP_CLI
+    select AOS_COMP_CPLUSPLUS
+    select AOS_COMP_VFS
+    select AOS_COMP_ULOG
+    select AOS_COMP_DEVICEVFS
+    select AOS_COMP_IRQ if AOS_BOARD_HAAS100_MK
+    select AOS_COMP_U_PWM if AOS_BOARD_HAAS100_MK
+    select AOS_MCU_V_PWM_DRV if AOS_BOARD_HAAS100_MK
+    select AOS_COMP_U_I2C if AOS_BOARD_HAAS100_MK
+    select AOS_MCU_V_I2C_DRV if AOS_BOARD_HAAS100_MK
+    select AOS_COMP_U_SPI if AOS_BOARD_HAAS100_MK
+    select AOS_MCU_V_SPI_DRV if AOS_BOARD_HAAS100_MK
+    select AOS_COMP_U_ADC if AOS_BOARD_HAAS100_MK
+    select AOS_MCU_V_ADC_DRV if AOS_BOARD_HAAS100_MK
+    select AOS_COMP_U_GPIO if AOS_BOARD_HAAS100_MK
+    select AOS_MCU_V_GPIO_DRV if AOS_BOARD_HAAS100_MK
+    select AOS_COMP_U_RAM_TEST
+    select AOS_COMP_U_FLASH_TEST
+    select AOS_COMP_U_I2C_TEST
+    select AOS_COMP_U_GPIO_TEST
+    select AOS_COMP_U_PWM_TEST
+    select AOS_COMP_U_SPI_TEST
+    select AOS_COMP_U_ADC_TEST
+    help
+        "user space app"
+
+if AOS_APP_MAIN_DRIVER
+# Configurations for app main_driver
+
+
+config RHINO_CONFIG_APP_NAME
+    string "app name"
+    default "main_driver"
+    help
+        "set app name, it's also the first task name"
+
+config RHINO_CONFIG_APP_VERSION
+    hex "app version"
+    default 0x00000001
+    help
+        "set app version"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_NAME
+    string "app first task name"
+    default "uapp1_entry_task"
+    help
+        "set app first task name"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_PRIO
+    int "app entry task priority"
+    default 20
+    help
+        "set app entry task priority"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_KSTACK_SIZE
+    int "app entry task kstack size"
+    default 4096
+    help
+        "set app entry task kstack size, the unit is cpu_stack_t"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_USTACK_SIZE
+    int "app entry task ustack size"
+    default 4096
+    help
+        "set app entry task ustack size, the unit is cpu_stack_t"
+
+config RHINO_CONFIG_APP_ULOG_FS_PATH
+    string "app ulog fs path"
+    default "/data/syslog/uapp1"
+    help
+        "set app ulog to fs path"
+
+config RHINO_CONFIG_APP_ULOG_FS_BACKUP_PATH
+    string "app ulog fs backup path"
+    default "/data/syslog/backup/uapp1"
+    help
+        "set app ulog to fs backup path"
+
+source "kernel/core/mk/uspace/Config.in"
+
+endif

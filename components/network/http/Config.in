@@ -3,7 +3,7 @@
 # in the updated build system, default is y and can not be disabled
 if AOS_CREATE_PROJECT
 config AOS_COMP_HTTP
-    bool 
+    bool
     default y
 # do NOT select depend component in this file
 # use $(NAME)_COMPONENTS in aos.mk
@@ -25,14 +25,22 @@ depends on AOS_COMP_HTTP
 
 config CONFIG_NEW_HTTP_API
     bool "New API"
-    default n
+    default y
 
 config CONFIG_HTTP_SECURE
     bool "Support HTTP Secure"
-    default n
-    help 
+    default y
+    help
         set to y if use HTTPS
         default n
+
+if CONFIG_NEW_HTTP_API
+config CONFIG_HTTP_FILE_OPERATE
+    bool "Support file operate"
+    default n
+    help
+        set to y if use file operate
+endif
 
 if CONFIG_HTTP_SECURE
 choice
@@ -43,12 +51,12 @@ choice
 
     config CONFIG_HTTP_SECURE_TLS
         bool "HTTPS over MbedTLS"
-    # Backward compatibility, to be removed soon 
+    # Backward compatibility, to be removed soon
         select AOS_COMP_MBEDTLS
 
     config CONFIG_HTTP_SECURE_ITLS
         bool "HTTPS over iTLS"
-    # Backward compatibility, to be removed soon 
+    # Backward compatibility, to be removed soon
         select AOS_COMP_ITLS
 endchoice
 endif
@@ -85,14 +93,14 @@ config CONFIG_HTTP_ENABLE_MUTEX
     bool "Enable mutex"
     default y
     depends on !CONFIG_NEW_HTTP_API
-    help 
+    help
         Enable mutex for HTTP operation
 
 config CONFIG_HTTP_DEBUG
     bool "Enable debug"
     default n
     depends on !CONFIG_NEW_HTTP_API
-    help 
+    help
         Enable debug function
 
 endmenu

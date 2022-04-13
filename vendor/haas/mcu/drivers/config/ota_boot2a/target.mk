@@ -1,0 +1,97 @@
+CHIP		?= haas1000
+
+DEBUG		?= 1
+
+FPGA		?= 0
+
+DEBUG_PORT	?= 1
+
+FLASH_CHIP	?= ALL
+
+NOSTD		?= 1
+
+WATCHER_DOG ?= 1
+
+export ALLOW_WARNING ?= 1
+
+export TRACE_BAUD_RATE ?= 1500000
+
+export TRACE_CRLF ?= 1
+
+export POWER_MODE   ?= DIG_DCDC
+
+export MCU_HIGH_PERFORMANCE_MODE ?= 320
+
+export BOOTINFO_BIN ?= 0
+export REMAP_SUPPORT ?= 0
+ifeq ($(REMAP_SUPPORT),1)
+KBUILD_CFLAGS += -DREMAP_SUPPORT
+export OTA_CODE_OFFSET ?= 0x12000
+endif
+
+ifeq ($(BOOTINFO_BIN),1)
+KBUILD_CFLAGS += -DBOOTINFO_BIN
+KBUILD_CFLAGS += -DOTA_BOOT_INFO_OFFSET=0x10000
+endif
+
+ifeq ($(REMAP_SUPPORT),1)
+ifeq ($(BOOTINFO_BIN),0)
+KBUILD_CFLAGS += -DOTA_BOOT_INFO_OFFSET=0x10000
+KBUILD_CFLAGS += -DOTA_RTOSA_CODE_OFFSET=0x2A000
+KBUILD_CFLAGS += -DOTA_RTOSB_CODE_OFFSET=0x5BA000
+KBUILD_CFLAGS += -DOTA_RTOSB_ZONE_LEN=0x578000
+endif
+endif
+
+ifeq ($(REMAP_SUPPORT),0)
+ifeq ($(BOOTINFO_BIN),0)
+KBUILD_CFLAGS += -DOTA_BOOT_INFO_OFFSET=0x30000
+export OTA_CODE_OFFSET ?= 0x10000
+KBUILD_CFLAGS += -DOTA_RTOSA_CODE_OFFSET=0x38000
+endif
+endif
+
+export TRACE_RX_ENABLE ?= 0
+ifeq ($(TRACE_RX_ENABLE),1)
+KBUILD_CFLAGS += -DTRACE_RX_ENABLE
+endif
+
+export EXTERNAL_WATCHDOG ?= 0
+ifeq ($(EXTERNAL_WATCHDOG),1)
+KBUILD_CFLAGS += -DEXTERNAL_WATCHDOG
+endif
+
+KBUILD_CFLAGS += -DBUILD_BOOT2A=1
+KBUILD_CFLAGS += -DHAAS_OTA_ENABLED=1
+KBUILD_CFLAGS += -DHAAS_OTA_BIN_VER=\"HAAS_2a_1.0.0\"
+
+KBUILD_CFLAGS += -DCALIB_SLOW_TIMER
+
+KBUILD_CFLAGS += -DCHIP_ID=$(CHIP)
+
+init-y		:=
+core-y		:= tests/ota_boot_secboot/ platform/cmsis/ platform/hal/ services/transq_msg/ \
+	platform/drivers/norflash/  platform/drivers/ana/
+
+KBUILD_CPPFLAGS += -Iplatform/cmsis/inc -Iplatform/hal -Iplatform/drivers/ana
+
+LDS_FILE	:= $(CHIP).lds
+
+FLASH_SIZE ?= 0x1000000
+
+export FLASH_SECURITY_REGISTER ?= 1
+
+export FLASH_UNIQUE_ID ?= 1
+
+KBUILD_CPPFLAGS +=
+
+KBUILD_CFLAGS +=
+
+LIB_LDFLAGS += -lstdc++ -lsupc++
+
+#CFLAGS_IMAGE += -u _printf_float -u _scanf_float
+
+#LDFLAGS_IMAGE += --wrap main
+
+HAAS_OTA_ENABLED ?= 1
+

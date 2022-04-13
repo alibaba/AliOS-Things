@@ -45,6 +45,8 @@
 #include "lwip/apps/ping.h"
 
 #include <stdlib.h>
+#include "stdlib.h"
+#include <unistd.h>
 #include "lwip/mem.h"
 #include "lwip/raw.h"
 #include "lwip/icmp.h"
@@ -62,13 +64,6 @@
 #endif /* PING_USE_SOCKETS */
 
 #define LWIP_IPV6 0
-
-/**
- * PING_DEBUG: Enable debugging for PING.
- */
-#ifndef PING_DEBUG
-#define PING_DEBUG     LWIP_DBG_ON
-#endif
 
 /** ping receive timeout - in milliseconds */
 #ifndef PING_RCV_TIMEO
@@ -96,7 +91,7 @@
 #endif
 
 #ifndef PING_STACK_SIZE
-#define PING_STACK_SIZE   2048
+#define PING_STACK_SIZE   (1024*20)
 #endif
 
 /* ping variables */
@@ -217,9 +212,9 @@ ping_recv(int s)
       }
 #endif /* LWIP_IPV6 */
 
-      LWIP_DEBUGF( PING_DEBUG, ("ping: recv "));
+      printf("ping: recv ");
       ip_addr_debug_print_val(PING_DEBUG, fromaddr);
-      LWIP_DEBUGF( PING_DEBUG, (" %"U32_F" ms\n", (sys_now() - ping_time)));
+      printf(" %"U32_F" ms\n", (sys_now() - ping_time));
 
       /* todo: support ICMP6 echo */
 #if LWIP_IPV4
@@ -234,7 +229,7 @@ ping_recv(int s)
           PING_RESULT((ICMPH_TYPE(iecho) == ICMP_ER));
           return;
         } else {
-          LWIP_DEBUGF( PING_DEBUG, ("ping: drop\n"));
+          printf("ping: drop\n");
         }
       }
 #endif /* LWIP_IPV4 */
@@ -243,7 +238,7 @@ ping_recv(int s)
   }
 
   if (len == 0) {
-    LWIP_DEBUGF( PING_DEBUG, ("ping: recv - %"U32_F" ms - timeout\n", (sys_now()-ping_time)));
+    printf("ping: recv - %"U32_F" ms - timeout\n", (sys_now()-ping_time));
   }
 
   /* do some ping result processing */
@@ -274,8 +269,8 @@ ping_thread(void *arg)
 #else
   s = lwip_socket(AF_INET,  SOCK_RAW, IP_PROTO_ICMP);
 #endif
-  if (s < 0) {
-    LWIP_DEBUGF( PING_DEBUG, ("ping: create socket failed"));
+  if (s == -1) {
+    printf("ping: create socket failed");
     goto exit;
   }
 
@@ -286,33 +281,35 @@ ping_thread(void *arg)
   while (1){
     if(count >= 0) {
         if(count == 0) {
-            LWIP_DEBUGF( PING_DEBUG, ("ping: send %"U32_F"times finished", ping_send_count));
+            printf("ping: send %"U32_F"times finished", ping_send_count);
             goto exit;
         }
         count --;
     }
     if(ping_do_exit) {
-        LWIP_DEBUGF( PING_DEBUG, ("ping: recv ping exit command"));
+        printf("ping: recv ping exit command");
         goto exit;
     }
     if (ping_send(s, ping_target) == ERR_OK) {
-      LWIP_DEBUGF( PING_DEBUG, ("ping: send "));
+      printf("ping: send ");
       ip_addr_debug_print(PING_DEBUG, ping_target);
-      LWIP_DEBUGF( PING_DEBUG, ("\n"));
+      printf("\n");
 
 #ifdef LWIP_DEBUG
       ping_time = sys_now();
 #endif /* LWIP_DEBUG */
       ping_recv(s);
     } else {
-      LWIP_DEBUGF( PING_DEBUG, ("ping: send "));
+      printf("ping: send ");
       ip_addr_debug_print(PING_DEBUG, ping_target);
-      LWIP_DEBUGF( PING_DEBUG, (" - error\n"));
+      printf(" - error\n");
     }
     sys_msleep(ping_delay);
   }
 exit:
-    lwip_close(s);
+    if(s != -1) {
+        close(s);
+    }
     ping_started = 0;
     ping_do_exit = 0;
     aos_task_exit(0);
@@ -335,9 +332,9 @@ ping_recv(void *arg, struct raw_pcb *pcb, struct pbuf *p, const ip_addr_t *addr)
     iecho = (struct icmp_echo_hdr *)p->payload;
 
     if ((iecho->id == PING_ID) && (iecho->seqno == lwip_htons(ping_seq_num))) {
-      LWIP_DEBUGF( PING_DEBUG, ("ping: recv "));
+      printf("ping: recv ");
       ip_addr_debug_print(PING_DEBUG, addr);
-      LWIP_DEBUGF( PING_DEBUG, (" %"U32_F" ms\n", (sys_now()-ping_time)));
+      printf(" %"U32_F" ms\n", (sys_now()-ping_time));
 
       /* do some ping result processing */
       PING_RESULT(1);
@@ -358,9 +355,9 @@ ping_send(struct raw_pcb *raw, const ip_addr_t *addr)
   struct icmp_echo_hdr *iecho;
   size_t ping_size = sizeof(struct icmp_echo_hdr) + ping_data_size;
 
-  LWIP_DEBUGF( PING_DEBUG, ("ping: send "));
+  printf("ping: send ");
   ip_addr_debug_print(PING_DEBUG, addr);
-  LWIP_DEBUGF( PING_DEBUG, ("\n"));
+  printf("\n");
   LWIP_ASSERT("ping_size <= 0xffff", ping_size <= 0xffff);
 
   p = pbuf_alloc(PBUF_IP, (u16_t)ping_size, PBUF_RAM);
@@ -423,9 +420,9 @@ ping_init(const ip_addr_t* ping_addr)
       aos_task_new("ping_thread", ping_thread, NULL, PING_STACK_SIZE);
   }
   else {
-      LWIP_DEBUGF( PING_DEBUG, ("ping: ping task is already running\n"));
-      LWIP_DEBUGF( PING_DEBUG, ("ping: use command \"ping -e\" to exit running ping task\n"));
-      LWIP_DEBUGF( PING_DEBUG, ("ping: and then run Ping command again\n"));
+      printf("ping: ping task is already running\n");
+      printf("ping: use command \"ping -e\" to exit running ping task\n");
+      printf("ping: and then run Ping command again\n");
   }
 #else /* PING_USE_SOCKETS */
   ping_raw_init();
@@ -445,7 +442,7 @@ void ping_run( int argc, char **argv )
                 ping_send_count = temp;
             }
             else {
-                LWIP_DEBUGF( PING_DEBUG, ("ping: bad number of packets to transmit\n"));
+                printf("ping: bad number of packets to transmit\n");
                 return;
             }
         }
@@ -455,7 +452,7 @@ void ping_run( int argc, char **argv )
                 ping_delay = temp;
             }
             else {
-                LWIP_DEBUGF( PING_DEBUG, ("ping: bad timing interval\n"));
+                printf("ping: bad timing interval\n");
                 return;
             }
         }
@@ -465,7 +462,7 @@ void ping_run( int argc, char **argv )
                 ping_rcv_timeo = temp;
             }
             else {
-                LWIP_DEBUGF( PING_DEBUG, ("ping: bad recv timeout\n"));
+                printf("ping: bad recv timeout\n");
                 return;
             }
         }
@@ -475,7 +472,7 @@ void ping_run( int argc, char **argv )
                 ping_data_size = temp;
             }
             else {
-                LWIP_DEBUGF( PING_DEBUG, ("ping: bad packet data size\n"));
+                printf("ping: bad packet data size\n");
                 return;
             }
         }
@@ -485,7 +482,7 @@ void ping_run( int argc, char **argv )
         }
         else if ( argc != i + 1){
            extern void _cli_ping_help_command( int argc, char **argv );
-           LWIP_DEBUGF( PING_DEBUG, ("ping: Invalid command format\n"));
+           printf("ping: Invalid command format\n");
            _cli_ping_help_command( 0, NULL );
            return;
         }
@@ -498,7 +495,7 @@ void ping_run( int argc, char **argv )
     hints.ai_protocol = 0;
 
     if((temp = getaddrinfo(argv[argc-1], NULL, &hints, &res)) != 0) {
-        LWIP_DEBUGF( PING_DEBUG, ("ping: Getaddrinfo error%"U32_F"\n", temp));
+        printf("ping: Getaddrinfo error%"U32_F"\n", temp);
         return;
     }
 

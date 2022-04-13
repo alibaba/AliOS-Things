@@ -1,0 +1,37 @@
+config AOS_MCU_HAAS1000
+    bool
+    select AOS_ARCH_ARMV8M_MK
+    select AOS_COMP_RHINO
+    select AOS_COMP_NETMGR  if !AOS_KERNEL_MODE
+    select AOS_COMP_LWIP
+    select CONFIG_MODERN_NETMGR if AOS_COMP_NETMGR
+    select PING_ENABLED if AOS_COMP_LWIP
+    select DNSCLI_ENABLED if AOS_COMP_LWIP
+    select ARPCLI_ENABLED if AOS_COMP_LWIP
+    select SENDFILE_ENABLED if AOS_COMP_LWIP
+    select LSFDCLI_ENABLED if AOS_COMP_LWIP
+    select ULOG_CONFIG_ASYNC if AOS_COMP_ULOG
+    select ULOG_CONFIG_SYSLOG_TIME_FORMAT if AOS_COMP_ULOG
+    select AOS_COMP_CPLUSPLUS
+    select AOS_COMP_DEVICEVFS
+    help
+      driver & sdk for platform/mcu haas1000
+
+if AOS_MCU_HAAS1000
+# Configurations for mcu haas1000
+endif
+
+source vendor/haas/mcu/aos/aos_vendor_cli_cmd/Config.in
+source vendor/haas/mcu/hal/pwm/Config.in
+source vendor/haas/mcu/hal/gpio/Config.in
+source vendor/haas/mcu/hal/uart/Config.in
+source vendor/haas/mcu/hal/spi/Config.in
+source vendor/haas/mcu/hal/i2c/Config.in
+source vendor/haas/mcu/hal/flash/Config.in
+source vendor/haas/mcu/hal/adc/Config.in
+source vendor/haas/mcu/hal/sd/Config.in
+source vendor/haas/mcu/hal/wifi/Config.in
+source vendor/haas/mcu/hal/regs/Config.in
+source vendor/haas/mcu/drivers/Config.in
+source vendor/haas/mcu/hal/ubase/Config.in
+source vendor/haas/mcu/ota/Config.in

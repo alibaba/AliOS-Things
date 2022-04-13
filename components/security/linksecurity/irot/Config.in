@@ -1,8 +1,0 @@
-config AOS_COMP_IROT
-    bool "Root of Trust - MCU, SE and TEE"
-    default n
-    help
-
-if AOS_COMP_IROT
-# Configurations for comp irot
-endif

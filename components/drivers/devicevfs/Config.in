@@ -1,0 +1,7 @@
+menuconfig AOS_COMP_DEVICEVFS
+    select AOS_COMP_UDRIVER
+    select AOS_COMP_UPLATFORM
+    bool "device vfs for bus-disabled model"
+    default n
+    help
+        AliOS device vfs for bus-disabled module

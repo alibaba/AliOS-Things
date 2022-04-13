@@ -43,6 +43,12 @@
 extern "C" {
 #endif
 
+#if defined(__GNUC__)&&!defined(__CC_ARM)||defined(_WIN32)
+
+#include <errno.h>
+
+#else
+
 #ifdef LWIP_PROVIDE_ERRNO
 
 #define  EPERM         1  /* Operation not permitted */
@@ -186,6 +192,8 @@ extern int errno;
 #endif /* LWIP_ERRNO_INCLUDE */
 
 #endif /* LWIP_PROVIDE_ERRNO */
+
+#endif /* defined(__GNUC__)&&!defined(__CC_ARM)||defined(_WIN32) */
 
 #ifdef __cplusplus
 }

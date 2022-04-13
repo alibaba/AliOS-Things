@@ -1,0 +1,5 @@
+config AOS_COMP_GENIE_CJSON
+    bool "cjson"
+    default n
+    help
+        genie component cjson

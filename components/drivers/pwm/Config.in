@@ -1,0 +1,6 @@
+menuconfig AOS_COMP_U_PWM
+    select AOS_COMP_DEVICEVFS
+    bool "pwm core module"
+    default n
+    help
+        AliOS pwm module core layer

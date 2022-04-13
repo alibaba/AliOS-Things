@@ -1,0 +1,5 @@
+menuconfig AOS_COMP_U_GPIO_TEST
+    bool "gpio core module"
+    default n
+    help
+        AliOS gpio test module

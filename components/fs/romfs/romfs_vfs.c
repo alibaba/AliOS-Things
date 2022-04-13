@@ -4,15 +4,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include <vfs_types.h>
+#include <fs/vfs_types.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include "romfs_def.h"
-#include <fs/romfs.h>
-
-#define O_DIRECTORY 0200000
 
 static struct romfs_dirent *g_romfs_data = &romfs_root;
 
@@ -172,31 +168,42 @@ static int32_t romfs_vfs_open(vfs_file_t *fp, const char *path, int flags)
 
     root_dirent = g_romfs_data;
 
-    if (check_dirent(root_dirent) != 0)
+    if (check_dirent(root_dirent) != 0){
+        free(file);
         return ROMFS_ERR_IO;
+    }
 
-    if (file->flags & (O_CREAT | O_WRONLY | O_APPEND | O_TRUNC | O_RDWR))
+    if (file->flags & (O_CREAT | O_WRONLY | O_APPEND | O_TRUNC | O_RDWR)){
+        free(file);
         return ROMFS_ERR_INVAL;
+    }
 
     dirent = dfs_romfs_lookup(root_dirent, file->path, &size);
-    if (dirent == NULL)
+    if (dirent == NULL){
+        free(file);
         return ROMFS_ERR_NOENT;
+    }
 
     /* entry is a directory file type */
     if (dirent->type == ROMFS_DIRENT_MOUNTPOINT)
     {
+        free(file);
         return ROMFS_ERR_NOENT;
     }
     else if (dirent->type == ROMFS_DIRENT_DIR)
     {
-        if (!(file->flags & O_DIRECTORY))
+        if (!(file->flags & O_DIRECTORY)){
+            free(file);
             return ROMFS_ERR_NOENT;
+        }
     }
     else
     {
         /* entry is a file, but open it as a directory */
-        if (file->flags & O_DIRECTORY)
+        if (file->flags & O_DIRECTORY){
+            free(file);
             return ROMFS_ERR_NOENT;
+        }
     }
 
     file->dirent = dirent;

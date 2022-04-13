@@ -31,6 +31,8 @@
  */
 
 /* system includes */
+#include <stdlib.h>
+
 #include "aos/kernel.h"
 
 /* lwIP includes. */
@@ -40,9 +42,18 @@
 #include "lwip/mem.h"
 #include "arch/sys_arch.h"
 
+#if (SOCKET_RPC_SERVER_ENABLED > 0)
+#include "lwip_rpc.h"
+#endif
+
 #include "k_api.h"
 
 static aos_mutex_t sys_arch_mutex;
+static aos_mutex_t reenter_mutex;
+
+#if LWIP_NETCONN_SEM_PER_THREAD
+#define TAG "sys_arch"
+#endif /* #if LWIP_NETCONN_SEM_PER_THREAD */
 
 //#define      NET_TASK_NUME 2
 //#define      NET_TASK_STACK_SIZE 1024
@@ -58,9 +69,10 @@ static aos_mutex_t sys_arch_mutex;
 err_t sys_sem_new(sys_sem_t *sem, u8_t count)
 {
     err_t ret = ERR_MEM;
-    int stat = aos_sem_new(sem,count);
+    int stat = aos_sem_new(sem, count);
 
-    if (stat == 0) {
+    if (stat == 0)
+    {
         ret = ERR_OK;
     }
     return ret;
@@ -74,11 +86,11 @@ err_t sys_sem_new(sys_sem_t *sem, u8_t count)
 */
 void sys_sem_free(sys_sem_t *sem)
 {
-    if ((sem != NULL)) {
+    if ((sem != NULL))
+    {
         aos_sem_free(sem);
     }
 }
-
 
 /*-----------------------------------------------------------------------------------*/
 /*
@@ -102,25 +114,34 @@ u32_t sys_arch_sem_wait_ext(sys_sem_t *sem, u32_t timeout)
 
     begin_ms = sys_now();
 
-    if( timeout != 0UL ) {
-        ret = aos_sem_wait(sem,timeout);
-        if(ret == 0) {
+    if (timeout != 0UL)
+    {
+        ret = aos_sem_wait(sem, timeout);
+        if (ret == 0)
+        {
             end_ms = sys_now();
 
             elapsed_ms = end_ms - begin_ms;
 
             ret = elapsed_ms;
-        } else {
+        }
+        else
+        {
             ret = SYS_ARCH_TIMEOUT;
         }
-    } else {
-        while( 1 ) {
+    }
+    else
+    {
+        while (1)
+        {
             ret = aos_sem_wait(sem, AOS_WAIT_FOREVER);
 
-            if(ret == 0) {
+            if (ret == 0)
+            {
                 break;
             }
-            if(ret == RHINO_TASK_CANCELED) {
+            if (ret == RHINO_TASK_CANCELED)
+            {
                 return SYS_ARCH_TIMEOUT;
             }
         }
@@ -129,7 +150,8 @@ u32_t sys_arch_sem_wait_ext(sys_sem_t *sem, u32_t timeout)
 
         elapsed_ms = end_ms - begin_ms;
 
-        if( elapsed_ms == 0UL ) {
+        if (elapsed_ms == 0UL)
+        {
             elapsed_ms = 1UL;
         }
 
@@ -165,24 +187,32 @@ u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
 
     begin_ms = sys_now();
 
-    if( timeout != 0UL ) {
-        ret = aos_sem_wait(sem,timeout);
-        if(ret == 0) {
+    if (timeout != 0UL)
+    {
+        ret = aos_sem_wait(sem, timeout);
+        if (ret == 0)
+        {
             end_ms = sys_now();
 
             elapsed_ms = end_ms - begin_ms;
 
             ret = elapsed_ms;
-        } else {
+        }
+        else
+        {
             ret = SYS_ARCH_TIMEOUT;
         }
-    } else {
-        while( !(aos_sem_wait(sem, AOS_WAIT_FOREVER) == 0));
+    }
+    else
+    {
+        while (!(aos_sem_wait(sem, AOS_WAIT_FOREVER) == 0))
+            ;
         end_ms = sys_now();
 
         elapsed_ms = end_ms - begin_ms;
 
-        if( elapsed_ms == 0UL ) {
+        if (elapsed_ms == 0UL)
+        {
             elapsed_ms = 1UL;
         }
 
@@ -206,7 +236,8 @@ err_t sys_mbox_new(sys_mbox_t *mb, int size)
     LWIP_UNUSED_ARG(size);
 
     mbox = (struct sys_mbox *)malloc(sizeof(struct sys_mbox));
-    if (mbox == NULL) {
+    if (mbox == NULL)
+    {
         return ERR_MEM;
     }
     memset(mbox, 0, sizeof(struct sys_mbox));
@@ -229,7 +260,8 @@ err_t sys_mbox_new(sys_mbox_t *mb, int size)
 */
 void sys_mbox_free(sys_mbox_t *mb)
 {
-    if ((mb != NULL) && (*mb != SYS_MBOX_NULL)) {
+    if ((mb != NULL) && (*mb != SYS_MBOX_NULL))
+    {
         struct sys_mbox *mbox = *mb;
 
         sys_arch_sem_wait(&mbox->mutex, 0);
@@ -259,7 +291,8 @@ void sys_mbox_post(sys_mbox_t *mb, void *msg)
 
     LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_post: mbox %p msg %p\n", (void *)mbox, (void *)msg));
 
-    while ((mbox->last + 1) >= (mbox->first + SYS_MBOX_SIZE)) {
+    while ((mbox->last + 1) >= (mbox->first + SYS_MBOX_SIZE))
+    {
         mbox->wait_send++;
         sys_sem_signal(&mbox->mutex);
         sys_arch_sem_wait(&mbox->not_full, 0);
@@ -269,15 +302,19 @@ void sys_mbox_post(sys_mbox_t *mb, void *msg)
 
     mbox->msgs[mbox->last % SYS_MBOX_SIZE] = msg;
 
-    if (mbox->last == mbox->first) {
+    if (mbox->last == mbox->first)
+    {
         first = 1;
-    } else {
+    }
+    else
+    {
         first = 0;
     }
 
     mbox->last++;
 
-    if (first) {
+    if (first)
+    {
         sys_sem_signal(&mbox->not_empty);
     }
 
@@ -301,22 +338,27 @@ err_t sys_mbox_trypost(sys_mbox_t *mb, void *msg)
     LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_trypost: mbox %p msg %p\n",
                             (void *)mbox, (void *)msg));
 
-    if ((mbox->last + 1) >= (mbox->first + SYS_MBOX_SIZE)) {
+    if ((mbox->last + 1) >= (mbox->first + SYS_MBOX_SIZE))
+    {
         sys_sem_signal(&mbox->mutex);
         return ERR_MEM;
     }
 
     mbox->msgs[mbox->last % SYS_MBOX_SIZE] = msg;
 
-    if (mbox->last == mbox->first) {
+    if (mbox->last == mbox->first)
+    {
         first = 1;
-    } else {
+    }
+    else
+    {
         first = 0;
     }
 
     mbox->last++;
 
-    if (first) {
+    if (first)
+    {
         sys_sem_signal(&mbox->not_empty);
     }
 
@@ -355,17 +397,22 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mb, void **msg, u32_t timeout)
     sys_arch_sem_wait(&mbox->mutex, 0);
 #endif
 
-    while (mbox->first == mbox->last) {
+    while (mbox->first == mbox->last)
+    {
         sys_sem_signal(&mbox->mutex);
 
         /* We block while waiting for a mail to arrive in the mailbox. We
            must be prepared to timeout. */
-        if (timeout != 0) {
+        if (timeout != 0)
+        {
             time_needed = sys_arch_sem_wait(&mbox->not_empty, timeout);
-            if (time_needed == SYS_ARCH_TIMEOUT) {
+            if (time_needed == SYS_ARCH_TIMEOUT)
+            {
                 return SYS_ARCH_TIMEOUT;
             }
-        } else {
+        }
+        else
+        {
 #ifdef LWIP_TASK_CANCEL
             sys_arch_sem_wait_ext(&mbox->not_empty, 0);
 #else
@@ -380,16 +427,20 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mb, void **msg, u32_t timeout)
 #endif
     }
 
-    if (msg != NULL) {
+    if (msg != NULL)
+    {
         LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_fetch: mbox %p msg %p\n", (void *)mbox, *msg));
         *msg = mbox->msgs[mbox->first % SYS_MBOX_SIZE];
-    } else {
+    }
+    else
+    {
         LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_fetch: mbox %p, null msg\n", (void *)mbox));
     }
 
     mbox->first++;
 
-    if (mbox->wait_send) {
+    if (mbox->wait_send)
+    {
         sys_sem_signal(&mbox->not_full);
     }
 
@@ -412,21 +463,26 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mb, void **msg)
 
     sys_arch_sem_wait(&mbox->mutex, 0);
 
-    if (mbox->first == mbox->last) {
+    if (mbox->first == mbox->last)
+    {
         sys_sem_signal(&mbox->mutex);
         return SYS_MBOX_EMPTY;
     }
 
-    if (msg != NULL) {
+    if (msg != NULL)
+    {
         LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_tryfetch: mbox %p msg %p\n", (void *)mbox, *msg));
         *msg = mbox->msgs[mbox->first % SYS_MBOX_SIZE];
-    } else {
+    }
+    else
+    {
         LWIP_DEBUGF(SYS_DEBUG, ("sys_mbox_tryfetch: mbox %p, null msg\n", (void *)mbox));
     }
 
     mbox->first++;
 
-    if (mbox->wait_send) {
+    if (mbox->wait_send)
+    {
         sys_sem_signal(&mbox->not_full);
     }
 
@@ -444,18 +500,13 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mb, void **msg)
 */
 err_t sys_mbox_new(sys_mbox_t *mb, int size)
 {
-    void *msg_start;
     err_t ret = ERR_MEM;
     size_t ptr_size = sizeof(void *);
 
-    msg_start = malloc(size * ptr_size);
-    if (msg_start == NULL) {
-        return ERR_MEM;
-    }
+    int stat = aos_queue_new(mb, size * ptr_size, ptr_size);
 
-    int stat = aos_queue_new(mb,msg_start,size * ptr_size,ptr_size);
-
-    if (stat == 0) {
+    if (stat == 0)
+    {
         ret = ERR_OK;
     }
     return ret;
@@ -469,14 +520,7 @@ err_t sys_mbox_new(sys_mbox_t *mb, int size)
 */
 void sys_mbox_free(sys_mbox_t *mb)
 {
-    void *start;
-
-    if ((mb != NULL)) {
-        start = aos_queue_buf_ptr(mb);
-        if(start != NULL)
-            free(start);
-        aos_queue_free(mb);
-    }
+    aos_queue_free(mb);
 }
 
 /*-----------------------------------------------------------------------------------*/
@@ -487,7 +531,7 @@ void sys_mbox_free(sys_mbox_t *mb)
 */
 void sys_mbox_post(sys_mbox_t *mb, void *msg)
 {
-    aos_queue_send(mb,&msg,sizeof(void*));
+    aos_queue_send(mb, &msg, sizeof(void *));
 }
 
 /*
@@ -497,7 +541,7 @@ void sys_mbox_post(sys_mbox_t *mb, void *msg)
 */
 err_t sys_mbox_trypost(sys_mbox_t *mb, void *msg)
 {
-    if (aos_queue_send(mb,&msg,sizeof(void*)) != 0)
+    if (aos_queue_send(mb, &msg, sizeof(void *)) != 0)
         return ERR_MEM;
     else
         return ERR_OK;
@@ -530,27 +574,36 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mb, void **msg, u32_t timeout)
 
     begin_ms = sys_now();
 
-    if( timeout != 0UL ) {
+    if (timeout != 0UL)
+    {
 
-        if(aos_queue_recv(mb,timeout,msg,(unsigned int *)&len) == 0) {
+        if (aos_queue_recv(mb, timeout, msg, (unsigned int *)&len) == 0)
+        {
             end_ms = sys_now();
             elapsed_ms = end_ms - begin_ms;
             ret = elapsed_ms;
-        } else {
+        }
+        else
+        {
             ret = SYS_ARCH_TIMEOUT;
         }
-    } else {
+    }
+    else
+    {
 
-        do {
-            ret = aos_queue_recv(mb,AOS_WAIT_FOREVER,msg,(unsigned int*)&len);
-            if(ret == RHINO_TASK_CANCELED) {
-               return SYS_ARCH_TIMEOUT;
+        do
+        {
+            ret = aos_queue_recv(mb, AOS_WAIT_FOREVER, msg, (unsigned int *)&len);
+            if (ret == RHINO_TASK_CANCELED)
+            {
+                return SYS_ARCH_TIMEOUT;
             }
-        } while(ret != 0);
+        } while (ret != 0);
         end_ms = sys_now();
         elapsed_ms = end_ms - begin_ms;
 
-        if( elapsed_ms == 0UL ) {
+        if (elapsed_ms == 0UL)
+        {
             elapsed_ms = 1UL;
         }
 
@@ -570,9 +623,12 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mb, void **msg)
 {
     u32_t len;
 
-    if(aos_queue_recv(mb,0u,msg,(unsigned int*)&len) != 0 ) {
+    if (aos_queue_recv(mb, 0u, msg, (unsigned int *)&len) != 0)
+    {
         return SYS_MBOX_EMPTY;
-    } else {
+    }
+    else
+    {
         return ERR_OK;
     }
 }
@@ -588,7 +644,8 @@ err_t sys_mutex_new(sys_mutex_t *mutex)
     err_t ret = ERR_MEM;
     int stat = aos_mutex_new(mutex);
 
-    if (stat == 0) {
+    if (stat == 0)
+    {
         ret = ERR_OK;
     }
     return ret;
@@ -599,7 +656,7 @@ err_t sys_mutex_new(sys_mutex_t *mutex)
  **/
 void sys_mutex_lock(sys_mutex_t *mutex)
 {
-    aos_mutex_lock(mutex,AOS_WAIT_FOREVER);
+    aos_mutex_lock(mutex, AOS_WAIT_FOREVER);
 }
 
 /** Unlock a mutex
@@ -608,7 +665,6 @@ void sys_mutex_unlock(sys_mutex_t *mutex)
 {
     aos_mutex_unlock(mutex);
 }
-
 
 /** Delete a semaphore
  * @param mutex the mutex to delete
@@ -644,7 +700,7 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, 
 {
     aos_task_t task_handle;
 
-    aos_task_new_ext(&task_handle,name,thread,arg,stacksize,prio);
+    aos_task_new_ext(&task_handle, name, thread, arg, stacksize, prio, 1);
 
     return (sys_thread_t)task_handle.hdl;
 }
@@ -680,6 +736,17 @@ void sys_arch_unprotect(sys_prot_t pval)
     aos_mutex_unlock(&sys_arch_mutex);
 }
 
+sys_prot_t reenter_protect(void)
+{
+    aos_mutex_lock(&reenter_mutex, AOS_WAIT_FOREVER);
+    return 0;
+}
+
+void reenter_unprotect(sys_prot_t pval)
+{
+    aos_mutex_unlock(&reenter_mutex);
+}
+
 #endif
 /*
  * Prints an assertion messages and aborts execution.
@@ -703,5 +770,98 @@ int net_close(int sockfd)
 void sys_init(void)
 {
     aos_mutex_new(&sys_arch_mutex);
+    aos_mutex_new(&reenter_mutex);
+
+#if (SOCKET_RPC_SERVER_ENABLED > 0)
+    ulwip_server_attach_vfs();
+#endif
 }
 
+#if LWIP_NETCONN_SEM_PER_THREAD
+sys_sem_t *sys_thread_sem_init(void);
+/*
+ * get per thread semphore
+ */
+sys_sem_t *sys_thread_sem_get(void)
+{
+    sys_sem_t *sem = (sys_sem_t *)aos_task_getspecific(RHINO_LWIP_SEM_USER_INFO_POS);
+
+    if (!sem)
+    {
+        sem = sys_thread_sem_init();
+    }
+
+    return sem;
+}
+
+static void sys_thread_sem_free(void *data) // destructor for per-thread semaphore
+{
+    sys_sem_t *sem = (sys_sem_t *)(data);
+
+    if (sem && aos_sem_is_valid(sem))
+    {
+        LWIP_DEBUGF(THREAD_SAFE_DEBUG, ("sem del, sem=%p\n", sem));
+        aos_sem_free(sem);
+    }
+
+    if (sem)
+    {
+        LWIP_DEBUGF(THREAD_SAFE_DEBUG, ("sem pointer del, sem_p=%p\n", sem));
+        free(sem);
+    }
+}
+
+sys_sem_t *sys_thread_sem_init(void)
+{
+    sys_sem_t *sem;
+    int ret;
+
+    sem = (sys_sem_t *)malloc(sizeof(sys_sem_t));
+    if (!sem)
+    {
+        LWIP_DEBUGF(THREAD_SAFE_DEBUG, ("thread_sem_init: out of memory\n"));
+        return NULL;
+    }
+
+    if (aos_sem_new(sem, 0) != 0)
+    {
+        LWIP_DEBUGF(THREAD_SAFE_DEBUG, ("thread_sem_init: sem allocate failed\n"));
+        free(sem);
+        return NULL;
+    }
+
+    ret = aos_task_setspecific(RHINO_LWIP_SEM_USER_INFO_POS, sem);
+    if (ret != 0)
+    {
+        LWIP_DEBUGF(THREAD_SAFE_DEBUG, ("thread_sem_init: setspecific failed ret=%d\n", ret));
+        sys_thread_sem_free(sem);
+        free(sem);
+        return NULL;
+    }
+
+    LWIP_DEBUGF(THREAD_SAFE_DEBUG, ("sem_init s=%p\n", sem));
+
+    return sem;
+}
+
+void sys_thread_sem_deinit(void)
+{
+    sys_sem_t *sem = aos_task_getspecific(RHINO_LWIP_SEM_USER_INFO_POS);
+
+    if (sem != NULL)
+    {
+        int ret;
+
+        sys_thread_sem_free(sem);
+        ret = aos_task_setspecific(RHINO_LWIP_SEM_USER_INFO_POS, NULL);
+        if (ret != 0)
+        {
+            LWIP_DEBUGF(THREAD_SAFE_DEBUG, ("setsepcific failed=%d\n", ret));
+            sys_thread_sem_free(sem);
+            free(sem);
+        }
+    }
+
+    LWIP_DEBUGF(THREAD_SAFE_DEBUG, ("sem_deinit s=%p\n", sem));
+}
+#endif /* # if LWIP_NETCONN_SEM_PER_THREAD */

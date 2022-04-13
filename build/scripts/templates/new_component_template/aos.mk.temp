@@ -12,17 +12,5 @@ $(NAME)_SOURCES := ./src/@componentname@.c
 $(NAME)_INCLUDES += ./inc
 
 # component public API header file folder
-GLOBAL_INCLUDES += ../../../include/@componenttype@/@componentname@
-
-# used in component debug phase only, and comment it after component release.
-# this folder will put into $(AOS_SDK_PATH)/include/components/@componenttype@
-# when component installation.
 GLOBAL_INCLUDES += ./@componentname@
-
-# add mandatory depends depend_comp_name sample
-#$(NAME)_COMPONENTS += depend_comp_name
-
-# add optional depends optional_comp_name sample
-# @COMPONENTNAME@_CONDITIION1 will be set to y or n in Config.in of this component
-#$(NAME)_COMPONENTS-$(@COMPONENTNAME@_CONDITIION1) += optional_comp_name
 

@@ -1,0 +1,8 @@
+config AOS_ARCH_ARMV8M
+    bool
+    help
+      arch for armv8m
+
+if AOS_ARCH_ARMV8M
+# Configurations for arch armv8m
+endif

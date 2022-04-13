@@ -1,0 +1,5 @@
+menuconfig AOS_COMP_U_ADC_TEST
+    bool "adc core module"
+    default n
+    help
+        AliOS adc test module

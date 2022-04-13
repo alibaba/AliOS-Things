@@ -1,0 +1,7 @@
+config AOS_COMP_OSAL_POSIX_OBSOLETE
+    bool "POSIX API Support in kernel"
+    default n
+    help
+    	Kernel space POSIX API support. POSIX defines the application programming interface (API),
+        for software compatibility with variants of Unix and other operating systems.
+

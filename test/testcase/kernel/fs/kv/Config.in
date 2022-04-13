@@ -1,5 +1,0 @@
-config AOS_COMP_KV_TEST
-    bool "KV Testcase"
-    select AOS_COMP_KV
-    default n
-    help

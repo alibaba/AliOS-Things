@@ -1,0 +1,18 @@
+menuconfig AOS_COMP_U_DRIVERS_UT
+    bool "drivers unit test module"
+    default n
+    help
+        AliOS druvers unit test module
+
+source "components/drivers/test/adc/Config.in"
+source "components/drivers/test/gpio/Config.in"
+source "components/drivers/test/i2c/Config.in"
+source "components/drivers/test/pwm/Config.in"
+source "components/drivers/test/flash/Config.in"
+source "components/drivers/test/qspi/Config.in"
+source "components/drivers/test/spi/Config.in"
+source "components/drivers/test/timer/Config.in"
+source "components/drivers/test/uart/Config.in"
+source "components/drivers/test/ram/Config.in"
+source "components/drivers/test/wdg/Config.in"
+

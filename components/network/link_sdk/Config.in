@@ -1,0 +1,85 @@
+config AOS_COMP_LINK_SDK
+    bool "link sdk core"
+    default n
+    help
+        Core module of Link SDK4.0
+
+if AOS_COMP_LINK_SDK
+menu "Link SDK Configurations"
+
+config LINK_SDK_BOOTSTRAP
+    bool "bootstrap"
+    default n
+    help
+        Enable boot strap
+
+config LINK_SDK_DATA_MODEL
+    bool "data model"
+    default n
+    help
+        Enable data model
+
+config LINK_SDK_DEVINFO
+    bool "device info"
+    default n
+    help
+        Enable device info update
+
+config LINK_SDK_DIAG
+    bool "diag"
+    default n
+    help
+        Enable diag
+
+config LINK_SDK_LOGPOST
+    bool "logpost"
+    default n
+    help
+        Enable log post
+
+config LINK_SDK_NTP
+    bool "ntp"
+    default n
+    help
+        Enable ntp
+
+config LINK_SDK_OTA
+    bool "ota"
+    default n
+    help
+        Enable ota
+
+config LINK_SDK_SHADOW
+    bool "shadow"
+    default n
+    help
+        Enable device shadow
+
+config LINK_SDK_SUBDEV
+    bool "sub device"
+    select AOS_COMP_GENIE_CJSON
+    default n
+    help
+        Enable sub divice
+
+config LINK_SDK_TLS
+    bool "tls"
+    default y
+    select AOS_COMP_MBEDTLS
+    help
+        Enable tls
+
+config LINK_SDK_DYNREG_HTTP
+    bool "dynamic register with http"
+    default n
+    help
+        Enable dynamic register with http
+
+config LINK_SDK_DYNREG_MQTT
+    bool "dynamic register with mqtt"
+    default n
+    help
+        Enable dynamic register with mqtt
+
+endmenu
+endif

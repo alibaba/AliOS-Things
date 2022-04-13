@@ -1,0 +1,5 @@
+config AOS_COMP_NETMGR_RPC
+    bool "netmgr api for user"
+    default n
+    help
+

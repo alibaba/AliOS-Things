@@ -1,0 +1,5 @@
+config AOS_COMP_USPACE_PM
+    bool "User Space PM API Support"
+    default y
+    help
+        User space PM (Process load) API support.

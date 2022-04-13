@@ -1,0 +1,19 @@
+#
+# The configs required by AliOS Things
+#
+config AOS_COMP_CMAKE_COMP
+    bool "cmake comp enable"
+    default n
+
+menu "cmake_comp configuration"
+# Add component configs here ...
+
+
+# optional dependency component selection sample
+#config CMAKE_COMP_CONDITIION1
+#   bool "Enable optional_comp_name"
+#   default n
+#   help
+
+endmenu
+

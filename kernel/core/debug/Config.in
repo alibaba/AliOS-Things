@@ -1,0 +1,25 @@
+menuconfig AOS_COMP_DEBUG
+    bool "Coredump and debug Support"
+    depends on AOS_COMP_RHINO
+    default n
+    help
+        coredump and support debug cmd
+
+if AOS_COMP_DEBUG
+# Configurations for component debug
+
+
+config DEBUG_CONFIG_CPUUSAGE_MAX_TASK
+    int "The count of tasks recorded to file about cpuusage"
+        default 80
+        help
+            default is 80
+            enbaled only "-f" is used in cpuusage cli cmd
+
+config DEBUG_CONFIG_CPUUSAGE_FILE_NAME
+    string "file path of cpuusage recorded to"
+    default "/data/cpuusage"
+    help
+        "set path of cpuusage recorded file, enbaled only "-f" is used in cpuusage cli cmd"
+
+endif

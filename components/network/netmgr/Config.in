@@ -1,30 +1,44 @@
-###################################################################
-# Component enable/disable selection
-# in the updated build system, default is y and can not be disabled
-if AOS_CREATE_PROJECT
 config AOS_COMP_NETMGR
-    bool
-    default y
-# do NOT select depend component in this file
-# use $(NAME)_COMPONENTS in aos.mk
-endif
-
-# Backward compatibility
-if !AOS_CREATE_PROJECT
-config AOS_COMP_NETMGR
-    bool "netmgr"
+    bool "Network Manager"
     default n
-    select AOS_COMP_KV
     select AOS_COMP_OSAL_AOS
-    select AOS_COMP_YLOOP
+    #select AOS_COMP_KV
+    select RHINO_CONFIG_UCALLBACK
+    select AOS_COMP_USERVICE
+    select AOS_COMP_HAL2VFS
+    select AOS_COMP_WIFIDEV
+    select AOS_COMP_SNTP
     help
-        AliOS things NETMGR -- smart config support component
-endif
+      AliOS things NETMGR -- smart config support component
 
-###################################################################
-# Component configuration items
-menu "netmgr Configuration"
-depends on AOS_COMP_NETMGR
+if AOS_COMP_NETMGR
+# Configurations for comp netmgr
+
+# Introduction
+#   AOS_COMP_NETMGR_KSPACE_RUNABLE - netmgr will runalbe in kspace
+#   AOS_COMP_NETMGR_USPACE_RUNABLE - netmgr will runalbe in uspace
+#   netmgr is able to config in both kspace and uspace at same time
+
+config AOS_COMP_NETMGR_KSPACE_RUNABLE
+    bool "netmgr run in kernel space"
+    default n
+    select AOS_MCU_V_WIFI_DRV
+    help
+    support netmgr config in kspace report.
+
+config AOS_COMP_NETMGR_USPACE_RUNABLE
+    bool "config netmgr run in user space"
+    default n
+    select AOS_MCU_V_WIFI_DRV
+    help
+    support netmgr config in uspace report.
+
+config AOS_ACTIVATION_REPORT
+    bool "activation report support"
+    default y
+    select AOS_COMP_ACTIVATION
+    help
+    support activation report.
 
 config CONFIG_CLASSIC_NETMGR
     bool
@@ -45,7 +59,7 @@ choice
     prompt "Config Network Version:"
     default AOS_NETMGR_WITH_CLASSIC if CONFIG_CLASSIC_NETMGR
     default AOS_NETMGR_WITH_MODERN if CONFIG_MODERN_NETMGR
-    default AOS_NETMGR_WITH_CLASSIC
+    default AOS_NETMGR_WITH_MODERN
     help
       Choose classic netmgr or modern netmgr
 
@@ -59,25 +73,32 @@ choice
         help
         support classic netmgr.
 endchoice
-menu "Config Network Interface Types:"
+
+choice
+    prompt "Config Network:"
+    default AOS_NET_WITH_WIFI
+    help
+      Choose right Network
+
     config AOS_NET_WITH_CELLULAR
-        bool "Enable Netmgr with Cellular"
-        default n
+        bool "Cellular"
         help
-            support net with Cellular.
+        support net with Cellular.
 
     config AOS_NET_WITH_WIFI
-        bool "Enable Netmgr with Wi-Fi"
-        default y
+        bool "Wi-Fi"
         help
-            support net with Wi-Fi.
+        support net with Wi-Fi.
 
     config AOS_NET_WITH_ETH
-        bool "Enable Netmgr with Ethernet"
-        default n
+        bool "ETH"
         help
-        support net with Ethernet.
+        support net with ETH.
 
-endmenu
+    config AOS_NET_WITH_BLANK
+        bool "Blank"
+        help
+        support net with BLANK.
+endchoice
 
-endmenu
+endif

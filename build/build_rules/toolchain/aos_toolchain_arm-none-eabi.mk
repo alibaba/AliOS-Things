@@ -1,13 +1,14 @@
 ARM_GNU_ARCH_LIST := ARM968E-S  \
                      Cortex-A5  \
                      Cortex-A7  \
-                     Cortex-A9 
+                     Cortex-A9
 
 THUMB_GNU_ARCH_LIST := Cortex-M0 \
                        Cortex-M3 \
                        Cortex-M4 \
                        Cortex-M4F\
                        Cortex-M7 \
+                       Cortex-M33 \
                        Cortex-R3
 
 
@@ -20,8 +21,8 @@ HOST_INSTRUCTION_SET := THUMB
 endif
 
 TOOLCHAIN_PATH    ?=
-TOOLCHAIN_PREFIX  := arm-none-eabi-
-TOOLCHAIN_DEFAULT_FOLDER := gcc-arm-none-eabi
+TOOLCHAIN_PREFIX  := arm-alios-eabi-
+TOOLCHAIN_DEFAULT_FOLDER := gcc-arm-alios-eabi
 
 ifneq (,$(wildcard $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS)/bin))
 TOOLCHAIN_PATH    := $(COMPILER_ROOT)/$(TOOLCHAIN_DEFAULT_FOLDER)/$(HOST_OS)/bin/
@@ -116,7 +117,7 @@ NM      := "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)nm$(EXECUTABLE_SUFFIX)"
 READELF := "$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)readelf$(EXECUTABLE_SUFFIX)"
 
 ADD_COMPILER_SPECIFIC_STANDARD_CFLAGS   = $(1) -Wall -Wfatal-errors -fsigned-char -ffunction-sections -fdata-sections -fno-common -std=gnu11 $(if $(filter yes,$(MXCHIP_INTERNAL) $(TESTER)),-Werror)
-ADD_COMPILER_SPECIFIC_STANDARD_CXXFLAGS = $(1) -Wall -Wfatal-errors -fsigned-char -ffunction-sections -fdata-sections -fno-common -fno-rtti -fno-exceptions  $(if $(filter yes,$(MXCHIP_INTERNAL) $(TESTER)),-Werror)
+ADD_COMPILER_SPECIFIC_STANDARD_CXXFLAGS = $(1) -Wall -Wfatal-errors -fsigned-char -ffunction-sections -fdata-sections -fno-common -fno-exceptions  $(if $(filter yes,$(MXCHIP_INTERNAL) $(TESTER)),-Werror)
 ADD_COMPILER_SPECIFIC_STANDARD_ADMFLAGS = $(1)
 COMPILER_SPECIFIC_OPTIMIZED_CFLAGS    := -Os
 COMPILER_SPECIFIC_UNOPTIMIZED_CFLAGS  := -Og
@@ -157,9 +158,9 @@ COMPILER_SPECIFIC_LINK_SCRIPT_DEFINE_OPTION = -Wl$(COMMA)-T
 COMPILER_SPECIFIC_LINK_SCRIPT      =  $(addprefix -Wl$(COMMA)-T ,$(1))
 
 ifeq ($(strip $(AOS_CPLUSPLUS_FLAGS)), 1)
-LINKER                             := $(CXX) --static -Wl,-static -Wl,--warn-common
+LINKER                             := $(CXX) -Wl,--warn-common
 else
-LINKER                             := $(CC) --static -Wl,-static -Wl,--warn-common
+LINKER                             := $(CC) -Wl,--warn-common
 endif
 
 LINK_SCRIPT_SUFFIX                 := .ld
@@ -170,13 +171,13 @@ ENDIAN_CFLAGS_LITTLE   := -mlittle-endian
 ENDIAN_CXXFLAGS_LITTLE := -mlittle-endian
 ENDIAN_ASMFLAGS_LITTLE :=
 ENDIAN_LDFLAGS_LITTLE  := -mlittle-endian
-CLIB_LDFLAGS_NANO      := --specs=nano.specs
+CLIB_LDFLAGS_NANO      :=
 ifeq ($(MBINS),)
-CLIB_LDFLAGS_NANO_FLOAT:= --specs=nano.specs -u _printf_float
+CLIB_LDFLAGS_NANO_FLOAT:=
 else ifeq ($(MBINS),kernel)
-CLIB_LDFLAGS_NANO_FLOAT:= --specs=nano.specs -u _printf_float
+CLIB_LDFLAGS_NANO_FLOAT:=
 else ifeq ($(MBINS),app)
-CLIB_LDFLAGS_NANO_FLOAT:= --specs=nano.specs
+CLIB_LDFLAGS_NANO_FLOAT:=
 endif
 
 # Chip specific flags for GCC
@@ -188,6 +189,13 @@ CPU_ASMFLAGS   := $(CPU_CFLAGS)
 CPU_LDFLAGS    := -mthumb -mcpu=cortex-m4 -Wl,-A,thumb
 CLIB_LDFLAGS_NANO       += -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 CLIB_LDFLAGS_NANO_FLOAT += -mfpu=fpv4-sp-d16 -mfloat-abi=hard
+endif
+
+ifeq ($(HOST_ARCH),Cortex-M33)
+CPU_CFLAGS     := -mthumb -mcpu=cortex-m33
+CPU_CXXFLAGS   := -mthumb -mcpu=cortex-m33
+CPU_ASMFLAGS   := $(CPU_CFLAGS)
+CPU_LDFLAGS    := -mthumb -mcpu=cortex-m33 -Wl,-A,thumb
 endif
 
 ifeq ($(HOST_ARCH),Cortex-M4)

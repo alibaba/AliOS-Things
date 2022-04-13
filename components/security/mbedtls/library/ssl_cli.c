@@ -305,10 +305,8 @@ static void ssl_write_supported_elliptic_curves_ext( mbedtls_ssl_context *ssl,
 #if defined(MBEDTLS_ECP_C)
         info = mbedtls_ecp_curve_info_from_grp_id( *grp_id );
 #endif
-        if (info != NULL) {
-            elliptic_curve_list[elliptic_curve_len++] = info->tls_id >> 8;
-            elliptic_curve_list[elliptic_curve_len++] = info->tls_id & 0xFF;
-        }
+        elliptic_curve_list[elliptic_curve_len++] = info->tls_id >> 8;
+        elliptic_curve_list[elliptic_curve_len++] = info->tls_id & 0xFF;
     }
 
     if( elliptic_curve_len == 0 )

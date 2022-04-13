@@ -4944,11 +4944,9 @@ static int ssl_buffer_future_record( mbedtls_ssl_context *ssl )
         return( 0 );
     }
 
-    if (hs->buffering.future_record.data != NULL) {
-        memcpy( hs->buffering.future_record.data, ssl->in_hdr, total_buf_sz );
+    memcpy( hs->buffering.future_record.data, ssl->in_hdr, total_buf_sz );
 
-        hs->buffering.total_bytes_buffered += total_buf_sz;
-    }
+    hs->buffering.total_bytes_buffered += total_buf_sz;
     return( 0 );
 }
 
@@ -6470,11 +6468,14 @@ int mbedtls_ssl_write_finished( mbedtls_ssl_context *ssl )
      * ciphersuite does this (and this is unlikely to change as activity has
      * moved to TLS 1.3 now) so we can keep the hardcoded 12 here.
      */
+#if defined(MBEDTLS_SSL_PROTO_SSL3)
     hash_len = ( ssl->minor_ver == MBEDTLS_SSL_MINOR_VERSION_0 ) ? 36 : 12;
+#else
+    hash_len = 12;
+#endif
 
 #if defined(MBEDTLS_SSL_RENEGOTIATION)
     ssl->verify_data_len = hash_len;
-    hash_len = (hash_len < MBEDTLS_SSL_VERIFY_DATA_MAX_LEN)? hash_len : MBEDTLS_SSL_VERIFY_DATA_MAX_LEN;
     memcpy( ssl->own_verify_data, ssl->out_msg + 4, hash_len );
 #endif
 

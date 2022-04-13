@@ -1,0 +1,52 @@
+config AOS_APP_EXAMPLE
+    bool "Builtin Examples"
+
+if AOS_APP_EXAMPLE
+choice
+    prompt "Select example"
+
+source "projects/main_driver/Config.in"
+if AOS_APP_MAIN_DRIVER
+    config AOS_BUILD_APP
+           default "main_driver"
+endif
+
+source "projects/alios_kernel/Config.in"
+if AOS_APP_ALIOS_KERNEL
+    config AOS_BUILD_APP
+        default "alios_kernel"
+endif
+
+source "projects/uapp_helloworld1/Config.in"
+if AOS_APP_UAPP_HELLOWORLD1
+    config AOS_BUILD_APP
+        default "uapp_helloworld1"
+endif
+
+source "projects/uapp_helloworld2/Config.in"
+if AOS_APP_UAPP_HELLOWORLD2
+    config AOS_BUILD_APP
+        default "uapp_helloworld2"
+endif
+
+source "projects/procmgmt/Config.in"
+if AOS_APP_PROCMGMT
+    config AOS_BUILD_APP
+        default "procmgmt"
+endif
+
+
+source "projects/link_sdk_demos/Config.in"
+if AOS_APP_LINK_SDK_DEMOS
+    config AOS_BUILD_APP
+        default "link_sdk_demos"
+endif
+
+source "projects/ulwip_service/Config.in"
+if AOS_APP_ULWIP_SERVICE
+    config AOS_BUILD_APP
+        default "ulwip_service"
+endif
+
+endchoice
+endif

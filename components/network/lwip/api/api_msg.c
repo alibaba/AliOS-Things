@@ -704,12 +704,16 @@ netconn_alloc(enum netconn_type t, netconn_callback callback)
   conn->linger = -1;
 #endif /* LWIP_SO_LINGER */
   conn->flags = 0;
+
+  netconn_thread_init();
+
   return conn;
 free_and_return:
   memp_free(MEMP_NETCONN, conn);
   return NULL;
 }
 
+#include "k_api.h"
 /**
  * Delete a netconn and all its resources.
  * The pcb is NOT freed (since we might not be in the right thread context do this).
@@ -733,6 +737,8 @@ netconn_free(struct netconn *conn)
 #endif
 
   memp_free(MEMP_NETCONN, conn);
+
+  netconn_thread_cleanup();
 }
 
 /**
@@ -1124,7 +1130,7 @@ lwip_netconn_do_bind(void *m)
         /* change PCB type to IPADDR_TYPE_ANY */
         IP_SET_TYPE_VAL(msg->conn->pcb.ip->local_ip,  IPADDR_TYPE_ANY);
         IP_SET_TYPE_VAL(msg->conn->pcb.ip->remote_ip, IPADDR_TYPE_ANY);
-        
+
         /* bind to IPADDR_TYPE_ANY */
         ipaddr = IP_ANY_TYPE;
       }

@@ -45,7 +45,7 @@ static void arp_command(char *buffer, int32_t buf_len, int32_t argc, char **argv
 
 int32_t arp_cli_register(void)
 {
-    if (cli_register_commands(arp_cmd, 1)) {
+    if (aos_cli_register_commands(arp_cmd, 1)) {
         return 0;
     }
 

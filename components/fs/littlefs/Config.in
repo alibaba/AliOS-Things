@@ -9,5 +9,13 @@ if AOS_COMP_LITTLEFS
     config CONFIG_FLASH_PAGE_SIZE
         int "The flash page size (in bytes)"
         default 4096
+endif
 
+if AOS_BOARD_HAAS100_MK
+# Configurations for littlefs
+    config CONFIG_LFS_BOARD_HAAS100
+        bool "The LFS Runs on HaaS100 Platform"
+        default y
+        help
+            "select LFS runs on HaaS100 platform"
 endif

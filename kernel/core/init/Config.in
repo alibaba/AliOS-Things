@@ -1,0 +1,5 @@
+config AOS_COMP_KERNEL_INIT
+    bool "Initialize Function"
+    default n
+    help
+       AliOS Things initialize function

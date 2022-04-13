@@ -1,0 +1,6 @@
+config AOS_MCU_AOS_VENDOR_CLI
+    bool
+    select AOS_COMP_CLI
+    help
+      vendor shell command
+

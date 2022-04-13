@@ -1,0 +1,11 @@
+config AOS_APP_BOARD_TEST
+    bool "board_test"
+    select AOS_COMP_OSAL_AOS if !AOS_CREATE_PROJECT
+    select AOS_COMP_NETMGR if !AOS_CREATE_PROJECT
+    select AOS_NET_WITH_WIFI if !AOS_CREATE_PROJECT
+    help
+        HAAS100 board test
+
+if AOS_APP_BOARD_TEST
+# Configurations for haas100 board test
+endif

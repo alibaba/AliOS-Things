@@ -147,6 +147,9 @@ struct api_msg {
 
 #if LWIP_NETCONN_SEM_PER_THREAD
 #define LWIP_API_MSG_SEM(msg)          ((msg)->op_completed_sem)
+#define LWIP_NETCONN_THREAD_SEM_GET()   sys_thread_sem_get()
+#define LWIP_NETCONN_THREAD_SEM_ALLOC() sys_thread_sem_init()
+#define LWIP_NETCONN_THREAD_SEM_FREE() sys_thread_sem_deinit()
 #else /* LWIP_NETCONN_SEM_PER_THREAD */
 #define LWIP_API_MSG_SEM(msg)          (&(msg)->conn->op_completed)
 #endif /* LWIP_NETCONN_SEM_PER_THREAD */

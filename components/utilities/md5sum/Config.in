@@ -1,0 +1,8 @@
+menuconfig AOS_COMP_MD5SUM
+    bool "md5sum"
+    default n
+    help
+
+if AOS_COMP_MD5SUM
+# Configurations for component md5sum
+endif

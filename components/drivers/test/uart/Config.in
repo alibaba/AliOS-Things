@@ -1,0 +1,5 @@
+menuconfig AOS_COMP_U_UART_TEST
+    bool "uart test driver"
+    default n
+    help
+        AliOS uart test module

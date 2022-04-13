@@ -1,0 +1,7 @@
+[
+    {
+        "board": "vexpressa9-mk",
+        "os": "linux",
+        "params": "MBINS=app"
+    }
+]

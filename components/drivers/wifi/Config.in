@@ -1,0 +1,14 @@
+#
+# The configs required by AliOS Things
+#
+config AOS_COMP_WIFIDEV
+    bool "wifidev Enable"
+    default n
+
+menu "wifidev configuration"
+# Add component configs here ...
+
+
+
+endmenu
+

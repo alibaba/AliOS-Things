@@ -55,7 +55,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#ifdef TFTP_FS_ENABLED
+#ifdef WITH_LWIP_TFTP_FS
 #include <fcntl.h>
 #include "aos/vfs.h"
 /* file description for tftp mount to file system. thread safe is not consider
@@ -349,7 +349,7 @@ tftp_tmr(void* arg)
 
 static void* tftp_fopen(const char* fname, const char* mode, u8_t write)
 {
-#ifdef TFTP_FS_ENABLED
+#ifdef WITH_LWIP_TFTP_FS
     /* mount to the file system if both comp vfs and spiffs exit */
     /* omit mode of BIN or ASCII */
     if(write){
@@ -379,7 +379,7 @@ static void* tftp_fopen(const char* fname, const char* mode, u8_t write)
 
 static void tftp_fclose(void* handle)
 {
-#ifdef TFTP_FS_ENABLED
+#ifdef WITH_LWIP_TFTP_FS
     aos_close(*((int*)handle));
 #else
     fclose((FILE*)handle);
@@ -388,7 +388,7 @@ static void tftp_fclose(void* handle)
 
 static int tftp_fread(void* handle, void* buf, int bytes)
 {
-#ifdef TFTP_FS_ENABLED
+#ifdef WITH_LWIP_TFTP_FS
     return aos_read(*((int*)handle), buf, bytes);
 #else
     size_t readbytes;
@@ -402,7 +402,7 @@ static int tftp_fwrite(void* handle, struct pbuf* p)
     char buff[512];
     size_t writebytes = -1;
     pbuf_copy_partial(p, buff, p->tot_len, 0);
-#ifdef TFTP_FS_ENABLED
+#ifdef WITH_LWIP_TFTP_FS
     writebytes = aos_write(*((int*)handle), buff, p->tot_len);
 #else
     writebytes = fwrite(buff, 1, p->tot_len, (FILE *)handle);

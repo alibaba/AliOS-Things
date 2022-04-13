@@ -13,7 +13,6 @@ from config_mk import Projects
 
 AOS_RELATIVE_PATH = '$PROJ_DIR$/../../../../'
 OPT_DIR = '$PROJ_DIR$/opts/'
-appdir = ""
 
 element_dict = {
     "OGChipSelectEditMenu": "",
@@ -21,33 +20,22 @@ element_dict = {
     "IlinkIcfFile": "",
 }
 
-def convert_file_name(filename):
-	"""get the right path for relative path"""
-	if not os.path.isabs(filename):
-		filename = AOS_RELATIVE_PATH + filename
-	return filename
-
 def create_file(data, filename):
     """ Create *_opts files """
     with open(filename, "w") as f:
         f.write(data)
 
 def get_element_value(element_dict, buildstring):
-    element_dict["OGChipSelectEditMenu"] = config_mk.iar_ogcmenu.replace(' ', '\t', 1)
+    element_dict["OGChipSelectEditMenu"] = config_mk.iar_ogcmenu
     element_dict["IlinkOutputFile"] = buildstring
 
     patten = re.compile(r".*--config\s+(.*\.icf).*")
     match = patten.match(config_mk.global_ldflags)
     if match:
-        global appdir
-        if appdir == "":
-            icffile = convert_file_name(match.group(1))
-        else:
-            aos_sdk = os.environ.get("AOS_SDK_PATH")
-            icffile = os.path.join(aos_sdk, match.group(1))
-        element_dict["IlinkIcfFile"] = icffile
+        element_dict["IlinkIcfFile"] = AOS_RELATIVE_PATH + match.group(1)
 
 def add_group(parent, name, files, includes, project_path):
+    cur_encoding = sys.getfilesystemencoding()
     group = SubElement(parent, 'group')
     group_name = SubElement(group, 'name')
     group_name.text = name
@@ -56,16 +44,16 @@ def add_group(parent, name, files, includes, project_path):
         file = SubElement(group, 'file')
         file_name = SubElement(file, 'name')
         if repeat_path.count(f):
-            dirname = os.path.dirname(f)
-            includes.append(dirname)
-            fnewName = os.path.basename(dirname) + '_' + os.path.basename(f)
+            includes.append(os.path.dirname(f))
+            fnewName = f.replace('./','')
+            fnewName = fnewName.replace('/','_')
             fnewPath = project_path+'/'+fnewName
             #print 'copy', f, 'to', fnewPath
             shutil.copyfile(f,fnewPath)
             f = "$PROJ_DIR$/"+fnewName
-            file_name.text = f
+            file_name.text = f.decode(cur_encoding)
         else:
-            file_name.text = convert_file_name(f)
+            file_name.text = (AOS_RELATIVE_PATH + f).decode(cur_encoding)
     
     
     group_config = SubElement(group, 'configuration')
@@ -94,9 +82,8 @@ def add_group(parent, name, files, includes, project_path):
     group_option_name.text = 'CCIncludePath2'
   
     for i in includes:
-        i = i.replace("-I","")
         stateTemp = SubElement(group_data_option3, 'state')
-        stateTemp.text = convert_file_name(i)
+        stateTemp.text = (AOS_RELATIVE_PATH + i).decode(cur_encoding)
     
     
     group_config_settings2 = SubElement(group_config, 'settings')
@@ -108,7 +95,7 @@ def add_group(parent, name, files, includes, project_path):
     group_option_name = SubElement(group_data_option, 'name')
     group_option_name.text = 'AExtraOptionsCheckV2'
     group_option_state = SubElement(group_data_option, 'state')
-    group_option_state.text = '0'
+    group_option_state.text = '1'
     
     group_data_option2 = SubElement(group_settings_data, 'option')
     group_option_name = SubElement(group_data_option2, 'name')
@@ -120,9 +107,8 @@ def add_group(parent, name, files, includes, project_path):
     group_option_name = SubElement(group_data_option3, 'name')
     group_option_name.text = 'AUserIncludes'
     for i in includes:
-        i = i.replace("-I","")
         stateTemp = SubElement(group_data_option3, 'state')
-        stateTemp.text = convert_file_name(i)
+        stateTemp.text = (AOS_RELATIVE_PATH + i).decode(cur_encoding)
 
 # automation to do
 def changeItemForMcu( tree, element_dict, buildstring ):
@@ -160,11 +146,6 @@ def gen_workspace(target, buildstring):
     xml = work_space_content % (buildstring+'.ewp')
     with open (workspace, "w") as out:
         out.write(xml)
-
-    ewdfilename_new = target.replace('.ewp', '.ewd')
-    ewdfilename = 'build/scripts/template.ewd'
-    if os.path.isfile(ewdfilename):
-        shutil.copyfile(ewdfilename, ewdfilename_new)
     
 repeat_path=[]
 def gen_project(target, script, buildstring):
@@ -175,12 +156,7 @@ def gen_project(target, script, buildstring):
         os.makedirs(project_opts_path)
 
     get_element_value(element_dict, buildstring)
-    
-    boardname = buildstring.split("@")[1]
-    projfilename = 'build/scripts/template_%s.ewp' % (boardname)
-    if os.path.exists(projfilename) == False:
-        projfilename = 'build/scripts/template.ewp'
-    tree = etree.parse(projfilename)
+    tree = etree.parse('build/scripts/template.ewp')
     root = tree.getroot()
 
     existedFileNameString=[]
@@ -203,8 +179,8 @@ def gen_project(target, script, buildstring):
             create_file(as_opts_tmp, filename)
      
     if len(repeat_path):
-        print('repeat name files:', repeat_path)
-        print('will copy them to '+project_path+'/ !')
+        print 'repeat name files:', repeat_path
+        print 'will copy them to '+project_path+'/ !'
     
     # add group
     for group in script:
@@ -214,29 +190,24 @@ def gen_project(target, script, buildstring):
     gen_indent(root)
     projString = etree.tostring(root, encoding='utf-8')
     with open(target, "w") as out:
-        out.write(projString.decode())
+        out.write(projString)
 
     gen_workspace(target, buildstring)
 
 def main():
     #argv[1]: buildstring, eg: nano@b_l475e
     buildstring = sys.argv[1]
-    global appdir
-    appdir = ""
-    if len(sys.argv) > 2:
-        appdir = sys.argv[2]
     projectPath = "projects/IAR/%s/iar_project/%s.ewp" % (buildstring, buildstring)
-    projectPath = os.path.join(appdir, projectPath)
 
-    print('Making iar project '+buildstring)
+    print 'Making iar project '+buildstring
     gen_project(projectPath, Projects, buildstring)
 
-    # copy aos_config.h to project dir
-    aos_config_h = os.path.join(appdir, "aos_config.h")
-    if os.path.isfile(aos_config_h):
-        shutil.copyfile(aos_config_h, os.path.join(os.path.dirname(projectPath), "aos_config.h"))
+    # copy out/config/autoconf.h to project dir
+    autoconf_h = "out/config/autoconf.h"
+    if os.path.isfile(autoconf_h):
+        shutil.copyfile(autoconf_h, os.path.join(os.path.dirname(projectPath), "autoconf.h"))
 
-    print('iar project: '+ projectPath + ' has generated over')
+    print 'iar project: '+ projectPath + ' has generated over'
 
 if __name__ == "__main__":
     main()

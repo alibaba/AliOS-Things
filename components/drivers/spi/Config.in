@@ -1,0 +1,6 @@
+menuconfig AOS_COMP_U_SPI
+    select AOS_COMP_DEVICEVFS
+    bool "spi core module"
+    default n
+    help
+        AliOS spi module core layer

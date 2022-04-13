@@ -1,0 +1,75 @@
+config AOS_APP_PROCMGMT
+    bool "process management"
+    select AOS_COMP_CPLUSPLUS
+    select AOS_COMP_VFS
+    select AOS_COMP_CLI
+    select AOS_COMP_ULOG
+    select AOS_COMP_U_RAMDRV
+    select AOS_COMP_U_RAMTEST
+    select AOS_COMP_U_FLASH if AOS_BOARD_HAAS100_MK
+    select AOS_MCU_V_FLASH_DRV  if AOS_BOARD_HAAS100_MK
+    help
+        "process management"
+
+if AOS_APP_PROCMGMT
+# Configurations for process management
+
+config RHINO_CONFIG_APP_NAME
+    string "app name"
+    default "procmgmt"
+    help
+        "set app name, it's also the first task name"
+
+config RHINO_CONFIG_APP_VERSION
+    hex "app version"
+    default 0x00000001
+    help
+        "set app version"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_NAME
+    string "app first task name"
+    default "procmgmt"
+    help
+        "set app first task name"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_PRIO
+    int "app entry task priority"
+    default 5
+    help
+        "set app entry task priority"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_KSTACK_SIZE
+    int "app entry task kstack size"
+    default 4096
+    help
+        "set app entry task kstack size, the unit is cpu_stack_t"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_USTACK_SIZE
+    int "app entry task ustack size"
+    default 4096
+    help
+        "set app entry task ustack size, the unit is cpu_stack_t"
+
+config RHINO_CONFIG_APP_ULOG_FS_PATH
+    string "app ulog fs path"
+    default "/data/syslog/uapp_helloworld1"
+    help
+        "set app ulog to fs path"
+
+config RHINO_CONFIG_APP_ULOG_FS_BACKUP_PATH
+    string "app ulog fs backup path"
+    default "/data/syslog/backup/uapp_helloworld1"
+    help
+        "set app ulog to fs backup path"
+
+config LFS_CONFIG_IN_PM
+    bool "littlefs in PM"
+    select AOS_COMP_LITTLEFS
+    select AOS_COMP_IOBOX
+    default y
+    help
+        "set littlefs component in PM process"
+
+source "kernel/core/mk/uspace/Config.in"
+
+endif

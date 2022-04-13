@@ -437,6 +437,15 @@ u32_t sys_now(void);
 sys_prot_t sys_arch_protect(void);
 void sys_arch_unprotect(sys_prot_t pval);
 
+#define REENTER_DECL_PROTECT(lev) sys_prot_t lev
+
+sys_prot_t reenter_protect(void);
+void reenter_unprotect(sys_prot_t pval);
+
+#define REENTER_PROTECT(lev) lev = reenter_protect()
+
+#define REENTER_UNPROTECT(lev) reenter_unprotect(lev)
+
 #else
 
 #define SYS_ARCH_DECL_PROTECT(lev)
@@ -488,6 +497,11 @@ void sys_arch_unprotect(sys_prot_t pval);
                               } while(0)
 #endif /* SYS_ARCH_SET */
 
+#if LWIP_NETCONN_SEM_PER_THREAD
+sys_sem_t* sys_thread_sem_get(void);
+sys_sem_t* sys_thread_sem_init(void);
+void sys_thread_sem_deinit(void);
+#endif /* #if LWIP_NETCONN_SEM_PER_THREAD */
 
 #ifdef __cplusplus
 }

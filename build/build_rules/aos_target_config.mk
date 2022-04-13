@@ -12,7 +12,7 @@ $(if $(wildcard $(OUTPUT_DIR)/aos_all_components.mk), \
     $(eval include $(OUTPUT_DIR)/aos_all_components.mk), \
     $(error No such file: $(OUTPUT_DIR)/aos_all_components.mk) )
 
-APPDIR ?=
+APPDIR ?= projects
 CONFIG_FILE_DIR := $(OUTPUT_DIR)
 
 # Support 2nd boot build for OTA
@@ -25,28 +25,23 @@ MODULES_DIR     := modules_2ndboot
 endif
 
 CONFIG_FILE := $(CONFIG_FILE_DIR)/config$(CONFIG_SUFFIX).mk
-DEPENDS_FILE := $(subst config,.depends,$(CONFIG_FILE))
 
 DEPENDENCY_DICT :=
 
 COMPONENT_DIRECTORIES := . \
-                         application/example/example_legacy   \
-                         application/example    \
-                         application/profile     \
-                         platform/board     \
-                         kernel    \
-                         platform  \
-                         utility   \
-                         middleware \
-                         network   \
-                         tools     \
-                         test      \
-                         test/develop      \
-                         drivers    \
-                         security
+    kernel \
+    component \
+    vendor \
+    projects \
 
 COMPONENT_DIRECTORIES += $(OUTPUT_DIR)
 COMPONENT_DIRECTORIES += $(APPDIR)
+
+ifeq ($(MBINS),app)
+ifeq ($(ENABLE_USPACE),1)
+COMPONENT_DIRECTORIES += uspace_lib
+endif
+endif
 
 ##################################
 # Macros
@@ -55,8 +50,7 @@ COMPONENT_DIRECTORIES += $(APPDIR)
 #####################################################################################
 # Macro GET_BARE_LOCATION get relative path from $(SOURCE_ROOT) to component
 # $(1) is component name
-# remove : in windows path
-GET_BARE_LOCATION = $(subst :,,$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROOT))%,%,$(strip $($(1)_LOCATION))))
+GET_BARE_LOCATION =$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROOT))%,%,$(strip $($(1)_LOCATION)))
 
 #####################################################################################
 # Macro PREPROCESS_TEST_COMPONENT get test components from command line:
@@ -64,7 +58,7 @@ GET_BARE_LOCATION = $(subst :,,$(patsubst $(call ESCAPE_BACKSLASHES,$(SOURCE_ROO
 define PREPROCESS_TEST_COMPONENT
 $(if $(filter yts,$(COMPONENTS)), \
 $(if $(test), $(eval TEST_COMPONENTS := $(foreach tmpcomp,$(strip $(subst $(COMMA),$(SPACE),$(test))),$(if $(findstring _test,$(tmpcomp)),$(tmpcomp),$(addsuffix _test,$(tmpcomp))))),) \
-$(eval COMPONENTS += $(filter-out $(COMPONENTS),$(TEST_COMPONENTS))))
+$(eval COMPONENTS += $(TEST_COMPONENTS)))
 endef
 
 #####################################################################################
@@ -76,14 +70,10 @@ define FIND_VARIOUS_COMPONENT
 $(eval COMP := $(word 1,$(1)))
 $(call FIND_ONE_COMPONENT, $(COMP))
 
-$(eval NOT_PROCESSED := $(strip $(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMP))))
-
-ifneq (,$(NOT_PROCESSED))
 $(eval PROCESSED_COMPONENTS_LOCS += $(COMP))
 $(if $(strip $(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS))),\
      $(call FIND_VARIOUS_COMPONENT,$(filter-out $(PROCESSED_COMPONENTS_LOCS),$(COMPONENTS))),\
 )
-endif
 
 endef
 
@@ -91,12 +81,13 @@ endef
 # Macro FIND_ONE_COMPONENT search component with name
 # $(1) is the name of component
 define FIND_ONE_COMPONENT
+
 $(eval COMP := $(1))
 $(eval COMP_LOCATION := $(subst .,/,$(COMP)))
 $(eval COMP_MAKEFILE_NAME := $(notdir $(COMP_LOCATION)))
 # Find the component makefile in directory list
 
-$(eval TEMP_MAKEFILE := $(if $($(COMP)_MAKEFILE),$($(COMP)_MAKEFILE),$(strip $(wildcard $(foreach dir, $(if $(APPDIR),$(APPDIR) $(OUTPUT_DIR),) $(if $(CUBE_AOS_DIR),$(CUBE_AOS_DIR) $(CUBE_AOS_DIR)/remote,) $(addprefix $(SOURCE_ROOT)/,$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk $(dir)/$(COMP_LOCATION)/aos.mk)))))
+$(eval TEMP_MAKEFILE := $(if $($(COMP)_MAKEFILE),$($(COMP)_MAKEFILE),$(strip $(wildcard $(foreach dir, $(if $(APPDIR),$(APPDIR),) $(if $(CUBE_AOS_DIR),$(CUBE_AOS_DIR) $(CUBE_AOS_DIR)/remote,) $(addprefix $(SOURCE_ROOT)/,$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/$(COMP_MAKEFILE_NAME).mk $(dir)/$(COMP_LOCATION)/aos.mk)))))
 # Check if component makefile was found - if not try downloading it and re-doing the makefile search
 $(if $(TEMP_MAKEFILE),,\
     $(info Unknown component: $(COMP) - directory or makefile for component not found. Ensure the $(COMP_LOCATION) directory contains aos.mk) \
@@ -128,9 +119,9 @@ $(foreach dep, $(deps_cube),\
 	$(eval deps_src := $(filter-out $(comp_dep),$(deps_src))))
 
 $(if $(findstring $(TEMP_MAKEFILE),$(ALL_MAKEFILES)),,\
-	$(eval ALL_MAKEFILES += $(filter-out $(ALL_MAKEFILES),$(TEMP_MAKEFILE))) \
-	$(eval COMPONENTS += $(filter-out $(COMPONENTS),$(deps))) \
-	$(eval REAL_COMPONENTS_LOCS += $(filter-out $(REAL_COMPONENTS_LOCS),$(COMP))) \
+	$(eval ALL_MAKEFILES += $(TEMP_MAKEFILE)) \
+	$(eval COMPONENTS += $(deps)) \
+	$(eval REAL_COMPONENTS_LOCS += $(COMP)) \
 	$(eval iotx_check_RET:=0)\
 	$(call PREPROCESS_TEST_COMPONENT, $(COMPONENTS), $(TEST_COMPONENTS)) \
 	DEPENDENCY_DICT += '$(NAME)': '$($(NAME)_COMPONENTS)',)
@@ -143,9 +134,11 @@ endef
 define PROCESS_ONE_COMPONENT
 $(eval COMP := $(1))
 $(eval COMP_LOCATION := $(subst .,/,$(COMP)))
+
 # Find the component makefile in directory list
-$(eval TEMP_MAKEFILE := $(if $($(COMP)_MAKEFILE),$($(COMP)_MAKEFILE),$(strip $(wildcard $(foreach dir, $(if $(APPDIR),$(APPDIR) $(OUTPUT_DIR),) $(addprefix $(SOURCE_ROOT)/,$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/aos.mk)))))
+$(eval TEMP_MAKEFILE := $(if $($(COMP)_MAKEFILE),$($(COMP)_MAKEFILE),$(strip $(wildcard $(foreach dir, $(addprefix $(SOURCE_ROOT)/,$(COMPONENT_DIRECTORIES)), $(dir)/$(COMP_LOCATION)/aos.mk)))))
 $(eval TEMP_MAKEFILE := $(if $(filter %aos.mk,$(TEMP_MAKEFILE)),$(filter %aos.mk,$(TEMP_MAKEFILE)),$(TEMP_MAKEFILE)))
+
 # Clear all the temporary variables
 $(eval GLOBAL_INCLUDES:=)
 $(eval GLOBAL_LINK_SCRIPT:=)
@@ -185,9 +178,9 @@ $(eval OLD_CURDIR := $(CURDIR))
 $(eval CURDIR := $(CURDIR)$(dir $(TEMP_MAKEFILE)))
 $(eval TEST_COMPONENTS :=)
 $(eval CPLUSPLUS_FLAGS:=)
+$(eval GLOBAL_GCOV_COMPONENTS:=)
 $(eval AOS_IMG1_XIP1_LD_FILE :=)
 $(eval AOS_IMG2_XIP2_LD_FILE :=)
-$(eval TMP_SOURCES :=)
 # Cache the last valid RTOS/NS combination for iterative filtering.
 $(eval TEMP_VALID_OSNS_COMBOS := $(VALID_OSNS_COMBOS))
 
@@ -202,13 +195,24 @@ $(eval VALID_OSNS_COMBOS :=\
   )\
 )
 
+$(eval VALID_COMP := $(if $(MBINS),\
+    $(if $(filter app,$(MBINS)), \
+		$(if $(filter app share, $($(NAME)_MBINS_TYPE)), y, n), \
+		$(if $(filter kernel,$(MBINS)), \
+			$(if $(filter kernel share, $($(NAME)_MBINS_TYPE)), y, n), n)\
+	), y)\
+)
+# $ (info comp is $(NAME), type is $($(NAME)_MBINS_TYPE), valid is $(VALID_COMP))
 $(eval $(NAME)_MAKEFILE :=$(TEMP_MAKEFILE))
 
 $(eval CURDIR := $(OLD_CURDIR))
 
 $(eval $(NAME)_LOCATION := $(dir $(TEMP_MAKEFILE)))
 $(eval $(NAME)_MAKEFILE := $(TEMP_MAKEFILE))
+
+ifeq ($(VALID_COMP), y)
 AOS_SDK_MAKEFILES     += $($(NAME)_MAKEFILE)
+endif
 
 # Set debug/release specific options
 $(eval $(NAME)_BUILD_TYPE := $(BUILD_TYPE))
@@ -237,6 +241,16 @@ $(NAME)_OPTIM_CFLAGS ?= $(COMPILER_SPECIFIC_RELEASE_CFLAGS) $($(NAME)_OPTIM_CFLA
 $(NAME)_OPTIM_CXXFLAGS ?= $(COMPILER_SPECIFIC_RELEASE_CXXFLAGS) $($(NAME)_OPTIM_CXXFLAGS-y)
 endif
 
+ifeq ($($(NAME)_LIBRARY_TYPE),dynamic)
+$(NAME)_ASMFLAGS += -fPIC
+$(NAME)_LDFLAGS += -fPIC -shared
+$(NAME)_OPTIM_CFLAGS += -fPIC
+$(NAME)_OPTIM_CXXFLAGS += -fPIC
+else
+$(NAME)_LIBRARY_TYPE := static
+endif
+
+AOS_LITTLE_FS_VER          := $(LITTLE_FS_VER)
 AOS_SDK_LINK_SCRIPT        +=$(if $(GLOBAL_LINK_SCRIPT),$(GLOBAL_LINK_SCRIPT),) $(if $(GLOBAL_LINK_SCRIPT-y),$(GLOBAL_LINK_SCRIPT-y),)
 AOS_SDK_DEFAULT_LINK_SCRIPT+=$(if $(DEFAULT_LINK_SCRIPT),$(addprefix $($(NAME)_LOCATION),$(DEFAULT_LINK_SCRIPT)),) $(if $(DEFAULT_LINK_SCRIPT-y),$(addprefix $($(NAME)_LOCATION),$(DEFAULT_LINK_SCRIPT-y)),)
 $(eval AOS_SDK_DEFINES            +=$(GLOBAL_DEFINES) $(GLOBAL_DEFINES-y))
@@ -252,18 +266,17 @@ AOS_SDK_FINAL_OUTPUT_FILE += $(BIN_OUTPUT_FILE)
 AOS_SDK_IMG1_XIP1_LD_FILE +=$(AOS_IMG1_XIP1_LD_FILE)
 AOS_SDK_IMG2_XIP2_LD_FILE +=$(AOS_IMG2_XIP2_LD_FILE)
 AOS_CPLUSPLUS_FLAGS += $(CPLUSPLUS_FLAGS)
-$(eval PROCESSED_COMPONENTS += $(filter-out $(PROCESSED_COMPONENTS),$(NAME)))
+AOS_GCOV_COMPONENTS += $(GLOBAL_GCOV_COMPONENTS)
+$(eval $(if $(filter y,$(VALID_COMP)),PROCESSED_COMPONENTS += $(NAME), ))
 $(eval TMP_SOURCES := $(sort $(subst $($(NAME)_LOCATION),,$(addprefix $($(NAME)_LOCATION),$($(NAME)_SOURCES) $($(NAME)_SOURCES-y)))))
 $(eval $(NAME)_SOURCES := $(sort $(subst $($(NAME)_LOCATION),,$(wildcard $(addprefix $($(NAME)_LOCATION),$($(NAME)_SOURCES) $($(NAME)_SOURCES-y)) ))))
 $(foreach srcfile,$(TMP_SOURCES),$(if $(findstring *,$(srcfile)),,$(if $(filter $(srcfile),$($(NAME)_SOURCES)),,$(error $(NAME): Can not find source: "$($(NAME)_LOCATION)$(srcfile)" ...))))
 $(eval $(NAME)_POPULATE_INCLUDES := $(if $(filter 1,$(STRICT)),$(addprefix $(subst $(SOURCE_ROOT),,$($(NAME)_LOCATION)),$(GLOBAL_INCLUDES) $(GLOBAL_INCLUDES-y))))
-
 ifeq ($(STRICT),1)
 AOS_SDK_INCLUDES += $(addprefix -I$(OUTPUT_DIR)/includes/,$($(NAME)_POPULATE_INCLUDES))
 else
 AOS_SDK_INCLUDES +=$(addprefix -I$($(NAME)_LOCATION),$(GLOBAL_INCLUDES) $(GLOBAL_INCLUDES-y))
 endif
-
 endef
 
 #####################################################################################
@@ -273,26 +286,17 @@ define PROCESS_COMPONENT
 AOS_SDK_CFLAGS += -DMCU_FAMILY=\"$(HOST_MCU_FAMILY)\"
 $(eval CONFIG_IN_COMPONENTS := $(sort $(subst board_,,$(OBJ-y))))
 $(eval ONLY_IN_AOSMK := $(filter-out $(CONFIG_IN_COMPONENTS), $(REAL_COMPONENTS_LOCS)))
-$(if $(DEBUG_CONFIG), REAL_COMPONENTS_LOCS_ORIG := $(REAL_COMPONENTS_LOCS))
 $(eval ONLY_IN_CONFIGIN := $(if $(CONFIG_SUFFIX),,$(filter-out $(REAL_COMPONENTS_LOCS), $(CONFIG_IN_COMPONENTS))))
-# Find dependency from makefile of the Config.in oriented components
-$(if $(ONLY_IN_CONFIGIN), \
-    $(eval COMPONENTS += $(ONLY_IN_CONFIGIN)) \
-    $(eval $(if $(CONFIG_SUFFIX),,$(call FIND_VARIOUS_COMPONENT, $(ONLY_IN_CONFIGIN)))) \
-,)
-$(eval ALL_COMPONENTS := $(REAL_COMPONENTS_LOCS))
+$(eval ALL_COMPONENTS := $(REAL_COMPONENTS_LOCS) $(if $(CONFIG_SUFFIX),,$(ONLY_IN_CONFIGIN)))
 $(info *** All Components: $(ALL_COMPONENTS))
 $(if $(DEBUG_CONFIG), \
-    $(info *** MKFile Enabled: $(REAL_COMPONENTS_LOCS_ORIG)) \
+    $(info *** MKFile Enabled: $(REAL_COMPONENTS_LOCS)) \
     $(info *** Config Enabled: $(CONFIG_IN_COMPONENTS)) \
     $(if $(ONLY_IN_AOSMK), $(info *** MKFile Enabled Only: $(ONLY_IN_AOSMK)),) \
     $(if $(ONLY_IN_CONFIGIN), $(info *** Config Enabled Only: $(ONLY_IN_CONFIGIN)),), \
+    $(if $(ONLY_IN_CONFIGIN), $(info *** Config Enabled: $(ONLY_IN_CONFIGIN)),) \
 )
-$(foreach TMP_COMP, $(REAL_COMPONENTS_LOCS),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
-ifneq ($(AOS_2NDBOOT_SUPPORT),yes)
-    $(eval TEMP_PROCESSED_COMPONENTS := $(subst bootloader, , $(PROCESSED_COMPONENTS)))
-    PROCESSED_COMPONENTS := $(TEMP_PROCESSED_COMPONENTS)
-endif
+$(foreach TMP_COMP, $(REAL_COMPONENTS_LOCS) $(ONLY_IN_CONFIGIN),$(call PROCESS_ONE_COMPONENT, $(TMP_COMP)))
 
 endef
 
@@ -301,7 +305,11 @@ endef
 ##################################
 
 # Separate the build string into components
+ifneq ($(findstring AOS_APP_COMP_MAKE_ONLY,$(AOS_APP_CONFIG)),)
+COMPONENTS := $(subst ",,$(AOS_BUILD_COMPNAME))
+else
 COMPONENTS := $(subst @, ,$(MAKECMDGOALS))
+endif
 
 # Valid build types
 BUILD_TYPE_LIST := debug inspect release_log release
@@ -329,50 +337,23 @@ endif
 $(foreach comp, $(COMPONENTS), $(if $(wildcard $(APPDIR)/../$(comp) $(APPDIR)/$(comp) $(foreach dir, $(addprefix $(SOURCE_ROOT)/,$(COMPONENT_DIRECTORIES)), $(dir)/$(subst .,/,$(comp)) ) $($(comp)_LOCATION)),,$(error Unknown component: $(comp))))
 
 # Find the matching platform and application from the build string components
-PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)/platform/board/$(comp)) ,$(comp),)))
-PLATFORM_FULL_LEGACY   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)/platform/board/board_legacy/$(comp)),$(comp),)))
-PLATFORM_IS_LEGACY :=
-APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)/application/example/$(comp) $(SOURCE_ROOT)/application/example/*/$(comp)),$(comp),)))
-APP_FULL_IS_EXAMPLE_LEGACY :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)/application/example/example_legacy/$(comp)),$(comp),)))
-APP_FULL_LEGACY    :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/../$(comp) $(APPDIR)/$(comp) $(SOURCE_ROOT)/application/$(comp) $(SOURCE_ROOT)/application/profile/$(comp) $(SOURCE_ROOT)/application/*/example_legacy/$(comp) $(SOURCE_ROOT)/application/*/example_legacy/*/$(comp) $(SOURCE_ROOT)/$(comp) $(SOURCE_ROOT)/test/develop/$(comp)),$(comp),)))
+PLATFORM_FULL   :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(SOURCE_ROOT)/vendor/*/board/$(comp)),$(comp),)))
 
-ifneq ($(APP_FULL),)
-ifneq ($(APP_FULL_IS_EXAMPLE_LEGACY),)
-#app is in application/example/example_legacy, set APP_FULL NULL
-APP_FULL        :=
-endif
-endif
-
-ifneq ($(PLATFORM_FULL_LEGACY),)
-ifneq ($(APP_FULL),)
-$(error board in dir board_legacy only support app in dir example_legacy:$(APP_FULL): $(PLATFORM_FULL_LEGACY) )
-endif
-ifneq ($(PLATFORM_FULL),)
-$(error mutiple board name in board_legacy:$(PLATFORM_FULL): $(PLATFORM_FULL_LEGACY) )
-else
-PLATFORM_FULL := $(PLATFORM_FULL_LEGACY)
-PLATFORM_IS_LEGACY := board_legacy/
-endif
-# legacy board use legacy app
-APP_FULL := $(APP_FULL_LEGACY)
-else
-# new board
-ifneq ($(APP_FULL),)
-
-else
-COMPONENTS += app_adapter
-# new board use legacy app
-APP_FULL := $(APP_FULL_LEGACY)
-endif
-endif
+APP_FULL        :=$(strip $(foreach comp,$(subst .,/,$(COMPONENTS)),$(if $(wildcard $(APPDIR)/../$(comp) $(APPDIR)/$(comp) $(SOURCE_ROOT)/projects/$(comp) $(SOURCE_ROOT)/projects/*/$(comp) $(SOURCE_ROOT)/$(comp) $(SOURCE_ROOT)/kernel/test/develop/$(comp)),$(comp),)))
 
 PLATFORM    :=$(notdir $(PLATFORM_FULL))
 APP         :=$(notdir $(APP_FULL))
 
 PLATFORM_DIRECTORY := $(PLATFORM_FULL)
 
+# Set APP_VERSION used by OTA
+CONFIG_SYSINFO_APP_VERSION = app-1.0.0-$(CURRENT_TIME)
+$(info app_version:${CONFIG_SYSINFO_APP_VERSION})
+
 # Append PLATFORM (Board) and APP_VERSION to EXTRA_CFLAGS
-EXTRA_CFLAGS := -DPLATFORM=$(SLASH_QUOTE_START)$$(PLATFORM)$(SLASH_QUOTE_END)
+EXTRA_CFLAGS := \
+                -DPLATFORM=$(SLASH_QUOTE_START)$$(PLATFORM)$(SLASH_QUOTE_END) \
+                -DSYSINFO_APP_VERSION=\"$(CONFIG_SYSINFO_APP_VERSION)\"
 
 # Append "-include/--preinclude autoconf.h" to EXTRA_CFLAGS
 ifneq ($(filter armcc iar rvct, $(COMPILER)),)
@@ -391,12 +372,18 @@ EXTRA_ASMFLAGS += $(call GCC_INCLUDE_AUTOCONF_H)
 endif
 
 # Load platform makefile to make variables like WLAN_CHIP, HOST_OPENOCD & HOST_ARCH available to all makefiles
-$(eval CURDIR := $(SOURCE_ROOT)/platform/board/$(PLATFORM_IS_LEGACY)$(PLATFORM_DIRECTORY)/)
+$(eval CURDIR := $(SOURCE_ROOT)/vendor/allwinner/board/$(PLATFORM_DIRECTORY)/)
 
-include $(SOURCE_ROOT)/platform/board/$(PLATFORM_IS_LEGACY)$(PLATFORM_DIRECTORY)/aos.mk
+board_directory := $(wildcard $(SOURCE_ROOT)/vendor/*/board/$(PLATFORM_DIRECTORY)/aos.mk)
+
+ifneq ($(findstring AOS_APP_COMP_MAKE_ONLY,$(AOS_APP_CONFIG)),)
+HOST_ARCH := $(subst ",,$(AOS_BUILD_ARCH))
+else
+include $(board_directory)
 
 $(eval CURDIR := $($(HOST_MCU_FAMILY)_LOCATION)/)
 include $($(HOST_MCU_FAMILY)_LOCATION)/aos.mk
+endif
 MAIN_COMPONENT_PROCESSING :=1
 
 # Now we know the target architecture - include all toolchain makefiles and check one of them can handle the architecture
@@ -420,17 +407,13 @@ endif
 ifeq ($(MBINS),app)
 ifeq ($(ENABLE_USPACE),1)
 COMPONENTS += uspace
-else
-COMPONENTS += mbins.umbins
-AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf -Wl,-wrap,fflsuh -nostartfiles
+AOS_SDK_LDFLAGS += -Wl,-wrap,vprintf -Wl,-wrap,fflsuh 
 endif
 AOS_SDK_DEFINES += BUILD_APP
-AOS_SDK_LDFLAGS += -nostartfiles
+AOS_SDK_LDFLAGS += 
 else ifeq ($(MBINS),kernel)
 ifeq ($(ENABLE_USPACE),1)
 COMPONENTS += kspace
-else
-COMPONENTS += mbins.kmbins
 endif
 AOS_SDK_DEFINES += BUILD_KERNEL
 else ifeq (,$(MBINS))
@@ -447,63 +430,36 @@ endif
 
 $(info processing components: $(COMPONENTS))
 $(eval $(call FIND_VARIOUS_COMPONENT, $(COMPONENTS)))
+
 $(eval COMPONENTS := $(sort $(COMPONENTS)) )
 $(eval $(call PROCESS_COMPONENT, $(PROCESSED_COMPONENTS_LOCS)))
 
-AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include \
-                    -I$(SOURCE_ROOT)/include/hal \
-                    -I$(SOURCE_ROOT)/include/bus \
-                    -I$(SOURCE_ROOT)/include/cli \
-                    -I$(SOURCE_ROOT)/include/hal/soc \
-                    -I$(SOURCE_ROOT)/include/dm \
-                    -I$(SOURCE_ROOT)/include/service \
-                    -I$(SOURCE_ROOT)/include/wireless \
-                    -I$(SOURCE_ROOT)/include/utility \
-                    -I$(SOURCE_ROOT)/include/peripherals \
-                    -I$(SOURCE_ROOT)/include/network \
-                    -I$(SOURCE_ROOT)/include/wireless/bluetooth \
-                    -I$(SOURCE_ROOT)/include/wireless/bluetooth/breeze \
-                    -I$(SOURCE_ROOT)/components/wireless/bluetooth/ble/host/include \
-                    -I$(SOURCE_ROOT)/components/wireless/bluetooth/ble/host/profile \
-                    -I$(SOURCE_ROOT)/include/wireless/bluetooth/blemesh \
-                    -I$(SOURCE_ROOT)/include/network/coap \
-                    -I$(SOURCE_ROOT)/include/network/hal \
-                    -I$(SOURCE_ROOT)/include/network/http \
-                    -I$(SOURCE_ROOT)/include/network/lwm2m \
-                    -I$(SOURCE_ROOT)/include/network/umesh \
-                    -I$(SOURCE_ROOT)/include/network/athost \
-                    -I$(SOURCE_ROOT)/include/network/sal \
-                    -I$(SOURCE_ROOT)/include/network/netmgr \
-                    -I$(SOURCE_ROOT)/include/network/rtp \
-                    -I$(SOURCE_ROOT)/include/utility/yloop
+AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/kernel/include \
+                    -I$(SOURCE_ROOT)/kernel/include/hal \
+                    -I$(SOURCE_ROOT)/kernel/include/hal/soc \
+                    -I$(SOURCE_ROOT)/kernel/include/posix \
+					-I$(SOURCE_ROOT)/components/network/netmgr \
+                    -I$(SOURCE_ROOT)/components/network/netmgr/network \
+					-I$(SOURCE_ROOT)/components/utilities \
+					-I$(SOURCE_ROOT)/components/services \
+					-I$(SOURCE_ROOT)/components/services/uagent \
+					-I$(SOURCE_ROOT)/components/fs/ramfs \
+                    -I$(SOURCE_ROOT)/components/services/yloop
 
-ifeq ($(AOS_COMP_LORAWAN_4_4_2), y)
-AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_2 \
-                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_2/mac \
-                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_2/mac/region \
-                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_2/radio \
-                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_2/radio/sx1276 \
-                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_2/system
-else ifeq ($(AOS_COMP_LORAWAN_4_4_0), y)
-AOS_SDK_INCLUDES += -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_0 \
-                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_0/mac \
-                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_0/mac/region \
-                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_0/radio \
-                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_0/radio/sx1276 \
-                    -I$(SOURCE_ROOT)/include/wireless/lorawan/lorawan_4_4_0/system
-endif
 
 AOS_SDK_DEFINES += $(EXTERNAL_AOS_GLOBAL_DEFINES)
 
 # Make sure the user has specified a component from each category
-$(if $(PLATFORM),,$(error No platform specified. Options are: $(notdir $(wildcard platform/board/*))))
-$(if $(APP),,$(error No application specified. Options are: $(notdir $(wildcard application/example/*))))
+ifeq ($(findstring AOS_APP_COMP_MAKE_ONLY,$(AOS_APP_CONFIG)),)
+$(if $(PLATFORM),,$(error No platform specified. Options are: $(notdir $(wildcard board/*))))
+$(if $(APP),,$(error No application specified. Options are: $(notdir $(wildcard app/example/*))))
 
 # Make sure a WLAN_CHIP, WLAN_CHIP_REVISION, WLAN_CHIP_FAMILY and HOST_OPENOCD have been defined
 #$(if $(WLAN_CHIP),,$(error No WLAN_CHIP has been defined))
 #$(if $(WLAN_CHIP_REVISION),,$(error No WLAN_CHIP_REVISION has been defined))
 #$(if $(WLAN_CHIP_FAMILY),,$(error No WLAN_CHIP_FAMILY has been defined))
 $(if $(HOST_OPENOCD),,$(error No HOST_OPENOCD has been defined))
+endif
 
 VALID_PLATFORMS :=
 INVALID_PLATFORMS :=
@@ -545,6 +501,7 @@ AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(if $(filt
 else ifeq (, $(MBINS))
 AOS_SDK_PREBUILT_LIBRARIES +=$(foreach comp,$(PROCESSED_COMPONENTS), $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY)))
 endif
+AOS_SDK_PREBUILT_LIBRARIES := $(call sort, $(AOS_SDK_PREBUILT_LIBRARIES))
 
 AOS_SDK_LINK_FILES         +=$(foreach comp,$(PROCESSED_COMPONENTS), $(addprefix $(OUTPUT_DIR)/$(MODULES_DIR)/$(call GET_BARE_LOCATION,$(comp)),$($(comp)_LINK_FILES)))
 AOS_SDK_UNIT_TEST_SOURCES  +=$(foreach comp,$(PROCESSED_COMPONENTS), $(addprefix $($(comp)_LOCATION),$($(comp)_UNIT_TEST_SOURCES)))
@@ -567,7 +524,6 @@ endif
 # Create config.mk
 $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(call WRITE_FILE_CREATE, $(CONFIG_FILE) ,AOS_SDK_MAKEFILES           		+= $(AOS_SDK_MAKEFILES))
-	$(QUIET)$(call WRITE_FILE_CREATE, $(DEPENDS_FILE) ,AOS_SDK_MAKEFILES           		+= $(AOS_SDK_MAKEFILES))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,TOOLCHAIN_NAME            		:= $(TOOLCHAIN_NAME))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_LDFLAGS             		+= $(strip $(AOS_SDK_LDFLAGS)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_LDS_FILES                     += $(strip $(AOS_SDK_LDS_FILES)))
@@ -575,6 +531,7 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_2NDBOOT_SUPPORT                 += $(strip $(AOS_SDK_2NDBOOT_SUPPORT)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_IMG1_XIP1_LD_FILE                 += $(strip $(AOS_SDK_IMG1_XIP1_LD_FILE)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_IMG2_XIP2_LD_FILE                 += $(strip $(AOS_SDK_IMG2_XIP2_LD_FILE)))
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_LITTLE_FS_VER			:= $(strip $(LITTLE_FS_VER)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_CFLAGS			+= $(strip $(AOS_SDK_CFLAGS)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_ASMFLAGS			+= $(strip $(AOS_SDK_ASMFLAGS)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_SDK_LINK_SCRIPT         		+= $(strip $(if $(strip $(AOS_SDK_LINK_SCRIPT)),$(AOS_SDK_LINK_SCRIPT),$(AOS_SDK_DEFAULT_LINK_SCRIPT))))
@@ -600,15 +557,19 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_LOCATION         := $($(comp)_LOCATION)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_SOURCES          += $($(comp)_SOURCES)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_CHECK_HEADERS    += $($(comp)_CHECK_HEADERS)))
-	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_INCLUDES         := $(addprefix -I$($(comp)_LOCATION),$($(comp)_INCLUDES))))
-	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_DEFINES          := $(addprefix -D,$($(comp)_DEFINES))))
+	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_LIBRARY_TYPE     := $($(comp)_LIBRARY_TYPE)))
+	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_INCLUDES         := $(addprefix -I$($(comp)_LOCATION),$($(comp)_INCLUDES) $($(comp)_INCLUDES-y))))
+	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_DEFINES          := $(addprefix -D,$($(comp)_DEFINES) $($(comp)_DEFINES-y))))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_CFLAGS           := $(AOS_SDK_CFLAGS) $($(comp)_CFLAGS_ALL)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_CXXFLAGS         := $(AOS_SDK_CXXFLAGS) $($(comp)_CXXFLAGS_ALL)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_ASMFLAGS         := $(strip $(AOS_SDK_ASMFLAGS) $(EXTRA_ASMFLAGS) $($(comp)_ASMFLAGS))))
+	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_LDFLAGS          := $(AOS_SDK_LDFLAGS) $($(comp)_LDFLAGS)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_MAKEFILE         := $($(comp)_MAKEFILE)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_PRE_BUILD_TARGETS:= $($(comp)_PRE_BUILD_TARGETS)))
-	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_PREBUILT_LIBRARY := $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
+	#$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_PREBUILT_LIBRARY := $(addprefix $($(comp)_LOCATION),$($(comp)_PREBUILT_LIBRARY))))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_MBINS_TYPE             := $($(comp)_MBINS_TYPE)))
+	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_SELF_BUIlD_COMP_targets  := $($(comp)_SELF_BUIlD_COMP_targets)))
+	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_SELF_BUIlD_COMP_scripts  := $($(comp)_SELF_BUIlD_COMP_scripts)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_LIBSUFFIX             := $($(comp)_LIBSUFFIX)))
 	$(QUIET)$(foreach comp,$(PROCESSED_COMPONENTS), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(comp)_POPULATE_INCLUDES      := $($(comp)_POPULATE_INCLUDES)))
 	$(QUIET)$(foreach var,$(sort $(FEATURE_SHOW_VARS)), $(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,$(var) := $($(var))))
@@ -632,7 +593,7 @@ $(CONFIG_FILE): $(AOS_SDK_MAKEFILES) | $(CONFIG_FILE_DIR)
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_RAM_STUB_LIST_FILE 			:= $(AOS_RAM_STUB_LIST_FILE))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,PING_PONG_OTA 					:= $(PING_PONG_OTA))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_CPLUSPLUS_FLAGS:= $(AOS_CPLUSPLUS_FLAGS))
+	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,AOS_GCOV_COMPONENTS := $(AOS_GCOV_COMPONENTS))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,KEIL_DEVICE := $(foreach comp,$(PROCESSED_COMPONENTS),$(if $($(comp)_KEIL_DEVICE),$($(comp)_KEIL_DEVICE),)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,KEIL_VENDOR := $(foreach comp,$(PROCESSED_COMPONENTS),$(if $($(comp)_KEIL_VENDOR),$($(comp)_KEIL_VENDOR),)))
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,IAR_OGCMENU := $(foreach comp,$(PROCESSED_COMPONENTS),$(if $($(comp)_IAR_OGCMENU),$($(comp)_IAR_OGCMENU),)))
-	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_FILE) ,CONFIG_SYSINFO_DEVICE_NAME 					:= $(CONFIG_SYSINFO_DEVICE_NAME))

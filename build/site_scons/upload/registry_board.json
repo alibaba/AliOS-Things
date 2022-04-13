@@ -24,7 +24,7 @@
         "stm32_stlink.json"
     ],
     "mk3060": [
-        "not support"
+        "mk3060.json"
     ],
     "mk3165": [
         "stm32_stlink.json"
@@ -44,8 +44,5 @@
     ],
     "stm32": [
         "stm32_stlink.json"
-    ],
-    "haas100": [
-        "haas1000.json"
     ]
 }

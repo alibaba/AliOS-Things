@@ -15,6 +15,8 @@ parser.add_argument('--dump', action='store_true', help='dump the fs hierarchy')
 parser.add_argument('--binary', action='store_true', help='output binary file')
 parser.add_argument('--addr', default='0', help='set the base address of the binary file, default to 0.')
 
+root_mountpoints = ['data', 'mnt', 'system', 'tmp']
+
 class File(object):
     def __init__(self, name):
         self._name = name
@@ -134,6 +136,10 @@ class Folder(object):
         body_dict = {}
         body_li = []
         payload_li = []
+        # add mountpoints
+        if self._name == "romfs_root":
+            for m in root_mountpoints:
+                body_dict.update({str(m) : body_fmt0.format(type='ROMFS_DIRENT_MOUNTPOINT', name = m)})
         # add children
         for c in self._children:
             entry_size = c.entry_size

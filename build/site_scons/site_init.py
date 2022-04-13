@@ -69,7 +69,7 @@ class aos_global_config:
 
         if last_value != value and key in aos_global_config.config_observers:
             func_comp = aos_global_config.config_observers[key]
-            for func, comp in list(func_comp.items()):
+            for func, comp in func_comp.items():
                 func(comp)
             func_comp.clear()
 
@@ -253,7 +253,9 @@ def do_process(process):
     process.do_action()
 
 
-class process(object, metaclass=abc.ABCMeta):
+class process(object):
+    __metaclass__ = abc.ABCMeta
+
     @abc.abstractmethod
     def do_action(aos_global_config):
         return
@@ -279,13 +281,13 @@ class base_process_impl(process):
         aos_global_config.compiler = self.args.get('COMPILER') if self.args.get('COMPILER') else 'gcc'
         aos_global_config.out_dir = self.args.get('OUT_DIR') if self.args.get('OUT_DIR') else 'out'
         aos_global_config.ide = self.args.get('IDE') if self.args.get('IDE') else ''
-
+        
         if self.args.get('LINK_CLOUD_ENV') != None:
             aos_global_config.aos_env.Append(CPPDEFINES=self.args.get('LINK_CLOUD_ENV'))
 
         if self.args.get('osal'):
             aos_global_config.set('osal', self.args.get('osal'))
-
+            
         if self.args.get('test'):
             aos_global_config.set('test', self.args.get('test'))
 
@@ -304,7 +306,7 @@ class base_process_impl(process):
                                                      aos_global_config.app + '@' + aos_global_config.board)
         #temporarily disable muti bin
         aos_global_config.aos_env.Append(CPPDEFINES='BUILD_BIN')
-
+        
         #temporarily add include path aos.h need
         aos_global_config.component_includes.append('#kernel/fs/kv/include')
         aos_global_config.component_includes.append('#network/yloop/include')
@@ -440,8 +442,8 @@ class dependency_process_impl(process):
         aos_component('auto_component', src)
 
     def __pre_config(self):
-        for config, func_comp in list(self.config.config_observers.items()):
-            for func, comp in list(func_comp.items()):
+        for config, func_comp in self.config.config_observers.items():
+            for func, comp in func_comp.items():
                 len_deps = len(comp.get_comp_deps())
                 func(comp)
                 if len_deps != len(comp.get_comp_deps()):
@@ -463,31 +465,27 @@ class dependency_process_impl(process):
         print('app=' + aos_global_config.app + ', board=' + aos_global_config.board + ', out_dir=' + aos_global_config.out_dir)
 
         # board config tool chain, must add first.
-        self.__load_one_component('platform/board/' + aos_global_config.board)
+        self.__load_one_component('board/' + aos_global_config.board)
         if (len(aos_global_config.components)) != 1:
-			self.__load_one_component('platform/board/board_legacy/' + aos_global_config.board)
-			if (len(aos_global_config.components)) != 1:	
-				print('Unsupported board, make sure %s in board directory...' % aos_global_config.board)
-				exit(-1)
+            print('Unsupported board, make sure %s in board directory...' % aos_global_config.board)
+            exit(-1)
 
-        self.__load_one_component('application/example/example_legacy/' + aos_global_config.app)
+        self.__load_one_component('app/example/' + aos_global_config.app)
         if (len(aos_global_config.components)) != 2:
-			self.__load_one_component('application/example/' + aos_global_config.app)
-			if (len(aos_global_config.components)) != 2:
-				print('Unsupported app, make sure %s in example directory...' % aos_global_config.app)
-				exit(-1)
+            print('Unsupported app, make sure %s in example directory...' % aos_global_config.app)
+            exit(-1)
 
         if aos_global_config.app == 'yts':
-            if aos_global_config.get('test'):
+            if aos_global_config.get('test'):                
                 test_mod_list = aos_global_config.get('test').strip(',').split(',')
-                print ('test case list: %s'%test_mod_list)
-
+                print ('test case list: %s'%test_mod_list)                   
+                
                 for i in test_mod_list:
                     for testcase in aos_global_config.testcases:
                         if testcase.find(i) != -1:
                             print('Select Special Testcase: %s'%testcase)
                             self.__load_one_component(testcase)
-                            break
+                            break                
             else:
                 for testcase in aos_global_config.testcases:
                     self.__load_one_component(testcase)
@@ -617,7 +615,7 @@ class ide_transfer_process_impl(process):
                 f.write('},\n')
 
             f.write(']\n')
-
+        
             for flag in aos_global_config.ldflags:
                 if "=" in flag:
                     flag=flag.split("=")[1]
@@ -828,7 +826,7 @@ class create_bin_process_impl(process):
             strip_cmd = strip_tool + ' -o ' + stripped_file + ' ' + binary
             bin_file = binary.replace('.elf', '.bin')
             bin_cmd = objcopy_tool + ' -O binary ' + stripped_file + ' ' + bin_file
-
+			
         else:
             stripped_file = binary.replace('.elf', '.stripped.elf')
             strip_cmd = strip_tool + ' -o ' + stripped_file + ' ' + binary
@@ -846,7 +844,9 @@ class create_bin_process_impl(process):
             env.Program(bin_file, stripped_file, LINKCOM=bin_cmd, LINKCOMSTR=linkcomstr)
 
 
-class aos_command(object, metaclass=abc.ABCMeta):
+class aos_command(object):
+    __metaclass__ = abc.ABCMeta
+
     @abc.abstractmethod
     def dispatch_action(self, target, source, env):
         return
@@ -863,9 +863,9 @@ def ucube_main(args):
         target=app+'@'+board
         workdir = None
         bindir = None
-        if 'WORKPATH' in args:
+        if args.has_key('WORKPATH'):
             workdir=args.get('WORKPATH')
-        if 'BINDIR' in args:
+        if args.has_key('BINDIR'):
             bindir=args.get('BINDIR')
         ret = aos_upload(target, workdir, bindir)
         return ret
@@ -879,13 +879,13 @@ def ucube_main(args):
         bindir=None
         startclient=False
         gdb_args=None
-        if 'WORKPATH' in args:
+        if args.has_key('WORKPATH'):
             workdir=args.get('WORKPATH')
-        if 'BINDIR' in args:
+        if args.has_key('BINDIR'):
             bindir=args.get('BINDIR')
-        if 'STARTCLIENT' in args:
+        if args.has_key('STARTCLIENT'):
             startclient=args.get('STARTCLIENT')
-        if 'GDBARGS' in args:
+        if args.has_key('GDBARGS'):
             gdb_args=args.get('GDBARGS')
         ret = aos_debug(target, workdir, bindir, startclient, gdb_args)
         return ret
@@ -895,7 +895,7 @@ def ucube_main(args):
         aos_global_config.aos_env = Environment(ENV=os.environ, CPPPATH=['#include'], TARGET_ARCH='x86')
     else:
         aos_global_config.aos_env = Environment(ENV=os.environ, CPPPATH=['#include'], TOOLS=['mingw', 'gcc', 'g++'])
-
+    
     #one component support limit source files in windows
     if sys.platform.startswith('win'):
         aos_global_config.max_files = 30

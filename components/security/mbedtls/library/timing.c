@@ -68,6 +68,7 @@ struct _hr_time
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <signal.h>
 #include <time.h>
 
 struct _hr_time
@@ -316,8 +317,7 @@ unsigned long mbedtls_timing_get_timer( struct mbedtls_timing_hr_time *val, int 
         return( delta );
     }
 }
-typedef void (*sighandler_t)(int);
-sighandler_t signal(int signum, sighandler_t handler);
+
 static void sighandler( int signum )
 {
     mbedtls_timing_alarmed = 1;
@@ -327,8 +327,6 @@ static void sighandler( int signum )
 void mbedtls_set_alarm( int seconds )
 {
 #if defined (__CC_ARM) || (__ICCARM__)
-#define SIGALRM 14
-#else
 #define SIGALRM 14
 #endif
     mbedtls_timing_alarmed = 0;

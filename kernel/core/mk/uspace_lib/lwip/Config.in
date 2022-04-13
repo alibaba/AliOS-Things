@@ -1,0 +1,6 @@
+config AOS_COMP_USPACE_LWIP
+    bool "User Space lwip API Support (obsolete)"
+    default n
+    help
+        User Space lwip API is suppled by syscall
+

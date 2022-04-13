@@ -28,13 +28,11 @@ $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,{'name':'$(comp)'$(COMMA) )
 $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'src':[ )
 $(eval SOURCES_FULLPATH := $(addprefix $($(comp)_LOCATION), $($(comp)_SOURCES)))
 $(foreach src,$(SOURCES_FULLPATH), $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'$(src)'$(COMMA)))
-$(eval LIB_FULLPATH := $($(comp)_PREBUILT_LIBRARY))
+$(eval LIB_FULLPATH := $(addprefix $($(comp)_LOCATION), $($(comp)_PREBUILT_LIBRARY)))
 $(foreach complib,$(LIB_FULLPATH), $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'$(complib)'$(COMMA)))
 $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,]$(COMMA))
 $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'include':[ )
-$(eval INCLUDE_FULLPATH := $(subst -I., .,$($(comp)_INCLUDES)) )
-$(eval INCLUDE_FULLPATH += $(subst -I., .,$($(comp)_INCLUDES-y)) )
-$(eval INCLUDE_FULLPATH += $(PROJ_GEN_DIR2) )
+$(eval INCLUDE_FULLPATH := $(addprefix $($(comp)_LOCATION),$($(comp)_INCLUDES) $($(comp)_INCLUDES-y)) )
 $(eval INCLUDE_FULLPATH += $(subst -I.,.,$(call unique,$(AOS_SDK_INCLUDES))) )
 $(foreach inc,$(INCLUDE_FULLPATH), $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,'$(inc)'$(COMMA)))
 $(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,]$(COMMA))
@@ -56,14 +54,13 @@ $(eval AS_OPTS_IAR :=)
 $(eval AS_OPTS_KEIL :=)
 
 $(eval C_OPTS := $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_SPECIFIC_DEPS_FLAG) $(COMPILER_UNI_CFLAGS) $($(1)_CFLAGS) $($(1)_INCLUDES) $($(1)_DEFINES) $(AOS_SDK_INCLUDES) $(AOS_SDK_DEFINES))
-$(eval C_OPTS_IAR := $(subst =\",="\\\",$(C_OPTS) ) )
-$(eval C_OPTS_IAR := $(subst \" ,\\\"" ,$(C_OPTS_IAR) ) )
+$(eval C_OPTS_IAR := $(subst =\",="\",$(C_OPTS) ) )
+$(eval C_OPTS_IAR := $(subst \" ,\"" ,$(C_OPTS_IAR) ) )
 $(eval C_OPTS_IAR := $(filter-out -I% --cpu=% --endian% --dlib_config%,$(C_OPTS_IAR)))
 $(eval C_OPTS_IAR := $(subst out/config/autoconf.h,autoconf.h,$(C_OPTS_IAR)))
 $(eval C_OPTS_KEIL := $(subst -I.,-I../../../../.,$(C_OPTS)) )
 $(eval C_OPTS_KEIL := $(subst out/config/autoconf.h,autoconf.h,$(C_OPTS_KEIL)))
-$(eval C_OPTS_KEIL := $(subst =\",=\'\\\",$(C_OPTS_KEIL)))
-$(eval C_OPTS_KEIL := $(subst \" ,\\\"\' ,$(C_OPTS_KEIL)))
+$(eval C_OPTS_KEIL := $(subst \",\'\\\",$(C_OPTS_KEIL)))
 
 $(if $(strip $(findstring arch_,$(1)) $(findstring board_,$(1))),
 $(eval AS_OPTS = $(CPU_ASMFLAGS) $(COMPILER_SPECIFIC_COMP_ONLY_FLAG) $(COMPILER_UNI_SFLAGS) $($(1)_ASMFLAGS) $($(1)_INCLUDES) $(AOS_SDK_INCLUDES)) \
@@ -76,7 +73,6 @@ endef
 # Generate IAR project
 ifeq ($(IDE),iar)
 PROJ_GEN_DIR := projects/IAR/$(CLEANED_BUILD_STRING)
-PROJ_GEN_DIR2 := projects/IAR/$(CLEANED_BUILD_STRING)/iar_project
 PROJECT_GEN := $(PROJ_GEN_DIR)/iar_project/$(CLEANED_BUILD_STRING).ewp
 $(MAKECMDGOALS): $(PROJECT_GEN)
 $(PROJECT_GEN): $(SCRIPTS_PATH)/iar.py $(MAKEFILES_PATH)/aos_target_config.mk $(CONFIG_FILE)
@@ -86,14 +82,15 @@ $(PROJECT_GEN): $(SCRIPTS_PATH)/iar.py $(MAKEFILES_PATH)/aos_target_config.mk $(
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,])
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,iar_ogcmenu = "$(strip $(IAR_OGCMENU))")
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_ldflags = "$(strip $(AOS_SDK_LDFLAGS))")
-	python build/scripts/iar.py $(CLEANED_BUILD_STRING) $(APPDIR)
+	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR)/iar_project)
+	$(QUIET)cp -f  build/scripts/template.ewd $(PROJ_GEN_DIR)/iar_project/$(CLEANED_BUILD_STRING).ewd
+	python build/scripts/iar.py $(CLEANED_BUILD_STRING)
 	$(QUIET)echo ----------- iar project has generated in $(PROJ_GEN_DIR)/iar_project -----------
 endif
 
 # Generate Keil project
 ifeq ($(IDE),keil)
 PROJ_GEN_DIR := projects/Keil/$(CLEANED_BUILD_STRING)
-PROJ_GEN_DIR2 := projects/Keil/$(CLEANED_BUILD_STRING)/keil_project
 PROJECT_GEN := $(PROJ_GEN_DIR)/keil_project/$(CLEANED_BUILD_STRING).uvprojx
 $(MAKECMDGOALS): $(PROJECT_GEN)
 $(PROJECT_GEN): $(SCRIPTS_PATH)/keil.py $(MAKEFILES_PATH)/aos_target_config.mk $(CONFIG_FILE)
@@ -109,6 +106,7 @@ $(PROJECT_GEN): $(SCRIPTS_PATH)/keil.py $(MAKEFILES_PATH)/aos_target_config.mk $
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_includes = "$(strip $(AOS_SDK_INCLUDES))")
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,global_defines = "$(strip $(subst -D,,$(AOS_SDK_DEFINES)))")
 	$(QUIET)$(call WRITE_FILE_APPEND, $(CONFIG_PY_FILE) ,host_arch = "$(strip $(HOST_ARCH))")
-	python build/scripts/keil.py $(CLEANED_BUILD_STRING) $(APPDIR)
+	$(QUIET)$(call MKDIR, $(PROJ_GEN_DIR)/keil_project)
+	python build/scripts/keil.py $(CLEANED_BUILD_STRING)
 	$(QUIET)echo ----------- keil project has generated in $(PROJ_GEN_DIR)/keil_project -----------
 endif

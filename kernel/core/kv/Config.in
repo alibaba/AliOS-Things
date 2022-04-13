@@ -1,0 +1,34 @@
+menuconfig AOS_COMP_KV
+    bool "Key-value Storage"
+    select AOS_COMP_NAND_KV if KV_CONFIG_USE_NAND
+    select AOS_COMP_NOR_KV if KV_CONFIG_USE_NOR
+    default n
+    help
+      lightweight key-value storage module.
+
+if AOS_COMP_KV
+# Configurations for component kv
+
+choice
+    prompt "Choose storage Type"
+    default KV_CONFIG_USE_NAND if AOS_PLATFORM_CONFIG_USE_NAND
+    default KV_CONFIG_USE_NOR
+    help
+        Select the type of the storage type used (NAND or NOR Flash).
+
+    config KV_CONFIG_USE_NOR
+        bool "NOR"
+
+    config KV_CONFIG_USE_NAND
+        bool "NAND"
+endchoice
+
+if KV_CONFIG_USE_NOR
+source "kernel/core/kv/nor_kv/Config.in"
+endif
+
+if KV_CONFIG_USE_NAND
+source "kernel/core/kv/nand_kv/Config.in"
+endif
+
+endif

@@ -1,5 +1,5 @@
 /**
- * @file
+ * @file 
  * Transmission Control Protocol for IP
  * See also @ref tcp_raw
  *
@@ -146,28 +146,6 @@ tcp_init(void)
 #endif /* LWIP_RANDOMIZE_INITIAL_LOCAL_PORTS && defined(LWIP_RAND) */
 }
 
-/** Free a tcp pcb */
-void
-tcp_free(struct tcp_pcb *pcb)
-{
-  LWIP_ASSERT("tcp_free: LISTEN", pcb->state != LISTEN);
-#if LWIP_TCP_PCB_NUM_EXT_ARGS
-  tcp_ext_arg_invoke_callbacks_destroyed(pcb->ext_args);
-#endif
-  memp_free(MEMP_TCP_PCB, pcb);
-}
-
-/** Free a tcp listen pcb */
-static void
-tcp_free_listen(struct tcp_pcb *pcb)
-{
-  LWIP_ASSERT("tcp_free_listen: !LISTEN", pcb->state != LISTEN);
-#if LWIP_TCP_PCB_NUM_EXT_ARGS
-  tcp_ext_arg_invoke_callbacks_destroyed(pcb->ext_args);
-#endif
-  memp_free(MEMP_TCP_PCB_LISTEN, pcb);
-}
-
 /**
  * Called periodically to dispatch TCP timers.
  */
@@ -308,7 +286,7 @@ tcp_close_shutdown(struct tcp_pcb *pcb, u8_t rst_on_unacked_data)
           /* prevent using a deallocated pcb: free it from tcp_input later */
           tcp_trigger_input_pcb_close();
         } else {
-        tcp_free(pcb);
+          memp_free(MEMP_TCP_PCB, pcb);
         }
       }
       return ERR_OK;
@@ -328,18 +306,21 @@ tcp_close_shutdown(struct tcp_pcb *pcb, u8_t rst_on_unacked_data)
     if (pcb->local_port != 0) {
       TCP_RMV(&tcp_bound_pcbs, pcb);
     }
-    tcp_free(pcb);
+    memp_free(MEMP_TCP_PCB, pcb);
+    pcb = NULL;
     break;
   case LISTEN:
     err = ERR_OK;
     tcp_listen_closed(pcb);
     tcp_pcb_remove(&tcp_listen_pcbs.pcbs, pcb);
-    tcp_free_listen(pcb);
+    memp_free(MEMP_TCP_PCB_LISTEN, pcb);
+    pcb = NULL;
     break;
   case SYN_SENT:
     err = ERR_OK;
     TCP_PCB_REMOVE_ACTIVE(pcb);
-    tcp_free(pcb);
+    memp_free(MEMP_TCP_PCB, pcb);
+    pcb = NULL;
     MIB2_STATS_INC(mib2.tcpattemptfails);
     break;
   case SYN_RCVD:
@@ -485,7 +466,7 @@ tcp_abandon(struct tcp_pcb *pcb, int reset)
      the PCB with a NULL argument, and send an RST to the remote end. */
   if (pcb->state == TIME_WAIT) {
     tcp_pcb_remove(&tcp_tw_pcbs, pcb);
-    tcp_free(pcb);
+    memp_free(MEMP_TCP_PCB, pcb);
   } else {
     int send_rst = 0;
     u16_t local_port = 0;
@@ -521,7 +502,7 @@ tcp_abandon(struct tcp_pcb *pcb, int reset)
       LWIP_DEBUGF(TCP_RST_DEBUG, ("tcp_abandon: sending RST\n"));
       tcp_rst(seqno, ackno, &pcb->local_ip, &pcb->remote_ip, local_port, pcb->remote_port);
     }
-    tcp_free(pcb);
+    memp_free(MEMP_TCP_PCB, pcb);
     TCP_EVENT_ERR(errf, errf_arg, ERR_ABRT);
   }
 }
@@ -704,7 +685,7 @@ tcp_listen_with_backlog(struct tcp_pcb *pcb, u8_t backlog)
   if (pcb->local_port != 0) {
     TCP_RMV(&tcp_bound_pcbs, pcb);
   }
-  tcp_free(pcb);
+  memp_free(MEMP_TCP_PCB, pcb);
 #if LWIP_CALLBACK_API
   lpcb->accept = tcp_accept_null;
 #endif /* LWIP_CALLBACK_API */
@@ -779,6 +760,7 @@ tcp_recved(struct tcp_pcb *pcb, u16_t len)
     pcb->state != LISTEN);
 
   pcb->rcv_wnd += len;
+
   if (pcb->rcv_wnd > TCP_WND_MAX(pcb)) {
     pcb->rcv_wnd = TCP_WND_MAX(pcb);
   } else if (pcb->rcv_wnd == 0) {
@@ -792,7 +774,6 @@ tcp_recved(struct tcp_pcb *pcb, u16_t len)
       LWIP_ASSERT("tcp_recved: len wrapped rcv_wnd\n", 0);
     }
   }
-
   wnd_inflation = tcp_update_rcv_ann_wnd(pcb);
 
   /* If the change in the right edge of window is significant (default
@@ -950,6 +931,7 @@ tcp_connect(struct tcp_pcb *pcb, const ip_addr_t *ipaddr, u16_t port,
   }
       pcb->snd_wnd = TCP_WND;
       pcb->ssthresh = TCP_WND;
+
   pcb->rcv_ann_right_edge = pcb->rcv_nxt;
   /* As initial send MSS, we use TCP_MSS but limit it to 536.
      The send MSS is updated when an MSS option is received. */
@@ -1063,18 +1045,18 @@ tcp_slowtmr_start:
           /* Double retransmission time-out unless we are trying to
            * connect to somebody (i.e., we are in SYN_SENT). */
           if (pcb->state != SYN_SENT) {
-            if(lwip_rto_flags != pcb->adjrto) {
-              pcb->adjrto = lwip_rto_flags;
+              if(lwip_rto_flags != pcb->adjrto) {
+                  pcb->adjrto = lwip_rto_flags;
                   if(lwip_rto_flags == RTO_FLAGS_LARGE) {
                      LWIP_DEBUGF(TCP_RTO_DEBUG, ("%s RTO:2s\n", __func__));
                      pcb->rto = TCP_LARGE_RTO / TCP_SLOW_INTERVAL; /*  lwip's default rto is 3000. */
                      pcb->sv = TCP_LARGE_RTO / TCP_SLOW_INTERVAL;
-              }
-              else {
+                  }
+                  else {
                      LWIP_DEBUGF(TCP_RTO_DEBUG, ("%s RTO:1s\n", __func__));
                      pcb->rto = TCP_SMALL_RTO / TCP_SLOW_INTERVAL; /*  lwip's default is 3000. */
                      pcb->sv = TCP_SMALL_RTO / TCP_SLOW_INTERVAL;
-              }
+                 }
             }
             pcb->rto = ((pcb->sa >> 3) + pcb->sv) << tcp_backoff[pcb->nrtx];
           }
@@ -1192,7 +1174,7 @@ tcp_slowtmr_start:
       err_arg = pcb->callback_arg;
       pcb2 = pcb;
       pcb = pcb->next;
-      tcp_free(pcb2);
+      memp_free(MEMP_TCP_PCB, pcb2);
 
       tcp_active_pcbs_changed = 0;
       TCP_EVENT_ERR(err_fn, err_arg, ERR_ABRT);
@@ -1255,7 +1237,7 @@ tcp_slowtmr_start:
       }
       pcb2 = pcb;
       pcb = pcb->next;
-      tcp_free(pcb2);
+      memp_free(MEMP_TCP_PCB, pcb2);
     } else {
       prev = pcb;
       pcb = pcb->next;
@@ -1743,6 +1725,15 @@ tcp_setrcvwnd(struct tcp_pcb *pcb, u32_t rcvwnd)
   }
 }
 
+void
+tcp_setsndbuf(struct tcp_pcb *pcb, u32_t sndbuf)
+{
+  /* This function is allowed to set rcv wnd */
+  if ((pcb != NULL) && (sndbuf != 0)) {
+    pcb->snd_buf = (tcpwnd_size_t)TCPWND_MIN16(sndbuf);
+  }
+}
+
 #if LWIP_CALLBACK_API
 
 /**
@@ -1785,7 +1776,7 @@ tcp_sent(struct tcp_pcb *pcb, tcp_sent_fn sent)
  * has occurred on the connection.
  *
  * @note The corresponding pcb is already freed when this callback is called!
- *
+ * 
  * @param pcb tcp_pcb to set the err callback
  * @param err callback function to call for this pcb when a fatal error
  *        has occurred on the connection

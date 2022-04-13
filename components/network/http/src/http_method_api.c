@@ -18,15 +18,18 @@ static HTTPC_RESULT httpclient_common(httpclient_t *client, const char *url, int
 
     ret = httpclient_conn(client, url);
 
-    if (!ret) {
+    if (!ret)
+    {
         ret = httpclient_send(client, url, method, client_data);
 
-        if (!ret) {
+        if (!ret)
+        {
             ret = httpclient_recv(client, client_data);
         }
     }
     /* Don't reset form data when got a redirected response */
-    if(client_data->is_redirected == 0) {
+    if (client_data->is_redirected == 0)
+    {
         httpclient_clear_form_data(client_data);
     }
 
@@ -39,14 +42,16 @@ HTTPC_RESULT httpclient_get(httpclient_t *client, const char *url, httpclient_da
 {
     int ret = httpclient_common(client, url, HTTP_GET, client_data);
 
-    while((0 == ret) && (1 == client_data->is_redirected)) {
+    while ((0 == ret) && (1 == client_data->is_redirected))
+    {
         ret = httpclient_common(client, client_data->redirect_url, HTTP_GET, client_data);
     }
 
-    if(client_data->redirect_url != NULL) {
+    if (client_data->redirect_url != NULL)
+    {
         free(client_data->redirect_url);
         client_data->redirect_url = NULL;
-	}
+    }
 
     return ret;
 }
@@ -55,14 +60,16 @@ HTTPC_RESULT httpclient_head(httpclient_t *client, const char *url, httpclient_d
 {
     int ret = httpclient_common(client, url, HTTP_HEAD, client_data);
 
-    while((0 == ret) && (1 == client_data->is_redirected)) {
+    while ((0 == ret) && (1 == client_data->is_redirected))
+    {
         ret = httpclient_common(client, client_data->redirect_url, HTTP_HEAD, client_data);
     }
 
-    if(client_data->redirect_url != NULL) {
+    if (client_data->redirect_url != NULL)
+    {
         free(client_data->redirect_url);
         client_data->redirect_url = NULL;
-	}
+    }
 
     return ret;
 }
@@ -71,11 +78,13 @@ HTTPC_RESULT httpclient_post(httpclient_t *client, const char *url, httpclient_d
 {
     int ret = httpclient_common(client, url, HTTP_POST, client_data);
 
-    while((0 == ret) && (1 == client_data->is_redirected)) {
+    while ((0 == ret) && (1 == client_data->is_redirected))
+    {
         ret = httpclient_common(client, client_data->redirect_url, HTTP_POST, client_data);
     }
 
-    if(client_data->redirect_url != NULL) {
+    if (client_data->redirect_url != NULL)
+    {
         free(client_data->redirect_url);
         client_data->redirect_url = NULL;
     }
@@ -87,11 +96,13 @@ HTTPC_RESULT httpclient_put(httpclient_t *client, const char *url, httpclient_da
 {
     int ret = httpclient_common(client, url, HTTP_PUT, client_data);
 
-    while((0 == ret) && (1 == client_data->is_redirected)) {
+    while ((0 == ret) && (1 == client_data->is_redirected))
+    {
         ret = httpclient_common(client, client_data->redirect_url, HTTP_PUT, client_data);
     }
 
-    if(client_data->redirect_url != NULL) {
+    if (client_data->redirect_url != NULL)
+    {
         free(client_data->redirect_url);
         client_data->redirect_url = NULL;
     }

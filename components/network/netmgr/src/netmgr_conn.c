@@ -5,11 +5,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "wifi_service.h"
+#include "netmgr_wifi.h"
 #include "netmgr_conn.h"
-#include "hal/wifi.h"
 #include "ulog/ulog.h"
 
+#undef TAG
 #define TAG "NETMGR_CONN"
 #define NETMGR_CONN_LOGE(level, ...)      LOGE(TAG, level, ##__VA_ARGS__)
 #define NETMGR_CONN_LOGI(level, ...)      LOGI(TAG, level, ##__VA_ARGS__)
@@ -17,7 +17,7 @@
 
 static netmgr_conn_t * g_netmgr_conn_list = NULL;
 
-netmgr_conn_t* netmgr_conn_init(int type)
+netmgr_conn_t* netmgr_conn_init(netmgr_type_t type)
 {
     netmgr_conn_t* conn = (netmgr_conn_t *)malloc(sizeof(netmgr_conn_t));
     if(conn == NULL) {
@@ -62,9 +62,13 @@ int netmgr_conn_deinit(netmgr_conn_t* conn)
 
 int conn_disconnecting(netmgr_conn_t* conn)
 {
+    if((conn->state != CONN_STATE_DISCONNECTED)
+        &&(conn->state != CONN_STATE_DISCONNECTING)) {
         NETMGR_CONN_LOGI("%s:%d old state=%d\n", __func__, __LINE__, conn->state);
         conn->state = CONN_STATE_DISCONNECTING;
         return conn->disconnecting_cb(conn);
+    }
+    return 0;
 }
 
 int conn_disconnected(netmgr_conn_t* conn)
@@ -79,11 +83,11 @@ int conn_connecting(netmgr_conn_t* conn)
     NETMGR_CONN_LOGI("%s:%d\n", __func__, __LINE__);
     if((conn->state != CONN_STATE_DISCONNECTED)
        &&(conn->state != CONN_STATE_CONNECTING)) {
-    NETMGR_CONN_LOGE("%s:%d wrong state=%d\n", __func__, __LINE__, conn->state);
+        NETMGR_CONN_LOGE("%s:%d wrong state=%d\n", __func__, __LINE__, conn->state);
         conn->state = CONN_STATE_FAILED;
         return conn->failed_cb(conn);
     } else {
-    NETMGR_CONN_LOGI("%s:%d\n", __func__, __LINE__);
+        NETMGR_CONN_LOGI("%s:%d\n", __func__, __LINE__);
         conn->state = CONN_STATE_CONNECTING;
         return 0;
     }
@@ -120,11 +124,11 @@ int conn_network_connected(netmgr_conn_t* conn)
 {
     if((conn->state != CONN_STATE_OBTAINING_IP)
       &&(conn->state != CONN_STATE_NETWORK_CONNECTED)) {
-    NETMGR_CONN_LOGE("%s:%d wrong state=%d\n", __func__, __LINE__, conn->state);
+        NETMGR_CONN_LOGE("%s:%d wrong state=%d\n", __func__, __LINE__, conn->state);
         conn->state = CONN_STATE_FAILED;
         return conn->failed_cb(conn);
     } else {
-    NETMGR_CONN_LOGI("%s:%d\n", __func__, __LINE__);
+        NETMGR_CONN_LOGI("%s:%d\n", __func__, __LINE__);
         conn->state = CONN_STATE_NETWORK_CONNECTED;
         return conn->network_connected_cb(conn);
     }
@@ -138,7 +142,7 @@ int conn_failed(netmgr_conn_t* conn)
     }
 
     if(conn->state != CONN_STATE_CONNECTED) {
-    NETMGR_CONN_LOGE("%s:%d wrong state=%d\n", __func__, __LINE__, conn->state);
+        NETMGR_CONN_LOGE("%s:%d wrong state=%d\n", __func__, __LINE__, conn->state);
         conn->state = CONN_STATE_FAILED;
         return conn->failed_cb(conn);
     } else {
@@ -153,35 +157,35 @@ int netmgr_conn_state_change(netmgr_conn_t *conn, netmgr_conn_state_t new_state)
     NETMGR_CONN_LOGI("%s:%d new_state=%d old_state=%d\n", __func__, __LINE__, new_state, conn->state);
     switch (new_state) {
         case CONN_STATE_DISCONNECTING:
-    NETMGR_CONN_LOGD("%s:%d\n", __func__, __LINE__);
+            NETMGR_CONN_LOGD("%s:%d\n", __func__, __LINE__);
             conn_disconnecting(conn);
             break;
         case CONN_STATE_DISCONNECTED:
-    NETMGR_CONN_LOGD("%s:%d\n", __func__, __LINE__);
+            NETMGR_CONN_LOGD("%s:%d\n", __func__, __LINE__);
             conn_disconnected(conn);
             break;
         case CONN_STATE_CONNECTING:
-    NETMGR_CONN_LOGD("%s:%d\n", __func__, __LINE__);
+            NETMGR_CONN_LOGD("%s:%d\n", __func__, __LINE__);
             conn_connecting(conn);
             break;
         case CONN_STATE_CONNECTED:
-    NETMGR_CONN_LOGD("%s:%d\n", __func__, __LINE__);
+            NETMGR_CONN_LOGD("%s:%d\n", __func__, __LINE__);
             conn_connected(conn);
             break;
         case CONN_STATE_OBTAINING_IP:
-    NETMGR_CONN_LOGD("%s:%d\n", __func__, __LINE__);
+            NETMGR_CONN_LOGD("%s:%d\n", __func__, __LINE__);
             conn_obtaining_ip(conn);
             break;
         case CONN_STATE_NETWORK_CONNECTED:
-    NETMGR_CONN_LOGD("%s:%d\n", __func__, __LINE__);
+            NETMGR_CONN_LOGD("%s:%d\n", __func__, __LINE__);
             conn_network_connected(conn);
             break;
         case CONN_STATE_FAILED:
         default:
             if(conn != NULL) {
                 NETMGR_CONN_LOGE("%s:%d old state=%d new state=%d\n", __func__, __LINE__, conn->state, new_state);
+                conn_failed(conn);
             }
-            conn_failed(conn);
             break;
     }
     return 0;

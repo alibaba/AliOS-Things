@@ -11,7 +11,7 @@
  * \#define lwip_htonl(x) your_htonl
  *
  * Note lwip_ntohs() and lwip_ntohl() are merely references to the htonx counterparts.
- *
+ * 
  * If you \#define them to htons() and htonl(), you should
  * \#define LWIP_DONT_PROVIDE_BYTEORDER_FUNCTIONS to prevent lwIP from
  * defining htonx/ntohx compatibility macros.
@@ -183,8 +183,7 @@ lwip_strnicmp(const char* str1, const char* str2, size_t len)
         return 1;
       }
     }
-    len--;
-  } while ((len != 0) && (c1 != 0));
+  } while (len-- && c1 != 0);
   return 0;
 }
 #endif
@@ -198,43 +197,26 @@ lwip_strnicmp(const char* str1, const char* str2, size_t len)
 void
 lwip_itoa(char* result, size_t bufsize, int number)
 {
-  char *res = result;
-  char *tmp = result + bufsize - 1;
-  int n = (number >= 0) ? number : -number;
+  const int base = 10;
+  char* ptr = result, *ptr1 = result, tmp_char;
+  int tmp_value;
+  LWIP_UNUSED_ARG(bufsize);
 
-  /* handle invalid bufsize */
-  if (bufsize < 2) {
-    if (bufsize == 1) {
-      *result = 0;
-    }
-    return;
-  }
+  do {
+    tmp_value = number;
+    number /= base;
+    *ptr++ = "zyxwvutsrqponmlkjihgfedcba9876543210123456789abcdefghijklmnopqrstuvwxyz"[35 + (tmp_value - number * base)];
+  } while(number);
 
-  /*  First, add sign */
-  if (number < 0) {
-    *res++ = '-';
+   /* Apply negative sign */
+  if (tmp_value < 0) {
+     *ptr++ = '-';
   }
-  /*  Then create the string from the end and stop if buffer full,
-      and ensure output string is zero terminated */
-  *tmp = 0;
-  while ((n != 0) && (tmp > res)) {
-    char val = (char)('0' + (n % 10));
-    tmp--;
-    *tmp = val;
-    n = n / 10;
+  *ptr-- = '\0';
+  while(ptr1 < ptr) {
+    tmp_char = *ptr;
+    *ptr--= *ptr1;
+    *ptr1++ = tmp_char;
   }
-  if (n) {
-    /* buffer is too small */
-    *result = 0;
-    return;
-  }
-  if (*tmp == 0) {
-    /*  Nothing added? */
-    *res++ = '0';
-    *res++ = 0;
-    return;
-  }
-  /*  move from temporary buffer to output buffer (sign is not moved) */
-  memmove(res, tmp, (size_t)((result + bufsize) - tmp));
 }
 #endif

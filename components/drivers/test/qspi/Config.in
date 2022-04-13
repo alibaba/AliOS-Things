@@ -1,0 +1,5 @@
+menuconfig AOS_COMP_U_QSPI_TEST
+    bool "qspi test driver"
+    default n
+    help
+        AliOS qspi test module

@@ -1,0 +1,27 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_SELECT
+    bool
+    select AOS_COMP_VFS
+    default y
+    help
+        multiplexing implementation
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_SELECT
+    bool "select"
+    default n
+    select AOS_COMP_VFS
+    help
+        multiplexing implementation
+endif
+if AOS_COMP_SELECT
+config CONFIG_SELECT_SYSCALL
+    bool
+    default y
+    help
+        enable poll/select syscall
+endif
+###################################################################
+# Component configuration items

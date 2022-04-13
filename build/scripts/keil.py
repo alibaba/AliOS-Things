@@ -40,10 +40,8 @@ from config_mk import Projects
 AOS_RELATIVE_PATH = "../../../../"
 OPT_DIR = "opts/"
 TEMPLATE_PROJX = "build/scripts/template.uvprojx"
-TEMPLATE_PROJX_BOARD = "build/scripts/template_%s.uvprojx"
 TEMPLATE_OPTX = "build/scripts/template.uvoptx"
-TEMPLATE_OPTX_BOARD = "build/scripts/template_%s.uvoptx"
-appdir = ""
+
 # Elements need to be changed:
 element_dict = {
     "TargetName": { "xpath": "Targets/Target/TargetName" },
@@ -58,12 +56,6 @@ element_dict = {
     "MiscControls_cflags": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Cads/VariousControls/MiscControls" },
     "MiscControls_asmflags": { "xpath": "Targets/Target/TargetOption/TargetArmAds/Aads/VariousControls/MiscControls" },
 }
-
-def convert_file_name(filename):
-	"""get the right path for relative path"""
-	if not os.path.isabs(filename):
-		filename = AOS_RELATIVE_PATH + filename
-	return filename
 
 def create_file(data, filename):
     """ Create *_opts files """
@@ -88,12 +80,7 @@ def get_element_value(element_dict, buildstring):
     patten = re.compile(r"(.*)-L\s+--scatter=(.*\.sct)(.*)")
     match = patten.match(config_mk.global_ldflags)
     if match:
-        global appdir
-        if appdir == "":
-            scatterfile = convert_file_name(match.group(2))
-        else:
-            aos_sdk = os.environ.get("AOS_SDK_PATH")
-            scatterfile = os.path.join(aos_sdk, match.group(2))
+        scatterfile = AOS_RELATIVE_PATH + match.group(2)
         element_dict["ScatterFile"]["value"] = scatterfile
 
         tmp_ldflags = match.group(1) + match.group(3)
@@ -109,9 +96,9 @@ def get_element_value(element_dict, buildstring):
     element_dict["Define"]["value"] = config_mk.global_defines.replace(" ",",")
 
     # IncludePath = global include dirs splitted by ";"
-    include_path = config_mk.global_includes
+    include_path = config_mk.global_includes.replace("./", "")
     include_path = include_path.replace("-I","")
-    include_path = ";".join([convert_file_name(item) for item in include_path.split()])
+    include_path = ";".join([AOS_RELATIVE_PATH + item for item in include_path.split()])
     element_dict["IncludePath"]["value"] = include_path
 
     # MiscControls_cflags = global cflags
@@ -147,6 +134,7 @@ def add_group(parent, name, files, project_path):
         </File>
       </Files>
     """
+    cur_encoding = sys.getfilesystemencoding()
     group = SubElement(parent, 'Group')
     group_name = SubElement(group, 'GroupName')
     group_name.text = name
@@ -157,11 +145,11 @@ def add_group(parent, name, files, project_path):
         file_name = SubElement(file, 'FileName')
         name = os.path.basename(f)
 
-        file_name.text = name
+        file_name.text = name.decode(cur_encoding)
         file_type = SubElement(file, 'FileType')
         file_type.text = '%d' % file_type_value(name)
         file_path = SubElement(file, 'FilePath')
-        file_path.text = convert_file_name(f)
+        file_path.text = (AOS_RELATIVE_PATH + f).decode(cur_encoding)
 
     return group
 
@@ -194,15 +182,10 @@ def gen_projxfile(tree, target, buildstring, Projects):
     for group in Projects:
         # don't add an empty group
         if len(group['src']) != 0:
-            if group['name'] == 'sensor':
-                global appdir
-                if appdir == "":
-                    filename = './projects/Keil/gen_sensor.c'
-                else:
-                    filename = os.path.join(appdir, './projects/Keil/gen_sensor.c')
-                gen_sensor_cb_3rd.process(group['src'],filename)
-                group['src'].append(filename)
 
+	    if group['name'] == 'sensor':
+	    	gen_sensor_cb_3rd.process(group['src'],'./projects/Keil/gen_sensor.c')
+		group['src'].append('./projects/Keil/gen_sensor.c')
 
             group_tree = add_group(groups, group['name'], group['src'], project_path)
 
@@ -230,7 +213,7 @@ def gen_projxfile(tree, target, buildstring, Projects):
     gen_indent(root)
     
     with open(target, 'wb') as f:
-        f.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n'.encode())
+        f.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n')
         f.write(etree.tostring(root, encoding='utf-8'))
 
 def gen_optxfile(optx_tree, optx_file, buildstring):
@@ -243,26 +226,13 @@ def gen_optxfile(optx_tree, optx_file, buildstring):
 def main():
     # buildstring, eg: nano@b_l475e
     buildstring = sys.argv[1]
-    global appdir
-    appdir = ""
-    if len(sys.argv) > 2:
-        appdir = sys.argv[2]
 
     projx_file = "projects/Keil/%s/keil_project/%s.uvprojx" % (buildstring, buildstring)
-    projx_file = os.path.join(appdir, projx_file)
     optx_file = projx_file.replace('.uvprojx', '.uvoptx')
 
-    print("Creating keil project %s" % (buildstring))
-    boardname = buildstring.split("@")[1]
-    projxfilename = TEMPLATE_PROJX_BOARD % (boardname)
-    if os.path.exists(projxfilename) == False:
-        projxfilename = TEMPLATE_PROJX
-    projx_tree = etree.parse(projxfilename)
-    
-    optfilename = TEMPLATE_OPTX_BOARD % (boardname)
-    if os.path.exists(optfilename) == False:
-        optfilename = TEMPLATE_OPTX
-    optx_tree = etree.parse(optfilename)
+    print "Creating keil project %s" % (buildstring)
+    projx_tree = etree.parse(TEMPLATE_PROJX)
+    optx_tree = etree.parse(TEMPLATE_OPTX)
 
     # create uvprojx file
     gen_projxfile(projx_tree, projx_file, buildstring, Projects)
@@ -270,12 +240,12 @@ def main():
     # create uvoptx file
     gen_optxfile(optx_tree, optx_file, buildstring)
 
-    # copy aos_config.h to project dir
-    aos_config_h = os.path.join(appdir, "aos_config.h")
-    if os.path.isfile(aos_config_h):
-        shutil.copyfile(aos_config_h, os.path.join(os.path.dirname(projx_file), "aos_config.h"))
+    # copy out/config/autoconf.h to project dir
+    autoconf_h = "out/config/autoconf.h"
+    if os.path.isfile(autoconf_h):
+        shutil.copyfile(autoconf_h, os.path.join(os.path.dirname(projx_file), "autoconf.h"))
 
-    print("Keil project created at %s" % (projx_file))
+    print "Keil project created at %s" % (projx_file)
 
 if __name__ == "__main__":
     main()

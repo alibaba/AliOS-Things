@@ -41,6 +41,9 @@
 #if !NO_SYS /* don't build if not configured for use in lwipopts.h */
 
 #include "lwip/priv/tcpip_priv.h"
+#if LWIP_NETCONN_SEM_PER_THREAD
+#include "lwip/priv/api_msg.h"
+#endif
 #include "lwip/sys.h"
 #include "lwip/memp.h"
 #include "lwip/mem.h"
@@ -193,6 +196,7 @@ tcpip_signal_netif_event(struct netif *inp, u32_t event, netif_drv_fn drv_fn)
   msg->msg.drv.event = event;
   msg->msg.drv.drv_fn = drv_fn;
   if (sys_mbox_trypost(&mbox, msg) != ERR_OK) {
+    printf("tcpip_thread:%d try post failed\n", __LINE__);
     memp_free(MEMP_NETIF_DRV_MSG, msg);
     return ERR_MEM;
   }
@@ -232,6 +236,7 @@ tcpip_inpkt(struct pbuf *p, struct netif *inp, netif_input_fn input_fn)
   msg->msg.inp.netif = inp;
   msg->msg.inp.input_fn = input_fn;
   if (sys_mbox_trypost(&mbox, msg) != ERR_OK) {
+    printf("tcpip_thread:%d try post failed\n", __LINE__);
     memp_free(MEMP_TCPIP_MSG_INPKT, msg);
     return ERR_MEM;
   }
@@ -300,6 +305,7 @@ tcpip_callback_with_block(tcpip_callback_fn function, void *ctx, u8_t block)
     sys_mbox_post(&mbox, msg);
   } else {
     if (sys_mbox_trypost(&mbox, msg) != ERR_OK) {
+      printf("tcpip_thread:%d try post failed\n", __LINE__);
       memp_free(MEMP_TCPIP_MSG_API, msg);
       return ERR_MEM;
     }
@@ -512,6 +518,11 @@ tcpip_trycallback(struct tcpip_callback_msg* msg)
 void
 tcpip_init(tcpip_init_done_fn initfunc, void *arg)
 {
+  ktask_t *handle;
+
+  /* Add srand seed to randomize tcp local port */
+  srand(LR_COUNT_GET());
+
   lwip_init();
 
   tcpip_init_done = initfunc;
@@ -525,7 +536,8 @@ tcpip_init(tcpip_init_done_fn initfunc, void *arg)
   }
 #endif /* LWIP_TCPIP_CORE_LOCKING */
 
-  sys_thread_new(TCPIP_THREAD_NAME, tcpip_thread, NULL, TCPIP_THREAD_STACKSIZE, TCPIP_THREAD_PRIO);
+  handle = sys_thread_new(TCPIP_THREAD_NAME, tcpip_thread, NULL, TCPIP_THREAD_STACKSIZE, TCPIP_THREAD_PRIO);
+  krhino_sched_policy_set(handle, KSCHED_RR, TCPIP_THREAD_PRIO);
 }
 
 /**

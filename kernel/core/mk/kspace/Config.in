@@ -1,0 +1,72 @@
+
+config AOS_CONFIG_USER_SPACE
+    bool "aos micro kernel"
+    select AOS_COMP_KSYSCALL
+    select RHINO_CONFIG_USER_SPACE
+    default y
+    help
+        "enable micro kernel feature for AliOS Things"
+
+
+menu "micro kernel Configuration"
+    depends on AOS_CONFIG_USER_SPACE
+
+config RHINO_CONFIG_USER_SPACE
+    bool "rhino micro kernel"
+    default y
+    help
+        "enable kernel feature for rhino"
+
+config RHINO_CONFIG_UCLI
+    bool "UCLI"
+    default y
+    help
+        "enable user space application uses CLI"
+
+config RHINO_CONFIG_URES
+    bool "URES"
+    default y
+    help
+        "support kernel uses user space memory"
+
+config RHINO_CONFIG_USIGNAL
+    bool "USIGNAL"
+    default y
+    help
+        "support signal for aos micro kernel."
+
+config RHINO_CONFIG_UIPC
+    bool "UIPC"
+    default n
+    help
+        "support user space IPC"
+
+config RHINO_CONFIG_UCALLBACK
+    bool "UCALLBACK"
+    default n
+    help
+        "support user space callback"
+
+config RHINO_CONFIG_UFS
+    bool "UFS"
+    select RHINO_CONFIG_VFS_SYSCALL
+    default n
+    help
+        "support user space VFS"
+
+config RHINO_CONFIG_UTCPIP
+    bool "UTCPIP"
+    select CONFIG_AOS_TCPIP
+    select RHINO_CONFIG_LWIP_SYSCALL
+    help
+        "support user space TCPIP"
+
+config CONFIG_ASH_SCRIPT_FILE_NAME
+    string "ash script file name"
+    default "/system/aos.d"
+
+source "kernel/core/mk/syscall/ksyscall/Config.in"
+
+endmenu
+
+source "kernel/core/mk/kspace/core_ipc/Config.in"

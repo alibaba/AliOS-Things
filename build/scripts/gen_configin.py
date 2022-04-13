@@ -26,7 +26,7 @@ def update_config_in(config_file, config_list):
             if match:
                 config_tmp = match.group(1)
                 if "linkkit/" in config_file and "$SRCPATH" in config_tmp:
-                    config_tmp = re.sub(r"\$SRCPATH/", "middleware/linkkit/", config_tmp)
+                    config_tmp = re.sub(r"\$SRCPATH/", "middleware/linkkit/sdk-c/", config_tmp)
 
                 if not re.sub(r'"', "", config_tmp) in config_list:
                     continue
@@ -62,11 +62,11 @@ def get_opt_config(config_file, keyword, sdir):
                         opt_config = "%s/Config.in" % root
                 if opt_config:
                     break
-    #if not opt_name:
-    #    print("Warning: Can't found %s from %s ..." % (keyword, config_file))
+    if not opt_name:
+        print("Warning: Can't found %s from %s ..." % (keyword, config_file))
 
-    #if opt_name and not opt_config:
-    #    print("Warning: The option is not defined %s ..." % (opt_name))
+    if opt_name and not opt_config:
+        print("Warning: The option is not defined %s ..." % (opt_name))
 
     return (opt_name, opt_config)
 
@@ -196,6 +196,7 @@ def main():
         if 'Config.in' in files:
             config_file = "%s/Config.in" % root.replace(source_root, "")
             config_list += [config_file]
+
     templates = os.listdir(templatedir)
     for template in templates:
         destdir = re.sub(r"\.Config\.in", "", template)
@@ -205,12 +206,14 @@ def main():
 
         if os.path.isdir(destdir):
             if "linkkit/Config.in" in destfile:
-                if not os.path.isfile(re.sub(r"Config.in", "aos.mk", destfile)):
+                if not os.path.isfile(re.sub(r"Config.in", "sdk-c/aos.mk", destfile)):
                     continue
 
             shutil.copyfile(sourcefile, destfile)
             config_list += [destfile]
 
+    if os.path.isfile("middleware/linkkit/sdk-c/Config.linkkit"):
+        config_list += ["middleware/linkkit/sdk-c/Config.linkkit"]
 
     # Update config files according to installed comps
     for config_file in config_list:

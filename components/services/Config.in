@@ -1,0 +1,10 @@
+menu "Services Configurations"
+
+source "./components/services/uservice/Config.in"
+source "./components/services/ulog/Config.in"
+source "./components/services/und/Config.in"
+source "./components/services/ota/Config.in"
+source "./components/services/yloop/Config.in" #deprecated
+source "./components/services/select/Config.in" #deprecated
+
+endmenu

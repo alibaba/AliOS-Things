@@ -405,6 +405,11 @@ int mbedtls_ctr_drbg_reseed( mbedtls_ctr_drbg_context *ctx,
      */
     if( additional && len )
     {
+        if (((seedlen + len) >= MBEDTLS_CTR_DRBG_MAX_SEED_INPUT) ||
+            (seedlen >= MBEDTLS_CTR_DRBG_MAX_SEED_INPUT))
+        {
+            return MBEDTLS_ERR_CTR_DRBG_ENTROPY_SOURCE_FAILED;
+        }
         memcpy( seed + seedlen, additional, len );
         seedlen += len;
     }

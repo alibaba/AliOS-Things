@@ -1,0 +1,6 @@
+menuconfig AOS_COMP_U_WDG
+    select AOS_COMP_DEVICEVFS
+    bool "watch dog core module"
+    default n
+    help
+        AliOS watch dog module core layer

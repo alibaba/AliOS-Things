@@ -1,6 +1,6 @@
 import sys, os
 
-component_mk_str = "#warning: aos auto component, don't change everything here.\nNAME := auto_component\n$(NAME)_TYPE := kernel\n"
+component_mk_str = "#warning: aos auto component, don't change everything here.\nNAME := auto_component\n$(NAME)_MBINS_TYPE := share"
 
 if len(sys.argv) == 2:
    file_dir = os.path.join(os.getcwd(), sys.argv[1])

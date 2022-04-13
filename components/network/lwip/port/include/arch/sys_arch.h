@@ -35,6 +35,8 @@
 #include <errno.h>
 #include "aos/kernel.h"
 
+#include "k_api.h"
+
 #define SYS_MBOX_NULL NULL
 #define SYS_SEM_NULL  NULL
 
@@ -44,13 +46,14 @@ struct sys_mbox_msg {
 };
 
 typedef aos_sem_t sys_sem_t;
-
+extern int aos_sem_is_valid(aos_sem_t *sem);
 #define sys_sem_valid(sem)           aos_sem_is_valid(sem)
 #define sys_sem_set_invalid(sem)     do { if(sem != NULL) { (sem)->hdl = NULL; }}while(0)
 
 typedef u32_t sys_prot_t;
 
 typedef aos_mutex_t sys_mutex_t;
+extern int aos_mutex_is_valid(aos_hdl_t *mutex);
 #define sys_mutex_valid(mutex)       aos_mutex_is_valid(mutex)
 #define sys_mutex_set_invalid(mutex) do { if(mutex != NULL) { (mutex)->hdl = NULL; }}while(0)
 
@@ -71,6 +74,7 @@ typedef struct sys_mbox *sys_mbox_t;
 #define sys_mbox_set_invalid(mbox) #error TODO:impl
 #else
 typedef aos_queue_t sys_mbox_t;
+extern int aos_queue_is_valid(aos_hdl_t *hdl);
 #define sys_mbox_valid(mbox)       aos_queue_is_valid(mbox)
 #define sys_mbox_set_invalid(mbox) do { if(mbox != NULL) { (mbox)->hdl = NULL; }}while(0)
 #endif

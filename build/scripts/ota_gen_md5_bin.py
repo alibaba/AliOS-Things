@@ -43,11 +43,27 @@ def hashcalculate(type, indata):
     value = hashmethod.digest()
     return value
 
+def get_image_magic(image_magic):
+    if image_magic == '0xabababab':
+        tmp_magic = 0xabababab
+    elif image_magic == '0xcdcdcdcd':
+        tmp_magic = 0xcdcdcdcd
+    elif image_magic == '0xabcdabcd':
+        tmp_magic = 0xabcdabcd
+    elif image_magic == '0xefefefef':
+        tmp_magic = 0xefefefef
+    elif image_magic == '0xefcdefcd':
+        tmp_magic = 0xefcdefcd
+    else:
+        tmp_magic = 0xefefefef
+    return tmp_magic
+
 def print_usage():
     print("")
     print("Usage: Merge a bin file into an exist bin file, create one if target is not exist")
     print(sys.argv[0])
     print("Optional Usage:")
+    print(" [-i] <input binary file>")
     print(" [-o] <target binary file>")
     print(" [-m] <image magic type>")
     print(" [-h | --help] Display usage")
@@ -56,49 +72,49 @@ def print_usage():
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'o:m:h')
+        opts,args = getopt.getopt(sys.argv[1:], "ho:m:i:")
     except getopt.GetoptError as err:
         print(str(err))
         print_usage()
         sys.exit(2)
-
-    if not len(args) == 3:
+    magic_str = ''
+    if not len(opts) == 2:
         print_usage()
         sys.exit(2)
-    else:
-        INPUT_FILE = args[0]
+    for opt, arg in opts:
+        if opt in ["-o"]:
+           OUTPUT_FILE = arg
+        elif opt in ["-m"]:
+            magic_str = arg
+            #print('magic = ' + arg)
+        elif opt in ["-i"]:
+            INPUT_FILE = arg
+            #print("input file = " + INPUT_FILE)
+        elif opt in ["-h"]:
+            print_usage()
+            sys.exit()
     if not os.path.exists(INPUT_FILE):
         print("Please input a binary file")
         sys.exit(2)
-    for opt, arg in opts:
-        if opt == "-o":
-            OUTPUT_FILE = arg 
-        elif opt == "-m":
-            magic_str = arg
-        elif opt == "-h":
-            print_usage()
-            sys.exit()
     try:
-        with open(INPUT_FILE, 'rb') as hfin:    
+        with open(INPUT_FILE, 'rb') as hfin:
             imagedata = hfin.read()
-            #print("filelen = " + str(len(imagedata)))
     except FileNotFoundError:
         print(INPUT_FILE + " is not exist!")
         sys.exit(2)
     except:
         print("read " + INPUT_FILE + " failed!")
         sys.exit(2)
-
-    image_alignment = 0xffffffff
-    imagedata += struct.pack('<I', image_alignment)
-    image_info_magic = 0xefefefef
+    image_info_magic = get_image_magic(magic_str)
     image_valid_len = len(imagedata)
     image_md5 = hashcalculate("md5", imagedata)
     image_num = 0x01
     image_res = 0x00
     image_crc16 = crc16_calculate(bytearray(imagedata), image_valid_len)
 
+    image_alignment = 0xffffffff
     newimagedata = imagedata[0:image_valid_len]
+    newimagedata += struct.pack('<I', image_alignment)
     newimagedata += struct.pack('<I', image_info_magic)
     newimagedata += struct.pack('<I', image_valid_len)
     newimagedata += image_md5

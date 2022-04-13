@@ -27,81 +27,40 @@ choice
 config AOS_APP_NULL
     bool "Null"
 
-#source "application/example/example_legacy/Config.in"
-source "application/example/Config.in"
-source "application/profile/Config.in"
-source "application/Config.in"
+if AOS_APP_NULL
+    config AOS_APP_COMP_MAKE_ONLY
+        bool "compile component"
+        default n
+if AOS_APP_COMP_MAKE_ONLY
+    config AOS_BUILD_APP
+        default "comp_make_only"
+
+    config AOS_BUILD_ARCH
+        string "arch"
+        default "arch_comp_make"
+
+    config AOS_BUILD_COMPNAME
+        string "compname"
+        default "compname_comp_make"
+
+endif
+endif
+source "projects/Config.in"
 endchoice
 endmenu
 
-source "platform/board/Config.in"
+source "vendor/Config.in"
 
 menu "Kernel      Configuration"
-source "core/Config.in"
-source "core/osal/aos/Config.in"
-source "core/osal/posix/Config.in"
-source "core/osal/cmsis/Config.in"
+source "kernel/Config.in"
+source "kernel/core/osal/aos/Config.in"
+source "kernel/core/osal/posix/Config.in"
+source "kernel/core/osal/cmsis/Config.in"
 endmenu
 
-source "components/peripherals/Config.in"
-
-menu "Network     Configuration"
-source "components/network/Config.in"
-source "components/wireless/bluetooth/ble/breeze/Config.in"
-source "components/wireless/bluetooth/ble/breeze/ref-impl/Config.in"
-source "components/wireless/bluetooth/ble/host/Config.in"
-source "components/wireless/bluetooth/ble/host/bt_common/Config.in"
-source "components/wireless/bluetooth/ble/host/profile/Config.in"
-source "components/wireless/bluetooth/blemesh/Config.in"
-source "components/wireless/bluetooth/bt_stack/host/Config.in"
-source "components/network/coap/Config.in"
-source "components/network/libsrtp/Config.in"
-source "components/wireless/lorawan/Config.in"
-source "components/wireless/lorawan/lorawan_4_4_0/Config.in"
-source "components/wireless/lorawan/lorawan_4_4_2/Config.in"
-source "components/network/lwip/Config.in"
-source "components/network/lwm2m/Config.in"
-source "components/network/sal/Config.in"
-source "components/utility/at/Config.in"
-source "components/network/netmgr/Config.in"
-source "components/network/rtp/Config.in"
-source "components/utility/yloop/Config.in"
-source "components/network/umesh2/Config.in"
-source "components/network/http/Config.in"
-source "components/dm/und/Config.in"
-source "components/network/websocket/Config.in"
-source "components/network/sntp/Config.in"
-source "components/network/httpdns/Config.in"
-source "components/network/mal/Config.in"
-endmenu
 
 menu "Middleware  Configuration"
-#source "components/amp/Config.in"
-source "components/linkkit/Config.in"
-source "components/dm/uagent/Config.in"
-source "components/service/udata/Config.in"
-source "components/service/ulocation/Config.in"
-source "components/service/uai/Config.in"
-source "components/fs/ramfs/Config.in"
-source "components/bus/mbmaster/Config.in"
-source "components/bus/usb/Config.in"
-source "components/bus/canopen/Config.in"
-source "components/bus/knx/Config.in"
-source "components/network/netmgr/activation/Config.in"
-source "components/network/netmgr/activation/chip_code/Config.in"
-source "components/dm/ulog/Config.in"
-source "components/dm/ota/Config.in"
-source "components/language/jsengine/Config.in"
+source "./components/Config.in"
 endmenu
 
-source "components/security/linksecurity/Config.in"
-
-menu "Utility     Configuration"
-source "components/utility/cjson/Config.in"
-source "components/security/mbedtls/Config.in"
-source "components/utility/zlib/Config.in"
-source "core/rbtree/Config.in"
-endmenu
-
-source "test/Config.in"
-
+source "kernel/core/mk/uspace_lib/Config.in"

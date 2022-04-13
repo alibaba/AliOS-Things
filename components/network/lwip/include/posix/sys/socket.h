@@ -30,4 +30,5 @@
  *
  */
 
-#include "lwip/sockets.h"
+//#include "lwip/sockets.h"
+#include <sys/socket.h>

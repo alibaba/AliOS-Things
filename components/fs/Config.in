@@ -1,0 +1,5 @@
+menu "FS Configurations"
+
+source "./components/fs/littlefs/Config.in"
+source "./components/fs/romfs/Config.in"
+endmenu

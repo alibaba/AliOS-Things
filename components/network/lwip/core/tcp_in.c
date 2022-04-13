@@ -379,7 +379,7 @@ tcp_input(struct pbuf *p, struct netif *inp)
            deallocate the PCB. */
         TCP_EVENT_ERR(pcb->errf, pcb->callback_arg, ERR_RST);
         tcp_pcb_remove(&tcp_active_pcbs, pcb);
-        tcp_free(pcb);
+        memp_free(MEMP_TCP_PCB, pcb);
       } else {
         err = ERR_OK;
         /* If the application has registered a "sent" function to be
@@ -615,6 +615,8 @@ tcp_listen_input(struct tcp_pcb_listen *pcb)
         npcb->usr_rcv_wnd = pcb->usr_rcv_wnd;
         npcb->rcv_wnd = npcb->rcv_ann_wnd = npcb->usr_rcv_wnd;
     }
+
+
 #if TCP_CALCULATE_EFF_SEND_MSS
     npcb->mss = tcp_eff_send_mss(npcb->mss, &npcb->local_ip, &npcb->remote_ip);
 #endif /* TCP_CALCULATE_EFF_SEND_MSS */
@@ -1867,10 +1869,10 @@ tcp_parseopt(struct tcp_pcb *pcb)
           pcb->flags |= TF_WND_SCALE;
 
           if(pcb->usr_rcv_wnd == 0) {
-          /* window scaling is enabled, we can use the full receive window */
-          LWIP_ASSERT("window not at default value", pcb->rcv_wnd == TCPWND_MIN16(TCP_WND));
-          LWIP_ASSERT("window not at default value", pcb->rcv_ann_wnd == TCPWND_MIN16(TCP_WND));
-          pcb->rcv_wnd = pcb->rcv_ann_wnd = TCP_WND;
+              /* window scaling is enabled, we can use the full receive window */
+              LWIP_ASSERT("window not at default value", pcb->rcv_wnd == TCPWND_MIN16(TCP_WND));
+              LWIP_ASSERT("window not at default value", pcb->rcv_ann_wnd == TCPWND_MIN16(TCP_WND));
+              pcb->rcv_wnd = pcb->rcv_ann_wnd = TCP_WND;
           }
           else {
               pcb->rcv_wnd = pcb->rcv_ann_wnd = pcb->usr_rcv_wnd;

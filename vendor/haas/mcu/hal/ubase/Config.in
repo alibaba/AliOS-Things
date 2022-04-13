@@ -1,0 +1,7 @@
+config AOS_MCU_V_UBASE_DRV
+    bool "v_ubase_drv"
+    help
+        ubase haas1000.
+
+
+

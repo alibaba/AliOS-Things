@@ -1,0 +1,5 @@
+create libhaas1000_dma.a
+addmod hal_xdma.o
+addmod hal_dma.o
+save
+end

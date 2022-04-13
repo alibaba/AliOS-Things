@@ -1,0 +1,6 @@
+source "./components/drivers/Config.in"
+source "./components/fs/Config.in"
+source "./components/network/Config.in"
+source "./components/security/Config.in"
+source "./components/services/Config.in"
+source "./components/utilities/Config.in"

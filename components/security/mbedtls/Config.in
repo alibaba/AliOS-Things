@@ -1,17 +1,4 @@
-###################################################################
-# Component enable/disable selection
-# in the updated build system, default is y and can not be disabled
-if AOS_CREATE_PROJECT
-config AOS_COMP_MBEDTLS
-    bool 
-    default y
-# do NOT select depend component in this file
-# use $(NAME)_COMPONENTS in aos.mk
-endif
-
-# Backward compatibility
-if !AOS_CREATE_PROJECT
-config AOS_COMP_MBEDTLS
+menuconfig AOS_COMP_MBEDTLS
     bool "Mbed TLS 2.16.0"
     default n
     help
@@ -19,12 +6,9 @@ config AOS_COMP_MBEDTLS
         (AES, RSA, MD5/SHA1/SHA256/SHA512 etc.), X.509 certificate and
         TLS/DTLS protocol support. For details, please refer to
         https://tls.mbed.org/.
-endif
 
-###################################################################
+if AOS_COMP_MBEDTLS
 # Configurations for component mbedtls
-menu "Mbedtls Configuration"
-depends on AOS_COMP_MBEDTLS
 
 config MBEDTLS_CONFIG_USER_CONFIG
     bool "mbedtls user extra configuration"
@@ -154,7 +138,7 @@ config MBEDTLS_CONFIG_CRYPTO_MODE_CBC
 
 config MBEDTLS_CONFIG_CRYPTO_MODE_CFB
     bool "Cipher Feedback mode (CFB) for symmetric block ciphers"
-    default n
+    default y
     help
         Enable Cipher Feedback mode (CFB) for symmetric block ciphers.
 
@@ -251,8 +235,6 @@ config MBEDTLS_CONFIG_X509
 menuconfig MBEDTLS_CONFIG_TLS
     bool "TLS/DTLS protocol support"
     default y
-    depends on AOS_ARCH_LINUX || AOS_COMP_LWIP || AOS_COMP_SAL || AOS_COMP_NETMGR
-    depends on !AOS_COMP_MAL
     select MBEDTLS_CONFIG_X509
     select MBEDTLS_CONFIG_CRYPTO
     help
@@ -282,8 +264,8 @@ if MBEDTLS_CONFIG_TLS
 
 config MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN
         int "TLS/DTLS maximum incoming/outgoing content length"
-        default 16384 if AOS_APP_HTTPCLIENT_APP
-        default 10240 if OTA_CONFIG_SECURE_DL_MODE || AOS_APP_HTTPAPP
+        default 16384 if MEDIA_STREAM_APPLICATION
+        default 8192 if OTA_CONFIG_SECURE_DL_MODE
         default 4096
         help
             Maximum length (in bytes) of incoming/outgoing plaintext fragments.
@@ -300,4 +282,4 @@ config MBEDTLS_CONFIG_ERROR
     help
         Enable error code to error string conversion.
 
-endmenu
+endif # AOS_COMP_MBEDTLS

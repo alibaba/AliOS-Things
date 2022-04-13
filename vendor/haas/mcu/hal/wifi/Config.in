@@ -1,0 +1,6 @@
+config AOS_MCU_V_WIFI_DRV
+    bool "aos_mcu_v_wifi_drv"
+    select AOS_MCU_V_UBASE_DRV
+    select AOS_MCU_V_REG_DRV
+    help
+        wifi haas1000.

@@ -1,0 +1,17 @@
+create libhaas1000_bt.a
+addmod bt_drv.o
+addmod bt_drv_calibration.o
+addmod bt_drv_common.o
+addmod bt_drv_config.o
+addmod bt_drv_patch.o
+addmod bt_drv_reg_op.o
+addmod bt_drv_rfconfig.o
+addmod bt_drv_uart_bridge_intsys.o
+addmod bt_hal_hcit.o
+addmod bt_hal_vendor.o
+addmod intersyshci.o
+addmod iqcorrect.o
+addmod sbcaac_dummy.o
+addmod trans_adapt_v2.o
+save
+end

@@ -1,0 +1,40 @@
+config AOS_COMP_KOBJS
+    bool "kernel object layer"
+    select AOS_COMP_KOBJ_CORE
+    select CONFIG_KERNEL_OBJECT_SYSCALL
+    default y
+    help
+      kernel object adapter layer.
+
+if AOS_COMP_KOBJS
+
+config AOS_KERNEL_OBJECT
+    bool
+    default y
+
+config AOS_KOBJ_EVENT
+    bool
+    default y
+
+config AOS_KOBJ_MUTEX
+    bool
+    default y
+
+config AOS_KOBJ_QUEUE
+    bool
+    default y
+
+config AOS_KOBJ_SEM
+    bool
+    default y
+
+config AOS_KOBJ_WORKQUEUE
+    bool
+    default n
+
+config AOS_KOBJ_TIMER
+    bool
+    default n
+
+endif
+

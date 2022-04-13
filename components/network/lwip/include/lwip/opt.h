@@ -477,7 +477,7 @@
  * (before freeing the corresponding memory using lwip_freeaddrinfo()).
  */
 #if !defined MEMP_NUM_NETDB || defined __DOXYGEN__
-#define MEMP_NUM_NETDB                  1
+#define MEMP_NUM_NETDB                  4
 #endif
 
 /**
@@ -1057,12 +1057,6 @@
 #if !defined DNS_LOCAL_HOSTLIST_IS_DYNAMIC || defined __DOXYGEN__
 #define DNS_LOCAL_HOSTLIST_IS_DYNAMIC   0
 #endif /* DNS_LOCAL_HOSTLIST_IS_DYNAMIC */
-
-/** Set this to 1 to enable querying ".local" names via mDNS
- *  using a One-Shot Multicast DNS Query */
-#if !defined LWIP_DNS_SUPPORT_MDNS_QUERIES || defined __DOXYGEN__
-#define LWIP_DNS_SUPPORT_MDNS_QUERIES   0
-#endif
 /**
  * @}
  */
@@ -1818,7 +1812,21 @@
  * LWIP_SO_RCVBUF==1: Enable SO_RCVBUF processing.
  */
 #if !defined LWIP_SO_RCVBUF || defined __DOXYGEN__
-#define LWIP_SO_RCVBUF                  0
+#define LWIP_SO_RCVBUF                  1
+#endif
+
+/**
+ * LWIP_SO_RCVTCPBUF==1: Enable SO_RCVTCPBUF processing.
+ */
+#if !defined LWIP_SO_RCVTCPBUF || defined __DOXYGEN__
+#define LWIP_SO_RCVTCPBUF                  1
+#endif
+
+/**
+ * LWIP_SO_SNDTCPBUF==1: Enable SO_RCVBUF processing.
+ */
+#if !defined LWIP_SO_SNDTCPBUF || defined __DOXYGEN__
+#define LWIP_SO_SNDTCPBUF                  1
 #endif
 
 /**
@@ -2693,6 +2701,13 @@
 #endif
 
 /**
+ * THREADSAFE_DEBUG: Enable thread safe debugging.
+ */
+#if !defined THREAD_SAFE_DEBUG || defined __DOXYGEN__
+#define THREAD_SAFE_DEBUG                     LWIP_DBG_OFF
+#endif
+
+/**
  * TIMERS_DEBUG: Enable debugging in timers.c.
  */
 #if !defined TIMERS_DEBUG || defined __DOXYGEN__
@@ -2815,7 +2830,7 @@
 /**
  * ARP_DEBUG: Enable debugging for pkt print.
  */
-#if !defined ARP_DEBUG || defined __DOXYGEN__
+#if !defined PKTPRINT_DEBUG || defined __DOXYGEN__
 #define PKTPRINT_DEBUG                  LWIP_DBG_OFF
 #endif
 
@@ -2846,6 +2861,14 @@
 #if !defined LSFD_DEBUG || defined __DOXYGEN__
 #define LSFD_DEBUG                     LWIP_DBG_OFF
 #endif
+
+/**
+ * IFCONFIG_DEBUG: Enable debugging for Ifconfig app.
+ */
+#if !defined IFCONFIG_DEBUG || defined __DOXYGEN__
+#define IFCONFIG_DEBUG                     LWIP_DBG_OFF
+#endif
+
 /**
  * @}
  */
@@ -2871,12 +2894,21 @@
  * @}
  */
 
-extern int lwip_rto_flags;
-#define SET_LWIP_LONG_RTO  do {lwip_rto_flags = 1} while(0);
-#define SET_LWIP_SMALL_RTO do {lwip_rto_flags = 0} while(0);
-
-#ifdef AF_PACKET_ENABLED
-#define LWIP_PACKET               1
+/**
+ * REENTER_DEBUG: Enable debugging for reenter in sockets.c.
+ */
+#if !defined SOCKET_ALLOC_DEBUG || defined __DOXYGEN__
+#define REENTER_DEBUG                   LWIP_DBG_OFF
 #endif
+
+/**
+ * SOCKET_ALLOC_DEBUG: Enable debugging for fd list.
+ */
+#if !defined SOCKET_ALLOC_DEBUG || defined __DOXYGEN__
+#define SOCKET_ALLOC_DEBUG              LWIP_DBG_OFF
+#endif
+/**
+ * @}
+ */
 
 #endif /* LWIP_HDR_OPT_H */

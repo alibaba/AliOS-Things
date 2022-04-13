@@ -1,0 +1,6 @@
+menuconfig AOS_COMP_U_QSPI
+    select AOS_COMP_DEVICEVFS
+    bool "qspi core module"
+    default n
+    help
+        AliOS qspi module core layer

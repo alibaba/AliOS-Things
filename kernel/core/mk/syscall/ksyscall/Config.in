@@ -1,0 +1,20 @@
+
+config AOS_COMP_KSYSCALL
+    bool "Kernel Syscall"
+    default n
+    help
+        "Kernel mode system call implementation"
+
+if AOS_COMP_KSYSCALL
+    menu "Ksyscall Configurations"
+
+    config RHINO_CONFIG_DYN_SYSCALL_TBL
+        bool "DYN syscall tbl"
+        default n
+        help
+            "to support dynamically register and unregister syscall,
+            if set to no, the syscall table will be placed at constant,
+            data section to save RAM"
+    endmenu
+endif
+

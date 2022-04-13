@@ -1,0 +1,8 @@
+menu "utilities Configurations"
+
+source "./components/utilities/cjson/Config.in"
+source "./components/utilities/sntp/Config.in"
+source "./components/utilities/md5sum/Config.in"
+source "./components/utilities/iobox/Config.in"
+
+endmenu

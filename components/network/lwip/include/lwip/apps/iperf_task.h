@@ -11,11 +11,11 @@
 
 /* for iperf task */
 #define IPERF_NAME "iperf"
-#define IPERF_STACKSIZE 1536
-#define IPERF_PRIO 6
+#define IPERF_STACKSIZE 16384
+#define IPERF_PRIO 7
 
 #define IPERF_COMMAND_BUFFER_NUM (18)
-#define IPERF_COMMAND_BUFFER_SIZE (20) // 4 bytes align
+#define IPERF_COMMAND_BUFFER_SIZE (80) // 4 bytes align
 
 
 /******************************************************

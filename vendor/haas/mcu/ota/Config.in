@@ -1,0 +1,5 @@
+config AOS_MCU_OTA_ADAPT
+    #select AOS_MCU_V_FLASH_DRV
+    bool "aos_mcu_ota_adapt"
+    help
+        ota haas1000.

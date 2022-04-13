@@ -1,0 +1,163 @@
+config AOS_APP_LINK_SDK_DEMOS
+    bool "link_sdk_demos"
+    select AOS_COMP_MBEDTLS
+    select AOS_COMP_ULOG
+    select AOS_COMP_VFS
+    select AOS_COMP_LINK_SDK
+    select AOS_COMP_NETMGR_RPC
+    select AOS_COMP_SOCKET_RPC_CLIENT
+    select AOS_COMP_OTA if AOS_BOARD_HAAS100_MK
+    select CONFIG_NEW_HTTP_API if AOS_BOARD_HAAS100_MK
+    help
+        "link sdk demos"
+
+if AOS_APP_LINK_SDK_DEMOS
+# Configurations for app link_sdk_demos
+
+config RHINO_CONFIG_APP_NAME
+    string "app name"
+    default "link_sdk_demos"
+    help
+        "set app name, it's also the first task name"
+
+config RHINO_CONFIG_APP_VERSION
+    hex "app version"
+    default 0x00000001
+    help
+        "set app version"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_NAME
+    string "app first task name"
+    default "link_sdk_entry_task"
+    help
+        "set app first task name"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_PRIO
+    int "app entry task priority"
+    default 20
+    help
+        "set app entry task priority"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_KSTACK_SIZE
+    int "app entry task kstack size"
+    default 4096
+    help
+        "set app entry task kstack size, the unit is cpu_stack_t"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_USTACK_SIZE
+    int "app entry task ustack size"
+    default 10000
+    help
+        "set app entry task ustack size, the unit is cpu_stack_t"
+
+config RHINO_CONFIG_APP_ULOG_FS_PATH
+    string "app ulog fs path"
+    default "/data/syslog/link_sdk_demo"
+    help
+        "set app ulog to fs path"
+
+config RHINO_CONFIG_APP_ULOG_FS_BACKUP_PATH
+    string "app ulog fs backup path"
+    default "/data/syslog/backup/link_sdk_demo"
+    help
+        "set app ulog to fs backup path"
+
+source "kernel/core/mk/uspace/Config.in"
+
+choice
+    prompt "Select demo"
+    default LINK_SDK_DEMO_DATA_MODEL
+    help
+        Select the sample program to run
+
+    config LINK_SDK_DEMO_MQTT_BASIC
+        bool "mqtt basic"
+        help
+            build mqtt_basic_demo.c
+
+    config LINK_SDK_DEMO_MQTT_BROADCAST
+        bool "mqtt broadcast"
+        help
+            build mqtt_broadcast_demo.c
+
+    config LINK_SDK_DEMO_MQTT_RRPC
+        bool "mqtt pprc"
+        help
+            build mqtt_rrpc_demo.c
+
+    config LINK_SDK_DEMO_DATA_MODEL
+        bool "data model"
+        select LINK_SDK_DATA_MODEL
+        help
+            build data_model_basic_demo.c
+
+    config LINK_SDK_DEMO_SUBDEV
+        bool "sub device"
+        select LINK_SDK_SUBDEV
+        help
+            build subdev_basic_demo.c
+
+    config LINK_SDK_DEMO_BOOTSTRAP
+        bool "bootstrap"
+        select LINK_SDK_BOOTSTRAP
+        help
+            build bootstrap_posix_demo.c
+
+    config LINK_SDK_DEMO_COTA
+        bool "cota"
+        select LINK_SDK_OTA
+        help
+            build cota_basic_demo.c
+
+    config LINK_SDK_DEMO_HTTP
+        bool "http"
+        select LINK_SDK_HTTP
+        help
+            build http_basic_demo.c
+
+    config LINK_SDK_DEMO_NTP
+        bool "ntp"
+        select LINK_SDK_NTP
+        help
+            build ntp_posix_demo.c
+
+    config LINK_SDK_DEMO_SHADOW
+        bool "device shadow"
+        select LINK_SDK_SHADOW
+        help
+            build shadow_basic_demo.c
+
+    config LINK_SDK_DEMO_LOGPOST
+        bool "log post"
+        select LINK_SDK_LOGPOST
+        help
+            build logpost_basic_demo.c
+
+    config LINK_SDK_DEMO_DIAG
+        bool "diag"
+        select LINK_SDK_DIAG
+        select LINK_SDK_DATA_MODEL
+        help
+            build diag_basic_demo.c
+
+    config LINK_SDK_DEMO_DEVINFO
+        bool "device info"
+        select LINK_SDK_DEVINFO
+        help
+            build devinfo_posix_demo.c
+
+    config LINK_SDK_DEMO_DYNREG
+        bool "dynamic register"
+        select LINK_SDK_DYNREG_HTTP
+        help
+            build dynreg_basic_demo.c
+
+    config LINK_SDK_DEMO_DYNREG_MQTT
+        bool "dynamic register with mqtt"
+        select LINK_SDK_DYNREG_MQTT
+        help
+            build dynregmqt_basic_demo.c
+
+endchoice
+
+endif

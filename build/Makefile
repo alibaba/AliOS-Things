@@ -2,17 +2,13 @@ default: all
 
 unexport NAME # For compatibility with Windows Subsystem Linux
 
-export HOST_OS
-EXPECTED_HOST_OS := Linux64 Win32 OSX
-$(if $(filter $(EXPECTED_HOST_OS),$(HOST_OS)),,$(error Sorry your OS($(HOST_OS)) is not supported, please use one of $(subst Win32,Windows,$(EXPECTED_HOST_OS))))
-
 export SOURCE_ROOT ?= ./
 export BUILD_DIR   ?= out
 export MAKEFILES_PATH := $(SOURCE_ROOT)/build/build_rules
 export SCRIPTS_PATH := $(SOURCE_ROOT)/build/scripts
 
 # Specify build jobs
-JOBS ?=4
+JOBS ?=
 ifeq (,$(SUB_BUILD))
 JOBSNO := -j$(JOBS)
 endif
@@ -25,7 +21,7 @@ include $(MAKEFILES_PATH)/aos_host_cmd.mk
 include $(MAKEFILES_PATH)/aos_kconfig.mk
 
 define CHECK_UCUBE_VERSION
-$(if $(findstring 0.2,$(shell aos --version)),$(error aos-cube 0.3.x or newer is required, please update your aos-cube first! (eg. $$ aos upgrade or $$ aos upgrade aos-cube, depends on the version of aos tool you are using)),)
+$(if $(findstring 0.2,$(shell aos --version)),$(error aos-cube 0.3.x or newer is required, please update your aos-cube first! (eg. $$ aos upgrade)),)
 endef
 
 $(call CHECK_UCUBE_VERSION)
@@ -58,7 +54,7 @@ all:
 #
 # Process build strings
 #
-BUILD_SUBTARGETS := .config .menuconfig
+BUILD_SUBTARGETS := .config .menuconfig .compconf
 MAKEFILE_TARGETS += export_linkkit_sdk restore_linkkit_sdk export-keil export-iar 2ndboot
 export BUILD_STRING ?= $(strip $(filter-out $(MAKEFILE_TARGETS), $(MAKECMDGOALS)))
 
@@ -69,7 +65,7 @@ else ifneq ($(filter export-iar, $(MAKECMDGOALS)),)
 export IDE := iar
 endif
 
-ifneq ($(filter %.config %.menuconfig, $(MAKECMDGOALS)),)
+ifneq ($(filter %.config %.menuconfig %.compconf, $(MAKECMDGOALS)),)
 $(shell rm -rf .config .defconfig out/config)
 endif
 
@@ -91,6 +87,7 @@ export CLEANED_BUILD_STRING := $(BUILD_STRING)
 
 export OUTPUT_DIR  := $(BUILD_DIR)/$(CLEANED_BUILD_STRING)$(MBINS)
 export AUTO_COMPONENT_DIR := $(OUTPUT_DIR)/auto_component
+export OUTPUT_ABS_DIR  := $(PWD)/$(BUILD_DIR)/$(CLEANED_BUILD_STRING)$(MBINS)
 
 #
 # PreCheck for build configs
@@ -105,7 +102,7 @@ ifneq ($(BUILD_STRING),)
 
 ifeq ($(wildcard $(AOS_CONFIG)),)
 ifneq ($(findstring @, $(MAKECMDGOALS)),)
-ifeq ($(filter %.config %.menuconfig, $(MAKECMDGOALS)),)
+ifeq ($(filter %.config %.menuconfig %.compconf, $(MAKECMDGOALS)),)
 $(info )
 $(info Build command updated, please follow steps:)
 $(info *********************************************************************)
@@ -122,7 +119,7 @@ endif
 
 else
 ifneq ($(findstring @, $(MAKECMDGOALS)),)
-ifeq ($(filter %.config %.menuconfig, $(MAKECMDGOALS)),)
+ifeq ($(filter %.config %.menuconfig %.compconf, $(MAKECMDGOALS)),)
 $(info )
 $(info Config completed, please run build directly: $$ aos make)
 $(info )
@@ -142,49 +139,52 @@ endif
 
 # get real app name and check if it available
 appname = $(firstword $(components))
+ifneq ($(filter %.compconf, $(MAKECMDGOALS)),)
+# component config
+real_appname = comp_make_only
+AOS_BUILD_COMPNAME := $(firstword $(components))
+else ifneq ($(filter comp_make_only@%, $(BUILD_STRING)),)
+# component compiler
+real_appname = comp_make_only
+# AOS_BUILD_COMPNAME got from AOS_CONFIG
+else
 appdir = $(subst .,/,$(appname))
-appmkfile = $(wildcard $(APPDIR)/../$(appdir)/aos.mk $(SOURCE_ROOT)/application/*/$(appdir)/aos.mk $(SOURCE_ROOT)/application/*/*/$(appdir)/aos.mk $(SOURCE_ROOT)/application/$(appdir)/aos.mk $(SOURCE_ROOT)/test/develop/$(appdir)/aos.mk)
+appmkfile = $(wildcard $(APPDIR)/../$(appdir)/aos.mk $(SOURCE_ROOT)/projects/*/$(appdir)/aos.mk $(SOURCE_ROOT)/projects/$(appdir)/aos.mk $(SOURCE_ROOT)/kernel/test/develop/$(appdir)/aos.mk)
 $(if $(appmkfile),\
     $(eval include $(appmkfile)) $(eval real_appname = $(NAME)),\
-    $(if $(filter distclean clean help, $(MAKECMDGOALS)),,$(error App Unknown, Please make sure the "$(appname)" is existing!)))
+    $(error App Unknown, Please make sure the "$(appname)" is existing!))
+endif
 
+MBINS_APP ?=
+ifeq ($(MBINS_APP),)
+ifneq ($($(NAME)_MBINS_APP_LD_FILE),)
+MBINS_APP := $($(NAME)_MBINS_APP_LD_FILE)
+endif
+endif
+export MBINS_APP
 # determine what app type should be enabled: example, profile, test
 ifneq ($(findstring profile/,$(appmkfile)),)
 export AOS_APP_TYPE := AOS_APP_PROFILE
-else ifneq ($(findstring example/,$(appmkfile)),)
+else ifneq ($(findstring projects/,$(appmkfile)),)
 export AOS_APP_TYPE := AOS_APP_EXAMPLE
 else ifneq ($(findstring develop/,$(appmkfile)),)
+export AOS_APP_TYPE :=
+else ifneq ($(findstring comp_make_only,$(real_appname)),)
 export AOS_APP_TYPE :=
 else
 export AOS_APP_TYPE := AOS_APP_LOCALAPP
 endif
 
 boardname = $(word 2, $(components))
-boardmkfile = $(wildcard $(SOURCE_ROOT)/platform/board/$(boardname)/aos.mk)
-boardmkfile_legacy = $(wildcard $(SOURCE_ROOT)/platform/board/board_legacy/$(boardname)/aos.mk)
-ifneq ($(boardmkfile),)
-ifneq ($(boardmkfile_legacy),)
-$(error ***** boardname Error, Mutiple boardname***** ***)
-endif
-endif
+
+boardmkfile = $(wildcard $(SOURCE_ROOT)/vendor/*/board/$(boardname)/aos.mk)
 
 $(if $(boardmkfile),\
-    $(eval include $(boardmkfile)) $(eval real_boardname = $(NAME)),\
-    $(eval real_boardname = $(boardname)))
-
-$(if $(boardmkfile_legacy),\
-    $(eval include $(boardmkfile_legacy)) $(eval real_boardname = $(NAME)),\
+    $(eval include $(boardmkfile)) $(eval real_boardname = $(NAME)) $(eval AOS_BUILD_ARCH = $(HOST_ARCH)),\
     $(eval real_boardname = $(boardname)))
 
 $(if $(filter no,$(AOS_BUILD_COMPATIBLE)), $(call BUILD_INCOMPATIBLE_ERROR,$(boardname)))
-ifneq ($(boardmkfile),)
-defconfig = $(wildcard $(SOURCE_ROOT)/platform/board/$(boardname)/defconfig)
-else
-ifneq ($(boardmkfile_legacy),)
-defconfig = $(wildcard $(SOURCE_ROOT)/platform/board/board_legacy/$(boardname)/defconfig)
-endif
-endif
-
+defconfig = $(wildcard $(SOURCE_ROOT)/kernel/board/$(boardname)/defconfig)
 ifneq ($(defconfig),)
 export BOARD_DEFCONFIG := $(defconfig)
 AOS_DEFCONFIG := $(BOARD_DEFCONFIG)
@@ -192,14 +192,16 @@ endif
 
 export AOS_BOARD_CONFIG = AOS_BOARD_$(shell $(PYTHON) $(TR) $(subst -,_,$(patsubst board_%,%,$(real_boardname))))
 export AOS_APP_CONFIG = AOS_APP_$(shell $(PYTHON) $(TR) $(subst -,_,$(patsubst app_%,%,$(real_appname))))
-
+export AOS_COMP_CONFIG = AOS_COMP_$(shell $(PYTHON) $(TR) $(AOS_BUILD_COMPNAME))
+export AOS_BUILD_COMPNAME
+export AOS_BUILD_ARCH
 endif # $(BUILD_STRING)
 endif # $(NOCONFIG)
 
 # prebuild support
 include $(MAKEFILES_PATH)/aos_prebuild.mk
 
-# Support for MBINS build - deprecated! Not maintained any more!
+# Support for MBINS build
 export UNDERLINE
 export RADIXPOINT
 
@@ -207,7 +209,6 @@ export MBINSTYPE_UPPER
 export MBINSTYPE_LOWER
 
 MBINS ?=
-MBINS_APP ?=
 ifeq (,$(MBINS))
 MBINSTYPE_UPPER :=
 MBINSTYPE_LOWER :=
@@ -236,16 +237,19 @@ define USAGE_TEXT
 
 Usage: aos make <target> -c <[config|menuconfig]>
        aos make menuconfig
-       aos make [VERBOSE=1] [BUILD_TYPE=debug|inspect|release_log|release]
-                [clean|distclean|update|export-keil|export-iar] ...
+       aos make [VERBOSE=1] [MBINS=app|kernel] [BUILD_TYPE=debug|inspect|release_log|release]
+                [clean|distclean] [export-keil|export-iar] ...
 
   <target>
     One each of the following mandatory components separated by '@'
-      * Application (apps in application/example/, application/profile/ ...)
-      * Board (boards in platform/board/)
+      * Application (apps in app/example/, app/profile/ ...)
+      * Board (boards in board/)
 
   [VERBOSE=1]
     Shows the commands as they are being executed
+
+  [MBINS=app/kernel]
+    Build bins: app or kernel
 
   [BUILD_TYPE=debug|inspect|release_log|release]
     Build for debug, inspect, release_log or release configurations
@@ -268,11 +272,8 @@ Usage: aos make <target> -c <[config|menuconfig]>
       $> aos make helloworld@mk3060 -c menuconfig
       $> aos make
 
-    Update the metadata for your project:
-      $> aos make update
-
     Clean output directory (without configs)
-      $> aos make clean
+      $> make clean
 
     Clean output directory and configs
       $> aos make distclean
@@ -283,6 +284,7 @@ endef
 #   CHECK_HEADERS=1 : builds header files to test for their completeness
 ############################
 
+export HOST_OS
 export VERBOSE
 export SUB_BUILD
 
@@ -290,7 +292,7 @@ COMPONENT_DEPENDENCY_SCRIPT := $(SCRIPTS_PATH)/component_dependencies.py
 COMPONENT_DEPENDENCY = $(PYTHON) $(COMPONENT_DEPENDENCY_SCRIPT)
 export COMPONENT_DEPENDENCY
 
-.PHONY: $(BUILD_STRING) main_app clean help export_linkkit_sdk restore_linkkit_sdk
+.PHONY: $(BUILD_STRING) main_app clean help export_linkkit_sdk restore_linkkit_sdk comp_make_only
 
 help:
 	$(info $(USAGE_TEXT))
@@ -307,10 +309,9 @@ endif
 
 distclean: clean
 ifneq (,$(APPDIR))
-	$(QUIET)rm -f $(APPDIR)/.config $(APPDIR)/.config.retry $(APPDIR)/.config.old $(APPDIR)/.config.cmd $(APPDIR)/.defconfig $(APPDIR)/..config.tmp $(APPDIR)/aos_config.h $(APPDIR)/.aos_config_burn
-	$(QUIET)$(CP) $(APPDIR)/.important.bak/.config $(APPDIR)/.config
+	$(QUIET)rm -f $(APPDIR)/.config $(APPDIR)/.config.retry $(APPDIR)/.config.old $(APPDIR)/.config.cmd $(APPDIR)/.defconfig $(APPDIR)/..config.tmp
 else
-	$(QUIET)rm -f .config .config.retry .config.old .config.cmd .defconfig ..config.tmp aos_config.h .aos_config_burn
+	$(QUIET)rm -f .config .config.retry .config.old .config.cmd .defconfig ..config.tmp
 endif
 
 ifneq ($(BUILD_STRING),)
@@ -351,8 +352,6 @@ $(AUTO_COMPONENT): $(TEST_COMPONENT_COLLECTION)
 $(TEST_COMPONENT_COLLECTION):
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_test_collection.py $(AUTO_COMPONENT_DIR) $(TEST_COMPONENT_COLLECTION)
 
--include $(OUTPUT_DIR)/.depends.mk
--include $(OUTPUT_DIR)/.depends_2ndboot.mk
 # Target to create config.mk file
 $(OUTPUT_DIR)/config.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFILES_PATH)/aos_host_cmd.mk $(TOOLCHAIN_MAKEFILE) $(AOS_SDK_MAKEFILES) $(AUTO_COMPONENT) $(AOS_PRE_BUILD_TARGETS)
 	$(QUIET)$(ECHO) $(if $(AOS_SDK_MAKEFILES),Applying changes made to: $?,Making config file for first time)
@@ -370,7 +369,11 @@ MBINS_ERROR := error
 endif
 endif
 
+ifneq ($(findstring comp_make_only@comp_make,$(BUILD_STRING)),)
+all: comp_make_only
+else
 all: $(BUILD_STRING)
+endif
 
 $(BUILD_STRING): $(AOS_PRE_BUILD_TARGETS)
 ifeq ($(AOS_SDK_2NDBOOT_SUPPORT),yes)
@@ -390,8 +393,10 @@ show-build-info:
 	$(QUIET)$(ECHO)
 	$(QUIET)$(ECHO) Build Configuration:
 	$(QUIET)$(ECHO) ====================
-	$(QUIET)$(ECHO) App:   $(appname)
-	$(QUIET)$(ECHO) Board: $(boardname)
+	$(QUIET)$(if $(findstring AOS_APP_COMP_MAKE_ONLY,$(AOS_APP_CONFIG)),\
+	$(ECHO) Component:   $(AOS_BUILD_COMPNAME),$(ECHO) App:   $(appname))
+	$(QUIET)$(if $(findstring AOS_APP_COMP_MAKE_ONLY,$(AOS_APP_CONFIG)),\
+	$(ECHO) Arch:   $(AOS_BUILD_ARCH),$(ECHO) Board:   $(boardname))
 	$(QUIET)$(ECHO) ====================
 	$(QUIET)$(ECHO)
 
@@ -427,7 +432,7 @@ $(OUTPUT_DIR)/config_2ndboot.mk: $(MAKEFILES_PATH)/aos_target_config.mk $(MAKEFI
 	$(QUIET)$(call MKDIR, $(OUTPUT_DIR)/libraries)
 	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_auto_code.py $(OUTPUT_DIR)/config_2ndboot.mk $(AUTO_COMPONENT_DIR)
 	$(QUIET)$(MAKE) -r $(SILENT) $(JOBSNO) -f $(MAKEFILES_PATH)/aos_target_build.mk $(CLEANED_BUILD_STRING) $(PASSDOWN_TARGETS) AOS_2NDBOOT_SUPPORT=yes
-	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(AOS_CONFIG)
+	$(QUIET)$(PYTHON) $(SCRIPTS_PATH)/gen_output.py $(OUTPUT_DIR)/binary $(OUTPUT_DIR)/config_2ndboot.mk
 	$(QUIET)$(ECHO) Build 2nd boot complete: $(BUILD_STRING)
 
 ifeq (littlevgl_simulate@linuxhost,$(CLEANED_BUILD_STRING))
@@ -455,4 +460,13 @@ export-iar: export-project
 	$(QUIET):
 
 %.menuconfig: $(AOS_CONFIG)
-	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_kconfig.mk menuconfig_only
+	$(QUIET)$(MAKE) -r $(SILENT) -f $(MAKEFILES_PATH)/aos_kconfig.mk menuconfig
+
+%.compconf: $(AOS_CONFIG)
+	$(QUIET):
+
+comp_make_only: prebuild $(OUTPUT_DIR)/config.mk $(MAKEFILES_PATH)/aos_target_build.mk init-build-env
+	$(if $(MBINS_ERROR), $(call MBINS_EXIT))
+	$(QUIET)$(ECHO) Build Component Library...
+	$(QUIET)$(ECHO) TOOLCHAIN_PATH=$(TOOLCHAIN_PATH)
+	$(QUIET)$(MAKE) -r $(JOBSNO) $(SILENT) -f $(MAKEFILES_PATH)/aos_target_build.mk $(CLEANED_BUILD_STRING).compile $(PASSDOWN_TARGETS)

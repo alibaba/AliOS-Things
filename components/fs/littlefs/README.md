@@ -1,45 +1,27 @@
-## Contents
+# 介绍
+littlefs是一个高度完整的嵌入式文件系统，可以用在自身不带坏块处理、磨损平衡等功能的内存芯片上，如裸的NAND Flash芯片；同时littlefs也充分考虑了异常掉电情况下的数据保护。
 
-## Introduction
-**spiffs** is a file system intended for SPI NOR flash devices on embedded targets.
-It is designed with following characteristics in mind:
-- small targets, sparse RAM without heap.
-- Only big areas of data can be erased.
-- An erase will reset all bits in block to ones.
-- Writing pulls one to zeroes.
-- Zeroes can only be pulled to one by erase.
-- Wear leveling.
+# 特性
+- 掉电安全
+- 磨损平衡
+- 体积小
+- 坏快处理
 
-It also attempts to provide AOS-compatible filesystem behaviour.
-
-### Features
-- Specifically designed for low ram usage
-- Use statically sized ram buffers, independent of number of files
-- Posix-like api: open, close, read, write, seek, stat, etc
-- It can run on any NOR flash, not only SPI flash - theoretically also on embedded flash of a micro-processor
-- Multiple spiffs configuations can run on same target and even on same SPI flash device
-- Implements static wear leveling
-- Built in file system consistency checks
-- Highly configurable
-
-### Directories
-
+# 目录
 ```sh
-spiffs
-├── include
-│   └── spiffs_config.h      # SPIFFS AOS configuration
-├── spiffs
-│   ├── default
-│   │   └── spiffs_config.h  # SPIFFS default configuration
-│   ├── include
-│   │   ├── spiffs.h         # SPIFFS api declaration
-│   │   └── spiffs_nucleus.h # SPIFFS internal structure defination
-│   ├── spiffs_cache.c       # SPIFFS cache implementation
-│   ├── spiffs_check.c       # SPIFFS filesyetm check implementation
-│   ├── spiffs_gc.c          # SPIFFS garbage collection implementation
-│   ├── spiffs_hydrogen.c    # SPIFFS api implementation
-│   └── spiffs_nucleus.c     # SPIFFS inode/entry implementation
-└── spiffs_port.c            # SPIFFS VFS adapt layer implementation
+littlefs
+|-- littlefs-v220      #littlefs v220版本源码
+|-- platform_conf      #littlefs在各硬件平台上的配置信息，例如HaaS100。
+|-- aos.mk             #AliOS Things的makefile
+|-- Config.in          #AliOS Things的menuconfig配置文件
+|-- littlefs_vfs.c     #little VFS虚拟文件操作接口的定义与实现。
+|-- README.md          #中文版README
 ```
+# 依赖
+- rhino nftl
 
-## Reference
+# 使用
+(1) littlefs在AliOS Things中是独立的组件，可配置为kernel或者用户态APP中运行。
+
+# 参考
+N/A

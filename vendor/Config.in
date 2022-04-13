@@ -1,0 +1,24 @@
+menu "BSP         Configuration"
+choice
+    prompt "Board Selection"
+    config AOS_BOARD_NULL
+        bool "NULL"
+
+if AOS_BOARD_NULL
+    config AOS_BUILD_BOARD
+        default "board_comp_make"
+endif
+
+
+source "vendor/haas/board/haas100-mk/Config.in"
+if AOS_BOARD_HAAS100_MK
+    config AOS_BUILD_BOARD
+        default "haas100-mk"
+
+    source "vendor/haas/mcu/Config.in"
+    source "kernel/arch/arm/armv8m/Config.in"
+endif
+
+endchoice
+
+endmenu

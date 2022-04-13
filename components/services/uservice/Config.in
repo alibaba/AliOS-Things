@@ -1,0 +1,5 @@
+config AOS_COMP_USERVICE
+    bool "USERVICE"
+    default n
+    help
+      AliOS things USERVICE component

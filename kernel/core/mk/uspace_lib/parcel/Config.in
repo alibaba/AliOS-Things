@@ -1,0 +1,6 @@
+config AOS_COMP_USPACE_PARCEL
+    bool "User Space Parcel API Support"
+    default y
+    help
+        User space Parcel API support.
+

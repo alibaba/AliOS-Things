@@ -8,11 +8,13 @@
 #include <string.h>
 #include <errno.h>
 #include "aos/kernel.h"
+#include "cli_conf.h"
 
 #include <network/network.h>
 #include "lwip/apps/telnetserver.h"
 
 #define MAX_COMMANDLINE_LENGTH 512U
+#define INBUF_SIZE  MAX_COMMANDLINE_LENGTH
 #define AOS_TELNETD_PRI (AOS_DEFAULT_APP_PRI+1)
 
 typedef struct
@@ -28,6 +30,7 @@ static bool telnetserver_is_running = false;
 static aos_task_t   aos_telnetd_task;
 
 extern int proc_onecmd(int argc, char *argv[]);
+extern int telnet_write_to_buffer(char c);
 
 /**
  * Clear all characters from the command buffer.
@@ -234,11 +237,12 @@ static void TelnetServerProcess(void* arg)
             character = TelnetRead();
             if(character != '\0')
             {
-                CommandAddChar(character);
+                //CommandAddChar(character);
+                telnet_write_to_buffer(character);
             }
             else
             {
-                aos_msleep(500);
+                aos_msleep(20);
             }
         }
         else
@@ -246,14 +250,13 @@ static void TelnetServerProcess(void* arg)
            //printf("Telnet is not connected, try again later.\n");
            aos_msleep(1000);
         }
-        aos_msleep(50);
    }
    return ;
 }
 
 void telnetserver_start()
 {
-   aos_task_new_ext(&aos_telnetd_task, "telnetserver", TelnetServerProcess, NULL, 81920, AOS_TELNETD_PRI);
+   aos_task_new_ext(&aos_telnetd_task, "telnetserver", TelnetServerProcess, NULL, 4096, AOS_TELNETD_PRI, 1);
 }
 
 void telnetserver_stop()

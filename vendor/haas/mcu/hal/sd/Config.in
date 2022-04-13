@@ -1,0 +1,4 @@
+config AOS_MCU_V_SD_DRV
+    bool "aos_mcu_v_sd_drv"
+    help
+        i2c haas1000.

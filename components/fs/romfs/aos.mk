@@ -1,6 +1,6 @@
 NAME := romfs
 
-$(NAME)_MBINS_TYPE := kernel
+$(NAME)_MBINS_TYPE := share
 $(NAME)_VERSION    := 1.0.0
 $(NAME)_SUMMARY    := romfs filesystem
 
@@ -24,4 +24,4 @@ ifeq ($(AOS_COMP_VFS), y)
 $(NAME)_SOURCES += romfs_vfs.c
 endif
 
-GLOBAL_DEFINES  += AOS_COMP_ROMFS VFS_CONFIG_ROOTFS
+GLOBAL_DEFINES  += AOS_COMP_ROMFS

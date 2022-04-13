@@ -1,0 +1,33 @@
+if AOS_CREATE_PROJECT
+config AOS_COMP_EPOLL
+    bool
+    select AOS_COMP_VFS
+    select AOS_COMP_LIB_RBTREE
+    select RHINO_CONFIG_EPOLL_SYSCALL
+    default y
+    help
+        epoll implementation
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_EPOLL
+    bool "epoll"
+    default n
+    select AOS_COMP_VFS
+    select AOS_COMP_LIB_RBTREE
+    select RHINO_CONFIG_EPOLL_SYSCALL
+    help
+        epoll implementation
+endif
+
+if AOS_COMP_EPOLL
+config EPOLL_SUPPORT_LWIP
+    bool
+    default y
+    help
+        support lwip socket
+endif
+
+###################################################################
+# Component configuration items

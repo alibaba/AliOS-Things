@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <network/network.h>
 #include <lwip/apps/sendfile.h>
 #include <lwip/opt.h>
@@ -30,8 +31,19 @@ ssize_t sendfile(int out_fd, int in_fd, off_t* offset, size_t count)
             break;
         }
 
-        if(((readlen < 0) && ((EAGAIN != errno) && (EINTR != errno) && (EINPROGRESS != errno)))) {
+        if(readlen < 0) {
+            if((EAGAIN != errno) && (EINTR != errno) && (EINPROGRESS != errno)) {
             LWIP_DEBUGF( SENDFILE_DEBUG, ("%s:%d readlen %d errno: %d out_fd %d in_fd %d", __func__, __LINE__, readlen, errno, out_fd, in_fd));
+                return -1;
+            } else {
+                aos_msleep(100);
+                continue;
+            }
+        }
+
+        if(readlen > sizeof(data)) {
+            LWIP_DEBUGF( SENDFILE_DEBUG, ("%s:%d read len %d is large than data len %d",
+                         __func__, __LINE__, readlen ,sizeof(data)));
             return -1;
         }
 
@@ -50,11 +62,10 @@ ssize_t sendfile(int out_fd, int in_fd, off_t* offset, size_t count)
             writelen = write(out_fd, data, readlen);
             if (((writelen < 0)&&(EAGAIN != errno) && (EINTR != errno) && (EINPROGRESS != errno))
                    || (writelen != readlen)) {
-                LWIP_DEBUGF( SENDFILE_DEBUG, ("sendfile write failed out_fd %d errno", out_fd, errno));
+                LWIP_DEBUGF( SENDFILE_DEBUG, ("sendfile write failed out_fd %d errno %d", out_fd, errno));
                 return -1;
             }
         }
-        memset(data, 0, sizeof(data));
         aos_msleep(100);
     }
     return curlen;
@@ -63,11 +74,10 @@ ssize_t sendfile(int out_fd, int in_fd, off_t* offset, size_t count)
 int sendfile_client(int argc,char *argv[])
 {
     int fd, sockfd;
-    char buf[MAXSIZE];
+    char buf[MAXSIZE*2];
     char mode_buf[MAXSIZE];
     char size_buf[MAXSIZE];
     int mode, size;
-    struct stat stat_buf;
     struct sockaddr_in srvaddr;
     char * dst_addr = NULL;
     char * dst_port = NULL;
@@ -117,14 +127,28 @@ int sendfile_client(int argc,char *argv[])
     }
 
     sockfd = socket(AF_INET,SOCK_STREAM,0);
+    if(sockfd < 0) {
+        LWIP_DEBUGF( SENDFILE_DEBUG, ("%s:%d Invalid command", __func__, __LINE__));
+        goto exit;
+    }
     bzero(&srvaddr,sizeof(srvaddr));
     srvaddr.sin_family = AF_INET;
     inet_pton(AF_INET, dst_addr, (struct sockaddr *)&(srvaddr.sin_addr));
     srvaddr.sin_port = htons(atoi(dst_port));
-    connect(sockfd, (struct sockaddr *)&srvaddr,sizeof(srvaddr));
+    ret = connect(sockfd, (struct sockaddr *)&srvaddr,sizeof(srvaddr));
+    if (ret == -1) {
+        close(sockfd);
+        LWIP_DEBUGF( SENDFILE_DEBUG, ("connect failed: %s", strerror(errno)));
+        goto exit;
+    }
 
     /* write file name to server */
-    write(sockfd, src_file, strlen(src_file));
+    ret = write(sockfd, src_file, strlen(src_file));
+    if (ret == -1) {
+        close(sockfd);
+        LWIP_DEBUGF( SENDFILE_DEBUG, ("write failed: %s", strerror(errno)));
+        goto exit;
+    }
 
     /* get the file mode/size from server */
     memset(buf, 0, sizeof(buf));
@@ -135,16 +159,19 @@ int sendfile_client(int argc,char *argv[])
         goto exit;
     }
 
-    sscanf(buf, "mode=%s size=%s\n", mode_buf, size_buf);
+    if(2 != sscanf(buf, "mode=%s size=%s\n", mode_buf, size_buf)) {
+        close(sockfd);
+        LWIP_DEBUGF( SENDFILE_DEBUG, ("wrong mode and size input: %s", strerror(errno)));
+        goto exit;
+    }
 
     mode = atoi(mode_buf);
     size = atoi(size_buf);
-    
-    fd = open(file_name, O_WRONLY|O_CREAT, mode);
-    if(fd <= 0) {
+
+    fd = open((const char *)file_name, O_WRONLY|O_CREAT, mode);
+    if(fd < 0) {
         LWIP_DEBUGF( SENDFILE_DEBUG, ("open file %s failed: %s", file_name, strerror(errno)));
         close(sockfd);
-        close(fd);
         goto exit;
     }
 
@@ -183,7 +210,7 @@ int sendfile_server(int argc, char **argv)
                 LWIP_DEBUGF( SENDFILE_DEBUG, ("invalid port: %s", port));
                 return -1;
             }
-	} 
+	}
     }
 
     if (port == NULL) {
@@ -196,9 +223,9 @@ int sendfile_server(int argc, char **argv)
 
 void sendfile_server_thread(void *args)
 {
-    int sockfd;                	/* socket desciptor */
-    int connfd;                	/* file descriptor for socket */
-    int addrlen;				/* argument to accept */
+    int sockfd = -1;            /* socket desciptor */
+    int connfd = -1;           	/* file descriptor for socket */
+    socklen_t addrlen;		    /* argument to accept */
     int ret;                    /* holds return code of system calls */
     int fd;                    	/* file descriptor for file to send */
     int port = 0;               /* port number to use */
@@ -207,7 +234,7 @@ void sendfile_server_thread(void *args)
     char buf[MAXSIZE];
     off_t offset = 0;          	/* file offset */
     struct stat stat_buf;      	/* argument to fstat */
-	
+
     struct sockaddr_in addrserver;   	/* socket parameters for bind ipv4*/
     struct sockaddr_in addrclient;  	/* socket parameters for accept ipv4*/
 
@@ -253,7 +280,7 @@ void sendfile_server_thread(void *args)
         ret = recv(connfd, filename, sizeof(filename), 0);
         if (ret == -1) {
             LWIP_DEBUGF( SENDFILE_DEBUG, ("recv failed: %s", strerror(errno)));
-	    close(connfd);
+	        close(connfd);
             goto exit;
         }
 
@@ -266,32 +293,44 @@ void sendfile_server_thread(void *args)
         /* exit server if filename is "quit" */
         if (strcmp(filename, "quit") == 0) {
             LWIP_DEBUGF( SENDFILE_DEBUG, ("quit command received, shutting down server"));
+	        close(connfd);
             break;
         }
 
         LWIP_DEBUGF( SENDFILE_DEBUG, ("received request to send file %s", filename));
 
         /* open the file to be sent */
-        fd = open(filename, O_RDONLY);
+        fd = open((const char *)filename, O_RDONLY);
         if (fd < 0) {
-	    close(connfd);
-            close(fd);
+	        close(connfd);
             LWIP_DEBUGF( SENDFILE_DEBUG, ("unable to open '%s': %s", filename, strerror(errno)));
             goto exit;
         }
 
         /* get the size of the file to be sent */
-        fstat(fd, &stat_buf);
+        ret = fstat(fd, &stat_buf);
+        if (ret == -1) {
+            LWIP_DEBUGF( SENDFILE_DEBUG, ("fstat error: %s", strerror(errno)));
+	        close(connfd);
+            close(fd);
+            goto exit;
+        }
         memset(buf, 0, sizeof(buf));
-        snprintf(buf, sizeof(buf), "mode=%d size=%d\n", stat_buf.st_mode, stat_buf.st_size);
-        write(connfd, buf, strlen(buf));
+        snprintf(buf, sizeof(buf), "mode=%d size=%ld\n", stat_buf.st_mode, (long)stat_buf.st_size);
+        ret = write(connfd, buf, strlen(buf));
+        if (ret < 0) {
+            LWIP_DEBUGF( SENDFILE_DEBUG, ("error from sendfile: %s", strerror(errno)));
+	        close(connfd);
+            close(fd);
+            goto exit;
+        }
 
         /* copy file using sendfile */
         offset = 0;
         ret = sendfile(connfd, fd, &offset, stat_buf.st_size);
         if (ret < 0) {
             LWIP_DEBUGF( SENDFILE_DEBUG, ("error from sendfile: %s", strerror(errno)));
-	    close(connfd);
+	        close(connfd);
             close(fd);
             goto exit;
         }
@@ -305,15 +344,18 @@ void sendfile_server_thread(void *args)
         if (ret != stat_buf.st_size) {
             LWIP_DEBUGF( SENDFILE_DEBUG, ("incomplete transfer from sendfile: %d of %d bytes",
 		  ret, (int)stat_buf.st_size));
-	    close(connfd);
+	        close(connfd);
             close(fd);
             goto exit;
         }
+	    close(connfd);
+        close(fd);
     }//for(;;)
-
 exit:
     /* close socket */
-    close(sockfd);
+    if(sockfd != -1) {
+        close(sockfd);
+    }
     sendfile_server_task_started = 0;
     aos_task_exit(0);
 }
@@ -328,4 +370,3 @@ void sendfile_server_task_create(char *port)
         LWIP_DEBUGF( SENDFILE_DEBUG, ("http upload task is already running, create a new task should do previous exit first"));
     }
 }
-

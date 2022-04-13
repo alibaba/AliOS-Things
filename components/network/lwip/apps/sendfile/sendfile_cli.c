@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include "lwip/debug.h"
 #include "lwip/err.h"
-#include <aos/cli.h>
+#include "aos/cli.h"
 #include "aos/kernel.h"
 #include "aos/yloop.h"
 
@@ -38,7 +38,6 @@ struct cli_command sendfile_message_cmd[] = {
 /******************************************************
  *               Function Declarations
  ******************************************************/
-static void sendfile( int argc, char **argv );
 void sendfile_help( int argc, char **argv );
 
 /******************************************************
@@ -73,8 +72,6 @@ static bool      m_got_ip = false;
 
 void sendfile_command( char *pcWriteBuffer, int xWriteBufferLen, int argc, char **argv )
 {
-    int i = 0;
-
     if ( m_got_ip == false ) {
         LWIP_DEBUGF( SENDFILE_DEBUG, ("Connect network first!\n"));
         return;
@@ -115,7 +112,7 @@ int sendfile_cli_register( void )
 {
     aos_register_event_filter(EV_WIFI, wifi_service_event, NULL);
 
-    if( 0 == cli_register_commands( sendfile_message_cmd, 1 ) ) {
+    if( 0 == aos_cli_register_commands( sendfile_message_cmd, 1 ) ) {
         return ERR_OK;
     }
     else {

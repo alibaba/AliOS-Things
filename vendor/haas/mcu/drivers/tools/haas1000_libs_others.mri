@@ -1,0 +1,29 @@
+create libhaas1000.a
+addmod app_battery.o
+addmod app_cmd.o
+addmod app_factory.o
+addmod app_factory_audio.o
+addmod app_factory_bt.o
+addmod app_factory_cdc_comm.o
+addmod app_factory_wifi.o
+addmod app_key.o
+addmod app_mic.o
+addmod app_pwl.o
+addmod app_spec_ostimer.o
+addmod app_status_ind.o
+addmod app_thirdparty.o
+addmod app_thread.o
+addmod app_utils.o
+addmod apps.o
+addmod at.o
+addmod bes_kv.o
+addmod communication_svr.o
+addmod cp_accel.o
+addmod cp_server.o
+addmod ftp_client.o
+addmod net_dump.o
+addmod startup_main.o
+addmod sys_api_cdc_comm.o
+addmod tgt_hardware.o
+save
+end

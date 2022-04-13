@@ -1,0 +1,7 @@
+config AOS_MCU_V_I2C_DRV
+    select AOS_MCU_V_COMMON_DRV
+    select AOS_MCU_V_REG_DRV
+    select AOS_BOARD_V_PARTITION_DRV
+    bool "aos_mci_v_i2c_drv"
+    help
+        i2c haas1000.

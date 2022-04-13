@@ -1,0 +1,25 @@
+[
+    {
+        "board": "vexpressa9-mk",
+        "os": "linux",
+        "params": "MBINS=kernel",
+        "extraOps": "aos make procmgmt@vexpressa9-mk -c config && aos make MBINS=app && cp out/procmgmt@vexpressa9-mkapp/binary/procmgmt@vexpressa9-mk.app.elf ./components/fs/romfs/rootfs/usr/procmgmt.app && aos make autotest_user@vexpressa9-mk -c config && aos make MBINS=app MBINS_APP=app1 && aos make main_driver@vexpressa9-mk -c config && aos make MBINS=app MBINS_APP=driver && aos make alios_kernel@vexpressa9-mk -c config && aos make MBINS=kernel && bash -x vendor/vexpress/script/make_fs.sh",
+        "products": {
+            "alios_kernel@vexpressa9-mk.kernel.elf": "out/alios_kernel@vexpressa9-mkkernel/binary/alios_kernel@vexpressa9-mk.kernel.elf",
+            "autotest_user@vexpressa9-mk.app.elf": "out/autotest_user@vexpressa9-mkapp/binary/autotest_user@vexpressa9-mk.app.elf",
+            "main_driver@vexpressa9-mk.app.elf": "out/main_driver@vexpressa9-mkapp/binary/main_driver@vexpressa9-mk.app.elf",
+            "flash1.img": "out/vexpressa9/flash1.img",
+            "flash2.img": "out/vexpressa9/flash2.img"
+        }
+    },
+    {
+        "board": "haas100-mk",
+        "os": "linux",
+        "params": "MBINS=kernel",
+        "extraOps": "aos make autotest_user@haas100-mk -c config && aos make MBINS=app MBINS_APP=app1 && cp out/autotest_user@haas100-mkapp/binary/autotest_user@haas100-mk.app.bin vendor/haas/mcu/prebuild/data && aos make main_driver@haas100-mk -c config && aos make MBINS=app MBINS_APP=driver && cp ./out/main_driver@haas100-mkapp/binary/main_driver@haas100-mk.app.bin vendor/haas/mcu/prebuild/data && aos make procmgmt@haas100-mk -c config && aos make MBINS=app MBINS_APP=procmgmt && cp ./out/procmgmt@haas100-mkapp/binary/procmgmt@haas100-mk.app.bin  ./components/fs/romfs/rootfs/usr/procmgmt.app && aos make alios_kernel@haas100-mk -c config && aos make MBINS=kernel",
+        "products": {
+            "ota_rtos.bin": "vendor/haas/mcu/release/write_flash_gui/ota_bin/ota_rtos.bin",
+            "littlefs.bin": "vendor/haas/mcu/release/write_flash_gui/ota_bin/littlefs.bin"
+        }
+    }
+]

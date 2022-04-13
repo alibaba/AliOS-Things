@@ -1,0 +1,7 @@
+config AOS_COMP_HTTPC
+    bool "httpc"
+    default n
+    select AOS_COMP_LWIP
+    select AOS_COMP_MBEDTLS
+    help
+        AliOS Things libev

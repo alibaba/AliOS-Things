@@ -1,0 +1,4 @@
+menu "uAgent Configuration"
+source "kernel/components/dm/uagent/uagent/Config.in"
+source "component/ulog/Config.in"
+endmenu

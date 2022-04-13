@@ -1,0 +1,23 @@
+create libhaas1000.a
+addlib out/haas1000_normalization/platform/built-in.a
+addlib out/haas1000_normalization/services/built-in.a
+addlib out/haas1000_normalization/thirdparty/built-in.a
+addlib out/haas1000_normalization/net/libnet.a
+addlib out/haas1000_normalization/apps/built-in.a
+delete AGAudioDecoderImpl.o, AGAudioDecoder.o, audio_alg.o, audio_alg_test.o, input_pcm.o
+delete my_cpp_test.o, tgcts_main.o
+addlib out/haas1000_normalization/utils/cqueue/built-in.a
+addlib out/haas1000_normalization/utils/list/built-in.a
+addlib out/haas1000_normalization/utils/hexdump/built-in.a
+addlib out/haas1000_normalization/utils/kfifo/built-in.a
+addlib out/haas1000_normalization/services/multimedia/built-in.a
+delete mcu_slave_code.o
+addmod out/haas1000_normalization/rtos/rhino/cmsis/cmsis_init.o
+addmod out/haas1000_normalization/rtos/rhino/cmsis/cmsis_os.o
+addmod out/haas1000_normalization/rtos/rhino/cmsis/k_membox.o
+addlib out/haas1000_normalization/utils/crash_catcher/built-in.a
+addlib out/haas1000_normalization/utils/xyzmodem/built-in.a
+addmod out/haas1000_normalization/utils/secure_boot/mincrypt/sha256.o
+addlib out/haas1000_normalization/config/built-in.a
+save
+end

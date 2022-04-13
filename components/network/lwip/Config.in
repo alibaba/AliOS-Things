@@ -1,38 +1,15 @@
-###################################################################
-# Component enable/disable selection
-# in the updated build system, default is y and can not be disabled
-if CONFIG_AOS_LWIP
-if AOS_CREATE_PROJECT
-    config AOS_COMP_LWIP
-    bool
-    default y
-    help
-      Support LWIP protocol stack.
-
-      Switch to "y" leads to support LWIP protocol stack.
-      Switch to "n" leads to not support LWIP protocol stacks.
-endif
-
-# Backward compatibility
-if !AOS_CREATE_PROJECT
-    config AOS_COMP_LWIP
-    bool "lwip"
+menuconfig AOS_COMP_LWIP
+    bool "Lightweight TCP/IP Stack(LwIP)"
     default n
     help
       Support LWIP protocol stack.
 
       Switch to "y" leads to support LWIP protocol stack.
       Switch to "n" leads to not support LWIP protocol stacks.
-endif
-
-###################################################################
-# Component configuration items
 
 if AOS_COMP_LWIP
-menu "AOS TCP/IP: Lightweight TCP/IP Stack(LwIP)"
-
-menu "LwIP Protocol Configurations"
 # Configurations for comp lwip
+
 config AF_PACKET_ENABLED
     bool "AF_PACKET Support"
     default n
@@ -41,7 +18,6 @@ config AF_PACKET_ENABLED
 
       Switching to "y" leads to support AF_PACKET socket.
       Switching to "n" leads to not support AF_PACKET socket.
-endmenu
 
 menu "LwIP App Configurations"
 if 0
@@ -66,7 +42,7 @@ endif
 
     config IPERF_ENABLED
         bool "IPERF Support"
-        default n
+        default y
         help
           Support IPERF module.
 
@@ -110,9 +86,8 @@ endif
           Switching to "n" leads to not support TFTP module
 
 if TFTP_ENABLED
-      config TFTP_FS_ENABLED
+      config TFTP_FS
         bool "TFTP_FS Support"
-        depends on AOS_COMP_VFS
         default n
         help
           Support TFTP from File System
@@ -123,7 +98,7 @@ endif
 
      config TELNETD_ENABLED
         bool "TELNETD Support"
-        default n
+        default y
         help
           Support TELNETD module
 
@@ -157,6 +132,24 @@ endif
           Switching to "y" leads to support SENDFILE module
           Switching to "n" leads to not support SENDFILE module
 
+     config IFCONFIG_ENABLED
+        bool "IFCONFIG Support"
+        default n
+        help
+          Support IFCONFIG module
+
+          Switching to "y" leads to support IFCONFIG module
+          Switching to "n" leads to not support IFCONFIG module
+
+     config PKTPRINT_ENABLED
+        bool "PKTPRINT Support"
+        default y
+        help
+          Support PKTPRINT module
+
+          Switching to "y" leads to support PKTPRINT module
+          Switching to "n" leads to not support PKTPRINT module
+
      config DNSCLI_ENABLED
         bool "DNS Command Support"
         default n
@@ -180,11 +173,18 @@ endif
          default n
          help
            Support LSFD command module
-
+ 
            Switching to "y" leads to support LSFDCLI module
            Switching to "n" leads to not support LSFDCLI module
 
+      config SOCKET_RPC_SERVER_ENABLED
+         bool "socket rpc Support"
+         default n
+         help
+           Support socket rpc module
+ 
+           Switching to "y" leads to support SOCKETRPC module
+           Switching to "n" leads to not support SOCKETRPC module
+
 endmenu
-endmenu
-endif
 endif

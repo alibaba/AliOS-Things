@@ -1,0 +1,5 @@
+menuconfig AOS_COMP_U_PWM_TEST
+    bool "pwm test driver"
+    default n
+    help
+        AliOS pwm test module

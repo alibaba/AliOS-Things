@@ -2,7 +2,8 @@ import os
 import sys
 import click
 import re
-from lib.code import write_file, check_copy_non_utf8_file
+import shutil
+import chardet
 
 if sys.version_info[0] < 3:
     from imp import reload
@@ -20,9 +21,40 @@ except:
     pass
 
 TEMPLATE_DIR = "templates/new_component_template"
-COMPONENTS_FOLDER = "components"
+COMPONENTS_FOLDER = "component"
 AOS_MAKEFILE = "aos.mk"
 AOS_MAKEFILE_TEMP = "aos.mk.temp"
+
+def copy_file(srcfile, destfile):
+    """ Copy srcfile to destfile, create destdir if not existed """
+    subdir = os.path.dirname(destfile)
+
+    if not os.path.isdir(subdir):
+        os.makedirs(subdir)
+
+    shutil.copyfile(srcfile, destfile)
+
+def check_copy_non_utf8_file(srcfile, destfile):
+    """ Copy non-utf8 srcfile to destfile, create destdir if not existed """
+    non_utf8_file = False
+    with open(srcfile, 'rb') as f:  
+        encode = chardet.detect(f.read()) 
+        if encode["encoding"] != "utf-8" and encode["encoding"] != "ascii":
+            copy_file(srcfile, destfile)
+            non_utf8_file = True
+
+    return non_utf8_file
+
+def write_file(contents, destfile):
+    """ Write contents to destfile line by line """
+    subdir = os.path.dirname(destfile)
+
+    if not os.path.isdir(subdir):
+        os.makedirs(subdir)
+    with open(destfile, "w") as f:
+        for line in contents:
+            f.write(line)
+
 
 def get_files_and_folder(templatedir):
     """ Get sources files and empty folder, from templatedir and subdir """

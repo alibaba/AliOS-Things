@@ -1,0 +1,123 @@
+config AOS_APP_ULWIP_SERVICE
+    bool "ulwip_service"
+    select AOS_COMP_ULOG
+    select AOS_COMP_VFS
+    select AOS_COMP_CPLUSPLUS
+    select AOS_COMP_LWIP
+    select AOS_COMP_NETMGR
+    select AOS_COMP_NETMGR_RPC
+    select AOS_MCU_V_WIFI_DRV if AOS_BOARD_HAAS100_MK
+    select AOS_COMP_WIFIDEV
+    select AOS_COMP_HTTP
+    select CONFIG_NEW_HTTP_API
+    select AOS_COMP_USERVICE
+    select AOS_COMP_MBEDTLS
+    select AOS_COMP_LINK_SDK if AOS_BOARD_HAAS100_MK
+    select AOS_COMP_SNTP if AOS_BOARD_HAAS100_MK
+    select AOS_COMP_CLI
+    select AOS_COMP_ACTIVATION if AOS_BOARD_HAAS100_MK
+    select AOS_COMP_USPACE_AOS
+    select AOS_COMP_DEVICEVFS
+    select AOS_MCU_V_COMMON_DRV if AOS_BOARD_HAAS100_MK
+    select AOS_BOARD_V_PARTITION_DRV if AOS_BOARD_HAAS100_MK
+    select SOCKET_RPC_SERVER_ENABLED
+    select PING_ENABLED
+    select AOS_CONFIG_USER_SPACE
+
+
+    help
+        "user space lwip service"
+
+if AOS_APP_ULWIP_SERVICE
+# Configurations for app ulwip_service
+
+if AOS_MCU_VEXPRESSA9
+# support uspace virtual network device
+config AOS_FEATURE_NETWORK_USPACE_VEXPRESS
+    bool
+    default y
+endif
+
+config AOS_KERNEL_MODE
+    bool
+    default n
+
+config AOS_COMP_LWIP_IN_SERVICE
+    bool
+    default y
+
+config AOS_COMP_NETMGR_IN_SERVICE
+    bool
+    default y
+
+config AOS_COMP_ACTIVATION_IN_SERVICE
+    bool
+    default y
+
+config AOS_COMP_USERVICE_IN_SERVICE
+    bool
+    default y
+
+config AOS_COMP_SNTP_IN_SERVICE
+    bool
+    default y
+
+config AOS_COMP_HTTP_IN_SERVICE
+    bool
+    default y
+
+config AOS_COMP_WIFIDEV_IN_SERVICE
+    bool
+    default y
+
+config RHINO_CONFIG_APP_NAME
+    string "app name"
+    default "ulwip_service"
+    help
+        "set app name, it's also the first task name"
+
+config RHINO_CONFIG_APP_VERSION
+    hex "app version"
+    default 0x00000001
+    help
+        "set app version"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_NAME
+    string "app first task name"
+    default "link_sdk_entry_task"
+    help
+        "set app first task name"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_PRIO
+    int "app entry task priority"
+    default 20
+    help
+        "set app entry task priority"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_KSTACK_SIZE
+    int "app entry task kstack size"
+    default 4096
+    help
+        "set app entry task kstack size, the unit is cpu_stack_t"
+
+config RHINO_CONFIG_APP_ENTRY_TASK_USTACK_SIZE
+    int "app entry task ustack size"
+    default 10000
+    help
+        "set app entry task ustack size, the unit is cpu_stack_t"
+
+config RHINO_CONFIG_APP_ULOG_FS_PATH
+    string "app ulog fs path"
+    default "/data/syslog/link_sdk_demo"
+    help
+        "set app ulog to fs path"
+
+config RHINO_CONFIG_APP_ULOG_FS_BACKUP_PATH
+    string "app ulog fs backup path"
+    default "/data/syslog/backup/link_sdk_demo"
+    help
+        "set app ulog to fs backup path"
+
+source "kernel/core/mk/uspace/Config.in"
+
+endif
