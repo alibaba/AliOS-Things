@@ -96,7 +96,7 @@ size_t strnlen(const char *str, size_t maxsize)
 {  
   size_t n;  
   
- 
+  
   for (n = 0; n < maxsize && *str; n++, str++)  
   ;  
   
