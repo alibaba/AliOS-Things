@@ -1,0 +1,65 @@
+
+## 第一部分： 基础信息
+description:  alios shell组件，包含用户命令的注册管理和终端执行等功能，类似Linux shell
+name: cli
+version: dev_aos                                    # <必选项> 建议至少20字以上
+type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag:                                                # <可选项> 组件分类，缺省值： ''
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+depends:
+    - vfs: dev_aos ? <CLI_IOBOX_ENABLE>
+    - littlefs: dev_aos ? <CLI_IOBOX_ENABLE>
+    - posix: dev_aos ? <CLI_IOBOX_ENABLE>
+
+build_config:
+  include:
+    - include/
+  internal_include:
+    - src/
+    - src/iobox/
+  define:
+    LIST_DEVICE: 0
+
+source_file:
+  - src/cli.c
+  - src/cli_console.c
+  - src/cli_adapt.c
+  - src/cli_aos.c
+  - src/uart_console.c
+  - src/telnet_console.c ? <CLI_TELNET_SUPPORT>
+  #iobox-fs cli cmds
+  - src/iobox/cat.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/cat.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/cd.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/cp.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/df.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/echo.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/ls.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/lsfs.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/mkdir.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/mv.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/rm.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/touch.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/pwd.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/hexdump.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/path_helper.c ? <CLI_IOBOX_ENABLE>
+
+def_config:
+  AOS_COMP_CLI: 1
+  CLI_INBUF_SIZE: 256
+  CLI_OUTBUF_SIZE: 512
+  CLI_MAX_COMMANDS: 128
+  CLI_MAX_ARG_NUM: 16
+  CLI_MAX_ONCECMD_NUM: 4
+  CLI_TASK_PRIORITY: 60
+  CLI_CONFIG_STACK_SIZE : 2048
+  CLI_TELNET_SUPPORT : 0
+  CLI_SEPRATED_CONSOLE : 1
+  CLI_IOBOX_ENABLE : 0
+
+install:
+  - dest: "include/aos"
+    source:
+      - "include/aos/*.h"

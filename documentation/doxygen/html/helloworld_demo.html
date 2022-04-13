@@ -1,0 +1,246 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: helloworld_demo</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('helloworld_demo.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="PageDoc"><div class="header">
+  <div class="headertitle">
+<div class="title">helloworld_demo </div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><h1><a class="anchor" id="autotoc_md913"></a>
+1. 案例简介</h1>
+<p>helloworld_demo是我们提供的最简化的运行实例，该app从字面上来看功能也比较简单，即完成**hello world!**的关键字符输出，以表明系统初始化完成并能够正常输出。但是虽然功能看似简单单一，该app能够运行成功，即代码内核小系统以及基本的打印输出功能即正常运行。 其完成的主要功能包括：</p><ul>
+<li>系统板级初始化</li>
+<li>内核基础组件初始化</li>
+<li>application_start用户入口</li>
+<li>串口打印输出</li>
+<li>循环睡眠打印 该示例的运行依赖下述基本功能完成对接：</li>
+<li>uart串口</li>
+<li>内核的任务和中断运行正常</li>
+<li>系统tick定时器正常运行 即helloworld_demo这个示例运行，代码系统的**任务调度**、**tick调度**以及**串口打印功能**已经OK。</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md914"></a>
+2. 基础知识</h1>
+<h2><a class="anchor" id="autotoc_md915"></a>
+2.1 基础目录结构</h2>
+<p>├── helloworld.c # 该solution核心打印输出代码，入口**application_start** ├── k_app_config.h # 内核组件的配置开关，优先级低于**k_config.h** ├── maintask.c # 系统主任务入口处理，入口**aos_maintask** ├── Makefile # aos make编译时入口 ├── package.yaml # 编译系统配置文件 └── SConstruct # Makefile =&gt; Scon =&gt; aostools</p>
+<h2><a class="anchor" id="autotoc_md916"></a>
+2.2 基本规范</h2>
+<p>solution统一以**aos_maintask**作为入口函数,从具体单板的C入口main函数开始，通过创建一个主任务来执行，即aos_maintask是系统主任务的入口函数： </p><div class="fragment"><div class="line"><span class="keyword">static</span> <span class="keywordtype">void</span> aos_main_task_entry(<span class="keywordtype">void</span>)</div>
+<div class="line">{</div>
+<div class="line">    ......</div>
+<div class="line">    aos_maintask();</div>
+<div class="line">}</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">/* main一般为单板的C程序入口 */</span></div>
+<div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">void</span>)</div>
+<div class="line">{</div>
+<div class="line">    ......</div>
+<div class="line">    krhino_task_dyn_create(&amp;g_main_task, <span class="stringliteral">&quot;main_task&quot;</span>, 0, OS_MAIN_TASK_PRI, 0, OS_MAIN_TASK_STACK, (task_entry_t)aos_main_task_entry, 1);</div>
+<div class="line"> </div>
+<div class="line">    <span class="keywordflow">while</span> (1) {</div>
+<div class="line">        krhino_task_sleep(100);</div>
+<div class="line">    }</div>
+<div class="line">}</div>
+</div><!-- fragment --><p> aos_maintask内实现包括板级初始化**board_init**、基础组件初始化**aos_components_init**、以及app入口**application_start** </p><div class="fragment"><div class="line"><span class="comment">/*  For user config</span></div>
+<div class="line"><span class="comment">    kinit.argc = 0;</span></div>
+<div class="line"><span class="comment">    kinit.argv = NULL;</span></div>
+<div class="line"><span class="comment">    kinit.cli_enable = 1;</span></div>
+<div class="line"><span class="comment">*/</span></div>
+<div class="line"><span class="keyword">static</span> <a class="code" href="structkinit__t.html">kinit_t</a> kinit = {0, NULL, 1};</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">void</span> board_init(<span class="keywordtype">void</span>)</div>
+<div class="line">{</div>
+<div class="line">    board_tick_init();    <span class="comment">// tick板级初始化，实现在具体board目录内</span></div>
+<div class="line">    board_stduart_init(); <span class="comment">// uart串口初始化，实现在具体board目录内</span></div>
+<div class="line">    board_dma_init();     <span class="comment">// 如果使用dma相关初始化，没有置空</span></div>
+<div class="line">    board_gpio_init();    <span class="comment">// gpio的时钟等初始化，没有可置空</span></div>
+<div class="line">}</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">void</span> aos_maintask(<span class="keywordtype">void</span>* arg)</div>
+<div class="line">{</div>
+<div class="line">    board_init();</div>
+<div class="line">    board_kinit_init(&amp;kinit);    <span class="comment">// 给系统参数赋值，可使用默认值</span></div>
+<div class="line">    <a class="code" href="group__init__aos__api.html#gaef3ae0cb7bdb5a501e86a422468e2bc4">aos_components_init</a>(&amp;kinit); <span class="comment">// 系统基础组件的初始化</span></div>
+<div class="line"> </div>
+<div class="line"><span class="preprocessor">#ifndef AOS_BINS</span></div>
+<div class="line">    <a class="code" href="group__init__aos__api.html#ga55ef20a4d055aed8a8b3b25a90f8aee4">application_start</a>(kinit.<a class="code" href="structkinit__t.html#ad1447518f4372828b8435ae82e48499e">argc</a>, kinit.<a class="code" href="structkinit__t.html#af2efa898e9eed6fe6715279cb1ec35b0">argv</a>); <span class="comment">// app的实际实现入口</span></div>
+<div class="line"><span class="preprocessor">#endif</span></div>
+<div class="line"><span class="preprocessor">}</span></div>
+<div class="ttc" id="agroup__init__aos__api_html_ga55ef20a4d055aed8a8b3b25a90f8aee4"><div class="ttname"><a href="group__init__aos__api.html#ga55ef20a4d055aed8a8b3b25a90f8aee4">application_start</a></div><div class="ttdeci">int application_start(int argc, char **argv)</div></div>
+<div class="ttc" id="agroup__init__aos__api_html_gaef3ae0cb7bdb5a501e86a422468e2bc4"><div class="ttname"><a href="group__init__aos__api.html#gaef3ae0cb7bdb5a501e86a422468e2bc4">aos_components_init</a></div><div class="ttdeci">int aos_components_init(kinit_t *kinit)</div></div>
+<div class="ttc" id="astructkinit__t_html"><div class="ttname"><a href="structkinit__t.html">kinit_t</a></div><div class="ttdef"><b>Definition:</b> <a href="init_8h_source.html#l00015">init.h:15</a></div></div>
+<div class="ttc" id="astructkinit__t_html_ad1447518f4372828b8435ae82e48499e"><div class="ttname"><a href="structkinit__t.html#ad1447518f4372828b8435ae82e48499e">kinit_t::argc</a></div><div class="ttdeci">int argc</div><div class="ttdef"><b>Definition:</b> <a href="init_8h_source.html#l00016">init.h:16</a></div></div>
+<div class="ttc" id="astructkinit__t_html_af2efa898e9eed6fe6715279cb1ec35b0"><div class="ttname"><a href="structkinit__t.html#af2efa898e9eed6fe6715279cb1ec35b0">kinit_t::argv</a></div><div class="ttdeci">char ** argv</div><div class="ttdef"><b>Definition:</b> <a href="init_8h_source.html#l00017">init.h:17</a></div></div>
+</div><!-- fragment --><p> 其中为了统一不同单板的板级初始化，新增单板需要统一支持board_init内各板级模块初始化，如果没有相关函数可以实现为空； 对于helloworld功能比较简单，一般需要tick和uart的初始化即可；而对于复杂的app，即需要初始化的模块则按照实际情况来增加，对应实现在具体board中添加，如： </p><div class="fragment"><div class="line"><span class="keywordtype">void</span> board_stduart_init(<span class="keywordtype">void</span>)</div>
+<div class="line"><span class="keywordtype">void</span> board_tick_init(<span class="keywordtype">void</span>)</div>
+<div class="line"><span class="keywordtype">void</span> board_flash_init(<span class="keywordtype">void</span>)</div>
+<div class="line"><span class="keywordtype">void</span> board_network_init(<span class="keywordtype">void</span>)</div>
+<div class="line"><span class="keywordtype">void</span> board_gpio_init(<span class="keywordtype">void</span>)</div>
+<div class="line"><span class="keywordtype">void</span> board_wdg_init(<span class="keywordtype">void</span>)</div>
+<div class="line"><span class="keywordtype">void</span> board_ota_init(<span class="keywordtype">void</span>)</div>
+<div class="line"><span class="keywordtype">void</span> board_dma_init(<span class="keywordtype">void</span>)</div>
+</div><!-- fragment --><p> 对于aos_components_init，其完成了一些基础组件如vfs、cli、kv等基础中间件的初始化，并通过组件宏开关，一旦相应该基础组件模块被加入编译，则aos_components_init即进行相关模块的初始化。 application_start是实际solution的实现，即app的统一入口。</p>
+<h2><a class="anchor" id="autotoc_md917"></a>
+2.3 基本运行流程</h2>
+<p><img src="https://img.alicdn.com/imgextra/i3/O1CN01hHWuKH1gO2oeDXMtR_!!6000000004131-2-tps-399-302.png" alt="运行流程.png" class="inline"/></p>
+<h1><a class="anchor" id="autotoc_md918"></a>
+3. 物料清单</h1>
+<h2><a class="anchor" id="autotoc_md919"></a>
+3.1 HaaS100 硬件</h2>
+<p><a href="https://help.aliyun.com/document_detail/184426.html">HaaS100 硬件简介</a></p>
+<p><img src="https://img.alicdn.com/imgextra/i4/O1CN01XxD6Xo217CB3FZnEU_!!6000000006937-2-tps-746-497.png" alt="" style="zoom:80%;" class="inline"/></p>
+<h1><a class="anchor" id="autotoc_md920"></a>
+4. 案例实现</h1>
+<h2><a class="anchor" id="autotoc_md921"></a>
+4.1 硬件连接</h2>
+<p>该案例只需要连接电源线以及串口线，如下图所示： <img src="https://img.alicdn.com/imgextra/i2/O1CN01S9jkJw1dihpqURQH4_!!6000000003770-0-tps-1280-960.jpg" alt="硬件连接.png" class="inline"/></p>
+<h2><a class="anchor" id="autotoc_md922"></a>
+4.2 软件实现</h2>
+<p>application_start实际app入口内实现较简单，主要包括：</p><ul>
+<li>基本的串口打印</li>
+<li>while循环睡眠1S打印计数 代码如下： <div class="fragment"><div class="line"><span class="keywordtype">int</span> <a class="code" href="group__init__aos__api.html#ga55ef20a4d055aed8a8b3b25a90f8aee4">application_start</a>(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> *argv[])</div>
+<div class="line">{</div>
+<div class="line">    <span class="keywordtype">int</span> count = 0;</div>
+<div class="line"> </div>
+<div class="line">    printf(<span class="stringliteral">&quot;nano entry here!\r\n&quot;</span>);</div>
+<div class="line"> </div>
+<div class="line">    <span class="keywordflow">while</span>(1) {</div>
+<div class="line">        printf(<span class="stringliteral">&quot;hello world! count %d \r\n&quot;</span>, count++);</div>
+<div class="line">        <a class="code" href="group__aos__kernel__time.html#ga198267174bf34247bca2163293c20d5c">aos_msleep</a>(1000);</div>
+<div class="line">    };</div>
+<div class="line">}</div>
+<div class="ttc" id="agroup__aos__kernel__time_html_ga198267174bf34247bca2163293c20d5c"><div class="ttname"><a href="group__aos__kernel__time.html#ga198267174bf34247bca2163293c20d5c">aos_msleep</a></div><div class="ttdeci">void aos_msleep(uint32_t ms)</div></div>
+</div><!-- fragment --> 其中系统能够正常打印代表uart功能正常；能够循环1S打印代表tick中断以及任务切换功能正常。</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md923"></a>
+4.3 编译下载</h2>
+<h3><a class="anchor" id="autotoc_md924"></a>
+编译</h3>
+<div class="fragment"><div class="line">cd solutions/helloworld_demo &amp;&amp; aos make</div>
+</div><!-- fragment --><p> 其中具体单板还需要先配置环境： </p><div class="fragment"><div class="line">aos make helloworld_demo@haas100 -c config</div>
+</div><!-- fragment --><h3><a class="anchor" id="autotoc_md925"></a>
+烧录镜像命令：</h3>
+<div class="fragment"><div class="line">aos burn</div>
+</div><!-- fragment --><p>烧写步骤可以参考 <a href="https://help.aliyun.com/document_detail/184184.html?spm=a2c4g.11186623.6.642.717c6489icKeP3">HaaS100快速开始</a></p>
+<h2><a class="anchor" id="autotoc_md926"></a>
+4.4 串口输出效果</h2>
+<div class="fragment"><div class="line">             Welcome to AliOS Things</div>
+<div class="line">nano entry here!</div>
+<div class="line">hello world! count 0</div>
+<div class="line">hello world! count 1</div>
+<div class="line">hello world! count 2</div>
+<div class="line">hello world! count 3</div>
+<div class="line">hello world! count 4</div>
+<div class="line">hello world! count 5</div>
+<div class="line">hello world! count 6</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md927"></a>
+5 添加新组件</h1>
+<p>helloworld_demo作为一个基础组件，其本身依赖的组件相对较少，主要包括内核基础代码、cli以及单板和mcu相关的组件。 用户可以基于此solution作为参考，来开发属于自己的app。 如期望在helloworld_demo中增加ramfs文件系统的组件功能，操作步骤如下：</p>
+<h2><a class="anchor" id="autotoc_md928"></a>
+5.1 yaml增加组件</h2>
+<ul>
+<li>在helloworld_demo的yaml文件中添加组件依赖ramfs。由于需要使用标准vfs接口，因此还需要加上vfs组件。 <div class="fragment"><div class="line">depends:</div>
+<div class="line">  - ramfs: dev_aos</div>
+<div class="line">  - vfs: dev_aos</div>
+</div><!-- fragment --> 至于ramfs本身依赖的组件，则在ramfs自身的yaml中需要添加完全。</li>
+<li>在helloworld_demo的app入口helloworld.c中添加ramfs头文件引用以及初始化函数调用， 如下图，先注册一个根目录为**/test**的ramfs：</li>
+</ul>
+<p><img src="https://img.alicdn.com/imgextra/i3/O1CN01yyLyVL1mbgIjh55DK_!!6000000004973-2-tps-660-404.png" alt="ramfs组件添加.png" class="inline"/></p>
+<ul>
+<li>添加功能调用 示例： <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;fcntl.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;sys/types.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;unistd.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &quot;ramfs.h&quot;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">int</span> fd;</div>
+<div class="line"><span class="keywordtype">int</span> ret;</div>
+<div class="line"><span class="keywordtype">char</span> teststring = <span class="stringliteral">&quot;1234&quot;</span>;</div>
+<div class="line"><span class="keywordtype">char</span> readbuf[10];</div>
+<div class="line"> </div>
+<div class="line">ramfs_register(<span class="stringliteral">&quot;/test&quot;</span>);</div>
+<div class="line">fd = open(<span class="stringliteral">&quot;/test/file1&quot;</span>, O_RDWR);</div>
+<div class="line"><span class="keywordflow">if</span>(fd &lt; 0){</div>
+<div class="line">    printf(<span class="stringliteral">&quot;ramfs open fail!\r\n&quot;</span>);</div>
+<div class="line">    <span class="keywordflow">return</span> fd;</div>
+<div class="line">}</div>
+<div class="line">ret = write(fd, teststring, 5);</div>
+<div class="line"><span class="keywordflow">if</span>(ret &lt; 0){</div>
+<div class="line">    printf(<span class="stringliteral">&quot;ramfs write fail!\r\n&quot;</span>);</div>
+<div class="line">    <span class="keywordflow">return</span> ret;</div>
+<div class="line">}</div>
+<div class="line">lseek(fd, 0, SEEK_SET);</div>
+<div class="line">ret = read(fd, readbuf, 5);</div>
+<div class="line"><span class="keywordflow">if</span>(ret &lt; 0){</div>
+<div class="line">    printf(<span class="stringliteral">&quot;ramfs read fail!\r\n&quot;</span>);</div>
+<div class="line">    <span class="keywordflow">return</span> ret;</div>
+<div class="line">}</div>
+<div class="line"><span class="keywordflow">if</span>(strncmp(readbuf, teststring, 5)){</div>
+<div class="line">    printf(<span class="stringliteral">&quot;ramfs test fail! readbuf:%s\r\n&quot;</span>,readbuf);</div>
+<div class="line">}<span class="keywordflow">else</span>{</div>
+<div class="line">    printf(<span class="stringliteral">&quot;ramfs test success!\r\n&quot;</span>);</div>
+<div class="line">}</div>
+<div class="line">ramfs_unregister(<span class="stringliteral">&quot;/test&quot;</span>);</div>
+</div><!-- fragment --> 由于使用了标准文件系统的O_RDWR相关定义，需要包含::include "fcntl.h"</li>
+<li>编译、运行</li>
+</ul>
+<div class="fragment"><div class="line">aos make helloworld_demo@haas100 -c config</div>
+<div class="line">aos make</div>
+</div><!-- fragment --><p> 运行效果：</p>
+<div class="fragment"><div class="line">             Welcome to AliOS Things</div>
+<div class="line">nano entry here!</div>
+<div class="line">ramfs test success!</div>
+<div class="line">hello world! count 0</div>
+<div class="line">hello world! count 1</div>
+<div class="line">hello world! count 2</div>
+<div class="line">hello world! count 3</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md929"></a>
+6. 总结</h1>
+<p>helloworld_demo虽然代码较少，但是其完成了一个最小系统需要的基本功能，包括：内核启动、任务切换、tick中断，以及串口输出。一般作为单板移植的基本solution来参考对接； 同时，还可以此solution为基础，开始添加用户需要的其他组件，并定制修改自身需要的APP。 </p>
+</div></div><!-- contents -->
+</div><!-- PageDoc -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+  </ul>
+</div>
+</body>
+</html>

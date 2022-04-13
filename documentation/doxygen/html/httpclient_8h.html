@@ -1,0 +1,155 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: /Users/yaoqiuguo/server/alios_3_3/components/http/include/httpclient.h 文件参考</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('httpclient_8h.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">结构体</a> &#124;
+<a href="#enum-members">枚举</a> &#124;
+<a href="#func-members">函数</a>  </div>
+  <div class="headertitle">
+<div class="title">httpclient.h 文件参考</div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;stdint.h&gt;</code><br />
+</div>
+<p><a href="httpclient_8h_source.html">浏览源代码.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+结构体</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhttpclient__t.html">httpclient_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This structure defines the <a class="el" href="structhttpclient__t.html" title="This structure defines the httpclient_t structure">httpclient_t</a> structure <br  />
+  <a href="structhttpclient__t.html#details">更多...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structhttpclient__data__t.html">httpclient_data_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This structure defines the HTTP data structure. <br  />
+  <a href="structhttpclient__data__t.html#details">更多...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
+枚举</h2></td></tr>
+<tr class="memitem:gaef223d7592e764083f37c840403491b7"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#gaef223d7592e764083f37c840403491b7">HTTP_REQUEST_TYPE</a> { <br />
+&#160;&#160;<a class="el" href="group__aos__httpclient__api.html#ggaef223d7592e764083f37c840403491b7a427575ab776ed70f0aa76667affc3942">HTTP_DELETE</a>
+, <a class="el" href="group__aos__httpclient__api.html#ggaef223d7592e764083f37c840403491b7a4ad23c3d2f21f7502ba058ef89518166">HTTP_GET</a>
+, <a class="el" href="group__aos__httpclient__api.html#ggaef223d7592e764083f37c840403491b7ab547cb50f6792b41c3e7d52ee0f8e442">HTTP_HEAD</a>
+, <a class="el" href="group__aos__httpclient__api.html#ggaef223d7592e764083f37c840403491b7aa763023b51da2b3618f24cbf994b34bf">HTTP_POST</a>
+, <br />
+&#160;&#160;<a class="el" href="group__aos__httpclient__api.html#ggaef223d7592e764083f37c840403491b7a2415577115dd0cd5d5a5aa62d52e1512">HTTP_PUT</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:gaef223d7592e764083f37c840403491b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">http requst type  <a href="group__aos__httpclient__api.html#gaef223d7592e764083f37c840403491b7">更多...</a><br /></td></tr>
+<tr class="separator:gaef223d7592e764083f37c840403491b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8ef0339085aef96706a30799cc01b35e"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#ga8ef0339085aef96706a30799cc01b35e">HTTPC_RESULT</a> { <br />
+&#160;&#160;<a class="el" href="group__aos__httpclient__api.html#gga8ef0339085aef96706a30799cc01b35eab1b886147623c7f81e3851490069743f">HTTP_EAGAIN</a> = 1
+, <a class="el" href="group__aos__httpclient__api.html#gga8ef0339085aef96706a30799cc01b35ea9c6d6f8c686eb2591641a5796c6bde54">HTTP_SUCCESS</a> = 0
+, <a class="el" href="group__aos__httpclient__api.html#gga8ef0339085aef96706a30799cc01b35ea8fd4bc445313859ffcaf6adcce97ec45">HTTP_ENOBUFS</a> = -1
+, <a class="el" href="group__aos__httpclient__api.html#gga8ef0339085aef96706a30799cc01b35eaaeaa8755681806f56138966128d7ab7a">HTTP_EARG</a> = -2
+, <br />
+&#160;&#160;<a class="el" href="group__aos__httpclient__api.html#gga8ef0339085aef96706a30799cc01b35eadb23f24005bb275c1480db0b1371444b">HTTP_ENOTSUPP</a> = -3
+, <a class="el" href="group__aos__httpclient__api.html#gga8ef0339085aef96706a30799cc01b35eabff2df55e43462d3edfadd14350838c4">HTTP_EDNS</a> = -4
+, <a class="el" href="group__aos__httpclient__api.html#gga8ef0339085aef96706a30799cc01b35ea28e1b7bfe9de051b3c138a6ecc376648">HTTP_ECONN</a> = -5
+, <a class="el" href="group__aos__httpclient__api.html#gga8ef0339085aef96706a30799cc01b35ea1cd75e337d27176da2a74997b038bf1b">HTTP_ESEND</a> = -6
+, <br />
+&#160;&#160;<a class="el" href="group__aos__httpclient__api.html#gga8ef0339085aef96706a30799cc01b35ea98990f958f44e6e5d783a443a2a9cf64">HTTP_ECLSD</a> = -7
+, <a class="el" href="group__aos__httpclient__api.html#gga8ef0339085aef96706a30799cc01b35ea8036ff5556116c187992c425771d19db">HTTP_ERECV</a> = -8
+, <a class="el" href="group__aos__httpclient__api.html#gga8ef0339085aef96706a30799cc01b35ea0ac851c4fa85187b00c219c4da0a7cb2">HTTP_EPARSE</a> = -9
+, <a class="el" href="group__aos__httpclient__api.html#gga8ef0339085aef96706a30799cc01b35ea4069647e70ffdeee9fb2bf569114c857">HTTP_EPROTO</a> = -10
+, <br />
+&#160;&#160;<a class="el" href="group__aos__httpclient__api.html#gga8ef0339085aef96706a30799cc01b35ea99d4e4f6cae460c2035555e2f69ce67e">HTTP_EUNKOWN</a> = -11
+, <a class="el" href="group__aos__httpclient__api.html#gga8ef0339085aef96706a30799cc01b35ea5eb28729475a464c46c0318250b3ff28">HTTP_ETIMEOUT</a> = -12
+<br />
+ }</td></tr>
+<tr class="memdesc:ga8ef0339085aef96706a30799cc01b35e"><td class="mdescLeft">&#160;</td><td class="mdescRight">http error code  <a href="group__aos__httpclient__api.html#ga8ef0339085aef96706a30799cc01b35e">更多...</a><br /></td></tr>
+<tr class="separator:ga8ef0339085aef96706a30799cc01b35e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+函数</h2></td></tr>
+<tr class="memitem:gaf2fc5add79db1f6553f8b36ded2c6e0e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__httpclient__api.html#ga8ef0339085aef96706a30799cc01b35e">HTTPC_RESULT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#gaf2fc5add79db1f6553f8b36ded2c6e0e">httpclient_get</a> (<a class="el" href="structhttpclient__t.html">httpclient_t</a> *client, const char *url, <a class="el" href="structhttpclient__data__t.html">httpclient_data_t</a> *client_data)</td></tr>
+<tr class="separator:gaf2fc5add79db1f6553f8b36ded2c6e0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7cff4b86a77c939c5b9f346c7f3cfe32"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__httpclient__api.html#ga8ef0339085aef96706a30799cc01b35e">HTTPC_RESULT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#ga7cff4b86a77c939c5b9f346c7f3cfe32">httpclient_head</a> (<a class="el" href="structhttpclient__t.html">httpclient_t</a> *client, const char *url, <a class="el" href="structhttpclient__data__t.html">httpclient_data_t</a> *client_data)</td></tr>
+<tr class="separator:ga7cff4b86a77c939c5b9f346c7f3cfe32"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2cadaa54e3096c3add1ac9493c298357"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__httpclient__api.html#ga8ef0339085aef96706a30799cc01b35e">HTTPC_RESULT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#ga2cadaa54e3096c3add1ac9493c298357">httpclient_post</a> (<a class="el" href="structhttpclient__t.html">httpclient_t</a> *client, const char *url, <a class="el" href="structhttpclient__data__t.html">httpclient_data_t</a> *client_data)</td></tr>
+<tr class="separator:ga2cadaa54e3096c3add1ac9493c298357"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae84df284077654de738948003197fe97"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__httpclient__api.html#ga8ef0339085aef96706a30799cc01b35e">HTTPC_RESULT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#gae84df284077654de738948003197fe97">httpclient_put</a> (<a class="el" href="structhttpclient__t.html">httpclient_t</a> *client, const char *url, <a class="el" href="structhttpclient__data__t.html">httpclient_data_t</a> *client_data)</td></tr>
+<tr class="separator:gae84df284077654de738948003197fe97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gace34cb0c832624e557c1f8b0d005e04c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__httpclient__api.html#ga8ef0339085aef96706a30799cc01b35e">HTTPC_RESULT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#gace34cb0c832624e557c1f8b0d005e04c">httpclient_delete</a> (<a class="el" href="structhttpclient__t.html">httpclient_t</a> *client, const char *url, <a class="el" href="structhttpclient__data__t.html">httpclient_data_t</a> *client_data)</td></tr>
+<tr class="separator:gace34cb0c832624e557c1f8b0d005e04c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gacc29a7d6f6a03e22c3834670f3591e25"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__httpclient__api.html#ga8ef0339085aef96706a30799cc01b35e">HTTPC_RESULT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#gacc29a7d6f6a03e22c3834670f3591e25">httpclient_prepare</a> (<a class="el" href="structhttpclient__data__t.html">httpclient_data_t</a> *client_data, int header_size, int resp_size)</td></tr>
+<tr class="separator:gacc29a7d6f6a03e22c3834670f3591e25"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga19d38509868a0660d28b5ecabf10c80f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__httpclient__api.html#ga8ef0339085aef96706a30799cc01b35e">HTTPC_RESULT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#ga19d38509868a0660d28b5ecabf10c80f">httpclient_unprepare</a> (<a class="el" href="structhttpclient__data__t.html">httpclient_data_t</a> *client_data)</td></tr>
+<tr class="separator:ga19d38509868a0660d28b5ecabf10c80f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga56a2bfa3e7d794ae3baf2a5fecf02bf9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#ga56a2bfa3e7d794ae3baf2a5fecf02bf9">httpclient_reset</a> (<a class="el" href="structhttpclient__data__t.html">httpclient_data_t</a> *client_data)</td></tr>
+<tr class="separator:ga56a2bfa3e7d794ae3baf2a5fecf02bf9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga33a5efbd21d0e56200018996581c1149"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__httpclient__api.html#ga8ef0339085aef96706a30799cc01b35e">HTTPC_RESULT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#ga33a5efbd21d0e56200018996581c1149">httpclient_conn</a> (<a class="el" href="structhttpclient__t.html">httpclient_t</a> *client, const char *url)</td></tr>
+<tr class="separator:ga33a5efbd21d0e56200018996581c1149"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga36fc50022d8abb50ee9d9e19b9c8c6dc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__httpclient__api.html#ga8ef0339085aef96706a30799cc01b35e">HTTPC_RESULT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#ga36fc50022d8abb50ee9d9e19b9c8c6dc">httpclient_send</a> (<a class="el" href="structhttpclient__t.html">httpclient_t</a> *client, const char *url, int method, <a class="el" href="structhttpclient__data__t.html">httpclient_data_t</a> *client_data)</td></tr>
+<tr class="separator:ga36fc50022d8abb50ee9d9e19b9c8c6dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2b05b9c8e680b82a311d115f4f221438"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__httpclient__api.html#ga8ef0339085aef96706a30799cc01b35e">HTTPC_RESULT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#ga2b05b9c8e680b82a311d115f4f221438">httpclient_recv</a> (<a class="el" href="structhttpclient__t.html">httpclient_t</a> *client, <a class="el" href="structhttpclient__data__t.html">httpclient_data_t</a> *client_data)</td></tr>
+<tr class="separator:ga2b05b9c8e680b82a311d115f4f221438"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8f81eeba225d5027e177ce98f12f34f5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#ga8f81eeba225d5027e177ce98f12f34f5">httpclient_clse</a> (<a class="el" href="structhttpclient__t.html">httpclient_t</a> *client)</td></tr>
+<tr class="separator:ga8f81eeba225d5027e177ce98f12f34f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1d1e5926880a73aed4188a61672a1c6c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#ga1d1e5926880a73aed4188a61672a1c6c">httpclient_set_custom_header</a> (<a class="el" href="structhttpclient__t.html">httpclient_t</a> *client, char *header)</td></tr>
+<tr class="separator:ga1d1e5926880a73aed4188a61672a1c6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga65884d837ed6815b8f83a2138cd4211e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#ga65884d837ed6815b8f83a2138cd4211e">httpclient_get_response_code</a> (<a class="el" href="structhttpclient__t.html">httpclient_t</a> *client)</td></tr>
+<tr class="separator:ga65884d837ed6815b8f83a2138cd4211e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabd0fe9bd397304b302326cad30cd6add"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#gabd0fe9bd397304b302326cad30cd6add">httpclient_get_response_header_value</a> (char *header_buf, char *name, int *val_pos, int *val_len)</td></tr>
+<tr class="separator:gabd0fe9bd397304b302326cad30cd6add"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaed8b0ddd5588da8d593b010af98a3ac2"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#gaed8b0ddd5588da8d593b010af98a3ac2">httpclient_formdata_addtext</a> (<a class="el" href="structhttpclient__data__t.html">httpclient_data_t</a> *client_data, char *content_disposition, char *content_type, char *name, char *data, int data_len)</td></tr>
+<tr class="separator:gaed8b0ddd5588da8d593b010af98a3ac2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga89b9b11e3dec7f116e2a1eece7a81b9d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__httpclient__api.html#ga89b9b11e3dec7f116e2a1eece7a81b9d">httpclient_formdata_addfile</a> (<a class="el" href="structhttpclient__data__t.html">httpclient_data_t</a> *client_data, char *content_disposition, char *name, char *content_type, char *file_path)</td></tr>
+<tr class="separator:ga89b9b11e3dec7f116e2a1eece7a81b9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">详细描述</h2>
+<div class="textblock"><p>http API header file.</p>
+<dl class="section version"><dt>版本</dt><dd>V1.0 </dd></dl>
+<dl class="section date"><dt>日期</dt><dd>2019-12-24 Copyright (C) 2015-2020 Alibaba Group Holding Limited </dd></dl>
+
+<p class="definition">在文件 <a class="el" href="httpclient_8h_source.html">httpclient.h</a> 中定义.</p>
+</div></div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_d4394f43c2e46257b8a22bcf996f49e8.html">http</a></li><li class="navelem"><a class="el" href="dir_7c0d4c27c8866ced140899992d243244.html">include</a></li><li class="navelem"><a class="el" href="httpclient_8h.html">httpclient.h</a></li>
+  </ul>
+</div>
+</body>
+</html>

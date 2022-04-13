@@ -1,0 +1,53 @@
+menuconfig AOS_COMP_OTA
+    bool "OTA Features"
+    select MBEDTLS_CONFIG_CRYPTO_MD5 if AOS_COMP_MBEDTLS
+    select AOS_COMP_CJSON
+    select AOS_COMP_OTA_AGENT
+    select OTA_CONFIG_BLE if AOS_COMP_BREEZE
+    select CONFIG_COMP_BZ_HAL_CRYPTO_MEBDTLS if AOS_COMP_BREEZE
+    select AOS_COMP_SDK_MQTT if !OTA_CONFIG_BLE && !OTA_CONFIG_SLAVE
+    select AOS_COMP_HTTP    if !OTA_CONFIG_BLE && !OTA_CONFIG_SLAVE
+    default n
+    help
+
+
+if AOS_COMP_OTA
+config OTA_CONFIG_RSA
+    bool "RSA Verify Support"
+    default n
+    help
+    select Y to support RSA Verify.
+
+if OTA_CONFIG_RSA
+choice
+    prompt "Select signature"
+    default OTA_CONFIG_LOCAL_RSA
+    help
+        choose where to sign
+
+    config OTA_CONFIG_CLOUD_RSA
+        bool "cloud sign"
+        help
+            signature in the cloud.
+
+    config OTA_CONFIG_LOCAL_RSA
+        bool "local sign"
+        help
+            signature in the alios studio.
+endchoice
+endif
+
+config CONFIG_AOS_OTA_AGENT
+     bool "OTA agent fuction enable"
+     source "components/dm/ota/ota_agent/Config.in"
+
+config OTA_FLASH_WRITE_CACHE_SIZE
+     int "write flash cache size(bytes)"
+     default 1024
+     help
+        This option sets the ota write flash cache size for 8-byte alignment.
+        This option is limited by the board memory size.
+        This value could be 512 1024 2048 4096 ...
+        The default value is 1024
+
+endif

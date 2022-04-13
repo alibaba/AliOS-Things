@@ -1,0 +1,753 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		007288A80F0DA79800C302A9 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 007288A60F0DA79800C302A9 /* ApplicationServices.framework */; };
+		AA23FC7D20A2A1B90017DFB9 /* IMG_svg.c in Sources */ = {isa = PBXBuildFile; fileRef = AA50AA461F9C7C50003B9C0C /* IMG_svg.c */; };
+		AA50AA471F9C7C50003B9C0C /* IMG_svg.c in Sources */ = {isa = PBXBuildFile; fileRef = AA50AA461F9C7C50003B9C0C /* IMG_svg.c */; };
+		AA579DF2161C07E6005F809B /* IMG_bmp.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE2161C07E6005F809B /* IMG_bmp.c */; };
+		AA579DF3161C07E7005F809B /* IMG_bmp.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE2161C07E6005F809B /* IMG_bmp.c */; };
+		AA579DF4161C07E7005F809B /* IMG_gif.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE3161C07E6005F809B /* IMG_gif.c */; };
+		AA579DF5161C07E7005F809B /* IMG_gif.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE3161C07E6005F809B /* IMG_gif.c */; };
+		AA579DF6161C07E7005F809B /* IMG_ImageIO.m in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE4161C07E6005F809B /* IMG_ImageIO.m */; };
+		AA579DF7161C07E7005F809B /* IMG_ImageIO.m in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE4161C07E6005F809B /* IMG_ImageIO.m */; };
+		AA579DF8161C07E7005F809B /* IMG_jpg.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE5161C07E6005F809B /* IMG_jpg.c */; };
+		AA579DF9161C07E7005F809B /* IMG_jpg.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE5161C07E6005F809B /* IMG_jpg.c */; };
+		AA579DFA161C07E7005F809B /* IMG_lbm.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE6161C07E6005F809B /* IMG_lbm.c */; };
+		AA579DFB161C07E7005F809B /* IMG_lbm.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE6161C07E6005F809B /* IMG_lbm.c */; };
+		AA579DFC161C07E7005F809B /* IMG_pcx.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE7161C07E6005F809B /* IMG_pcx.c */; };
+		AA579DFD161C07E7005F809B /* IMG_pcx.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE7161C07E6005F809B /* IMG_pcx.c */; };
+		AA579DFE161C07E7005F809B /* IMG_png.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE8161C07E6005F809B /* IMG_png.c */; };
+		AA579DFF161C07E7005F809B /* IMG_png.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE8161C07E6005F809B /* IMG_png.c */; };
+		AA579E00161C07E7005F809B /* IMG_pnm.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE9161C07E6005F809B /* IMG_pnm.c */; };
+		AA579E01161C07E7005F809B /* IMG_pnm.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DE9161C07E6005F809B /* IMG_pnm.c */; };
+		AA579E02161C07E7005F809B /* IMG_tga.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DEA161C07E6005F809B /* IMG_tga.c */; };
+		AA579E03161C07E7005F809B /* IMG_tga.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DEA161C07E6005F809B /* IMG_tga.c */; };
+		AA579E04161C07E7005F809B /* IMG_tif.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DEB161C07E6005F809B /* IMG_tif.c */; };
+		AA579E05161C07E7005F809B /* IMG_tif.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DEB161C07E6005F809B /* IMG_tif.c */; };
+		AA579E06161C07E7005F809B /* IMG_webp.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DEC161C07E6005F809B /* IMG_webp.c */; };
+		AA579E07161C07E7005F809B /* IMG_webp.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DEC161C07E6005F809B /* IMG_webp.c */; };
+		AA579E08161C07E7005F809B /* IMG_xcf.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DED161C07E6005F809B /* IMG_xcf.c */; };
+		AA579E09161C07E7005F809B /* IMG_xcf.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DED161C07E6005F809B /* IMG_xcf.c */; };
+		AA579E0A161C07E7005F809B /* IMG_xpm.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DEE161C07E6005F809B /* IMG_xpm.c */; };
+		AA579E0B161C07E7005F809B /* IMG_xpm.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DEE161C07E6005F809B /* IMG_xpm.c */; };
+		AA579E0C161C07E7005F809B /* IMG_xv.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DEF161C07E6005F809B /* IMG_xv.c */; };
+		AA579E0D161C07E7005F809B /* IMG_xv.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DEF161C07E6005F809B /* IMG_xv.c */; };
+		AA579E0E161C07E7005F809B /* IMG_xxx.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DF0161C07E6005F809B /* IMG_xxx.c */; };
+		AA579E0F161C07E7005F809B /* IMG_xxx.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DF0161C07E6005F809B /* IMG_xxx.c */; };
+		AA579E10161C07E7005F809B /* IMG.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DF1161C07E6005F809B /* IMG.c */; };
+		AA579E11161C07E7005F809B /* IMG.c in Sources */ = {isa = PBXBuildFile; fileRef = AA579DF1161C07E6005F809B /* IMG.c */; };
+		AADBAC88175C6AAB004F8ED2 /* webp.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = AA9EE77514B27A62008773C0 /* webp.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		AADBAC89175C6B4C004F8ED2 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 007288A60F0DA79800C302A9 /* ApplicationServices.framework */; };
+		AADBAC8A175C6B4F004F8ED2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61F85449145A19BC002CA294 /* Foundation.framework */; };
+		BE1FA71A07AF4C44004B6283 /* SDL_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 1014BAEA010A4B677F000001 /* SDL_image.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		BE1FA76307AF7335004B6283 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE1FA76207AF7335004B6283 /* SDL2.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BE1FA74C07AF4C45004B6283 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0867D690FE84028FC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BE1FA71807AF4C44004B6283;
+			remoteInfo = Framework;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		AA9EE77214B27810008773C0 /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				AADBAC88175C6AAB004F8ED2 /* webp.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		007288A60F0DA79800C302A9 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
+		1014BAEA010A4B677F000001 /* SDL_image.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SDL_image.h; path = ../SDL_image.h; sourceTree = SOURCE_ROOT; };
+		61F85449145A19BC002CA294 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		AA50AA461F9C7C50003B9C0C /* IMG_svg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG_svg.c; path = ../IMG_svg.c; sourceTree = "<group>"; };
+		AA579DE2161C07E6005F809B /* IMG_bmp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG_bmp.c; path = ../IMG_bmp.c; sourceTree = "<group>"; };
+		AA579DE3161C07E6005F809B /* IMG_gif.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG_gif.c; path = ../IMG_gif.c; sourceTree = "<group>"; };
+		AA579DE4161C07E6005F809B /* IMG_ImageIO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = IMG_ImageIO.m; path = ../IMG_ImageIO.m; sourceTree = "<group>"; };
+		AA579DE5161C07E6005F809B /* IMG_jpg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG_jpg.c; path = ../IMG_jpg.c; sourceTree = "<group>"; };
+		AA579DE6161C07E6005F809B /* IMG_lbm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG_lbm.c; path = ../IMG_lbm.c; sourceTree = "<group>"; };
+		AA579DE7161C07E6005F809B /* IMG_pcx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG_pcx.c; path = ../IMG_pcx.c; sourceTree = "<group>"; };
+		AA579DE8161C07E6005F809B /* IMG_png.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG_png.c; path = ../IMG_png.c; sourceTree = "<group>"; };
+		AA579DE9161C07E6005F809B /* IMG_pnm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG_pnm.c; path = ../IMG_pnm.c; sourceTree = "<group>"; };
+		AA579DEA161C07E6005F809B /* IMG_tga.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG_tga.c; path = ../IMG_tga.c; sourceTree = "<group>"; };
+		AA579DEB161C07E6005F809B /* IMG_tif.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG_tif.c; path = ../IMG_tif.c; sourceTree = "<group>"; };
+		AA579DEC161C07E6005F809B /* IMG_webp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG_webp.c; path = ../IMG_webp.c; sourceTree = "<group>"; };
+		AA579DED161C07E6005F809B /* IMG_xcf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG_xcf.c; path = ../IMG_xcf.c; sourceTree = "<group>"; };
+		AA579DEE161C07E6005F809B /* IMG_xpm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG_xpm.c; path = ../IMG_xpm.c; sourceTree = "<group>"; };
+		AA579DEF161C07E6005F809B /* IMG_xv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG_xv.c; path = ../IMG_xv.c; sourceTree = "<group>"; };
+		AA579DF0161C07E6005F809B /* IMG_xxx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG_xxx.c; path = ../IMG_xxx.c; sourceTree = "<group>"; };
+		AA579DF1161C07E6005F809B /* IMG.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = IMG.c; path = ../IMG.c; sourceTree = "<group>"; };
+		AA9EE77514B27A62008773C0 /* webp.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = webp.framework; path = Frameworks/webp.framework; sourceTree = "<group>"; };
+		BE1FA72D07AF4C44004B6283 /* Info-Framework.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-Framework.plist"; sourceTree = "<group>"; };
+		BE1FA72E07AF4C45004B6283 /* SDL2_image.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SDL2_image.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE1FA74107AF4C45004B6283 /* libSDL2_image.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSDL2_image.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE1FA74507AF4C45004B6283 /* Create DMG */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Create DMG"; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE1FA76207AF7335004B6283 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = /Library/Frameworks/SDL2.framework; sourceTree = "<absolute>"; };
+		F59C710300D5CB5801000001 /* ReadMe.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = ReadMe.txt; sourceTree = "<group>"; };
+		F59C710400D5CB5801000001 /* Welcome.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Welcome.txt; sourceTree = "<group>"; };
+		F59C710600D5CB5801000001 /* SDL_image.info */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = SDL_image.info; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BE1FA72A07AF4C44004B6283 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AADBAC89175C6B4C004F8ED2 /* ApplicationServices.framework in Frameworks */,
+				AADBAC8A175C6B4F004F8ED2 /* Foundation.framework in Frameworks */,
+				BE1FA76307AF7335004B6283 /* SDL2.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BE1FA73F07AF4C45004B6283 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				007288A80F0DA79800C302A9 /* ApplicationServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0153844A006D81B07F000001 /* Public Headers */ = {
+			isa = PBXGroup;
+			children = (
+				1014BAEA010A4B677F000001 /* SDL_image.h */,
+			);
+			name = "Public Headers";
+			sourceTree = "<group>";
+		};
+		034768DDFF38A45A11DB9C8B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				089C1665FE841158C02AAC07 /* Resources */,
+				BE1FA72E07AF4C45004B6283 /* SDL2_image.framework */,
+				BE1FA74107AF4C45004B6283 /* libSDL2_image.a */,
+				BE1FA74507AF4C45004B6283 /* Create DMG */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0867D691FE84028FC02AAC07 /* SDL_imageFramework */ = {
+			isa = PBXGroup;
+			children = (
+				F59C70FC00D5CB5801000001 /* pkg-support */,
+				0153844A006D81B07F000001 /* Public Headers */,
+				08FB77ACFE841707C02AAC07 /* Library Source */,
+				BE1FA76107AF72F5004B6283 /* Frameworks */,
+				034768DDFF38A45A11DB9C8B /* Products */,
+				BE1FA72D07AF4C44004B6283 /* Info-Framework.plist */,
+			);
+			name = SDL_imageFramework;
+			sourceTree = "<group>";
+		};
+		089C1665FE841158C02AAC07 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		08FB77ACFE841707C02AAC07 /* Library Source */ = {
+			isa = PBXGroup;
+			children = (
+				AA579DF1161C07E6005F809B /* IMG.c */,
+				AA579DE4161C07E6005F809B /* IMG_ImageIO.m */,
+				AA579DE2161C07E6005F809B /* IMG_bmp.c */,
+				AA579DE3161C07E6005F809B /* IMG_gif.c */,
+				AA579DE5161C07E6005F809B /* IMG_jpg.c */,
+				AA579DE6161C07E6005F809B /* IMG_lbm.c */,
+				AA579DE7161C07E6005F809B /* IMG_pcx.c */,
+				AA579DE8161C07E6005F809B /* IMG_png.c */,
+				AA579DE9161C07E6005F809B /* IMG_pnm.c */,
+				AA50AA461F9C7C50003B9C0C /* IMG_svg.c */,
+				AA579DEA161C07E6005F809B /* IMG_tga.c */,
+				AA579DEB161C07E6005F809B /* IMG_tif.c */,
+				AA579DEC161C07E6005F809B /* IMG_webp.c */,
+				AA579DED161C07E6005F809B /* IMG_xcf.c */,
+				AA579DEE161C07E6005F809B /* IMG_xpm.c */,
+				AA579DEF161C07E6005F809B /* IMG_xv.c */,
+				AA579DF0161C07E6005F809B /* IMG_xxx.c */,
+			);
+			name = "Library Source";
+			sourceTree = "<group>";
+		};
+		BE1FA76007AF72B1004B6283 /* Linked Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				007288A60F0DA79800C302A9 /* ApplicationServices.framework */,
+				61F85449145A19BC002CA294 /* Foundation.framework */,
+				BE1FA76207AF7335004B6283 /* SDL2.framework */,
+				AA9EE77514B27A62008773C0 /* webp.framework */,
+			);
+			name = "Linked Frameworks";
+			sourceTree = "<group>";
+		};
+		BE1FA76107AF72F5004B6283 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BE1FA76007AF72B1004B6283 /* Linked Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F59C70FC00D5CB5801000001 /* pkg-support */ = {
+			isa = PBXGroup;
+			children = (
+				F59C710100D5CB5801000001 /* resources */,
+				F59C710600D5CB5801000001 /* SDL_image.info */,
+			);
+			path = "pkg-support";
+			sourceTree = SOURCE_ROOT;
+		};
+		F59C710100D5CB5801000001 /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				F59C710300D5CB5801000001 /* ReadMe.txt */,
+				F59C710400D5CB5801000001 /* Welcome.txt */,
+			);
+			path = resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		BE1FA71907AF4C44004B6283 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BE1FA71A07AF4C44004B6283 /* SDL_image.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BE1FA73007AF4C45004B6283 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		BE1FA71807AF4C44004B6283 /* Framework */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00B7E3AA097EB73D00826121 /* Build configuration list for PBXNativeTarget "Framework" */;
+			buildPhases = (
+				BE1FA71907AF4C44004B6283 /* Headers */,
+				BE1FA71B07AF4C44004B6283 /* Resources */,
+				BE1FA71C07AF4C44004B6283 /* Sources */,
+				BE1FA72A07AF4C44004B6283 /* Frameworks */,
+				BE1FA72B07AF4C44004B6283 /* Rez */,
+				AA9EE77214B27810008773C0 /* Copy Frameworks */,
+				AA9EE77314B2782A008773C0 /* Create Frameworks symlink */,
+				AA9EE77414B27854008773C0 /* Convert SDL includes to SDL Framework includes */,
+			);
+			buildRules = (
+			);
+			comments = "Installed into ~/Library/Frameworks/SDL_image.framework\n\nAdd -framework SDL_image to your linker flags\nAdd ~/Library/Frameworks/SDL_image.framework/Headers to your header search path\nAdd ~/Library/Frameworks to your library search path";
+			dependencies = (
+			);
+			name = Framework;
+			productInstallPath = "@executable_path/../Frameworks";
+			productName = SDL_image;
+			productReference = BE1FA72E07AF4C45004B6283 /* SDL2_image.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		BE1FA72F07AF4C45004B6283 /* Static Library */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00B7E3AE097EB73D00826121 /* Build configuration list for PBXNativeTarget "Static Library" */;
+			buildPhases = (
+				BE1FA73007AF4C45004B6283 /* Headers */,
+				BE1FA73107AF4C45004B6283 /* Sources */,
+				BE1FA73F07AF4C45004B6283 /* Frameworks */,
+				BE1FA74007AF4C45004B6283 /* Rez */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Static Library";
+			productInstallPath = /usr/local/lib;
+			productName = "Static Library";
+			productReference = BE1FA74107AF4C45004B6283 /* libSDL2_image.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		BE1FA74207AF4C45004B6283 /* Create DMG */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00B7E3B2097EB73D00826121 /* Build configuration list for PBXNativeTarget "Create DMG" */;
+			buildPhases = (
+				BE1FA74407AF4C45004B6283 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BE1FA74D07AF4C45004B6283 /* PBXTargetDependency */,
+			);
+			name = "Create DMG";
+			productInstallPath = /usr/local/bin;
+			productName = "Standard Package";
+			productReference = BE1FA74507AF4C45004B6283 /* Create DMG */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0867D690FE84028FC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0630;
+			};
+			buildConfigurationList = 00B7E3B6097EB73D00826121 /* Build configuration list for PBXProject "SDL_image" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 0867D691FE84028FC02AAC07 /* SDL_imageFramework */;
+			productRefGroup = 034768DDFF38A45A11DB9C8B /* Products */;
+			projectDirPath = "";
+			projectRoot = ..;
+			targets = (
+				BE1FA71807AF4C44004B6283 /* Framework */,
+				BE1FA72F07AF4C45004B6283 /* Static Library */,
+				BE1FA74207AF4C45004B6283 /* Create DMG */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BE1FA71B07AF4C44004B6283 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXRezBuildPhase section */
+		BE1FA72B07AF4C44004B6283 /* Rez */ = {
+			isa = PBXRezBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BE1FA74007AF4C45004B6283 /* Rez */ = {
+			isa = PBXRezBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXRezBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		AA9EE77314B2782A008773C0 /* Create Frameworks symlink */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Create Frameworks symlink";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd $SYMROOT/$CONFIGURATION/$FULL_PRODUCT_NAME\nif ! [ -L Frameworks ]; then\n    rm -f Frameworks\n    ln -s Versions/Current/Frameworks Frameworks\nfi";
+		};
+		AA9EE77414B27854008773C0 /* Convert SDL includes to SDL Framework includes */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Convert SDL includes to SDL Framework includes";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd $SYMROOT/$CONFIGURATION/$PUBLIC_HEADERS_FOLDER_PATH\nHEADER=SDL_image.h\nsed 's,#include \"\\(.*\\)\",#include <SDL2/\\1>,' <$HEADER >$HEADER.new\nmv $HEADER.new $HEADER";
+		};
+		BE1FA74407AF4C45004B6283 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "PRODUCT_NAME=SDL2_image\n\n# Sign framework\nif [ \"$SDL_CODESIGN_IDENTITY\" != \"\" ]; then\n    codesign --force --deep --sign \"$SDL_CODESIGN_IDENTITY\" $TARGET_BUILD_DIR/$PRODUCT_NAME.framework/Versions/A || exit $?\nfi\n\n# clean up the framework, remove headers, extra files\nmkdir -p build/dmg-tmp\ncp -r $TARGET_BUILD_DIR/$PRODUCT_NAME.framework build/dmg-tmp/\ncp pkg-support/resources/ReadMe.txt build/dmg-tmp\n\n# remove the .DS_Store files if any (we may want to provide one in the future for fancy .dmgs)\nrm -rf build/dmg-tmp/.DS_Store\n\n# create the dmg\nhdiutil create -ov -fs HFS+ -volname $PRODUCT_NAME -srcfolder build/dmg-tmp build/$PRODUCT_NAME.dmg\n\n# clean up\nrm -rf build/dmg-tmp\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BE1FA71C07AF4C44004B6283 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA579DF2161C07E6005F809B /* IMG_bmp.c in Sources */,
+				AA579DF4161C07E7005F809B /* IMG_gif.c in Sources */,
+				AA579DF6161C07E7005F809B /* IMG_ImageIO.m in Sources */,
+				AA579DF8161C07E7005F809B /* IMG_jpg.c in Sources */,
+				AA579DFA161C07E7005F809B /* IMG_lbm.c in Sources */,
+				AA579DFC161C07E7005F809B /* IMG_pcx.c in Sources */,
+				AA579DFE161C07E7005F809B /* IMG_png.c in Sources */,
+				AA579E00161C07E7005F809B /* IMG_pnm.c in Sources */,
+				AA579E02161C07E7005F809B /* IMG_tga.c in Sources */,
+				AA579E04161C07E7005F809B /* IMG_tif.c in Sources */,
+				AA579E06161C07E7005F809B /* IMG_webp.c in Sources */,
+				AA579E08161C07E7005F809B /* IMG_xcf.c in Sources */,
+				AA579E0A161C07E7005F809B /* IMG_xpm.c in Sources */,
+				AA579E0C161C07E7005F809B /* IMG_xv.c in Sources */,
+				AA579E0E161C07E7005F809B /* IMG_xxx.c in Sources */,
+				AA579E10161C07E7005F809B /* IMG.c in Sources */,
+				AA50AA471F9C7C50003B9C0C /* IMG_svg.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BE1FA73107AF4C45004B6283 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA579DF3161C07E7005F809B /* IMG_bmp.c in Sources */,
+				AA579DF5161C07E7005F809B /* IMG_gif.c in Sources */,
+				AA579DF7161C07E7005F809B /* IMG_ImageIO.m in Sources */,
+				AA579DF9161C07E7005F809B /* IMG_jpg.c in Sources */,
+				AA579DFB161C07E7005F809B /* IMG_lbm.c in Sources */,
+				AA579DFD161C07E7005F809B /* IMG_pcx.c in Sources */,
+				AA579DFF161C07E7005F809B /* IMG_png.c in Sources */,
+				AA579E01161C07E7005F809B /* IMG_pnm.c in Sources */,
+				AA579E03161C07E7005F809B /* IMG_tga.c in Sources */,
+				AA579E05161C07E7005F809B /* IMG_tif.c in Sources */,
+				AA579E07161C07E7005F809B /* IMG_webp.c in Sources */,
+				AA579E09161C07E7005F809B /* IMG_xcf.c in Sources */,
+				AA579E0B161C07E7005F809B /* IMG_xpm.c in Sources */,
+				AA579E0D161C07E7005F809B /* IMG_xv.c in Sources */,
+				AA579E0F161C07E7005F809B /* IMG_xxx.c in Sources */,
+				AA579E11161C07E7005F809B /* IMG.c in Sources */,
+				AA23FC7D20A2A1B90017DFB9 /* IMG_svg.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BE1FA74D07AF4C45004B6283 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BE1FA71807AF4C44004B6283 /* Framework */;
+			targetProxy = BE1FA74C07AF4C45004B6283 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		007288110F0DA5BA00C302A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED)",
+					"$(HOME)/Library/Frameworks",
+					/Library/Frameworks,
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED = "\"$(SRCROOT)/Frameworks\"";
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					LOAD_BMP,
+					LOAD_GIF,
+					LOAD_JPG,
+					LOAD_LBM,
+					LOAD_PCX,
+					LOAD_PNG,
+					LOAD_PNM,
+					LOAD_SVG,
+					LOAD_TGA,
+					LOAD_TIF,
+					LOAD_WEBP,
+					LOAD_XPM,
+					LOAD_XV,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS_QUOTED)",
+					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
+					/Library/Frameworks/SDL.framework/Headers,
+				);
+				HEADER_SEARCH_PATHS_QUOTED = "\"$(SRCROOT)/Frameworks/webp.framework/Headers\"";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = SDL2_image;
+				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "$(HEADER_SEARCH_PATHS_QUOTED) $(HOME)/Library/Frameworks/SDL2.framework/Headers /Library/Frameworks/SDL2.framework/Headers";
+			};
+			name = Debug;
+		};
+		007288120F0DA5BA00C302A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 3.0.0;
+				DYLIB_CURRENT_VERSION = 3.2.0;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Frameworks\"",
+				);
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = "Info-Framework.plist";
+				INSTALL_PATH = "@rpath";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					webp,
+				);
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Debug;
+		};
+		007288130F0DA5BA00C302A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					LOAD_BMP,
+					LOAD_GIF,
+					LOAD_JPG,
+					LOAD_LBM,
+					LOAD_PCX,
+					LOAD_PNG,
+					LOAD_PNM,
+					LOAD_SVG,
+					LOAD_TGA,
+					LOAD_TIF,
+					LOAD_WEBP,
+					LOAD_XPM,
+					LOAD_XV,
+				);
+				HEADER_SEARCH_PATHS = (
+					/Library/Frameworks/SDL.framework/Headers,
+					"~/Library/Frameworks/SDL.framework/Headers",
+				);
+				LIBRARY_STYLE = STATIC;
+				OTHER_CFLAGS = "";
+				OTHER_LIBTOOL_FLAGS = "";
+				OTHER_REZFLAGS = "";
+				REZ_EXECUTABLE = YES;
+				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		007288140F0DA5BA00C302A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "Create DMG";
+				REZ_EXECUTABLE = YES;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		007288150F0DA5C400C302A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEPLOYMENT_POSTPROCESSING = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED)",
+					"$(HOME)/Library/Frameworks",
+					/Library/Frameworks,
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED = "\"$(SRCROOT)/Frameworks\"";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					LOAD_BMP,
+					LOAD_GIF,
+					LOAD_JPG,
+					LOAD_LBM,
+					LOAD_PCX,
+					LOAD_PNG,
+					LOAD_PNM,
+					LOAD_SVG,
+					LOAD_TGA,
+					LOAD_TIF,
+					LOAD_WEBP,
+					LOAD_XPM,
+					LOAD_XV,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(HEADER_SEARCH_PATHS_QUOTED)",
+					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
+					/Library/Frameworks/SDL.framework/Headers,
+				);
+				HEADER_SEARCH_PATHS_QUOTED = "\"$(SRCROOT)/Frameworks/webp.framework/Headers\"";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				PRODUCT_NAME = SDL2_image;
+				SDKROOT = macosx;
+				SEPARATE_STRIP = YES;
+				STRIP_STYLE = "non-global";
+				USER_HEADER_SEARCH_PATHS = "$(HEADER_SEARCH_PATHS_QUOTED) $(HOME)/Library/Frameworks/SDL2.framework/Headers /Library/Frameworks/SDL2.framework/Headers";
+			};
+			name = Release;
+		};
+		007288160F0DA5C400C302A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 3.0.0;
+				DYLIB_CURRENT_VERSION = 3.2.0;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Frameworks\"",
+				);
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = "Info-Framework.plist";
+				INSTALL_PATH = "@rpath";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					webp,
+				);
+				WRAPPER_EXTENSION = framework;
+			};
+			name = Release;
+		};
+		007288170F0DA5C400C302A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = "";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					LOAD_BMP,
+					LOAD_GIF,
+					LOAD_JPG,
+					LOAD_LBM,
+					LOAD_PCX,
+					LOAD_PNG,
+					LOAD_PNM,
+					LOAD_SVG,
+					LOAD_TGA,
+					LOAD_TIF,
+					LOAD_WEBP,
+					LOAD_XPM,
+					LOAD_XV,
+				);
+				HEADER_SEARCH_PATHS = (
+					/Library/Frameworks/SDL.framework/Headers,
+					"~/Library/Frameworks/SDL.framework/Headers",
+				);
+				LIBRARY_STYLE = STATIC;
+				OTHER_CFLAGS = "";
+				OTHER_LIBTOOL_FLAGS = "";
+				OTHER_REZFLAGS = "";
+				REZ_EXECUTABLE = YES;
+				SECTORDER_FLAGS = "";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		007288180F0DA5C400C302A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "Create DMG";
+				REZ_EXECUTABLE = YES;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		00B7E3AA097EB73D00826121 /* Build configuration list for PBXNativeTarget "Framework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				007288160F0DA5C400C302A9 /* Release */,
+				007288120F0DA5BA00C302A9 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		00B7E3AE097EB73D00826121 /* Build configuration list for PBXNativeTarget "Static Library" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				007288170F0DA5C400C302A9 /* Release */,
+				007288130F0DA5BA00C302A9 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		00B7E3B2097EB73D00826121 /* Build configuration list for PBXNativeTarget "Create DMG" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				007288180F0DA5C400C302A9 /* Release */,
+				007288140F0DA5BA00C302A9 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		00B7E3B6097EB73D00826121 /* Build configuration list for PBXProject "SDL_image" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				007288150F0DA5C400C302A9 /* Release */,
+				007288110F0DA5BA00C302A9 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0867D690FE84028FC02AAC07 /* Project object */;
+}

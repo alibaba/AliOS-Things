@@ -1,0 +1,116 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: ota_demo</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('ota_demo.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="PageDoc"><div class="header">
+  <div class="headertitle">
+<div class="title">ota_demo </div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><h1><a class="anchor" id="autotoc_md971"></a>
+1. 案例简介</h1>
+<p>OTA升级是很多嵌入式产品必备的一个功能。HaaS提供了完备的OTA解决方案。本案例就是一个端云一体的例子。 本文将分几个部分介绍，具体包括： 设备端代码的修改、编译、烧录。 云端服务器的配置、新增、OTA升级包上传、OTA升级。 本文的设备连接情况如下： <img src="https://img.alicdn.com/imgextra/i3/O1CN01U7iUQh1k4aSEzSpK4_!!6000000004630-0-tps-4032-3024.jpg" alt="image.jpg" class="inline"/> 本文的主要目标是，通过修改设备端代码和配置云端，完成对设备端版本的升级，如下图所示： <img src="https://img.alicdn.com/imgextra/i1/O1CN01ScRC9M1GS0EMBJG76_!!6000000000620-0-tps-1448-984.jpg" alt="image.jpg" class="inline"/></p>
+<h1><a class="anchor" id="autotoc_md972"></a>
+2. 基础知识</h1>
+<p>OTA：（over the air)已成为物联网设备的刚需功能, AliIOS Things OTA有完备的升级方案，对各种升级场景都有很好的支持。 升级模式：整包升级、压缩升级、差分升级、安全升级。 支持的升级通道：http、https、BLE、3G/4G，NB等； 复杂场景支持：网关及子设备升级，连接型模组升级非连接主设备的间接升级； OTA工具：差分工具、本地签名工具、ymodem辅助升级工具，多固件打包工具等；</p>
+<p>HaaS100进行升级流程，如下图所示，当用户开启阿里云IOT物联网平台的安全升级功能，对应的产品就启动了针对这个产品的安全升级功能，云端会对这个产品的升级固件做秘钥、公钥管理并对这个产品的固件做数字签名；对应的设备端，在OTA的过程中，会用从云端获取的公钥对升级的固件做数字签名的验证；整个流程，用户不需要管理公私钥，使用起来也非常方便，下图为HaaS100 安全升级使用流程图： <img src="https://img.alicdn.com/imgextra/i1/O1CN01Az1bpN1yg3TWgq2qC_!!6000000006607-0-tps-1818-1178.jpg" alt="image.jpg" class="inline"/></p>
+<h1><a class="anchor" id="autotoc_md973"></a>
+3. 物料清单</h1>
+<p>本实验不依赖于其他外围设备，主要是HaaS100开发板 </p><table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadCenter">名称   </th><th class="markdownTableHeadCenter">数量    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter">HaaS100 开发板   </td><td class="markdownTableBodyCenter">1   </td></tr>
+</table>
+<p><img src="https://img.alicdn.com/imgextra/i3/O1CN01bQf9611vvg8cQED0M_!!6000000006235-2-tps-3000-2000.png" alt="image.jpg" class="inline"/></p>
+<h1><a class="anchor" id="autotoc_md974"></a>
+4. 案例实现</h1>
+<p>本案例依赖如下几个组件，具体定义放到了solutions/ota_demo/package.yaml的文件中。 </p><table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadCenter">依赖组件   </th><th class="markdownTableHeadCenter">作用    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter">ota   </td><td class="markdownTableBodyCenter">ota功能的组件    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyCenter">cjson   </td><td class="markdownTableBodyCenter">和云端通信使用的json格式的组件    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter">cli   </td><td class="markdownTableBodyCenter">命令行的组件    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyCenter">netmgr   </td><td class="markdownTableBodyCenter">用于网络连接的组件    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter">lwip   </td><td class="markdownTableBodyCenter">用于网络协议栈的组件    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyCenter">haas100   </td><td class="markdownTableBodyCenter">用于haas100开发板的组件    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter">ulog   </td><td class="markdownTableBodyCenter">用于串口日志的组件   </td></tr>
+</table>
+<p><b>1.打开云端安全升级功能并获取公钥</b></p>
+<div style="text-align:center"> <img src="https://img.alicdn.com/imgextra/i2/O1CN01cXHMmB1dPvabuoJzv_!!6000000003729-2-tps-1837-867.png" alt="" class="inline"/> </div><p><b>2.将公钥内嵌到代码中</b> 如步骤1图示，通过复制按钮获取的公钥内嵌到 <code> AliOS-Things/components/dm/ota/hal/ota_hal_digest.c</code>文件中，覆盖如下的两个数组： </p><div class="fragment"><div class="line">/* RSA Public Key:User needs sign in alibaba cloud to get and replace them. */</div>
+<div class="line">static const unsigned char ota_pubn_buf[256];</div>
+<div class="line">static const unsigned char ota_pube_buf[3];</div>
+</div><!-- fragment --><p> <b>3.编译烧录到HaaS100的基础固件</b></p><ul>
+<li>选择app和board HaaS 100 搭载的是AliOS Things物联网操作系统，编译环境支持windows、linux和mac,下面以linux环境为主介绍使用过程，以ota_demo为例，介绍HaaS 100的固件验签如何使用； 输入命令：</li>
+</ul>
+<div class="fragment"><div class="line"># 清除之前配置</div>
+<div class="line">$ aos make distclean</div>
+<div class="line"># 配置app为ota_demo，board为haas100</div>
+<div class="line">$ aos make ota_demo@haas100 -c config</div>
+</div><!-- fragment --><ul>
+<li>配置固件版本号 根据需求修改版本号,如app-1.0.0等 修改位置：solutions/ota_demo/otaappdemo.c中的，MY_APP_VER宏定义。</li>
+<li>配置四元祖 修改位置：solutions/ota_demo/otaappdemo.c中的，mqtt_main函数中的char *product_key, char *device_name, char *device_secret;填入自己的pk,dn,ds;</li>
+<li>选择OTA组件及功能 由于AliOS Things 端侧默认支持对固件验签的功能，此处不需要配置，使用OTA的默认配置就可以了；</li>
+<li>开始编译固件并烧录 编译命令：aos make 编译完成后，生成的固件在<code>hardware/chip/haas1000/release/write_flash_gui/ota_bin</code>目录下；根据前面的烧录文档，先将固件烧录到HaaS 100板子上，重启板子，打开串口终端，配置串口波特率为：**1500000**，连接终端；</li>
+<li>配网连云 输入wifi账号和密码配网：在终端输入： <code>netmgr -t wifi -c wifi_ssid wifi_password</code> 注意修改其中的wifi_ssid和wifi_password为需要连接的wifi名字和wifi密码。 连网成功后，登录<a href="http://iot.console.aliyun.com/">物联网平台</a>可以看到对应的设备在线:</li>
+</ul>
+<div style="text-align:center"> <img src="https://img.alicdn.com/tfs/TB18SN737T2gK0jSZFkXXcIQFXa-592-45.png" alt="" class="inline"/> </div><p><b>4.编译上云固件及云端操作</b> 本地烧录完成后，需要做一个高版本固件上传到云端，通过云端操作完成固件的升级，所以需要按照步骤3中修改版本号的方法，修改固件版本号，其他不用修改，再编译生成一个高版本的固件，然后登录<a href="http://iot.console.aliyun.com/">物联网平台</a>平台，按如下图顺序操作: <img src="https://img.alicdn.com/tfs/TB1NM2iU7T2gK0jSZFkXXcIQFXa-1110-861.png" alt="上传固件.png" class="inline"/></p>
+<p>点击**添加固件**后，如下图将<code>platform/mcu/haas1000/release/write_flash_gui/ota_bin/ota_bin/ota_rtos_ota.bin</code>上传到云端:</p>
+<div style="text-align:center"> <img src="https://img.alicdn.com/tfs/TB19BoDhmslXu8jSZFuXXXg7FXa-719-1196.png" alt="" class="inline"/> </div><p>点击确定后，选择验证固件即可开始固件升级； <b>5.升级结果验证</b> 按照上面的操作步骤完成后，可以完成固件的数字签名验签进而实现固件升级，端侧的log如下图： </p><div style="text-align:center"> <img src="https://img.alicdn.com/imgextra/i2/O1CN01nCJgW423op8DkE8Vg_!!6000000007303-2-tps-1170-385.png" alt="" class="inline"/> </div><p>如果开启了安全升级，但HaaS100没有内嵌公钥，触发升级会怎么样呢？答案是HaaS100会数字签名验证失败，禁止固件升级，端侧的log会如下图所示： </p><div style="text-align:center"> <img src="https://img.alicdn.com/imgextra/i2/O1CN01g5P8gy1t33fTWNqur_!!6000000005845-2-tps-1297-490.png" alt="" class="inline"/> </div><p>云端升级结果可以通过点击“查看”获取详情； 物联网平台的OTA操作可参考文档<a href="https://help.aliyun.com/document_detail/58328.html">阿里云物联网平台固件升级文档</a>&#160;</p>
+<h1><a class="anchor" id="autotoc_md975"></a>
+5. 总结</h1>
+<p>本文仅仅针对OTA升级在HaaS100上的的全链路进行了简单介绍。使用ota_demo代码例子外加一块HaaS100开发板，熟悉HaaS开发框架中对于OTA升级的能力支持。关于OTA升级的更多丰富功能，欢迎访问阿里云官网介绍 <a href="https://help.aliyun.com/document_detail/184188.html。">https://help.aliyun.com/document_detail/184188.html。</a> </p>
+</div></div><!-- contents -->
+</div><!-- PageDoc -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+  </ul>
+</div>
+</body>
+</html>

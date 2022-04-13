@@ -1,0 +1,540 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: Sntp_api</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('group__sntp__api.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">结构体</a> &#124;
+<a href="#define-members">宏定义</a> &#124;
+<a href="#func-members">函数</a> &#124;
+<a href="#var-members">变量</a>  </div>
+  <div class="headertitle">
+<div class="title">Sntp_api</div>  </div>
+</div><!--header-->
+<div class="contents">
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+结构体</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsntp__arg.html">sntp_arg</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsntp__time.html">sntp_time</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+宏定义</h2></td></tr>
+<tr class="memitem:gacbee62c27f54371fc2c5259a834a0f9b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#gacbee62c27f54371fc2c5259a834a0f9b">SNTP_PORT</a>&#160;&#160;&#160;123</td></tr>
+<tr class="separator:gacbee62c27f54371fc2c5259a834a0f9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8373df0d67b85fe58cdb651b5f172dbc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga8373df0d67b85fe58cdb651b5f172dbc">SNTP_SUPPORT_MULTIPLE_SERVERS</a>&#160;&#160;&#160;1</td></tr>
+<tr class="separator:ga8373df0d67b85fe58cdb651b5f172dbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5d9dc0827f402849f5c18d44e311dbc2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga5d9dc0827f402849f5c18d44e311dbc2">SNTP_MAX_SERVERS</a>&#160;&#160;&#160;3</td></tr>
+<tr class="separator:ga5d9dc0827f402849f5c18d44e311dbc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga44cf26b9b19832d88599244711a12d08"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga44cf26b9b19832d88599244711a12d08">SNTP_RECV_TIMEOUT</a>&#160;&#160;&#160;3000 /* ms */</td></tr>
+<tr class="separator:ga44cf26b9b19832d88599244711a12d08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga86d651d8eb07687208308deef95a23ba"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga86d651d8eb07687208308deef95a23ba">SNTP_RETRY_TIMEOUT</a>&#160;&#160;&#160;<a class="el" href="group__sntp__api.html#ga44cf26b9b19832d88599244711a12d08">SNTP_RECV_TIMEOUT</a></td></tr>
+<tr class="separator:ga86d651d8eb07687208308deef95a23ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac96a8acc43e331b8173cf57b02d6f63f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#gac96a8acc43e331b8173cf57b02d6f63f">SNTP_RETRY_TIMES</a>&#160;&#160;&#160;3</td></tr>
+<tr class="separator:gac96a8acc43e331b8173cf57b02d6f63f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3e098aeb58b78df2399573539dacc47d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga3e098aeb58b78df2399573539dacc47d">SNTP_SERVER_ADDRESS</a>&#160;&#160;&#160;&quot;pool.ntp.org&quot;</td></tr>
+<tr class="separator:ga3e098aeb58b78df2399573539dacc47d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+函数</h2></td></tr>
+<tr class="memitem:ga7e185f5f951def56c1a6f27b43f4fb80"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga7e185f5f951def56c1a6f27b43f4fb80">sntp_request</a> (void *arg)</td></tr>
+<tr class="separator:ga7e185f5f951def56c1a6f27b43f4fb80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3b5ecb64736bad31d6abab613efbfe4f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structsntp__time.html">sntp_time</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga3b5ecb64736bad31d6abab613efbfe4f">sntp_obtain_time</a> (void)</td></tr>
+<tr class="separator:ga3b5ecb64736bad31d6abab613efbfe4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9eeaa09b6232b79de3e11072119d2d21"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga9eeaa09b6232b79de3e11072119d2d21">sntp_get_time</a> (<a class="el" href="structsntp__arg.html">sntp_arg</a> *arg, struct timeval *ntp_time)</td></tr>
+<tr class="separator:ga9eeaa09b6232b79de3e11072119d2d21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga730b1aee704c7de6023e4bca0bd67908"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga730b1aee704c7de6023e4bca0bd67908">sntp_set_server</a> (uint8_t idx, char *server_name)</td></tr>
+<tr class="separator:ga730b1aee704c7de6023e4bca0bd67908"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga586660eb5e8e8af36abf5b0ecb70fbec"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga586660eb5e8e8af36abf5b0ecb70fbec">sntp_last_query_status</a> (void)</td></tr>
+<tr class="separator:ga586660eb5e8e8af36abf5b0ecb70fbec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad8606d229f6dfa256bfeaf1c426cb777"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#gad8606d229f6dfa256bfeaf1c426cb777">sntp_set_time_direct</a> (long long now_ms)</td></tr>
+<tr class="separator:gad8606d229f6dfa256bfeaf1c426cb777"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+变量</h2></td></tr>
+<tr class="memitem:ga4e06dd572147d48785afd0439576487a"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga4e06dd572147d48785afd0439576487a">server_name</a></td></tr>
+<tr class="separator:ga4e06dd572147d48785afd0439576487a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8d1e5cdabf4210adc6d1dd1bd8f9e3e1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga8d1e5cdabf4210adc6d1dd1bd8f9e3e1">recv_timeout</a></td></tr>
+<tr class="separator:ga8d1e5cdabf4210adc6d1dd1bd8f9e3e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4a0a8d687202eb0f66b2361be63016c5"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga4a0a8d687202eb0f66b2361be63016c5">retry_times</a></td></tr>
+<tr class="separator:ga4a0a8d687202eb0f66b2361be63016c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad1696900026b287a87c563b733a21bc3"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#gad1696900026b287a87c563b733a21bc3">sec</a></td></tr>
+<tr class="separator:gad1696900026b287a87c563b733a21bc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac9b481208b43f7c37ed25e446bdec692"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#gac9b481208b43f7c37ed25e446bdec692">min</a></td></tr>
+<tr class="separator:gac9b481208b43f7c37ed25e446bdec692"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae5af4ff48939d13d480f87e56a9385d6"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#gae5af4ff48939d13d480f87e56a9385d6">hour</a></td></tr>
+<tr class="separator:gae5af4ff48939d13d480f87e56a9385d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga72369a1087b2aeffe374bb054cb97c12"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga72369a1087b2aeffe374bb054cb97c12">day</a></td></tr>
+<tr class="separator:ga72369a1087b2aeffe374bb054cb97c12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac994d1b867aab54062cdd1ee94510030"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#gac994d1b867aab54062cdd1ee94510030">mon</a></td></tr>
+<tr class="separator:gac994d1b867aab54062cdd1ee94510030"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5235d49df2828411fe72ff1b0b736c3b"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga5235d49df2828411fe72ff1b0b736c3b">week</a></td></tr>
+<tr class="separator:ga5235d49df2828411fe72ff1b0b736c3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7af2065789bc84419b8d5fe109be83b5"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga7af2065789bc84419b8d5fe109be83b5">year</a></td></tr>
+<tr class="separator:ga7af2065789bc84419b8d5fe109be83b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">详细描述</h2>
+<h2 class="groupheader">宏定义说明</h2>
+<a id="ga5d9dc0827f402849f5c18d44e311dbc2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5d9dc0827f402849f5c18d44e311dbc2">&#9670;&nbsp;</a></span>SNTP_MAX_SERVERS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SNTP_MAX_SERVERS&#160;&#160;&#160;3</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00047">47</a> 行定义.</p>
+
+</div>
+</div>
+<a id="gacbee62c27f54371fc2c5259a834a0f9b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gacbee62c27f54371fc2c5259a834a0f9b">&#9670;&nbsp;</a></span>SNTP_PORT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SNTP_PORT&#160;&#160;&#160;123</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00044">44</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ga44cf26b9b19832d88599244711a12d08"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga44cf26b9b19832d88599244711a12d08">&#9670;&nbsp;</a></span>SNTP_RECV_TIMEOUT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SNTP_RECV_TIMEOUT&#160;&#160;&#160;3000 /* ms */</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00049">49</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ga86d651d8eb07687208308deef95a23ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga86d651d8eb07687208308deef95a23ba">&#9670;&nbsp;</a></span>SNTP_RETRY_TIMEOUT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SNTP_RETRY_TIMEOUT&#160;&#160;&#160;<a class="el" href="group__sntp__api.html#ga44cf26b9b19832d88599244711a12d08">SNTP_RECV_TIMEOUT</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00050">50</a> 行定义.</p>
+
+</div>
+</div>
+<a id="gac96a8acc43e331b8173cf57b02d6f63f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac96a8acc43e331b8173cf57b02d6f63f">&#9670;&nbsp;</a></span>SNTP_RETRY_TIMES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SNTP_RETRY_TIMES&#160;&#160;&#160;3</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00051">51</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ga3e098aeb58b78df2399573539dacc47d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3e098aeb58b78df2399573539dacc47d">&#9670;&nbsp;</a></span>SNTP_SERVER_ADDRESS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SNTP_SERVER_ADDRESS&#160;&#160;&#160;&quot;pool.ntp.org&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00053">53</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ga8373df0d67b85fe58cdb651b5f172dbc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga8373df0d67b85fe58cdb651b5f172dbc">&#9670;&nbsp;</a></span>SNTP_SUPPORT_MULTIPLE_SERVERS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SNTP_SUPPORT_MULTIPLE_SERVERS&#160;&#160;&#160;1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00045">45</a> 行定义.</p>
+
+</div>
+</div>
+<h2 class="groupheader">函数说明</h2>
+<a id="ga9eeaa09b6232b79de3e11072119d2d21"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9eeaa09b6232b79de3e11072119d2d21">&#9670;&nbsp;</a></span>sntp_get_time()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int sntp_get_time </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structsntp__arg.html">sntp_arg</a> *&#160;</td>
+          <td class="paramname"><em>arg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct timeval *&#160;</td>
+          <td class="paramname"><em>ntp_time</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ga586660eb5e8e8af36abf5b0ecb70fbec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga586660eb5e8e8af36abf5b0ecb70fbec">&#9670;&nbsp;</a></span>sntp_last_query_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int sntp_last_query_status </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ga3b5ecb64736bad31d6abab613efbfe4f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga3b5ecb64736bad31d6abab613efbfe4f">&#9670;&nbsp;</a></span>sntp_obtain_time()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structsntp__time.html">sntp_time</a>* sntp_obtain_time </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ga7e185f5f951def56c1a6f27b43f4fb80"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7e185f5f951def56c1a6f27b43f4fb80">&#9670;&nbsp;</a></span>sntp_request()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int sntp_request </td>
+          <td>(</td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>arg</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ga730b1aee704c7de6023e4bca0bd67908"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga730b1aee704c7de6023e4bca0bd67908">&#9670;&nbsp;</a></span>sntp_set_server()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int sntp_set_server </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>idx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>server_name</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="gad8606d229f6dfa256bfeaf1c426cb777"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad8606d229f6dfa256bfeaf1c426cb777">&#9670;&nbsp;</a></span>sntp_set_time_direct()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int sntp_set_time_direct </td>
+          <td>(</td>
+          <td class="paramtype">long long&#160;</td>
+          <td class="paramname"><em>now_ms</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">变量说明</h2>
+<a id="ga72369a1087b2aeffe374bb054cb97c12"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga72369a1087b2aeffe374bb054cb97c12">&#9670;&nbsp;</a></span>day</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t day</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Day of the month - [1,31] <br  />
+ </p>
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00065">65</a> 行定义.</p>
+
+</div>
+</div>
+<a id="gae5af4ff48939d13d480f87e56a9385d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae5af4ff48939d13d480f87e56a9385d6">&#9670;&nbsp;</a></span>hour</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t hour</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Hours after the midnight - [0,23] <br  />
+ </p>
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00064">64</a> 行定义.</p>
+
+</div>
+</div>
+<a id="gac9b481208b43f7c37ed25e446bdec692"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac9b481208b43f7c37ed25e446bdec692">&#9670;&nbsp;</a></span>min</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t min</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Minutes after the hour - [0,59] <br  />
+ </p>
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00063">63</a> 行定义.</p>
+
+</div>
+</div>
+<a id="gac994d1b867aab54062cdd1ee94510030"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac994d1b867aab54062cdd1ee94510030">&#9670;&nbsp;</a></span>mon</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t mon</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Months - [1,12] <br  />
+ </p>
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00066">66</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ga8d1e5cdabf4210adc6d1dd1bd8f9e3e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga8d1e5cdabf4210adc6d1dd1bd8f9e3e1">&#9670;&nbsp;</a></span>recv_timeout</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int recv_timeout</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00057">57</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ga4a0a8d687202eb0f66b2361be63016c5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4a0a8d687202eb0f66b2361be63016c5">&#9670;&nbsp;</a></span>retry_times</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t retry_times</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00058">58</a> 行定义.</p>
+
+</div>
+</div>
+<a id="gad1696900026b287a87c563b733a21bc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad1696900026b287a87c563b733a21bc3">&#9670;&nbsp;</a></span>sec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t sec</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Seconds after the minute - [0,59] <br  />
+ </p>
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00062">62</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ga4e06dd572147d48785afd0439576487a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4e06dd572147d48785afd0439576487a">&#9670;&nbsp;</a></span>server_name</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* server_name</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00056">56</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ga5235d49df2828411fe72ff1b0b736c3b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5235d49df2828411fe72ff1b0b736c3b">&#9670;&nbsp;</a></span>week</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t week</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Days in a week - [0,6] <br  />
+ </p>
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00067">67</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ga7af2065789bc84419b8d5fe109be83b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga7af2065789bc84419b8d5fe109be83b5">&#9670;&nbsp;</a></span>year</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t year</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Years - [0,127] </p>
+
+<p class="definition">在文件 <a class="el" href="sntp_8h_source.html">sntp.h</a> 第 <a class="el" href="sntp_8h_source.html#l00068">68</a> 行定义.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+  </ul>
+</div>
+</body>
+</html>

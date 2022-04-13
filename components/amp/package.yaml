@@ -1,0 +1,161 @@
+## 第一部分： 基础信息
+name: amp                                     # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: dev_aos                                     # <必选项> 组件版本号
+description: AliOS Things mini program                             # <必选项> 建议至少20字以上
+type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag: 应用引擎                                        # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - amp
+  - JavaScript
+  - IoT Platform
+homepage: https://help.aliyun.com/document_detail/174810.html
+license: Apache-2.0 License                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+  - osal_aos: dev_aos
+  - ulog: dev_aos
+  - kv: dev_aos
+  - mbedtls: dev_aos
+  - cjson: dev_aos
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  define:
+    - CONFIG_USING_TLS=1
+  include:
+    - adapter/include
+    - adapter/include/peripheral
+    - adapter/platform/aos
+    - components/das/include
+    - components/das/include/das
+    - components/das/src/board
+    - components/das/src/core/proto
+    - components/das/src/service
+    - components/das/src/service/netfilter
+    - components/http/include
+    - components/linkkit
+    - components/linkkit/dev_model
+    - components/linkkit/dev_sign
+    - components/linkkit/dynamic_register
+    - components/linkkit/infra
+    - components/linkkit/mqtt
+    - components/und/include
+    - components/uvoice/include
+    - engine/duktape_engine
+    - engine/duktape_engine/addons
+    - engine/duktape_engine/duktape
+    - engine/duktape_engine/startup
+    - main
+    - services/amp_utils
+    - services/app_mgr
+    - services/board_mgr
+    - services/recovery
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - "adapter/platform/aos/*.c"
+  - "adapter/platform/aos/network/*.c"
+  - "adapter/platform/aos/peripheral/*.c"
+  - "components/das/src/board/*.c"
+  - "components/das/src/core/*.c"
+  - "components/das/src/core/proto/*.c"
+  - "components/das/src/service/*.c"
+  - "components/das/src/service/netfilter/*.c"
+  - "components/http/src/*.c"
+  - "components/linkkit/certs/*.c"
+  - "components/linkkit/dev_model/*.c"
+  - "components/linkkit/dev_sign/*.c"
+  - "components/linkkit/dynamic_register/*.c"
+  - "components/linkkit/infra/*.c"
+  - "components/linkkit/mqtt/*.c"
+  - "components/und/src/*.c"
+  - "engine/duktape_engine/*.c"
+  - "engine/duktape_engine/addons/*.c"
+  - "engine/duktape_engine/addons/advanced/audio/*.c"
+  - "engine/duktape_engine/addons/advanced/und/*.c"
+  - "engine/duktape_engine/addons/hardware/adc/*.c"
+  - "engine/duktape_engine/addons/hardware/can/*.c"
+  - "engine/duktape_engine/addons/hardware/dac/*.c"
+  - "engine/duktape_engine/addons/hardware/gpio/*.c"
+  - "engine/duktape_engine/addons/hardware/i2c/*.c"
+  - "engine/duktape_engine/addons/hardware/ir/*.c"
+  - "engine/duktape_engine/addons/hardware/lcd/*.c"
+  - "engine/duktape_engine/addons/hardware/pwm/*.c"
+  - "engine/duktape_engine/addons/hardware/rtc/*.c"
+  - "engine/duktape_engine/addons/hardware/spi/*.c"
+  - "engine/duktape_engine/addons/hardware/timer/*.c"
+  - "engine/duktape_engine/addons/hardware/uart/*.c"
+  - "engine/duktape_engine/addons/hardware/wdg/*.c"
+  - "engine/duktape_engine/addons/network/cellular/*.c"
+  - "engine/duktape_engine/addons/network/http/*.c"
+  - "engine/duktape_engine/addons/network/iot/*.c"
+  - "engine/duktape_engine/addons/network/mqtt/*.c"
+  - "engine/duktape_engine/addons/network/tcp/*.c"
+  - "engine/duktape_engine/addons/network/udp/*.c"
+  - "engine/duktape_engine/addons/network/wifi/*.c"
+  - "engine/duktape_engine/addons/utils/builtin/*.c"
+  - "engine/duktape_engine/addons/utils/crypto/*.c"
+  - "engine/duktape_engine/addons/utils/fs/*.c"
+  - "engine/duktape_engine/addons/utils/kv/*.c"
+  - "engine/duktape_engine/addons/utils/pm/*.c"
+  - "engine/duktape_engine/addons/utils/system/*.c"
+  - "engine/duktape_engine/addons/utils/systimer/*.c"
+  - "engine/duktape_engine/duktape/*.c"
+  - "engine/duktape_engine/startup/*.c"
+  - "engine/duktape_engine/startup/*.c"
+  - "main/*.c"
+  - "services/amp_utils/*.c"
+  - "services/app_mgr/*.c"
+  - "services/board_mgr/*.c"
+  - "services/recovery/*.c"
+
+
+## 第五部分：配置信息
+def_config:                              # 组件的可配置项
+#   CONFIG_DEBUG: y
+#   CONFIG_PARAM_NOT_CHECK: y
+#   CONFIG_CLI: y
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+install:
+  - dest: "include"
+    source:
+      - "include/*.h"
+
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"

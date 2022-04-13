@@ -1,0 +1,101 @@
+#
+# NOTE! Don't add files that are generated in specific
+# subdirectories here. Add them in the ".gitignore" file
+# in that subdirectory instead.
+#
+# NOTE! Please use 'git ls-files -i --exclude-standard'
+# command after changing this file, to see if there are
+# any tracked files which get ignored after the change.
+#
+# ('git ls-files -i --exclude-standard -ocs --directory'
+# command can show all the tracked and untracked files
+# which get ignored after the change.)
+#
+
+# Hidden files
+.*
+# Except for these hidden files
+!.gitignore
+!.gitattributes
+!.mailmap
+
+# Backup files
+*~
+*.bak
+*.BAK
+*.orig
+\#*#
+
+# Tag files
+/tags
+/TAGS
+/cscope.*
+/ncscope.*
+/compile_commands.json
+
+# Object files
+*.o
+*.o.*
+*.ko
+*.obj
+*.lo
+*.slo
+*.py[co]
+
+# List files
+*.i
+*.lst
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.la
+*.lai
+*.pyd
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.elf
+*.i*86
+*.x86_64
+*.hex
+
+# Source insight project files
+/[sS][iI]/
+
+# Generated project files
+*.ncb
+*.idb
+*.pdb
+*.sdf
+*.suo
+*.opensdf
+#/Debug/
+#/Release/
+Debug/
+Release/
+/ipch/
+
+# Library dir
+#lib/
+
+# Build dir
+/out/
+*.pre
+*.gz
+
+# configuration file
+*.ini
+
+tests/ota_boot_secboot/lib/*
+!.gitkeep

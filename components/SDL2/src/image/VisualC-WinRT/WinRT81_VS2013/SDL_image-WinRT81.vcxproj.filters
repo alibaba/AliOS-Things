@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\IMG.c" />
+    <ClCompile Include="..\..\IMG_bmp.c" />
+    <ClCompile Include="..\..\IMG_gif.c" />
+    <ClCompile Include="..\..\IMG_jpg.c" />
+    <ClCompile Include="..\..\IMG_lbm.c" />
+    <ClCompile Include="..\..\IMG_pcx.c" />
+    <ClCompile Include="..\..\IMG_png.c" />
+    <ClCompile Include="..\..\IMG_pnm.c" />
+    <ClCompile Include="..\..\IMG_tga.c" />
+    <ClCompile Include="..\..\IMG_tif.c" />
+    <ClCompile Include="..\..\IMG_webp.c" />
+    <ClCompile Include="..\..\IMG_xcf.c" />
+    <ClCompile Include="..\..\IMG_xpm.c" />
+    <ClCompile Include="..\..\IMG_xv.c" />
+    <ClCompile Include="..\..\IMG_xxx.c" />
+    <ClCompile Include="..\..\IMG_svg.c" />
+  </ItemGroup>
+</Project>

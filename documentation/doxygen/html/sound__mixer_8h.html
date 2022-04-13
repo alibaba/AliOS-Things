@@ -1,0 +1,99 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: /Users/yaoqiuguo/server/alios_3_3/components/a2sa/include/sound_mixer.h 文件参考</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('sound__mixer_8h.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">结构体</a> &#124;
+<a href="#func-members">函数</a>  </div>
+  <div class="headertitle">
+<div class="title">sound_mixer.h 文件参考</div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;stdlib.h&gt;</code><br />
+<code>#include &lt;fcntl.h&gt;</code><br />
+<code>#include &lt;stdarg.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+<code>#include &lt;errno.h&gt;</code><br />
+<code>#include &lt;unistd.h&gt;</code><br />
+<code>#include &lt;aos/list.h&gt;</code><br />
+<code>#include &lt;<a class="el" href="kernel_8h_source.html">aos/kernel.h</a>&gt;</code><br />
+<code>#include &lt;sys/ioctl.h&gt;</code><br />
+<code>#include &quot;audio_drv.h&quot;</code><br />
+</div>
+<p><a href="sound__mixer_8h_source.html">浏览源代码.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+结构体</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structaos__mixer__t.html">aos_mixer_t</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+函数</h2></td></tr>
+<tr class="memitem:gaa71b6a2535b3a966f357f2f5bbc1781b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__a2sa__mixer__api.html#gaa71b6a2535b3a966f357f2f5bbc1781b">aos_mixer_open</a> (<a class="el" href="structaos__mixer__t.html">aos_mixer_t</a> **mixer, int card)</td></tr>
+<tr class="separator:gaa71b6a2535b3a966f357f2f5bbc1781b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4f23f3efe1c40940ba145588a050089e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__a2sa__mixer__api.html#ga4f23f3efe1c40940ba145588a050089e">aos_mixer_print_info</a> (<a class="el" href="structaos__mixer__t.html">aos_mixer_t</a> *mixer)</td></tr>
+<tr class="separator:ga4f23f3efe1c40940ba145588a050089e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5b95095cad9746b6b02352a05e456c5a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__a2sa__mixer__api.html#ga5b95095cad9746b6b02352a05e456c5a">aos_mixer_set_int_value</a> (<a class="el" href="structaos__mixer__t.html">aos_mixer_t</a> *mixer, char *name, int value)</td></tr>
+<tr class="separator:ga5b95095cad9746b6b02352a05e456c5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga12fda02361b104df3578c280630dc97f"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__a2sa__mixer__api.html#ga12fda02361b104df3578c280630dc97f">aos_mixer_get_int_value</a> (<a class="el" href="structaos__mixer__t.html">aos_mixer_t</a> *mixer, char *name, int *value)</td></tr>
+<tr class="separator:ga12fda02361b104df3578c280630dc97f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf19d9d9a9e2d93eec6f67940dd390e51"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__a2sa__mixer__api.html#gaf19d9d9a9e2d93eec6f67940dd390e51">aos_mixer_close</a> (<a class="el" href="structaos__mixer__t.html">aos_mixer_t</a> *mixer)</td></tr>
+<tr class="separator:gaf19d9d9a9e2d93eec6f67940dd390e51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1a5ef757583823d77897529e19c7eaf6"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__a2sa__mixer__api.html#ga1a5ef757583823d77897529e19c7eaf6">aos_set_master_volume</a> (int volume)</td></tr>
+<tr class="separator:ga1a5ef757583823d77897529e19c7eaf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaaf1f8683ae95a502ba088113f17627db"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__a2sa__mixer__api.html#gaaf1f8683ae95a502ba088113f17627db">aos_get_master_volume</a> (int *volume)</td></tr>
+<tr class="separator:gaaf1f8683ae95a502ba088113f17627db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8e10f7a311498cdbf2d9e1f439815efa"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__a2sa__mixer__api.html#ga8e10f7a311498cdbf2d9e1f439815efa">aos_set_mute_state</a> (int mute)</td></tr>
+<tr class="separator:ga8e10f7a311498cdbf2d9e1f439815efa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadb37d145205964c28d825445fb72b84d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__a2sa__mixer__api.html#gadb37d145205964c28d825445fb72b84d">aos_get_mute_state</a> (int *mute)</td></tr>
+<tr class="separator:gadb37d145205964c28d825445fb72b84d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_f7628bf394e0d5e4b7f8fb44f999c2e1.html">a2sa</a></li><li class="navelem"><a class="el" href="dir_e3a573d07cbc1686eaa35b2d670af6ea.html">include</a></li><li class="navelem"><a class="el" href="sound__mixer_8h.html">sound_mixer.h</a></li>
+  </ul>
+</div>
+</body>
+</html>

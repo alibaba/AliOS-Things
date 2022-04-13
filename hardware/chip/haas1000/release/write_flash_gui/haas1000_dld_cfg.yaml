@@ -1,0 +1,61 @@
+Common:
+  BAUT_RATE: 2000000
+  BIN_DIR: ota_bin
+  COM: null
+  DLD_TOOLS_EXE: .\tools\dldtool.exe
+  ERASE_WHOLE_FLASH: false
+  LOG_PRINT_DELAY_IN_MS: 100
+  LOG_SWITCH: true
+  MODE: HaaS1000烧录工具
+  PIPE_BUFFER_SIZE: 2000000
+  PROGRAMMER: programmer2001.bin
+  PROGRESSBAR_SWITCH: false
+  REDIRECT_PIPE: true
+  DLD_VERBOSE_LOG: false
+  WAIT_PRESS_ENTER: true
+  REBOOT: false
+FILE_LIST:
+- BOOT1:
+    ADDR: null
+    FILE_NAME: ota_boot1.bin
+    SIZE: 65536
+    SWITCH: true
+- BOOTINFO:
+    ADDR: 738263040
+    FILE_NAME: boot_info.bin
+    SIZE: 8192
+    SWITCH: true
+- BOOT2A:
+    ADDR: null
+    FILE_NAME: ota_boot2a.bin
+    REMAP_BOTH_SWITCH: true
+    REMAP_SWITCH: true
+    SIZE: 5832704
+    SWITCH: true
+- RTOS:
+    ADDR: null
+    FILE_NAME: ota_rtos.bin
+    REMAP_BOTH_SWITCH: true
+    REMAP_SWITCH: true
+    SIZE: 5832704
+    SWITCH: true
+- LITTLEFS:
+    ADDR: 749936640
+    FILE_NAME: littlefs.bin
+    SIZE: 4907008
+    SWITCH: true
+- BOOT1_SEC:
+    ADDR: 754843648
+    FILE_NAME: ota_boot1_sec.bin
+    SIZE: 65536
+    SWITCH: true
+- FACTORY:
+    ADDR: 754966528
+    FILE_NAME: factory.bin
+    SIZE: 8192
+    SWITCH: true
+- PUB_OTP:
+    ADDR: 0
+    FILE_NAME: pub_otp.bin
+    SIZE: 1024
+    SWITCH: true

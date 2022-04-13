@@ -1,0 +1,6 @@
+<plugin name="org.doxygen.Project" id="org.doxygen.Project"
+        version="1.0.0" provider-name="Doxygen">
+  <extension point="org.eclipse.help.toc">
+    <toc file="toc.xml" primary="true" />
+  </extension>
+</plugin>

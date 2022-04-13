@@ -1,8 +1,0 @@
-%%{
-    /* get at our module  */
-    let Watchdog  = args[0];
-    let Common    = system.getScript("/ti/drivers/Common.js");
-    let instances = Watchdog.$instances;
-    let defs = Common.genBoardHeader(instances, Watchdog);
-%%}
-`defs`

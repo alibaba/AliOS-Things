@@ -1,0 +1,416 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: Cli_aos_api</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('group__cli__aos__api.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">结构体</a> &#124;
+<a href="#define-members">宏定义</a> &#124;
+<a href="#typedef-members">类型定义</a> &#124;
+<a href="#func-members">函数</a>  </div>
+  <div class="headertitle">
+<div class="title">Cli_aos_api</div>  </div>
+</div><!--header-->
+<div class="contents">
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+结构体</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcli__command.html">cli_command</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcli__region.html">cli_region</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+宏定义</h2></td></tr>
+<tr class="memitem:ga9982c2dc93e94348913cd6b7b0618973"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cli__aos__api.html#ga9982c2dc93e94348913cd6b7b0618973">SECTION</a>(x)&#160;&#160;&#160;__attribute__((section(x)))</td></tr>
+<tr class="separator:ga9982c2dc93e94348913cd6b7b0618973"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gabcd0a22ee4346cad5706adb6d2119429"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cli__aos__api.html#gabcd0a22ee4346cad5706adb6d2119429">USED</a>&#160;&#160;&#160;__attribute__((used))</td></tr>
+<tr class="separator:gabcd0a22ee4346cad5706adb6d2119429"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9b313b8e90fe34d85db65c3ba8f4d8f0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cli__aos__api.html#ga9b313b8e90fe34d85db65c3ba8f4d8f0">ALIOS_CLI_CMD_REGISTER</a>(name,  cmd,  desc)</td></tr>
+<tr class="separator:ga9b313b8e90fe34d85db65c3ba8f4d8f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+类型定义</h2></td></tr>
+<tr class="memitem:ga813640d2b0e96dd1c54291f33903efca"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cli__aos__api.html#ga813640d2b0e96dd1c54291f33903efca">cmd_fun_t</a>) (char *outbuf, int len, int argc, char **argv)</td></tr>
+<tr class="separator:ga813640d2b0e96dd1c54291f33903efca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaae9cbeb1b67fd8b456943f21512464eb"><td class="memItemLeft" align="right" valign="top">typedef int(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cli__aos__api.html#gaae9cbeb1b67fd8b456943f21512464eb">cli_region_func</a>) (int argc, char **argv)</td></tr>
+<tr class="separator:gaae9cbeb1b67fd8b456943f21512464eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+函数</h2></td></tr>
+<tr class="memitem:ga14ab9e06d8c6409b4b5593e70769e9dc"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cli__aos__api.html#ga14ab9e06d8c6409b4b5593e70769e9dc">aos_cli_init</a> (void)</td></tr>
+<tr class="memdesc:ga14ab9e06d8c6409b4b5593e70769e9dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize the CLI module  <a href="group__cli__aos__api.html#ga14ab9e06d8c6409b4b5593e70769e9dc">更多...</a><br /></td></tr>
+<tr class="separator:ga14ab9e06d8c6409b4b5593e70769e9dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0bedf67ee7ec64305141156e82619704"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cli__aos__api.html#ga0bedf67ee7ec64305141156e82619704">aos_cli_register_command</a> (const struct <a class="el" href="structcli__command.html">cli_command</a> *cmd)</td></tr>
+<tr class="memdesc:ga0bedf67ee7ec64305141156e82619704"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function register a command with the command-line interface  <a href="group__cli__aos__api.html#ga0bedf67ee7ec64305141156e82619704">更多...</a><br /></td></tr>
+<tr class="separator:ga0bedf67ee7ec64305141156e82619704"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad849d9171c18e99bd5c5caca19af5500"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cli__aos__api.html#gad849d9171c18e99bd5c5caca19af5500">aos_cli_unregister_command</a> (const struct <a class="el" href="structcli__command.html">cli_command</a> *cmd)</td></tr>
+<tr class="memdesc:gad849d9171c18e99bd5c5caca19af5500"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function unregister a command from the command-line interface  <a href="group__cli__aos__api.html#gad849d9171c18e99bd5c5caca19af5500">更多...</a><br /></td></tr>
+<tr class="separator:gad849d9171c18e99bd5c5caca19af5500"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gacc57dec2af4a010ed1a59fc10734aeb7"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cli__aos__api.html#gacc57dec2af4a010ed1a59fc10734aeb7">aos_cli_register_commands</a> (const struct <a class="el" href="structcli__command.html">cli_command</a> *cmds, int num)</td></tr>
+<tr class="memdesc:gacc57dec2af4a010ed1a59fc10734aeb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function register multi CLI commands  <a href="group__cli__aos__api.html#gacc57dec2af4a010ed1a59fc10734aeb7">更多...</a><br /></td></tr>
+<tr class="separator:gacc57dec2af4a010ed1a59fc10734aeb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa788d1e9549c44cd4f1828af9e951380"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cli__aos__api.html#gaa788d1e9549c44cd4f1828af9e951380">aos_cli_unregister_commands</a> (const struct <a class="el" href="structcli__command.html">cli_command</a> *cmds, int num)</td></tr>
+<tr class="memdesc:gaa788d1e9549c44cd4f1828af9e951380"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function unregisters multi CLI commands  <a href="group__cli__aos__api.html#gaa788d1e9549c44cd4f1828af9e951380">更多...</a><br /></td></tr>
+<tr class="separator:gaa788d1e9549c44cd4f1828af9e951380"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab4dfa506ecc735e58cff8a009093e066"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__cli__aos__api.html#gab4dfa506ecc735e58cff8a009093e066">aos_cli_printf</a> (const char *fmt,...)</td></tr>
+<tr class="memdesc:gab4dfa506ecc735e58cff8a009093e066"><td class="mdescLeft">&#160;</td><td class="mdescRight">use aos_cli_printf instead of printf in cli cmd  <a href="group__cli__aos__api.html#gab4dfa506ecc735e58cff8a009093e066">更多...</a><br /></td></tr>
+<tr class="separator:gab4dfa506ecc735e58cff8a009093e066"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">详细描述</h2>
+<h2 class="groupheader">宏定义说明</h2>
+<a id="ga9b313b8e90fe34d85db65c3ba8f4d8f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9b313b8e90fe34d85db65c3ba8f4d8f0">&#9670;&nbsp;</a></span>ALIOS_CLI_CMD_REGISTER</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define ALIOS_CLI_CMD_REGISTER</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">name, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">cmd, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">desc&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keyword">const</span> <span class="keywordtype">char</span> __clisym_##cmd##_name[] <a class="code" href="group__cli__aos__api.html#ga9982c2dc93e94348913cd6b7b0618973">SECTION</a>(<span class="stringliteral">&quot;.rodata&quot;</span>) = #cmd;      \</div>
+<div class="line">    const <span class="keywordtype">char</span> __clisym_##cmd##_desc[] <a class="code" href="group__cli__aos__api.html#ga9982c2dc93e94348913cd6b7b0618973">SECTION</a>(<span class="stringliteral">&quot;.rodata&quot;</span>) = #desc;     \</div>
+<div class="line">    static <span class="keywordtype">void</span> name##_stub(<span class="keywordtype">char</span> *buf, <span class="keywordtype">int</span> len, <span class="keywordtype">int</span> argc, <span class="keywordtype">char</span> **argv) \</div>
+<div class="line">    {                                                                  \</div>
+<div class="line">        name(argc, argv);                                              \</div>
+<div class="line">    }                                                                  \</div>
+<div class="line">    USED <span class="keyword">const</span> <span class="keyword">struct </span><a class="code" href="structcli__region.html">cli_region</a> __clisym_##cmd <a class="code" href="group__cli__aos__api.html#ga9982c2dc93e94348913cd6b7b0618973">SECTION</a>(&quot;CliRegion&quot;) = \</div>
+<div class="line">        {                                                              \</div>
+<div class="line">            __clisym_##cmd##_name,                                     \</div>
+<div class="line">            __clisym_##cmd##_desc,                                     \</div>
+<div class="line">            (<a class="code" href="group__cli__aos__api.html#gaae9cbeb1b67fd8b456943f21512464eb">cli_region_func</a>)&amp;<a class="code" href="structcli__region.html#a8f8f80d37794cde9472343e4487ba3eb">name</a>##_stub};</div>
+<div class="ttc" id="agroup__cli__aos__api_html_ga9982c2dc93e94348913cd6b7b0618973"><div class="ttname"><a href="group__cli__aos__api.html#ga9982c2dc93e94348913cd6b7b0618973">SECTION</a></div><div class="ttdeci">#define SECTION(x)</div><div class="ttdef"><b>Definition:</b> <a href="cli_8h_source.html#l00027">cli.h:27</a></div></div>
+<div class="ttc" id="agroup__cli__aos__api_html_gaae9cbeb1b67fd8b456943f21512464eb"><div class="ttname"><a href="group__cli__aos__api.html#gaae9cbeb1b67fd8b456943f21512464eb">cli_region_func</a></div><div class="ttdeci">int(* cli_region_func)(int argc, char **argv)</div><div class="ttdef"><b>Definition:</b> <a href="cli_8h_source.html#l00030">cli.h:30</a></div></div>
+<div class="ttc" id="astructcli__region_html"><div class="ttname"><a href="structcli__region.html">cli_region</a></div><div class="ttdef"><b>Definition:</b> <a href="cli_8h_source.html#l00033">cli.h:34</a></div></div>
+<div class="ttc" id="astructcli__region_html_a8f8f80d37794cde9472343e4487ba3eb"><div class="ttname"><a href="structcli__region.html#a8f8f80d37794cde9472343e4487ba3eb">cli_region::name</a></div><div class="ttdeci">const char * name</div><div class="ttdef"><b>Definition:</b> <a href="cli_8h_source.html#l00035">cli.h:35</a></div></div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="cli_8h_source.html">cli.h</a> 第 <a class="el" href="cli_8h_source.html#l00040">40</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ga9982c2dc93e94348913cd6b7b0618973"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9982c2dc93e94348913cd6b7b0618973">&#9670;&nbsp;</a></span>SECTION</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SECTION</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x</td><td>)</td>
+          <td>&#160;&#160;&#160;__attribute__((section(x)))</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="cli_8h_source.html">cli.h</a> 第 <a class="el" href="cli_8h_source.html#l00027">27</a> 行定义.</p>
+
+</div>
+</div>
+<a id="gabcd0a22ee4346cad5706adb6d2119429"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gabcd0a22ee4346cad5706adb6d2119429">&#9670;&nbsp;</a></span>USED</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define USED&#160;&#160;&#160;__attribute__((used))</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="cli_8h_source.html">cli.h</a> 第 <a class="el" href="cli_8h_source.html#l00028">28</a> 行定义.</p>
+
+</div>
+</div>
+<h2 class="groupheader">类型定义说明</h2>
+<a id="gaae9cbeb1b67fd8b456943f21512464eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaae9cbeb1b67fd8b456943f21512464eb">&#9670;&nbsp;</a></span>cli_region_func</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef int(* cli_region_func) (int argc, char **argv)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="cli_8h_source.html">cli.h</a> 第 <a class="el" href="cli_8h_source.html#l00030">30</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ga813640d2b0e96dd1c54291f33903efca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga813640d2b0e96dd1c54291f33903efca">&#9670;&nbsp;</a></span>cmd_fun_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef void(* cmd_fun_t) (char *outbuf, int len, int argc, char **argv)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="cli_8h_source.html">cli.h</a> 第 <a class="el" href="cli_8h_source.html#l00018">18</a> 行定义.</p>
+
+</div>
+</div>
+<h2 class="groupheader">函数说明</h2>
+<a id="ga14ab9e06d8c6409b4b5593e70769e9dc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga14ab9e06d8c6409b4b5593e70769e9dc">&#9670;&nbsp;</a></span>aos_cli_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int aos_cli_init </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initialize the CLI module </p>
+<dl class="section return"><dt>返回</dt><dd>0 on success, otherwise failed </dd></dl>
+
+</div>
+</div>
+<a id="gab4dfa506ecc735e58cff8a009093e066"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab4dfa506ecc735e58cff8a009093e066">&#9670;&nbsp;</a></span>aos_cli_printf()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int aos_cli_printf </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>fmt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>use aos_cli_printf instead of printf in cli cmd </p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">fmt</td><td>pointer to a char * buffer</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0 on success, otherwise failed </dd></dl>
+
+</div>
+</div>
+<a id="ga0bedf67ee7ec64305141156e82619704"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0bedf67ee7ec64305141156e82619704">&#9670;&nbsp;</a></span>aos_cli_register_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int aos_cli_register_command </td>
+          <td>(</td>
+          <td class="paramtype">const struct <a class="el" href="structcli__command.html">cli_command</a> *&#160;</td>
+          <td class="paramname"><em>cmd</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This function register a command with the command-line interface </p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">cmd</td><td>the structure to regiter one CLI command</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0 on success, otherwise failed </dd></dl>
+
+</div>
+</div>
+<a id="gacc57dec2af4a010ed1a59fc10734aeb7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gacc57dec2af4a010ed1a59fc10734aeb7">&#9670;&nbsp;</a></span>aos_cli_register_commands()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int aos_cli_register_commands </td>
+          <td>(</td>
+          <td class="paramtype">const struct <a class="el" href="structcli__command.html">cli_command</a> *&#160;</td>
+          <td class="paramname"><em>cmds</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This function register multi CLI commands </p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">cmds</td><td>pointer to an array of commands </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">num</td><td>number of commands in the array</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0 on success, otherwise failed </dd></dl>
+
+</div>
+</div>
+<a id="gad849d9171c18e99bd5c5caca19af5500"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad849d9171c18e99bd5c5caca19af5500">&#9670;&nbsp;</a></span>aos_cli_unregister_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int aos_cli_unregister_command </td>
+          <td>(</td>
+          <td class="paramtype">const struct <a class="el" href="structcli__command.html">cli_command</a> *&#160;</td>
+          <td class="paramname"><em>cmd</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This function unregister a command from the command-line interface </p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">cmd</td><td>the structure to unregister one CLI command</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0 on success, otherwise failed </dd></dl>
+
+</div>
+</div>
+<a id="gaa788d1e9549c44cd4f1828af9e951380"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa788d1e9549c44cd4f1828af9e951380">&#9670;&nbsp;</a></span>aos_cli_unregister_commands()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int aos_cli_unregister_commands </td>
+          <td>(</td>
+          <td class="paramtype">const struct <a class="el" href="structcli__command.html">cli_command</a> *&#160;</td>
+          <td class="paramname"><em>cmds</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>num</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This function unregisters multi CLI commands </p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">cmds</td><td>pointer to an array of commands </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">num</td><td>number of command in the array</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0 on success, otherwise failed </dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+  </ul>
+</div>
+</body>
+</html>

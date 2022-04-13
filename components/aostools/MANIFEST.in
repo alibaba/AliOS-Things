@@ -1,0 +1,2 @@
+include aostools/build/*
+include aostools/script/*

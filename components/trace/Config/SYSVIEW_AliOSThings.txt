@@ -1,0 +1,46 @@
+#
+# OS Options
+#
+
+#
+# Types for parameter formatters
+#
+NamedType ResetMode 0=OS_EVENT_RESET_MODE_SEMIAUTO 1=OS_EVENT_RESET_MODE_MANUAL 2=OS_EVENT_RESET_MODE_AUTO
+NamedType Bool      0=false 1=true
+#
+# Task States
+#
+TaskState 0xFC 0=Wait, 8=Wait for event, 16=Wait for sema zero, 24=Waiting, 32=Wait for sema not zero, 48=Wait for Queue not empty, 72=Wait for event object, 80=Wait for Queue not full, 160=Wait for Memory pool, 4=Wait for timeout, 12=Wait for event with timeout, 20=Wait for sema zero with timeout, 28=Waiting with timeout, 36=Wait for sema not zero with timeout, 52=Wait for Queue not empty with timeout, 60=Wait for mailbox not full with timeout, 68=Wait for mailbox not empty with timeout, 76=Wait for event object with timeout, 84=Wait for Queue not full with timeout, 164=Wait for Memory pool with timeout
+#
+# API Functions
+#
+39        sem_trytake               Try Take Sem=%s
+41        sem_create                Create Sem=%s
+42        sem_overflow              Sem=%s Overflow
+43        sem_cnt_increase          Increase Sem=%s
+44        sem_get_success           Get Sem=%s Success
+45        sem_get_blk               Get Sem=%s block
+46        sem_task_wake             Sem=%s task wake
+47        sem_del                   Del Sem=%s
+48        sem_give                  Give Sem=%s ,opt_wake_all=%u
+51        mutex_create              Create Mute=%s
+52        mutex_release             Release Mute=%s
+53        mutex_get                 Get Mute=%s
+54        task_pri_inv
+55        mutex_get_block            Get Mute=%s Block
+56        mutex_release_success     Release Mute=%s Success
+57        mutex_task_wake           task wake Mute=%s
+58        mutex_del
+61        event_create              Create Event=%s
+62        event_get                 Get Event=%s
+63        event_get_block           Get Event=%s Block
+64        event_task_wake           Take Event=%s Wake
+65        event_del                 Del Event=%s
+71        buf_queue_create          Create Queue=%s
+72        buf_queue_max             Max Queue=%s
+73        buf_queue_post            Post Queue=%s
+74        buf_queue_task_wake       Take Queue=%s wake
+75        buf_queue_get_blk         Get Queue=%s Block
+81        workqueue_init
+82        workqueue_create          Create WorkQueue=%s
+83        workqueue_del             Del WorkQueue=%s

@@ -1,5 +1,0 @@
-config AOS_COMP_LWIP_TEST
-    bool "LwIP YTS Testcase"
-    select CONFIG_AOS_TCPIP
-    default n
-    help

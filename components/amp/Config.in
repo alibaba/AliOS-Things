@@ -1,0 +1,27 @@
+###################################################################
+# Component enable/disable selection
+# in the updated build system, default is y and can not be disabled
+if AOS_CREATE_PROJECT
+config AOS_COMP_AMP
+    bool
+    default n
+# do NOT select depend component in this file
+# use $(NAME)_COMPONENTS in aos.mk
+endif
+
+# Backward compatibility
+if !AOS_CREATE_PROJECT
+config AOS_COMP_AMP
+    bool "amp"
+    default n
+    select AOS_COMP_AMP_ADAPTER
+    select AOS_COMP_AMP_COMP_DAS
+    select AOS_COMP_AMP_COMP_HTTP
+    select AOS_COMP_AMP_COMP_LINKKIT
+    select AOS_COMP_AMP_ENGINE_DUK
+    select AOS_COMP_AMP_MAIN
+    select AOS_COMP_AMP_SERVICES
+    select AOS_COMP_AMP_UTILS_CJSON
+    help
+        AliOS things mini program -- smart config support component
+endif

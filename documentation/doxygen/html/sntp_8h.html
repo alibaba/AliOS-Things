@@ -1,0 +1,104 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: /Users/yaoqiuguo/server/alios_3_3/components/sntp/include/sntp/sntp.h 文件参考</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('sntp_8h.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">结构体</a> &#124;
+<a href="#define-members">宏定义</a> &#124;
+<a href="#func-members">函数</a>  </div>
+  <div class="headertitle">
+<div class="title">sntp.h 文件参考</div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><code>#include &lt;stdint.h&gt;</code><br />
+<code>#include &quot;lwip/sockets.h&quot;</code><br />
+</div>
+<p><a href="sntp_8h_source.html">浏览源代码.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+结构体</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsntp__arg.html">sntp_arg</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsntp__time.html">sntp_time</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+宏定义</h2></td></tr>
+<tr class="memitem:gacbee62c27f54371fc2c5259a834a0f9b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#gacbee62c27f54371fc2c5259a834a0f9b">SNTP_PORT</a>&#160;&#160;&#160;123</td></tr>
+<tr class="separator:gacbee62c27f54371fc2c5259a834a0f9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8373df0d67b85fe58cdb651b5f172dbc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga8373df0d67b85fe58cdb651b5f172dbc">SNTP_SUPPORT_MULTIPLE_SERVERS</a>&#160;&#160;&#160;1</td></tr>
+<tr class="separator:ga8373df0d67b85fe58cdb651b5f172dbc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5d9dc0827f402849f5c18d44e311dbc2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga5d9dc0827f402849f5c18d44e311dbc2">SNTP_MAX_SERVERS</a>&#160;&#160;&#160;3</td></tr>
+<tr class="separator:ga5d9dc0827f402849f5c18d44e311dbc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga44cf26b9b19832d88599244711a12d08"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga44cf26b9b19832d88599244711a12d08">SNTP_RECV_TIMEOUT</a>&#160;&#160;&#160;3000 /* ms */</td></tr>
+<tr class="separator:ga44cf26b9b19832d88599244711a12d08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga86d651d8eb07687208308deef95a23ba"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga86d651d8eb07687208308deef95a23ba">SNTP_RETRY_TIMEOUT</a>&#160;&#160;&#160;<a class="el" href="group__sntp__api.html#ga44cf26b9b19832d88599244711a12d08">SNTP_RECV_TIMEOUT</a></td></tr>
+<tr class="separator:ga86d651d8eb07687208308deef95a23ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac96a8acc43e331b8173cf57b02d6f63f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#gac96a8acc43e331b8173cf57b02d6f63f">SNTP_RETRY_TIMES</a>&#160;&#160;&#160;3</td></tr>
+<tr class="separator:gac96a8acc43e331b8173cf57b02d6f63f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3e098aeb58b78df2399573539dacc47d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga3e098aeb58b78df2399573539dacc47d">SNTP_SERVER_ADDRESS</a>&#160;&#160;&#160;&quot;pool.ntp.org&quot;</td></tr>
+<tr class="separator:ga3e098aeb58b78df2399573539dacc47d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+函数</h2></td></tr>
+<tr class="memitem:ga7e185f5f951def56c1a6f27b43f4fb80"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga7e185f5f951def56c1a6f27b43f4fb80">sntp_request</a> (void *arg)</td></tr>
+<tr class="separator:ga7e185f5f951def56c1a6f27b43f4fb80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3b5ecb64736bad31d6abab613efbfe4f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structsntp__time.html">sntp_time</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga3b5ecb64736bad31d6abab613efbfe4f">sntp_obtain_time</a> (void)</td></tr>
+<tr class="separator:ga3b5ecb64736bad31d6abab613efbfe4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9eeaa09b6232b79de3e11072119d2d21"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga9eeaa09b6232b79de3e11072119d2d21">sntp_get_time</a> (<a class="el" href="structsntp__arg.html">sntp_arg</a> *arg, struct timeval *ntp_time)</td></tr>
+<tr class="separator:ga9eeaa09b6232b79de3e11072119d2d21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga730b1aee704c7de6023e4bca0bd67908"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga730b1aee704c7de6023e4bca0bd67908">sntp_set_server</a> (uint8_t idx, char *server_name)</td></tr>
+<tr class="separator:ga730b1aee704c7de6023e4bca0bd67908"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga586660eb5e8e8af36abf5b0ecb70fbec"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#ga586660eb5e8e8af36abf5b0ecb70fbec">sntp_last_query_status</a> (void)</td></tr>
+<tr class="separator:ga586660eb5e8e8af36abf5b0ecb70fbec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad8606d229f6dfa256bfeaf1c426cb777"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__sntp__api.html#gad8606d229f6dfa256bfeaf1c426cb777">sntp_set_time_direct</a> (long long now_ms)</td></tr>
+<tr class="separator:gad8606d229f6dfa256bfeaf1c426cb777"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_e6e810f4c6c124c684dbf0b1f56dd0e6.html">sntp</a></li><li class="navelem"><a class="el" href="dir_22eab0a239257a0d3bd4c9537efb133c.html">include</a></li><li class="navelem"><a class="el" href="dir_d605079e8aadf5c66d1d60667cc25c1d.html">sntp</a></li><li class="navelem"><a class="el" href="sntp_8h.html">sntp.h</a></li>
+  </ul>
+</div>
+</body>
+</html>

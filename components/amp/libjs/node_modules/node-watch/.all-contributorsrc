@@ -1,0 +1,134 @@
+{
+  "projectName": "node-watch",
+  "projectOwner": "yuanchuan",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "yuanchuan",
+      "name": "Yuan Chuan",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/250426?v=4",
+      "profile": "http://yuanchuan.name",
+      "contributions": [
+        "code",
+        "doc",
+        "test"
+      ]
+    },
+    {
+      "login": "xdissent",
+      "name": "Greg Thornton",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/99367?v=4",
+      "profile": "http://xdissent.com",
+      "contributions": [
+        "code",
+        "ideas"
+      ]
+    },
+    {
+      "login": "amir-arad",
+      "name": "Amir Arad",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/6019373?v=4",
+      "profile": "https://github.com/amir-arad",
+      "contributions": [
+        "code",
+        "doc",
+        "test"
+      ]
+    },
+    {
+      "login": "garyb",
+      "name": "Gary Burgess",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/693642?v=4",
+      "profile": "http://slipthrough.net",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "pdehaan",
+      "name": "Peter deHaan",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/557895?v=4",
+      "profile": "http://about.me/peterdehaan",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "kcliu",
+      "name": "kcliu",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/161968?v=4",
+      "profile": "https://medium.com/@kcliu",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "crh3675",
+      "name": "Hoovinator",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/309006?v=4",
+      "profile": "https://github.com/crh3675",
+      "contributions": [
+        "question"
+      ]
+    },
+    {
+      "login": "shreeve",
+      "name": "Steve Shreeve",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/142875?v=4",
+      "profile": "https://github.com/shreeve",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "blake-regalia",
+      "name": "Blake Regalia",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/1456400?v=4",
+      "profile": "https://github.com/blake-regalia",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "intervalia",
+      "name": "Mike Collins",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/1587937?v=4",
+      "profile": "https://github.com/intervalia",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Krinkle",
+      "name": "Timo Tijhof",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/156867?v=4",
+      "profile": "https://timotijhof.net",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "baileyherbert",
+      "name": "Bailey Herbert",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/9532377?v=4",
+      "profile": "https://bailey.sh/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Gnuk",
+      "name": "Anthony Rey",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/1397032?v=4",
+      "profile": "https://github.com/Gnuk",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "repoType": "github"
+}

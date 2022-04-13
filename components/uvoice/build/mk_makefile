@@ -1,0 +1,1 @@
+cmake .. -Dtarget_os=linux -Dtarget_host=x64

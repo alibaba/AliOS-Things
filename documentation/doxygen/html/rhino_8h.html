@@ -1,0 +1,482 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: /Users/yaoqiuguo/server/alios_3_3/components/osal_aos/include/aos/rhino.h 文件参考</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('rhino_8h.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="header">
+  <div class="summary">
+<a href="#func-members">函数</a>  </div>
+  <div class="headertitle">
+<div class="title">rhino.h 文件参考</div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><code>#include &lt;stdint.h&gt;</code><br />
+<code>#include &quot;<a class="el" href="kernel_8h_source.html">kernel.h</a>&quot;</code><br />
+</div>
+<p><a href="rhino_8h_source.html">浏览源代码.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+函数</h2></td></tr>
+<tr class="memitem:a88e1edb7ed7186a76a41f03375f22979"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rhino_8h.html#a88e1edb7ed7186a76a41f03375f22979">aos_task_ptcb_get</a> (<a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *task, void **ptcb)</td></tr>
+<tr class="separator:a88e1edb7ed7186a76a41f03375f22979"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81fed96f7f18f81eed98d2786776b1c4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rhino_8h.html#a81fed96f7f18f81eed98d2786776b1c4">aos_task_ptcb_set</a> (<a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *task, void *ptcb)</td></tr>
+<tr class="separator:a81fed96f7f18f81eed98d2786776b1c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abfb4f39a6a506e9d8c6018a7eb64ca5f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rhino_8h.html#abfb4f39a6a506e9d8c6018a7eb64ca5f">aos_task_pri_change</a> (<a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *task, uint8_t pri, uint8_t *old_pri)</td></tr>
+<tr class="separator:abfb4f39a6a506e9d8c6018a7eb64ca5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc7b133afb23ccf94d9fb9d5c13e59db"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rhino_8h.html#adc7b133afb23ccf94d9fb9d5c13e59db">aos_task_pri_get</a> (<a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *task, uint8_t *priority)</td></tr>
+<tr class="separator:adc7b133afb23ccf94d9fb9d5c13e59db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a075115ce78d79495093400e881fc0b1c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rhino_8h.html#a075115ce78d79495093400e881fc0b1c">aos_task_sched_policy_set</a> (<a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *task, uint8_t policy, uint8_t pri)</td></tr>
+<tr class="separator:a075115ce78d79495093400e881fc0b1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d30057cb6bf1b096d5865f9c3be61e6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rhino_8h.html#a1d30057cb6bf1b096d5865f9c3be61e6">aos_task_sched_policy_get</a> (<a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *task, uint8_t *policy)</td></tr>
+<tr class="separator:a1d30057cb6bf1b096d5865f9c3be61e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed003bb39233092f7cbf5a06e0b529cb"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rhino_8h.html#aed003bb39233092f7cbf5a06e0b529cb">aos_task_sched_policy_get_default</a> ()</td></tr>
+<tr class="separator:aed003bb39233092f7cbf5a06e0b529cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a096378423dd38d5a645efe0570309e1c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rhino_8h.html#a096378423dd38d5a645efe0570309e1c">aos_task_time_slice_set</a> (<a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *task, uint32_t slice)</td></tr>
+<tr class="separator:a096378423dd38d5a645efe0570309e1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d03a1d49e693fafd1925e3f99d57de6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rhino_8h.html#a0d03a1d49e693fafd1925e3f99d57de6">aos_task_time_slice_get</a> (<a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *task, uint32_t *slice)</td></tr>
+<tr class="separator:a0d03a1d49e693fafd1925e3f99d57de6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a830f2b8b04d91b863201dbbd78bb54ad"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rhino_8h.html#a830f2b8b04d91b863201dbbd78bb54ad">aos_sched_get_priority_max</a> (uint32_t policy)</td></tr>
+<tr class="separator:a830f2b8b04d91b863201dbbd78bb54ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26a4dbe626017fd192603b7d20274559"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rhino_8h.html#a26a4dbe626017fd192603b7d20274559">aos_timer_gettime</a> (<a class="el" href="group__aos__kernel.html#gaaae10a390dedaa1133c0377e8dc067f9">aos_hdl_t</a> *timer, uint64_t value[])</td></tr>
+<tr class="separator:a26a4dbe626017fd192603b7d20274559"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">函数说明</h2>
+<a id="a830f2b8b04d91b863201dbbd78bb54ad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a830f2b8b04d91b863201dbbd78bb54ad">&#9670;&nbsp;</a></span>aos_sched_get_priority_max()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t aos_sched_get_priority_max </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>policy</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get the maximum number of system's schedule priority</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">task</td><td>task handle </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">policy</td><td>the task's schedule policy</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>maximum schedule priority </dd></dl>
+
+</div>
+</div>
+<a id="abfb4f39a6a506e9d8c6018a7eb64ca5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abfb4f39a6a506e9d8c6018a7eb64ca5f">&#9670;&nbsp;</a></span>aos_task_pri_change()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_task_pri_change </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *&#160;</td>
+          <td class="paramname"><em>task</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>pri</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>old_pri</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Change a task's schedule priority</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">task</td><td>task handle </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pri</td><td>the new task priority </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">old_pri</td><td>the returned old task priority</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success otherwise failed </dd></dl>
+
+</div>
+</div>
+<a id="adc7b133afb23ccf94d9fb9d5c13e59db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adc7b133afb23ccf94d9fb9d5c13e59db">&#9670;&nbsp;</a></span>aos_task_pri_get()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_task_pri_get </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *&#160;</td>
+          <td class="paramname"><em>task</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>priority</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get a task's schedule priority</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">task</td><td>task handle </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">priority</td><td>the returned old task priority</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success otherwise failed </dd></dl>
+
+</div>
+</div>
+<a id="a88e1edb7ed7186a76a41f03375f22979"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a88e1edb7ed7186a76a41f03375f22979">&#9670;&nbsp;</a></span>aos_task_ptcb_get()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_task_ptcb_get </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *&#160;</td>
+          <td class="paramname"><em>task</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void **&#160;</td>
+          <td class="paramname"><em>ptcb</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get a task pthread control block.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">task</td><td>task handle </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">ptcb</td><td>the returned ptcb handle</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success otherwise failed </dd></dl>
+
+</div>
+</div>
+<a id="a81fed96f7f18f81eed98d2786776b1c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81fed96f7f18f81eed98d2786776b1c4">&#9670;&nbsp;</a></span>aos_task_ptcb_set()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_task_ptcb_set </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *&#160;</td>
+          <td class="paramname"><em>task</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>ptcb</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Set a task pthread control block.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">task</td><td>task handle </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ptcb</td><td>the ptcb handle</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success otherwise failed </dd></dl>
+
+</div>
+</div>
+<a id="a1d30057cb6bf1b096d5865f9c3be61e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d30057cb6bf1b096d5865f9c3be61e6">&#9670;&nbsp;</a></span>aos_task_sched_policy_get()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_task_sched_policy_get </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *&#160;</td>
+          <td class="paramname"><em>task</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>policy</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get a task's schedule policy</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">task</td><td>task handle </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">policy</td><td>the returned task's policy</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success otherwise failed </dd></dl>
+
+</div>
+</div>
+<a id="aed003bb39233092f7cbf5a06e0b529cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aed003bb39233092f7cbf5a06e0b529cb">&#9670;&nbsp;</a></span>aos_task_sched_policy_get_default()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t aos_task_sched_policy_get_default </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get a task's default schedule policy</p>
+<dl class="section return"><dt>返回</dt><dd>KSCHED_CFS or KSCHED_RR </dd></dl>
+
+</div>
+</div>
+<a id="a075115ce78d79495093400e881fc0b1c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a075115ce78d79495093400e881fc0b1c">&#9670;&nbsp;</a></span>aos_task_sched_policy_set()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_task_sched_policy_set </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *&#160;</td>
+          <td class="paramname"><em>task</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>policy</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>pri</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Set a task's schedule policy</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">task</td><td>task handle </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">policy</td><td>the new task's policy </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">pri</td><td>the new task's priority</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success otherwise failed </dd></dl>
+
+</div>
+</div>
+<a id="a0d03a1d49e693fafd1925e3f99d57de6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d03a1d49e693fafd1925e3f99d57de6">&#9670;&nbsp;</a></span>aos_task_time_slice_get()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_task_time_slice_get </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *&#160;</td>
+          <td class="paramname"><em>task</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t *&#160;</td>
+          <td class="paramname"><em>slice</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get a task's schedule time slice</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">task</td><td>task handle </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">slice</td><td>the returned task's time slice</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success otherwise failed </dd></dl>
+
+</div>
+</div>
+<a id="a096378423dd38d5a645efe0570309e1c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a096378423dd38d5a645efe0570309e1c">&#9670;&nbsp;</a></span>aos_task_time_slice_set()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_task_time_slice_set </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel.html#ga8331188bdef4856ea654e31c05a7827e">aos_task_t</a> *&#160;</td>
+          <td class="paramname"><em>task</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>slice</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Set a task's schedule time slice</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">task</td><td>task handle </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">slice</td><td>the new schedule time slice</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success otherwise failed </dd></dl>
+
+</div>
+</div>
+<a id="a26a4dbe626017fd192603b7d20274559"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26a4dbe626017fd192603b7d20274559">&#9670;&nbsp;</a></span>aos_timer_gettime()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_timer_gettime </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel.html#gaaae10a390dedaa1133c0377e8dc067f9">aos_hdl_t</a> *&#160;</td>
+          <td class="paramname"><em>timer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>value</em>[]&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get the timer's time vaule.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">timer</td><td>pointer to the timer. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">value</td><td>store the returned time.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success, otherwise error. </dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_7abd62dff492b511d5ce34d1402ddcbf.html">osal_aos</a></li><li class="navelem"><a class="el" href="dir_f97f9d31ad8cbdb6770b0a47cbd884f4.html">include</a></li><li class="navelem"><a class="el" href="dir_cbbe6b858f29d433c3507fc0a49690bf.html">aos</a></li><li class="navelem"><a class="el" href="rhino_8h.html">rhino.h</a></li>
+  </ul>
+</div>
+</body>
+</html>

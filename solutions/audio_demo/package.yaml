@@ -1,0 +1,37 @@
+name: audio_demo
+version: dev_aos                                     # <必选项> 组件版本号
+description: AliOS Things Audio Demo
+
+type: solution
+
+solution:
+  cpu_id: cpu0
+  board_name: haas100
+  # board_name: board_dummy
+  # toolchain_prefix: csky-abiv2-elf
+  # cpu_name: CK805EF
+  # vendor_name: thead
+  # chip_name: 'csi_ch2201'
+  # ld_script: configs/gcc_eflash.ld
+  # ld_script: gcc_eflash.ld
+
+depends:                                       # 该组件依赖其他的组件
+  - linksdk: dev_aos
+  - haas100: dev_aos
+  - mbedtls: dev_aos
+  - netmgr: dev_aos
+  - a2sa: master
+  - uvoice: master
+  
+## 第五部分：配置信息
+#def_config:                              # 组件的可配置项
+def_config:
+  CONFIG_A7_DSP_ENABLE: 1                  # 使能HaaS100音频驱动开关
+  CLI_IOBOX_ENABLE: 1
+
+# 源文件
+source_file:
+  - "maintask.c"
+  - "main.c"
+  - "data_model_basic_demo.c"
+  - "audio_api.c"

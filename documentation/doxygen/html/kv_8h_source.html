@@ -1,0 +1,100 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: /Users/yaoqiuguo/server/alios_3_3/components/kv/include/aos/kv.h 源文件</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('kv_8h_source.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="header">
+  <div class="headertitle">
+<div class="title">kv.h</div>  </div>
+</div><!--header-->
+<div class="contents">
+<a href="kv_8h.html">浏览该文件的文档.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">/*</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * Copyright (C) 2017-2021 Alibaba Group Holding Limited</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment"> */</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#ifndef AOS_KV_H</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#define AOS_KV_H</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160; </div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="kernel_8h.html">aos/kernel.h</a>&gt;</span></div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="preprocessor">#include &lt;string.h&gt;</span></div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
+<div class="line"><a name="l00024"></a><span class="lineno"><a class="line" href="group__kv__aos__api.html#ga406ac5ad8bc6f3016600bf2dcf3c633e">   24</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="group__kv__aos__api.html#ga406ac5ad8bc6f3016600bf2dcf3c633e">aos_kv_init</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160; </div>
+<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="group__kv__aos__api.html#gadfa253a23cb06c9f0d0742051bff455f">   31</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="group__kv__aos__api.html#gadfa253a23cb06c9f0d0742051bff455f">aos_kv_deinit</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
+<div class="line"><a name="l00043"></a><span class="lineno"><a class="line" href="group__kv__aos__api.html#ga18e25fc9b6cc24c1fddfcc11d8726087">   43</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="group__kv__aos__api.html#ga18e25fc9b6cc24c1fddfcc11d8726087">aos_kv_set</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *key, <span class="keyword">const</span> <span class="keywordtype">void</span> *value, <span class="keywordtype">int</span> len, <span class="keywordtype">int</span> sync);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160; </div>
+<div class="line"><a name="l00058"></a><span class="lineno"><a class="line" href="group__kv__aos__api.html#gafa4c842f059c069a6ca43de194f78d05">   58</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="group__kv__aos__api.html#gafa4c842f059c069a6ca43de194f78d05">aos_kv_get</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *key, <span class="keywordtype">void</span> *buffer, <span class="keywordtype">int</span> *buffer_len);</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
+<div class="line"><a name="l00067"></a><span class="lineno"><a class="line" href="group__kv__aos__api.html#ga711e19ff624c05b9b41d3c11e2ac44fe">   67</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="group__kv__aos__api.html#ga711e19ff624c05b9b41d3c11e2ac44fe">aos_kv_del</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *key);</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
+<div class="line"><a name="l00076"></a><span class="lineno"><a class="line" href="group__kv__aos__api.html#ga2366342b90f00fcf9bf335ea9ce8ee3e">   76</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="group__kv__aos__api.html#ga2366342b90f00fcf9bf335ea9ce8ee3e">aos_kv_del_by_prefix</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *prefix);</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
+<div class="line"><a name="l00088"></a><span class="lineno"><a class="line" href="group__kv__aos__api.html#ga7ca0051ad1fa734e5187b990a24478f6">   88</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="group__kv__aos__api.html#ga7ca0051ad1fa734e5187b990a24478f6">aos_kv_secure_set</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *key, <span class="keyword">const</span> <span class="keywordtype">void</span> *value, <span class="keywordtype">int</span> len, <span class="keywordtype">int</span> sync);</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160; </div>
+<div class="line"><a name="l00103"></a><span class="lineno"><a class="line" href="group__kv__aos__api.html#gad37f8990bdcc01773b22a8c62a9a6f92">  103</a></span>&#160;<span class="keywordtype">int</span> <a class="code" href="group__kv__aos__api.html#gad37f8990bdcc01773b22a8c62a9a6f92">aos_kv_secure_get</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *key, <span class="keywordtype">void</span> *buffer, <span class="keywordtype">int</span> *buffer_len);</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160; </div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;}</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160; </div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* AOS_KV_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="agroup__kv__aos__api_html_ga18e25fc9b6cc24c1fddfcc11d8726087"><div class="ttname"><a href="group__kv__aos__api.html#ga18e25fc9b6cc24c1fddfcc11d8726087">aos_kv_set</a></div><div class="ttdeci">int aos_kv_set(const char *key, const void *value, int len, int sync)</div></div>
+<div class="ttc" id="agroup__kv__aos__api_html_ga2366342b90f00fcf9bf335ea9ce8ee3e"><div class="ttname"><a href="group__kv__aos__api.html#ga2366342b90f00fcf9bf335ea9ce8ee3e">aos_kv_del_by_prefix</a></div><div class="ttdeci">int aos_kv_del_by_prefix(const char *prefix)</div></div>
+<div class="ttc" id="agroup__kv__aos__api_html_ga406ac5ad8bc6f3016600bf2dcf3c633e"><div class="ttname"><a href="group__kv__aos__api.html#ga406ac5ad8bc6f3016600bf2dcf3c633e">aos_kv_init</a></div><div class="ttdeci">int aos_kv_init(void)</div></div>
+<div class="ttc" id="agroup__kv__aos__api_html_ga711e19ff624c05b9b41d3c11e2ac44fe"><div class="ttname"><a href="group__kv__aos__api.html#ga711e19ff624c05b9b41d3c11e2ac44fe">aos_kv_del</a></div><div class="ttdeci">int aos_kv_del(const char *key)</div></div>
+<div class="ttc" id="agroup__kv__aos__api_html_ga7ca0051ad1fa734e5187b990a24478f6"><div class="ttname"><a href="group__kv__aos__api.html#ga7ca0051ad1fa734e5187b990a24478f6">aos_kv_secure_set</a></div><div class="ttdeci">int aos_kv_secure_set(const char *key, const void *value, int len, int sync)</div></div>
+<div class="ttc" id="agroup__kv__aos__api_html_gad37f8990bdcc01773b22a8c62a9a6f92"><div class="ttname"><a href="group__kv__aos__api.html#gad37f8990bdcc01773b22a8c62a9a6f92">aos_kv_secure_get</a></div><div class="ttdeci">int aos_kv_secure_get(const char *key, void *buffer, int *buffer_len)</div></div>
+<div class="ttc" id="agroup__kv__aos__api_html_gadfa253a23cb06c9f0d0742051bff455f"><div class="ttname"><a href="group__kv__aos__api.html#gadfa253a23cb06c9f0d0742051bff455f">aos_kv_deinit</a></div><div class="ttdeci">void aos_kv_deinit(void)</div></div>
+<div class="ttc" id="agroup__kv__aos__api_html_gafa4c842f059c069a6ca43de194f78d05"><div class="ttname"><a href="group__kv__aos__api.html#gafa4c842f059c069a6ca43de194f78d05">aos_kv_get</a></div><div class="ttdeci">int aos_kv_get(const char *key, void *buffer, int *buffer_len)</div></div>
+<div class="ttc" id="akernel_8h_html"><div class="ttname"><a href="kernel_8h.html">kernel.h</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_d575738de2631a4169244a5f0faeb508.html">kv</a></li><li class="navelem"><a class="el" href="dir_8346692f42f5c70f54d2afedf59d2df3.html">include</a></li><li class="navelem"><a class="el" href="dir_567d5ae1168c7d5b3bfbacd7a7696253.html">aos</a></li><li class="navelem"><a class="el" href="kv_8h.html">kv.h</a></li>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,595 @@
+# Kconfig - Bluetooth LE stack configuration options
+
+#
+# Copyright (c) 2016-2017 Nordic Semiconductor ASA
+# Copyright (c) 2015-2016 Intel Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+comment "Host Stack Configuration"
+
+config BT_HCI_HOST
+	# Virtual/hidden option to make the conditions more intuitive
+	bool
+	default y
+	depends on !BT_HCI_RAW
+	select POLL
+
+config BT_HCI_CMD_COUNT
+	int "Number of HCI command buffers"
+	default 2
+	range 2 64
+	help
+	  Number of buffers available for HCI commands.
+
+config BT_RX_BUF_COUNT
+	int "Number of HCI RX buffers"
+	default 3 if BT_RECV_IS_RX_THREAD
+	default 10
+	range 2 255
+	help
+	  Number of buffers available for incoming ACL packets or HCI events
+	  from the controller.
+
+config BT_RX_BUF_LEN
+	int "Maximum supported HCI RX buffer length"
+	default 264 if BT_BREDR
+	default 77 if BT_MESH_PROXY
+	default 76
+	range 73 2000
+	help
+	  Maximum data size for each HCI RX buffer. This size includes
+	  everything starting with the ACL or HCI event headers. Note that
+	  buffer sizes are always rounded up to the nearest multiple of 4,
+	  so if this Kconfig value is something else then there will be some
+	  wasted space. The minimum of 73 has been taken for LE SC which has
+	  an L2CAP MTU of 65 bytes. On top of this there's the L2CAP header
+	  (4 bytes) and the ACL header (also 4 bytes) which yields 73 bytes.
+
+config BT_HCI_TX_STACK_SIZE
+	int "TX thread stack size"
+	# Even if no driver is selected the following default is still
+	# needed e.g. for unit tests.
+	default 1536
+	range 512 4096
+	help
+	  Stack size needed for executing bt_send with specified driver
+
+config BT_HCI_TX_PRIO
+	# Hidden option for Co-Operative Tx thread priority
+	int
+	default 24 if BT_USERCHAN
+	default 7
+
+config BT_WAIT_NOP
+	bool "Wait for \"NOP\" Command Complete event during init"
+	depends on BT_HCI
+	help
+	  Some controllers emit a Command Complete event for the NOP
+	  opcode to indicate that they're ready to receive commands.
+	  This option should be selected if the controller used
+	  exhibits such behavior.
+
+config BT_HCI_RESERVE
+	int
+	default 1 if BT_H4
+	default 1 if BT_H5
+	default 1 if BT_SPI
+	default 1 if BT_USERCHAN
+	# Even if no driver is selected the following default is still
+	# needed e.g. for unit tests.
+	default 1
+	help
+	  Headroom that the driver needs for sending and receiving buffers. Add a
+	  new 'default' entry for each new driver.
+
+config BT_RECV_IS_RX_THREAD
+	# Hidden option set by the HCI driver to indicate that there's
+	# no need for the host to have its own RX thread.
+	# It is then the responsibility of the HCI driver to call bt_recv_prio
+	# from a higher priority context than bt_recv in order to avoid deadlock.
+	# If the host has its own RX thread it is safe to call bt_recv and
+	# bt_recv_prio from the same priority context.
+	bool
+
+config BT_RX_STACK_SIZE
+	int "Size of the receiving thread stack"
+	depends on BT_HCI_HOST || BT_RECV_IS_RX_THREAD
+	default 512 if BT_HCI_RAW
+	default 2048 if BT_MESH
+	default 2048 if BT_SETTINGS
+	default 1024
+	range 512 65536 if BT_HCI_RAW
+	range 1100 65536 if BT_MESH
+	range 1024 65536
+	help
+	  Size of the receiving thread stack. This is the context from
+	  which all event callbacks to the application occur. The
+	  default value is sufficient for basic operation, but if the
+	  application needs to do advanced things in its callbacks that
+	  require extra stack space, this value can be increased to
+	  accommodate for that.
+
+config BT_RX_PRIO
+	# Hidden option for Co-Operative Rx thread priority
+	int
+	depends on BT_HCI_HOST || BT_RECV_IS_RX_THREAD
+	default 25 if BT_USERCHAN
+	default 8
+
+if BT_HCI_HOST
+
+config BT_CTLR_CRYPTO
+	bool "Controller crypto feature"
+	default n
+
+config BT_HOST_CRYPTO
+	# Hidden option that compiles in random number generation and AES
+	# encryption support using TinyCrypt library if this is not provided
+	# by the controller implementation.
+	bool
+	default y if !BT_CTLR_CRYPTO
+	select TINYCRYPT
+	select TINYCRYPT_AES
+	select TINYCRYPT_SHA256
+	select TINYCRYPT_SHA256_HMAC
+	select TINYCRYPT_SHA256_HMAC_PRNG
+
+config BT_SETTINGS
+	bool "Store Bluetooth state and configuration persistently"
+	depends on SETTINGS
+	select MPU_ALLOW_FLASH_WRITE if ARM_MPU
+	help
+	  When selected, the Bluetooth stack will take care of storing
+	  (and restoring) the Bluetooth state (e.g. pairing keys) and
+	  configuration persistently in flash.
+
+	  When this option has been enabled, it's important that the
+	  application makes a call to settings_load() after having done
+	  all necessary initialization (e.g. calling bt_enable). The
+	  reason settings_load() is handled externally to the stack, is
+	  that there may be other subsystems using the settings API, in
+	  which case it's more efficient to load all settings in one go,
+	  instead of each subsystem doing it independently.
+
+if BT_CONN
+
+if BT_HCI_ACL_FLOW_CONTROL
+config BT_ACL_RX_COUNT
+	int "Number of incoming ACL data buffers"
+	default 6
+	range 1 64
+	help
+	  Number of buffers available for incoming ACL data.
+
+config BT_L2CAP_RX_MTU
+	int "Maximum supported L2CAP MTU for incoming data"
+	default 200 if BT_BREDR
+	default 65 if BT_SMP
+	default 23
+	range 65 1300 if BT_SMP
+	range 23 1300
+	help
+	  Maximum size of each incoming L2CAP PDU.
+endif # BT_HCI_ACL_FLOW_CONTROL
+
+config BT_L2CAP_TX_BUF_COUNT
+	int "Number of L2CAP TX buffers"
+	default 3
+	range 2 255
+	help
+	  Number of buffers available for outgoing L2CAP packets.
+
+config BT_L2CAP_TX_FRAG_COUNT
+	int "Number of L2CAP TX fragment buffers"
+	default 2
+	range 0 255
+	help
+	  Number of buffers available for fragments of TX buffers. Warning:
+	  setting this to 0 means that the application must ensure that
+	  queued TX buffers never need to be fragmented, i.e. that the
+	  controller's buffer size is large enough. If this is not ensured,
+	  and there are no dedicated fragment buffers, a deadlock may occur.
+	  In most cases the default value of 2 is a safe bet.
+
+config BT_L2CAP_TX_MTU
+	int "Maximum supported L2CAP MTU for L2CAP TX buffers"
+	default 253 if BT_BREDR
+	default 65 if BT_SMP
+	default 23
+	range 65 2000 if BT_SMP
+	range 23 2000
+	help
+	  Maximum L2CAP MTU for L2CAP TX buffers.
+
+config BT_CONN_TX_MAX
+	int "Maximum number of pending TX buffers"
+	default 7
+	range 1 128
+	help
+	  Maximum number of pending TX buffers that have not yet
+	  been acknowledged by the controller.
+
+config BT_ATT_ENFORCE_FLOW
+	bool "Enforce strict flow control semantics for incoming PDUs"
+	default y if !(BOARD_QEMU_CORTEX_M3 || BOARD_QEMU_X86 || BOARD_NATIVE_POSIX)
+	help
+	  Enforce flow control rules on incoming PDUs, preventing a peer
+	  from sending new requests until a previous one has been responded
+	  or sending a new indication until a previous one has been
+	  confirmed. This may need to be disabled to avoid potential race
+	  conditions arising from a USB based HCI transport that splits
+	  HCI events and ACL data to separate endpoints.
+
+config BT_ATT_PREPARE_COUNT
+	int "Number of ATT prepare write buffers"
+	default 0
+	range 0 64
+	help
+	  Number of buffers available for ATT prepare write, setting
+	  this to 0 disables GATT long/reliable writes.
+
+config BT_ATT_TX_MAX
+	int "Maximum number of queued outgoing ATT PDUs"
+	default 2
+	range 1 BT_L2CAP_TX_BUF_COUNT
+	help
+	  Number of ATT PDUs that can be at a single moment queued for
+	  transmission. If the application tries to send more than this
+	  amount the calls will block until an existing queued PDU gets
+	  sent.
+
+config BT_AUTO_PHY_UPDATE
+	bool "Auto-initiate PHY Update Procedure"
+	default y
+	help
+	  Initiate PHY Update Procedure on connection establishment.
+
+	  Disable this if you want PHY Update Procedure feature supported but
+	  want to rely on remote device to initiate the procedure at its
+	  discretion.
+
+config BT_SMP
+	bool "Security Manager Protocol support"
+	select TINYCRYPT
+	select TINYCRYPT_AES
+	select TINYCRYPT_AES_CMAC
+	select BT_RPA
+	help
+	  This option enables support for the Security Manager Protocol
+	  (SMP), making it possible to pair devices over LE.
+
+if BT_SMP
+config BT_PRIVACY
+	bool "Privacy Feature"
+	help
+	  Enable local Privacy Feature support. This makes it possible
+	  to use Resolvable Private Addresses (RPAs).
+
+config BT_RPA_TIMEOUT
+	int "Resolvable Private Address timeout"
+	depends on BT_PRIVACY
+	default 900
+	range 1 65535
+	help
+	  This option defines how often resolvable private address is rotated.
+	  Value is provided in seconds and defaults to 900 seconds (15 minutes).
+
+config BT_SIGNING
+	bool "Data signing support"
+	help
+	  This option enables data signing which is used for transferring
+	  authenticated data in an unencrypted connection.
+
+config BT_SMP_SC_ONLY
+	bool "Secure Connections Only Mode"
+	help
+	  This option enables support for Secure Connection Only Mode. In this
+	  mode device shall only use Security Mode 1 Level 4 with exception
+	  for services that only require Security Mode 1 Level 1 (no security).
+	  Security Mode 1 Level 4 stands for authenticated LE Secure Connections
+	  pairing with encryption. Enabling this option disables legacy pairing.
+
+config BT_FIXED_PASSKEY
+	bool "Use a fixed passkey for pairing"
+	help
+	  With this option enabled, the application will be able to call the
+	  bt_passkey_set() API to set a fixed passkey. If set, the
+	  pairing_confim() callback will be called for all incoming pairings.
+
+config BT_USE_DEBUG_KEYS
+	bool "Enable Security Manager Debug Mode"
+	depends on BT_TINYCRYPT_ECC
+	help
+	  This option places Security Manager in a Debug Mode. In this mode
+	  predefined Diffie-Hellman private/public key pair is used as described
+	  in Core Specification Vol. 3, Part H, 2.3.5.6.1. This option should
+	  only be enabled for debugging and should never be used in production.
+	  If this option is enabled anyone is able to decipher encrypted air
+	  traffic.
+
+endif # BT_SMP
+
+config BT_L2CAP_DYNAMIC_CHANNEL
+	bool "L2CAP Dynamic Channel support"
+	depends on BT_SMP
+	help
+	  This option enables support for LE Connection oriented Channels,
+	  allowing the creation of dynamic L2CAP Channels.
+
+config BT_GATT_CLIENT
+	bool "GATT client support"
+	help
+	  This option enables support for the GATT Client role.
+
+config BT_GATT_READ_MULTIPLE
+	bool "GATT Read Multiple Characteristic Values support"
+	default y
+	help
+	  This option enables support for the GATT Read Multiple Characteristic
+	  Values procedure.
+
+config BT_MAX_PAIRED
+	int "Maximum number of paired devices"
+	default 0 if !BT_SMP
+	default 1
+	range 0 128
+	help
+	  Maximum number of paired Bluetooth devices. The minimum (and
+	  default) number is 1.
+
+endif # BT_CONN
+
+config BT_SCAN_WITH_IDENTITY
+	bool "Perform active scanning using local identity address"
+	depends on !BT_PRIVACY && (BT_CENTRAL || BT_OBSERVER)
+	help
+	  Enable this if you want to perform active scanning using the local
+	  identity address as the scanner address. By default the stack will
+	  always use a non-resolvable private address (NRPA) in order to avoid
+	  disclosing local identity information. However, if the use case
+	  requires disclosing it then enable this option.
+
+config BT_DEVICE_NAME_DYNAMIC
+	bool "Allow to set Bluetooth device name on runtime"
+	help
+	  Enabling this option allows for runtime configuration of Bluetooth
+	  device name.
+
+config BT_DEVICE_NAME_MAX
+	int "Maximum size in bytes for device name"
+	depends on BT_DEVICE_NAME_DYNAMIC
+	default 28
+	range 2 248
+	help
+	  Bluetooth device name storage size. Storage can be up to 248 bytes
+	  long (excluding NULL termination).
+
+config BT_DEVICE_NAME_GATT_WRITABLE
+	bool "Allow to write name by remote GATT clients"
+	depends on BT_CONN && BT_DEVICE_NAME_DYNAMIC
+	default y
+	help
+	  Enabling this option allows remote GATT clients to write to device
+	  name GAP characteristic.
+
+config BT_DEVICE_NAME
+	string "Bluetooth device name"
+	default "YoC Test"
+	help
+	  Bluetooth device name. Name can be up to 248 bytes long (excluding
+	  NULL termination). Can be empty string.
+
+config BT_DEVICE_APPEARANCE
+	int "Bluetooth device appearance"
+	range 0 65535
+	default 0
+	help
+	  Bluetooth device appearance. For the list of possible values please
+	  consult the following link:
+	  https://www.bluetooth.com/specifications/assigned-numbers
+
+config BT_ID_MAX
+	int "Maximum number of local identities"
+	range 1 10
+	default 1
+	help
+	  Maximum number of supported local identity addresses. For most
+	  products this is safe to leave as the default value (1).
+
+endif # BT_HCI_HOST
+
+config BT_TINYCRYPT_ECC
+	bool "Use TinyCrypt library for ECDH"
+	select TINYCRYPT
+	select TINYCRYPT_ECC_DH
+	depends on BT_HCI_RAW || BT_HCI_HOST
+	default y if BT_CTLR && (BT_SMP || BT_MESH_PROV)
+	help
+	  If this option is set TinyCrypt library is used for emulating the
+	  ECDH HCI commands and events needed by e.g. LE Secure Connections.
+	  In builds including the BLE Host, if not set the controller crypto is
+	  used for ECDH and if the controller doesn't support the required HCI
+	  commands the LE Secure Connections support will be disabled.
+	  In builds including the HCI Raw interface and the BLE Controller, this
+	  option injects support for the 2 HCI commands required for LE Secure
+	  Connections so that Hosts can make use of those. The option defaults
+	  to enabled for a combined build with Zephyr's own controller, since it
+	  does not have any special ECC support itself (at least not currently).
+
+if BT_DEBUG
+config BT_DEBUG_SETTINGS
+	bool "Bluetooth storage debug"
+	depends on BT_SETTINGS
+	help
+	  This option enables debug support for Bluetooth storage.
+
+config BT_DEBUG_HCI_CORE
+	bool "Bluetooth HCI core debug"
+	help
+	  This option enables debug support for Bluetooth HCI
+	  core.
+
+config BT_DEBUG_CONN
+	bool "Bluetooth connection debug"
+	depends on BT_CONN
+	help
+	  This option enables debug support for Bluetooth
+	  connection handling.
+
+config BT_DEBUG_KEYS
+	bool "Bluetooth security keys debug"
+	depends on BT_HCI_HOST
+	depends on BT_SMP
+	help
+	  This option enables debug support for the handling of
+	  Bluetooth security keys.
+
+config BT_DEBUG_L2CAP
+	bool "Bluetooth L2CAP debug"
+	depends on BT_CONN
+	help
+	  This option enables debug support for the Bluetooth
+	  L2ACP layer.
+
+config BT_DEBUG_SMP
+	bool "Bluetooth Security Manager Protocol (SMP) debug"
+	depends on BT_HCI_HOST
+	depends on BT_SMP
+	help
+	  This option enables debug support for the Bluetooth
+	  Security Manager Protocol (SMP).
+
+config BT_SMP_SELFTEST
+	bool "Bluetooth SMP self tests executed on init"
+	depends on BT_DEBUG_SMP
+	help
+	  This option enables SMP self-tests executed on startup
+	  to verify security and crypto functions.
+
+config BT_SMP_FORCE_BREDR
+	bool "Force Bluetooth SMP over BR/EDR"
+	depends on BT_DEBUG_SMP
+	help
+	  This option enables SMP over BR/EDR even if controller is not
+	  supporting BR/EDR Secure Connections. This option is solely for
+	  testing and should never be enabled on production devices.
+
+config BT_DEBUG_ATT
+	bool "Bluetooth Attribute Protocol (ATT) debug"
+	depends on BT_CONN
+	help
+	  This option enables debug support for the Bluetooth
+	  Attribute Protocol (ATT).
+
+config BT_DEBUG_GATT
+	bool "Bluetooth Generic Attribute Profile (GATT) debug"
+	depends on BT_CONN
+	help
+	  This option enables debug support for the Bluetooth
+	  Generic Attribute Profile (GATT).
+
+config BT_DEBUG_RFCOMM
+	bool "Bluetooth RFCOMM debug"
+	depends on BT_RFCOMM
+	help
+	  This option enables debug support for the Bluetooth
+	  RFCOMM layer.
+
+config BT_DEBUG_HFP_HF
+	bool "Bluetooth Hands Free Profile (HFP) debug"
+	depends on BT_HFP_HF
+	help
+	  This option enables debug support for the Bluetooth
+	  Hands Free Profile (HFP).
+
+config BT_DEBUG_AVDTP
+	bool "Bluetooth AVDTP debug"
+	depends on BT_AVDTP
+	help
+	  This option enables debug support for the Bluetooth AVDTP.
+
+config BT_DEBUG_A2DP
+	bool "Bluetooth A2DP debug"
+	depends on BT_A2DP
+	help
+	  This option enables debug support for the Bluetooth
+	  A2DP profile.
+
+config BT_DEBUG_SDP
+	bool "Bluetooth Service Discovery Protocol (SDP) debug"
+	depends on BT_BREDR
+	help
+		This option enables debug support for the Bluetooth
+		Service Discovery Protocol (SDP).
+
+endif # BT_DEBUG
+
+config BT_TESTING
+	bool "Bluetooth Testing"
+	help
+	  This option enables custom Bluetooth testing interface.
+	  Shall only be used for testing purposes.
+
+config BT_BREDR
+	bool "Bluetooth BR/EDR support [EXPERIMENTAL]"
+	depends on BT_HCI_HOST
+	select BT_PERIPHERAL
+	select BT_CENTRAL
+	select BT_SMP
+	select BT_L2CAP_DYNAMIC_CHANNEL
+	help
+	  This option enables Bluetooth BR/EDR support
+
+if BT_BREDR
+config BT_MAX_SCO_CONN
+	int "Maximum number of simultaneous SCO connections"
+	default 1
+	range 1 3
+	help
+	  Maximum number of simultaneous Bluetooth synchronous connections
+	  supported. The minimum (and default) number is 1.
+
+config BT_RFCOMM
+	bool "Bluetooth RFCOMM protocol support [EXPERIMENTAL]"
+	help
+	  This option enables Bluetooth RFCOMM support
+
+config BT_RFCOMM_L2CAP_MTU
+	int "L2CAP MTU for RFCOMM frames"
+	default BT_L2CAP_RX_MTU if BT_HCI_ACL_FLOW_CONTROL
+	default BT_RX_BUF_LEN
+	depends on BT_RFCOMM
+	range BT_L2CAP_RX_MTU 32767 if BT_HCI_ACL_FLOW_CONTROL
+	range BT_RX_BUF_LEN 32767
+	help
+	  Maximum size of L2CAP PDU for RFCOMM frames.
+
+config BT_HFP_HF
+	bool "Bluetooth Handsfree profile HF Role support [EXPERIMENTAL]"
+	depends on PRINTK
+	select BT_RFCOMM
+	help
+	  This option enables Bluetooth HF support
+
+config BT_AVDTP
+	bool "Bluetooth AVDTP protocol support [EXPERIMENTAL]"
+	help
+	  This option enables Bluetooth AVDTP support
+
+config BT_A2DP
+	bool "Bluetooth A2DP Profile [EXPERIMENTAL]"
+	select BT_AVDTP
+	help
+	  This option enables the A2DP profile
+
+config BT_PAGE_TIMEOUT
+	hex "Bluetooth Page Timeout"
+	default 0x2000
+	range 0x0001 0xffff
+	help
+	  This option sets the page timeout value. Value is selected as
+	  (N * 0.625) ms.
+
+endif # BT_BREDR

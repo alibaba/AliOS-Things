@@ -1,9 +1,0 @@
-# 
-# Copyright (C) 2015-2017 Alibaba Group Holding Limited
-#
-
-CROSS_COMPILE ?= csky-abiv2-elf-
-
-ARCH := c_sky
-HOBBIT_NBIOT_256 := Y
-DEBUG := Y
