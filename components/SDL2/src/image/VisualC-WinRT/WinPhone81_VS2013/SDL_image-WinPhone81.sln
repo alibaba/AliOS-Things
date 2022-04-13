@@ -1,0 +1,68 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SDL2_image-WinPhone81", "SDL_image-WinPhone81.vcxproj", "{1444BB95-670B-4878-851B-7ED8DA0629A3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jpeg-WinPhone81", "jpeg-WinPhone81.vcxproj", "{4F241F1F-6636-47A9-AEB2-5B5157961B51}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng-WinPhone81", "libpng-WinPhone81.vcxproj", "{C396C32A-1A8D-4711-A3DB-206F188FC738}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libwebp-WinPhone81", "libwebp-WinPhone81.vcxproj", "{9DC4D90A-0D6D-4150-9049-1F4358B59E06}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib-WinPhone81", "zlib-WinPhone81.vcxproj", "{183B6F21-DD86-49A1-BA70-C97D7C404469}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Debug|Win32 = Debug|Win32
+		Release|ARM = Release|ARM
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1444BB95-670B-4878-851B-7ED8DA0629A3}.Debug|ARM.ActiveCfg = Debug|ARM
+		{1444BB95-670B-4878-851B-7ED8DA0629A3}.Debug|ARM.Build.0 = Debug|ARM
+		{1444BB95-670B-4878-851B-7ED8DA0629A3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1444BB95-670B-4878-851B-7ED8DA0629A3}.Debug|Win32.Build.0 = Debug|Win32
+		{1444BB95-670B-4878-851B-7ED8DA0629A3}.Release|ARM.ActiveCfg = Release|ARM
+		{1444BB95-670B-4878-851B-7ED8DA0629A3}.Release|ARM.Build.0 = Release|ARM
+		{1444BB95-670B-4878-851B-7ED8DA0629A3}.Release|Win32.ActiveCfg = Release|Win32
+		{1444BB95-670B-4878-851B-7ED8DA0629A3}.Release|Win32.Build.0 = Release|Win32
+		{4F241F1F-6636-47A9-AEB2-5B5157961B51}.Debug|ARM.ActiveCfg = Debug|ARM
+		{4F241F1F-6636-47A9-AEB2-5B5157961B51}.Debug|ARM.Build.0 = Debug|ARM
+		{4F241F1F-6636-47A9-AEB2-5B5157961B51}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4F241F1F-6636-47A9-AEB2-5B5157961B51}.Debug|Win32.Build.0 = Debug|Win32
+		{4F241F1F-6636-47A9-AEB2-5B5157961B51}.Release|ARM.ActiveCfg = Release|ARM
+		{4F241F1F-6636-47A9-AEB2-5B5157961B51}.Release|ARM.Build.0 = Release|ARM
+		{4F241F1F-6636-47A9-AEB2-5B5157961B51}.Release|Win32.ActiveCfg = Release|Win32
+		{4F241F1F-6636-47A9-AEB2-5B5157961B51}.Release|Win32.Build.0 = Release|Win32
+		{C396C32A-1A8D-4711-A3DB-206F188FC738}.Debug|ARM.ActiveCfg = Debug|ARM
+		{C396C32A-1A8D-4711-A3DB-206F188FC738}.Debug|ARM.Build.0 = Debug|ARM
+		{C396C32A-1A8D-4711-A3DB-206F188FC738}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C396C32A-1A8D-4711-A3DB-206F188FC738}.Debug|Win32.Build.0 = Debug|Win32
+		{C396C32A-1A8D-4711-A3DB-206F188FC738}.Release|ARM.ActiveCfg = Release|ARM
+		{C396C32A-1A8D-4711-A3DB-206F188FC738}.Release|ARM.Build.0 = Release|ARM
+		{C396C32A-1A8D-4711-A3DB-206F188FC738}.Release|Win32.ActiveCfg = Release|Win32
+		{C396C32A-1A8D-4711-A3DB-206F188FC738}.Release|Win32.Build.0 = Release|Win32
+		{9DC4D90A-0D6D-4150-9049-1F4358B59E06}.Debug|ARM.ActiveCfg = Debug|ARM
+		{9DC4D90A-0D6D-4150-9049-1F4358B59E06}.Debug|ARM.Build.0 = Debug|ARM
+		{9DC4D90A-0D6D-4150-9049-1F4358B59E06}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9DC4D90A-0D6D-4150-9049-1F4358B59E06}.Debug|Win32.Build.0 = Debug|Win32
+		{9DC4D90A-0D6D-4150-9049-1F4358B59E06}.Release|ARM.ActiveCfg = Release|ARM
+		{9DC4D90A-0D6D-4150-9049-1F4358B59E06}.Release|ARM.Build.0 = Release|ARM
+		{9DC4D90A-0D6D-4150-9049-1F4358B59E06}.Release|Win32.ActiveCfg = Release|Win32
+		{9DC4D90A-0D6D-4150-9049-1F4358B59E06}.Release|Win32.Build.0 = Release|Win32
+		{183B6F21-DD86-49A1-BA70-C97D7C404469}.Debug|ARM.ActiveCfg = Debug|ARM
+		{183B6F21-DD86-49A1-BA70-C97D7C404469}.Debug|ARM.Build.0 = Debug|ARM
+		{183B6F21-DD86-49A1-BA70-C97D7C404469}.Debug|Win32.ActiveCfg = Debug|Win32
+		{183B6F21-DD86-49A1-BA70-C97D7C404469}.Debug|Win32.Build.0 = Debug|Win32
+		{183B6F21-DD86-49A1-BA70-C97D7C404469}.Release|ARM.ActiveCfg = Release|ARM
+		{183B6F21-DD86-49A1-BA70-C97D7C404469}.Release|ARM.Build.0 = Release|ARM
+		{183B6F21-DD86-49A1-BA70-C97D7C404469}.Release|Win32.ActiveCfg = Release|Win32
+		{183B6F21-DD86-49A1-BA70-C97D7C404469}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

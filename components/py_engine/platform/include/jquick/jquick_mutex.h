@@ -1,0 +1,33 @@
+//
+// jquick_mutex.h
+//
+// Created by liujuncheng@alibaba-inc.com on 2020/11/11.
+//
+// Copyright (c) 2020 Alibaba All rights reserved.
+//
+
+#ifndef __QEMU_FREERTOS_JQUICK_MUTEX_H__
+#define __QEMU_FREERTOS_JQUICK_MUTEX_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef void* JQuick_Mutex;
+
+JQuick_Mutex jquick_mutex_create();
+
+int jquick_mutex_lock(
+        JQuick_Mutex m);
+
+int jquick_mutex_unlock(
+        JQuick_Mutex m);
+
+int jquick_mutex_destroy(
+        JQuick_Mutex m);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  // __QEMU_FREERTOS_JQUICK_MUTEX_H__

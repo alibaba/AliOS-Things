@@ -1,0 +1,117 @@
+
+## 第一部分： 基础信息
+name: rhino                                         # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: dev_aos                                     # <必选项> 组件版本号
+description: Rhino实时操作系统内核，体积小、功耗低、实时性、调试方便等特点 # <必选项> 建议至少20字以上
+type: kernel                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - base
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+  - debug: dev_aos ? <RHINO_CONFIG_MM_DEBUG>
+#  - pwrmgmt: dev_aos
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  include:
+    - include
+
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - k_buf_queue.c
+  - k_cfs.c
+  - k_dyn_mem_proc.c
+  - k_err.c
+  - k_event.c
+  - k_idle.c
+  - k_mm_blk.c ? <RHINO_CONFIG_MM_BLK>
+  - k_mm.c ? <RHINO_CONFIG_MM_TLF>
+  - k_mm_debug.c ? <RHINO_CONFIG_MM_DEBUG>
+  - k_mutex.c
+  - k_obj.c
+  - k_pend.c
+  - k_queue.c
+  - k_ringbuf.c
+  - k_sched.c
+  - k_sem.c
+  - k_spin_lock.c
+  - k_stats.c
+  - k_sys.c
+  - k_task.c
+  - k_task_sem.c
+  - k_tick.c
+  - k_time.c
+  - k_timer.c
+  - k_workqueue.c
+  - k_ffs.c
+  - k_rbtree.c
+
+## 第五部分：配置信息
+# def_config:                              # 组件的可配置项
+#   CONFIG_DEBUG: y
+#   CONFIG_PARAM_NOT_CHECK: y
+#   CONFIG_CLI: y
+def_config:
+  CONFIG_KERNEL_WORKQUEUE: 1
+  CONFIG_SYSTICK_HZ: 1000
+#  CONFIG_ARCH_INTERRUPTSTACK: 4096
+  CONFIG_KERNEL_RHINO: 1
+
+# mm config
+  RHINO_CONFIG_MM_TLF: 1
+  RHINO_CONFIG_MM_MINISIZEBIT: 6
+  RHINO_CONFIG_MM_MAXMSIZEBIT: 28
+  RHINO_CONFIG_MM_QUICK: 0
+  RHINO_CONFIG_MM_REGION_MUTEX: 0
+  RHINO_CONFIG_MM_DEBUG: 0
+  RHINO_CONFIG_MM_BLK: 0
+  RHINO_CONFIG_MM_BLK_SIZE: 32
+  RHINO_CONFIG_MM_TLF_BLK_SIZE: 1024
+  RHINO_CONFIG_MM_TRACE_LVL: 0
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+install:
+  - dest: "include"
+    source:
+      - "include/*.h"
+
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"

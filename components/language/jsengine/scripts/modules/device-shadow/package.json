@@ -1,9 +1,0 @@
-{
-  "name": "deviceShadow",
-  "version": "0.0.3",
-  "description": "linkdevelop sdk",
-  "main": "src/index.js",
-  "author": "zhengxiang.zzx@alibaba-inc.com",
-  "license": "MIT",
-  "test": "test/index_test.js"
-}

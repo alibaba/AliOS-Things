@@ -1,0 +1,210 @@
+# Kconfig - Bluetooth configuration options
+#
+# Copyright (c) 2016 Intel Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+menu "Bluetooth"
+
+config BT
+	bool "Bluetooth support"
+	select NET_BUF
+	help
+	  This option enables Bluetooth support.
+
+if BT
+
+choice
+	prompt "Bluetooth Stack Selection"
+	default BT_HCI
+	help
+	  Select the Bluetooth stack to compile.
+
+config BT_HCI
+	bool "HCI-based"
+	help
+	  HCI-based stack with optional host & controller parts and an
+	  HCI driver in between.
+
+config BT_CUSTOM
+	bool "Custom"
+	help
+	  Select a custom, non-HCI based stack. If you're not sure what
+	  this is, you probably want the HCI-based stack instead.
+
+endchoice
+
+# The Bluetooth subsystem requires the system workqueue to execute at
+# a cooperative priority.
+config SYSTEM_WORKQUEUE_PRIORITY
+	int
+	range -256 -1
+
+if BT_HCI
+
+choice BT_HCI_BUS_TYPE
+	prompt "Bluetooth HCI driver"
+	default BT_H4
+
+config BT_H4
+	bool "H:4 UART"
+	select BT_RECV_IS_RX_THREAD
+	help
+	  Bluetooth H:4 UART driver. Requires hardware flow control
+	  lines to be available.
+
+config BT_H5
+	bool "H:5 UART [EXPERIMENTAL]"
+	help
+	  Bluetooth three-wire (H:5) UART driver. Implementation of HCI
+	  Three-Wire UART Transport Layer.
+
+config BT_SPI
+	bool "SPI HCI"
+	select BT_RECV_IS_RX_THREAD
+	depends on SPI
+	help
+	  Supports Bluetooth ICs using SPI as the communication protocol.
+	  HCI packets are sent and received as single Byte transfers,
+	  prepended after a known header.  Headers may vary per device, so
+	  additional platform specific knowledge may need to be added as
+	  devices are.
+
+config BT_USERCHAN
+	bool "HCI User Channel based driver"
+	help
+	  This driver provides access to the local Linux host's Bluetooth
+	  adapter using a User Channel HCI socket to the Linux kernel. It
+	  is only intended to be used with the native POSIX build of Zephyr.
+	  The Bluetooth adapter must be powered off in order for Zephyr to
+	  be able to use it.
+
+config BT_NO_DRIVER
+	bool "No default HCI driver"
+	help
+	  This is intended for unit tests where no internal driver
+	  should be selected.
+
+endchoice
+
+config BT_HCI_RAW
+	bool "RAW HCI access"
+	help
+	  This option allows to access Bluetooth controller
+	  from the application with the RAW HCI protocol.
+
+config BT_PERIPHERAL
+	bool "Peripheral Role support"
+	select BT_BROADCASTER
+	select BT_CONN
+	default y if BT_HCI_RAW
+	help
+	  Select this for LE Peripheral role support.
+
+config BT_CENTRAL
+	bool "Central Role support"
+	select BT_OBSERVER
+	select BT_CONN
+	default y if BT_HCI_RAW
+	help
+	  Select this for LE Central role support.
+
+menu "Broadcaster"
+	visible if !BT_PERIPHERAL
+
+config BT_BROADCASTER
+	bool "Broadcaster Role support"
+	default y if !BT_OBSERVER
+	help
+	  Select this for LE Broadcaster role support.
+
+endmenu
+
+menu "Observer"
+	visible if !BT_CENTRAL
+
+config BT_OBSERVER
+	bool "Observer Role support"
+	help
+	  Select this for LE Observer role support.
+
+endmenu
+
+config BT_CONN
+	# Virtual/hidden option
+	bool
+
+config BT_MAX_CONN
+	int "Maximum number of simultaneous connections"
+	depends on BT_CONN
+	range 1 64
+	default 1
+	help
+	  Maximum number of simultaneous Bluetooth connections
+	  supported.
+
+if BT_CONN
+config BT_HCI_ACL_FLOW_CONTROL
+	bool "Controller to Host ACL flow control support"
+	# Enable if building a Host-only build
+	default y if !BT_CTLR
+	# Enable if building a Controller-only build
+	default y if BT_HCI_RAW
+	select POLL
+	help
+	  Enable support for throttling ACL buffers from the controller
+	  to the host. This is particularly useful when the host and
+	  controller are on separate cores since it ensures that we do
+	  not run out of incoming ACL buffers.
+endif # BT_CONN
+
+config BT_CTLR_TO_HOST_UART_DEV_NAME
+	string "Device Name of UART Device to an external Bluetooth Host"
+	default "UART_0"
+	depends on BT_HCI_RAW
+	help
+	  This option specifies the name of UART device to be used
+	  to connect to an external Bluetooth Host when Zephyr is
+	  acting as a Bluetooth Controller.
+
+# TODO add DTS support, once SPI node definitions are available.
+
+config BT_CTLR_TO_HOST_SPI_DEV_NAME
+	string "Device Name of SPI Device to an external Bluetooth Host"
+	default "SPI_0"
+	depends on SPI && BT_HCI_RAW
+	help
+	  This option specifies the name of SPI device to be used to connect
+	  to an external Bluetooth Host when Zephyr is acting as a Bluetooth
+	  Controller.
+
+config BT_CTLR_TO_HOST_SPI_IRQ_DEV_NAME
+	string "Device Name of SPI IRQ to an external Bluetooth Host"
+	default "GPIO_0"
+	depends on SPI && BT_HCI_RAW
+	help
+	  This option specifies the name of SPI IRQ device to be used to
+	  notify an external Bluetooth Host when Zephyr is acting as a
+	  Bluetooth Controller.
+
+config BT_CTLR_TO_HOST_SPI_IRQ_PIN
+	int "SPI IRQ line number to an external Bluetooth Host"
+	default 0
+	depends on SPI && BT_HCI_RAW
+	help
+	  This option specifies the IRQ line number to be used to notify
+	  an external Bluetooth Host when Zephyr is acting as a Bluetooth
+	  Controller.
+
+source  "bt_host/host/Kconfig"
+source  "bt_host/port/core/Kconfig"
+source  "bt_host/port/core/settings/Kconfig"
+
+source "bt_mesh/Kconfig"
+source "bt_shell/bt_host/Kconfig"
+endif # BT_HCI
+
+endif # BT
+
+endmenu

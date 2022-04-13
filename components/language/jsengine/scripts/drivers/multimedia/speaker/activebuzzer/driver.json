@@ -1,8 +1,0 @@
-{
-  "buzzer": {
-    "type": "GPIO",
-    "port": 25,
-    "dir": 0,
-    "pull": 1
-  }
-}

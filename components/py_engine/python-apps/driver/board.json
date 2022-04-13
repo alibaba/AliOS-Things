@@ -1,0 +1,91 @@
+
+{
+    "version": "1.0.0",
+    "io": {
+        "ADC0": {
+            "type": "ADC",
+            "port": 0,
+            "sampling": 12000000
+        },
+        "pca9544": {
+          "type": "I2C",
+          "port": 1,
+          "addrWidth": 8,
+          "freq": 100000,
+          "mode": "master",
+          "devAddr": 112
+        },
+        "led1": {
+            "type": "GPIO",
+            "port": 34,
+            "dir": "output",
+            "pull": "pullup"
+        },
+        "led2": {
+            "type": "GPIO",
+            "port": 35,
+            "dir": "output",
+            "pull": "pullup"
+        },
+        "led3": {
+            "type": "GPIO",
+            "port": 36,
+            "dir": "output",
+            "pull": "pullup"
+        },
+        "led4": {
+            "type": "GPIO",
+            "port": 40,
+            "dir": "output",
+            "pull": "pullup"
+        },
+        "led5": {
+            "type": "GPIO",
+            "port": 41,
+            "dir": "output",
+            "pull": "pullup"
+        },
+        "pwm0": {
+          "type": "PWM",
+          "port": 0
+        },
+        "pwm1": {
+          "type": "PWM",
+          "port": 1
+        },
+        "pwm2": {
+          "type": "PWM",
+          "port": 2
+        },
+        "pwm3": {
+          "type": "PWM",
+          "port": 3
+        },
+        "SPI0": {
+          "type": "SPI",
+          "port": 0,
+          "mode": "master",
+          "freq": 2000000
+        },
+      "serial1":{
+        "type":"UART",
+        "port":0,
+        "dataWidth":8,
+        "baudRate":115200,
+        "stopBits":1,
+        "flowControl":"disable",
+        "parity":"none"
+      },
+      "serial2":{
+        "type":"UART",
+        "port":2,
+        "dataWidth":8,
+        "baudRate":115200,
+        "stopBits":1,
+        "flowControl":"disable",
+        "parity":"none"
+      }
+    },
+    "debugLevel": "DEBUG",
+    "repl":"disable"
+}

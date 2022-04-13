@@ -1,0 +1,6 @@
+#include "hal_iomux_haas1000.h"
+
+#define ST7789_SPI_PORT  0
+#define ST7789_DC_PIN    HAL_GPIO_PIN_P0_4
+#define ST7789_RESET_PIN HAL_GPIO_PIN_P0_0
+#define ST7789_BLINK_PIN HAL_GPIO_PIN_P0_6

@@ -1,0 +1,5 @@
+/binary
+/out
+/yoc_sdk
+*.elf
+.sconsign.dblite
