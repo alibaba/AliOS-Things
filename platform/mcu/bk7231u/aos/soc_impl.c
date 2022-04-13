@@ -82,10 +82,10 @@ UINT32 global_tick = 0;
 extern tick_t	  g_tick_count;
 void krhino_idle_hook(void)
 {
-#if 0
 	UINT32 mcu_ps_tick = 24;
 	UINT32 mcu_miss_tick = 0;
 
+#if 0//(NX_POWERSAVE)
     GLOBAL_INT_DECLARATION();
     CPSR_ALLOC();
 
@@ -102,10 +102,10 @@ void krhino_idle_hook(void)
     GLOBAL_INT_DISABLE();
     if((INT32)(global_tick + (UINT32)1 - g_tick_count) <=  0)
 	{
-
+	    
 	    mcu_miss_tick = mcu_power_save(mcu_ps_tick);
         #if 0
-	    RHINO_CPU_INTRPT_DISABLE();
+	    RHINO_CPU_INTRPT_DISABLE();   
 	    g_tick_count += mcu_miss_tick;
 	    global_tick = g_tick_count;
 	    RHINO_CPU_INTRPT_ENABLE();
@@ -125,6 +125,7 @@ extern void         *heap_len;
 
 k_mm_region_t g_mm_region[] = {(uint8_t*)&heap_start,(size_t)&heap_len};
 int           g_region_num  = sizeof(g_mm_region)/sizeof(k_mm_region_t);
+
 
 void soc_err_proc(kstat_t err)
 {

@@ -8,8 +8,6 @@
 #include "error.h"
 #include "rtos_pub.h"
 
-#define COMPRESS_LEN(x) (sizeof(size_t))
-
 OSStatus rtos_create_thread( beken_thread_t* thread, uint8_t priority, const char* name, beken_thread_function_t function, uint32_t stack_size, beken_thread_arg_t arg )
 {
     kstat_t ret;
@@ -249,7 +247,7 @@ OSStatus rtos_init_queue( beken_queue_t* queue, const char* name, uint32_t messa
         name = "default_queue";
     }
 
-    ret = krhino_buf_queue_dyn_create((kbuf_queue_t **)queue, name, number_of_messages * (message_size + COMPRESS_LEN(message_size)), message_size);
+    ret = krhino_buf_queue_dyn_create((kbuf_queue_t **)queue, name, number_of_messages * (message_size + sizeof(message_size)), message_size);
 
     if (ret == RHINO_SUCCESS) {
         return kNoErr;
@@ -334,7 +332,7 @@ bool rtos_is_queue_full( beken_queue_t* queue )
 
     RHINO_CRITICAL_ENTER();
 
-    max_msg_num = (q->ringbuf.end - q->ringbuf.buf) / (q->max_msg_size + COMPRESS_LEN(q->max_msg_size));
+    max_msg_num = (q->ringbuf.end - q->ringbuf.buf) / (q->max_msg_size + sizeof(q->max_msg_size));
 
     if (q->cur_num == max_msg_num) {
         ret =  true;

@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <network/hal/base.h>
+#include <hal/base.h>
 #include <hal/wifi.h>
 
 hal_wifi_module_t sim_aos_wifi_beken;
@@ -131,7 +131,7 @@ static void register_wlan_mgnt_monitor_cb(hal_wifi_module_t *m, monitor_data_cb_
 
 static int wlan_send_80211_raw_frame(hal_wifi_module_t *m, uint8_t *buf, int len)
 {
-    return bk_wlan_send_80211_raw_frame(buf, len - 4); // len-4=exclude FCS
+    return bk_wlan_send_80211_raw_frame(buf, len); // len-4=exclude FCS
 }
 
 void NetCallback(hal_wifi_ip_stat_t *pnet)
