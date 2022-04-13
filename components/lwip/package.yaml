@@ -1,0 +1,170 @@
+
+## 第一部分： 基础信息
+name: lwip                                          # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: dev_aos                                     # <必选项> 组件版本号
+description: A Lightweight TCP/IP stack             # <必选项> 建议至少20字以上
+type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - base
+license: BSD                                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+  # - minilibc: dev_aos
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  cflag: '-Wno-address -Wno-unused-but-set-variable'
+  include:
+    - <CONFIG_LWIP_VERSION>/include
+    - <CONFIG_LWIP_VERSION>/include/posix
+    - <CONFIG_LWIP_VERSION>/port/include ? <CONFIG_LWIP_V200>
+    - include
+    - include/network
+    # - include/posix
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - <CONFIG_LWIP_VERSION>/core/*.c
+  - <CONFIG_LWIP_VERSION>/core/ipv4/*.c
+  - <CONFIG_LWIP_VERSION>/core/ipv6/*.c
+  - <CONFIG_LWIP_VERSION>/api/*.c
+  - <CONFIG_LWIP_VERSION>/netif/*.c
+  - <CONFIG_LWIP_VERSION>/netif/ppp/*.c
+  - <CONFIG_LWIP_VERSION>/netif/ppp/polarssl/*.c ? <CONFIG_LWIP_V200>
+  - <CONFIG_LWIP_VERSION>/apps/arp/*.c ? <CONFIG_LWIP_V200>
+  - <CONFIG_LWIP_VERSION>/apps/dhcpd/*.c
+  - <CONFIG_LWIP_VERSION>/apps/dns/*.c ? <CONFIG_LWIP_V200>
+  - <CONFIG_LWIP_VERSION>/apps/httpd/fs.c ? <CONFIG_LWIP_V200>
+  - <CONFIG_LWIP_VERSION>/apps/httpd/httpd.c ? <CONFIG_LWIP_V200>
+  - <CONFIG_LWIP_VERSION>/apps/ifconfig/*.c ? <CONFIG_LWIP_V200>
+  - <CONFIG_LWIP_VERSION>/apps/iperf/iperf_bes_wrapper.c ? <CONFIG_LWIP_V200>
+  - <CONFIG_LWIP_VERSION>/apps/iperf/iperf_cli.c ? <CONFIG_LWIP_V200>
+  - <CONFIG_LWIP_VERSION>/apps/iperf/iperf_task.c ? <CONFIG_LWIP_V200>
+#  - <CONFIG_LWIP_VERSION>/apps/lsfd/*.c ? <CONFIG_LWIP_V200>
+  - <CONFIG_LWIP_VERSION>/apps/mdns/*.c
+  - <CONFIG_LWIP_VERSION>/apps/netbiosns/*.c
+  - <CONFIG_LWIP_VERSION>/apps/ping/*.c ? <CONFIG_LWIP_V200>
+  - <CONFIG_LWIP_VERSION>/apps/sendfile/*.c ? <CONFIG_LWIP_V200>
+  - <CONFIG_LWIP_VERSION>/apps/snmp/*.c ? <CONFIG_LWIP_V200>
+  - <CONFIG_LWIP_VERSION>/apps/telnetd/*.c ? <CONFIG_LWIP_V200>
+  - <CONFIG_LWIP_VERSION>/apps/tftp/*.c
+  - <CONFIG_LWIP_VERSION>/apps/lwiperf/*.c ? <CONFIG_LWIP_V212>
+  - <CONFIG_LWIP_VERSION>/apps/sntp/*.c ? <CONFIG_LWIP_V212>
+  - <CONFIG_LWIP_VERSION>/apps/mqtt/*.c ? <CONFIG_LWIP_V212>
+  - <CONFIG_LWIP_VERSION>/apps/ping/*.c
+  - <CONFIG_LWIP_VERSION>/port/*.c
+  - example/*.c
+
+## 第五部分：配置信息
+# def_config:                              # 组件的可配置项
+#   CONFIG_DEBUG: y
+#   CONFIG_PARAM_NOT_CHECK: y
+#   CONFIG_CLI: y
+def_config:
+  CONFIG_AOS_LWIP: 1
+  CONFIG_TCPIP: 1
+  WITH_LWIP_PKTPRINT: 1
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+install:
+  - dest: "include/arch"
+    source:
+      - "include/arch/*.h"
+  - dest: "include/arpa"
+    source:
+      - "include/arpa/*.h"
+  - dest: "include/lwip"
+    source:
+      - "include/lwip/*.h"
+  - dest: "include/lwip/apps"
+    source:
+      - "include/lwip/apps/*.h"
+  - dest: "include/lwip/priv"
+    source:
+      - "include/lwip/priv/*.h"
+  - dest: "include/lwip/prot"
+    source:
+      - "include/lwip/prot/*.h"
+  - dest: "include/netif"
+    source:
+      - "include/netif/*.h"
+  - dest: "include/netif/ppp"
+    source:
+      - "include/netif/ppp/*.h"
+  - dest: "include/posix"
+    source:
+      - "include/posix/*.h"
+  - dest: "include/sys"
+    source:
+      - "include/sys/*.h"
+
+# install:
+#   - dest: include
+#     source:
+#       - "include/lwip/netdb.h"
+#   - dest: include/arpa
+#     source:
+#       - include/arpa/inet.h
+#   - dest: include/lwip
+#     source:
+#       - "include/lwip/*.h"
+#   - dest: include/lwip/sys
+#     source:
+#       - "posix/*sys/*.h"
+#   - dest: include/lwip
+#     source:
+#       - "posix/*.h"
+#   - dest: include/lwip/apps
+#     source:
+#       - "include/lwip/apps/*.h"
+#   - dest: include/lwip/priv
+#     source:
+#       - "include/lwip/priv/*.h"
+#   - dest: include/lwip/prot
+#     source:
+#       - "include/lwip/prot/*.h"
+#   - dest: include/arch
+#     source:
+#       - "port/include/arch/*.h"
+#   - dest: include/netif
+#     source:
+#       - "include/netif/*.h"
+
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"

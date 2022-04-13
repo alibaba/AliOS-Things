@@ -1,0 +1,32 @@
+name: armv7a
+version: dev_aos
+description: arch for armv7a
+type: arch
+tag: ""
+keywords:
+  - base
+license: Apache license v2.0
+
+build_config:
+  include:
+    - "include/"
+  internal_include:
+    - "common/include/"
+
+source_file:
+  - "common/k_vector.c"
+  - "common/k_cache.c"
+  - "common/k_mmu_sd.c"
+  - "common/k_start.c"
+  - "common/panic.c"
+  - "common/port_c.c"
+  - "common/backtrace.c"
+  - "common/k_cache_gcc.S"
+  - "gcc/<cpu>/port_s.S"
+  - "gcc/<cpu>/vector_s.S"
+  - "gcc/<cpu>/smp_scu.S"
+
+install:
+  - dest: "include/"
+    source:
+      - "include/*.h"

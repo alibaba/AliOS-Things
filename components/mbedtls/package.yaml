@@ -1,0 +1,183 @@
+
+## 第一部分： 基础信息
+name: mbedtls                                       # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: dev_aos                                     # <必选项> 组件版本号
+description: 一种SSL/TLS协议和加解密算法的实现          # <必选项> 建议至少20字以上
+type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag: 通用组件                                       # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - base
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+  - osal_aos: dev_aos
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  cflag: '-fexpensive-optimizations -funroll-loops'
+  include:
+    - include
+    - platform/yoc/include
+    - platform/aos/include
+    - platform/include
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - "library/aes.c"
+  - "library/aesni.c"
+  - "library/arc4.c"
+  - "library/asn1parse.c"
+  - "library/asn1write.c"
+  - "library/base64.c"
+  - "library/bignum.c"
+  - "library/blowfish.c"
+  - "library/camellia.c"
+  - "library/ccm.c"
+  - "library/cipher.c"
+  - "library/cipher_wrap.c"
+  - "library/cmac.c"
+  - "library/ctr_drbg.c"
+  - "library/des.c"
+  - "library/dhm.c"
+  - "library/ecdh.c"
+  - "library/ecdsa.c"
+  - "library/ecjpake.c"
+  - "library/ecp.c"
+  - "library/ecp_curves.c"
+  - "library/entropy.c"
+  - "library/entropy_poll.c"
+  - "library/error.c"
+  - "library/gcm.c"
+  - "library/havege.c"
+  - "library/hmac_drbg.c"
+  - "library/md.c"
+  - "library/md2.c"
+  - "library/md4.c"
+  - "library/md5.c"
+  - "library/md_wrap.c"
+  - "library/memory_buffer_alloc.c"
+  - "library/oid.c"
+  - "library/padlock.c"
+  - "library/pem.c"
+  - "library/pk.c"
+  - "library/pk_wrap.c"
+  - "library/pkcs12.c"
+  - "library/pkcs5.c"
+  - "library/pkparse.c"
+  - "library/pkwrite.c"
+  - "library/platform.c"
+  - "library/ripemd160.c"
+  - "library/rsa.c"
+  - "library/sha1.c"
+  - "library/sha256.c"
+  - "library/sha512.c"
+  - "library/threading.c"
+  - "library/timing.c"
+  - "library/version.c"
+  - "library/version_features.c"
+  - "library/xtea.c"
+  - "library/certs.c"
+  - "library/pkcs11.c"
+  - "library/x509.c"
+  - "library/x509_create.c"
+  - "library/x509_crl.c"
+  - "library/x509_crt.c"
+  - "library/x509_csr.c"
+  - "library/x509write_crt.c"
+  - "library/x509write_csr.c"
+  - "library/debug.c"
+  - "library/net_sockets.c"
+  - "library/ssl_cache.c"
+  - "library/ssl_ciphersuites.c"
+  - "library/ssl_cli.c"
+  - "library/ssl_cookie.c"
+  - "library/ssl_srv.c"
+  - "library/ssl_ticket.c"
+  - "library/ssl_tls.c"
+  - "library/platform_util.c"
+  - "library/rsa_internal.c"
+  - "platform/aos/library/*.c"
+
+## 第五部分：配置信息
+def_config:                              # 组件的可配置项
+    #MBEDTLS_CONFIG_USER_FILE
+    MBEDTLS_CONFIG_CRYPTO: 1
+    MBEDTLS_CONFIG_CRYPTO_MD5: 1
+    MBEDTLS_CONFIG_CRYPTO_SHA1: 1
+    MBEDTLS_CONFIG_CRYPTO_SHA256: 1
+    MBEDTLS_CONFIG_CRYPTO_SHA512: 0
+    MBEDTLS_CONFIG_CRYPTO_RIPEMD160: 0
+    MBEDTLS_CONFIG_CRYPTO_ARIA: 0
+    MBEDTLS_CONFIG_CRYPTO_DES: 0
+    MBEDTLS_CONFIG_CRYPTO_AES: 1
+    MBEDTLS_CONFIG_CRYPTO_AES_ROM_TABLES: 0
+    MBEDTLS_CONFIG_CRYPTO_AES_FEWER_TABLES: 0
+    MBEDTLS_CONFIG_CRYPTO_MODE_CBC: 1
+    MBEDTLS_CONFIG_CRYPTO_MODE_CFB: 0
+    MBEDTLS_CONFIG_CRYPTO_MODE_CTR: 0
+    MBEDTLS_CONFIG_CRYPTO_MODE_OFB: 0
+    MBEDTLS_CONFIG_CRYPTO_MODE_XTS: 0
+    MBEDTLS_CONFIG_CRYPTO_MODE_GCM: 0
+    MBEDTLS_CONFIG_CRYPTO_MODE_CCM: 0
+    MBEDTLS_CONFIG_CRYPTO_ARC4: 0
+    MBEDTLS_CONFIG_CRYPTO_BLOWFISH: 0
+    MBEDTLS_CONFIG_CRYPTO_CAMELLIA: 0
+    MBEDTLS_CONFIG_CRYPTO_XTEA: 0
+    MBEDTLS_CONFIG_CRYPTO_CHACHA20: 0
+    MBEDTLS_CONFIG_CRYPTO_POLY1305: 0
+    MBEDTLS_CONFIG_CRYPTO_CHACHAPOLY: 0
+    MBEDTLS_CONFIG_X509: 1
+    MBEDTLS_CONFIG_TLS: 1
+    MBEDTLS_CONFIG_TLS1_2: 1
+    MBEDTLS_CONFIG_DTLS: 1
+    MBEDTLS_CONFIG_TLS_DEBUG: 0
+    MBEDTLS_CONFIG_TLS_MAX_CONTENT_LEN: 4096
+    MBEDTLS_CONFIG_SELFTEST: 0
+    MBEDTLS_CONFIG_ERROR: 0
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+install:
+  - dest: "include"
+    source:
+      - include/*.h
+      - platform/yoc/include/*.h
+      - platform/aos/include/*.h
+      - platform/include/*.h
+
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"

@@ -1,0 +1,204 @@
+## 第一部分： 基础信息
+name: sensor
+description: Hardware abstract layer for sensors.
+version: dev_aos                       # <必选项> 组件版本号
+type: common                          # <必选项> 组件类型，为：solution, chip, board, common
+tag: 系统升级                         # <可选项> 组件分类，缺省值： ''
+keywords:                            # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - sensor
+license: Apache license v2.0         # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：
+                                     #    GPLv2，LGPLv2.1，MIT，Apache license v2.0，BSD
+                                     #    默认值: Apache license v2.0
+
+## 第二部分：依赖信息
+#          指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#          未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+depends:
+  - ulog: dev_aos
+  - vfs: dev_aos
+  - i2c: dev_aos
+ # - mbmaster: dev_aos? <SENSOR_CONFIG_MODBUS_ENABLE>
+
+## 第四部分：编译连接信息
+# build_config:                      # <可选项> 编译配置项
+#   include:                         # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                          #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#  cflag: ''                         # <可选项> C 编译器所需要要的编译参数
+#  cxxflag: ''                       # <可选项> CXX 编译器所需要要的编译参数
+#  asmflag: ''                       # <可选项> 汇编器所需要要参数
+#  define:                           # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#    XXX: 1                          # -DXXX=1
+#    AAA: 1                          # -DAAA
+#    STR: "abc"                      # -DSTR=\"abc\"
+#  libs:                             # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#    - xxx                           # -lxxx
+#    - yyy                           # -lyyy
+#  libpath:                          # 指定静态库所在的路径（相对于该组件路径）
+#   - libs                           # -Llibs
+
+build_config:
+  include:
+    - include
+  #cflag: '-Wall -Werror'
+  cflag: '-w'
+
+## source_file:                       # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - example/sensor_local_demo.c ? <AOS_SENSOR_LOCAL_DEMO_ENABLE>
+  - example/sensor_cloud_demo.c ? <AOS_SENSOR_CLOUD_DEMO_ENABLE>
+  - hal/sensor_hal.c
+  - hal/sensor_drv_api.c
+  - drv/drv_init.c
+  - drv/modbus_sensors/drv_modbus_sensors.c? <SENSOR_CONFIG_MODBUS_ENABLE>
+  - drv/drv_acc_adi_adxl372.c ? <AOS_SENSOR_ACC_ADI_ADXL372>
+  - drv/drv_acc_adi_adxl345.c ? <AOS_SENSOR_ACC_ADI_ADXL345>
+  - drv/drv_acc_adi_adxl355.c ? <AOS_SENSOR_ACC_ADI_ADXL355>
+  - drv/drv_acc_bosch_bma253.c ? <AOS_SENSOR_ACC_BOSCH_BMA253>
+  - drv/drv_acc_bosch_bma280.c ? <AOS_SENSOR_ACC_BOSCH_BMA280>
+  - drv/drv_acc_bosch_bma421.c ? <AOS_SENSOR_ACC_BOSCH_BMA421>
+  - drv/drv_acc_bosch_bma422.c ? <AOS_SENSOR_ACC_BOSCH_BMA422>
+  - drv/drv_acc_bosch_bma455.c ? <AOS_SENSOR_ACC_BOSCH_BMA455>
+  - drv/drv_acc_bosch_bma456.c ? <AOS_SENSOR_ACC_BOSCH_BMA456>
+  - drv/drv_acc_gyro_bosch_bmi055.c ? <AOS_SENSOR_ACC_BOSCH_BMI055>
+  - drv/drv_acc_gyro_bosch_bmi088.c ? <AOS_SENSOR_ACC_BOSCH_BMI088>
+  - drv/drv_acc_gyro_bosch_bmi120.c ? <AOS_SENSOR_ACC_BOSCH_BMI120>
+  - drv/drv_acc_gyro_bosch_bmi160.c ? <AOS_SENSOR_ACC_BOSCH_BMI160>
+  - drv/drv_acc_gyro_bosch_bmi260.c ? <AOS_SENSOR_ACC_BOSCH_BMI260>
+  - drv/drv_acc_gyro_senodia_sh200l.c ? <AOS_SENSOR_ACC_SENODIA_SH200L>
+  - drv/drv_acc_gyro_senodia_sh200q.c ? <AOS_SENSOR_ACC_SENODIA_SH200Q>
+  - drv/drv_acc_gyro_st_lsm6ds3.c ? <AOS_SENSOR_ACC_ST_LSM6DS3>
+  - drv/drv_acc_gyro_st_lsm6ds3tr_c.c ? <AOS_SENSOR_ACC_ST_LSM6DS3TR_C>
+  - drv/drv_acc_gyro_st_lsm6dsl.c ? <AOS_SENSOR_ACC_ST_LSM6DSL>
+  - drv/drv_acc_gyro_st_lsm6dsm.c ? <AOS_SENSOR_ACC_ST_LSM6DSM>
+  - drv/drv_acc_gyro_st_lsm6dsoq.c ? <AOS_SENSOR_ACC_ST_LSM6DSOQ>
+  - drv/drv_acc_gyro_st_lsm6dsr.c ? <AOS_SENSOR_ACC_ST_LSM6DSR>
+  - drv/drv_acc_mag_st_lsm303agr.c ? <AOS_SENSOR_ACC_ST_LSM303AGR>
+  - drv/drv_acc_mir3_da213B.c ? <AOS_SENSOR_ACC_MIR3_DA213B>
+  - drv/drv_acc_mir3_da215.c ? <AOS_SENSOR_ACC_MIR3_DA215>
+  - drv/drv_acc_mir3_da217.c ? <AOS_SENSOR_ACC_MIR3_DA217>
+  - drv/drv_acc_mir3_da270.c ? <AOS_SENSOR_ACC_MIR3_DA270>
+  - drv/drv_acc_mir3_da312B.c ? <AOS_SENSOR_ACC_MIR3_DA312B>
+  - drv/drv_acc_mir3_da380B.c ? <AOS_SENSOR_ACC_MIR3_DA380B>
+  - drv/drv_acc_st_ais328dq.c ? <AOS_SENSOR_ACC_ST_AIS328DQ>
+  - drv/drv_acc_st_h3lis100dl.c ? <AOS_SENSOR_ACC_ST_H3LIS100DL>
+  - drv/drv_acc_st_h3lis331dl.c ? <AOS_SENSOR_ACC_ST_H3LIS331DL>
+  - drv/drv_acc_st_lis2dh12.c ? <AOS_SENSOR_ACC_ST_LIS2DH12>
+  - drv/drv_acc_st_lis2dw12.c ? <AOS_SENSOR_ACC_ST_LIS2DW12>
+  - drv/drv_acc_st_lis2hh12.c ? <AOS_SENSOR_ACC_ST_LIS2HH12>
+  - drv/drv_acc_st_lis3dh.c ? <AOS_SENSOR_ACC_ST_LIS3DH>
+  - drv/drv_acc_st_lis331hh.c ? <AOS_SENSOR_ACC_ST_LIS331HH>
+  - drv/drv_acc_st_n2dm.c ? <AOS_SENSOR_ACC_ST_N2DM>
+  - drv/drv_acc_gyro_bosch_bmi055.c ? <AOS_SENSOR_GYRO_BOSCH_BMI055>
+  - drv/drv_acc_gyro_bosch_bmi088.c ? <AOS_SENSOR_GYRO_BOSCH_BMI088>
+  - drv/drv_acc_gyro_bosch_bmi120.c ? <AOS_SENSOR_GYRO_BOSCH_BMI120>
+  - drv/drv_acc_gyro_bosch_bmi160.c ? <AOS_SENSOR_GYRO_BOSCH_BMI160>
+  - drv/drv_acc_gyro_bosch_bmi260.c ? <AOS_SENSOR_GYRO_BOSCH_BMI260>
+  - drv/drv_acc_gyro_senodia_sh200l.c ? <AOS_SENSOR_GYRO_SENODIA_SH200L>
+  - drv/drv_acc_gyro_senodia_sh200q.c ? <AOS_SENSOR_GYRO_SENODIA_SH200Q>
+  - drv/drv_acc_gyro_st_lsm6ds3.c ? <AOS_SENSOR_GYRO_ST_LSM6DS3>
+  - drv/drv_acc_gyro_st_lsm6ds3tr_c.c ? <AOS_SENSOR_GYRO_ST_LSM6DS3TR_C>
+  - drv/drv_acc_gyro_st_lsm6dsl.c ? <AOS_SENSOR_GYRO_ST_LSM6DSL>
+  - drv/drv_acc_gyro_st_lsm6dsm.c ? <AOS_SENSOR_GYRO_ST_LSM6DSM>
+  - drv/drv_acc_gyro_st_lsm6dsoq.c ? <AOS_SENSOR_GYRO_ST_LSM6DSOQ>
+  - drv/drv_acc_gyro_st_lsm6dsr.c ? <AOS_SENSOR_GYRO_ST_LSM6DSR>
+  - drv/drv_gyro_bosch_bmg160.c ? <AOS_SENSOR_GYRO_BOSCH_BMG160>
+  - drv/drv_gyro_st_a3g4250d.c ? <AOS_SENSOR_GYRO_ST_A3G4250D>
+  - drv/drv_gyro_st_i3g4250d.c ? <AOS_SENSOR_GYRO_ST_I3G4250D>
+  - drv/drv_gyro_st_l3gd20h.c ? <AOS_SENSOR_GYRO_ST_L3GD20H>
+  - drv/drv_mag_bosch_bmm150.c ? <AOS_SENSOR_MAG_BOSCH_BMM150>
+  - drv/drv_acc_mag_st_lsm303agr.c ? <AOS_SENSOR_MAG_ST_LSM303AGR>
+  - drv/drv_mag_akm_ak09917.c ? <AOS_SENSOR_MAG_AKM_AK09917>
+  - drv/drv_mag_akm_ak09918.c ? <AOS_SENSOR_MAG_AKM_AK09918>
+  - drv/drv_mag_akm_ak09940.c ? <AOS_SENSOR_MAG_AKM_AK09940>
+  - drv/drv_mag_rohm_bm1422a.c ? <AOS_SENSOR_MAG_ROHM_BM1422A>
+  - drv/drv_mag_senodia_st350.c ? <AOS_SENSOR_MAG_SENODIA_ST350>
+  - drv/drv_mag_senodia_st480.c ? <AOS_SENSOR_MAG_SENODIA_ST480>
+  - drv/drv_mag_st_lis2mdl.c ? <AOS_SENSOR_MAG_ST_LIS2MDL>
+  - drv/drv_mag_st_lis3mdl.c ? <AOS_SENSOR_MAG_ST_LIS3MDL>
+  - drv/drv_mag_temp_memsic_mmc3680kj.c ? <AOS_SENSOR_MAG_MEMSIC_MMC3680KJ>
+  - drv/drv_als_ams_tcs3400.c ? <AOS_SENSOR_ALS_AMS_TCS3400>
+  - drv/drv_als_ps_ams_tmd2725.c ? <AOS_SENSOR_ALS_AMS_TMD2725>
+  - drv/drv_als_liteon_ltr303.c ? <AOS_SENSOR_ALS_LITEON_LTR303>
+  - drv/drv_als_liteon_ltr568.c ? <AOS_SENSOR_ALS_LITEON_LTR568>
+  - drv/drv_als_ps_liteon_ltr507.c ? <AOS_SENSOR_ALS_LITEON_LTR507>
+  - drv/drv_als_ps_liteon_ltr553.c ? <AOS_SENSOR_ALS_LITEON_LTR553>
+  - drv/drv_als_ps_liteon_ltr559.c ? <AOS_SENSOR_ALS_LITEON_LTR559>
+  - drv/drv_als_rohm_bh1730.c ? <AOS_SENSOR_ALS_ROHM_BH1730>
+  - drv/drv_als_ps_ams_tmd2725.c ? <AOS_SENSOR_PS_AMS_TMD2725>
+  - drv/drv_als_ps_liteon_ltr507.c ? <AOS_SENSOR_PS_LITEON_LTR507>
+  - drv/drv_als_ps_liteon_ltr553.c ? <AOS_SENSOR_PS_LITEON_LTR553>
+  - drv/drv_als_ps_liteon_ltr559.c ? <AOS_SENSOR_PS_LITEON_LTR559>
+  - drv/drv_ps_liteon_ltr659.c ? <AOS_SENSOR_PS_LITEON_LTR659>
+  - drv/drv_ps_liteon_ltr690.c ? <AOS_SENSOR_PS_LITEON_LTR690>
+  - drv/drv_ps_liteon_ltr706.c ? <AOS_SENSOR_PS_LITEON_LTR706>
+  - drv/drv_baro_ifx_dps310.c ? <AOS_SENSOR_BARO_IFX_DSP310>
+  - drv/drv_baro_bosch_bmp280.c ? <AOS_SENSOR_BARO_BOSCH_BMP280>
+  - drv/drv_baro_bosch_bmp38x.c ? <AOS_SENSOR_BARO_BOSCH_BMP380>
+  - drv/drv_baro_rohm_bm1383a.c ? <AOS_SENSOR_BARO_ROHM_BM1383A>
+  - drv/drv_baro_st_lps22hb.c ? <AOS_SENSOR_BARO_ST_LPS22HB>
+  - drv/drv_baro_st_lps33hb.c ? <AOS_SENSOR_BARO_ST_LPS33HB>
+  - drv/drv_baro_st_lps35hb.c ? <AOS_SENSOR_BARO_ST_LPS35HB>
+  - drv/drv_temp_humi_baro_bosch_bme280.c ? <AOS_SENSOR_BARO_BOSCH_BME280>
+  - drv/drv_gs_pixart_paj7620.c ? <AOS_SENSOR_GESTURE_PIXART_PAJ7620>
+  - drv/drv_ir_akm_ak9754.c ? <AOS_SENSOR_IR_AKM_AK9754>
+  - drv/drv_rgb_liteon_ltr381.c ? <AOS_SENSOR_RGB_LITEON_LTR381>
+  - drv/drv_rtc_maxim_ds1307.c ? <AOS_SENSOR_RTC_MAXIM_DS1307>
+  - drv/drv_uv_liteon_ltr390.c ? <AOS_SENSOR_UV_LITEON_LTR390>
+  - drv/drv_temp_humi_ams_ens210.c ? <AOS_SENSOR_TEMP_AMS_ENS210>
+  - drv/drv_temp_adi_adt7410.c ? <AOS_SENSOR_TEMP_ADI_ADT7410>
+  - drv/drv_temp_humi_baro_bosch_bme280.c ? <AOS_SENSOR_TEMP_BOSCH_BME280>
+  - drv/drv_temp_humi_sensirion_sht30.c ? <AOS_SENSOR_TEMP_SENSIRION_SHT30>
+  - drv/drv_temp_humi_sensirion_sht31.c ? <AOS_SENSOR_TEMP_SENSIRION_SHT31>
+  - drv/drv_temp_humi_sensirion_shtc1.c ? <AOS_SENSOR_TEMP_SENSIRION_SHTC1>
+  - drv/drv_temp_humi_st_hts221.c ? <AOS_SENSOR_TEMP_ST_HTS221>
+  - drv/drv_temp_humi_si_si7006.c ? <AOS_SENSOR_TEMP_SI_SI7006>
+  - drv/drv_temp_humi_ams_ens210.c ? <AOS_SENSOR_HUMI_AMS_ENS210>
+  - drv/drv_temp_humi_baro_bosch_bme280.c ? <AOS_SENSOR_HUMI_BOSCH_BME280>
+  - drv/drv_temp_humi_sensirion_sht30.c ? <AOS_SENSOR_HUMI_SENSIRION_SHT30>
+  - drv/drv_temp_humi_sensirion_sht31.c ? <AOS_SENSOR_HUMI_SENSIRION_SHT31>
+  - drv/drv_temp_humi_sensirion_shtc1.c ? <AOS_SENSOR_HUMI_SENSIRION_SHTC1>
+  - drv/drv_temp_humi_st_hts221.c ? <AOS_SENSOR_HUMI_ST_HTS221>
+  - drv/drv_temp_humi_si_si7006.c ? <AOS_SENSOR_HUMI_SI_SI7006>
+  - drv/drv_co2_sensirion_scd30.c ? <AOS_SENSOR_CO2_SENSIRION_SCD30>
+  - drv/drv_ecg_adi_adpd188gg.c ? <AOS_SENSOR_ECG_ADI_ADPD188GG>
+  - drv/drv_tvoc_sensirion_sgp30.c ? <AOS_SENSOR_TVOC_SENSIRION_SGP30>
+  - drv/drv_tvoc_ams_ccs811.c ? <AOS_SENSOR_TVOC_AMS_CCS811>
+  - drv/drv_temp_humi_baro_bosch_bme280.c ? <AOS_SENSOR_HUMI_BME280_SPI>
+  - drv/drv_temp_humi_baro_bosch_bme280.c ? <AOS_SENSOR_BARO_BME280_SPI>
+  - drv/drv_temp_humi_baro_bosch_bme280.c ? <AOS_SENSOR_TEMP_BME280_SPI>
+  - drv/drv_canbus_inv_mpu9250.c ? <AOS_SENSOR_CANBUS_INV_MPU9250>
+  - drv/drv_ps_st_vl53l0x/drv_ps_st_vl53l0x.c ? <AOS_SENSOR_PS_ST_VL53L0X>
+  - drv/drv_ps_st_vl53l0x/vl53l0x_platform.c ? <AOS_SENSOR_PS_ST_VL53L0X>
+  - drv/drv_ps_st_vl53l0x/vl53l0x/vl53l0x_api.c ? <AOS_SENSOR_PS_ST_VL53L0X>
+  - drv/drv_ps_st_vl53l0x/vl53l0x/vl53l0x_api_calibration.c ? <AOS_SENSOR_PS_ST_VL53L0X>
+  - drv/drv_ps_st_vl53l0x/vl53l0x/vl53l0x_api_core.c ? <AOS_SENSOR_PS_ST_VL53L0X>
+  - drv/drv_ps_st_vl53l0x/vl53l0x/vl53l0x_api_ranging.c ? <AOS_SENSOR_PS_ST_VL53L0X>
+  - drv/drv_ps_st_vl53l0x/vl53l0x/vl53l0x_api_strings.c ? <AOS_SENSOR_PS_ST_VL53L0X>
+  - drv/drv_ps_st_vl53l0x/vl53l0x/vl53l0x_platform_log.c ? <AOS_SENSOR_PS_ST_VL53L0X>
+
+## 第五部分：配置信息
+# def_config:                        # 组件的可配置项
+#   CONFIG_DEBUG: y
+#   CONFIG_PARAM_NOT_CHECK: y
+#   CONFIG_CLI: y
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/    # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:           # 安装源列表
+#      - src/*.h        # 支持通配符，相对路径
+install:
+  - dest: "include/sensor"
+    source:
+      - "include/sensor/*.h"
+
+## 第七部分：导出部分
+# export:
+#   - dest: <SOLUTION_PATH>/generated/data # 导出来到指定的位置
+#     source:
+#       - bootimgs/boot
+#       - bootimgs/tee
+#       - configs/config.yaml

@@ -1,0 +1,240 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{dd42165b-c5be-43ab-9f7c-1c7d0f30abf2}</ProjectGuid>
+    <RootNamespace>libwebp_WinPhone80</RootNamespace>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110_wp80</PlatformToolset>
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110_wp80</PlatformToolset>
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v110_wp80</PlatformToolset>
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v110_wp80</PlatformToolset>
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <IntDir>Objs\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <TargetName>libwebp</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <IntDir>Objs\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <TargetName>libwebp</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IntDir>Objs\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <TargetName>libwebp</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IntDir>Objs\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <TargetName>libwebp</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename)</ObjectFileName>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>../libwebp.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>_USRDLL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename)</ObjectFileName>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>../libwebp.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <ClCompile>
+      <PreprocessorDefinitions>_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename)</ObjectFileName>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>../libwebp.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <ClCompile>
+      <PreprocessorDefinitions>_USRDLL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <AdditionalUsingDirectories>$(WindowsSDK_MetadataPath);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
+      <ObjectFileName>$(IntDir)\%(RelativeDir)\%(Filename)</ObjectFileName>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>../libwebp.def</ModuleDefinitionFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Reference Include="Windows">
+      <IsWinMDFile>true</IsWinMDFile>
+    </Reference>
+    <Reference Include="platform.winmd">
+      <IsWinMDFile>true</IsWinMDFile>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dec\alpha.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dec\buffer.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dec\frame.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dec\idec.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dec\io.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dec\layer.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dec\quant.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dec\tree.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dec\vp8.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dec\vp8l.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dec\webp.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dsp\cpu.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dsp\dec.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dsp\dec_neon.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dsp\dec_sse2.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dsp\enc.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dsp\enc_neon.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dsp\enc_sse2.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dsp\lossless.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dsp\upsampling.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dsp\upsampling_neon.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dsp\upsampling_sse2.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\dsp\yuv.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\alpha.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\analysis.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\backward_references.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\config.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\cost.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\filter.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\frame.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\histogram.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\iterator.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\layer.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\picture.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\quant.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\syntax.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\token.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\tree.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\vp8l.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\enc\webpenc.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\utils\bit_reader.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\utils\bit_writer.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\utils\color_cache.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\utils\filters.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\utils\huffman.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\utils\huffman_encode.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\utils\quant_levels.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\utils\quant_levels_dec.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\utils\rescaler.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\utils\thread.c" />
+    <ClCompile Include="..\..\external\libwebp-0.6.0\src\utils\utils.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\dec\decode_vp8.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\dec\vp8i.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\dec\vp8li.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\dec\webpi.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\dsp\dsp.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\dsp\lossless.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\dsp\yuv.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\enc\backward_references.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\enc\cost.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\enc\histogram.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\enc\vp8enci.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\enc\vp8li.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\utils\bit_reader.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\utils\bit_writer.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\utils\color_cache.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\utils\filters.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\utils\huffman.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\utils\huffman_encode.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\utils\quant_levels.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\utils\quant_levels_dec.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\utils\rescaler.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\utils\thread.h" />
+    <ClInclude Include="..\..\external\libwebp-0.6.0\src\utils\utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\libwebp.def" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsPhone\v$(TargetPlatformVersion)\Microsoft.Cpp.WindowsPhone.$(TargetPlatformVersion).targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,43 @@
+name: vexpress_a9
+version: dev_aos
+description: configurations for board vexpress-a9
+type: board
+tag: ""
+keywords:
+  - base
+license: Apache license v2.0
+
+depends:
+  - chip_vexpress_a9: dev_aos
+
+build_config:
+  include:
+    - "include/"
+
+source_file:
+  - "board.c"
+  - "flash_partitions.c"
+
+def_config:
+  SYSINFO_PRODUCT_MODEL: "ALIOS_VEXPRESS_A9"
+  SYSINFO_DEVICE_NAME: "VEXPRESS_A9"
+  CONFIG_ADC_NUM: 0
+  CONFIG_DAC_NUM: 0
+  CONFIG_GPIO_NUM: 0
+  CONFIG_I2C_NUM: 0
+  CONFIG_PWM_NUM: 0
+  CONFIG_QSPI_NUM: 0
+  CONFIG_SPI_NUM: 0
+  CONFIG_TIMER_NUM: 1
+  CONFIG_WDG_NUM: 0
+  CONFIG_UART_NUM: 1
+
+  # littlefs config
+  CONFIG_LITTLEFS_CNT: 1 # lfs supports up to 2 partitions, please choose 1 or 2 here
+  CONFIG_LFS_MOUNTPOINT: "/data" # the mount path of the lfs partition
+  CONFIG_LFS_PROG_SIZE: 1024 # the mininal programable size, usually page size for nand and any size for nor
+  CONFIG_LFS_PAGE_NUM_PER_BLOCK: 4 # choose the right value for nand, and usually any value for nor
+  CONFIG_LFS_BLOCK_NUMS: 1198 # the total block count for lfs parition
+
+board:
+  chip_name: chip_vexpress_a9

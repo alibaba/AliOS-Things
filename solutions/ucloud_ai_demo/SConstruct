@@ -1,0 +1,10 @@
+#! /bin/env python
+
+from aostools import Make
+
+# defconfig = Make(elf='yoc.elf', objcopy='generated/data/prim', objdump='yoc.asm')
+defconfig = Make(elf='yoc.elf', objcopy='binary/ucloud_ai_demo@haas100.bin')
+
+Export('defconfig')
+
+defconfig.build_components()

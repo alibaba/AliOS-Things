@@ -1,3 +1,0 @@
-;__TLS_OS_UCOS	EQU	1		;ถþักาป
-__TLS_OS_FREERTOS	EQU	1
-	END

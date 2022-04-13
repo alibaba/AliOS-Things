@@ -1,0 +1,104 @@
+Common:
+  #Com Ports:
+  # ['COM3','COM4','COM5'...]: Serial port is specified;
+  #  NULL: Auto List Serial ports
+  COM: NULL
+
+  #Baud Rate: : default baut rate is 921600
+  # Range of values:   921600 -- 3000000
+  BAUT_RATE: 2000000
+
+  #Binarys files sub directory
+  BIN_DIR: ota_bin
+
+  # Programmer file path,relative path or absolute path
+  PROGRAMMER: '.\tools\programmer2001.bin'
+
+  # dldtoos.exe file path,relative path or absolute path
+  DLD_TOOLS_EXE: '.\tools\dldtool.exe'
+
+  # Switch of tools log.
+  LOG_SWITCH: ON
+
+  # Press enter key to exit when the download is completed.
+  WAIT_PRESS_ENTER: ON
+
+  # Switch of progressbar
+  PROGRESSBAR_SWITCH: OFF
+
+  # stdout and stderr redirect to PIPE.
+  REDIRECT_PIPE: ON
+
+  # PIPE buffer size
+  PIPE_BUFFER_SIZE: 2000000
+  # log print delay in ms
+  LOG_PRINT_DELAY_IN_MS:  100
+
+FILE_LIST:
+   - BOOT1:
+       FILE_NAME: ota_boot1.bin
+       ADDR:  #0x2C000000
+       SIZE: 0x10000
+       SWITCH: ON
+   - BOOT2A:
+       FILE_NAME: ota_boot2a.bin
+       ADDR:  #0x2C010000
+       SIZE: 0x10000
+       SWITCH: ON
+   - BOOT2B:
+       FILE_NAME: ota_boot2b.bin
+       ADDR:  #0x2C020000
+       SIZE: 0x10000
+       SWITCH: ON
+   - BOOT_INFO:
+       FILE_NAME: bootinfo.bin
+       ADDR:  #0x2C030000
+       SIZE: 0x2000
+       SWITCH: OFF
+   - PUB_KEY:
+       FILE_NAME: pub_key.bin
+       ADDR: 0x2C032000
+       SIZE: 0x2000
+       SWITCH: OFF
+   - RTOS:
+       FILE_NAME: ota_rtos.bin
+       ADDR:  #0x2C038000
+       SIZE: 0x580000
+       REMAP_SWITCH: ON
+       REMAP_BOTH_SWITCH: ON
+       SWITCH: ON
+   - LITTLEFS:
+       FILE_NAME: littlefs.bin
+       ADDR: 0x2CB38000
+       SIZE: 0x4A8000
+       SWITCH: ON
+   - KV:
+       FILE_NAME: kv.bin
+       ADDR: 0x2CFF0000
+       SIZE: 0x2000
+       SWITCH: OFF
+   - RESERVED:
+       FILE_NAME: reserved.bin
+       ADDR: 0x2CFF2000
+       SIZE: 0xC000
+       SWITCH: OFF
+   - FACTORY:
+       FILE_NAME: factory.bin
+       ADDR: 0x2CFFE000
+       SIZE: 0x2000
+       SWITCH: ON
+   - PUB_OTP:
+       FILE_NAME: pub_otp.bin
+       ADDR: 0x0
+       SIZE: 0x400
+       SWITCH: ON
+   - PUB_HASH_OTP:
+       FILE_NAME: pub_hash_otp.bin
+       ADDR: 0x400
+       SIZE: 0x400
+       SWITCH: OFF
+   - EFUSE:
+       FILE_NAME:
+       ADDR: 0x0
+       SIZE: 0x1
+       SWITCH: OFF

@@ -1,5 +1,0 @@
-config AOS_COMP_LWM2M_YTS_TEST
-    bool "LWM2M YTS Testcase"
-    select AOS_COMP_LWM2M
-    default n
-    help

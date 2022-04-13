@@ -1,0 +1,60 @@
+
+/*
+ * 1. Key Generation
+ *
+ * Generate a RSA private key in PEM format with 2048 bits and 65537 exponent value, encrypted with aes-128-cbc:
+ * openssl genpkey -out pri.pem -outform PEM -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -pkeyopt rsa_keygen_pubexp:65537 -aes-128-cbc
+ *
+ * Generate a RSA public key in PEM format from a RSA private key:
+ * openssl pkey -in pri.pem -pubout -outform PEM -out pub.pem
+ *
+ * 2. Public Key Extraction
+ *
+ * Extract the public key in C code format:
+ * (Linux)
+ * java -cp bcprov-jdk15on-152.jar:. DumpPublicKey pub.pem
+ * (Windows Command Prompt -- not PowerShell!)
+ * java -cp bcprov-jdk15on-152.jar;. DumpPublicKey pub.pem
+ *
+ */
+
+static const RSAPublicKey key_15 = {
+    0x18217b03,
+    {
+        0x3c28b855, 0x9f500084, 0xafa9e133, 0x8e0cb997,
+        0xd27be6c6, 0x03275453, 0x6f1cf697, 0x340dcaef,
+        0xea89b322, 0x59493a0f, 0xd789d171, 0xc015e7db,
+        0x6da136df, 0x255a6bf9, 0x0e2be037, 0x3df7271a,
+        0x605732b9, 0x8b22a096, 0x7347a23d, 0xab9b710b,
+        0x540364fc, 0x9cd529d8, 0x4fbc9532, 0x7112f73d,
+        0xb63da0f3, 0x398005f5, 0x444d2be8, 0x0fe6d9b4,
+        0xcf1f1d5e, 0xf4bb3b58, 0xdeb231f5, 0x1a3a1b1f,
+        0x65303e99, 0x6d04f347, 0x8790a0f9, 0xbfeae4dc,
+        0x688182ce, 0x19ef2563, 0x3425c764, 0x744c0e20,
+        0x8c6753e2, 0x57ec29e7, 0xd47bedc0, 0x0b937e14,
+        0x841c2224, 0x8ccb6ac2, 0x2f803bfe, 0x38fb4152,
+        0x9664552b, 0x1f53a140, 0x70b98306, 0xd180c3cd,
+        0xa4429506, 0xf5aa931e, 0x2c55db22, 0xad1c3552,
+        0x62435a97, 0x280dc64e, 0x33cfd547, 0xfc786659,
+        0x45d9d278, 0x70e581f8, 0xb74aed1a, 0xe7623585,
+    },
+    {
+        0x3fc30791, 0x47761b9d, 0x80fcf93e, 0x869dcff4,
+        0x28400ec8, 0xcde2536d, 0x1a0d9dd7, 0xeb772afb,
+        0x70b646b8, 0x10af187d, 0x6c4c981d, 0x2ccd4f48,
+        0xd6b824bb, 0x5e274522, 0xc2ab8d8b, 0x0951cbda,
+        0x3b3cd28a, 0xdb720724, 0xa41a9606, 0x931f48bc,
+        0x1c3f4657, 0x9fc22b5e, 0xd51beb4a, 0xd33b54dc,
+        0x4ca52f99, 0x9ad38968, 0x1d195d0c, 0x961ae0df,
+        0x4aeeca14, 0xa9264ba5, 0x6545623b, 0x5908b940,
+        0x65f5be61, 0x9b444d4f, 0xdeb851bb, 0x33c0cd3a,
+        0x148e04d3, 0xf925f652, 0xdf0332fa, 0xf54d300d,
+        0x9c8379c6, 0xc89cbcb6, 0xcfd4f61e, 0xc284b915,
+        0x2d266511, 0xe572260f, 0x1b4ad57c, 0xa658ca62,
+        0xea70c7e2, 0xa484012f, 0x91da0cc6, 0x59b4c4bb,
+        0xc244f60e, 0x48cb0c0a, 0x820291a2, 0x1b34b5c1,
+        0x75532b06, 0xd6aceb93, 0x74437e61, 0x96f2e5db,
+        0xce14f997, 0x72deee7f, 0xc9e12ad4, 0x773cbb24,
+    },
+};
+
