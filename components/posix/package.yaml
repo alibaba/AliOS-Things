@@ -1,0 +1,25 @@
+name: posix
+version: dev_aos
+description: 支持POSIX标准API
+type: common
+
+tag: 核心模块
+keywords:
+  - base
+license: Apache license v2.0
+
+depends:
+  - osal_aos: dev_aos
+  - select: dev_aos
+
+build_config:
+  include:
+    - include
+
+source_file:
+  - "src/*.c"
+
+install:
+  - dest: "include"
+    source:
+      - "include/*.h"

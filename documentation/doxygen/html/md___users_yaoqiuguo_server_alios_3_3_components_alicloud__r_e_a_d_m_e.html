@@ -1,0 +1,276 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: README</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('md___users_yaoqiuguo_server_alios_3_3_components_alicloud__r_e_a_d_m_e.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="PageDoc"><div class="header">
+  <div class="headertitle">
+<div class="title">README </div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><p>English | 简体中文</p>
+<p align="center"></p>
+<p><a href="https://www.alibabacloud.com"><img src="https://aliyunsdk-pages.alicdn.com/icons/AlibabaCloud.svg" alt="" style="pointer-events: none;" class="inline"/></a> </p>
+<h1 align="center">Alibaba Cloud SDK for C++</h1>
+<p align="center"></p>
+<p><a href="https://travis-ci.org/aliyun/aliyun-openapi-cpp-sdk"><img src="https://travis-ci.org/aliyun/aliyun-openapi-cpp-sdk.svg?branch=master" alt="Travis Build Status" style="pointer-events: none;" class="inline"/></a> <a href="https://codecov.io/gh/aliyun/aliyun-openapi-cpp-sdk"><img src="https://codecov.io/gh/aliyun/aliyun-openapi-cpp-sdk/branch/master/graph/badge.svg" alt="codecov" style="pointer-events: none;" class="inline"/></a> </p>
+<p>Alibaba Cloud SDK for C++ allows you to access Alibaba Cloud services such as Elastic Compute Service (ECS), Server Load Balancer (SLB), and CloudMonitor. You can access Alibaba Cloud services without the need to handle API related tasks, such as signing and constructing your requests.</p>
+<p>This document introduces how to obtain and call this SDK.</p>
+<p>If you have any problem while using Alibaba Cloud SDK for C++, please submit an <a href="https://github.com/aliyun/aliyun-openapi-cpp-sdk/issues/new">issue</a>.</p>
+<h2><a class="anchor" id="autotoc_md53"></a>
+Troubleshoot</h2>
+<p><a href="https://troubleshoot.api.aliyun.com/?source=github_sdk">Troubleshoot</a> Provide OpenAPI diagnosis service to help developers locate quickly and provide solutions for developers through <code>RequestID</code> or <code>error message</code>.</p>
+<h2><a class="anchor" id="autotoc_md54"></a>
+Requirements</h2>
+<ul>
+<li><p class="startli">To use this SDK, you must have an Alibaba Cloud account and an AccessKey.</p>
+<p class="startli">The AccessKey is required when initializing the client. You can create an AccessKey in the Alibaba Cloud console. For more information, see <a href="https://usercenter.console.aliyun.com/?spm=5176.doc52740.2.3.QKZk8w#/manage/ak">Create an AccessKey</a>.</p>
+<p class="startli">&gt;<b>Note:</b> To increase the security of your account, we recommend that you use the AccessKey of the RAM user to access Alibaba Cloud services.</p>
+</li>
+<li>To use this SDK to access the APIs of a product, you must first activate the product on the <a href="https://home.console.aliyun.com/?spm=5176.doc52740.2.4.QKZk8w">Alibaba Cloud console</a> if required.</li>
+<li>C++11 supported compiler installed<ul>
+<li>Windows: Visual Studio 2015 or newer</li>
+<li>Linux: GCC 4.9 or newer</li>
+</ul>
+</li>
+<li>CMake 3.0 or newer</li>
+<li>4G memory or more</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md55"></a>
+Installation</h2>
+<h3><a class="anchor" id="autotoc_md56"></a>
+Linux</h3>
+<ol type="1">
+<li>Install third-party libraries on the Linux platform, including <code>libcurl</code>, <code>libopenssl</code>, <code>libuuid</code>, and <code>libjsoncpp</code>.</li>
+</ol>
+<ul>
+<li>Run the following commands on the <code>Redhat/Fedora</code> system</li>
+</ul>
+<div class="fragment"><div class="line"># use yum</div>
+<div class="line">yum install jsoncpp-devel openssl-devel uuid-devel libcurl-devel</div>
+<div class="line"> </div>
+<div class="line"># use dnf</div>
+<div class="line">sudo dnf install libcurl-devel openssl-devel libuuid-devel libjsoncpp-devel</div>
+</div><!-- fragment --><ul>
+<li>Run the following commands on the <code>Debian/Ubuntu</code> system</li>
+</ul>
+<div class="fragment"><div class="line">sudo apt-get install libcurl4-openssl-dev libssl-dev uuid-dev libjsoncpp-dev</div>
+</div><!-- fragment --><ol type="1">
+<li>Run the following commands to clone source codes from GitHub.</li>
+</ol>
+<div class="fragment"><div class="line">git clone https://github.com/aliyun/aliyun-openapi-cpp-sdk.git</div>
+</div><!-- fragment --><ol type="1">
+<li>Build and install SDK</li>
+</ol>
+<ul>
+<li>Manually build and install</li>
+</ul>
+<div class="fragment"><div class="line">cd aliyun-openapi-cpp-sdk</div>
+<div class="line">mkdir sdk_build</div>
+<div class="line">cd sdk_build</div>
+<div class="line">cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..</div>
+<div class="line">make</div>
+<div class="line">sudo make install</div>
+</div><!-- fragment --><ul>
+<li>Or you may do this with <code>easyinstall.sh</code> in the source directory</li>
+</ul>
+<div class="fragment"><div class="line">cd aliyun-openapi-cpp-sdk</div>
+<div class="line">sudo sh easyinstall.sh &lt;lower name of product (like &#39;ecs&#39;)&gt;</div>
+<div class="line"> </div>
+<div class="line"># example</div>
+<div class="line">sudo sh easyinstall.sh core</div>
+<div class="line">sudo sh easyinstall.sh ecs</div>
+</div><!-- fragment --><p><b>The Alibaba Cloud SDK for C++ will be installed to <code>/usr</code>.</b></p>
+<h3><a class="anchor" id="autotoc_md57"></a>
+Windows</h3>
+<ol type="1">
+<li>Install <a href="https://www.perl.org/get.html#win32">perl</a>.</li>
+<li>Run the following command to clone code from Github via git-bash:</li>
+</ol>
+<div class="fragment"><div class="line">git clone https://github.com/aliyun/aliyun-openapi-cpp-sdk.git</div>
+</div><!-- fragment --><ol type="1">
+<li>Build Visual Studio solution</li>
+</ol>
+<ul>
+<li>Change directory to source code and make directory sdk_build</li>
+<li>Open CMake UI and<ul>
+<li><code>Browse Source</code> to open source code directory.</li>
+<li><code>Browse build</code> to open the created <code>sdk_build</code> directory</li>
+<li><code>Configure</code></li>
+<li>use the lower name of product to set the value of <code>BUILD_PRODUCT</code></li>
+<li><code>Generate</code></li>
+</ul>
+</li>
+</ul>
+<ol type="1">
+<li>Build and Install C++ SDK</li>
+</ol>
+<ul>
+<li>Open <code>aliyun-openapi-cpp-sdk\\sdk_build\\alibabacloud-sdk.sln</code> with Visual Studio</li>
+<li>Select <code>Release</code></li>
+<li>Check INSTALL option from Build -&gt; Configuration Manager</li>
+<li>Build-&gt;Build Solutions to build.</li>
+</ul>
+<p><b>Alibaba Cloud SDK for C++ will be installed to <code>C:\Program File (x86)\alibabacloud-sdk</code></b></p>
+<hr  />
+<h2><a class="anchor" id="autotoc_md59"></a>
+Quick Examples</h2>
+<p>Before using this SDK, you must first configure the preprocessor to define <code>ALIBABACLOUD_SHARED</code> to achieve dynamic linking with the SDK shared libraries. Then you must create a client instance, specify the region of cloud services and provide authentication parameters before sending API requests.</p>
+<p>The following code shows how to call the [DescribeInstances](<strike>25506</strike>) API of ECS to query detailed information of all ECS instances in a specific region.</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;iostream&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;alibabacloud/core/AlibabaCloud.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;alibabacloud/ecs/EcsClient.h&gt;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">using namespace </span>AlibabaCloud;</div>
+<div class="line"><span class="keyword">using namespace </span>AlibabaCloud::Ecs;</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>** argv) {</div>
+<div class="line">  <span class="comment">// Initialize the SDK</span></div>
+<div class="line">  AlibabaCloud::InitializeSdk();</div>
+<div class="line"> </div>
+<div class="line">  <span class="comment">// Configure the ECS instance</span></div>
+<div class="line">  ClientConfiguration configuration(<span class="stringliteral">&quot;&lt;your-region-id&gt;&quot;</span>);</div>
+<div class="line">  EcsClient client(<span class="stringliteral">&quot;&lt;your-access-key-id&gt;&quot;</span>, <span class="stringliteral">&quot;&lt;your-access-key-secret&gt;&quot;</span>, configuration);</div>
+<div class="line"> </div>
+<div class="line">  <span class="comment">// Create an API request and set parameters</span></div>
+<div class="line">  Model::DescribeInstancesRequest request;</div>
+<div class="line">  request.setPageSize(10);</div>
+<div class="line"> </div>
+<div class="line">  <span class="keyword">auto</span> outcome = client.describeInstances(request);</div>
+<div class="line">  <span class="keywordflow">if</span> (!outcome.isSuccess()) {</div>
+<div class="line">    <span class="comment">// Handle exceptions</span></div>
+<div class="line">    std::cout &lt;&lt; outcome.error().errorCode() &lt;&lt; std::endl;</div>
+<div class="line">    AlibabaCloud::ShutdownSdk();</div>
+<div class="line">    <span class="keywordflow">return</span> -1;</div>
+<div class="line">  }</div>
+<div class="line"> </div>
+<div class="line">  std::cout &lt;&lt; <span class="stringliteral">&quot;totalCount: &quot;</span> &lt;&lt; outcome.result().getTotalCount() &lt;&lt; std::endl;</div>
+<div class="line"> </div>
+<div class="line">  <span class="comment">// Close the SDK</span></div>
+<div class="line">  AlibabaCloud::ShutdownSdk();</div>
+<div class="line">  <span class="keywordflow">return</span> 0;</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>Copy the above to ecs_test.cc, then build with the following command.</p>
+<div class="fragment"><div class="line">~$ g++ -o ecstest ecs_test.cc --std=c++11 -lalibabacloud-sdk-core -l alibabacloud-sdk-ecs</div>
+<div class="line">~$ ./ecstest</div>
+<div class="line"># Result or error message will be shown here.</div>
+<div class="line">~$</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md60"></a>
+Timeout Configuration</h2>
+<p>CPP SDK uses libcurl to do HTTP transfer.</p>
+<ul>
+<li>The following timeout parameters are used to for libcurl.<ul>
+<li><code>connectTimeout</code>: timeout for the connect phase. <a href="https://curl.haxx.se/libcurl/c/CURLOPT_CONNECTTIMEOUT_MS.html">Refer</a>.</li>
+<li><code>readTimeout</code>: maximum time the request is allowed to take, <a href="https://curl.haxx.se/libcurl/c/CURLOPT_TIMEOUT_MS.html">Refer</a></li>
+</ul>
+</li>
+<li>Default Value<ul>
+<li><code>connectTimeout</code>: 5000ms</li>
+<li><code>readTimeout</code>: 10000ms</li>
+</ul>
+</li>
+<li>You may specify <code>timeout</code> parameters when create a client or make a request.</li>
+<li>Request timeout has higher priority than client timeout.</li>
+<li>If you want to disable timeout feature, deliver <code>0</code> or <code>-1</code> to <code>setConnectTimeout</code> and <code>setReadTimeout</code>.</li>
+</ul>
+<p>The following code shows hot to specify <code>timeout</code> parameters, and the final connectTimeout is 1000ms and readTimeout 6000ms.</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;iostream&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;alibabacloud/core/AlibabaCloud.h&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;alibabacloud/ecs/EcsClient.h&gt;</span></div>
+<div class="line"> </div>
+<div class="line"><span class="keyword">using namespace </span>AlibabaCloud;</div>
+<div class="line"><span class="keyword">using namespace </span>AlibabaCloud::Ecs;</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordtype">int</span> main(<span class="keywordtype">int</span> argc, <span class="keywordtype">char</span>** argv) {</div>
+<div class="line">  <span class="comment">// Initialize the SDK</span></div>
+<div class="line">  AlibabaCloud::InitializeSdk();</div>
+<div class="line"> </div>
+<div class="line">  <span class="comment">// Configure the ECS instance</span></div>
+<div class="line">  ClientConfiguration configuration(<span class="stringliteral">&quot;&lt;your-region-id&gt;&quot;</span>);</div>
+<div class="line">  <span class="comment">// specify timeout when create client.</span></div>
+<div class="line">  configuration.setConnectTimeout(1500);</div>
+<div class="line">  configuration.setReadTimeout(4000);</div>
+<div class="line"> </div>
+<div class="line">  EcsClient client(<span class="stringliteral">&quot;&lt;your-access-key-id&gt;&quot;</span>, <span class="stringliteral">&quot;&lt;your-access-key-secret&gt;&quot;</span>, configuration);</div>
+<div class="line"> </div>
+<div class="line">  <span class="comment">// Create an API request and set parameters</span></div>
+<div class="line">  Model::DescribeInstancesRequest request;</div>
+<div class="line">  request.setPageSize(10);</div>
+<div class="line">  <span class="comment">// specify timeout when request</span></div>
+<div class="line">  request.setConnectTimeout(1000);</div>
+<div class="line">  request.setReadTimeout(6000);</div>
+<div class="line"> </div>
+<div class="line">  <span class="keyword">auto</span> outcome = client.describeInstances(request);</div>
+<div class="line">  <span class="keywordflow">if</span> (!outcome.isSuccess()) {</div>
+<div class="line">    <span class="comment">// Handle exceptions</span></div>
+<div class="line">    std::cout &lt;&lt; outcome.error().errorCode() &lt;&lt; std::endl;</div>
+<div class="line">    AlibabaCloud::ShutdownSdk();</div>
+<div class="line">    <span class="keywordflow">return</span> -1;</div>
+<div class="line">  }</div>
+<div class="line"> </div>
+<div class="line">  std::cout &lt;&lt; <span class="stringliteral">&quot;totalCount: &quot;</span> &lt;&lt; outcome.result().getTotalCount() &lt;&lt; std::endl;</div>
+<div class="line"> </div>
+<div class="line">  <span class="comment">// Close the SDK</span></div>
+<div class="line">  AlibabaCloud::ShutdownSdk();</div>
+<div class="line">  <span class="keywordflow">return</span> 0;</div>
+<div class="line">}</div>
+</div><!-- fragment --><p><b>More <a href="https://github.com/aliyun/aliyun-openapi-cpp-sdk/tree/master/examples">examples</a></b></p>
+<h2><a class="anchor" id="autotoc_md61"></a>
+Issues</h2>
+<p><a href="https://github.com/aliyun/aliyun-openapi-cpp-sdk/issues/new/choose">Opening an Issue</a>, Issues not conforming to the guidelines may be closed immediately.</p>
+<h2><a class="anchor" id="autotoc_md62"></a>
+Changelog</h2>
+<p>Detailed changes for each release are documented in the [release notes](CHANGELOG).</p>
+<h2><a class="anchor" id="autotoc_md63"></a>
+Contribution</h2>
+<p>Please make sure to read the Contributing Guide before making a pull request.</p>
+<h2><a class="anchor" id="autotoc_md64"></a>
+License</h2>
+<p><a href="http://www.apache.org/licenses/LICENSE-2.0">Apache-2.0</a></p>
+<p>Copyright 1999-2019 Alibaba Group Holding Ltd. </p>
+</div></div><!-- contents -->
+</div><!-- PageDoc -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+  </ul>
+</div>
+</body>
+</html>

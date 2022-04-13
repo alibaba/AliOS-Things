@@ -1,0 +1,20 @@
+config AOS_MCU_HAAS1000
+    bool
+    select AOS_ARCH_ARMV7M
+    select AOS_COMP_RHINO
+    select CONFIG_MODERN_NETMGR if AOS_COMP_NETMGR
+    select AOS_COMP_OSAL_POSIX
+    select PING_ENABLED if AOS_COMP_LWIP
+    select IFCONFIG_ENABLED if AOS_COMP_LWIP
+    select DNSCLI_ENABLED if AOS_COMP_LWIP
+    select ARPCLI_ENABLED if AOS_COMP_LWIP
+    select SENDFILE_ENABLED if AOS_COMP_LWIP
+    select LSFDCLI_ENABLED if AOS_COMP_LWIP
+    select ULOG_CONFIG_ASYNC if AOS_COMP_ULOG
+    select ULOG_CONFIG_SYSLOG_TIME_FORMAT if AOS_COMP_ULOG
+    help
+      driver & sdk for platform/mcu haas1000
+
+if AOS_MCU_HAAS1000
+# Configurations for mcu haas1000
+endif

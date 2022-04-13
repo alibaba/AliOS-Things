@@ -1,0 +1,3 @@
+IMG_WIC.lo: IMG_WIC.c /usr/include/stdc-predef.h
+
+/usr/include/stdc-predef.h:

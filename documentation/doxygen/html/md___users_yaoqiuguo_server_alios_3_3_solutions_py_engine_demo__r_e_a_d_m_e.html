@@ -1,0 +1,95 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: 概述</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('md___users_yaoqiuguo_server_alios_3_3_solutions_py_engine_demo__r_e_a_d_m_e.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="PageDoc"><div class="header">
+  <div class="headertitle">
+<div class="title">概述 </div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><p>py_engine (Python轻应用引擎) 以MicroPython为基础打造而成, 基于py_engine可以快速实现IoT场景连云、控端、AI等最常见功能。快速上手文档和编程接口请参考<a href="https://g.alicdn.com/HaaSAI/PythonDoc/quickstart/index.html">Python轻应用编程参考</a></p><ul>
+<li>连云：支持基于linkit连接阿里云物联网平台</li>
+<li>控端：支持PWD、UART、SPI、I2C、ADC、DAC、GPIO等基本硬件接口控制</li>
+<li>AI：支持端上AI和云端AI能力，覆盖人脸、人体、视频、文字等150+场景</li>
+</ul>
+<p>py_engine 默认作为一个组件存在于alios things 中。</p>
+<p>py_engine_demo 依赖了py_engine 组件，主要功能如下:</p>
+<ul>
+<li>注册python命令</li>
+<li>启动python虚拟机</li>
+</ul>
+<p>py_engine_demo 只有一个appdemo.c,注册了python cli 命令后就退出了，等待用户指令启动python虚拟机</p>
+<h1><a class="anchor" id="autotoc_md977"></a>
+组件依赖方法</h1>
+<ul>
+<li>在package.yaml 中增加py_engine组件依赖 <div class="fragment"><div class="line">depends:</div>
+<div class="line">    - py_engine: dev_aos</div>
+</div><!-- fragment --></li>
+<li>增加头文件 <div class="fragment"><div class="line">#include &quot;mpy_main.h&quot;</div>
+</div><!-- fragment --></li>
+<li>调用初始化方法 <div class="fragment"><div class="line">mpy_init();</div>
+<div class="line">mpy_run(argc, argv);</div>
+</div><!-- fragment --> </li>
+</ul>
+<h1><a class="anchor" id="autotoc_md978"></a>
+快速验证</h1>
+<ul>
+<li>编译固件 <div class="fragment"><div class="line"># cd ../../solutions/py_engine_demo</div>
+<div class="line"># aos make</div>
+</div><!-- fragment --></li>
+<li>验证Python功能 烧录固件，连接窗口，进入shell，通过python命令进入python rpel模式 <div class="fragment"><div class="line"># python</div>
+<div class="line"># python on HaaS100 by 2021-03-17， press ctrl+d to exit！</div>
+<div class="line">&gt;&gt;&gt; print(&quot;hello-world&quot;)</div>
+<div class="line">hello-world</div>
+</div><!-- fragment --></li>
+</ul>
+<h1><a class="anchor" id="autotoc_md979"></a>
+平台依赖</h1>
+<p>只依赖AliOS Things，不依赖具体的硬件 </p>
+</div></div><!-- contents -->
+</div><!-- PageDoc -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+  </ul>
+</div>
+</body>
+</html>

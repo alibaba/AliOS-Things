@@ -1,0 +1,15 @@
+name: lora_p2p_demo
+version: master
+description: demostrate the p2p-comunication over lora radio
+type: solution
+
+solution:
+  cpu_id: cpu0
+  board_name: haas100
+
+depends:
+  - cli: dev_aos
+  - haas100: dev_aos
+
+source_file:
+  - "*.c"

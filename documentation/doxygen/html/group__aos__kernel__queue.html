@@ -1,0 +1,295 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: 消息队列</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('group__aos__kernel__queue.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="header">
+  <div class="summary">
+<a href="#typedef-members">类型定义</a> &#124;
+<a href="#func-members">函数</a>  </div>
+  <div class="headertitle">
+<div class="title">消息队列<div class="ingroups"><a class="el" href="group__aos__kernel.html">内核</a></div></div>  </div>
+</div><!--header-->
+<div class="contents">
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+类型定义</h2></td></tr>
+<tr class="memitem:gad783cc298941621eda3f9f05d656d613"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__aos__kernel__sysctrl.html#gaaae10a390dedaa1133c0377e8dc067f9">aos_hdl_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__queue.html#gad783cc298941621eda3f9f05d656d613">aos_queue_t</a></td></tr>
+<tr class="separator:gad783cc298941621eda3f9f05d656d613"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+函数</h2></td></tr>
+<tr class="memitem:gacfffe354ade3bc60e8928d2a21de562f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__queue.html#gacfffe354ade3bc60e8928d2a21de562f">aos_queue_create</a> (<a class="el" href="group__aos__kernel__queue.html#gad783cc298941621eda3f9f05d656d613">aos_queue_t</a> *queue, size_t size, size_t max_msg, uint32_t options)</td></tr>
+<tr class="separator:gacfffe354ade3bc60e8928d2a21de562f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8d136c68d53e64e5adc77ed641c8874c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__queue.html#ga8d136c68d53e64e5adc77ed641c8874c">aos_queue_free</a> (<a class="el" href="group__aos__kernel__queue.html#gad783cc298941621eda3f9f05d656d613">aos_queue_t</a> *queue)</td></tr>
+<tr class="separator:ga8d136c68d53e64e5adc77ed641c8874c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0788847d061fbc0faf6a422214704b80"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__queue.html#ga0788847d061fbc0faf6a422214704b80">aos_queue_send</a> (<a class="el" href="group__aos__kernel__queue.html#gad783cc298941621eda3f9f05d656d613">aos_queue_t</a> *queue, void *msg, size_t size)</td></tr>
+<tr class="separator:ga0788847d061fbc0faf6a422214704b80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad102f3712ec10f2361059c3bef052299"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__queue.html#gad102f3712ec10f2361059c3bef052299">aos_queue_recv</a> (<a class="el" href="group__aos__kernel__queue.html#gad783cc298941621eda3f9f05d656d613">aos_queue_t</a> *queue, uint32_t ms, void *msg, size_t *size)</td></tr>
+<tr class="separator:gad102f3712ec10f2361059c3bef052299"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1541e4e6c57b9baef90d63a0ff6b8555"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__queue.html#ga1541e4e6c57b9baef90d63a0ff6b8555">aos_queue_get_count</a> (<a class="el" href="group__aos__kernel__queue.html#gad783cc298941621eda3f9f05d656d613">aos_queue_t</a> *queue)</td></tr>
+<tr class="separator:ga1541e4e6c57b9baef90d63a0ff6b8555"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">详细描述</h2>
+<p>提供AliOS Things系统内核消息队列功能的基础API. </p>
+<h2 class="groupheader">类型定义说明</h2>
+<a id="gad783cc298941621eda3f9f05d656d613"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad783cc298941621eda3f9f05d656d613">&#9670;&nbsp;</a></span>aos_queue_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="group__aos__kernel__sysctrl.html#gaaae10a390dedaa1133c0377e8dc067f9">aos_hdl_t</a> <a class="el" href="group__aos__kernel__queue.html#gad783cc298941621eda3f9f05d656d613">aos_queue_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>AOS消息队列对象具柄类型 </p>
+
+<p class="definition">在文件 <a class="el" href="kernel_8h_source.html">kernel.h</a> 第 <a class="el" href="kernel_8h_source.html#l00138">138</a> 行定义.</p>
+
+</div>
+</div>
+<h2 class="groupheader">函数说明</h2>
+<a id="gacfffe354ade3bc60e8928d2a21de562f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gacfffe354ade3bc60e8928d2a21de562f">&#9670;&nbsp;</a></span>aos_queue_create()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_queue_create </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel__queue.html#gad783cc298941621eda3f9f05d656d613">aos_queue_t</a> *&#160;</td>
+          <td class="paramname"><em>queue</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>max_msg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>This function will create a queue.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">queue</td><td>pointer to the queue(the space is provided by user). </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>the bytes of the buf. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">max_msg</td><td>the max size of the msg. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>reserved. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success. </dd></dl>
+
+</div>
+</div>
+<a id="ga8d136c68d53e64e5adc77ed641c8874c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga8d136c68d53e64e5adc77ed641c8874c">&#9670;&nbsp;</a></span>aos_queue_free()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void aos_queue_free </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel__queue.html#gad783cc298941621eda3f9f05d656d613">aos_queue_t</a> *&#160;</td>
+          <td class="paramname"><em>queue</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>This function will delete a queue.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">queue</td><td>pointer to the queue. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga1541e4e6c57b9baef90d63a0ff6b8555"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1541e4e6c57b9baef90d63a0ff6b8555">&#9670;&nbsp;</a></span>aos_queue_get_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_queue_get_count </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel__queue.html#gad783cc298941621eda3f9f05d656d613">aos_queue_t</a> *&#160;</td>
+          <td class="paramname"><em>queue</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get number of queued messages in a message queue.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">queue</td><td>message queue handle to operate.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>number of queued messages.negative indicates error code. </dd></dl>
+
+</div>
+</div>
+<a id="gad102f3712ec10f2361059c3bef052299"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad102f3712ec10f2361059c3bef052299">&#9670;&nbsp;</a></span>aos_queue_recv()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_queue_recv </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel__queue.html#gad783cc298941621eda3f9f05d656d613">aos_queue_t</a> *&#160;</td>
+          <td class="paramname"><em>queue</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>ms</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>msg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>This function will receive msg from a queue.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">queue</td><td>pointer to the queue. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ms</td><td>ms to wait before receive. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">msg</td><td>buf to save msg. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">size</td><td>size of the msg.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success. </dd></dl>
+
+</div>
+</div>
+<a id="ga0788847d061fbc0faf6a422214704b80"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0788847d061fbc0faf6a422214704b80">&#9670;&nbsp;</a></span>aos_queue_send()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_queue_send </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel__queue.html#gad783cc298941621eda3f9f05d656d613">aos_queue_t</a> *&#160;</td>
+          <td class="paramname"><em>queue</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>msg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>This function will send a msg to the front of a queue.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">queue</td><td>pointer to the queue. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">msg</td><td>msg to send. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">size</td><td>size of the msg.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success. </dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+  </ul>
+</div>
+</body>
+</html>

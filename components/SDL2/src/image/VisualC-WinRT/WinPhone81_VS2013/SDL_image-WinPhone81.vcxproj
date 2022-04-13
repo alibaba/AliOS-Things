@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM">
+      <Configuration>Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\IMG.c" />
+    <ClCompile Include="..\..\IMG_bmp.c" />
+    <ClCompile Include="..\..\IMG_gif.c" />
+    <ClCompile Include="..\..\IMG_jpg.c" />
+    <ClCompile Include="..\..\IMG_lbm.c" />
+    <ClCompile Include="..\..\IMG_pcx.c" />
+    <ClCompile Include="..\..\IMG_png.c" />
+    <ClCompile Include="..\..\IMG_pnm.c" />
+    <ClCompile Include="..\..\IMG_svg.c" />
+    <ClCompile Include="..\..\IMG_tga.c" />
+    <ClCompile Include="..\..\IMG_tif.c" />
+    <ClCompile Include="..\..\IMG_webp.c" />
+    <ClCompile Include="..\..\IMG_xcf.c" />
+    <ClCompile Include="..\..\IMG_xpm.c" />
+    <ClCompile Include="..\..\IMG_xv.c" />
+    <ClCompile Include="..\..\IMG_xxx.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\SDL\VisualC-WinRT\WinPhone81_VS2013\SDL-WinPhone81.vcxproj">
+      <Project>{48fadc0e-964d-4dab-bced-372e0ad19577}</Project>
+    </ProjectReference>
+    <ProjectReference Include="jpeg-WinPhone81.vcxproj">
+      <Project>{4f241f1f-6636-47a9-aeb2-5b5157961b51}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libpng-WinPhone81.vcxproj">
+      <Project>{c396c32a-1a8d-4711-a3db-206f188fc738}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libwebp-WinPhone81.vcxproj">
+      <Project>{9dc4d90a-0d6d-4150-9049-1f4358b59e06}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1444bb95-670b-4878-851b-7ed8da0629a3}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectName>SDL2_image-WinPhone81</ProjectName>
+    <RootNamespace>SDL2_image_WinPhone81</RootNamespace>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
+    <AppContainerApplication>true</AppContainerApplication>
+    <ApplicationType>Windows Phone</ApplicationType>
+    <ApplicationTypeRevision>8.1</ApplicationTypeRevision>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120_wp81</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120_wp81</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120_wp81</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120_wp81</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
+    <IntDir>Objs\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <TargetName>SDL2_image</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
+    <IntDir>Objs\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <TargetName>SDL2_image</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
+    <IntDir>Objs\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <TargetName>SDL2_image</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
+    <IntDir>Objs\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <TargetName>SDL2_image</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\..\SDL\include;..\..\external\libpng-1.6.32;..\..\external\jpeg-9b;..\..\external\libwebp-0.6.0\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;LOAD_BMP;LOAD_PNG;LOAD_PNG_DYNAMIC="libpng.dll";LOAD_JPG;LOAD_JPG_DYNAMIC="jpeg.dll";LOAD_WEBP;LOAD_WEBP_DYNAMIC="libwebp.dll";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\..\SDL\include;..\..\external\libpng-1.6.32;..\..\external\jpeg-9b;..\..\external\libwebp-0.6.0\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;LOAD_BMP;LOAD_PNG;LOAD_PNG_DYNAMIC="libpng.dll";LOAD_JPG;LOAD_JPG_DYNAMIC="jpeg.dll";LOAD_WEBP;LOAD_WEBP_DYNAMIC="libwebp.dll";NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\..\SDL\include;..\..\external\libpng-1.6.32;..\..\external\jpeg-9b;..\..\external\libwebp-0.6.0\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;LOAD_BMP;LOAD_PNG;LOAD_PNG_DYNAMIC="libpng.dll";LOAD_JPG;LOAD_JPG_DYNAMIC="jpeg.dll";LOAD_WEBP;LOAD_WEBP_DYNAMIC="libwebp.dll";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <CompileAsWinRT>false</CompileAsWinRT>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\..\..\SDL\include;..\..\external\libpng-1.6.32;..\..\external\jpeg-9b;..\..\external\libwebp-0.6.0\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;LOAD_BMP;LOAD_PNG;LOAD_PNG_DYNAMIC="libpng.dll";LOAD_JPG;LOAD_JPG_DYNAMIC="jpeg.dll";LOAD_WEBP;LOAD_WEBP_DYNAMIC="libwebp.dll";NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

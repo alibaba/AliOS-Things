@@ -1,0 +1,500 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: 定时器</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('group__aos__kernel__timer.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="header">
+  <div class="summary">
+<a href="#define-members">宏定义</a> &#124;
+<a href="#typedef-members">类型定义</a> &#124;
+<a href="#func-members">函数</a>  </div>
+  <div class="headertitle">
+<div class="title">定时器<div class="ingroups"><a class="el" href="group__aos__kernel.html">内核</a></div></div>  </div>
+</div><!--header-->
+<div class="contents">
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+宏定义</h2></td></tr>
+<tr class="memitem:ga2ce0d8f5cf08c2773bede9108c1b86bc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__timer.html#ga2ce0d8f5cf08c2773bede9108c1b86bc">AOS_TIMER_NONE</a>&#160;&#160;&#160;0x0u</td></tr>
+<tr class="separator:ga2ce0d8f5cf08c2773bede9108c1b86bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4cf03aded14e5257e2443681b011c11f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__timer.html#ga4cf03aded14e5257e2443681b011c11f">AOS_TIMER_AUTORUN</a>&#160;&#160;&#160;0x01u</td></tr>
+<tr class="separator:ga4cf03aded14e5257e2443681b011c11f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaabc16d849238a598709d904b9430a2db"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__timer.html#gaabc16d849238a598709d904b9430a2db">AOS_TIMER_REPEAT</a>&#160;&#160;&#160;0x02u</td></tr>
+<tr class="separator:gaabc16d849238a598709d904b9430a2db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+类型定义</h2></td></tr>
+<tr class="memitem:ga0e761beb1932038b7d24c918c2a59c89"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="group__aos__kernel__sysctrl.html#gaaae10a390dedaa1133c0377e8dc067f9">aos_hdl_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a></td></tr>
+<tr class="separator:ga0e761beb1932038b7d24c918c2a59c89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+函数</h2></td></tr>
+<tr class="memitem:ga2b23756527e34e59591950e24c10b47c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__timer.html#ga2b23756527e34e59591950e24c10b47c">aos_timer_create</a> (<a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *timer, void(*fn)(void *, void *), void *arg, uint32_t ms, uint32_t options)</td></tr>
+<tr class="separator:ga2b23756527e34e59591950e24c10b47c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga35c10dcc1344edf1f6953571f9be5b2f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__timer.html#ga35c10dcc1344edf1f6953571f9be5b2f">aos_timer_free</a> (<a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *timer)</td></tr>
+<tr class="separator:ga35c10dcc1344edf1f6953571f9be5b2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga9b1eb7da22affe6491ac2f5ddf61010e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__timer.html#ga9b1eb7da22affe6491ac2f5ddf61010e">aos_timer_start</a> (<a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *timer)</td></tr>
+<tr class="separator:ga9b1eb7da22affe6491ac2f5ddf61010e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6ae3c76c618527b9470742836a687809"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__timer.html#ga6ae3c76c618527b9470742836a687809">aos_timer_stop</a> (<a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *timer)</td></tr>
+<tr class="separator:ga6ae3c76c618527b9470742836a687809"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaed7358f24e11c3bb8b3a6e93249b4623"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__timer.html#gaed7358f24e11c3bb8b3a6e93249b4623">aos_timer_change</a> (<a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *timer, uint32_t ms)</td></tr>
+<tr class="separator:gaed7358f24e11c3bb8b3a6e93249b4623"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa5e78cfdd066ac1b395e2691c2964c97"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__timer.html#gaa5e78cfdd066ac1b395e2691c2964c97">aos_timer_change_once</a> (<a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *timer, uint32_t ms)</td></tr>
+<tr class="separator:gaa5e78cfdd066ac1b395e2691c2964c97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga541a754f6cea301ed40337a1e310ae91"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__timer.html#ga541a754f6cea301ed40337a1e310ae91">aos_timer_new</a> (<a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *timer, void(*fn)(void *, void *), void *arg, uint32_t ms, bool repeat)</td></tr>
+<tr class="separator:ga541a754f6cea301ed40337a1e310ae91"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga0b7e017ee9bddf0d9e4c9b52fbad2b22"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__timer.html#ga0b7e017ee9bddf0d9e4c9b52fbad2b22">aos_timer_new_ext</a> (<a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *timer, void(*fn)(void *, void *), void *arg, uint32_t ms, bool repeat, bool autorun)</td></tr>
+<tr class="separator:ga0b7e017ee9bddf0d9e4c9b52fbad2b22"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">详细描述</h2>
+<p>提供AliOS Things系统内核定时器功能的基础API. </p>
+<h2 class="groupheader">宏定义说明</h2>
+<a id="ga4cf03aded14e5257e2443681b011c11f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga4cf03aded14e5257e2443681b011c11f">&#9670;&nbsp;</a></span>AOS_TIMER_AUTORUN</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define AOS_TIMER_AUTORUN&#160;&#160;&#160;0x01u</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>表示定时器创建后即启动，当调用aos_timer_create()创建定时器时，用来指定option参数 </p>
+
+<p class="definition">在文件 <a class="el" href="kernel_8h_source.html">kernel.h</a> 第 <a class="el" href="kernel_8h_source.html#l00076">76</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ga2ce0d8f5cf08c2773bede9108c1b86bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga2ce0d8f5cf08c2773bede9108c1b86bc">&#9670;&nbsp;</a></span>AOS_TIMER_NONE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define AOS_TIMER_NONE&#160;&#160;&#160;0x0u</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>表示不指定任意选项，当调用aos_timer_create()创建定时器时，用来指定option参数 </p>
+
+<p class="definition">在文件 <a class="el" href="kernel_8h_source.html">kernel.h</a> 第 <a class="el" href="kernel_8h_source.html#l00075">75</a> 行定义.</p>
+
+</div>
+</div>
+<a id="gaabc16d849238a598709d904b9430a2db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaabc16d849238a598709d904b9430a2db">&#9670;&nbsp;</a></span>AOS_TIMER_REPEAT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define AOS_TIMER_REPEAT&#160;&#160;&#160;0x02u</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>表示定时器是周期性的，当调用aos_timer_create()创建定时器时，用来指定option参数 </p>
+
+<p class="definition">在文件 <a class="el" href="kernel_8h_source.html">kernel.h</a> 第 <a class="el" href="kernel_8h_source.html#l00077">77</a> 行定义.</p>
+
+</div>
+</div>
+<h2 class="groupheader">类型定义说明</h2>
+<a id="ga0e761beb1932038b7d24c918c2a59c89"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0e761beb1932038b7d24c918c2a59c89">&#9670;&nbsp;</a></span>aos_timer_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="group__aos__kernel__sysctrl.html#gaaae10a390dedaa1133c0377e8dc067f9">aos_hdl_t</a> <a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>AOS定时器对象具柄类型 </p>
+
+<p class="definition">在文件 <a class="el" href="kernel_8h_source.html">kernel.h</a> 第 <a class="el" href="kernel_8h_source.html#l00148">148</a> 行定义.</p>
+
+</div>
+</div>
+<h2 class="groupheader">函数说明</h2>
+<a id="gaed7358f24e11c3bb8b3a6e93249b4623"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaed7358f24e11c3bb8b3a6e93249b4623">&#9670;&nbsp;</a></span>aos_timer_change()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_timer_change </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *&#160;</td>
+          <td class="paramname"><em>timer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>ms</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>This function will change attributes of a timer.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">timer</td><td>pointer to the timer. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ms</td><td>ms of the timer triger.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>注解</dt><dd>change the timer attributes should follow the sequence as timer_stop-&gt;timer_change-&gt;timer_start</dd></dl>
+<dl class="section return"><dt>返回</dt><dd>0: success. </dd></dl>
+
+</div>
+</div>
+<a id="gaa5e78cfdd066ac1b395e2691c2964c97"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa5e78cfdd066ac1b395e2691c2964c97">&#9670;&nbsp;</a></span>aos_timer_change_once()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_timer_change_once </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *&#160;</td>
+          <td class="paramname"><em>timer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>ms</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>This function will change attributes of a timer once.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">timer</td><td>pointer to the timer. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ms</td><td>ms of the timer triger.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>注解</dt><dd>change the timer attributes should follow the sequence as timer_stop-&gt;timer_change-&gt;timer_start</dd></dl>
+<dl class="section return"><dt>返回</dt><dd>0: success. </dd></dl>
+
+</div>
+</div>
+<a id="ga2b23756527e34e59591950e24c10b47c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga2b23756527e34e59591950e24c10b47c">&#9670;&nbsp;</a></span>aos_timer_create()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_timer_create </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *&#160;</td>
+          <td class="paramname"><em>timer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void(*)(void *, void *)&#160;</td>
+          <td class="paramname"><em>fn</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>arg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>ms</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>options</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>This function will create a timer.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">timer</td><td>pointer to the timer. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">fn</td><td>callbak of the timer. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">arg</td><td>the argument of the callback. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ms</td><td>ms of the normal timer triger. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">options</td><td>option settings, can be set to AOS_TIMER_AUTORUN|AOS_TIMER_REPEAT</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success. </dd></dl>
+
+</div>
+</div>
+<a id="ga35c10dcc1344edf1f6953571f9be5b2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga35c10dcc1344edf1f6953571f9be5b2f">&#9670;&nbsp;</a></span>aos_timer_free()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void aos_timer_free </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *&#160;</td>
+          <td class="paramname"><em>timer</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>This function will delete a timer.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">timer</td><td>pointer to a timer. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga541a754f6cea301ed40337a1e310ae91"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga541a754f6cea301ed40337a1e310ae91">&#9670;&nbsp;</a></span>aos_timer_new()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_timer_new </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *&#160;</td>
+          <td class="paramname"><em>timer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void(*)(void *, void *)&#160;</td>
+          <td class="paramname"><em>fn</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>arg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>ms</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>repeat</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>This function will create a timer and run auto. Deprecated, not Recommended.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">timer</td><td>pointer to the timer. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">fn</td><td>callbak of the timer. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">arg</td><td>the argument of the callback. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ms</td><td>ms of the normal timer triger. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">repeat</td><td>repeat or not when the timer is created.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success. </dd></dl>
+
+</div>
+</div>
+<a id="ga0b7e017ee9bddf0d9e4c9b52fbad2b22"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga0b7e017ee9bddf0d9e4c9b52fbad2b22">&#9670;&nbsp;</a></span>aos_timer_new_ext()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_timer_new_ext </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *&#160;</td>
+          <td class="paramname"><em>timer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void(*)(void *, void *)&#160;</td>
+          <td class="paramname"><em>fn</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>arg</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>ms</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>repeat</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>autorun</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>This function will create a timer. Deprecated, not Recommended.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">timer</td><td>pointer to the timer. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">fn</td><td>callbak of the timer. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">arg</td><td>the argument of the callback. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">ms</td><td>ms of the normal timer triger. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">repeat</td><td>repeat or not when the timer is created. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">autorun</td><td>auto run.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success. </dd></dl>
+
+</div>
+</div>
+<a id="ga9b1eb7da22affe6491ac2f5ddf61010e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga9b1eb7da22affe6491ac2f5ddf61010e">&#9670;&nbsp;</a></span>aos_timer_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_timer_start </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *&#160;</td>
+          <td class="paramname"><em>timer</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>This function will start a timer.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">timer</td><td>pointer to the timer.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success. </dd></dl>
+
+</div>
+</div>
+<a id="ga6ae3c76c618527b9470742836a687809"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga6ae3c76c618527b9470742836a687809">&#9670;&nbsp;</a></span>aos_timer_stop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_timer_stop </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__aos__kernel__timer.html#ga0e761beb1932038b7d24c918c2a59c89">aos_timer_t</a> *&#160;</td>
+          <td class="paramname"><em>timer</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>This function will stop a timer.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">timer</td><td>pointer to the timer.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success. </dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+  </ul>
+</div>
+</body>
+</html>

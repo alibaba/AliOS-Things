@@ -1,0 +1,9 @@
+config AOS_COMP_UVOICE
+    bool "uVoice Support"
+    default n
+    select AOS_COMP_OSAL_AOS
+    select AOS_COMP_KV
+    select AOS_COMP_FATFS
+    help
+      Audio component
+

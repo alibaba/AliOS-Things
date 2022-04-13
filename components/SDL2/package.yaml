@@ -1,0 +1,318 @@
+
+## 第一部分： 基础信息
+name: SDL2                                       # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: dev_aos                                     # <必选项> 组件版本号
+description: SDL2多媒体库，用于按键、鼠标、键盘、视频、音频等多媒体硬件抽象   # <必选项> 建议至少20字以上
+type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag: 通用组件                                     # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - base
+license: zlib                                   # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+  - rhino: dev_aos
+  - osal_aos: dev_aos
+  - cplusplus: dev_aos
+  - freetype: dev_aos
+  - udisplay: dev_aos
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  internal_include:
+    - src
+    - src/video
+    - src/thread
+    - src/image
+    - src/video/yuv2rgb
+    - src/video/alios
+    - src/image/external/zlib-1.2.11
+    - src/image/external/jpeg-9b
+    - src/image/external/libpng-1.6.37
+
+  include:
+    - include
+    - src/ttf
+    - src/image
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+#SDL core
+  - src/SDL.c
+  - src/SDL_dataqueue.c
+  - src/SDL_error.c
+  - src/SDL_hints.c
+  - src/SDL_log.c
+  - src/SDL_assert.c
+
+#SDL atomic
+  - src/atomic/SDL_atomic.c
+  - src/atomic/SDL_spinlock.c
+
+#SDL render
+  - src/render/SDL_render.c
+  - src/render/SDL_yuv_sw.c
+  - src/render/software/SDL_blendfillrect.c
+  - src/render/software/SDL_blendline.c
+  - src/render/software/SDL_blendpoint.c
+  - src/render/software/SDL_drawline.c
+  - src/render/software/SDL_drawpoint.c
+  - src/render/software/SDL_render_sw.c
+  - src/render/software/SDL_rotate.c
+
+
+#SDL video
+  - src/video/SDL_blit_copy.c
+  - src/video/SDL_clipboard.c
+  - src/video/SDL_rect.c
+  - src/video/SDL_surface.c
+  - src/video/SDL_blit.c
+  - src/video/SDL_blit_0.c
+  - src/video/SDL_blit_1.c
+  - src/video/SDL_blit_A.c
+  - src/video/SDL_blit_N.c
+  - src/video/SDL_blit_auto.c
+  - src/video/SDL_blit_slow.c
+  - src/video/SDL_egl.c
+  - src/video/SDL_RLEaccel.c
+  - src/video/SDL_video.c
+  - src/video/SDL_fillrect.c
+  - src/video/SDL_shape.c
+  - src/video/SDL_vulkan_utils.c
+  - src/video/SDL_pixels.c
+  - src/video/SDL_yuv.c
+  - src/video/yuv2rgb/yuv_rgb.c
+  - src/video/SDL_bmp.c
+  - src/video/SDL_stretch.c
+
+#SDL video for alios
+  - src/video/alios/SDL_AliOS_framebuffer.c
+  - src/video/alios/SDL_AliOS_video.c
+  - src/video/alios/SDL_AliOS_events.c
+
+#SDL linux evdev
+  - src/core/alios/SDL_evdev.c
+
+#SDL mouse for alios
+  - src/video/alios/SDL_AliOS_mouse.c
+
+#SDL joystick for alios
+  - src/joystick/SDL_joystick.c
+  - src/joystick/SDL_gamecontroller.c
+
+  - src/joystick/alios/SDL_sysjoystick.c
+
+#SDL audio
+  -  src/audio/SDL_audio.c
+  - src/audio/SDL_mixer.c
+  - src/audio/SDL_audiocvt.c
+  - src/audio/SDL_audiodev.c
+  - src/audio/SDL_audiotypecvt.c
+  - src/audio/SDL_wave.c
+  - src/audio/alios/SDL_alios_audio.c
+
+#SDL thread
+  -  src/thread/SDL_thread.c
+  - src/thread/pthread/SDL_sysmutex.c
+  - src/thread/pthread/SDL_syscond.c
+  - src/thread/pthread/SDL_syssem.c
+  - src/thread/pthread/SDL_systls.c
+  - src/thread/pthread/SDL_systhread.c
+
+#SDL timer
+  -  src/timer/SDL_timer.c
+  - src/timer/unix/SDL_systimer.c
+
+#SDL events
+  -  src/events/SDL_events.c
+  - src/events/SDL_mouse.c
+  - src/events/SDL_keyboard.c
+  - src/events/SDL_gesture.c
+  - src/events/SDL_touch.c
+  - src/events/SDL_windowevents.c
+  - src/events/SDL_quit.c
+
+#SDL stdlib
+  - src/stdlib/SDL_getenv.c
+  - src/stdlib/SDL_string.c
+  - src/stdlib/SDL_qsort.c
+  - src/stdlib/SDL_stdlib.c
+
+#SDL file
+  - src/file/SDL_rwops.c
+
+#SDL stdlib
+  - src/stdlib/SDL_malloc.c
+
+#SDL cpuinfo
+  - src/cpuinfo/SDL_cpuinfo.c
+
+#SDL ttf
+  - src/ttf/SDL_ttf.c
+
+#SDL image
+  - src/image/IMG_xcf.c
+  - src/image/IMG_png.c
+  - src/image/IMG_svg.c
+  - src/image/IMG_pcx.c
+  - src/image/IMG_pnm.c
+  - src/image/IMG_jpg.c
+  - src/image/IMG.c
+  - src/image/IMG_lbm.c
+  - src/image/IMG_xxx.c
+  - src/image/IMG_bmp.c
+  - src/image/IMG_xv.c
+  - src/image/IMG_gif.c
+  - src/image/IMG_webp.c
+  - src/image/IMG_xpm.c
+  - src/image/IMG_tga.c
+  - src/image/IMG_WIC.c
+  - src/image/IMG_tif.c
+#image external
+  - src/image/external/jpeg-9b/jdmaster.c
+  - src/image/external/jpeg-9b/jcdctmgr.c
+  - src/image/external/jpeg-9b/wrppm.c
+  - src/image/external/jpeg-9b/jchuff.c
+  - src/image/external/jpeg-9b/jdapimin.c
+  - src/image/external/jpeg-9b/jcapimin.c
+  - src/image/external/jpeg-9b/rdtarga.c
+  - src/image/external/jpeg-9b/cdjpeg.c
+  - src/image/external/jpeg-9b/jfdctflt.c
+  - src/image/external/jpeg-9b/wrbmp.c
+  - src/image/external/jpeg-9b/rdswitch.c
+  - src/image/external/jpeg-9b/jcomapi.c
+  - src/image/external/jpeg-9b/jdsample.c
+  - src/image/external/jpeg-9b/jdmainct.c
+  - src/image/external/jpeg-9b/jcapistd.c
+  - src/image/external/jpeg-9b/jcparam.c
+  - src/image/external/jpeg-9b/wrgif.c
+  - src/image/external/jpeg-9b/rdrle.c
+  - src/image/external/jpeg-9b/jcinit.c
+  - src/image/external/jpeg-9b/jdcoefct.c
+  - src/image/external/jpeg-9b/example.c
+  - src/image/external/jpeg-9b/rdppm.c
+  - src/image/external/jpeg-9b/jdatadst.c
+  - src/image/external/jpeg-9b/jerror.c
+  - src/image/external/jpeg-9b/rdcolmap.c
+  - src/image/external/jpeg-9b/rdbmp.c
+  - src/image/external/jpeg-9b/jidctfst.c
+  - src/image/external/jpeg-9b/jdarith.c
+  - src/image/external/jpeg-9b/jaricom.c
+  - src/image/external/jpeg-9b/wrtarga.c
+  - src/image/external/jpeg-9b/jdmerge.c
+  - src/image/external/jpeg-9b/jccoefct.c
+  - src/image/external/jpeg-9b/jcmarker.c
+  - src/image/external/jpeg-9b/wrrle.c
+  - src/image/external/jpeg-9b/jfdctint.c
+  - src/image/external/jpeg-9b/jidctflt.c
+  - src/image/external/jpeg-9b/jcsample.c
+  - src/image/external/jpeg-9b/jdmarker.c
+  - src/image/external/jpeg-9b/transupp.c
+  - src/image/external/jpeg-9b/jcprepct.c
+  - src/image/external/jpeg-9b/jctrans.c
+  - src/image/external/jpeg-9b/jcarith.c
+  - src/image/external/jpeg-9b/jdpostct.c
+  - src/image/external/jpeg-9b/jquant1.c
+  - src/image/external/jpeg-9b/jdhuff.c
+  - src/image/external/jpeg-9b/jddctmgr.c
+  - src/image/external/jpeg-9b/jccolor.c
+  - src/image/external/jpeg-9b/rdgif.c
+  - src/image/external/jpeg-9b/jutils.c
+  - src/image/external/jpeg-9b/jquant2.c
+  - src/image/external/jpeg-9b/jidctint.c
+  - src/image/external/jpeg-9b/jdtrans.c
+  - src/image/external/jpeg-9b/jdcolor.c
+  - src/image/external/jpeg-9b/jcmainct.c
+  - src/image/external/jpeg-9b/jmemmgr.c
+  - src/image/external/jpeg-9b/jdinput.c
+  - src/image/external/jpeg-9b/jdatasrc.c
+  - src/image/external/jpeg-9b/jcmaster.c
+  - src/image/external/jpeg-9b/jdapistd.c
+  - src/image/external/jpeg-9b/jmemnobs.c
+  - src/image/external/jpeg-9b/jfdctfst.c
+  - src/image/external/libpng-1.6.37/pngwio.c
+  - src/image/external/libpng-1.6.37/pngwutil.c
+  - src/image/external/libpng-1.6.37/pngpread.c
+  - src/image/external/libpng-1.6.37/png.c
+  - src/image/external/libpng-1.6.37/example.c
+  - src/image/external/libpng-1.6.37/pngerror.c
+  - src/image/external/libpng-1.6.37/pngtrans.c
+  - src/image/external/libpng-1.6.37/pngrio.c
+  - src/image/external/libpng-1.6.37/pngread.c
+  - src/image/external/libpng-1.6.37/pngmem.c
+  - src/image/external/libpng-1.6.37/pngrutil.c
+  - src/image/external/libpng-1.6.37/pngwtran.c
+  - src/image/external/libpng-1.6.37/pngset.c
+  - src/image/external/libpng-1.6.37/pngget.c
+  - src/image/external/libpng-1.6.37/pngrtran.c
+  - src/image/external/libpng-1.6.37/pngwrite.c
+
+#for zlib
+  - src/image/external/zlib-1.2.11/gzlib.c
+  - src/image/external/zlib-1.2.11/inflate.c
+  - src/image/external/zlib-1.2.11/infback.c
+  - src/image/external/zlib-1.2.11/inffast.c
+  - src/image/external/zlib-1.2.11/compress.c
+  - src/image/external/zlib-1.2.11/uncompr.c
+  - src/image/external/zlib-1.2.11/trees.c
+  - src/image/external/zlib-1.2.11/gzclose.c
+  - src/image/external/zlib-1.2.11/zutil.c
+  - src/image/external/zlib-1.2.11/inftrees.c
+  - src/image/external/zlib-1.2.11/gzread.c
+  - src/image/external/zlib-1.2.11/adler32.c
+  - src/image/external/zlib-1.2.11/gzwrite.c
+  - src/image/external/zlib-1.2.11/deflate.c
+
+## 第五部分：配置信息
+def_config:                              # 组件的可配置项
+  __ALIOS__: 1
+  LOAD_JPG: 1
+  LOAD_BMP: 1
+  LOAD_PNG: 1
+  __native_client__: 1
+#  AOS_COMP_LCD: 1
+  AOS_COMP_SDL2: 1
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+install:
+  - dest: "include/"
+    source:
+      - "include/*.h"
+      - "src/lib_json/*.h"
+
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"

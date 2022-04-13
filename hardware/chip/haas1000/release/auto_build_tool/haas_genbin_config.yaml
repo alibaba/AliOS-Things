@@ -1,0 +1,57 @@
+BES_KEY:
+  IN_KEY_DIR: 'rsa2048_key'
+  OUT_KEY_DIR: 'out_key'
+  PUB_KEY_NAME: 'pub.pem'
+  PRI_KEY_NAME: 'pri.pem'
+  OUT_KEY_NAME: 'outkey.bin'
+  EXTRACT_DIR: 'out_key'
+  EXTRACT_CMD:
+                - 'java'
+                - '-cp'
+                - 'bcprov-jdk15on-152.jar:'
+                - 'DumpPublicKey'
+  KEY_DIR: 'out_key'
+  SIGN_CMD: 'sign'
+  SIGN_DIR:   'sign_tool'
+  SIGN_FILE_DIR: '../../prebuild'
+  BINARY_DIR:    '../../../../../out/*@haas100/binary'
+  RTOS_RES_FILE_NAME: '*@haas100.bin'
+  RTOS_FILE_NAME:     'ota_rtos.bin'
+  RELEASE_BIN_DIR: '../release_bin'
+  PACK_FILE_NAME: 'release_bin.zip'
+  OTA_BIN_DIR: '../write_flash_tool/ota_bin'
+  DLOWNLOAD_TOOLS_DIR: '../write_flash_tool/tools'
+  GUI_BIN_DIR: '../write_flash_gui/ota_bin'
+  GUI_TOOLS_DIR: '../write_flash_gui'
+  GUI_CFG_YAML_DIR: '../write_flash_gui/dld_cfg'
+  GUI_CFG_YAML_FILE: 'haas1000_dld_cfg.yaml'
+  PRO_CFG_YAML_FILE: 'haas1000_dld_cfg.yaml'
+  LOG_SWITCH: ON
+  CHMOD_SWITCH: ON
+  EXTRACT_SWITCH: OFF
+  PUB_OTP_SWITCH: OFF
+  SIGN_FILE_SWITCH: OFF
+  PACK_SWITCH: OFF
+PUB_OTP:
+  OUTKEY_DIR: 'out_key'
+  OUTKEY_FILE_NAME: 'outkey.bin'
+  PUB_OTP_FILE_NAME: 'pub_otp.bin'
+SIGN_FILE_LIST:
+  - BIN_FILE1:
+      FILE_NAME: 'ota_boot1.bin'
+      SWITCH: OFF
+  - BIN_FILE2:
+      FILE_NAME: 'ota_boot2a.bin'
+      SWITCH: ON
+  - BIN_FILE4:
+      FILE_NAME: 'ota_rtos.bin'
+      SWITCH: ON
+  - BIN_FILE5:
+      FILE_NAME: 'programmer2001.bin'
+      SWITCH: ON
+  - BIN_FILE6:
+      FILE_NAME: 'ota_boot1_sec.bin'
+      SWITCH: ON
+  - BIN_FILE7:
+
+

@@ -1,0 +1,9 @@
+#! /bin/env python
+
+from aostools import Make
+
+defconfig = Make(elf='aos.elf', objcopy='binary/rfid_demo@haas100.bin')
+
+Export('defconfig')
+
+defconfig.build_components()

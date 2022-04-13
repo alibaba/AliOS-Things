@@ -1,3 +1,0 @@
-config AOS_COMP_DEVICE_MAL_@DRIVERNAME@
-    bool "wifi.@drivername@"
-    default y

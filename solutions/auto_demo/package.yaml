@@ -1,0 +1,44 @@
+name: auto_demo
+version: dev_aos                                     # <必选项> 组件版本号
+description: 在物联网平台创建电动小车，可以通过钉钉小程序进行控制电动小车的运动
+
+type: solution
+
+solution:
+  cpu_id: cpu0
+  board_name: haas100
+  # board_name: board_dummy
+  # toolchain_prefix: csky-abiv2-elf
+  # cpu_name: CK805EF
+  # vendor_name: thead
+  # chip_name: 'csi_ch2201'
+  # ld_script: configs/gcc_eflash.ld
+  # ld_script: gcc_eflash.ld
+
+depends:                                       # 该组件依赖其他的组件
+  - linksdk: master
+  - haas100: master
+  - mbedtls: master
+  - netmgr: master
+  - base: dev_aos
+  - adc: dev_aos
+  - i2c: dev_aos
+  - spi: dev_aos
+  - uart: dev_aos
+  - flash: dev_aos
+  - pwm: dev_aos
+  - watchdog: dev_aos
+  - gpio: dev_aos
+  - qspi: dev_aos
+  - timer: dev_aos
+  - wifi: dev_aos
+
+## 第五部分：配置信息
+#def_config:                              # 组件的可配置项
+
+# 源文件
+source_file:
+  - "maintask.c"
+  - "main.c"
+  - "data_model_basic_demo.c"
+  - "auto_app.c"

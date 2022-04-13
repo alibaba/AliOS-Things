@@ -1,0 +1,1276 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: /Users/yaoqiuguo/server/alios_3_3/components/osal_aos/include/aos/osal_debug.h 文件参考</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('osal__debug_8h.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="header">
+  <div class="summary">
+<a href="#define-members">宏定义</a> &#124;
+<a href="#func-members">函数</a>  </div>
+  <div class="headertitle">
+<div class="title">osal_debug.h 文件参考</div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+<code>#include &lt;<a class="el" href="errno_8h_source.html">errno.h</a>&gt;</code><br />
+<code>#include &lt;ulog/ulog.h&gt;</code><br />
+</div>
+<p><a href="osal__debug_8h_source.html">浏览源代码.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
+宏定义</h2></td></tr>
+<tr class="memitem:ae262b34c650329f4896e6c3adeaf99d0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#ae262b34c650329f4896e6c3adeaf99d0">SHORT_FILE</a>&#160;&#160;&#160;__FUNCTION__</td></tr>
+<tr class="separator:ae262b34c650329f4896e6c3adeaf99d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa497f2a6a03dd57dc3ee43f9af17d053"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#aa497f2a6a03dd57dc3ee43f9af17d053">debug_print_assert</a>(A,  B,  C,  D,  E,  F)</td></tr>
+<tr class="separator:aa497f2a6a03dd57dc3ee43f9af17d053"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84a1f426a227f1448ec65947ac42919e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(EXPRESSSION)&#160;&#160;&#160;!!(EXPRESSSION)</td></tr>
+<tr class="separator:a84a1f426a227f1448ec65947ac42919e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63d9596872ac37580e94c154d5f38c64"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a63d9596872ac37580e94c154d5f38c64">aos_assert</a>(X)</td></tr>
+<tr class="separator:a63d9596872ac37580e94c154d5f38c64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf560b030a0dea6d1dc02d323229c844"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#aaf560b030a0dea6d1dc02d323229c844">except_process</a>(err)</td></tr>
+<tr class="separator:aaf560b030a0dea6d1dc02d323229c844"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f1a7041cb43bcde28c15ea01d8e66f1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a6f1a7041cb43bcde28c15ea01d8e66f1">CHECK_PARAM</a>(x,  ret)</td></tr>
+<tr class="separator:a6f1a7041cb43bcde28c15ea01d8e66f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8cece7219e78fa04c02cafc38a70b19"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#aa8cece7219e78fa04c02cafc38a70b19">CHECK_RET_WITH_GOTO</a>(x,  label)</td></tr>
+<tr class="separator:aa8cece7219e78fa04c02cafc38a70b19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeaed11df939158457cd008c84c658b1a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#aeaed11df939158457cd008c84c658b1a">CHECK_RET_WITH_RET</a>(x,  ret)</td></tr>
+<tr class="separator:aeaed11df939158457cd008c84c658b1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a884b2c1504b8550927483baa0120bf83"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a884b2c1504b8550927483baa0120bf83">CHECK_RET_TAG_WITH_GOTO</a>(x,  label)</td></tr>
+<tr class="separator:a884b2c1504b8550927483baa0120bf83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acbcc8f2026c66d2a36ec777ac2fa0748"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#acbcc8f2026c66d2a36ec777ac2fa0748">CHECK_RET_TAG_WITH_RET</a>(x,  ret)</td></tr>
+<tr class="separator:acbcc8f2026c66d2a36ec777ac2fa0748"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a284d3bc265ab4fa8d78b5930f95f3eca"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a284d3bc265ab4fa8d78b5930f95f3eca">aos_check</a>(X,  errno)</td></tr>
+<tr class="separator:a284d3bc265ab4fa8d78b5930f95f3eca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acec04ec2e4a64420624c746049f7418b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#acec04ec2e4a64420624c746049f7418b">aos_check_param</a>(X)&#160;&#160;&#160;<a class="el" href="osal__debug_8h.html#a284d3bc265ab4fa8d78b5930f95f3eca">aos_check</a>(X, <a class="el" href="group__aos__errno.html#ga2d1678d5a7cc8ce499643f3b8957def4">EINVAL</a>)</td></tr>
+<tr class="separator:acec04ec2e4a64420624c746049f7418b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a797b53c93885af60d13cd36db27130a7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a797b53c93885af60d13cd36db27130a7">aos_check_mem</a>(X)&#160;&#160;&#160;<a class="el" href="osal__debug_8h.html#a284d3bc265ab4fa8d78b5930f95f3eca">aos_check</a>(X, <a class="el" href="group__aos__errno.html#ga6a05c923dad0c1208043e9c20a58c8e5">ENOMEM</a>)</td></tr>
+<tr class="separator:a797b53c93885af60d13cd36db27130a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b11a3ca0b43500e4c2bcf09610d2952"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a9b11a3ca0b43500e4c2bcf09610d2952">aos_check_return_val</a>(X,  ret)</td></tr>
+<tr class="separator:a9b11a3ca0b43500e4c2bcf09610d2952"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46bb2ad55e5731225caa2467a4c99bf7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a46bb2ad55e5731225caa2467a4c99bf7">aos_check_return_einval</a>(X)&#160;&#160;&#160;<a class="el" href="osal__debug_8h.html#a9b11a3ca0b43500e4c2bcf09610d2952">aos_check_return_val</a>(X, -<a class="el" href="group__aos__errno.html#ga2d1678d5a7cc8ce499643f3b8957def4">EINVAL</a>)</td></tr>
+<tr class="separator:a46bb2ad55e5731225caa2467a4c99bf7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7071fc3d5a3f5dacbe4d73c4649ca061"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a7071fc3d5a3f5dacbe4d73c4649ca061">aos_check_return_null</a>(X)&#160;&#160;&#160;<a class="el" href="osal__debug_8h.html#a9b11a3ca0b43500e4c2bcf09610d2952">aos_check_return_val</a>(X, NULL)</td></tr>
+<tr class="separator:a7071fc3d5a3f5dacbe4d73c4649ca061"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97a84b6871f4355fcd13f4167eac2c6c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a97a84b6871f4355fcd13f4167eac2c6c">aos_check_return_enomem</a>(X)&#160;&#160;&#160;<a class="el" href="osal__debug_8h.html#a9b11a3ca0b43500e4c2bcf09610d2952">aos_check_return_val</a>(X, -<a class="el" href="group__aos__errno.html#ga6a05c923dad0c1208043e9c20a58c8e5">ENOMEM</a>)</td></tr>
+<tr class="separator:a97a84b6871f4355fcd13f4167eac2c6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59c99ba7cfd80b778426b76f72222bb6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a59c99ba7cfd80b778426b76f72222bb6">aos_check_return</a>(X)</td></tr>
+<tr class="separator:a59c99ba7cfd80b778426b76f72222bb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7484fb87785e637ebc2895cb5d5a51b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#ac7484fb87785e637ebc2895cb5d5a51b">check</a>(X)</td></tr>
+<tr class="separator:ac7484fb87785e637ebc2895cb5d5a51b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7815306b9d49d852a9a3658493457ad2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a7815306b9d49d852a9a3658493457ad2">check_string</a>(X,  STR)</td></tr>
+<tr class="separator:a7815306b9d49d852a9a3658493457ad2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38a61c69561923a5402af2ae718efe48"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a38a61c69561923a5402af2ae718efe48">require</a>(X,  LABEL)</td></tr>
+<tr class="separator:a38a61c69561923a5402af2ae718efe48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d1334664ee9b47f6764a98e894758e5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a5d1334664ee9b47f6764a98e894758e5">require_string</a>(X,  LABEL,  STR)</td></tr>
+<tr class="separator:a5d1334664ee9b47f6764a98e894758e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b6ad49f54b0d9261326d2b66744dcdf"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a3b6ad49f54b0d9261326d2b66744dcdf">require_quiet</a>(X,  LABEL)</td></tr>
+<tr class="separator:a3b6ad49f54b0d9261326d2b66744dcdf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02c3df4b13f819669925ada472a62162"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a02c3df4b13f819669925ada472a62162">require_noerr</a>(ERR,  LABEL)</td></tr>
+<tr class="separator:a02c3df4b13f819669925ada472a62162"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d9b38f0b5293590b9637098fb67651f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a8d9b38f0b5293590b9637098fb67651f">require_noerr_string</a>(ERR,  LABEL,  STR)</td></tr>
+<tr class="separator:a8d9b38f0b5293590b9637098fb67651f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a640247fef12b0c53780f021f3a738620"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a640247fef12b0c53780f021f3a738620">require_noerr_action_string</a>(ERR,  LABEL,  ACTION,  STR)</td></tr>
+<tr class="separator:a640247fef12b0c53780f021f3a738620"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1607344c6ff3f694527458dcd73a6fbf"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a1607344c6ff3f694527458dcd73a6fbf">require_noerr_quiet</a>(ERR,  LABEL)</td></tr>
+<tr class="separator:a1607344c6ff3f694527458dcd73a6fbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa60121841639f3b5700b19a1526a5232"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#aa60121841639f3b5700b19a1526a5232">require_noerr_action</a>(ERR,  LABEL,  ACTION)</td></tr>
+<tr class="separator:aa60121841639f3b5700b19a1526a5232"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16f33c6ca26bcd92165c23a8cff1d28f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a16f33c6ca26bcd92165c23a8cff1d28f">require_noerr_action_quiet</a>(ERR,  LABEL,  ACTION)</td></tr>
+<tr class="separator:a16f33c6ca26bcd92165c23a8cff1d28f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af4a91824c6ca0f3dea55d5cac7319b65"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#af4a91824c6ca0f3dea55d5cac7319b65">require_action</a>(X,  LABEL,  ACTION)</td></tr>
+<tr class="separator:af4a91824c6ca0f3dea55d5cac7319b65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46ec6dd3ae533fecdaaa01bd14d38c9d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a46ec6dd3ae533fecdaaa01bd14d38c9d">require_action_string</a>(X,  LABEL,  ACTION,  STR)</td></tr>
+<tr class="separator:a46ec6dd3ae533fecdaaa01bd14d38c9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a509a09fd01a9417030de240e23309a29"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a509a09fd01a9417030de240e23309a29">require_action_quiet</a>(X,  LABEL,  ACTION)</td></tr>
+<tr class="separator:a509a09fd01a9417030de240e23309a29"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+函数</h2></td></tr>
+<tr class="memitem:a8ec1067d8aab7db3cefd29775d766b29"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="osal__debug_8h.html#a8ec1067d8aab7db3cefd29775d766b29">aos_except_process</a> (int errno, const char *file, int line, const char *func_name, void *caller)</td></tr>
+<tr class="separator:a8ec1067d8aab7db3cefd29775d766b29"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">宏定义说明</h2>
+<a id="a63d9596872ac37580e94c154d5f38c64"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a63d9596872ac37580e94c154d5f38c64">&#9670;&nbsp;</a></span>aos_assert</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define aos_assert</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00048">48</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a284d3bc265ab4fa8d78b5930f95f3eca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a284d3bc265ab4fa8d78b5930f95f3eca">&#9670;&nbsp;</a></span>aos_check</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define aos_check</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">errno&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(!(X)))                                                                        \</div>
+<div class="line">            except_process(errno);                                                                 \</div>
+<div class="line">    } <span class="keywordflow">while</span> (0)</div>
+<div class="ttc" id="aosal__debug_8h_html_a84a1f426a227f1448ec65947ac42919e"><div class="ttname"><a href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a></div><div class="ttdeci">#define unlikely(EXPRESSSION)</div><div class="ttdef"><b>Definition:</b> <a href="osal__debug_8h_source.html#l00031">osal_debug.h:31</a></div></div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00111">111</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a797b53c93885af60d13cd36db27130a7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a797b53c93885af60d13cd36db27130a7">&#9670;&nbsp;</a></span>aos_check_mem</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define aos_check_mem</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X</td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="osal__debug_8h.html#a284d3bc265ab4fa8d78b5930f95f3eca">aos_check</a>(X, <a class="el" href="group__aos__errno.html#ga6a05c923dad0c1208043e9c20a58c8e5">ENOMEM</a>)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00123">123</a> 行定义.</p>
+
+</div>
+</div>
+<a id="acec04ec2e4a64420624c746049f7418b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acec04ec2e4a64420624c746049f7418b">&#9670;&nbsp;</a></span>aos_check_param</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define aos_check_param</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X</td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="osal__debug_8h.html#a284d3bc265ab4fa8d78b5930f95f3eca">aos_check</a>(X, <a class="el" href="group__aos__errno.html#ga2d1678d5a7cc8ce499643f3b8957def4">EINVAL</a>)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00119">119</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a59c99ba7cfd80b778426b76f72222bb6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a59c99ba7cfd80b778426b76f72222bb6">&#9670;&nbsp;</a></span>aos_check_return</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define aos_check_return</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(!(X))) {                                                                      \</div>
+<div class="line">            except_process(errno);                                                                 \</div>
+<div class="line">            return;                                                                                \</div>
+<div class="line">        }                                                                                          \</div>
+<div class="line">    } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00149">149</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a46bb2ad55e5731225caa2467a4c99bf7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46bb2ad55e5731225caa2467a4c99bf7">&#9670;&nbsp;</a></span>aos_check_return_einval</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define aos_check_return_einval</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X</td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="osal__debug_8h.html#a9b11a3ca0b43500e4c2bcf09610d2952">aos_check_return_val</a>(X, -<a class="el" href="group__aos__errno.html#ga2d1678d5a7cc8ce499643f3b8957def4">EINVAL</a>)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00137">137</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a97a84b6871f4355fcd13f4167eac2c6c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97a84b6871f4355fcd13f4167eac2c6c">&#9670;&nbsp;</a></span>aos_check_return_enomem</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define aos_check_return_enomem</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X</td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="osal__debug_8h.html#a9b11a3ca0b43500e4c2bcf09610d2952">aos_check_return_val</a>(X, -<a class="el" href="group__aos__errno.html#ga6a05c923dad0c1208043e9c20a58c8e5">ENOMEM</a>)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00145">145</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a7071fc3d5a3f5dacbe4d73c4649ca061"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7071fc3d5a3f5dacbe4d73c4649ca061">&#9670;&nbsp;</a></span>aos_check_return_null</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define aos_check_return_null</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X</td><td>)</td>
+          <td>&#160;&#160;&#160;<a class="el" href="osal__debug_8h.html#a9b11a3ca0b43500e4c2bcf09610d2952">aos_check_return_val</a>(X, NULL)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00141">141</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a9b11a3ca0b43500e4c2bcf09610d2952"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b11a3ca0b43500e4c2bcf09610d2952">&#9670;&nbsp;</a></span>aos_check_return_val</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define aos_check_return_val</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ret&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(!(X))) {                                                                      \</div>
+<div class="line">            except_process(errno);                                                                 \</div>
+<div class="line">            return ret;                                                                            \</div>
+<div class="line">        }                                                                                          \</div>
+<div class="line">    } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00127">127</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ac7484fb87785e637ebc2895cb5d5a51b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac7484fb87785e637ebc2895cb5d5a51b">&#9670;&nbsp;</a></span>check</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define check</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(!(X)))                                                                        \</div>
+<div class="line">            except_process(0);                                                                     \</div>
+<div class="line">    } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00161">161</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a6f1a7041cb43bcde28c15ea01d8e66f1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f1a7041cb43bcde28c15ea01d8e66f1">&#9670;&nbsp;</a></span>CHECK_PARAM</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CHECK_PARAM</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ret&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">        <span class="keywordflow">do</span> { \</div>
+<div class="line">                if (!(x)) { \</div>
+<div class="line">                        return ret; \</div>
+<div class="line">                }\</div>
+<div class="line">        } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00054">54</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a884b2c1504b8550927483baa0120bf83"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a884b2c1504b8550927483baa0120bf83">&#9670;&nbsp;</a></span>CHECK_RET_TAG_WITH_GOTO</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CHECK_RET_TAG_WITH_GOTO</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">label&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">        <span class="keywordflow">do</span> { \</div>
+<div class="line">                if (!(x)) { \</div>
+<div class="line">                        LOGE(TAG, <span class="stringliteral">&quot;%s, %d fail&quot;</span>, __FUNCTION__, __LINE__); \</div>
+<div class="line">                        goto label; \</div>
+<div class="line">                }\</div>
+<div class="line">        } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00083">83</a> 行定义.</p>
+
+</div>
+</div>
+<a id="acbcc8f2026c66d2a36ec777ac2fa0748"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acbcc8f2026c66d2a36ec777ac2fa0748">&#9670;&nbsp;</a></span>CHECK_RET_TAG_WITH_RET</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CHECK_RET_TAG_WITH_RET</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ret&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">        <span class="keywordflow">do</span> { \</div>
+<div class="line">                if (!(x)) { \</div>
+<div class="line">                        LOGE(TAG, <span class="stringliteral">&quot;%s, %d fail&quot;</span>, __FUNCTION__, __LINE__); \</div>
+<div class="line">                        return ret; \</div>
+<div class="line">                }\</div>
+<div class="line">        } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00093">93</a> 行定义.</p>
+
+</div>
+</div>
+<a id="aa8cece7219e78fa04c02cafc38a70b19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8cece7219e78fa04c02cafc38a70b19">&#9670;&nbsp;</a></span>CHECK_RET_WITH_GOTO</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CHECK_RET_WITH_GOTO</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">label&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">        <span class="keywordflow">do</span> { \</div>
+<div class="line">                if (!(x)) { \</div>
+<div class="line">                        printf(<span class="stringliteral">&quot;%s, %d fail.\n&quot;</span>, __FUNCTION__, __LINE__); \</div>
+<div class="line">                        goto label; \</div>
+<div class="line">                }\</div>
+<div class="line">        } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00063">63</a> 行定义.</p>
+
+</div>
+</div>
+<a id="aeaed11df939158457cd008c84c658b1a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeaed11df939158457cd008c84c658b1a">&#9670;&nbsp;</a></span>CHECK_RET_WITH_RET</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CHECK_RET_WITH_RET</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">x, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ret&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">        <span class="keywordflow">do</span> { \</div>
+<div class="line">                if (!(x)) { \</div>
+<div class="line">                        printf(<span class="stringliteral">&quot;%s, %d fail.\n&quot;</span>, __FUNCTION__, __LINE__); \</div>
+<div class="line">                        return ret; \</div>
+<div class="line">                }\</div>
+<div class="line">        } <span class="keywordflow">while</span> (0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00073">73</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a7815306b9d49d852a9a3658493457ad2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7815306b9d49d852a9a3658493457ad2">&#9670;&nbsp;</a></span>check_string</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define check_string</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">STR&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(!(X))) {                                                                      \</div>
+<div class="line">            debug_print_assert(0, #X, STR, <a class="code" href="osal__debug_8h.html#ae262b34c650329f4896e6c3adeaf99d0">SHORT_FILE</a>, __LINE__, __PRETTY_FUNCTION__);             \</div>
+<div class="line">            AOS_ASSERTION_FAIL_ACTION();                                                           \</div>
+<div class="line">        }                                                                                          \</div>
+<div class="line">    } <span class="keywordflow">while</span> (1 == 0)</div>
+<div class="ttc" id="aosal__debug_8h_html_ae262b34c650329f4896e6c3adeaf99d0"><div class="ttname"><a href="osal__debug_8h.html#ae262b34c650329f4896e6c3adeaf99d0">SHORT_FILE</a></div><div class="ttdeci">#define SHORT_FILE</div><div class="ttdef"><b>Definition:</b> <a href="osal__debug_8h_source.html#l00017">osal_debug.h:17</a></div></div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00176">176</a> 行定义.</p>
+
+</div>
+</div>
+<a id="aa497f2a6a03dd57dc3ee43f9af17d053"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa497f2a6a03dd57dc3ee43f9af17d053">&#9670;&nbsp;</a></span>debug_print_assert</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define debug_print_assert</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">A, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">B, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">C, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">D, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">E, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">F&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00027">27</a> 行定义.</p>
+
+</div>
+</div>
+<a id="aaf560b030a0dea6d1dc02d323229c844"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf560b030a0dea6d1dc02d323229c844">&#9670;&nbsp;</a></span>except_process</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define except_process</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">err</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">                               <a class="code" href="osal__debug_8h.html#a8ec1067d8aab7db3cefd29775d766b29">aos_except_process</a>(errno, NULL, 0, NULL,                   \</div>
+<div class="line">                               __builtin_return_address(0))</div>
+<div class="ttc" id="aosal__debug_8h_html_a8ec1067d8aab7db3cefd29775d766b29"><div class="ttname"><a href="osal__debug_8h.html#a8ec1067d8aab7db3cefd29775d766b29">aos_except_process</a></div><div class="ttdeci">void aos_except_process(int errno, const char *file, int line, const char *func_name, void *caller)</div></div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00049">49</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a38a61c69561923a5402af2ae718efe48"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38a61c69561923a5402af2ae718efe48">&#9670;&nbsp;</a></span>require</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define require</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">LABEL&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(!(X))) {                                                                      \</div>
+<div class="line">            debug_print_assert(0, #X, NULL, <a class="code" href="osal__debug_8h.html#ae262b34c650329f4896e6c3adeaf99d0">SHORT_FILE</a>, __LINE__, __PRETTY_FUNCTION__);            \</div>
+<div class="line">            goto LABEL;                                                                            \</div>
+<div class="line">        }                                                                                          \</div>
+<div class="line">    } <span class="keywordflow">while</span> (1 == 0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00194">194</a> 行定义.</p>
+
+</div>
+</div>
+<a id="af4a91824c6ca0f3dea55d5cac7319b65"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af4a91824c6ca0f3dea55d5cac7319b65">&#9670;&nbsp;</a></span>require_action</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define require_action</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">LABEL, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ACTION&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(!(X))) {                                                                      \</div>
+<div class="line">            debug_print_assert(0, #X, NULL, <a class="code" href="osal__debug_8h.html#ae262b34c650329f4896e6c3adeaf99d0">SHORT_FILE</a>, __LINE__, __PRETTY_FUNCTION__);            \</div>
+<div class="line">            {                                                                                      \</div>
+<div class="line">                ACTION;                                                                            \</div>
+<div class="line">            }                                                                                      \</div>
+<div class="line">            goto LABEL;                                                                            \</div>
+<div class="line">        }                                                                                          \</div>
+<div class="line">    } <span class="keywordflow">while</span> (1 == 0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00381">381</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a509a09fd01a9417030de240e23309a29"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a509a09fd01a9417030de240e23309a29">&#9670;&nbsp;</a></span>require_action_quiet</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define require_action_quiet</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">LABEL, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ACTION&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(!(X))) {                                                                      \</div>
+<div class="line">            {                                                                                      \</div>
+<div class="line">                ACTION;                                                                            \</div>
+<div class="line">            }                                                                                      \</div>
+<div class="line">            goto LABEL;                                                                            \</div>
+<div class="line">        }                                                                                          \</div>
+<div class="line">                                                                                                   \</div>
+<div class="line">    } <span class="keywordflow">while</span> (1 == 0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00427">427</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a46ec6dd3ae533fecdaaa01bd14d38c9d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46ec6dd3ae533fecdaaa01bd14d38c9d">&#9670;&nbsp;</a></span>require_action_string</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define require_action_string</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">LABEL, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ACTION, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">STR&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(!(X))) {                                                                      \</div>
+<div class="line">            debug_print_assert(0, #X, STR, <a class="code" href="osal__debug_8h.html#ae262b34c650329f4896e6c3adeaf99d0">SHORT_FILE</a>, __LINE__, __PRETTY_FUNCTION__);             \</div>
+<div class="line">            {                                                                                      \</div>
+<div class="line">                ACTION;                                                                            \</div>
+<div class="line">            }                                                                                      \</div>
+<div class="line">            goto LABEL;                                                                            \</div>
+<div class="line">        }                                                                                          \</div>
+<div class="line">    } <span class="keywordflow">while</span> (1 == 0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00405">405</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a02c3df4b13f819669925ada472a62162"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02c3df4b13f819669925ada472a62162">&#9670;&nbsp;</a></span>require_noerr</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define require_noerr</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ERR, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">LABEL&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        int localErr;                                                                              \</div>
+<div class="line">                                                                                                   \</div>
+<div class="line">        localErr = (int)(ERR);                                                                     \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(localErr != 0)) {                                                             \</div>
+<div class="line">            debug_print_assert(localErr, NULL, NULL, <a class="code" href="osal__debug_8h.html#ae262b34c650329f4896e6c3adeaf99d0">SHORT_FILE</a>, __LINE__, __PRETTY_FUNCTION__);   \</div>
+<div class="line">            goto LABEL;                                                                            \</div>
+<div class="line">        }                                                                                          \</div>
+<div class="line">                                                                                                   \</div>
+<div class="line">    } <span class="keywordflow">while</span> (1 == 0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00247">247</a> 行定义.</p>
+
+</div>
+</div>
+<a id="aa60121841639f3b5700b19a1526a5232"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa60121841639f3b5700b19a1526a5232">&#9670;&nbsp;</a></span>require_noerr_action</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define require_noerr_action</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ERR, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">LABEL, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ACTION&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        int localErr;                                                                              \</div>
+<div class="line">                                                                                                   \</div>
+<div class="line">        localErr = (int)(ERR);                                                                     \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(localErr != 0)) {                                                             \</div>
+<div class="line">            debug_print_assert(localErr, NULL, NULL, <a class="code" href="osal__debug_8h.html#ae262b34c650329f4896e6c3adeaf99d0">SHORT_FILE</a>, __LINE__, __PRETTY_FUNCTION__);   \</div>
+<div class="line">            {                                                                                      \</div>
+<div class="line">                ACTION;                                                                            \</div>
+<div class="line">            }                                                                                      \</div>
+<div class="line">            goto LABEL;                                                                            \</div>
+<div class="line">        }                                                                                          \</div>
+<div class="line">    } <span class="keywordflow">while</span> (1 == 0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00336">336</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a16f33c6ca26bcd92165c23a8cff1d28f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a16f33c6ca26bcd92165c23a8cff1d28f">&#9670;&nbsp;</a></span>require_noerr_action_quiet</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define require_noerr_action_quiet</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ERR, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">LABEL, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ACTION&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>((ERR) != 0)) {                                                                \</div>
+<div class="line">            {                                                                                      \</div>
+<div class="line">                ACTION;                                                                            \</div>
+<div class="line">            }                                                                                      \</div>
+<div class="line">            goto LABEL;                                                                            \</div>
+<div class="line">        }                                                                                          \</div>
+<div class="line">    } <span class="keywordflow">while</span> (1 == 0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00360">360</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a640247fef12b0c53780f021f3a738620"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a640247fef12b0c53780f021f3a738620">&#9670;&nbsp;</a></span>require_noerr_action_string</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define require_noerr_action_string</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ERR, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">LABEL, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ACTION, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">STR&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        int localErr;                                                                              \</div>
+<div class="line">                                                                                                   \</div>
+<div class="line">        localErr = (int)(ERR);                                                                     \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(localErr != 0)) {                                                             \</div>
+<div class="line">            debug_print_assert(localErr, NULL, STR, <a class="code" href="osal__debug_8h.html#ae262b34c650329f4896e6c3adeaf99d0">SHORT_FILE</a>, __LINE__, __PRETTY_FUNCTION__);    \</div>
+<div class="line">            {                                                                                      \</div>
+<div class="line">                ACTION;                                                                            \</div>
+<div class="line">            }                                                                                      \</div>
+<div class="line">            goto LABEL;                                                                            \</div>
+<div class="line">        }                                                                                          \</div>
+<div class="line">    } <span class="keywordflow">while</span> (1 == 0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00295">295</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a1607344c6ff3f694527458dcd73a6fbf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1607344c6ff3f694527458dcd73a6fbf">&#9670;&nbsp;</a></span>require_noerr_quiet</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define require_noerr_quiet</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ERR, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">LABEL&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>((ERR) != 0)) {                                                                \</div>
+<div class="line">            goto LABEL;                                                                            \</div>
+<div class="line">        }                                                                                          \</div>
+<div class="line">    } <span class="keywordflow">while</span> (1 == 0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00318">318</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a8d9b38f0b5293590b9637098fb67651f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8d9b38f0b5293590b9637098fb67651f">&#9670;&nbsp;</a></span>require_noerr_string</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define require_noerr_string</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">ERR, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">LABEL, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">STR&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        int localErr;                                                                              \</div>
+<div class="line">                                                                                                   \</div>
+<div class="line">        localErr = (int)(ERR);                                                                     \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(localErr != 0)) {                                                             \</div>
+<div class="line">            debug_print_assert(localErr, NULL, STR, <a class="code" href="osal__debug_8h.html#ae262b34c650329f4896e6c3adeaf99d0">SHORT_FILE</a>, __LINE__, __PRETTY_FUNCTION__);    \</div>
+<div class="line">            goto LABEL;                                                                            \</div>
+<div class="line">        }                                                                                          \</div>
+<div class="line">    } <span class="keywordflow">while</span> (1 == 0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00271">271</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a3b6ad49f54b0d9261326d2b66744dcdf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b6ad49f54b0d9261326d2b66744dcdf">&#9670;&nbsp;</a></span>require_quiet</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define require_quiet</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">LABEL&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(!(X))) {                                                                      \</div>
+<div class="line">            goto LABEL;                                                                            \</div>
+<div class="line">        }                                                                                          \</div>
+<div class="line">    } <span class="keywordflow">while</span> (1 == 0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00230">230</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a5d1334664ee9b47f6764a98e894758e5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5d1334664ee9b47f6764a98e894758e5">&#9670;&nbsp;</a></span>require_string</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define require_string</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">X, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">LABEL, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">STR&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>值:</b><div class="fragment"><div class="line">    <span class="keywordflow">do</span> {                                                                                           \</div>
+<div class="line">        if (<a class="code" href="osal__debug_8h.html#a84a1f426a227f1448ec65947ac42919e">unlikely</a>(!(X))) {                                                                      \</div>
+<div class="line">            debug_print_assert(0, #X, STR, <a class="code" href="osal__debug_8h.html#ae262b34c650329f4896e6c3adeaf99d0">SHORT_FILE</a>, __LINE__, __PRETTY_FUNCTION__);             \</div>
+<div class="line">            goto LABEL;                                                                            \</div>
+<div class="line">        }                                                                                          \</div>
+<div class="line">    } <span class="keywordflow">while</span> (1 == 0)</div>
+</div><!-- fragment -->
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00213">213</a> 行定义.</p>
+
+</div>
+</div>
+<a id="ae262b34c650329f4896e6c3adeaf99d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae262b34c650329f4896e6c3adeaf99d0">&#9670;&nbsp;</a></span>SHORT_FILE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SHORT_FILE&#160;&#160;&#160;__FUNCTION__</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00017">17</a> 行定义.</p>
+
+</div>
+</div>
+<a id="a84a1f426a227f1448ec65947ac42919e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84a1f426a227f1448ec65947ac42919e">&#9670;&nbsp;</a></span>unlikely</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define unlikely</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">EXPRESSSION</td><td>)</td>
+          <td>&#160;&#160;&#160;!!(EXPRESSSION)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">在文件 <a class="el" href="osal__debug_8h_source.html">osal_debug.h</a> 第 <a class="el" href="osal__debug_8h_source.html#l00031">31</a> 行定义.</p>
+
+</div>
+</div>
+<h2 class="groupheader">函数说明</h2>
+<a id="a8ec1067d8aab7db3cefd29775d766b29"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ec1067d8aab7db3cefd29775d766b29">&#9670;&nbsp;</a></span>aos_except_process()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void aos_except_process </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>errno</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>file</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>line</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>func_name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>caller</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_7abd62dff492b511d5ce34d1402ddcbf.html">osal_aos</a></li><li class="navelem"><a class="el" href="dir_f97f9d31ad8cbdb6770b0a47cbd884f4.html">include</a></li><li class="navelem"><a class="el" href="dir_cbbe6b858f29d433c3507fc0a49690bf.html">aos</a></li><li class="navelem"><a class="el" href="osal__debug_8h.html">osal_debug.h</a></li>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,104 @@
+## 第一部分： 基础信息
+name: ota
+description: An over-the-air update is the wireless delivery of new software.
+version: 3.2.0                       # <必选项> 组件版本号
+type: common                         # <必选项> 组件类型，为：solution, chip, board, common
+tag: 系统升级                         # <可选项> 组件分类，缺省值： ''
+keywords:                            # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - FOTA
+  - DOTA
+  - SOTA
+license: Apache license v2.0         # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：
+                                     #    GPLv2，LGPLv2.1，MIT，Apache license v2.0，BSD
+                                     #    默认值: Apache license v2.0
+
+## 第二部分：依赖信息
+#          指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#          未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+depends:
+  - cjson: dev_aos
+  - mbedtls: dev_aos
+  - linksdk: dev_aos
+  - http: dev_aos
+
+
+## 第四部分：编译连接信息
+# build_config:                      # <可选项> 编译配置项
+#   include:                         # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                          #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#  cflag: ''                         # <可选项> C 编译器所需要要的编译参数
+#  cxxflag: ''                       # <可选项> CXX 编译器所需要要的编译参数
+#  asmflag: ''                       # <可选项> 汇编器所需要要参数
+#  define:                           # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#    XXX: 1                          # -DXXX=1
+#    AAA: 1                          # -DAAA
+#    STR: "abc"                      # -DSTR=\"abc\"
+#  libs:                             # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#    - xxx                           # -lxxx
+#    - yyy                           # -lyyy
+#  libpath:                          # 指定静态库所在的路径（相对于该组件路径）
+#   - libs                           # -Llibs
+
+build_config:
+  cflag: '-Wall -Werror'
+  #cflag: '-w'
+  define:
+    #- OTA_CONFIG_ITLS=0
+    #- OTA_CONFIG_LOCAL_RSA=1
+    #- CONFIG_HTTP_SECURE=1
+    #- OTA_CONFIG_SECURE_DL_MODE=1
+  include:
+    - include
+  internal_include:
+    - hal
+    - 2ndboot/include/
+    - 2ndboot/updater/include
+    - 2ndboot/updater/xz/linux/lib/xz
+    - 2ndboot/updater/xz/linux/include/linux
+    - tools/xz/include/
+ #   - ../../hardware/chip/haas1000/drivers/utils/libcxxx/include/
+
+  libs:
+
+
+## source_file:                       # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - hal/ota_hal_trans.c
+  - hal/ota_hal_digest.c
+  - hal/ota_hal_fs_plat.c
+  - hal/ota_hal_fs_ctrl.c
+  - hal/ota_hal_os.c
+  - hal/ota_hal_param.c
+  - hal/ota_hal_plat.c
+  - hal/ota_hal_ctrl.c
+  - ota_agent/ota_service.c
+  - ota_agent/download/ota_download_http.c
+  - ota_agent/mcu/ota_download_uart.c
+  - ota_agent/transport/ota_transport_mqtt.c
+  - ota_agent/verify/ota_verify_hash.c
+  - ota_agent/verify/ota_verify_rsa.c
+
+## 第五部分：配置信息
+def_config:                        # 组件的可配置项
+  AOS_MCU_OTA_ADAPT: 1
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/    # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:           # 安装源列表
+#      - src/*.h        # 支持通配符，相对路径
+# install:
+#   - dest: include/
+#     source:
+#      - src/*.h
+
+## 第七部分：导出部分
+# export:
+#   - dest: <SOLUTION_PATH>/generated/data # 导出来到指定的位置
+#     source:
+#       - bootimgs/boot
+#       - bootimgs/tee
+#       - configs/config.yaml

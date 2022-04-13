@@ -1,0 +1,152 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: select</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('select.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="PageDoc"><div class="header">
+  <div class="headertitle">
+<div class="title">select </div>  </div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><h1><a class="anchor" id="autotoc_md455"></a>
+概述</h1>
+<p>select组件实现了IO多路复用机制select和poll。</p>
+<p>组件支持以下功能：</p><ul>
+<li>select</li>
+<li>poll</li>
+</ul>
+<p>支持以下几种场景：</p><ul>
+<li>socket fd事件通知；</li>
+<li>VFS fd事件通知；</li>
+<li>socket与VFS fd混合通知。</li>
+<li></li>
+</ul>
+<h2><a class="anchor" id="autotoc_md456"></a>
+版权信息</h2>
+<blockquote class="doxtable">
+<p>Apache license v2.0 </p>
+</blockquote>
+<h2><a class="anchor" id="autotoc_md457"></a>
+目录结构</h2>
+<div class="fragment"><div class="line">.</div>
+<div class="line">├── example        #示例程序</div>
+<div class="line">│   ├── select_example.c</div>
+<div class="line">│   └── test_device.c</div>
+<div class="line">├── include</div>
+<div class="line">│   └── select.h   # 对外头文件</div>
+<div class="line">├── package.yaml   # 编译文件</div>
+<div class="line">├── poll</div>
+<div class="line">│   └── poll.c     # aos_poll接口实现</div>
+<div class="line">├── README.md      # 说明文档</div>
+<div class="line">└── select</div>
+<div class="line">    └── select.c   # aos_select接口实现</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md458"></a>
+依赖组件</h2>
+<ul>
+<li>osal_aos</li>
+<li>vfs</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md459"></a>
+常用配置</h1>
+<p>系统中相关配置已有默认值，如需修改配置，统一在yaml中**def_config**节点修改，具体如下： </p><blockquote class="doxtable">
+<p>配置fd_set中fd最大值: </p>
+</blockquote>
+<div class="fragment"><div class="line">def_config:</div>
+<div class="line">  FD_SETSIZE: 1024  # 配置fd_set大小，建议默认值。</div>
+</div><!-- fragment --> <h1><a class="anchor" id="autotoc_md460"></a>
+API说明</h1>
+<p>select_aos_api</p>
+<p>aos_select/aos_poll功能定义与posix标准的select/poll兼容，可参考posix相关接口文档: <a href="https://riptutorial.com/posix/example/22411/select">https://riptutorial.com/posix/example/22411/select</a> <a href="https://riptutorial.com/posix/example/22410/poll">https://riptutorial.com/posix/example/22410/poll</a></p>
+<h1><a class="anchor" id="autotoc_md461"></a>
+使用示例</h1>
+<p>示例代码参考example/select_example.c，以运行helloworld_demo为例，具体步骤如下：</p>
+<h2><a class="anchor" id="autotoc_md462"></a>
+添加示例代码</h2>
+<blockquote class="doxtable">
+<p>select组件的package.yaml中添加example </p>
+</blockquote>
+<div class="fragment"><div class="line">source_file:</div>
+<div class="line">  - &quot;src/*.c&quot;</div>
+<div class="line">  - &quot;example/*.c&quot; # add example source</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md463"></a>
+app中添加select组件</h2>
+<blockquote class="doxtable">
+<p>helloworld_demo组件的package.yaml中添加 </p>
+</blockquote>
+<div class="fragment"><div class="line">depends:</div>
+<div class="line">  - select: master # helloworld_demo中引入select组件</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md464"></a>
+编译</h2>
+<div class="fragment"><div class="line">cd solutions/helloworld_demo &amp;&amp; aos make</div>
+</div><!-- fragment --><p> 其中具体单板还需要先配置环境： </p><div class="fragment"><div class="line">aos make helloworld_demo@haas100 -c config</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md465"></a>
+烧录固件</h2>
+<blockquote class="doxtable">
+<p>参考具体板子的快速开始文档。 </p>
+</blockquote>
+<h2><a class="anchor" id="autotoc_md466"></a>
+运行</h2>
+<blockquote class="doxtable">
+<p>烧入固件后，输入cli命令： </p>
+</blockquote>
+<div class="fragment"><div class="line">select_example</div>
+</div><!-- fragment --><p> 可看到如下打印： </p><div class="fragment"><div class="line">+++++++select example+++++++++</div>
+<div class="line">aos_select timeout:ret = 0</div>
+<div class="line">aos_select ret = 1</div>
+<div class="line"> read fd =513,data = 1</div>
+<div class="line">+++++++poll example+++++++++</div>
+<div class="line">aos_poll timeout, ret = 0</div>
+<div class="line">aos_poll ret = 1</div>
+<div class="line"> read fd =513,data = 1</div>
+</div><!-- fragment --> <h1><a class="anchor" id="autotoc_md467"></a>
+注意</h1>
+<p>无</p>
+<h1><a class="anchor" id="autotoc_md468"></a>
+FAQ</h1>
+<p>无 </p>
+</div></div><!-- contents -->
+</div><!-- PageDoc -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+  </ul>
+</div>
+</body>
+</html>

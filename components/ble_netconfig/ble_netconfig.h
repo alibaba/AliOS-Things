@@ -1,0 +1,31 @@
+/*
+ * Copyright (C) 2015-2020 Alibaba Group Holding Limited
+ */
+
+#ifndef _BLE_NETCFG_H_
+#define _BLE_NETCFG_H_
+
+typedef enum {
+    BLE_NETCFG_EVENT_NONE,
+    BLE_NETCFG_EVENT_STARTED,
+    BLE_NETCFG_EVENT_STOPPED,
+    BLE_NETCFG_EVENT_CONNECTED,
+    BLE_NETCFG_EVENT_SUCCESS,
+    BLE_NETCFG_EVENT_FAILED,
+}BLE_NETCFG_EVENT;
+
+typedef enum {
+    BLE_NETCFG_SUCCESS,
+    BLE_NETCFG_COMMON_FAILED,
+    BLE_NETCFG_ALREADY,
+    BLE_NETCFG_UNKNOW,
+    BLE_NETCFG_WRONG_INFO,
+}BLE_NETCFG_STATE;
+
+typedef int (*BLE_netCfg_callck)(BLE_NETCFG_EVENT event, BLE_NETCFG_STATE state, void *event_data);
+
+BLE_NETCFG_STATE BLE_NetCfg_init(BLE_netCfg_callck callback);
+BLE_NETCFG_STATE BLE_NetCfg_start(void);
+BLE_NETCFG_STATE BLE_NetCfg_stop(void);
+
+#endif

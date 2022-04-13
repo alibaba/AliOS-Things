@@ -1,0 +1,432 @@
+
+#-------------------------------------------------------------------------------
+# Configure variable
+#-------------------------------------------------------------------------------
+TOP_DIR:=${TOP_DIR}
+MAKEFILE_PATH :=$(subst $(strip \),/,$(abspath $(lastword $(MAKEFILE_LIST))))
+
+
+#-------------------------------------------------------------------------------
+# Configure source code files
+#-------------------------------------------------------------------------------
+SRC_FILES+= \
+  main\amp_main.c \
+  main\amp_engine.c \
+  main\amp_task.c \
+  adapter\platform\ThreadX-ec100y\peripheral\amp_hal_adc.c \
+  adapter\platform\ThreadX-ec100y\peripheral\amp_hal_dac.c \
+  adapter\platform\ThreadX-ec100y\peripheral\amp_hal_gpio.c \
+  adapter\platform\ThreadX-ec100y\peripheral\amp_hal_i2c.c \
+  adapter\platform\ThreadX-ec100y\peripheral\amp_hal_pwm.c \
+  adapter\platform\ThreadX-ec100y\peripheral\amp_hal_rtc.c \
+  adapter\platform\ThreadX-ec100y\peripheral\amp_hal_spi.c \
+  adapter\platform\ThreadX-ec100y\peripheral\amp_hal_timer.c \
+  adapter\platform\ThreadX-ec100y\peripheral\amp_hal_uart.c \
+  adapter\platform\ThreadX-ec100y\peripheral\amp_hal_wdg.c \
+  adapter\platform\ThreadX-ec100y\peripheral\amp_hal_flash.c \
+  adapter\platform\ThreadX-ec100y\network\amp_tcp.c \
+  adapter\platform\ThreadX-ec100y\network\amp_udp.c \
+  adapter\platform\ThreadX-ec100y\network\amp_cellular.c \
+  adapter\platform\ThreadX-ec100y\network\amp_wifi.c \
+  adapter\platform\ThreadX-ec100y\network\amp_httpc.c \
+  adapter\platform\ThreadX-ec100y\amp_fs.c \
+  adapter\platform\ThreadX-ec100y\amp_kv.c \
+  adapter\platform\ThreadX-ec100y\amp_system.c \
+  adapter\platform\ThreadX-ec100y\amp_pm.c \
+  adapter\platform\ThreadX-ec100y\amp_tls_mbedtls.c \
+  engine\duktape_engine\addons\hardware\adc\module_adc.c \
+  engine\duktape_engine\addons\hardware\dac\module_dac.c \
+  engine\duktape_engine\addons\hardware\gpio\module_gpio.c \
+  engine\duktape_engine\addons\hardware\i2c\module_i2c.c \
+  engine\duktape_engine\addons\hardware\ir\module_ir.c \
+  engine\duktape_engine\addons\hardware\lcd\module_lcd.c \
+  engine\duktape_engine\addons\hardware\pwm\module_pwm.c \
+  engine\duktape_engine\addons\hardware\rtc\module_rtc.c \
+  engine\duktape_engine\addons\hardware\spi\module_spi.c \
+  engine\duktape_engine\addons\hardware\timer\module_timer.c \
+  engine\duktape_engine\addons\hardware\uart\module_uart.c \
+  engine\duktape_engine\addons\hardware\wdg\module_wdg.c \
+  engine\duktape_engine\addons\network\iot\module_iot.c \
+  engine\duktape_engine\addons\network\http\module_http.c \
+  engine\duktape_engine\addons\network\mqtt\module_mqtt.c \
+  engine\duktape_engine\addons\network\tcp\module_tcp.c \
+  engine\duktape_engine\addons\network\udp\module_udp.c \
+  engine\duktape_engine\addons\network\wifi\module_wifi.c \
+  engine\duktape_engine\addons\network\cellular\module_cellular.c \
+  engine\duktape_engine\addons\advanced\audio\module_audioplayer.c \
+  engine\duktape_engine\addons\utils\builtin\module_builtin.c \
+  engine\duktape_engine\addons\utils\crypto\module_crypto.c \
+  engine\duktape_engine\addons\utils\fs\module_fs.c \
+  engine\duktape_engine\addons\utils\system\module_system.c \
+  engine\duktape_engine\addons\utils\systimer\module_systimer.c \
+  engine\duktape_engine\addons\utils\pm\module_pm.c \
+  engine\duktape_engine\addons\utils\pm\module_battery.c \
+  engine\duktape_engine\addons\utils\pm\module_charger.c \
+  engine\duktape_engine\addons\utils\kv\module_kv.c \
+  engine\duktape_engine\startup\app_entry.c \
+  engine\duktape_engine\duktape\duktape.c \
+  engine\duktape_engine\be_module_node.c \
+  engine\duktape_engine\be_refs.c \
+  engine\duktape_engine\be.c \
+  engine\duktape_engine\repl.c \
+  engine\duktape_engine\addons\libjs.c \
+  services\app_mgr\app_mgr.c \
+  services\app_mgr\app_ota_service.c \
+  services\app_mgr\ota_socket.c \
+  services\app_mgr\app_ntp.c \
+  services\board_mgr\board_info.c \
+  services\board_mgr\board_mgr.c \
+  services\recovery\recovery.c \
+  services\recovery\ymodem.c \
+  services\amp_utils\amp_utils.c \
+
+SRC_FILES+= \
+  components\linkkit\certs/root_ca.c \
+  components\linkkit\dev_model/dm_api.c \
+  components\linkkit\dev_model/dm_client_adapter.c \
+  components\linkkit\dev_model/dm_client.c \
+  components\linkkit\dev_model/dm_cota.c \
+  components\linkkit\dev_model/dm_fota.c \
+  components\linkkit\dev_model/dm_ipc.c \
+  components\linkkit\dev_model/dm_log_report.c \
+  components\linkkit\dev_model/dm_manager.c \
+  components\linkkit\dev_model/dm_message_cache.c \
+  components\linkkit\dev_model/dm_message.c \
+  components\linkkit\dev_model/dm_msg_process.c \
+  components\linkkit\dev_model/dm_opt.c \
+  components\linkkit\dev_model/dm_ota.c \
+  components\linkkit\dev_model/dm_server_adapter.c \
+  components\linkkit\dev_model/dm_server.c \
+  components\linkkit\dev_model/dm_shadow.c \
+  components\linkkit\dev_model/dm_tsl_alink.c \
+  components\linkkit\dev_model/dm_utils.c \
+  components\linkkit\dev_model/impl_gateway.c \
+  components\linkkit\dev_model/impl_linkkit.c \
+  components\linkkit\dev_model/impl_ntp.c \
+  components\linkkit\dev_model/impl_solo.c \
+  components\linkkit\dev_model/iotx_cm_coap.c \
+  components\linkkit\dev_model/iotx_cm_mqtt.c \
+  components\linkkit\dev_model/iotx_cm.c \
+  components\linkkit\dev_sign/dev_sign_mqtt.c \
+  components\linkkit\dynamic_register/dynreg.c \
+  components\linkkit\infra/infra_activation.c \
+  components\linkkit\infra/infra_aes.c \
+  components\linkkit\infra/infra_cjson.c \
+  components\linkkit\infra/infra_compat.c \
+  components\linkkit\infra/infra_defs.c \
+  components\linkkit\infra/infra_httpc.c \
+  components\linkkit\infra/infra_log.c \
+  components\linkkit\infra/infra_md5.c \
+  components\linkkit\infra/infra_net.c \
+  components\linkkit\infra/infra_sha256.c \
+  components\linkkit\infra/infra_string.c \
+  components\linkkit\infra/infra_timer.c \
+  components\linkkit\infra/infra_report.c \
+  components\linkkit\infra/infra_prt_nwk_payload.c \
+  components\linkkit\infra/infra_json_parser.c \
+  components\linkkit\mqtt/iotx_mqtt_client.c \
+  components\linkkit\mqtt/mqtt_api.c \
+  components\linkkit\mqtt/MQTTConnectClient.c \
+  components\linkkit\mqtt/MQTTDeserializePublish.c \
+  components\linkkit\mqtt/MQTTPacket.c \
+  components\linkkit\mqtt/MQTTSerializePublish.c \
+  components\linkkit\mqtt/MQTTSubscribeClient.c \
+  components\linkkit\mqtt/MQTTUnsubscribeClient.c \
+  components\ulog\ulog.c \
+  components\ulog\ulog_init.c \
+  components\ulog\ulog_utility.c \
+  components\kv\kv.c \
+  components\kv\kv_adapt.c \
+  components\http\src\http_client.c \
+  components\http\src\http_parser.c \
+  components\http\src\http_string.c \
+  components\http\src\http_wrapper.c \
+  components\das\src\board\das_board.c \
+  components\das\src\core\das_attest.c \
+  components\das\src\core\das_core.c \
+  components\das\src\core\sha1.c \
+  components\das\src\core\utils.c \
+  components\das\src\core\proto\lsoc.pb.c \
+  components\das\src\core\proto\pb_common.c \
+  components\das\src\core\proto\pb_decode.c \
+  components\das\src\core\proto\pb_encode.c \
+  components\das\src\service\service_fscan.c \
+  components\das\src\service\service_lwip_nfi.c \
+  components\das\src\service\service_rom.c \
+  components\das\src\service\service_sys.c \
+  components\das\src\service\service.c \
+  components\das\src\service\netfilter\domain_parser.c \
+  components\das\src\service\netfilter\icmp_ignore.c \
+  components\das\src\service\netfilter\service_netfilter.c \
+  components\und\src\und_adapter.c \
+  components\und\src\und_manage.c \
+  components\und\src\und_packet.c \
+  components\und\src\und_report.c \
+  components\und\src\und_sched.c \
+  components\und\src\und.c \
+
+SRC_FILES+= \
+  utils\cJSON\cJSON.c \
+  utils\mbedtls\library\aes.c \
+  utils\mbedtls\library\asn1parse.c \
+  utils\mbedtls\library\base64.c \
+  utils\mbedtls\library\bignum.c \
+  utils\mbedtls\library\cipher_wrap.c \
+  utils\mbedtls\library\cipher.c \
+  utils\mbedtls\library\ctr_drbg.c \
+  utils\mbedtls\library\debug.c \
+  utils\mbedtls\library\entropy_poll.c \
+  utils\mbedtls\library\entropy.c \
+  utils\mbedtls\library\error.c \
+  utils\mbedtls\library\md_wrap.c \
+  utils\mbedtls\library\md.c \
+  utils\mbedtls\library\md5.c \
+  utils\mbedtls\library\net_sockets.c \
+  utils\mbedtls\library\oid.c \
+  utils\mbedtls\library\pem.c \
+  utils\mbedtls\library\pk_wrap.c \
+  utils\mbedtls\library\pk.c \
+  utils\mbedtls\library\pkparse.c \
+  utils\mbedtls\library\platform.c \
+  utils\mbedtls\library\rsa.c \
+  utils\mbedtls\library\sha1.c \
+  utils\mbedtls\library\sha256.c \
+  utils\mbedtls\library\ssl_ciphersuites.c \
+  utils\mbedtls\library\ssl_cli.c \
+  utils\mbedtls\library\ssl_cookie.c \
+  utils\mbedtls\library\ssl_tls.c \
+  utils\mbedtls\library\x509_crt.c \
+  utils\mbedtls\library\x509.c \
+
+#-------------------------------------------------------------------------------
+# the include directories
+#-------------------------------------------------------------------------------
+INC_DIRS+= \
+  -I${TOP_DIR}\ \
+  -I${TOP_DIR}\common\include \
+  -I${TOP_DIR}\fs\inc \
+  -I${TOP_DIR}\time\inc \
+  -I${TOP_DIR}\timer\inc \
+  -I${TOP_DIR}\sim\inc \
+  -I${TOP_DIR}\dev\inc \
+  -I${TOP_DIR}\driver\inc \
+  -I${TOP_DIR}\network\sockets\inc \
+  -I${TOP_DIR}\network\data_call\inc \
+  -I${TOP_DIR}\network\nw\inc \
+  -I${TOP_DIR}\amp\main \
+  -I${TOP_DIR}\amp\adapter\include \
+  -I${TOP_DIR}\amp\adapter\include\peripheral \
+  -I${TOP_DIR}\amp\adapter\platform\ThreadX-ec100y \
+  -I${TOP_DIR}\amp\utils\mbedtls\include \
+  -I${TOP_DIR}\amp\utils\cJSON \
+  -I${TOP_DIR}\amp\services\board_mgr \
+  -I${TOP_DIR}\amp\services\app_mgr \
+  -I${TOP_DIR}\amp\services\amp_utils \
+  -I${TOP_DIR}\amp\services\recovery \
+  -I${TOP_DIR}\amp\components\linkkit \
+  -I${TOP_DIR}\amp\components\linkkit\mqtt \
+  -I${TOP_DIR}\amp\components\linkkit\infra \
+  -I${TOP_DIR}\amp\components\linkkit\dev_model \
+  -I${TOP_DIR}\amp\components\linkkit\dynamic_register \
+  -I${TOP_DIR}\amp\components\linkkit\dev_sign \
+  -I${TOP_DIR}\amp\components\ulog \
+  -I${TOP_DIR}\amp\components\ulog\include \
+  -I${TOP_DIR}\amp\components\kv\include \
+  -I${TOP_DIR}\amp\components\http\include \
+  -I${TOP_DIR}\amp\components\uvoice\include \
+  -I${TOP_DIR}\amp\components\das\include \
+  -I${TOP_DIR}\amp\components\das\include\das \
+  -I${TOP_DIR}\amp\components\das\src\board \
+  -I${TOP_DIR}\amp\components\das\src\core \
+  -I${TOP_DIR}\amp\components\das\src\core\proto \
+  -I${TOP_DIR}\amp\components\das\src\service \
+  -I${TOP_DIR}\amp\components\das\src\service\netfilter \
+  -I${TOP_DIR}\amp\components\und\include \
+  -I${TOP_DIR}\amp\engine\duktape_engine \
+  -I${TOP_DIR}\amp\engine\duktape_engine\duktape \
+
+#-------------------------------------------------------------------------------
+# Configure compile flag
+#-------------------------------------------------------------------------------
+U_FLAGS+= \
+
+#-------------------------------------------------------------------------------
+# Configure default macro define
+#-------------------------------------------------------------------------------
+DFLAGS+= \
+  -DAMP_EC100Y \
+  -DAMP_KV_ENABLE \
+  -DAMP_DEBUG_MODE \
+  -DCMUX_ENABLE \
+  -DLWIP_IPNETBUF_SUPPORT \
+  -D_TAVOR_B0_SILICON_ \
+  -DFEATURE_SHMEM \
+  -D"NO_APLP=0" \
+  -DL1_RX_DIV_SUPPORT \
+  -DRUN_XIP_MODE \
+  -DENABLE_MAC_TX_DATA_LOGGING \
+  -DINTEL_UPGRADE_EGPRS_M \
+  -DPLAT_TEST \
+  -DYMODEM_EEH_DUMP \
+  -DCAPT_PARAMS_OPTIMIZE \
+  -D_DDR_INIT_ \
+  -DSILICON_TTC_CORE_SEAGULL \
+  -DUPGRADE_EGPRS_M \
+  -DTV_FNAME="\"SW_PLATFORM=PMD2NONE PHS_SW_DEMO PHS_SW_DEMO_PM SRCNUCLEUS FULL_SYSTEM NOACRTC PDFLT PLAT_TEST PV2 DIAGOSHMEM NVM WITHL1V\"" \
+  -DFLAVOR_DUALCORE \
+  -DCODE_IN_PSRAM  \
+  -DTAVOR_D2_WB_L1_SUPPORT \
+  -DCRANE_MCU_DONGLE \
+  -DPHS_L1_SW_UPDATE_R7 \
+  -DINTEL_HERMON_SAC \
+  -DUPGRADE_PLMS_3G \
+  -DPM_DEBUG_MODE_ENABLED \
+  -DINTEL_UPGRADE_R99 \
+  -DENV_XSCALE \
+  -DEXT_AT_MODEM_SUPPORT \
+  -DFRBD_CALIB_NVM \
+  -DUPGRADE_LTE \
+  -DPLAT_USE_THREADX \
+  -DFG_PLMS_URR \
+  -DNO_BIP \
+  -DL1_UPGRADE_R7 \
+  -DDIAG_NEWPP \
+  -DCA_LONG_IPC_MSG   \
+  -DPCAC_INCLUDE \
+  -DHL_LWG \
+  -DTDL1C_SPY_ENABLE \
+  -DMRAT_NAS \
+  -DL1_SW_UPDATE_FOR_DIGRF       \
+  -DPPP_ENABLE \
+  -DCRANE_SD_NOT_SUPPORT \
+  -DAPLP_SPY_ENABLE \
+  -DMIPS_TEST_RAM \
+  -DUPGRADE_PLMS_SEARCH_API \
+  -DINTEL_UPGRADE_RF_PARAMS_IN_CF_TDS \
+  -DNTP \
+  -DINTEL_UPGRADE_GSM_CRL_IF \
+  -DUPGRADE_PLMS_L1 \
+  -DENABLE_CAT1_LG \
+  -DURR_MRAT_ICS_SEARCH \
+  -DPHS_SW_DEMO \
+  -DINTEL_UPGRADE_UNIFIED_VOICE_TASK \
+  -DTV_FDESC="\"SW_DESCRIPTION=\"" \
+  -DUSE_TTPCOM_CSR_BLUETOOTH_AUDIO_GAIN_CONTROL \
+  -DFLAVOR_DDR12MB_GB1MB5 \
+  -DUPGRADE_R4_FS1 \
+  -DCRANE_CUST_BUILD \
+  -DL1_UPGRADE_R5 \
+  -DINTEL_2CHIP_PLAT \
+  -DINTEL_UPGRADE_EE_HANDLER_SUPPORT \
+  -DLFS_FILE_SYS \
+  -DUPGRADE_FG_PLMS \
+  -DNO_MBEDTLS \
+  -DPHS_SW_DEMO_TTC_PM \
+  -DCRANE_CAMERA_SUPPORT \
+  -DPM_D2FULL_MODE \
+  -DL1_WIFI_LOCATION \
+  -DSUPPORT_GPLC2_RSSI_WITH_L1A1 \
+  -DINTEL_UPGRADE_DUAL_RAT \
+  -DL1V_NEW_RSSI \
+  -DENABLE_ACIPC \
+  -DL1_SW_UPDATE_FOR_DIGRF \
+  -D_DIAG_USE_COMMSTACK_ \
+  -DLTE_GSMMULTIBCCH \
+  -DLTE_DSDS_GSMMULTIBCCH \
+  -DUPGRADE_DSDS \
+  -DTAVOR \
+  -DSILICON_PV2 \
+  -DNO_XML \
+  -DRUN_WIRELESS_MODEM \
+  -DDEBUG_D2_MOR_REG_RESEREVED_ENABLE \
+  -DUPGRADE_PLMS_STAGE_2 \
+  -DFRBD_DSDS_L1 \
+  -DI_2CHIP_PLAT \
+  -DMAP_NSS \
+  -DNEZHA3_1826 \
+  -DCRANE_Z2 \
+  -DUPGRADE_DIGRF3G_SUPPORT \
+  -DFULL_SYSTEM \
+  -DCRANE_Z1 \
+  -DUPGRADE_ENHANCED_QUAD_BAND \
+  -DRELIABLE_DATA \
+  -D_DATAOMSL_ENABLED_ \
+  -DNEZHA3 \
+  -DMSL_INCLUDE \
+  -DNO_PAHO_MQTT \
+  -DL1_UPGRADE_R8 \
+  -DUPGRADE_ARBEL_PLATFORM \
+  -DINTEL_UPGRADE_GPRS_CIPHER_FLUSH \
+  -DL1_DDR_HIGH_FREQ \
+  -DENABLE_OOS_HANDLING \
+  -DUPGRADE_HERMON_DUAL \
+  -DFLAVOR_COM \
+  -DUPGRADE_MBCCH \
+  -DMP3_DECODE \
+  -D_FDI_USE_OSA_ \
+  -DREL5_CLEANUP_FEATURE \
+  -DW_PS_PLUS_G_PAGING \
+  -DL1_FEATURE_CPC_CRX \
+  -DHSPA_MPR \
+  -DACIPC_ENABLE_NEW_CALLBACK_MECHANISM \
+  -DOSA_USED \
+  -DFEATURE_WB_AMR_PS \
+  -D_TAVOR_HARBELL_ \
+  -DSILICON_SEAGULL \
+  -DUPGRADE_DSDSLTE \
+  -DUPGRDE_TAVOR_COMMUNICATION \
+  -DOPTIMIZE_FOR_2G_BCCH \
+  -DAT_OVER_UART \
+  -DINTEL_UPGRADE_2SAMPLES_PER_SYMBOL \
+  -DUPGRADE_PLMS \
+  -DPM_EXT_DBG_INT_ARR \
+  -DNO_LWM2M \
+  -D"GPRS_MULTISLOT_CLASS=12" \
+  -DMULTI_BCCH_READY_IND \
+  -DMARVELL_UPGRADE_BSIC_REDESIGN \
+  -DOSA_QUEUE_NAMES \
+  -DICS_MBCCH_2G_RSSI \
+  -DDLM_TAVOR \
+  -DCHARGE_DM \
+  -DGPLC_LTE_RSSI_SCAN \
+  -D_TAVOR_DIAG_ \
+  -DDISABLE_NVRAM_ACCESS \
+  -DOSA_NUCLEUS \
+  -D__TARGET_FEATURE_DOUBLEWORD \
+  -DFLAVOR_DIET_RAM \
+  -DICS_MBCCH \
+  -DUPGRADE_ICS \
+  -DFRBD_FDT_CALIB \
+  -DL1_UPGRADE_R6 \
+  -DUPGRADE_L1A_FG_PLMS \
+  -DNVM_INCLUDE \
+  -DFRBD_AGC_CALIB \
+  -DPSM_ENABLE \
+  -DWHOLE_UMTS_STACK  \
+  -DMIPS_TEST \
+  -DMACRO_FOR_LWG \
+  -DPHS_SW_DEMO_TTC \
+  -DMSL_POOL_MEM \
+  -DGPIO_TRACE \
+  -DUPGRADE_PLMS_SR \
+  -DUSB_CABLE_DETECTION_VIA_PMIC \
+  -DUPGRADE_EDGE \
+  -DNO_DIALER \
+  -D"EGPRS_MULTISLOT_CLASS=12" \
+  -DCRANE_LCD_SUPPORT \
+  -DL1_DUAL_MODE \
+  -DPM_D2NONE_MODE \
+  -D_DIAG_DISABLE_USB_ \
+  -DLTE_W_PS \
+
+#-------------------------------------------------------------------------------
+# Configure link library
+#-------------------------------------------------------------------------------
+U_LIBS:= \
+  ${TOP_DIR}\amp\adapter\platform\ThreadX-ec100y\prebuilt\uvoice.lib \
+
+#-------------------------------------------------------------------------------
+# include mk file
+#-------------------------------------------------------------------------------
+include ${TOP_DIR}\amp\adapter\platform\ThreadX-ec100y\build_config\common\makefile.mk
+

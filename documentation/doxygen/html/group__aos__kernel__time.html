@@ -1,0 +1,246 @@
+<!-- HTML header for doxygen 1.8.7-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.9.1"/>
+<title>物联网操作系统AliOS Things 3.3: 时间管理</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygenextra.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="topbanner"><a href="https://github.com/Tencent/rapidjson" title="RapidJSON GitHub"><i class="githublogo"></i></a></div>
+<!-- end header part -->
+<!-- 制作者 Doxygen 1.9.1 -->
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('group__aos__kernel__time.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<div class="header">
+  <div class="summary">
+<a href="#func-members">函数</a>  </div>
+  <div class="headertitle">
+<div class="title">时间管理<div class="ingroups"><a class="el" href="group__aos__kernel.html">内核</a></div></div>  </div>
+</div><!--header-->
+<div class="contents">
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
+函数</h2></td></tr>
+<tr class="memitem:gae0b5e4926cc368a9f9ac52c17b585879"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__time.html#gae0b5e4926cc368a9f9ac52c17b585879">aos_calendar_time_set</a> (uint64_t now_ms)</td></tr>
+<tr class="separator:gae0b5e4926cc368a9f9ac52c17b585879"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf5f5379a818a65b28e8f06f555b8db22"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__time.html#gaf5f5379a818a65b28e8f06f555b8db22">aos_calendar_time_get</a> (void)</td></tr>
+<tr class="separator:gaf5f5379a818a65b28e8f06f555b8db22"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa68ac57ba941a094a14e01da9ce3854b"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__time.html#gaa68ac57ba941a094a14e01da9ce3854b">aos_calendar_localtime_get</a> (void)</td></tr>
+<tr class="separator:gaa68ac57ba941a094a14e01da9ce3854b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga54494ad640b8244780bed029c5a9e8f8"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__time.html#ga54494ad640b8244780bed029c5a9e8f8">aos_now</a> (void)</td></tr>
+<tr class="separator:ga54494ad640b8244780bed029c5a9e8f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gacb3729865c45080a3899355d33c3b190"><td class="memItemLeft" align="right" valign="top">uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__time.html#gacb3729865c45080a3899355d33c3b190">aos_now_ms</a> (void)</td></tr>
+<tr class="separator:gacb3729865c45080a3899355d33c3b190"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadcf5c1ad827376d24ff9a4d00615b33a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__time.html#gadcf5c1ad827376d24ff9a4d00615b33a">aos_now_time_str</a> (char *buffer, size_t len)</td></tr>
+<tr class="memdesc:gadcf5c1ad827376d24ff9a4d00615b33a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the timer string. Under RTOS w/o RTC, this fucntion will return the UTC time string that consider boot-up as 01-01 00:00:00.000. Under Linuxhost and compile option "vall=posix", this function will get the local time which considering time zone.  <a href="group__aos__kernel__time.html#gadcf5c1ad827376d24ff9a4d00615b33a">更多...</a><br /></td></tr>
+<tr class="separator:gadcf5c1ad827376d24ff9a4d00615b33a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga198267174bf34247bca2163293c20d5c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__aos__kernel__time.html#ga198267174bf34247bca2163293c20d5c">aos_msleep</a> (uint32_t ms)</td></tr>
+<tr class="separator:ga198267174bf34247bca2163293c20d5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">详细描述</h2>
+<p>提供AliOS Things系统内核时间管理功能的基础API. </p>
+<h2 class="groupheader">函数说明</h2>
+<a id="gaa68ac57ba941a094a14e01da9ce3854b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaa68ac57ba941a094a14e01da9ce3854b">&#9670;&nbsp;</a></span>aos_calendar_localtime_get()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint64_t aos_calendar_localtime_get </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get calendar time with utc offset.</p>
+<dl class="section return"><dt>返回</dt><dd>current calendar time with utc offset (unit:ms). </dd></dl>
+
+</div>
+</div>
+<a id="gaf5f5379a818a65b28e8f06f555b8db22"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf5f5379a818a65b28e8f06f555b8db22">&#9670;&nbsp;</a></span>aos_calendar_time_get()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint64_t aos_calendar_time_get </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get calendar time.</p>
+<dl class="section return"><dt>返回</dt><dd>current calendar time (unit:ms), for example, the number of milliseconds since the Epoch, 1970-01-01 00:00:00 +0000 (UTC). </dd></dl>
+
+</div>
+</div>
+<a id="gae0b5e4926cc368a9f9ac52c17b585879"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae0b5e4926cc368a9f9ac52c17b585879">&#9670;&nbsp;</a></span>aos_calendar_time_set()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void aos_calendar_time_set </td>
+          <td>(</td>
+          <td class="paramtype">uint64_t&#160;</td>
+          <td class="paramname"><em>now_ms</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Set calendar time. </p><dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">now_ms</td><td>the calender time (unit:ms) to set, for example, the number of milliseconds since the Epoch, 1970-01-01 00:00:00 +0000 (UTC). </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga198267174bf34247bca2163293c20d5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga198267174bf34247bca2163293c20d5c">&#9670;&nbsp;</a></span>aos_msleep()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void aos_msleep </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>ms</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Msleep.</p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">ms</td><td>sleep time in milliseconds. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga54494ad640b8244780bed029c5a9e8f8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga54494ad640b8244780bed029c5a9e8f8">&#9670;&nbsp;</a></span>aos_now()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint64_t aos_now </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get current time in nanoseconds.</p>
+<dl class="section return"><dt>返回</dt><dd>elapsed time in nanoseconds from system starting. </dd></dl>
+
+</div>
+</div>
+<a id="gacb3729865c45080a3899355d33c3b190"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gacb3729865c45080a3899355d33c3b190">&#9670;&nbsp;</a></span>aos_now_ms()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint64_t aos_now_ms </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Get current time in milliseconds.</p>
+<dl class="section return"><dt>返回</dt><dd>elapsed time in milliseconds from system starting. </dd></dl>
+
+</div>
+</div>
+<a id="gadcf5c1ad827376d24ff9a4d00615b33a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gadcf5c1ad827376d24ff9a4d00615b33a">&#9670;&nbsp;</a></span>aos_now_time_str()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="group__aos__kernel__sysctrl.html#ga606053245eba48c42b604cd6a5a6787e">aos_status_t</a> aos_now_time_str </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Retrieves the timer string. Under RTOS w/o RTC, this fucntion will return the UTC time string that consider boot-up as 01-01 00:00:00.000. Under Linuxhost and compile option "vall=posix", this function will get the local time which considering time zone. </p>
+<dl class="params"><dt>参数</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">buf</td><td>give buffer to save timer string </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">len</td><td>the length of buffer, recommand 19, right a terminating null-character is appended in last.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>返回</dt><dd>0: success. </dd></dl>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- HTML footer for doxygen 1.8.7-->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+
+## 第一部分： 基础信息
+name: aos_sdk                                       # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: dev_aos                                    # <必选项> 组件版本号
+description: 基础OS                                  # <必选项> 建议至少20字以上
+type: sdk                                           # <必选项> 组件类型，为：solution, board, chip, arch, drv_core, drv_peripheral, drv_external_device, kernel, common, sdk, document
+
+tag:                                                # <可选项> 组件分类，缺省值： ''
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+## 第二部分：依赖信息
+#           指定该组件依赖的组件及版本，未来版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           目前仅支持指定某一个版本，如 v1.0 与 ==v1.0
+#           依赖还可以包含条件，条件可以不定义(即false)；也可以是组件（该组件或其它组件）里的def_config里的宏，且取值为0(即false)，1(即true)
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: 'v7.2.0'
+#   - aos: 'v7.2.0 ? <ENABLE_AOS>'
+
+depends: 
+  - rhino: dev_aos
+  - documentation: dev_aos
+  - init: dev_aos
+  - kv: dev_aos
+  - lwip: dev_aos
+  - mbedtls: dev_aos
+  - osal_aos: dev_aos
+  - cli: dev_aos
+  - libc_stub: dev_aos
+  - debug: dev_aos
+  - ulog: dev_aos
+  
