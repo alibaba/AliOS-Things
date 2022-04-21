@@ -16,7 +16,7 @@
 int32_t aos_hal_wdg_init(wdg_dev_t *wdg)
 {
 #if (defined(BOARD_HAAS100) || defined(BOARD_HAASEDUK1))
-    hal_wdg_init(wdg);
+    return hal_wdg_init(wdg);
 #else
 #ifndef AOS_BOARD_HAAS700
     uint32_t flags = 0;
@@ -88,7 +88,7 @@ void aos_hal_wdg_reload(wdg_dev_t *wdg)
 int32_t aos_hal_wdg_finalize(wdg_dev_t *wdg)
 {
 #if (defined(BOARD_HAAS100) || defined(BOARD_HAASEDUK1))
-    hal_wdg_finalize(wdg);
+    return hal_wdg_finalize(wdg);
 #else
 #ifndef AOS_BOARD_HAAS700
     int32_t ret = 0;
