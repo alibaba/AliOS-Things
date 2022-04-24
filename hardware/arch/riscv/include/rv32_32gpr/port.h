@@ -29,8 +29,8 @@ RHINO_INLINE uint8_t cpu_cur_get(void)
 
 #define CPSR_ALLOC()                cpu_cpsr_t cpsr
 
-#define RHINO_CPU_INTRPT_DISABLE()  do{cpsr = cpu_intrpt_save();}while(0)
-#define RHINO_CPU_INTRPT_ENABLE()   do{cpu_intrpt_restore(cpsr);}while(0)
+#define RHINO_CPU_INTRPT_DISABLE()  do { cpsr = cpu_intrpt_save(); } while (0)
+#define RHINO_CPU_INTRPT_ENABLE()   do { cpu_intrpt_restore(cpsr); } while (0)
 
 #endif /* PORT_H */
 
