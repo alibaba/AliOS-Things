@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: riscv                                          # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: master                                     # <必选项> 组件版本号
+version: dev_aos                                     # <必选项> 组件版本号
 description: arch for riscv
 type: arch                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
@@ -37,7 +37,7 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #     - libs                               #   -Llibs
 build_config:
   include:
-    - include
+    - include/<cpu_num>
     - src/<cpu_num>
   asmflag: -D__ASSEMBLY__
 
