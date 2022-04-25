@@ -157,7 +157,7 @@ typedef struct _fb_ops_t {
     int (*fb_pan_display)(fb_var_screeninfo_t *var, fb_info_t *info);
 
     /* set the video mode according to info->var */
-    int (*fb_set_par)(struct fb_info *info);
+    int (*fb_set_par)(fb_info_t *info);
 
     /* Rotates the display */
     void (*fb_rotate)(fb_info_t *info, int angle);
