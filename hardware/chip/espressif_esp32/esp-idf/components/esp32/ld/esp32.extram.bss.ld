@@ -11,6 +11,8 @@ SECTIONS
     *libnet80211.a:(.dynsbss .sbss .sbss.* .gnu.linkonce.sb.* .scommon .sbss2.* .gnu.linkonce.sb2.* .dynbss .bss .bss.* .share.mem .gnu.linkonce.b.* COMMON)
     *libpp.a:(.dynsbss .sbss .sbss.* .gnu.linkonce.sb.* .scommon .sbss2.* .gnu.linkonce.sb2.* .dynbss .bss .bss.* .share.mem .gnu.linkonce.b.* COMMON)
     *liblwip.a:(.dynsbss .sbss .sbss.* .gnu.linkonce.sb.* .scommon .sbss2.* .gnu.linkonce.sb2.* .dynbss .bss .bss.* .share.mem .gnu.linkonce.b.* COMMON)
+    *liboss.a:(.dynsbss .sbss .sbss.* .gnu.linkonce.sb.* .scommon .sbss2.* .gnu.linkonce.sb2.* .dynbss .bss .bss.* .share.mem .gnu.linkonce.b.* COMMON)
+    *libota.a:(.dynsbss .sbss .sbss.* .gnu.linkonce.sb.* .scommon .sbss2.* .gnu.linkonce.sb2.* .dynbss .bss .bss.* .share.mem .gnu.linkonce.b.* COMMON)
     *libbt.a:(EXCLUDE_FILE (libbtdm_app.a) .dynsbss .sbss .sbss.* .gnu.linkonce.sb.* .scommon .sbss2.* .gnu.linkonce.sb2.* .dynbss .bss .bss.* .share.mem .gnu.linkonce.b.* COMMON)
     . = ALIGN(4);
     _ext_ram_bss_end = ABSOLUTE(.);
