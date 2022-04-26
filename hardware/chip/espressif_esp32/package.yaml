@@ -41,19 +41,6 @@ build_config:
   cxxflag: >
         -mlongcalls -Wno-frame-address -Wno-clobbered -Wno-deprecated-declarations -Wno-missing-field-initializers
         -std=gnu++11 -fno-exceptions -fno-rtti -fno-tree-switch-conversion -fno-jump-tables -fpermissive -DKERNEL=FREERTOS
-  ldflag: >
-        -mlongcalls -Wno-frame-address -z muldefs -fno-rtti -lm -lgcc -lstdc++ -lgcov -lc -fno-lto
-        -mfix-esp32-psram-cache-issue  -mfix-esp32-psram-cache-strategy=memw
-        -uesp_app_desc -uvfs_include_syscalls_impl -upthread_include_pthread_impl
-        -upthread_include_pthread_cond_impl  -upthread_include_pthread_local_storage_impl -uapp_main
-        -ucall_user_start_cpu0 -uld_include_panic_highint_hdl -unewlib_include_locks_impl
-        -unewlib_include_heap_impl -unewlib_include_syscalls_impl  -unewlib_include_pthread_impl
-        -u__cxa_guard_dummy -u__cxx_fatal_exception
-        -Wl,--cref -Wl,--Map="aos.map" -Wl,--wrap=vPortCleanUpTCB -Wl,--gc-sections -Wl,--undefined=uxTopUsedPriority
-        -Tesp32.rom.newlib-time.ld -Tesp32.rom.ld  -Tesp32.rom.libgcc.ld  -Tesp32.rom.newlib-data.ld
-        -Tesp32.rom.syscalls.ld -Tesp32.rom.newlib-funcs.ld -Tesp32_out.ld  -Tesp32.project.ld -Tesp32.extram.bss.ld
-        -Tesp32.peripherals.ld -z muldefs
-
   include:
     - esp-idf/components/esp_ringbuf/include
     - esp-idf/components/newlib/platform_include
