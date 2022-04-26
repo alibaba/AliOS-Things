@@ -108,7 +108,7 @@ i2c_dev_handle_t aos_i2c_open (uint32_t id, i2c_slave_config_t *config) {
     }
 
     if (!config) {
-        ddkc_err("config is NULL, invalid\r\n", config);
+        ddkc_err("config is NULL, invalid\r\n");
         return NULL;
     }
 
