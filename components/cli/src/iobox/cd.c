@@ -76,7 +76,7 @@ static int cd_main(int argc, char **argv)
         }
 
         // parse heading ".."
-        while (target && strncmp(target, "..", strlen("..")) == 0) {
+        while (strncmp(target, "..", strlen("..")) == 0) {
             if (up_one_level(absolute) != 0) {
                 aos_cli_printf("up to parent dir failed. %s may " \
                            "not be a valid path!", target);
@@ -88,9 +88,8 @@ static int cd_main(int argc, char **argv)
                 target++;
         }
 
-        if (target)
-            strncpy(absolute + strlen(absolute), target, \
-                            sizeof(absolute) - strlen(absolute));
+        strncpy(absolute + strlen(absolute), target,
+                sizeof(absolute) - strlen(absolute));
     } else {
         strncpy(absolute, target, sizeof(absolute));
     }
