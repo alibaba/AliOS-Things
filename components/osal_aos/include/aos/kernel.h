@@ -1278,6 +1278,24 @@ aos_status_t aos_timer_new(aos_timer_t *timer, void (*fn)(void *, void *), void 
 aos_status_t aos_timer_new_ext(aos_timer_t *timer, void (*fn)(void *, void *), void *arg,
                       uint32_t ms, bool repeat, bool  autorun);
 
+/**
+ * @brief   Check whether the memory area is in user space if current task is a user thread.
+ *          Check whether the memory area is in kernel space if current task is a kernel thread.
+ * @param   start   Start of the memory area.
+ * @param   size    Size of the memory area.
+ * @return  true: on success; false: on failure.
+ */
+bool aos_umem_check(const void *start, size_t size);
+
+/**
+ * @brief   Copy data from one memory area to another. Both areas can be in user space or kernel space.
+ * @param   dst     Destination pointer.
+ * @param   src     Source pointer.
+ * @param   count   Number of bytes to copy.
+ * @return  0: on success; < 0: on failure.
+ */
+aos_status_t aos_umem_copy(void *dst, const void *src, size_t count);
+
 /** @} */
 
 /** @} */
