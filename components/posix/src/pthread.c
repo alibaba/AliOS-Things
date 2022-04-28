@@ -157,7 +157,9 @@ int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
             }
         }
     } else {
-        pthread_attr_init(&(ptcb->attr));
+        ret = pthread_attr_init(&(ptcb->attr));
+        if (ret != 0)
+            goto out3;
     }
 
     /* Init joinable semaphore. */
