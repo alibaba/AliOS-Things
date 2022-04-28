@@ -28,6 +28,18 @@
 #ifndef MICROPY_INCLUDED_ESP32_UART_H
 #define MICROPY_INCLUDED_ESP32_UART_H
 
+#ifdef CONFIG_IDF_TARGET_ESP32C3
+#ifndef MICROPY_HW_UART_REPL
+#define MICROPY_HW_UART_REPL (UART_NUM_0)
+#endif
+
+#ifndef MICROPY_HW_UART_REPL_BAUD
+#define MICROPY_HW_UART_REPL_BAUD (115200)
+#endif
+
+int uart_stdout_tx_strn(const char *str, size_t len);
+#endif
+
 void uart_init(void);
 
 #endif // MICROPY_INCLUDED_ESP32_UART_H
