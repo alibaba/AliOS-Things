@@ -3,6 +3,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "aos/kernel.h"
 #include "k_config.h"
@@ -124,3 +125,25 @@ int32_t aos_comp_version_set(const char *comp_name, const char *version)
     return -1;
 }
 
+bool aos_umem_check(const void *start, size_t size)
+{
+    if (!start || size == 0)
+        return false;
+
+    /* TODO */
+
+    return true;
+}
+
+aos_status_t aos_umem_copy(void *dst, const void *src, size_t count)
+{
+    if (count == 0)
+        return 0;
+
+    if (!dst || !src)
+        return -EINVAL;
+
+    (void)memcpy(dst, src, count);
+
+    return 0;
+}
