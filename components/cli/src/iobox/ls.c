@@ -158,7 +158,7 @@ static int ls_do(int argc, char **argv, int flags)
             }
 
             // parse heading ".."
-            while (dir && (strncmp(dir, "..", strlen(".."))) == 0) {
+            while (strncmp(dir, "..", strlen("..")) == 0) {
                 if (up_one_level(cur) != 0) {
                     aos_cli_printf("up to parent dir failed. %s may " \
                                "not be a valid path!", dir);
@@ -173,13 +173,12 @@ static int ls_do(int argc, char **argv, int flags)
             }
 
             // deal with '.', './', './dir/file' cases
-            if (dir && dir[0] == '.') {
+            if (dir[0] == '.') {
                 while (*(++dir) == '/')
                     ;
             }
 
-            if (dir)
-                snprintf(cur + curlen, sizeof(cur) - curlen, "/%s", dir);
+            snprintf(cur + curlen, sizeof(cur) - curlen, "/%s", dir);
             dir = cur;
         }
 

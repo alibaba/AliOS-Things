@@ -123,7 +123,8 @@ static int cp_dir_to_dir(const char *from, const char *to)
     pdir = opendir(from);
     if (!pdir) {
         aos_cli_printf("opendir %s failed\n", from);
-        return -1;
+        ret = -1;
+        goto free;
     }
 
     while ((entry = readdir(pdir))) {
