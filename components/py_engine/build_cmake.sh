@@ -182,6 +182,13 @@ elif [ $TARGET_PLATFORM = "ESP32" ]; then
     # 1: prepare IDF env
     echo "1: Prepare IDF env:${TARGET_BOARD}"
     if [ ${TARGET_BOARD} = "GENERIC_C3" ]; then
+        if [[ ! -e "${comp_dir}/../../hardware/chip/espressif_esp32_c3/esp-idf" ]];then
+            printf '\033[1;31;40merror: %s\033[0m\n' "hardware/chip/espressif_esp32_c3/esp-idf is not exists."
+            echo "Please check hardware/board/nodemcu32s_c3/README.md to get the steps."
+            echo ""
+            exit 1
+        fi
+
         ${comp_dir}/../../hardware/chip/espressif_esp32_c3/build.sh
         . ${comp_dir}/../../hardware/chip/espressif_esp32_c3/esp-idf/export.sh
     else
