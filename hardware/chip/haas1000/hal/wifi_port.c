@@ -35,6 +35,7 @@ static struct {
     uint8_t sap_connected:1;
     uint8_t smart_config:1;
     uint8_t zero_config:1;
+    /*wifi is connecting*/
     volatile uint8_t connecting:1;
 
     struct {
@@ -420,6 +421,7 @@ static int haas1000_wifi_notify_ip_state2drv(netdev_t *dev,
                        wifi_mode_t mode)
 {
 #if LWIP_ETHERNETIF && !LWIP_SUPPORT
+    int ret;
     struct ip_info ip;
 
     if (!in_net_para) {
@@ -432,9 +434,21 @@ static int haas1000_wifi_notify_ip_state2drv(netdev_t *dev,
         printf("set ip: %s\n", in_net_para->ip);
         printf("set mask: %s\n", in_net_para->mask);
         printf("set gw: %s\n", in_net_para->gate);
-        inet_aton(in_net_para->ip, &ip.ip);
-        inet_aton(in_net_para->mask, &ip.netmask);
-        inet_aton(in_net_para->gate, &ip.gw);
+        ret = inet_aton(in_net_para->ip, &ip.ip);
+        if (!ret) {
+            printf("%s:%d: invalid ip address %s\n", __func__, __LINE__, in_net_para->ip);
+            return -1;
+        }
+        ret = inet_aton(in_net_para->mask, &ip.netmask);
+        if (!ret) {
+            printf("%s:%d: invalid network mask %s\n", __func__, __LINE__, in_net_para->mask);
+            return -1;
+        }
+        ret = inet_aton(in_net_para->gate, &ip.gw);
+        if (!ret) {
+            printf("%s:%d: invalid gateway address %s\n", __func__, __LINE__, in_net_para->gate);
+            return -1;
+        }
         return bwifi_set_ip_addr(WIFI_IF_STATION, &ip);
     }
 #endif
@@ -499,6 +513,8 @@ static int wifi_scan(netdev_t *dev, wifi_scan_config_t* config, bool block, scan
     static wifi_scan_result_t result = {0};
     int index = 0, a_size = 0;
     int scan_chs[] =  {1, 6, 11, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 0};
+    int scan_req_num = 0;
+    int scan_req_ap_list_size = 0;
 
     if (WARN_ON(!wifi_status.wifi_started || wifi_status.resetting))
         return -1;
@@ -506,7 +522,11 @@ static int wifi_scan(netdev_t *dev, wifi_scan_config_t* config, bool block, scan
     if (t == SCAN_SPECIFIED) {
         prev_scan_ssid = NULL;
         a_size = sizeof(scan_chs)/sizeof(scan_chs[0]) - 1;
-        for (i = 0; i < wifi_status.scan_req.ap_num; i++) {
+        /* Check again to make sure ap_list array doesn't overrun, and make static analysis happy. */
+        scan_req_ap_list_size = sizeof(wifi_status.scan_req.ap_list) / sizeof(wifi_status.scan_req.ap_list[0]);
+        scan_req_num = wifi_status.scan_req.ap_num > scan_req_ap_list_size ?
+                       scan_req_ap_list_size : wifi_status.scan_req.ap_num;
+        for (i = 0; i < scan_req_num; i++) {
             index = find_index_by_value(wifi_status.scan_req.ap_list[i].channel, scan_chs, a_size);
             if( index < a_size && index > i) {
                 scan_chs[index] = scan_chs[i];
