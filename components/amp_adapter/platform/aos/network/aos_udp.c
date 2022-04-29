@@ -166,7 +166,11 @@ int aos_udp_create_without_connect(const char *host, unsigned short port)
     memset(&local_addr, 0x00, sizeof(local_addr));
     local_addr.sin_family = AF_INET;
     if (NULL != host) {
-        inet_aton(host, &local_addr.sin_addr);
+        if (inet_aton(host, &local_addr.sin_addr) == 0) {
+            close(socket_id);
+            platform_err("inet_aton failed\r\n");
+            return (intptr_t)-1;
+        }
     } else {
         local_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     }
