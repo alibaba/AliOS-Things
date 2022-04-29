@@ -2,25 +2,8 @@
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
 
-#ifndef HAL_FLASH_H
-#define HAL_FLASH_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <stdint.h>
-
-#define PAR_OPT_READ_POS  ( 0 )
-#define PAR_OPT_WRITE_POS ( 1 )
-
-#define PAR_OPT_READ_MASK  ( 0x1u << PAR_OPT_READ_POS )
-#define PAR_OPT_WRITE_MASK ( 0x1u << PAR_OPT_WRITE_POS )
-
-#define PAR_OPT_READ_DIS  ( 0x0u << PAR_OPT_READ_POS )
-#define PAR_OPT_READ_EN   ( 0x1u << PAR_OPT_READ_POS )
-#define PAR_OPT_WRITE_DIS ( 0x0u << PAR_OPT_WRITE_POS )
-#define PAR_OPT_WRITE_EN  ( 0x1u << PAR_OPT_WRITE_POS )
+#ifndef AOS_HAL_FLASH_H
+#define AOS_HAL_FLASH_H
 
 typedef enum {
     HAL_PARTITION_ERROR = -1,
@@ -54,6 +37,25 @@ typedef enum {
     HAL_PARTITION_MAX,
     HAL_PARTITION_NONE,
 } hal_partition_t;
+
+/* deprecated */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stdint.h>
+
+#define PAR_OPT_READ_POS        (0)
+#define PAR_OPT_WRITE_POS       (1)
+
+#define PAR_OPT_READ_MASK       (0x1u << PAR_OPT_READ_POS)
+#define PAR_OPT_WRITE_MASK      (0x1u << PAR_OPT_WRITE_POS)
+
+#define PAR_OPT_READ_DIS        (0x0u << PAR_OPT_READ_POS)
+#define PAR_OPT_READ_EN         (0x1u << PAR_OPT_READ_POS)
+#define PAR_OPT_WRITE_DIS       (0x0u << PAR_OPT_WRITE_POS)
+#define PAR_OPT_WRITE_EN        (0x1u << PAR_OPT_WRITE_POS)
 
 typedef enum {
     HAL_FLASH_EMBEDDED,
@@ -228,5 +230,4 @@ int32_t hal_flash_addr2offset(hal_partition_t *in_partition, uint32_t *off_set, 
 }
 #endif
 
-#endif /* HAL_FLASH_H */
-
+#endif /* AOS_HAL_FLASH_H */
