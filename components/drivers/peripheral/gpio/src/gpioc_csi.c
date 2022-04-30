@@ -22,7 +22,7 @@ static aos_status_t set_dir(aos_gpioc_csi_t *gpioc_csi, uint32_t pin, uint32_t d
         r = CSI_OK;
     else if (dir == AOS_GPIO_DIR_INPUT)
         r = csi_gpio_dir(&gpioc_csi->csi_gpio, mask, GPIO_DIRECTION_INPUT);
-    else if (dir == AOS_GPIO_DIR_OUTPUT)
+    else if (dir == AOS_GPIO_DIR_OUTPUT || dir == AOS_GPIO_DIR_BOTH)
         r = csi_gpio_dir(&gpioc_csi->csi_gpio, mask, GPIO_DIRECTION_OUTPUT);
     else
         r = CSI_ERROR;
@@ -99,7 +99,8 @@ static void restore_mode(aos_gpioc_csi_t *gpioc_csi, uint32_t pin)
         (void)set_dir(gpioc_csi, pin, dir);
         (void)set_input_cfg(gpioc_csi, pin, cfg);
         (void)set_irq_trig(gpioc_csi, pin, trig);
-    } else if (dir == AOS_GPIO_DIR_OUTPUT) {
+    } else if (dir == AOS_GPIO_DIR_OUTPUT ||
+               (dir == AOS_GPIO_DIR_BOTH && (mode & AOS_GPIO_IRQ_TRIG_MASK) == AOS_GPIO_IRQ_TRIG_NONE)) {
         uint32_t cfg = mode & AOS_GPIO_OUTPUT_CFG_MASK;
         (void)set_dir(gpioc_csi, pin, dir);
         (void)set_output_cfg(gpioc_csi, pin, cfg);
@@ -146,7 +147,8 @@ static aos_status_t gpioc_csi_set_mode(aos_gpioc_t *gpioc, uint32_t pin)
             restore_mode(gpioc_csi, pin);
             return ret;
         }
-    } else if (dir == AOS_GPIO_DIR_OUTPUT) {
+    } else if (dir == AOS_GPIO_DIR_OUTPUT ||
+               (dir == AOS_GPIO_DIR_BOTH && (mode & AOS_GPIO_IRQ_TRIG_MASK) == AOS_GPIO_IRQ_TRIG_NONE)) {
         uint32_t cfg = mode & AOS_GPIO_OUTPUT_CFG_MASK;
         uint32_t mask = (uint32_t)1 << pin;
         csi_gpio_pin_state_t val;
