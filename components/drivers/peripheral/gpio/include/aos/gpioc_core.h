@@ -59,7 +59,7 @@ typedef struct aos_gpioc_pin {
             break; \
         } \
         mode = _gpioc->pins[_pin].mode; \
-        if ((mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_INPUT) \
+        if ((mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_INPUT || (mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_BOTH) \
             trig = mode & AOS_GPIO_IRQ_TRIG_MASK; \
         else \
             trig = AOS_GPIO_IRQ_TRIG_NONE; \
@@ -73,14 +73,15 @@ typedef struct aos_gpioc_pin {
                 mask = 0x1; \
             else \
                 mask = (polarity) ? 0x2 : 0x1; \
-            if (aos_event_get(&_gpioc->pins[_pin].irq_event, 0xFFFFFFFF, AOS_EVENT_OR, &val, AOS_NO_WAIT)) \
-                val = 0; \
+            (void)aos_event_get(&_gpioc->pins[_pin].irq_event, 0xFFFFFFFF, AOS_EVENT_OR, &val, AOS_NO_WAIT); \
             for (int i = 0; i < 16; i++) { \
                 if (!(val & ((uint32_t)0x3 << (2 * i)))) { \
                     (void)aos_event_set(&_gpioc->pins[_pin].irq_event, mask << (2 * i), AOS_EVENT_OR); \
                     break; \
                 } \
             } \
+            if ((mode & AOS_GPIO_IRQ_ALTERNATE) && _gpioc->pins[_pin].irq_handler) \
+                _gpioc->pins[_pin].irq_handler(polarity, _gpioc->pins[_pin].irq_arg); \
             break; \
         case AOS_GPIO_IRQ_TRIG_LEVEL_HIGH: \
         case AOS_GPIO_IRQ_TRIG_LEVEL_LOW: \
@@ -88,6 +89,8 @@ typedef struct aos_gpioc_pin {
             _gpioc->ops->disable_irq(_gpioc, _pin); \
             mask = (trig == AOS_GPIO_IRQ_TRIG_LEVEL_HIGH) ? 0x2 : 0x1; \
             (void)aos_event_set(&_gpioc->pins[_pin].irq_event, mask, AOS_EVENT_OR); \
+            if ((mode & AOS_GPIO_IRQ_ALTERNATE) && _gpioc->pins[_pin].irq_handler) \
+                _gpioc->pins[_pin].irq_handler(polarity, _gpioc->pins[_pin].irq_arg); \
             break; \
         default: \
             break; \
