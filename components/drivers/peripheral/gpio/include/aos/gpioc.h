@@ -116,6 +116,29 @@ aos_status_t aos_gpioc_set_value(aos_gpioc_ref_t *ref, uint32_t pin, int val);
  * @return  0: on success; < 0: on failure.
  */
 aos_status_t aos_gpioc_toggle(aos_gpioc_ref_t *ref, uint32_t pin);
+/**
+ * @brief   Wait for an IRQ to become ready.
+ * @param   ref     GPIO controller ref to operate.
+ * @param   pin     Pin to operate.
+ * @param   timeout Timeout in milliseconds.
+ * @return  0: on low level or falling edge; 1: on high level or rising edge; < 0: on failure.
+ */
+aos_status_t aos_gpioc_poll_irq(aos_gpioc_ref_t *ref, uint32_t pin, uint32_t timeout);
+/**
+ * @brief   Wait for an IRQ and then handle it.
+ * @param   ref     GPIO controller ref to operate.
+ * @param   pin     Pin to operate.
+ * @param   timeout Timeout in milliseconds.
+ * @return  0: on low level or falling edge; 1: on high level or rising edge; < 0: on failure.
+ */
+aos_status_t aos_gpioc_enter_irq(aos_gpioc_ref_t *ref, uint32_t pin, uint32_t timeout);
+/**
+ * @brief   End an IRQ.
+ * @param   ref GPIO controller ref to operate.
+ * @param   pin Pin to operate.
+ * @return  0: on success; < 0: on failure.
+ */
+aos_status_t aos_gpioc_exit_irq(aos_gpioc_ref_t *ref, uint32_t pin);
 
 #ifdef __cplusplus
 }

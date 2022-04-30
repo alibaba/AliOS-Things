@@ -128,6 +128,7 @@ do
     fi
 done
 echo "list(APPEND MICROPY_DEF_MODULES_PORT ${TARGET_BOARD})" >> ${modules_dir}/config.cmake
+echo "list(APPEND MICROPY_DEF_MODULES_PORT AOS_KERNEL_BUILD=1)" >> ${modules_dir}/config.cmake
 
 # =======================================================
 if [ $TARGET_PLATFORM = "HAAS" ]; then
