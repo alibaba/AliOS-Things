@@ -45,6 +45,7 @@ typedef struct {
     aos_status_t (*start_xfer)(aos_spi_t *spi);
     void (*finish_xfer)(aos_spi_t *spi);
     void (*abort_xfer)(aos_spi_t *spi);
+    aos_status_t (*transfer_sequence)(aos_spi_t *spi, const aos_spi_msg_t *msgs, size_t num_msgs);
 } aos_spi_ops_t;
 ```
 * `flags`：`uint32_t`类型，可包含如下字段，各字段使用按位或运算连接：
@@ -52,12 +53,12 @@ typedef struct {
     + `AOS_SPI_F_MODE_1`：表示支持SPI mode1。
     + `AOS_SPI_F_MODE_2`：表示支持SPI mode2。
     + `AOS_SPI_F_MODE_3`：表示支持SPI mode3。
-    + `AOS_SPI_F_WIDTH_1`：表示支持单线传输。
-    + `AOS_SPI_F_WIDTH_2`：表示支持双线传输。
-    + `AOS_SPI_F_WIDTH_4`：表示支持四线传输。
-    + `AOS_SPI_F_WIDTH_8`：表示支持八线传输。
-    + `AOS_SPI_F_4WIRE`：表示单线传输支持四线模式（MISO和MOSI分开）。
-    + `AOS_SPI_F_3WIRE`：表示单线传输支持三线模式（MISO和MOSI复用）。
+    + `AOS_SPI_F_WIDTH_1`：表示支持一位总线宽度传输。
+    + `AOS_SPI_F_WIDTH_2`：表示支持二位总线宽度传输。
+    + `AOS_SPI_F_WIDTH_4`：表示支持四位总线宽度传输。
+    + `AOS_SPI_F_WIDTH_8`：表示支持八位总线宽度传输。
+    + `AOS_SPI_F_4WIRE`：表示一位总线宽度传输支持四线模式（MISO和MOSI分开）。
+    + `AOS_SPI_F_3WIRE`：表示一位总线宽度传输支持三线模式（MISO和MOSI复用）。
     + `AOS_SPI_F_MSB_FIRST`：表示支持每字节MSB在前传输。
     + `AOS_SPI_F_LSB_FIRST`：表示支持每字节LSB在前传输。
     + `AOS_SPI_F_NO_CS`：表示该设备只与一个SPI slave设备连接，无需操作CS。此标志有效时，注册函数会把CS数目设置为1。
@@ -65,6 +66,9 @@ typedef struct {
 * `num_cs`: `uint32_t`类型，表示该装置支持的CS数目。
 * `min_hz`：`uint32_t`类型，表示该设备传输数据时的最小时钟频率。
 * `max_hz`：`uint32_t`类型，表示该设备传输数据时的最大时钟频率。
+* `buf_size`：`size_t`类型，表示内部缓冲区长度，目前应设置为0。
+* `rx_buf`：`void *`类型的数组，包含2个元素，目前每个元素应设置为`NULL`。
+* `tx_buf`：`void *`类型的数组，包含2个元素，目前每个元素应设置为`NULL`。
 
 调用注册函数之前，BSP开发者应初始化派生类型中的私有变量，并执行具体硬件相关的注册时初始化工作（例如映射寄存器地址等）。
 
@@ -80,7 +84,7 @@ aos_status_t aos_spi_unregister(uint32_t id);
 
 相邻的相同CS且相同mode的一个或多个message在AliOS Things中称为一个 **sequence** 。同一个sequence中CS信号会自始至终保持有效。同一个sequence中的每一message的传输方向、数据线数、时钟频率可以不同。
 
-每个message根据AliOS Things SPI设备驱动数据缓冲区的尺寸拆分为 **transfer** 。每个transfer的最大数据长度为`AOS_SPI_BUF_SIZE`。AliOS Things SPI设备驱动以 **transfer** 为单位传输数据。
+每个message根据内部缓冲区的尺寸拆分为 **transfer** 。如果内部缓冲区长度大于0，每个transfer的最大数据长度为内部缓冲区长度；否则每个transfer的数据长度等于message数据长度。AliOS Things SPI master设备驱动以 **transfer** 为单位传输数据。
 
 # 6. 回调函数
 驱动程序应实现`aos_spi_ops_t`定义的一组面向硬件的回调函数。
@@ -125,12 +129,12 @@ aos_status_t (*start_xfer)(aos_spi_t *spi);
         - `AOS_SPI_MCFG_MODE_2`：表示SPI mode2。
         - `AOS_SPI_MCFG_MODE_3`：表示SPI mode3。
     + 传输线数，掩码为`AOS_SPI_MCFG_WIDTH_MASK`，取值必须为以下当中的一个：
-        - `AOS_SPI_MCFG_WIDTH_1`：表示单线传输。
-        - `AOS_SPI_MCFG_WIDTH_2`：表示双线传输。
-        - `AOS_SPI_MCFG_WIDTH_4`：表示四线传输。
-        - `AOS_SPI_MCFG_WIDTH_8`：表示八线传输。
+        - `AOS_SPI_MCFG_WIDTH_1`：表示一位总线宽度传输。
+        - `AOS_SPI_MCFG_WIDTH_2`：表示二位总线宽度传输。
+        - `AOS_SPI_MCFG_WIDTH_4`：表示四位总线宽度传输。
+        - `AOS_SPI_MCFG_WIDTH_8`：表示八位总线宽度传输。
     + `AOS_SPI_MCFG_LSB_FIRST`：该标志有效时表示传输时LSB在前，否则为MSB在前。
-    + `AOS_SPI_MCFG_3WIRE`：该标志有效时表示使用三线模式（MISO和MOSI复用），否则为四线模式。只在单线传输时有意义。
+    + `AOS_SPI_MCFG_3WIRE`：该标志有效时表示使用三线模式（MISO和MOSI复用），否则为四线模式。只在一位总线宽度传输时有意义。
 
 * `x.cs`：`uint32_t`类型，表示当前CS序号。
 * `x.hz`：`uint32_t`类型，表示当前传输时钟频率。
