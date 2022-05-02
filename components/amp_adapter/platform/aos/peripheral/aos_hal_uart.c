@@ -119,6 +119,7 @@ static int uart_port_registered[7];
 
 int32_t aos_hal_uart_callback(uart_dev_t *uart, void (*cb)(int, void *, uint16_t, void *), void *args)
 {
+    aos_status_t ret;
 #if 0
     if (uart_port_registered[uart->port])
         return 0;
@@ -132,8 +133,17 @@ int32_t aos_hal_uart_callback(uart_dev_t *uart, void (*cb)(int, void *, uint16_t
         if (!notify)
             return -1;
         memset(notify, 0, sizeof(uart_recv_notify_t));
-        aos_mutex_new(&notify->lock);
-        aos_sem_new(&notify->sem, 0);
+        ret = aos_mutex_new(&notify->lock);
+        if (ret) {
+            aos_free(notify);
+            return -1;
+        }
+        ret = aos_sem_new(&notify->sem, 0);
+        if (ret) {
+            aos_mutex_free(&notify->lock);
+            aos_free(notify);
+            return -1;
+        }
         uart_recv_notifiers[uart->port] = notify;
     }
 
@@ -143,8 +153,13 @@ int32_t aos_hal_uart_callback(uart_dev_t *uart, void (*cb)(int, void *, uint16_t
 
     if (!notify->task_running) {
         if (aos_task_new_ext(&notify->task, "amp_uart_recv",
-            uart_recv_handler, notify, 2048, 32))
+            uart_recv_handler, notify, 2048, 32)) {
+            aos_mutex_free(&notify->lock);
+            aos_sem_free(&notify->sem);
+            aos_free(notify);
+            uart_recv_notifiers[uart->port] = NULL;
             return -1;
+        }
         notify->task_running = 1;
     }
 #endif
