@@ -53,6 +53,8 @@ typedef struct {
     + `AOS_I2C_F_ADDR_10`：表示支持10位地址模式。
 
 * `hz`：`uint32_t`类型，表示该设备传输数据时的总线时钟频率。
+* `buf_size`：`size_t`类型，表示内部缓冲区长度，目前应设置为0。
+* `buf`：`void *`类型的数组，包含2个元素，目前每个元素应设置为`NULL`。
 
 调用注册函数之前，BSP开发者应初始化派生类型中的私有变量，并执行具体硬件相关的注册时初始化工作（例如映射寄存器地址等）。
 
@@ -68,7 +70,7 @@ aos_status_t aos_i2c_unregister(uint32_t id);
 
 相邻的同slave地址的一个或多个message在AliOS Things中称为一个 **sequence** 。同一个sequence中的第一个message以START信号开始，最后一个message以STOP信号结束，中间各message用repeated START信号连接。
 
-每个message根据AliOS Things I2C设备驱动数据缓冲区的尺寸拆分为 **transfer** 。每个transfer的最大数据长度为`AOS_I2C_BUF_SIZE`。AliOS Things I2C设备驱动以 **transfer** 为单位传输数据。
+每个message根据内部缓冲区的尺寸拆分为 **transfer** 。如果内部缓冲区长度大于0，每个transfer的最大数据长度为内部缓冲区长度；否则每个transfer的数据长度等于message数据长度。AliOS Things I2C master设备驱动以 **transfer** 为单位传输数据。
 
 # 6. 回调函数
 驱动程序应实现`aos_i2c_ops_t`定义的一组面向硬件的回调函数。
