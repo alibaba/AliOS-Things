@@ -1,4 +1,5 @@
 /*
+ /*
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
@@ -193,9 +194,18 @@ static void periodic_sntp_handle();
 #ifdef AOS_COMP_ACTIVATION
 static void wifi_activation_report_task(void);
 #endif /* AOS_COMP_ACTIVATION */
+#ifdef MICROPY_PY_CHANNEL_ENABLE
+static void py_app_ota_task(void);
+#endif /* MICROPY_PY_CHANNEL_ENABLE */
 #if (RHINO_CONFIG_USER_SPACE > 0)
 static int  wifi_msg_cb(task_group_t* group, netmgr_msg_cb_t cb, netmgr_msg_t* msg);
 #endif /* RHINO_CONFIG_USER_SPACE > 0 */
+
+#if MICROPY_PY_CHANNEL_ENABLE
+char _amp_ssid[64] = { 0 };
+char _amp_password[64] = { 0 };
+#endif
+
 static void wifi_status_change(netmgr_conn_t *conn, int event);
 
 static int ssid_contain_chinese_check(const char *ssid);
@@ -492,7 +502,7 @@ static int wifi_get_mac(netmgr_hdl_t hdl, uint8_t *mac)
 
 static int wifi_get_rssi(int *rssi)
 {
-    wifi_ap_record_t out;
+    wifi_ap_record_t out = {0};
     int ret;
 
     if(0 != (ret = ioctl(g_wifi_conn_info->hdl, WIFI_DEV_CMD_STA_GET_LINK_STATUS, &out))) {
@@ -857,6 +867,10 @@ static int wifi_network_connected(netmgr_conn_t* conn)
     wifi_activation_report_task();
 #endif /* AOS_COMP_ACTIVATION */
 
+#ifdef MICROPY_PY_CHANNEL_ENABLE
+    py_app_ota_task();
+#endif /* AOS_COMP_ACTIVATION */
+
 #ifdef AOS_OPTIMIZE_NETWORK
     if(g_is_link_check_task_running == false) {
         g_is_link_check_task_running = true;
@@ -1210,6 +1224,25 @@ static void wifi_activation_report_task()
 }
 #endif /* AOS_COMP_ACTIVATION */
 
+#ifdef MICROPY_PY_CHANNEL_ENABLE
+static void py_app_ota_handle(void* arg)
+{
+    printf("save wifi info to kv and start ota channel\n");
+    extern int save_ssid_and_password(char *ssid, char *passwd);
+    save_ssid_and_password(_amp_ssid, _amp_password);
+    usleep(1000 * 1000);
+    extern int pyamp_app_upgrade(char *url);
+    extern int check_channel_enable(void);
+    if(check_channel_enable() == 0)
+        amp_otaput_init(pyamp_app_upgrade);
+}
+
+static void py_app_ota_task()
+{
+    aos_task_new("py_app_ota_task", py_app_ota_handle, NULL, 4 * 1024);
+}
+#endif /* MICROPY_PY_CHANNEL_ENABLE */
+
 #define NETMGR_WIFI_CONFIG_LEN 512
 static int update_wifi_config(netmgr_conn_t* conn, const char *name)
 {
@@ -1370,7 +1403,7 @@ static int update_wifi_status(netmgr_conn_t* conn, const char *name, char* wpa_s
     int fd;
     netmgr_wifi_ap_config_t* saved_ap_conf;
     struct netif* net_if;
-    uint8_t mac[6];
+    uint8_t mac[6] = {0};
     char *ssid = NULL;
     int ret;
 
@@ -2330,6 +2363,10 @@ int netmgr_wifi_connect(netmgr_hdl_t hdl, netmgr_wifi_params_t *params)
 
     ssid    = wifi_params->ssid;
     pwd     = wifi_params->pwd;
+    #ifdef MICROPY_PY_CHANNEL_ENABLE
+    strcpy(_amp_ssid, ssid);
+    strcpy(_amp_password, pwd);
+    #endif
     //bssid   = wifi_params->bssid;
     time_ms = wifi_params->timeout;
 
@@ -2408,7 +2445,7 @@ int netmgr_wifi_connect(netmgr_hdl_t hdl, netmgr_wifi_params_t *params)
             ret = 0;
             /* update wifi config when reconnect successfully */
             if(strlen(ssid) == 0) {
-                int channel;
+                int channel = 0;
                 int i;
 
                 saved_ap_conf = (netmgr_wifi_ap_config_t* )conn->saved_config;
@@ -2929,7 +2966,7 @@ int netmgr_wifi_set_static_ip_stat(const char* ip_addr, const char* mask, const 
     return 0;
 }
 
-int netmgr_wifi_get_ip_stat(char *ip_addr, char *mask, char *gw, char *dns_server, char *mac_addr, int *rssi)
+int netmgr_wifi_get_ip_stat(char *ip_addr, char *mask, char *gw, char *dns_server, char *mac_addr, unsigned int mac_len, int *rssi)
 {
     struct netif* net_if;
     const ip_addr_t* dns;
@@ -2969,7 +3006,7 @@ int netmgr_wifi_get_ip_stat(char *ip_addr, char *mask, char *gw, char *dns_serve
                      ((u8_t *)&dns->addr)[2],
                      ((u8_t *)&dns->addr)[3]);
 
-    memset(mac_addr, 0, sizeof(mac_addr));
+    memset(mac_addr, 0, mac_len);
     if (-1 != wifi_get_mac(conn->hdl, mac)) {
         sprintf(mac_addr, "%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx",
             mac[0] & 0xff,
@@ -3265,7 +3302,7 @@ int netmgr_wifi_set_channelist(netmgr_hdl_t hdl, int *channel_array, int channel
 int netmgr_wifi_get_channelist(netmgr_hdl_t hdl, int **channel_array, int *channel_num)
 {
     int ret;
-    wifi_channel_list_t ch_list;
+    wifi_channel_list_t ch_list = {0};
     if ((hdl == 0) || (channel_array == NULL) || (channel_num == NULL)) {
         return -1;
     }
@@ -3543,7 +3580,7 @@ static void wifi_handle_cmd(int argc, char **argv)
             NETMGR_WIFI_LOGE("%s:%d WIFI_SET_MAC invalid params\n", __func__, __LINE__);
         }
     } else if (strcmp(rtype, "-g") == 0) {
-        uint8_t mac[6];
+        uint8_t mac[6] = {0};
         if(-1 != wifi_get_mac(g_wifi_conn_info->hdl, mac)) {
             NETMGR_WIFI_LOGI("mac address=%2hhx:%2hhx:%2hhx:%2hhx:%2hhx:%2hhx\n",
               mac[0] & 0xff,

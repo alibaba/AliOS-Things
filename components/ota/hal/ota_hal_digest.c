@@ -100,7 +100,7 @@ int ota_rsa_pubkey_verify(const unsigned char *pubkey_n,
                           unsigned int sig_size)
 {
     int                   ret = 0;
-    mbedtls_rsa_context   ctx;
+    mbedtls_rsa_context   ctx = {0};
 
     if (pubkey_n == NULL || pubkey_n == NULL || dig == NULL || sig == NULL) {
         ret = OTA_VERIFY_RSA_FAIL;
