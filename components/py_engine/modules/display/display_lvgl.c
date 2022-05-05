@@ -123,7 +123,7 @@ STATIC mp_obj_t display_lvgl_make_new(const mp_obj_type_t *type, size_t n_args, 
 
 void start_display()
 {
-    mp_thread_create_c(guiTask, "gui", 4096 * 10, NULL, ESP_TASK_PRIO_MIN + 1, NULL, 0);
+    mp_thread_create_c(guiTask, "gui", 4 * 1024, NULL, ESP_TASK_PRIO_MIN + 1, NULL, 0);
 }
 
 void driver_init()
@@ -156,7 +156,7 @@ static void guiTask(void *pvParameter)
 
         /* Try to take the semaphore, call lvgl related function on success */
         if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
-            mp_sched_schedule((mp_obj_t)&mp_lv_task_handler_obj, mp_const_none);
+            callback_to_python_LoBo((mp_obj_t)&mp_lv_task_handler_obj, mp_const_none, NULL);
             xSemaphoreGive(xGuiSemaphore);
         }
     }
