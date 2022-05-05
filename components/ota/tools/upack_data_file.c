@@ -105,7 +105,7 @@ int data_file_unpack(void *pack_file, unsigned int pack_size, void *upack_path)
                 }
             }
         } else {
-            OTA_LOG_E("pack faile: %s open failed\n", pack_file);
+            OTA_LOG_E("pack faile: %s open failed\n", (char *)pack_file);
         }
     }
     if (read_fd >= 0) {

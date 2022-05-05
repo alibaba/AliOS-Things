@@ -33,6 +33,7 @@ typedef enum {
 } eth_mac_duplex_e;
 
 #define IPADDR_STR_LEN 16
+#define MACADDR_STR_LEN 17
 /** @brief  this struct defines netmgr ifconfig info */
 typedef struct netmgr_ifconfig_info {
    bool dhcp_en;                         /**< dhcp is enabled */
@@ -40,7 +41,7 @@ typedef struct netmgr_ifconfig_info {
    char mask[IPADDR_STR_LEN];            /**< ip address mask */
    char gw[IPADDR_STR_LEN];              /**< gateway ip address */
    char dns_server[IPADDR_STR_LEN];      /**< dns server address */
-   char mac[IPADDR_STR_LEN + 1];                          /**< mac address */
+   char mac[MACADDR_STR_LEN + 1];                          /**< mac address */
    int  rssi;                            /**< rssi */
 } netmgr_ifconfig_info_t;
 
