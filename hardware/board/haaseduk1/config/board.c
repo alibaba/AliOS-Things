@@ -178,7 +178,11 @@ void board_detect()
 
     FisImu_read_reg(0, &chip_id, 1);
     aos_msleep(100);
-    sensor_i2c_close(1);
+    ret = sensor_i2c_close(1);
+    if (ret) {
+        printf("sensor i2c close failed, ret:%d\n", ret);
+        return;
+    }
 
     if (chip_id == 0xfc) {
         g_haasedu_boardname = HAAS_EDU_K1C;
