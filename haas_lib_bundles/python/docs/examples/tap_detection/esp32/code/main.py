@@ -1,13 +1,14 @@
+from motion import motion
+from mpu6886 import mpu6886
 import utime   # 延时函数在utime
 from driver import I2C               # 驱动库
-import mpu6886
 import network                   # Wi-Fi功能所在库
 import ujson                     # json字串解析库
 from aliyunIoT import Device     # iot组件是连接阿里云物联网平台的组件
-import tap_detection
 
 i2cObj = None
 mpu6886Dev = None
+motionObj = None
 
 # 物联网平台连接标志位
 iot_connected = False
@@ -98,34 +99,46 @@ def connect_lp(productKey, deviceName, deviceSecret):
     utime.sleep(2)
 
 
+def get_data():
+    acc = mpu6886Dev.acceleration
+    gyro = mpu6886Dev.gyro
+    # print(acc)
+    # print(gyro)
+    return acc, gyro                    # 返回读取到的加速度、角速度值
+
+
+def tap_detected():
+    upload_data = {'params': ujson.dumps({
+        'tap_count': motionObj.detectAction.tap_detect_count,
+    })
+    }
+    # 上传状态到物联网平台
+    if (iot_connected):
+        device.postProps(upload_data)
+
+
 if __name__ == '__main__':
-    import uos
+    # 网络初始化
     wlan = network.WLAN(network.STA_IF)  # 创建WLAN对象
     get_wifi_status()
     connect_lp(productKey, deviceName, deviceSecret)
+
     # 硬件初始化
     i2cObj = I2C()
     # 按照board.json中名为"mpu6886"的设备节点的配置参数（主设备I2C端口号，从设备地址，总线频率等）初始化I2C类型设备对象
     i2cObj.open("mpu6886")
-    if not isinstance(i2cObj, I2C):
-        raise ValueError("parameter is not an I2C object")
     print("mpu6886 inited!")
     mpu6886Dev = mpu6886.MPU6886(i2cObj)   # 初始化MPU6886传感器
-    # 跌倒检测算法初始化
-    tapDetection = tap_detection.tap_detection(mpu6886Dev)
-    tapDetection.enable_tap_detection()   # 设置tap_detection参数
-    tapDetection.calibrate()              # 校准传感器
-    while True:
-        tap_count = tapDetection.detect_tap()  # 检测是否跌倒
-        if (tap_count == True):                   # in event of a tap detection
-            print("tap_count DETECTED using MPU sensor")
-            # 上传敲击手势到物联网平台
-            if (iot_connected):
-                upload_data = {'params': ujson.dumps({
-                    'tap_count': tapDetection.tap_detect_count,
-                })
-                }
-                device.postProps(upload_data)
-        utime.sleep_us(10)
-    i2cObj.close()                                      # 关闭I2C设备对象
-    del mpu6886Dev
+
+    # 获取跌倒检测的motion实例
+    motionObj = motion.Motion("double_tap", get_data, tap_detected)
+
+    # 使能action检测，并以Dictionary格式传入灵敏度参数
+    sensitivity = {"ACCELERATION_UP_THREADHOLD": 30}
+    motionObj.enable(sensitivity)
+
+    # 关闭action检测，可再次使能，支持传入新的灵敏度
+    # motionObj.disable()
+
+    # i2cObj.close()                                      # 关闭I2C设备对象
+    # del mpu6886Dev
