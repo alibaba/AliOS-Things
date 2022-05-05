@@ -146,7 +146,7 @@ static int backtraceFromStack(int **pSP, char **pPC,
     unsigned int   framesize = 0;
     unsigned int   shift = 0;
     unsigned int   sub = 0;
-    unsigned int   offset    = 1;
+    int   offset    = 1;
 #ifdef OS_BACKTRACE_DEBUG
     printf("[backtraceFromStack in ] SP = %p, PC = %p\n\r", *pSP, *pPC);
 #endif
@@ -270,7 +270,7 @@ static int backtraceFromLR(int **pSP, char **pPC, char *LR,
     int            i;
     unsigned short ins16;
     unsigned int   framesize = 0;
-    unsigned int   offset;
+    int   offset;
 
 #ifdef OS_BACKTRACE_DEBUG
     printf("[backtraceFromLR in ] SP = %p, PC = %p, LR = %p\n\r", *pSP, *pPC, LR);
@@ -406,9 +406,7 @@ void backtrace_task(void *task, int (*print_func)(const char *fmt, ...))
 
     print_func("========== Call stack ==========\r\n");
     k_int2str((int)BT_PC2ADDR(PC), &panic_call[14]);
-    if (print_func != NULL) {
-        print_func(panic_call);
-    }
+    print_func(panic_call);
 
     ret = debug_task_is_running(task);
     switch (ret) {
