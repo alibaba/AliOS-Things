@@ -20,9 +20,13 @@ int ota_hal_mqtt_subscribe(void *mqtt_client, char *topic, void* cb, void *ctx)
 int ota_hal_mqtt_type_is_pub(void *msg)
 {
     aiot_mqtt_recv_t *mqtt_msg = (aiot_mqtt_recv_t *)msg;
+    if (mqtt_msg == NULL) {
+        return 0;
+    }
     if (mqtt_msg->type == AIOT_MQTTRECV_PUB) {
         return 1;
     }
+    return 0;
 }
 
 void *ota_hal_mqtt_get_payload(void *msg)

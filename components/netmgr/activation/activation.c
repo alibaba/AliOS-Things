@@ -64,7 +64,7 @@ int activation_get_report_msg(char *report_msg, int len)
 {
     uint8_t mac[16] = {0};
     char mac_format[18];
-    int fd;
+    int fd = -1;
     int ret;
 
     memset(report_msg, 0, len);
@@ -180,7 +180,7 @@ int activation_get_report_msg(char *report_msg, int len)
     esp_efuse_mac_get_custom(mac);
 #else
     fd = open("/dev/wifi0", O_RDWR);
-    if ((fd <= 0) || (0 != ioctl(fd, WIFI_DEV_CMD_GET_MAC, mac))) {
+    if ((fd < 0) || (0 != ioctl(fd, WIFI_DEV_CMD_GET_MAC, mac))) {
         ACTIVATION_ERR("%s:%d WIFI_DEV_CMD_GET_MAC cmd failed!!\n", __func__, __LINE__);
         memset(mac, 0xff, sizeof(mac));
     }
@@ -211,7 +211,11 @@ int activation_get_report_msg(char *report_msg, int len)
 
     ACTIVATION_INFO("%s:%d report_msg: %s\n", __func__, __LINE__, report_msg);
 
-    close(fd);
+#if !defined(SYSINFO_MCU_ESP32)
+    if (fd >= 0) {
+        close(fd);
+    }
+#endif
 
     return 0;
 }
