@@ -107,10 +107,6 @@ static void haas_board_init(void)
     a7_heartbeat_reboot_enable(1);
 #endif
 #endif
-
-    if (init == BES_SDK) {
-        krhino_task_sleep(1000);
-    }
 }
 
 static void a7_dsp_init(void)
