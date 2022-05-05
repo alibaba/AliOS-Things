@@ -1,9 +1,9 @@
 """
 Copyright (C) 2015-2021 Alibaba Group Holding Limited
-`HaaS Python ads11x5`
+`HaaS Python ads1x15`
 ====================================================
 
-A driver for ads11x5
+A driver for ads1x15
 
 * Author(s): HaaS Group
 
@@ -12,7 +12,7 @@ Implementation Notes
 
 **Hardware:**
 
-* HaaS Python ads11x5
+* HaaS Python ads1x15
   https://haas.iot.aliyun.com/solution/detail/hardware
 
 **Software and Dependencies:**
