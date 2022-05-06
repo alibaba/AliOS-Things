@@ -157,7 +157,7 @@ vfs_inode_t *vfs_inode_open(const char *path)
         }
 
         if (INODE_IS_TYPE(node, VFS_TYPE_FS_DEV)) {
-            if (strncmp(node->i_name, path, strlen(node->i_name)) == 0) {
+            if ((strncmp(node->i_name, path, strlen(node->i_name)) == 0) && (strncmp("/dev", path, strlen("/dev")) != 0)) {
 #ifdef VFS_CONFIG_ROOTFS
                 fs_match = true;
 #endif
