@@ -67,6 +67,19 @@ ssize_t aos_tty_read(aos_tty_ref_t *ref, void *buf, size_t count, uint32_t timeo
  * @return  > 0: the number of bytes written; < 0: on failure.
  */
 ssize_t aos_tty_write(aos_tty_ref_t *ref, const void *buf, size_t count, uint32_t timeout);
+/**
+ * @brief   Wait until all data written has been transmitted.
+ * @param   ref TTY ref to operate.
+ * @return  0: on success; < 0: on failure.
+ */
+aos_status_t aos_tty_drain(aos_tty_ref_t *ref);
+/**
+ * @brief   Discard data written but not transmitted or data received but not read.
+ * @param   ref     TTY ref to operate.
+ * @param   where   Whether to discard input or output.
+ * @return  0: on success; < 0: on failure.
+ */
+aos_status_t aos_tty_flush(aos_tty_ref_t *ref, int where);
 
 #ifdef __cplusplus
 }
