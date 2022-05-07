@@ -1,8 +1,7 @@
-
-## 第一部分： 基础信息
+## 第一部分：基础信息
 description: libc_stub component
 name: libc_stub
-version: master                                       # <必选项> 建议至少20字以上
+version: master                                     # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
 tag:                                                # <可选项> 组件分类，缺省值： ''
@@ -47,14 +46,14 @@ build_config:
 source_file:
   - "newlib_stub.c"
 #  - "example/*.c"
-    #  - "newlib_stub_uspace.c"
-    #  - "compilers/iar/iar_libc.c"
-    #  - "compilers/iar/iar_libc_uspace.c"
-    #  - "compilers/armlibc/armcc_libc.c"
-    #  - "compilers/armlibc/armcc_libc_uspace.c"
-    #  - "compilers/armlibc/hal_stub.c"
-    #  - "mips_rda_stub.c"
-    #  - "newlib_riscv_stub.c"
+#  - "newlib_stub_uspace.c"
+#  - "compilers/iar/iar_libc.c"
+#  - "compilers/iar/iar_libc_uspace.c"
+#  - "compilers/armlibc/armcc_libc.c"
+#  - "compilers/armlibc/armcc_libc_uspace.c"
+#  - "compilers/armlibc/hal_stub.c"
+#  - "mips_rda_stub.c"
+#  - "newlib_riscv_stub.c"
 
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项
@@ -68,18 +67,10 @@ source_file:
 #     source:                              # 安装源列表
 #      - src/*.h                           # 支持通配符，相对路径
 install:
-    #  - dest: "compilers/iar/"
-    #    source:
-    #  - "compilers/iar/*"
-    # - dest: "compilers/armlibc/sys/"
-    #source:
-    #  - "compilers/armlibc/sys/*"
-    #  - dest: "compilers/armlibc/"
-    # source:
-    #  - "compilers/armlibc/*"
-    #  - dest: "compilers/iar/sys/"
-    #    source:
-    #  - "compilers/iar/sys/*"
+  - dest: "include/sys"
+    source:
+      - "compilers/gcc/sys/ioctl.h"
+      - "compilers/gcc/sys/termios.h"
 
 ## 第七部分：导出部分
 # export:
