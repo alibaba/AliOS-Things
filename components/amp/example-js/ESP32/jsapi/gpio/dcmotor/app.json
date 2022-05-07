@@ -1,0 +1,15 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "dcmotor": {
+        "type":"GPIO",
+        "port":19,
+        "dir":"output",
+        "pull":"pulldown"
+    }
+  },
+
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

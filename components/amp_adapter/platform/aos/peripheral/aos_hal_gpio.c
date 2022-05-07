@@ -33,7 +33,7 @@ int32_t aos_hal_gpio_init(gpio_dev_t *gpio)
 
     aos_gpioc_ref_t *gpioc;
     gpioc = aos_malloc(sizeof(aos_gpioc_ref_t));
-    memset(gpioc, 0, sizeof(aos_gpioc_ref_t));
+    memset(gpioc, 0, sizeof(gpioc));
     int32_t pin_index = gpio->port;
     int32_t gpioc_index = 0;
 

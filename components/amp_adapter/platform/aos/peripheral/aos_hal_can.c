@@ -49,6 +49,7 @@ void can1_receive_callback(void)
     }
 
     can_received = 1;
+
 }
 
 void can2_receive_callback(void)
@@ -62,6 +63,7 @@ void can2_receive_callback(void)
     }
 
     can_received = 1;
+
 }
 
 int32_t aos_hal_can_recv(can_dev_t *can, can_frameheader_t *rx_header, void *data, const uint32_t timeout)
@@ -85,7 +87,6 @@ int32_t aos_hal_can_recv(can_dev_t *can, can_frameheader_t *rx_header, void *dat
             return 0;
         }
     }
-    return 0;
 }
 
 int32_t aos_hal_can_finalize(can_dev_t *can)

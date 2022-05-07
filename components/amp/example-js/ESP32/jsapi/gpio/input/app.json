@@ -1,0 +1,15 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "gpio_input": {
+      "type": "GPIO",
+      "port": 19,
+      "dir": "input",
+      "pull": "pullup"
+    }
+  },
+
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
