@@ -1,0 +1,143 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "gpio_output_1": {
+        "type": "GPIO",
+        "port": 0,
+        "dir": "output"
+      },
+      "gpio_output_2": {
+        "type": "GPIO",
+        "port": 2,
+        "dir": "output"
+      },
+      "gpio_irq": {
+        "type": "GPIO",
+        "port": 19,
+        "dir": "irq",
+        "pull": "pullup",
+        "intMode": "falling"
+      },
+      "gpio_irq_ctl": {
+        "type": "GPIO",
+        "port": 27,
+        "dir": "output"
+      },
+      "ir": {
+        "type": "GPIO",
+        "port": 19,
+        "dir": "input",
+        "pull": "pullup"
+      },
+      "serial2": {
+        "type": "UART",
+        "port": 2,
+        "dataWidth": 8,
+        "baudRate": 9600,
+        "stopBits": 1,
+        "flowControl": "disable",
+        "parity": "none"
+      },
+      "i2c_bmp280": {
+        "type": "I2C",
+        "port": 1,
+        "addrWidth": 7,
+        "freq": 400000,
+        "mode": "master",
+        "devAddr": 118
+      },
+      "sht3x": {
+        "type": "I2C",
+        "port": 1,
+        "addrWidth": 7,
+        "freq": 400000,
+        "mode": "master",
+        "devAddr": 68
+      },
+      "led_g": {
+	"type": "GPIO",
+	"port": 19,
+	"dir": "output",
+	"pull": "pullup"
+      },
+      "led": {
+	"type": "GPIO",
+	"port": 27,
+	"dir": "output",
+	"pull": "pullup"
+      },
+      "led_b": {
+	"type": "GPIO",
+	"port": 27,
+	"dir": "output",
+	"pull": "pullup"
+      },
+      "spi_bmp280": {
+        "type": "SPI",
+        "port": 3,
+        "mode": 3,
+        "freq": 2000000
+      },
+      "FLASH": {
+        "type": "SPI",
+        "port": 3,
+        "mode": 0,
+        "freq": 812500
+      },
+      "mb1": {
+        "type": "MODBUS",
+        "mode": 0,
+        "port": 1,
+        "baudrate": 9600,
+        "priority": 0,
+        "timeout": 200
+      },
+      "pwm25": {
+        "type": "PWM",
+        "port": 25
+      },
+      "adc0": {
+        "type": "ADC",
+        "port": 0,
+        "sampling": 12000000,
+        "atten": 0,
+        "width": 3
+      },
+      "photoresistor": {
+        "type": "ADC",
+        "port": 0,
+        "sampling": 12000000,
+        "atten": 0,
+        "width": 3
+      },
+      "hcho": {
+        "type": "ADC",
+        "port": 0,
+        "sampling": 12000000,
+        "atten": 0,
+        "width": 3
+      },
+      "fire": {
+        "type": "ADC",
+        "port": 0,
+        "sampling": 12000000,
+        "atten": 0,
+        "width": 3
+      },
+      "PWM2":{
+          "type":"PWM",
+          "port": 2
+      },
+      "TIMER0": {
+	"type": "TIMER",
+	"port": 0
+      },
+      "wdt0": {
+        "type": "WDT",
+        "timeout": 3
+      }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

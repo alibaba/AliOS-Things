@@ -1,0 +1,14 @@
+{
+    "version": "1.0.0",
+    "io": {
+        "gpio_output":{
+            "type":"GPIO",
+            "port":19,
+            "dir":"output",
+            "pull":"pulldown"
+        }
+    },
+
+    "debugLevel": "DEBUG",
+    "repl":"disable"
+}

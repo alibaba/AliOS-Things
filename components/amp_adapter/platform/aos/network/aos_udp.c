@@ -109,8 +109,7 @@ int aos_udp_create(char *host, unsigned short port)
     for (ainfo = res; ainfo != NULL; ainfo = ainfo->ai_next) {
         if (AF_INET == ainfo->ai_family) {
             sa = (struct sockaddr_in *)ainfo->ai_addr;
-            if (inet_ntop(AF_INET, &sa->sin_addr, addr, NETWORK_ADDR_LEN) == NULL)
-                return -1;
+            inet_ntop(AF_INET, &sa->sin_addr, addr, NETWORK_ADDR_LEN);
 
             socket_id = socket(ainfo->ai_family, ainfo->ai_socktype, ainfo->ai_protocol);
             if (socket_id < 0) {
@@ -166,11 +165,7 @@ int aos_udp_create_without_connect(const char *host, unsigned short port)
     memset(&local_addr, 0x00, sizeof(local_addr));
     local_addr.sin_family = AF_INET;
     if (NULL != host) {
-        if (inet_aton(host, &local_addr.sin_addr) == 0) {
-            close(socket_id);
-            platform_err("inet_aton failed\r\n");
-            return (intptr_t)-1;
-        }
+        inet_aton(host, &local_addr.sin_addr);
     } else {
         local_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     }
@@ -234,9 +229,8 @@ int aos_udp_recvfrom(int sockfd, aos_networkAddr *p_remote,
     }
     if (from.sa_family == AF_INET) {
         struct sockaddr_in *sin = (struct sockaddr_in *)&from;
-        if (inet_ntop(AF_INET, &sin->sin_addr, (char *)p_remote->addr,
-                         NETWORK_ADDR_LEN) == NULL)
-            return -1;
+        inet_ntop(AF_INET, &sin->sin_addr, (char *)p_remote->addr,
+                  NETWORK_ADDR_LEN);
         p_remote->port = ntohs(sin->sin_port);
     }
     return count;

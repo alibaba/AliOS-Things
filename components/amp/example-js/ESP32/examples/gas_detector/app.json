@@ -1,0 +1,21 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "gas": {
+        "type": "ADC",
+        "port": 0,
+        "sampling": 12000000,
+        "atten": 0,
+        "width": 3
+    },
+    "led": {
+        "type": "GPIO",
+        "port": 27,
+        "dir": "output",
+        "pull": "pulldown"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

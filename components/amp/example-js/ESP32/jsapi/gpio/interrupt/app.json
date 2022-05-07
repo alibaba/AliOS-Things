@@ -1,0 +1,16 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "gpio_irq": {
+      "type": "GPIO",
+      "port": 19,
+      "dir": "irq",
+      "pull": "pullup",
+      "intMode":"falling"
+      }
+    },
+
+    "debugLevel": "DEBUG",
+    "repl":"disable"
+}

@@ -1,0 +1,20 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "ir": {
+      "type": "GPIO",
+      "port": 36,
+      "dir": "input",
+      "pull": "pulldown"
+    },
+    "led": {
+        "type": "GPIO",
+        "port": 27,
+        "dir": "output",
+        "pull": "pulldown"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
