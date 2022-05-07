@@ -180,7 +180,7 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
 #endif
     } else if ((fd == STDOUT_FILENO) || (fd == STDERR_FILENO)) {
         for (i = 0; i < nbytes; i++) {
-            if (*tmp == '\n') {
+            if (*tmp == '\n' && !(i > 0 && *(tmp - 1) == '\r')) {
 #ifdef TELNETD_ENABLED
                 TelnetWrite('\r');
 #endif
@@ -203,8 +203,6 @@ _ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t nbytes)
 
 int ioctl(int fildes, int request, ... /* arg */)
 {
-    long    arg  = 0;
-    void   *argp = NULL;
     va_list args;
     int ret;
 
@@ -212,24 +210,28 @@ int ioctl(int fildes, int request, ... /* arg */)
 
     if ((fildes >= VFS_FD_OFFSET) &&
         (fildes <= (VFS_FD_OFFSET + VFS_MAX_FILE_NUM - 1))) {
-        arg = va_arg(args, int);
+        unsigned long arg = va_arg(args, unsigned long);
         ret = aos_ioctl(fildes, request, arg);
-        va_end(args);
-        return ret;
+        if (ret < 0) {
+            errno = -ret;
+            ret = -1;
+        }
 #ifdef POSIX_DEVICE_IO_NEED
 #ifdef CONFIG_AOS_LWIP
     } else if ((fildes >= FD_AOS_SOCKET_OFFSET) &&
                (fildes <= (FD_AOS_EVENT_OFFSET + FD_AOS_NUM_EVENTS - 1))) {
-        argp = va_arg(args, void *);
+        void *argp = va_arg(args, void *);
         ret = lwip_ioctl(fildes, request, argp);
-        va_end(args);
-        return ret;
 #endif
 #endif
     } else {
-        va_end(args);
-        return -1;
+        errno = EINVAL;
+        ret = -1;
     }
+
+    va_end(args);
+
+    return ret;
 }
 
 int _rename_r(struct _reent *ptr, const char *oldname, const char *newname)

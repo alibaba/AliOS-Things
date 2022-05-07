@@ -2,8 +2,8 @@
  * Copyright (C) 2019-2020 Alibaba Group Holding Limited
  */
 
-#ifndef __INCLUDE_SYS_IOCTL_H
-#define __INCLUDE_SYS_IOCTL_H
+#ifndef SYS_IOCTL_H
+#define SYS_IOCTL_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,4 +15,4 @@ int ioctl(int fd, int req, ...);
 }
 #endif
 
-#endif /* __INCLUDE_SYS_IOCTL_H */
+#endif /* SYS_IOCTL_H */
