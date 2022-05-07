@@ -1,0 +1,16 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "photoresistor": {
+      "type": "ADC",
+      "port": 0,
+      "sampling": 12000000,
+      "atten": 0,
+      "width": 3
+    }
+  },
+
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

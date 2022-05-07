@@ -1,0 +1,15 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+      "FLASH": {
+        "type": "SPI",
+        "port": 3,
+        "mode": 0,
+        "freq": 812500
+      }
+  },
+
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
