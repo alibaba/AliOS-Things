@@ -41,6 +41,8 @@
 #include "und/und.h"
 #endif
 
+#include "k_api.h"
+
 #ifdef IPERF_ENABLED
 extern int iperf_cli_register(void);
 #endif
