@@ -3,17 +3,14 @@
  *
  * @file:    ota_port.h
  * @brief:   vendor ota interface
- * @author:  
+ * @author:
  * @date:    2019/12/16
  * @version: 1.0
  */
 #ifndef _TG_VENDOR_OTA_H_
 #define _TG_VENDOR_OTA_H_
 
-#include "aos/hal/flash.h"
-#include "aos/mtd.h"
-#include <vfsdev/flash_dev.h>
-
+#include <aos/hal/flash.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,9 +26,8 @@ extern "C" {
 #define OTA_OK                      0
 #define OTA_FAILE                   1
 
-typedef struct
-{
-	char *bin_name;
+typedef struct {
+    char *bin_name;
     hal_partition_t partition;
 } ota_bin_partition;
 
@@ -47,7 +43,7 @@ typedef enum {
     ALI_C5A01,
     ALI_C1H,
     ALI_ODM_MAX
-}ODM_TYPE;
+} ODM_TYPE;
 
 enum ota_link {
     OTA_LINK_ERR = -1,
@@ -65,12 +61,12 @@ struct ota_boot_info {
     uint16_t  linkB_used_flag;
     uint16_t  update_link;
     uint8_t   crash_reboot_count;
-	uint8_t   secureERR_reboot_count;
+    uint8_t   secureERR_reboot_count;
     uint16_t  reboot_count_max;
     uint16_t  reboot_reason;
     uint16_t  fallback_disable;
 
-    uint16_t  reserved1; //Tool request struct four byte align
+    uint16_t  reserved1; // Tool request struct four byte align
     uint32_t  boot2a_addr;
     uint32_t  boot2b_addr;
     uint32_t  rtosa_addr;
@@ -103,7 +99,7 @@ int ota_clear_reboot_count(void);
  *
  * @returns "a" if current slot is A, or "b" if current slot is B.
  */
-const char* tg_ota_get_current_ab(void);
+const char *tg_ota_get_current_ab(void);
 
 /**
  * @brief To mark that the non-active slot is upgraded successfully.

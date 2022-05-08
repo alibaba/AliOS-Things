@@ -1,21 +1,17 @@
 #include <string.h>
+#include <aos/flashpart.h>
 #include "ota_port.h"
 #include "hal_trace.h"
 #include "hal_norflash.h"
 #include "cmsis_os.h"
 #include "cmsis.h"
 #include "pmu.h"
-#include "aos/hal/flash.h"
-#include "aos/mtd.h"
-#include <vfsdev/flash_dev.h>
-#include "aos/mtdpart.h"
 
-extern const hal_logic_partition_t hal_partitions[];
 extern osMutexId FlashMutex;
 extern osMutexDef_t os_mutex_def_flash;
 extern enum ota_link ota_current_link;
 
-#define EXCEPTION_REBOOT_COUNT_MAX		5
+#define EXCEPTION_REBOOT_COUNT_MAX      5
 
 ota_bin_partition ota_bin[] =
 {
@@ -39,30 +35,42 @@ int ota_get_bootinfo(struct ota_boot_info *info, enum bootinfo_zone zone)
 {
     uint32_t lock = 0;
     uint32_t start_addr = 0;
-    mtd_partition_t* partition_info;
     volatile char *flashPointer = NULL;
+    aos_flashpart_ref_t part_ref;
+    aos_flashpart_info_t part_info;
+    aos_flash_info_t flash_info;
 
     if (zone >= OTA_BOOTINFO_ZONEMAX) {
         TRACE("error %s %d, zone:%d", __func__, __LINE__, zone);
         return OTA_FAILE;
     }
-    partition_info = (mtd_partition_t *)&mtd_partitions[MTD_PART_ID_ENV2];
-    if(partition_info == NULL) {
+
+    if (aos_flashpart_get(&part_ref, HAL_PARTITION_PARAMETER_3))
+        return OTA_FAILE;
+
+    if (aos_flashpart_get_info(&part_ref, &part_info, &flash_info)) {
+        aos_flashpart_put(&part_ref);
         return OTA_FAILE;
     }
+
+    aos_flashpart_put(&part_ref);
+
     if (zone == OTA_BOOTINFO_ZONEA) {
-        start_addr = partition_info->partition_start_addr;
+        start_addr = part_info.block_start * flash_info.pages_per_block * flash_info.page_data_size;
     } else if (zone == OTA_BOOTINFO_ZONEB) {
-        start_addr = partition_info->partition_start_addr + OTA_BOOT_INFO_SIZE;
+        start_addr = part_info.block_start * flash_info.pages_per_block * flash_info.page_data_size;
+        start_addr += OTA_BOOT_INFO_SIZE;
     }
 
     lock = int_lock();
     flashPointer = (volatile char *)(FLASH_NC_BASE + start_addr);
-    memcpy((uint8_t*)info, (void *)flashPointer, sizeof(struct ota_boot_info));
+    memcpy((uint8_t *)info, (void *)flashPointer, sizeof(struct ota_boot_info));
     int_unlock(lock);
 
     return 0;
 }
+
+extern unsigned long crc32(unsigned long crc, const unsigned char *buf, unsigned int len);
 
 int ota_set_bootinfo_crc32value(struct ota_boot_info *info)
 {
@@ -82,7 +90,9 @@ int ota_set_bootinfo(struct ota_boot_info *info, enum bootinfo_zone zone)
     uint32_t lock = 0;
     uint32_t start_addr = 0;
     uint8_t buffer[FLASH_SECTOR_SIZE_IN_BYTES] = {0};
-    mtd_partition_t* partition_info = NULL;
+    aos_flashpart_ref_t part_ref;
+    aos_flashpart_info_t part_info;
+    aos_flash_info_t flash_info;
 
     if (zone >= OTA_BOOTINFO_ZONEMAX) {
         TRACE("error %s %d, zone:%d", __func__, __LINE__, zone);
@@ -93,14 +103,22 @@ int ota_set_bootinfo(struct ota_boot_info *info, enum bootinfo_zone zone)
     if (ret) {
         return OTA_FAILE;
     }
-    partition_info = (mtd_partition_t *)&mtd_partitions[MTD_PART_ID_ENV2];
-    if(partition_info == NULL) {
+
+    if (aos_flashpart_get(&part_ref, HAL_PARTITION_PARAMETER_3))
+        return OTA_FAILE;
+
+    if (aos_flashpart_get_info(&part_ref, &part_info, &flash_info)) {
+        aos_flashpart_put(&part_ref);
         return OTA_FAILE;
     }
+
+    aos_flashpart_put(&part_ref);
+
     if (zone == OTA_BOOTINFO_ZONEA) {
-        start_addr = partition_info->partition_start_addr;
+        start_addr = part_info.block_start * flash_info.pages_per_block * flash_info.page_data_size;
     } else if (zone == OTA_BOOTINFO_ZONEB) {
-        start_addr = partition_info->partition_start_addr + OTA_BOOT_INFO_SIZE;
+        start_addr = part_info.block_start * flash_info.pages_per_block * flash_info.page_data_size;
+        start_addr += OTA_BOOT_INFO_SIZE;
     }
 
     lock = int_lock();
@@ -148,23 +166,29 @@ int ota_check_bootinfo(enum bootinfo_zone zone)
     uint32_t crc32_value = 0;
     uint32_t flash_offset = 0;
     uint8_t *flash_pointer = NULL;
-    mtd_partition_t *partition_info = NULL;
     const struct ota_boot_info *info;
+    aos_flashpart_ref_t part_ref;
+    aos_flashpart_info_t part_info;
+    aos_flash_info_t flash_info;
 
     if (zone >= OTA_BOOTINFO_ZONEMAX) {
         TRACE("%s %d, error zone:%d", __func__, __LINE__, zone);
         return OTA_FAILE;
     }
-    partition_info = (mtd_partition_t *)&mtd_partitions[MTD_PART_ID_ENV2];
-    if(partition_info == NULL) {
-        return OTA_FAILE;
-    }
 
-    //get boot info to choose linkA or linkB.
+    if (aos_flashpart_get(&part_ref, HAL_PARTITION_PARAMETER_3))
+        return OTA_FAILE;
+
+    if (aos_flashpart_get_info(&part_ref, &part_info, &flash_info))
+        return OTA_FAILE;
+
+    aos_flashpart_put(&part_ref);
+
     if (zone == OTA_BOOTINFO_ZONEA) {
-        flash_offset = partition_info->partition_start_addr;
+        flash_offset = part_info.block_start * flash_info.pages_per_block * flash_info.page_data_size;
     } else if (zone == OTA_BOOTINFO_ZONEB) {
-        flash_offset = partition_info->partition_start_addr + OTA_BOOT_INFO_SIZE; //boot info zoneB start address
+        flash_offset = part_info.block_start * flash_info.pages_per_block * flash_info.page_data_size;
+        flash_offset += OTA_BOOT_INFO_SIZE;
     }
 
     info = (const struct ota_boot_info *)(FLASH_NC_BASE + flash_offset);
