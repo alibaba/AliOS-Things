@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: haas1000                                      # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: master                                    # <必选项> 组件版本号
+version: master                                     # <必选项> 组件版本号
 description: driver & sdk for platform/mcu haas1000          # <必选项> 建议至少20字以上
 type: chip                                          # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
@@ -124,13 +124,14 @@ source_file:
   - "hal/sd.c"
   - "hal/flash.c"
   - "hal/gpio.c"
-  - "csi/uart.c"
   - "csi/gpio.c"
   - "csi/iic.c"
   - "csi/wdt.c"
   - "csi/flash.c"
   #- "csi/pwm.c"
-  - "aos_driver/pwm/pwm.c"
+  - "aos_adapter/uart.c"
+  - "aos_adapter/flash.c"
+  - "aos_adapter/pwm.c"
   # - "hal/2ndboot/wdg.c"
   # - "hal/2ndboot/sys.c"
   # - "hal/2ndboot/uart.c"
