@@ -38,8 +38,6 @@
 #define I2C_TIMEOUT_MS  (0xFFFFFF)
 #define I2C_CHANNEL_MAX (4)
 
-static bool g_is_dev_inited[I2C_CHANNEL_MAX] = { 0 };
-
 extern const mp_obj_type_t driver_i2c_type;
 
 // this is the actual C-structure for our new object
@@ -109,18 +107,11 @@ STATIC mp_obj_t i2c_open(size_t n_args, const mp_obj_t *args)
         goto fail;
     }
 
-    if (g_is_dev_inited[i2c_device->port] == false) {
-        ret = aos_hal_i2c_init(i2c_device);
-    } else {
-        ret = 0;
-    }
+    ret = aos_hal_i2c_init(i2c_device);
 
 fail:
-    if (ret != 0) {
+    if (ret != 0)
         py_board_disattach_item(MODULE_I2C, &(driver_obj->i2c_handle));
-    } else {
-        g_is_dev_inited[i2c_device->port] = true;
-    }
 
     return MP_OBJ_NEW_SMALL_INT(ret);
 }
@@ -133,15 +124,9 @@ STATIC mp_obj_t i2c_close(size_t n_args, const mp_obj_t *args)
     I2C_CHECK_PARAMS(1);
     I2C_NODE_GET();
 
-    if (g_is_dev_inited[i2c_device->port] == true) {
-        ret = aos_hal_i2c_finalize(i2c_device);
-        if (ret == 0) {
-            g_is_dev_inited[i2c_device->port] = false;
-            py_board_disattach_item(MODULE_I2C, &(driver_obj->i2c_handle));
-        }
-    } else {
-        ret = 0;
-    }
+    ret = aos_hal_i2c_finalize(i2c_device);
+    if (ret == 0)
+        py_board_disattach_item(MODULE_I2C, &(driver_obj->i2c_handle));
 
     if (ret < 0) {
         LOGE(LOG_TAG, "%s: i2c_close failed\n", __func__);
