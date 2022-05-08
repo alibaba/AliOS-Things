@@ -1,11 +1,11 @@
 
 ## 第一部分： 基础信息
 name: rtl872xd                                      # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: master                                    # <必选项> 组件版本号
-description: BSP of chip rtl872xd                           # <必选项> 建议至少20字以上
+version: master                                     # <必选项> 组件版本号
+description: BSP of chip rtl872xd                   # <必选项> 建议至少20字以上
 type: chip                                          # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
-tag: 核心模块                                         # <可选项> 组件分类，缺省值： ''
+tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
 keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
   - base
 license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
@@ -164,10 +164,12 @@ source_file:
 #  - aos/ota_port.c
   - CheckSumUtils.c
 
+  - aos_adapter/uart.c
+  - aos_adapter/flash.c
+  - aos_adapter/pwm.c
   - csi_driver/adc/adc.c
   - csi_driver/gpio/gpio.c
   - csi_driver/iic/iic.c
-  - aos_driver/pwm/pwm.c
   - csi_driver/spi/spi.c
   - csi_driver/spiflash/spiflash.c
   - csi_driver/timer/timer.c
