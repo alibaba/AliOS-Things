@@ -1508,7 +1508,8 @@ static int32_t _core_mqtt_subunsub(core_mqtt_handle_t *mqtt_handle, char *topic,
     pkt[idx++] = (uint8_t)((packet_id) & 0x00FF);
 
     if (_core_mqtt_5_feature_is_enabled(mqtt_handle)) {
-        _core_write_general_prop(pkt, &idx, general_property, property_len_array, property_len_offset);
+		if (general_property != NULL)
+        	_core_write_general_prop(pkt, &idx, general_property, property_len_array, property_len_offset);
     }
 
     /* Topic */
