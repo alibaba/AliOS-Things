@@ -14,7 +14,7 @@ PR提交后，我们会对你提交的内容进行扫描，并通过LABEL和COMM
 ## Issue
 You are welcome to give feedback on AliOS Things in [issue](https://github.com/alibaba/AliOS-Things/issues/new/choose), such as finding bugs, proposing your needs, sharing usage skills, and troubleshooting experiences. Issue provides two templates to fill in discovered defects and your needs.
 
-- ** Bug Report**-describe the problems you encounter. You need to fill in the branch, solution, log, etc. You can also enter "manual support" in the issue comments, and our engineers will contact you with the problems as soon as possible on working days.
+- **Bug Report**-describe the problems you encounter. You need to fill in the branch, solution, log, etc. You can also enter "manual support" in the issue comments, and our engineers will contact you with the problems as soon as possible on working days.
 - **Feature Request**-describe your requirements and fill in detailed requirements. Please leave your contact information and we will connect with you.
 
 ## Create a Pull Request
