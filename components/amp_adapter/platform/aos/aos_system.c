@@ -49,7 +49,7 @@ void aos_printf(const char *fmt, ...)
     fflush(stdout);
 }
 
-int aos_putchar(const char c)
+void aos_putchar(const char c)
 {
     aos_printf("%c", c);
 }
