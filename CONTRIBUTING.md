@@ -1,10 +1,10 @@
 ## 贡献
 
-嗨!感谢您有兴趣为AliOS Things做出贡献!
+您好!感谢您有兴趣为AliOS Things做出贡献!
 
 ## 创建一个 Issue
 
-欢迎大家在[issue](https://github.com/alibaba/AliOS-Things/issues/new/choose)里对AliOS Things 做反馈，如发现存在的BUG，提出你想要的需求，分享使用技巧，排查问题的经历等。Issue提供了两个模板，分别用于填写发现的缺陷以及你的需求。
+欢迎大家在[issue](https://github.com/alibaba/AliOS-Things/issues/new/choose)里对AliOS Things做反馈，如发现存在的BUG，提出你想要的需求，分享使用技巧，排查问题的经历等。Issue提供了两个模板，分别用于填写发现的缺陷以及你的需求。
 
 - **Bug Report** - 描述你遇到的问题，需要填写分支、solution、日志等内容。你也可以通过在issue评论中输入“人工支持”，我们的工程师会再工作日尽快和你对接遇到的问题。
 - **Feature Request** - 描述你的需求，需要填写详细的需求内容，同时请留下你的联系方式，我们会与你对接。
