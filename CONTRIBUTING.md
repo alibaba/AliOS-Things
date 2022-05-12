@@ -26,7 +26,7 @@ PR提交后，我们会对你提交的内容进行扫描，并通过LABEL和COMM
 
 ## Contributing
 
-Hi! Thanks for your interest in contributing to the GitHub CLI!
+Hi! Thanks for your interest in contributing to the AliOS Things!
 
 ## Issue
 
