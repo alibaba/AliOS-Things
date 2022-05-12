@@ -2,7 +2,7 @@
 
 set -e
 
-driver_libs=("cht8305" "si7006" "sh1106" "haaseduk1" "mpu6050" "qmi8610" "ap3216c" "qmc5883" "qmc6310" "qmp6988" "spl06")
+driver_libs=("cht8305" "si7006" "sh1106" "haaseduk1" "mpu6050" "qmi8610" "ap3216c" "qmc5883" "qmc6310" "qmp6988" "spl06" "display_driver")
 
 echo "Start to copy HaaS driver libs to prebuild folder ......"
 

@@ -60,8 +60,8 @@
 #define USE_STATFS                             MICROPY_VFS_POSIX
 
 #define MICROPY_ENABLE_GC                      (1)
-#define MICROPY_GC_HEAP_SIZE                   (1024 * 512)
-#define MICROPY_MALLOC_USES_ALLOCATED_SIZE     (1)
+#define MICROPY_GC_HEAP_SIZE                   (1024 * 768)
+#define MICROPY_MALLOC_USES_ALLOCATED_SIZE     (0)
 #define MICROPY_MEM_STATS                      (0)
 
 // control over Python builtins
@@ -219,7 +219,22 @@
 #define MICROPY_ENABLE_EXTERNAL_IMPORT   (1)
 #define MICROPY_ENABLE_DYNAMIC_TRIADIC   (0)
 
-#define MICROPY_PORT_ROOT_POINTERS       const char *readline_hist[8];
+#if MICROPY_PY_LVGL
+#ifndef MICROPY_INCLUDED_PY_MPSTATE_H
+#define MICROPY_INCLUDED_PY_MPSTATE_H
+#include "misc/lv_gc.h"
+#undef MICROPY_INCLUDED_PY_MPSTATE_H
+#else
+#include "misc/lv_gc.h"
+#endif
+#else
+#define LV_ROOTS
+#endif
+
+#define MICROPY_PORT_ROOT_POINTERS \
+    LV_ROOTS \
+    void *mp_lv_user_data; \
+    const char *readline_hist[8];
 
 // type definitions for the specific machine
 

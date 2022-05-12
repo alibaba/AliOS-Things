@@ -264,9 +264,7 @@ class MusicPlayer:
             axp = Axp192()
             axp.setSpkEnable(1)
 
-            lv.init()
-            from display import LVGL as disp
-            disp.init()
+            import display_driver
             lvglInitialized = True
 
         print("Enter Music")

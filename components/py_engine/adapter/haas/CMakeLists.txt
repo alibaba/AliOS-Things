@@ -45,6 +45,11 @@ include(${MICROPY_DIR}/py/py.cmake)
 if(NOT CMAKE_BUILD_EARLY_EXPANSION)
     include(${MICROPY_DIR}/py/usermod.cmake)
     include(${MICROPY_DIR}/extmod/extmod.cmake)
+if(MICROPY_PY_LVGL)
+    set(LVGL_DIR ${MICROPY_DIR}/lib/lv_bindings/lvgl)
+    set(LV_CONFIG_DIR ${MICROPY_DIR}/../modules/display/haas)
+    include(${MICROPY_DIR}/lib/lv_bindings/bindings.cmake)
+endif()
 endif()
 
 set(MICROPY_QSTRDEFS_PORT
