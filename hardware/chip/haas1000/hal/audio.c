@@ -222,6 +222,7 @@ static pcm_stream_handler_t codec_pcm_stream_open(int mode, int sampleRate, int 
              (unsigned int)playback_stream_hdl, PCM_STREAM_OUT, sampleRate, channels, format);
         return playback_stream_hdl;
     }
+    return NULL;
 }
 
 static int codec_pcm_stream_start(pcm_stream_handler_t hdl)
