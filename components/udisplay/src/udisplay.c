@@ -105,7 +105,7 @@ static void display_draw_rect(uint32_t x1, uint32_t y1,
                 /* inside the byte found, find the bit we need to change */
                 bit_location = location % 8;
                 fbp8[byte_location] &= ~(((uint8_t)(1)) << bit_location);
-                fbp8[byte_location] |= ((uint8_t)pbuf) << bit_location;
+                fbp8[byte_location] |= ((uint8_t)(*pbuf)) << bit_location;
                 pbuf++;
             }
 
