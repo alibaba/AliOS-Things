@@ -174,7 +174,7 @@ struct audio_kcontrol {
 	audio_kcontrol_put_t *put;
 	union {
 		audio_kcontrol_tlv_rw_t *c;
-		const unsigned int *p;
+        unsigned int *p;
 	} tlv;
 	unsigned long private_value;
 	void *private_data;

@@ -50,6 +50,7 @@ typedef enum {
 #define AMP_INTERNAL_DEVICESECRET    "_amp_internal_devicesecret"
 
 /* customer device infomation */
+#define AMP_CUSTOMER_REGION          "_amp_customer_region"
 #define AMP_CUSTOMER_PRODUCTKEY      "_amp_customer_productkey"
 #define AMP_CUSTOMER_PRODUCTSECRET   "_amp_customer_productsecret"
 #define AMP_CUSTOMER_DEVICENAME      "_amp_customer_devicename"
@@ -58,6 +59,7 @@ typedef enum {
 #define osWaitForever                0xFFFFFFFF /* wait forever timeout value */
 #define PLATFORM_WAIT_INFINITE       (~0)
 
+#define IOTX_REGION_LEN              (32)
 #define IOTX_PRODUCT_KEY_LEN         (20)
 #define IOTX_DEVICE_NAME_LEN         (32)
 #define IOTX_DEVICE_SECRET_LEN       (64)

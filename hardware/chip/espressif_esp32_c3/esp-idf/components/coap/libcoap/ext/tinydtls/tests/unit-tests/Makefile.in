@@ -1,0 +1,74 @@
+# Makefile for tinydtls unit tests
+#
+# Copyright (c) 2020 Olaf Bergmann (TZI) and others.
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# and Eclipse Distribution License v. 1.0 which accompanies this distribution.
+#
+# The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
+# and the Eclipse Distribution License is available at 
+# http://www.eclipse.org/org/documents/edl-v10.php.
+#
+
+ifeq (@have_cunit@, yes)
+
+# the library's version
+VERSION:=@PACKAGE_VERSION@
+
+# tools
+@SET_MAKE@
+SHELL = /bin/sh
+MKDIR = mkdir
+CC=@CC@
+
+abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
+top_srcdir:= @top_srcdir@
+
+# files and flags
+UNITS= test_ccm.c test_ecc.c
+SOURCES:= $(UNITS)
+PROGRAM:=testdriver
+OBJECTS:= $(patsubst %.c, %.o, $(SOURCES))
+HEADERS:= $(patsubst %.c, %.h, $(UNITS))
+CFLAGS:=-Wall @CUNIT_CFLAGS@ @CFLAGS@
+CPPFLAGS:=-I$(top_srcdir) @CPPFLAGS@
+LDFLAGS:=-L$(top_builddir) @LDFLAGS@
+LDLIBS:=$(top_srcdir)/libtinydtls.a @CUNIT_LIBS@ @LIBS@
+DISTDIR=$(top_builddir)/@PACKAGE_TARNAME@-@PACKAGE_VERSION@
+FILES:=Makefile.in $(SOURCES)
+
+.PHONY: all dirs clean distclean check
+
+.SUFFIXES:
+.SUFFIXES:      .c .o
+
+all: $(PROGRAM)
+
+$(PROGRAM)::	$(OBJECTS)
+
+check:	
+	./testdriver
+
+clean:
+	@rm -f $(PROGRAM) $(PROGRAM).o $(OBJECTS)
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir clean ; \
+	done
+
+doc:	
+	$(MAKE) -C doc
+
+distclean:	clean
+	@rm -rf $(DISTDIR)
+	@rm -f *~ $(DISTDIR).tar.gz
+
+dist:	$(FILES)
+	test -d $(DISTDIR)/tests/unit-tests || mkdir $(DISTDIR)/tests/unit-tests
+	cp $(FILES) $(DISTDIR)/tests/unit-tests
+
+# this directory contains no installation candidates
+install:
+	:
+
+endif # HAVE_CUNIT

@@ -31,7 +31,7 @@ int aos_device_name_hint(int card, void *hints)
                     hints = (void *)node;
                     node->card = i;
                     node->device = j;
-                    strncpy(node->name, fn, sizeof(node->name));
+                    strncpy(node->name, fn, sizeof(node->name) - 1);
                     close(fd);
                     LOGD(LOG_TAG, "%s:%d, found sound card %d device %d %s", __func__, __LINE__, i, j, node->name);
                     return PCM_RETURN_SUCCESS;
@@ -51,7 +51,7 @@ int aos_device_name_hint(int card, void *hints)
                 hints = (void *)node;
                 node->card = card;
                 node->device = j;
-                strncpy(node->name, fn, sizeof(node->name));
+                strncpy(node->name, fn, sizeof(node->name) - 1);
                 close(fd);
                 LOGD(LOG_TAG, "%s:%d, found sound card %d device %d %s", __func__, __LINE__, card, j, node->name);
                 return PCM_RETURN_SUCCESS;

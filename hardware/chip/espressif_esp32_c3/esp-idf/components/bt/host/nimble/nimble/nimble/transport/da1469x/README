@@ -1,0 +1,13 @@
+Integrated BLE Controller (CMAC) requires a binary firmware to be loaded. Such
+firmware is distributed by Dialog Semiconductor in SDK package which has to be
+obtained separately, see:
+https://www.dialog-semiconductor.com/products/da1469x-product-family
+
+Firmware is available as part of following library in SDK package:
+sdk/interfaces/ble/binaries/DA1469x-Release/libble_stack_da1469x.a
+
+By default, CMAC driver will look for this file in its package root directory
+(i.e. nimble/transport/da1469x/cmac_driver) but this can be changed using
+CMAC_IMAGE_FILE_NAME syscfg variable.
+
+Current version of CMAC driver was tested with SDK version 10.0.4.66.

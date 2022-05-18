@@ -1,0 +1,15 @@
+{
+  "name": "ESP-C3-32S-Kit",
+  "version": "1.0.0",
+  "io": {
+    "hcho": {
+      "type": "ADC",
+      "port": 0,
+      "atten": 2,
+      "width": 3,
+      "sampling": 12000000
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

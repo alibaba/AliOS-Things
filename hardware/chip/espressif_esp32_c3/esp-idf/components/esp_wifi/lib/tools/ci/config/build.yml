@@ -1,0 +1,33 @@
+build_ssc_esp32:
+  stage: build
+  image: $CI_DOCKER_REGISTRY/esp32-ci-env
+  tags:
+     - wlan_feature
+
+  artifacts:
+    paths:
+     - ${board}-${CI_PIPELINE_ID}.debug.tar.gz
+    expire_in: 1 week
+  
+  only:
+    refs:
+     - triggers     
+   
+  script:
+    - rm -rf /tmp/esp_wifi_lib
+    - mkdir /tmp/esp_wifi_lib
+    - cp -rf * /tmp/esp_wifi_lib
+    - if git ls-remote ${GITLAB_SSH_SERVER}/idf/esp-idf.git | grep -sw ${CI_BUILD_REF_NAME} 2>&1>/dev/null; then IDF_BRANCH=${CI_BUILD_REF_NAME} ; fi
+    - if [[ "${BOT_CUSTOMIZED_REVISION}" ]] && [[ "$BOT_CUSTOMIZED_REVISION" == *"esp-idf"* ]]; then IDF_BRANCH=$(python -c 'import os;print eval(os.environ["BOT_CUSTOMIZED_REVISION"])["esp-idf"]') ; fi
+    - echo Cloning esp-idf - ${IDF_BRANCH} ...
+    - git clone --recursive --single-branch -b $IDF_BRANCH --dissociate ${GITLAB_SSH_SERVER}/idf/esp-idf.git     
+    - cd esp-idf
+    - wlan_lib_path=`grep -B 1 esp32-wifi-lib .gitmodules | grep path | cut -d' ' -f3`
+    - cd $CI_PROJECT_DIR
+    - rm -rf esp-idf/$wlan_lib_path/*
+    - cp -rf /tmp/esp_wifi_lib/* esp-idf/$wlan_lib_path/.
+    - if [[ "${BOT_CUSTOMIZED_REVISION}" ]] && [[ "$BOT_CUSTOMIZED_REVISION" == *"ssc"* ]]; then SSC_BRANCH=$(python -c 'import os;print eval(os.environ["BOT_CUSTOMIZED_REVISION"])["ssc"]') ; fi
+    - echo Cloning SSC - ${SSC_BRANCH} ...
+    - git clone --recursive --single-branch -b $SSC_BRANCH --dissociate ${GITLAB_SSH_SERVER}/yinling/SSC.git
+    - chmod +x tools/ci/build_app.sh
+    - ./tools/ci/build_app.sh

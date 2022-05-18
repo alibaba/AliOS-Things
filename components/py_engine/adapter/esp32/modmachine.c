@@ -90,6 +90,8 @@ STATIC mp_obj_t machine_freq(size_t n_args, const mp_obj_t *args) {
         esp_pm_config_esp32c3_t pm;
         #elif CONFIG_IDF_TARGET_ESP32S2
         esp_pm_config_esp32s2_t pm;
+        #elif CONFIG_IDF_TARGET_ESP32S3
+        esp_pm_config_esp32s3_t pm;
         #endif
         pm.max_freq_mhz = freq;
         pm.min_freq_mhz = freq;
@@ -294,6 +296,7 @@ STATIC const mp_rom_map_elem_t machine_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_TouchPad), MP_ROM_PTR(&machine_touchpad_type) },
     #endif
     { MP_ROM_QSTR(MP_QSTR_ADC), MP_ROM_PTR(&machine_adc_type) },
+    { MP_ROM_QSTR(MP_QSTR_ADCBlock), MP_ROM_PTR(&machine_adcblock_type) },
     #if MICROPY_PY_MACHINE_DAC
     { MP_ROM_QSTR(MP_QSTR_DAC), MP_ROM_PTR(&machine_dac_type) },
     #endif

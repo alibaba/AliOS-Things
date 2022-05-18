@@ -31,7 +31,7 @@ extern aiot_sysdep_portfile_t g_aiot_sysdep_portfile;
 extern const char *ali_ca_cert;
 static char *g_data = NULL;
 static int32_t g_data_len = 0;
-static char *g_file_name = NULL;
+static char *g_file_path = NULL;
 
 static char *get_basename(char *path)
 {
@@ -123,7 +123,7 @@ static int32_t aiot_read_data_handler(const aiot_mqtt_upload_recv_t *packet, uin
                     read_len = read_size;
                 memcpy(data, g_data + offset, read_len);
             } else {
-                fp = fopen(g_file_name, "r");
+                fp = fopen(g_file_path, "r");
                 uint32_t offset = packet->desc.file_offset;
                 fseek(fp, offset, SEEK_SET);
                 read_len = fread(data, sizeof(uint8_t), read_size, fp);
@@ -141,7 +141,7 @@ static int32_t aiot_read_data_handler(const aiot_mqtt_upload_recv_t *packet, uin
 char *pyamp_aiot_upload_mqtt(void *mqtt_handle, char *file_name, char *data, int32_t data_len, mp_obj_t cb)
 {
     uint32_t file_len = 0;
-    char *base_file_name = NULL;
+    // char *base_file_name = NULL;
     // MQTT Upload File Init.
     void *up_handle = aiot_mqtt_upload_init();
     aiot_mqtt_upload_setopt(up_handle, AIOT_MQTT_UPLOADOPT_MQTT_HANDLE, mqtt_handle);
@@ -158,26 +158,26 @@ char *pyamp_aiot_upload_mqtt(void *mqtt_handle, char *file_name, char *data, int
     aiot_mqtt_setopt(mqtt_handle, AIOT_MQTTOPT_RECV_TIMEOUT_MS, (void *)&timeout_ms);
 
     if (file_name != NULL) {
-        if (data != NULL) {
+        if (data_len != 0) {
             g_data = data;
             g_data_len = data_len;
             file_len = data_len;
         } else {
             g_data = NULL;
             g_data_len = 0;
-            g_file_name = file_name;
-            file_len = get_file_size(file_name);
+            g_file_path = data;
+            file_len = get_file_size(g_file_path);
             if (file_len < 0)
                 goto exit;
         }
-        base_file_name = get_basename(file_name);
+        // base_file_name = get_basename(g_file_path);
 
     #ifdef UPlOAD_WITH_CRC
         /* 配置上传文件的信息和回调，调用主动发送接口时，不需要配置回调，如果配置了回调参数SDK默认优先使用回调*/
         uint32_t test_userdata = 100;
         uint64_t crc = get_file_crc64(file_name);
         aiot_mqtt_upload_file_opt_t file_option = {
-            .file_name = base_file_name,
+            .file_name = file_name,
             .file_size = file_len,
             .mode = AIOT_MQTT_UPLOAD_FILE_MODE_OVERWRITE,
             .digest = &crc,
@@ -188,7 +188,7 @@ char *pyamp_aiot_upload_mqtt(void *mqtt_handle, char *file_name, char *data, int
     #else
         /* 无crc64校验，无userdata传参 */
         aiot_mqtt_upload_file_opt_t file_option = {
-            .file_name = base_file_name,
+            .file_name = file_name,
             .file_size = file_len,
             .mode = AIOT_MQTT_UPLOAD_FILE_MODE_OVERWRITE,
             .digest = NULL,
@@ -199,7 +199,7 @@ char *pyamp_aiot_upload_mqtt(void *mqtt_handle, char *file_name, char *data, int
     #endif
         aiot_mqtt_upload_setopt(up_handle, AIOT_MQTT_UPLOADOPT_FILE_OPTION, &file_option);
         /* 请求打开上传通道 */
-        aiot_mqtt_upload_open_stream(up_handle, base_file_name, NULL);
+        aiot_mqtt_upload_open_stream(up_handle, file_name, NULL);
     } else {
         amp_error(MOD_STR, "filename should not be null,please check it\n");
         goto exit;

@@ -3,7 +3,7 @@
 车型识别是识别汽车图片（完整或部件图片）的类型，目前有小轿车、多用途汽车、SUV等类别。
 
 &emsp;&emsp;
-本案例导学步骤
+本案例导学步骤如下图所示。
 <div align="center">
 <img src=./../../../images/vehicle_type_recognization/车型识别_步骤.png width=80%/>
 </div>
@@ -43,10 +43,8 @@
 <br>
 
 ## 云端平台功能开通
-在本案例中涉及到云端平台功能都聚合在HaaS云端积木中，所以无需单独使用 **对象存储OSS** 和 **视觉智能开发平台**。
-
 &emsp;&emsp;
-因此，整个步骤分为：
+在本案例中涉及到云端平台功能都聚合在HaaS云端积木中，所以无需单独使用 **对象存储OSS** 和 **视觉智能开发平台**。案例整个步骤分为：
 1. 注册阿里云账号并登录阿里云账号；
 2. 在HaaS官网中的云端积木控制台创建设备；
 3. 推送脚本到M5Stack Core2并运行车型识别；
@@ -113,7 +111,7 @@
 
 ### 开发环境
 &emsp;&emsp;
-在进行下一步之前请确保M5Stack Core2开发环境已经搭建完毕。详情请参考[M5Stack Core2开发环境](../../../startup/M5StackCore2_startup.md)的说明。
+在进行下一步之前请确保M5StackCore2开发环境已经搭建完毕。详情请参考[M5StackCore2快速开始](../../../startup/M5StackCore2_startup.md)的说明。
 <br>
 
 ### 创建解决方案
@@ -162,11 +160,9 @@ deviceSecret  = "Your-deviceSecret"
 
 ## 运行
 ### 烧录代码
-&emsp;&emsp;
-烧录代码请参考[M5Stack Core2开发环境](../../../startup/M5StackCore2_startup.md)文档的介绍。
 
 &emsp;&emsp;
-烧录完后在网络连接成功时，屏幕上将打印出IP地址和"NTP Done"，如果迟迟不能显示“NTP Done”，请长按电源键关机同时拔掉USB线重新上电运行。之后串口会周期性的打印如下日志，并且识别到车型后在屏幕上显示红色XXXX Detected的字样。具体log如下：
+烧录代码到设备上之后，在网络连接成功时，屏幕上将打印出IP地址和"NTP Done"，如果迟迟不能显示“NTP Done”，请长按电源键关机同时拔掉USB线重新上电运行。之后串口会周期性的打印如下日志，并且识别到车型后在屏幕上显示红色XXXX Detected的字样。具体log如下：
 
 ```log
 Wi-Fi is connecting...

@@ -33,15 +33,11 @@
 
 #include "py/runtime.h"
 #include "py/mphal.h"
-
-#ifdef CONFIG_IDF_TARGET_ESP32C3
 #include "uart.h"
-#endif
 
 STATIC void uart_irq_handler(void *arg);
 
 void uart_init(void) {
-    #ifdef CONFIG_IDF_TARGET_ESP32C3
     uart_config_t uartcfg = {
         .baud_rate = MICROPY_HW_UART_REPL_BAUD,
         .data_bits = UART_DATA_8_BITS,
@@ -56,20 +52,13 @@ void uart_init(void) {
     const uint32_t txbuf = 0;
 
     uart_driver_install(MICROPY_HW_UART_REPL, rxbuf, txbuf, 0, NULL, 0);
-    #endif
 
     uart_isr_handle_t handle;
-    #ifdef CONFIG_IDF_TARGET_ESP32C3    
     uart_isr_free(MICROPY_HW_UART_REPL);
     uart_isr_register(MICROPY_HW_UART_REPL, uart_irq_handler, NULL, ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM, &handle);
     uart_enable_rx_intr(MICROPY_HW_UART_REPL);
-    #else
-    uart_isr_register(UART_NUM_0, uart_irq_handler, NULL, ESP_INTR_FLAG_LOWMED | ESP_INTR_FLAG_IRAM, &handle);
-    uart_enable_rx_intr(UART_NUM_0);
-    #endif
 }
 
-#ifdef CONFIG_IDF_TARGET_ESP32C3    
 int uart_stdout_tx_strn(const char *str, size_t len) {
     size_t remaining = len;
     // TODO add a timeout
@@ -87,7 +76,6 @@ int uart_stdout_tx_strn(const char *str, size_t len) {
     }
     return len - remaining;
 }
-#endif
 
 // all code executed in ISR must be in IRAM, and any const data must be in DRAM
 STATIC void IRAM_ATTR uart_irq_handler(void *arg) {
@@ -97,8 +85,8 @@ STATIC void IRAM_ATTR uart_irq_handler(void *arg) {
     uart->int_clr.rxfifo_tout_int_clr = 1;
     #else
     uart->int_clr.rxfifo_full = 1;
-    uart->int_clr.frm_err = 1;    
     uart->int_clr.rxfifo_tout = 1;
+    uart->int_clr.frm_err = 1;
     #endif
     while (uart->status.rxfifo_cnt) {
         #if CONFIG_IDF_TARGET_ESP32

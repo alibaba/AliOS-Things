@@ -22,6 +22,9 @@ PulseSensor（MDL0025） 是一款用于脉搏心率测量的光电反射式模�
 
 ## 三、软件接口
 
+MDL0025心率传感器 HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/heartrate)
+<br>
+
 ### class HEARTBEAT(adcdev[,rled=None,gled=None,bled=None,highBPM=150,lowBPM=100]) - 创建heartbeart驱动对象
 * 函数原型：
 > heartbeatdev = HEARTBEAT(adcdev=adcobj,rled=gpioobj01,gled=gpioobj02,bled=gpioobj03,highBPM=150,lowBPM=100)
@@ -327,4 +330,4 @@ heart rate is:  100
 </div>
 
 ## 参考文献及购买链接
-* [购买链接(https://item.taobao.com/item.htm?id=35657755876)
+* [购买链接](https://item.taobao.com/item.htm?id=35657755876)

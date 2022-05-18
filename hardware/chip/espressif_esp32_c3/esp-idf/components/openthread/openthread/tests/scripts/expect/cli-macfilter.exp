@@ -1,0 +1,143 @@
+#!/usr/bin/expect -f
+#
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+source "tests/scripts/expect/_common.exp"
+
+spawn_node 1
+
+send "macfilter\n"
+expect "Address Mode: Disabled"
+expect "RssIn List:"
+expect_line "Done"
+
+send "macfilter addr add aabbccddeeff0011\n"
+expect_line "Done"
+
+send "macfilter addr\n"
+expect "Disabled"
+expect "aabbccddeeff0011"
+expect_line "Done"
+
+send "macfilter addr allowlist\n"
+expect_line "Done"
+
+send "macfilter addr\n"
+expect "Allowlist"
+expect "aabbccddeeff0011"
+expect_line "Done"
+
+send "macfilter\n"
+expect "Address Mode: Allowlist"
+expect "aabbccddeeff0011"
+expect "RssIn List:"
+expect_line "Done"
+
+send "macfilter addr add 2233445566778899\n"
+expect_line "Done"
+
+send "macfilter addr remove aabbccddeeff0011\n"
+expect_line "Done"
+
+send "macfilter addr denylist\n"
+expect_line "Done"
+
+send "macfilter addr\n"
+expect "Denylist"
+expect "2233445566778899"
+expect_line "Done"
+
+send "macfilter\n"
+expect "Address Mode: Denylist"
+expect "2233445566778899"
+expect "RssIn List:"
+expect_line "Done"
+
+send "macfilter addr clear\n"
+expect_line "Done"
+
+send "macfilter addr disable\n"
+expect_line "Done"
+
+send "macfilter addr\n"
+expect "Disabled"
+expect_line "Done"
+
+send "macfilter\n"
+expect "Address Mode: Disabled"
+expect "RssIn List:"
+expect_line "Done"
+
+send "macfilter addr something_invalid\n"
+expect "Error 35: InvalidCommand"
+
+send "macfilter rss\n"
+expect_line "Done"
+
+send "macfilter rss add-lqi * 2\n"
+expect_line "Done"
+
+send "macfilter rss add-lqi aabbccddeeff0011 3\n"
+expect_line "Done"
+
+send "macfilter rss\n"
+expect -re {aabbccddeeff0011 : rss -?\d+ \(lqi 3\)}
+expect -re {Default rss: -?\d+ \(lqi 2\)}
+expect_line "Done"
+
+send "macfilter\n"
+expect "Address Mode: Disabled"
+expect "RssIn List:"
+expect -re {aabbccddeeff0011 : rss -?\d+ \(lqi 3\)}
+expect -re {Default rss : -?\d+ \(lqi 2\)}
+expect_line "Done"
+
+send "macfilter rss remove *\n"
+expect_line "Done"
+
+send "macfilter rss remove aabbccddeeff0011\n"
+expect_line "Done"
+
+send "macfilter rss add 2233445566778899 -70\n"
+expect_line "Done"
+
+send "macfilter rss add * -80\n"
+expect_line "Done"
+
+send "macfilter rss\n"
+expect -re {2233445566778899 : rss -70 \(lqi \d\)}
+expect -re {Default rss: -80 \(lqi \d\)}
+expect_line "Done"
+
+send "macfilter rss clear\n"
+expect_line "Done"
+
+send "macfilter rss something_invalid\n"
+expect "Error 35: InvalidCommand"
+
+dispose_all

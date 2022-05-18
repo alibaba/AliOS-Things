@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+#  Copyright (c) 2018, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+CLANG_FORMAT_VERSION="clang-format version 9.0"
+
+die()
+{
+    echo " *** ERROR: $*"
+    exit 1
+}
+
+# Aliases are not expanded when the shell is not interactive, unless the
+# expand_aliases shell option is set using shopt.
+shopt -s expand_aliases
+
+if command -v clang-format-9 >/dev/null; then
+    alias clang-format=clang-format-9
+elif command -v clang-format >/dev/null; then
+    case "$(clang-format --version)" in
+        "$CLANG_FORMAT_VERSION"*) ;;
+
+        *)
+            die "$(clang-format --version); clang-format 9.0 required"
+            ;;
+    esac
+else
+    die "clang-format 9.0 required"
+fi
+
+clang-format "$@" || die
+
+# ensure EOF newline
+REPLACE=no
+for arg; do
+    case $arg in
+        -i)
+            REPLACE=yes
+            ;;
+    esac
+done
+
+file=$arg
+
+[ $REPLACE != yes ] || {
+    [ -n "$(tail -c1 "$file")" ] && echo >>"$file"
+}
+
+exit 0

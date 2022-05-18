@@ -1,0 +1,19 @@
+{
+  "name": "ESP-S3-12K-Kit",
+  "version": "1.0.0",
+  "io": {
+    "mq2": {
+      "type": "ADC",
+      "port": 2,
+      "sampling": 12000000
+    },
+    "led": {
+      "type": "GPIO",
+      "port": 46,
+      "dir": "output",
+      "pull": "pullup"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

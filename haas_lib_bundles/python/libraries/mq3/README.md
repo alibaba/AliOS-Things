@@ -20,6 +20,9 @@ MQ3是汉威电子出品的乙醇传感器，它有快速相应、高敏感度�
 
 ## 三、软件接口
 
+MQ3乙醇传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/mq3)
+<br>
+
 ### MQ3(adcObj) - 创建MQ3驱动对象
 * 函数原型:
 > mq3Obj = MQ3(adcObj)

@@ -17,6 +17,9 @@ RGB三色LED是一种简单的三色集成的LED。红、绿、蓝三种颜色�
 
 ## 二、软件接口
 
+RGB LED HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/rgb_led)
+<br>
+
 ## RgbLed(pwmRObj, pwmGObj, pwmBObj) - 创建 RGB LED 驱动对象
 * 函数原型：
 > rgbLedObj = RgbLed(pwmRObj, pwmGObj, pwmBObj)

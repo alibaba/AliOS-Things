@@ -43,14 +43,12 @@ MPU6050主要应用在智能手机、平板电脑、可穿戴设备、机顶盒�
 * 用户可编程中断
 * 封装尺寸：LGA 3mm * 3mm * 0.75mm
 
-
-
-
-* 引脚定义
-
-
 ## 三、软件接口
+
+MPU6050六轴运动传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/mpu6050)
 <br>
+
+
 
 ### MPU6050(i2cObj) - 创建MPU6050驱动对象
 * 函数原型：
@@ -72,7 +70,7 @@ from driver import I2C
 from mpu6050 import MPU6050
 
 i2cObj = I2C()
-i2cObj.open("MPU6050")
+i2cObj.open("mpu6050")
 
 MPU6050Dev = MPU6050(i2cObj)
 ```
@@ -188,7 +186,7 @@ print(gyro)
 ```python
 import utime
 from driver import I2C
-import MPU6050
+from mpu6050 import MPU6050
 
 print("Testing mpu6050 ...")
 
@@ -197,13 +195,11 @@ i2cDev.open("mpu6050")
 
 mpu6050Dev = MPU6050(i2cDev)
 
-temp = mpu6050Dev.getTemperature()
-print("The temperature is:", temp)
 
 acc = mpu6050Dev.getAcceleration()
 print("The Acceleration data is:", acc)
 
-gyro = mpu6050Dev.getGyroscope()
+gyro = mpu6050Dev.getGyro()
 
 print("The Gyro data is: ", gyro)
 
@@ -216,7 +212,6 @@ print("Test mpu6050 done!")
 * 输出：
 ```log
 Testing mpu6050 ...
-The temperature is: 25.13
 The Acceleration data is: (7382, 14618, 3306)
 The Gyro data is:  (14, 9, -49)
 The mpu6050 data is:  (14, 9, -49)

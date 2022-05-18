@@ -1,0 +1,104 @@
+#!/usr/bin/expect -f
+#
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+source "tests/scripts/expect/_common.exp"
+source "tests/scripts/expect/_multinode.exp"
+
+setup_two_nodes
+
+spawn_node 3
+
+switch_node 1
+set extaddr [get_extaddr]
+send "panid\n"
+expect "panid"
+expect -re {([0-9a-f]{4})}
+set pan $expect_out(1,string)
+expect_line "Done"
+send "extpanid\n"
+expect "extpanid"
+expect -re {([0-9a-f]{16})}
+set extpan $expect_out(1,string)
+expect_line "Done"
+expect "> "
+send "networkname\n"
+expect "networkname"
+expect -re {[\r\n]([^\r\n]+?)[\r\n]}
+set network $expect_out(1,string)
+expect_line "Done"
+send "channel\n"
+expect "channel"
+expect -re {(\d+)}
+set channel $expect_out(1,string)
+expect_line "Done"
+
+switch_node 3
+send "scan $channel\n"
+expect "| J | Network Name     | Extended PAN     | PAN  | MAC Address      | Ch | dBm | LQI |"
+expect "+---+------------------+------------------+------+------------------+----+-----+-----+"
+wait_for "" "\\| \\d \\| $network +\\| $extpan \\| $pan \\| $extaddr \\| +$channel \\| +-?\\d+ \\| +\\d \\|"
+wait_for "" "Done"
+send "scan energy 100\n"
+expect "| Ch | RSSI |"
+expect "+----+------+"
+for {set i 11} {$i <= 26} {incr i} {
+    expect -re "\\| +$i \\| +-?\\d+ \\|"
+}
+expect_line "Done"
+send "scan energy 100 $channel\n"
+expect "| Ch | RSSI |"
+expect "+----+------+"
+expect -re "\\| +$channel \\| +-?\\d+ \\|"
+expect_line "Done"
+
+switch_node 3
+send "discover\n"
+expect "Error 13: InvalidState"
+send "ifconfig up\n"
+expect_line "Done"
+send "discover $channel\n"
+expect "| J | Network Name     | Extended PAN     | PAN  | MAC Address      | Ch | dBm | LQI |"
+expect "+---+------------------+------------------+------+------------------+----+-----+-----+"
+wait_for "" "\\| \\d \\| $network +\\| $extpan \\| $pan \\| $extaddr \\| +$channel \\| +-?\\d+ \\| +\\d \\|"
+wait_for "" "Done"
+send "discover something_invalid\n"
+expect "Error 7: InvalidArgs"
+
+switch_node 1
+expect -re {version=\d,joiner=0}
+
+switch_node 3
+send "joiner start 123456\n"
+set timeout 10
+expect "NotFound"
+
+switch_node 1
+expect -re {version=\d,joiner=1}
+
+dispose_all

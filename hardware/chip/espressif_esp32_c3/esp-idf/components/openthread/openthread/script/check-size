@@ -1,0 +1,266 @@
+#!/bin/bash
+#
+#  Copyright (c) 2019, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+set -euo pipefail
+
+readonly OT_TMP_DIR=/tmp/ot-size-report
+readonly OT_SHA_NEW=${GITHUB_SHA:-$(git rev-parse HEAD)}
+readonly OT_SHA_OLD="$(git cat-file -p "${OT_SHA_NEW}" | grep 'parent ' | head -n1 | cut -d' ' -f2)"
+readonly OT_REPORT_FILE=/tmp/size_report
+
+setup_arm_gcc_7()
+{
+    if arm-none-eabi-gcc --version | grep -q 'Arm Embedded Processors 7'; then
+        return 0
+    fi
+
+    (cd /tmp/ \
+        && wget --tries 4 --no-check-certificate --quiet https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 \
+        && tar xjf gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2)
+    export PATH=/tmp/gcc-arm-none-eabi-7-2018-q2-update/bin:$PATH
+
+    arm-none-eabi-gcc --version
+}
+
+setup_ninja_build()
+{
+    sudo apt-get --no-install-recommends install -y ninja-build
+}
+
+setup()
+{
+    setup_arm_gcc_7
+    setup_ninja_build
+}
+
+markdown_init()
+{
+    echo '|  name  |  branch  |  text  | data  | bss  | total |'
+    echo '| :----: | :------: | -----: | ----: | ---: | ----: |'
+}
+
+markdown_size()
+{
+    local name
+    name=$(basename "$1")
+
+    read -r -a size_old <<<"$(size "$1" | awk '{text+=$1} {bss+=$2} {data+=$3} {total+=$4} END {printf "%d %d %d %d", text, bss, data, total}')"
+    read -r -a size_new <<<"$(size "$2" | awk '{text+=$1} {bss+=$2} {data+=$3} {total+=$4} END {printf "%d %d %d %d", text, bss, data, total}')"
+
+    local -a size_diff
+
+    for i in 0 1 2 3; do
+        size_diff[$i]="$((size_new["$i"] - size_old["$i"]))"
+        if [[ ${size_diff["$i"]} != 0 ]]; then
+            size_diff["$i"]=$(printf '%+d' "${size_diff["$i"]}")
+        fi
+    done
+
+    echo "| ${name} | -${OT_SHA_OLD:0:7} | ${size_old[0]} | ${size_old[1]} | ${size_old[2]} | ${size_old[3]} |"
+    echo "|  | +${OT_SHA_NEW:0:7} | ${size_new[0]} | ${size_new[1]} | ${size_new[2]} | ${size_new[3]} |"
+    echo "|  | +/- | ${size_diff[0]} | ${size_diff[1]} | ${size_diff[2]} | ${size_diff[3]} |"
+}
+
+markdown()
+{
+    case "$1" in
+        init)
+            shift
+            markdown_init "$@" >"${OT_REPORT_FILE}"
+            ;;
+        size)
+            shift
+            markdown_size "$@" >>"${OT_REPORT_FILE}"
+            ;;
+        post)
+            mdv "${OT_REPORT_FILE}"
+            ;;
+    esac
+}
+
+nm_size()
+{
+    arm-none-eabi-nm --print-size --defined-only -C "$1" | cut -d' ' -f2- >nmsize_old
+    arm-none-eabi-nm --print-size --defined-only -C "$2" | cut -d' ' -f2- >nmsize_new
+    diff -Nuar nmsize_old nmsize_new || true
+}
+
+size_nrf52840_version()
+{
+    local options=(
+        "-DOT_ANYCAST_LOCATOR=ON"
+        "-DOT_BORDER_AGENT=ON"
+        "-DOT_BORDER_ROUTER=ON"
+        "-DOT_CHANNEL_MANAGER=ON"
+        "-DOT_CHANNEL_MONITOR=ON"
+        "-DOT_CHILD_SUPERVISION=ON"
+        "-DOT_COAP=ON"
+        "-DOT_COAPS=ON"
+        "-DOT_COMMISSIONER=ON"
+        "-DOT_DATASET_UPDATER=ON"
+        "-DOT_DHCP6_CLIENT=ON"
+        "-DOT_DHCP6_SERVER=ON"
+        "-DOT_DIAGNOSTIC=ON"
+        "-DOT_DNSSD_SERVER=ON"
+        "-DOT_DNS_CLIENT=ON"
+        "-DOT_ECDSA=ON"
+        "-DOT_FULL_LOGS=ON"
+        "-DOT_JAM_DETECTION=ON"
+        "-DOT_JOINER=ON"
+        "-DOT_LINK_RAW=ON"
+        "-DOT_MAC_FILTER=ON"
+        "-DOT_MESSAGE_USE_HEAP=ON"
+        "-DOT_MTD_NETDIAG=ON"
+        "-DOT_NETDATA_PUBLISHER=ON"
+        "-DOT_PING_SENDER=ON"
+        "-DOT_SERVICE=ON"
+        "-DOT_SLAAC=ON"
+        "-DOT_SNTP_CLIENT=ON"
+        "-DOT_SRP_CLIENT=ON"
+        "-DOT_SRP_SERVER=ON"
+        "-DOT_TIME_SYNC=ON"
+        "-DOT_UDP_FORWARD=ON"
+        "-DOT_UPTIME=ON"
+    )
+
+    local thread_version=$1
+
+    if [[ ${thread_version} == "1.2" ]]; then
+        options+=(
+            "-DOT_THREAD_VERSION=1.2"
+            "-DOT_BACKBONE_ROUTER=ON"
+            "-DOT_DUA=ON"
+            "-DOT_MLR=ON"
+            "-DOT_CSL_RECEIVER=ON"
+            "-DOT_LINK_METRICS_INITIATOR=ON"
+            "-DOT_LINK_METRICS_SUBJECT=ON"
+        )
+    fi
+
+    rm -rf "${OT_TMP_DIR}"
+
+    local build_dir="build"
+
+    # new commit
+    mkdir -p "${OT_TMP_DIR}/b"
+    script/git-tool clone https://github.com/openthread/ot-nrf528xx.git "${OT_TMP_DIR}/b"
+    rm -rf "${OT_TMP_DIR}/b/openthread/*" # replace openthread submodule with latest commit
+    git archive "${OT_SHA_NEW}" | tar x -C "${OT_TMP_DIR}/b/openthread"
+
+    (cd "${OT_TMP_DIR}/b" \
+        && OT_CMAKE_BUILD_DIR=${build_dir} script/build nrf52840 UART_trans "${options[@]}")
+
+    # old commit
+    if [[ "${GITHUB_ACTIONS+x}" ]]; then
+        git fetch --depth 1 --no-recurse-submodules origin "${OT_SHA_OLD}"
+    fi
+
+    mkdir -p "${OT_TMP_DIR}/a"
+    git clone https://github.com/openthread/ot-nrf528xx.git "${OT_TMP_DIR}/a"
+    rm -rf "${OT_TMP_DIR}/a/openthread/*" # replace openthread submodule with last commit
+    git archive "${OT_SHA_OLD}" | tar x -C "${OT_TMP_DIR}/a/openthread"
+
+    (cd "${OT_TMP_DIR}/a" \
+        && OT_CMAKE_BUILD_DIR=${build_dir} script/build nrf52840 UART_trans "${options[@]}")
+
+    # rename the generated files to be ready for size-report
+    # shellcheck disable=SC2011
+    (
+        cd "${OT_TMP_DIR}"/a/"${build_dir}"/bin
+        ls | xargs -I{} mv {} {}_"${thread_version}"
+        cd "${OT_TMP_DIR}"/b/"${build_dir}"/bin
+        ls | xargs -I{} mv {} {}_"${thread_version}"
+
+        cd "${OT_TMP_DIR}"/a/"${build_dir}"/lib
+        ls ./*.a | xargs -I{} mv {} {}_"${thread_version}"
+        cd "${OT_TMP_DIR}"/b/"${build_dir}"/lib
+        ls ./*.a | xargs -I{} mv {} {}_"${thread_version}"
+    )
+
+    local bins=(
+        "ot-cli-ftd"
+        "ot-cli-mtd"
+        "ot-ncp-ftd"
+        "ot-ncp-mtd"
+        "ot-rcp"
+    )
+
+    local libs=(
+        "libopenthread-cli-ftd.a"
+        "libopenthread-cli-mtd.a"
+        "libopenthread-ftd.a"
+        "libopenthread-mtd.a"
+        "libopenthread-ncp-ftd.a"
+        "libopenthread-ncp-mtd.a"
+        "libopenthread-rcp.a"
+        "libopenthread-radio.a"
+    )
+
+    for file in "${bins[@]}"; do
+        "${reporter}" size "${OT_TMP_DIR}"/a/"${build_dir}"/bin/"${file}"_"${thread_version}" "${OT_TMP_DIR}"/b/"${build_dir}"/bin/"${file}"_"${thread_version}"
+        echo nm_size "${OT_TMP_DIR}"/a/"${build_dir}"/bin/"${file}"_"${thread_version}" "${OT_TMP_DIR}"/b/"${build_dir}"/bin/"${file}"_"${thread_version}"
+        nm_size "${OT_TMP_DIR}"/a/"${build_dir}"/bin/"${file}"_"${thread_version}" "${OT_TMP_DIR}"/b/"${build_dir}"/bin/"${file}"_"${thread_version}"
+    done
+
+    for file in "${libs[@]}"; do
+        "${reporter}" size "${OT_TMP_DIR}"/a/"${build_dir}"/lib/"${file}"_"${thread_version}" "${OT_TMP_DIR}"/b/"${build_dir}"/lib/"${file}"_"${thread_version}"
+        echo nm_size "${OT_TMP_DIR}"/a/"${build_dir}"/lib/"${file}"_"${thread_version}" "${OT_TMP_DIR}"/b/"${build_dir}"/lib/"${file}"_"${thread_version}"
+        nm_size "${OT_TMP_DIR}"/a/"${build_dir}"/lib/"${file}"_"${thread_version}" "${OT_TMP_DIR}"/b/"${build_dir}"/lib/"${file}"_"${thread_version}"
+    done
+}
+
+size_nrf52840()
+{
+    export OT_SHA_NEW OT_SHA_OLD
+
+    local reporter="${OT_SIZE_REPORTER:-markdown}"
+    "${reporter}" init OpenThread
+
+    size_nrf52840_version 1.1
+    size_nrf52840_version 1.2
+
+    "${reporter}" post
+}
+
+main()
+{
+    if [[ $# == 0 ]]; then
+        setup
+        size_nrf52840
+    elif [[ $1 == setup ]]; then
+        setup
+    elif [[ $1 == nrf52840 ]]; then
+        size_nrf52840
+    else
+        echo "USAGE: $0 [setup|nrf52840]"
+        exit 128
+    fi
+}
+
+main "$@"

@@ -1,0 +1,363 @@
+#
+#  Copyright (c) 2016, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+# Don't allow this top-level makefile's targets to be built in parallel.
+
+.NOTPARALLEL:
+
+COVERAGE                             ?= 0
+DEBUG                                ?= 0
+
+# Enable most features by default to cover most code
+
+ANYCAST_LOCATOR                      ?= 1
+BORDER_AGENT                         ?= 1
+BORDER_ROUTER                        ?= 1
+COAP                                 ?= 1
+COAP_OBSERVE                         ?= 1
+COAPS                                ?= 1
+COMMISSIONER                         ?= 1
+CHANNEL_MANAGER                      ?= 1
+CHANNEL_MONITOR                      ?= 1
+CHILD_SUPERVISION                    ?= 1
+DAEMON                               ?= 0
+DATASET_UPDATER                      ?= 1
+DHCP6_CLIENT                         ?= 1
+DHCP6_SERVER                         ?= 1
+DIAGNOSTIC                           ?= 1
+DNS_CLIENT                           ?= 1
+DNSSD_SERVER                         ?= 1
+DYNAMIC_LOG_LEVEL                    ?= 1
+ECDSA                                ?= 1
+HISTORY_TRACKER                      ?= 1
+IP6_FRAGM                            ?= 1
+JAM_DETECTION                        ?= 1
+JOINER                               ?= 1
+LEGACY                               ?= 1
+LINK_RAW                             ?= 0
+LOG_OUTPUT                           ?= PLATFORM_DEFINED
+MAC_FILTER                           ?= 1
+MAX_POWER_TABLE                      ?= 1
+MTD_NETDIAG                          ?= 1
+NEIGHBOR_DISCOVERY_AGENT             ?= 1
+NETDATA_PUBLISHER                    ?= 1
+PING_SENDER                          ?= 1
+READLINE                             ?= readline
+REFERENCE_DEVICE                     ?= 1
+SERVICE                              ?= 1
+SNTP_CLIENT                          ?= 1
+SRP_CLIENT                           ?= 1
+SRP_SERVER                           ?= 1
+ifneq ($(DAEMON),1)
+UDP_FORWARD                          ?= 1
+endif
+UPTIME                               ?= 1
+
+COMMONCFLAGS                         := \
+    -g                                  \
+    $(NULL)
+
+# If the user has asserted COVERAGE, alter the configuration options
+# accordingly.
+
+configure_OPTIONS                   = \
+    --enable-cli                      \
+    --enable-ftd                      \
+    --with-platform=posix             \
+    $(NULL)
+
+# Platform specific switches
+
+ifeq ($(DAEMON),1)
+configure_OPTIONS              += --enable-posix-daemon
+endif
+
+ifneq ($(DEBUG),1)
+COMMONCFLAGS                   += \
+    -O2                           \
+    $(NULL)
+endif
+
+ifneq ($(HOST),)
+configure_OPTIONS              += --host=$(HOST)
+endif
+
+ifeq ($(MAX_POWER_TABLE),1)
+COMMONCFLAGS                   += -DOPENTHREAD_POSIX_CONFIG_MAX_POWER_TABLE_ENABLE=1
+endif
+
+ifeq ($(PLATFORM_NETIF),1)
+COMMONCFLAGS                   += -DOPENTHREAD_CONFIG_PLATFORM_NETIF_ENABLE=1
+endif
+
+ifneq ($(READLINE),)
+configure_OPTIONS              += --with-readline=$(READLINE)
+endif
+
+ifeq ($(RCP_BUS),spi)
+COMMONCFLAGS                   += -DOPENTHREAD_POSIX_CONFIG_RCP_BUS=OT_POSIX_RCP_BUS_SPI
+else
+COMMONCFLAGS                   += -DOPENTHREAD_POSIX_CONFIG_RCP_BUS=OT_POSIX_RCP_BUS_UART
+endif
+
+ifeq ($(VIRTUAL_TIME),1)
+COMMONCFLAGS                   += -DOPENTHREAD_POSIX_VIRTUAL_TIME=1
+endif
+
+include $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/../../examples/common-switches.mk
+
+CPPFLAGS                       += \
+    $(COMMONCFLAGS)               \
+    $(NULL)
+
+CFLAGS                         += \
+    $(COMMONCFLAGS)               \
+    $(NULL)
+
+CXXFLAGS                       += \
+    $(COMMONCFLAGS)               \
+    $(NULL)
+
+LDFLAGS                        += \
+    $(COMMONCFLAGS)               \
+    $(NULL)
+
+TopSourceDir                   := $(dir $(shell readlink $(firstword $(MAKEFILE_LIST))))../..
+AbsTopSourceDir                := $(dir $(realpath $(firstword $(MAKEFILE_LIST))))../..
+
+CONFIG_FILE      = OPENTHREAD_PROJECT_CORE_CONFIG_FILE='\"openthread-core-posix-config.h\"'
+CONFIG_FILE_PATH = $(AbsTopSourceDir)/src/posix/platform
+COMMONCFLAGS                   += \
+    -D$(CONFIG_FILE)              \
+    -I$(CONFIG_FILE_PATH)         \
+
+ECHO                           := @echo
+INSTALL                        := /usr/bin/install
+INSTALLFLAGS                   := -p
+LN_S                           := ln -s
+MAKE                           := make
+MKDIR_P                        := mkdir -p
+RM_F                           := rm -f
+
+BuildJobs                      ?= 10
+BuildPath                       = build
+TopBuildDir                     = $(BuildPath)
+AbsTopBuildDir                  = $(PWD)/$(TopBuildDir)
+
+ResultPath                      = output
+TopResultDir                    = $(ResultPath)
+AbsTopResultDir                 = $(PWD)/$(TopResultDir)
+
+TargetTuple                     = posix
+
+ifndef BuildJobs
+BuildJobs := $(shell getconf _NPROCESSORS_ONLN)
+endif
+JOBSFLAG := -j$(BuildJobs)
+
+#
+# configure-arch <target>
+#
+# Configure OpenThread for the specified target.
+#
+#   target - The target to configure.
+#
+define configure-target
+$(ECHO) "  CONFIG   $(1)..."
+(cd $(BuildPath)/$(1) && $(AbsTopSourceDir)/configure \
+INSTALL="$(INSTALL) $(INSTALLFLAGS)" \
+CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" \
+--prefix=/ \
+--exec-prefix=/$(1) \
+$(configure_OPTIONS))
+endef # configure-target
+
+#
+# build-target <target>
+#
+# Build the OpenThread intermediate build products for the specified
+# target.
+#
+#   target - The target to build.
+#
+define build-target
+$(ECHO) "  BUILD    $(1)"
+$(MAKE) $(JOBSFLAG) -C $(BuildPath)/$(1) --no-print-directory \
+all
+endef # build-target
+
+#
+# check-target <target>
+#
+# Check (run unit tests) OpenThread for the specified target.
+#
+#   target - The target to check.
+#
+define check-target
+$(ECHO) "  CHECK    $(1)"
+$(MAKE) $(JOBSFLAG) -C $(BuildPath)/$(1) --no-print-directory \
+check
+endef # check-target
+
+#
+# distcheck-target <target>
+#
+# Check (run unit tests) OpenThread for the specified target.
+#
+#   target - The target to distcheck.
+#
+define distcheck-target
+$(ECHO) "  DISTCHECK    $(1)"
+$(MAKE) $(JOBSFLAG) -C $(BuildPath)/$(1) --no-print-directory \
+distcheck
+endef # distcheck-target
+
+#
+# coverage-target <target>
+#
+# Generate code coverage from unit tests for OpenThread for the
+# specified target.
+#
+#   target - The target to generate code coverage for.
+#
+define coverage-target
+$(ECHO) "  COVERAGE $(1)"
+$(MAKE) $(JOBSFLAG) -C $(BuildPath)/$(1) --no-print-directory \
+coverage
+endef # coverage-target
+
+#
+# stage-target <target>
+#
+# Stage (install) the OpenThread final build products for the specified
+# target.
+#
+#   target - The target to stage.
+#
+define stage-target
+$(ECHO) "  STAGE    $(1)"
+$(MAKE) $(JOBSFLAG) -C $(BuildPath)/$(1) --no-print-directory \
+DESTDIR=$(AbsTopResultDir) \
+install
+endef # stage-target
+
+#
+# TARGET_template <target>
+#
+# Define macros, targets and rules to configure, build, and stage
+# OpenThread for a single target.
+#
+#   target - The target to instantiate the template for.
+#
+define TARGET_template
+CONFIGURE_TARGETS += configure-$(1)
+BUILD_TARGETS     += do-build-$(1)
+CHECK_TARGETS     += check-$(1)
+DISTCHECK_TARGETS += distcheck-$(1)
+COVERAGE_TARGETS  += coverage-$(1)
+STAGE_TARGETS     += stage-$(1)
+BUILD_DIRS        += $(BuildPath)/$(1)
+DIRECTORIES       += $(BuildPath)/$(1)
+
+configure-$(1): $(BuildPath)/$(1)/config.status
+
+$(BuildPath)/$(1)/config.status: | $(BuildPath)/$(1)
+	$$(call configure-target,$(1))
+
+do-build-$(1): configure-$(1)
+
+do-build-$(1):
+	+$$(call build-target,$(1))
+
+check-$(1): do-build-$(1)
+
+check-$(1):
+	+$$(call check-target,$(1))
+
+distcheck-$(1): do-build-$(1)
+
+distcheck-$(1):
+	+$$(call distcheck-target,$(1))
+
+coverage-$(1): do-build-$(1)
+
+coverage-$(1):
+	+$$(call coverage-target,$(1))
+
+stage-$(1): do-build-$(1)
+
+stage-$(1): | $(TopResultDir)
+	$$(call stage-target,$(1))
+
+$(1): stage-$(1)
+endef # TARGET_template
+
+.DEFAULT_GOAL := all
+
+all: stage
+
+# Instantiate an target-specific build template for the target.
+
+$(eval $(call TARGET_template,$(TargetTuple)))
+
+#
+# Common / Finalization
+#
+
+configure: $(CONFIGURE_TARGETS)
+
+build: $(BUILD_TARGETS)
+
+check: $(CHECK_TARGETS)
+
+distcheck: $(DISTCHECK_TARGETS)
+
+coverage: $(COVERAGE_TARGETS)
+
+stage: $(STAGE_TARGETS)
+
+DIRECTORIES     = $(TopResultDir) $(TopResultDir)/$(TargetTuple)/lib $(BUILD_DIRS)
+
+CLEAN_DIRS      = $(TopResultDir) $(BUILD_DIRS)
+
+all: stage
+
+$(DIRECTORIES):
+	$(ECHO) "  MKDIR    $@"
+	@$(MKDIR_P) "$@"
+
+clean:
+	$(ECHO) "  CLEAN"
+	@$(RM_F) -r $(CLEAN_DIRS)
+
+help:
+	$(ECHO) "Simply type 'make -f $(firstword $(MAKEFILE_LIST))' to build OpenThread for the following "
+	$(ECHO) "target:"
+	$(ECHO) ""
+	$(ECHO) "    $(TargetTuple)"
+	$(ECHO) ""

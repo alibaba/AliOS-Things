@@ -1,0 +1,299 @@
+#!/usr/bin/expect -f
+#
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+source "tests/scripts/expect/_common.exp"
+source "tests/scripts/expect/_multinode.exp"
+
+setup_two_nodes
+
+switch_node 1
+send "dataset active\n"
+expect -re {Active Timestamp: \d+}
+expect -re {Channel: (\d+)}
+set channel $expect_out(1,string)
+expect -re {Channel Mask: 0x[0-9a-f]{8}}
+expect -re {Ext PAN ID: [0-9a-f]{16}}
+expect -re {Mesh Local Prefix: ([0-9a-f]{1,4}:){3}[0-9a-f]{1,4}::\/64}
+expect -re {Network Key: [0-9a-f]{32}}
+expect -re {Network Name: [^\r\n]+}
+expect -re {PAN ID: 0x[0-9a-f]{4}}
+expect -re {PSKc: [0-9a-f]{32}}
+expect -re {Security Policy: \d+ o?n?r?c?b?}
+send "dataset pending\n"
+expect "Error 23: NotFound"
+send "dataset init active\n"
+expect_line "Done"
+send "dataset activetimestamp 100\n"
+expect_line "Done"
+send "dataset activetimestamp\n"
+expect "100"
+expect_line "Done"
+if {$channel == 11} {
+    send "dataset channel 18\n"
+    expect_line "Done"
+    send "dataset channel\n"
+    expect "18"
+    expect_line "Done"
+} else {
+    send "dataset channel 11\n"
+    expect_line "Done"
+    send "dataset channel\n"
+    expect "11"
+    expect_line "Done"
+}
+send "dataset channelmask 0x03fff800\n"
+expect_line "Done"
+send "dataset channelmask\n"
+expect "0x03fff800"
+expect_line "Done"
+send "dataset extpanid aabbccddeeff0011\n"
+expect_line "Done"
+send "dataset extpanid\n"
+expect "aabbccddeeff0011"
+expect_line "Done"
+send "dataset networkkey aabbccddeeff00112233445566778899\n"
+expect_line "Done"
+send "dataset networkkey\n"
+expect "aabbccddeeff00112233445566778899"
+expect_line "Done"
+send "dataset meshlocalprefix fdde:4860::\n"
+expect_line "Done"
+send "dataset meshlocalprefix\n"
+expect "fdde:4860:0:0::/64"
+expect_line "Done"
+send "dataset networkname OT-network\n"
+expect_line "Done"
+send "dataset networkname\n"
+expect "OT-network"
+expect_line "Done"
+send "dataset panid 0xface\n"
+expect_line "Done"
+send "dataset panid\n"
+expect "0xface"
+expect_line "Done"
+send "dataset pskc 00112233445566778899aabbccddeeff\n"
+expect_line "Done"
+send "dataset pskc\n"
+expect "00112233445566778899aabbccddeeff"
+expect_line "Done"
+send "dataset securitypolicy 678 onrcb\n"
+expect_line "Done"
+send "dataset securitypolicy\n"
+expect "678 onrcb"
+expect_line "Done"
+send "dataset pendingtimestamp 100\n"
+expect_line "Done"
+send "dataset pendingtimestamp\n"
+expect "100"
+expect_line "Done"
+send "dataset delay 30000\n"
+expect_line "Done"
+send "dataset delay\n"
+expect "30000"
+expect_line "Done"
+send "dataset commit pending\n"
+expect_line "Done"
+send "dataset pending\n"
+expect "Pending Timestamp: 100"
+expect "Active Timestamp: 100"
+if {$channel == 11} {
+    expect "Channel: 18"
+} else {
+    expect "Channel: 11"
+}
+expect "Channel Mask: 0x03fff800"
+expect -re {Delay: \d+}
+expect "Ext PAN ID: aabbccddeeff0011"
+expect "Mesh Local Prefix: fdde:4860:0:0::/64"
+expect "Network Key: aabbccddeeff00112233445566778899"
+expect "Network Name: OT-network"
+expect "PAN ID: 0xface"
+expect "PSKc: 00112233445566778899aabbccddeeff"
+expect "Security Policy: 678 onrcb"
+expect_line "Done"
+send "dataset pending -x\n"
+expect "dataset pending -x"
+set dataset_tlvs [expect_line {([0-9a-f]+)}]
+expect_line "Done"
+send "dataset clear\n"
+expect_line "Done"
+send "dataset init tlvs $dataset_tlvs\n"
+expect_line "Done"
+send "dataset\n"
+expect "Pending Timestamp: 100"
+expect "Active Timestamp: 100"
+if {$channel == 11} {
+    expect "Channel: 18"
+} else {
+    expect "Channel: 11"
+}
+expect "Channel Mask: 0x03fff800"
+expect -re {Delay: \d+}
+expect "Ext PAN ID: aabbccddeeff0011"
+expect "Mesh Local Prefix: fdde:4860:0:0::/64"
+expect "Network Key: aabbccddeeff00112233445566778899"
+expect "Network Name: OT-network"
+expect "PAN ID: 0xface"
+expect "PSKc: 00112233445566778899aabbccddeeff"
+expect "Security Policy: 678 onrcb"
+expect_line "Done"
+
+sleep 30
+
+switch_node 2
+wait_for "dataset active" "Active Timestamp: 100"
+expect_line "Done"
+send "dataset active\n"
+expect "Active Timestamp: 100"
+if {$channel == 11} {
+    expect "Channel: 18"
+} else {
+    expect "Channel: 11"
+}
+expect "Channel Mask: 0x03fff800"
+expect "Ext PAN ID: aabbccddeeff0011"
+expect "Mesh Local Prefix: fdde:4860:0:0::/64"
+expect "Network Key: aabbccddeeff00112233445566778899"
+expect "Network Name: OT-network"
+expect "PAN ID: 0xface"
+expect "PSKc: 00112233445566778899aabbccddeeff"
+expect "Security Policy: 678 onrcb"
+expect_line "Done"
+send "dataset clear\n"
+expect_line "Done"
+send "dataset init active\n"
+expect_line "Done"
+send "dataset\n"
+expect "Active Timestamp: 100"
+if {$channel == 11} {
+    expect "Channel: 18"
+} else {
+    expect "Channel: 11"
+}
+expect "Channel Mask: 0x03fff800"
+expect "Ext PAN ID: aabbccddeeff0011"
+expect "Mesh Local Prefix: fdde:4860:0:0::/64"
+expect "Network Key: aabbccddeeff00112233445566778899"
+expect "Network Name: OT-network"
+expect "PAN ID: 0xface"
+expect "PSKc: 00112233445566778899aabbccddeeff"
+expect "Security Policy: 678 onrcb"
+expect_line "Done"
+send "dataset init pending\n"
+expect "Error 23: NotFound"
+
+switch_node 1
+set addr [get_ipaddr mleid]
+
+switch_node 2
+send "dataset mgmtgetcommand active \
+activetimestamp pendingtimestamp networkkey networkname extpanid \
+localprefix delaytimer panid channel \
+-x 000102030405060708090a0b0e0f0c333435 \
+address $addr\n"
+expect_line "Done"
+send "dataset mgmtgetcommand pending \
+activetimestamp pendingtimestamp networkkey networkname extpanid \
+localprefix delaytimer panid channel \
+-x 000102030405060708090a0b0e0f0c333435 \
+address $addr\n"
+expect_line "Done"
+
+switch_node 1
+send "dataset init active\n"
+expect_line "Done"
+send "dataset networkname Thread\\ 网络\n"
+expect_line "Done"
+send "dataset commit active\n"
+expect_line "Done"
+send "dataset active -x\n"
+expect "54687265616420e7bd91e7bb9c" ;# UTF-8 of "Thread 网络"
+expect_line "Done"
+send "dataset active -x\n"
+expect "dataset active -x"
+expect -re {([0-9a-f]+)[\r\n]+Done}
+set binary $expect_out(1,string)
+send "dataset set pending $binary\n"
+expect_line "Done"
+send "dataset pending -x\n"
+expect $binary
+expect_line "Done"
+send "dataset pending\n"
+expect "Network Name: Thread 网络"
+expect_line "Done"
+send "dataset set active $binary\n"
+expect_line "Done"
+send "dataset mgmtsetcommand active activetimestamp 200 -x 030d54687265616420e7bd91e7bb9c\n"
+expect_line "Done"
+send "dataset active\n"
+expect "Network Name: Thread 网络"
+expect_line "Done"
+send "dataset mgmtsetcommand active activetimestamp 210 -x 0301ff\n"
+expect_line "Done"
+send "dataset active\n"
+expect "Active Timestamp: 200"
+expect "Network Name: Thread 网络"
+expect_line "Done"
+send "dataset set active 03023432\n"
+expect_line "Done"
+send "dataset active\n"
+expect "Network Name: 42"
+expect_line "Done"
+send "dataset set active 0301bf\n"
+expect "Error 7: InvalidArgs"
+send "dataset help\n"
+expect_line "Done"
+send "dataset\n"
+expect_line "Done"
+send "dataset init something_invalid\n"
+expect "Error 7: InvalidArgs"
+send "dataset active something_invalid\n"
+expect "Error 7: InvalidArgs"
+send "dataset pending something_invalid\n"
+expect "Error 7: InvalidArgs"
+send "dataset commit something_invalid\n"
+expect "Error 7: InvalidArgs"
+send "dataset mgmtsetcommand something_invalid\n"
+expect "Error 7: InvalidArgs"
+send "dataset mgmtsetcommand active something_invalid\n"
+expect "Error 7: InvalidArgs"
+send "dataset mgmtgetcommand something_invalid\n"
+expect "Error 7: InvalidArgs"
+send "dataset mgmtgetcommand active something_invalid\n"
+expect "Error 7: InvalidArgs"
+send "dataset pskc -p 123456\n"
+expect_line "Done"
+send "dataset securitypolicy 678 something_invalid\n"
+expect "Error 7: InvalidArgs"
+send "dataset set something_invalid 00\n"
+expect "Error 7: InvalidArgs"
+send "dataset init tlvs something_invalid\n"
+expect "Error 7: InvalidArgs"
+
+dispose_all

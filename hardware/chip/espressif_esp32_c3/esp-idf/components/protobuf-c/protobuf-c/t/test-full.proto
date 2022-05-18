@@ -1,0 +1,415 @@
+package foo;
+
+message SubMess {
+  required int32 test = 4;
+
+  optional int32 val1 = 6;
+  optional int32 val2 = 7;
+  repeated int32 rep = 8;
+  message SubSubMess {
+    optional int32 val1 = 1 [default = 100];
+    repeated int32 rep = 4;
+    optional bytes bytes1 = 2 [default = "a \0 char"];
+    optional string str1 = 3 [default = "hello world\n"];
+  }
+  optional SubSubMess sub1 = 9;
+  optional SubSubMess sub2 = 10;
+};
+ 
+enum TestEnumSmall {
+  NEG_VALUE = -1;
+  VALUE = 0;
+  OTHER_VALUE = 1;
+}
+
+// these number are specifically chosen to test the
+// boundaries of when an enum requires a certain number of bytes.
+// e.g. 16383 requires 3 bytes; 16384 requires 4.
+enum TestEnum {
+  VALUENEG123456 = -123456;
+  VALUENEG1 = -1;
+  VALUE0 = 0;
+  VALUE1 = 1;
+  VALUE127 = 127;
+  VALUE128 = 128;
+  VALUE16383 = 16383;
+  VALUE16384 = 16384;
+  VALUE2097151 = 2097151;
+  VALUE2097152 = 2097152;
+  VALUE268435455 = 268435455;
+  VALUE268435456 = 268435456;
+}
+enum TestEnumDupValues {
+  VALUE_A = 42;
+  VALUE_B = 42;
+  VALUE_C = 42;
+  VALUE_D = 666;
+  VALUE_E = 666;
+  VALUE_F = 1000;
+  VALUE_AA = 1000;
+  VALUE_BB = 1001;
+  option allow_alias = true;
+}
+
+message TestFieldNo15 {			// should use 1 byte header
+  required string test = 15;
+}
+message TestFieldNo16 {			// requires 2 byte header
+  required string test = 16;
+}
+message TestFieldNo2047 {               // should use 2 byte header
+  required string test = 2047;
+}
+message TestFieldNo2048 {               // requires 3 byte header
+  required string test = 2048;
+}
+message TestFieldNo262143 {             // should use 3 byte header
+  required string test = 262143;
+}
+message TestFieldNo262144 {             // requires 4 byte header
+  required string test = 262144;
+}
+message TestFieldNo33554431 {           // should use 4 byte header
+  required string test = 33554431;
+}
+message TestFieldNo33554432 {           // requires 5 byte header
+  required string test = 33554432;
+}
+
+message TestMess {
+  repeated int32 test_int32 = 1;
+  repeated sint32 test_sint32 = 2;
+  repeated sfixed32 test_sfixed32 = 3;
+  repeated int64 test_int64 = 4;
+  repeated sint64 test_sint64 = 5;
+  repeated sfixed64 test_sfixed64 = 6;
+  repeated uint32 test_uint32 = 7;
+  repeated fixed32 test_fixed32 = 8;
+  repeated uint64 test_uint64 = 9;
+  repeated fixed64 test_fixed64 = 10;
+  repeated float test_float = 11;
+  repeated double test_double = 12;
+  repeated bool test_boolean = 13;
+  repeated TestEnumSmall test_enum_small = 14;
+  repeated TestEnum test_enum = 15;
+  repeated string test_string = 16;
+  repeated bytes test_bytes = 17;
+  repeated SubMess test_message = 18;
+}
+message TestMessPacked {
+  repeated int32 test_int32 = 1 [packed=true];
+  repeated sint32 test_sint32 = 2 [packed=true];
+  repeated sfixed32 test_sfixed32 = 3 [packed=true];
+  repeated int64 test_int64 = 4 [packed=true];
+  repeated sint64 test_sint64 = 5 [packed=true];
+  repeated sfixed64 test_sfixed64 = 6 [packed=true];
+  repeated uint32 test_uint32 = 7 [packed=true];
+  repeated fixed32 test_fixed32 = 8 [packed=true];
+  repeated uint64 test_uint64 = 9 [packed=true];
+  repeated fixed64 test_fixed64 = 10 [packed=true];
+  repeated float test_float = 11 [packed=true];
+  repeated double test_double = 12 [packed=true];
+  repeated bool test_boolean = 13 [packed=true];
+  repeated TestEnumSmall test_enum_small = 14 [packed=true];
+  repeated TestEnum test_enum = 15 [packed=true];
+}
+
+message TestMessOptional {
+  optional int32 test_int32 = 1;
+  optional sint32 test_sint32 = 2;
+  optional sfixed32 test_sfixed32 = 3;
+  optional int64 test_int64 = 4;
+  optional sint64 test_sint64 = 5;
+  optional sfixed64 test_sfixed64 = 6;
+  optional uint32 test_uint32 = 7;
+  optional fixed32 test_fixed32 = 8;
+  optional uint64 test_uint64 = 9;
+  optional fixed64 test_fixed64 = 10;
+  optional float test_float = 11;
+  optional double test_double = 12;
+  optional bool test_boolean = 13;
+  optional TestEnumSmall test_enum_small = 14;
+  optional TestEnum test_enum = 15;
+  optional string test_string = 16;
+  optional bytes test_bytes = 17;
+  optional SubMess test_message = 18;
+}
+
+message TestMessOneof {
+  oneof test_oneof {
+    int32 test_int32 = 1;
+    sint32 test_sint32 = 2;
+    sfixed32 test_sfixed32 = 3;
+    int64 test_int64 = 4;
+    sint64 test_sint64 = 5;
+    sfixed64 test_sfixed64 = 6;
+    uint32 test_uint32 = 7;
+    fixed32 test_fixed32 = 8;
+    uint64 test_uint64 = 9;
+    fixed64 test_fixed64 = 10;
+    float test_float = 11;
+    double test_double = 12;
+    bool test_boolean = 13;
+    TestEnumSmall test_enum_small = 14;
+    TestEnum test_enum = 15;
+    string test_string = 16;
+    bytes test_bytes = 17;
+    SubMess test_message = 18;
+  }
+  optional int32 opt_int = 19;
+}
+
+message TestMessRequiredInt32 {
+  required int32 test = 42;
+}
+message TestMessRequiredSInt32 {
+  required sint32 test = 43;
+}
+message TestMessRequiredSFixed32 {
+  required sfixed32 test = 100;
+}
+message TestMessRequiredInt64 {
+  required int64 test = 1;
+}
+message TestMessRequiredSInt64 {
+  required sint64 test = 11;
+}
+message TestMessRequiredSFixed64 {
+  required sfixed64 test = 12;
+}
+message TestMessRequiredUInt32 {
+  required uint32 test = 1;
+}
+message TestMessRequiredFixed32 {
+  required fixed32 test = 1;
+}
+message TestMessRequiredUInt64 {
+  required uint64 test = 1;
+}
+message TestMessRequiredFixed64 {
+  required fixed64 test = 1;
+}
+message TestMessRequiredFloat {
+  required float test = 1;
+}
+message TestMessRequiredDouble {
+  required double test = 1;
+}
+message TestMessRequiredBool {
+  required bool test = 1;
+}
+message TestMessRequiredEnum {
+  required TestEnum test = 1;
+}
+message TestMessRequiredEnumSmall {
+  required TestEnumSmall test = 1;
+}
+message TestMessRequiredString {
+  required string test = 1;
+}
+message TestMessRequiredBytes {
+  required bytes test = 1;
+}
+message TestMessRequiredMessage {
+  required SubMess test = 1;
+}
+message EmptyMess {
+}
+message DefaultRequiredValues {
+  required int32 v_int32   = 1 [default = -42];
+  required uint32 v_uint32 = 2 [default = 666];
+  required int32 v_int64   = 3 [default = 100000];
+  required uint32 v_uint64 = 4 [default = 100001];
+  required float v_float   = 5 [default = 2.5];
+  required double v_double = 6 [default = 4.5];
+  required string v_string = 7 [default = "hi mom\n"];
+  required bytes v_bytes   = 8 [default = "a \0 character"];
+}
+message DefaultOptionalValues {
+  optional int32 v_int32   = 1 [default = -42];
+  optional uint32 v_uint32 = 2 [default = 666];
+  optional int32 v_int64   = 3 [default = 100000];
+  optional uint32 v_uint64 = 4 [default = 100001];
+  optional float v_float   = 5 [default = 2.5];
+  optional double v_double = 6 [default = 4.5];
+  optional string v_string = 7 [default = "hi mom\n"];
+  optional bytes v_bytes   = 8 [default = "a \0 character"];
+}
+message LowerCase {
+  enum CaseEnum {
+    UPPER = 1;
+    lower = 2;
+  }
+  optional CaseEnum value = 1 [default = lower];
+}
+message AllocValues {
+  optional bytes o_bytes = 1;
+  repeated string r_string = 2;
+  required string a_string = 3;
+  required bytes a_bytes = 4;
+  required DefaultRequiredValues a_mess = 5;
+}
+
+message TestRequiredFieldsBitmap {
+  required string field1 = 1;
+  optional string field2 = 2;
+  optional string field3 = 3;
+  optional string field4 = 4;
+  optional string field5 = 5;
+  optional string field6 = 6;
+  optional string field7 = 7;
+  optional string field8 = 8;
+  optional string field9 = 9;
+  optional string field10 = 10;
+  optional string field11 = 11;
+  optional string field12 = 12;
+  optional string field13 = 13;
+  optional string field14 = 14;
+  optional string field15 = 15;
+  optional string field16 = 16;
+  optional string field17 = 17;
+  optional string field18 = 18;
+  optional string field19 = 19;
+  optional string field20 = 20;
+  optional string field21 = 21;
+  optional string field22 = 22;
+  optional string field23 = 23;
+  optional string field24 = 24;
+  optional string field25 = 25;
+  optional string field26 = 26;
+  optional string field27 = 27;
+  optional string field28 = 28;
+  optional string field29 = 29;
+  optional string field30 = 30;
+  optional string field31 = 31;
+  optional string field32 = 32;
+  optional string field33 = 33;
+  optional string field34 = 34;
+  optional string field35 = 35;
+  optional string field36 = 36;
+  optional string field37 = 37;
+  optional string field38 = 38;
+  optional string field39 = 39;
+  optional string field40 = 40;
+  optional string field41 = 41;
+  optional string field42 = 42;
+  optional string field43 = 43;
+  optional string field44 = 44;
+  optional string field45 = 45;
+  optional string field46 = 46;
+  optional string field47 = 47;
+  optional string field48 = 48;
+  optional string field49 = 49;
+  optional string field50 = 50;
+  optional string field51 = 51;
+  optional string field52 = 52;
+  optional string field53 = 53;
+  optional string field54 = 54;
+  optional string field55 = 55;
+  optional string field56 = 56;
+  optional string field57 = 57;
+  optional string field58 = 58;
+  optional string field59 = 59;
+  optional string field60 = 60;
+  optional string field61 = 61;
+  optional string field62 = 62;
+  optional string field63 = 63;
+  optional string field64 = 64;
+  optional string field65 = 65;
+  optional string field66 = 66;
+  optional string field67 = 67;
+  optional string field68 = 68;
+  optional string field69 = 69;
+  optional string field70 = 70;
+  optional string field71 = 71;
+  optional string field72 = 72;
+  optional string field73 = 73;
+  optional string field74 = 74;
+  optional string field75 = 75;
+  optional string field76 = 76;
+  optional string field77 = 77;
+  optional string field78 = 78;
+  optional string field79 = 79;
+  optional string field80 = 80;
+  optional string field81 = 81;
+  optional string field82 = 82;
+  optional string field83 = 83;
+  optional string field84 = 84;
+  optional string field85 = 85;
+  optional string field86 = 86;
+  optional string field87 = 87;
+  optional string field88 = 88;
+  optional string field89 = 89;
+  optional string field90 = 90;
+  optional string field91 = 91;
+  optional string field92 = 92;
+  optional string field93 = 93;
+  optional string field94 = 94;
+  optional string field95 = 95;
+  optional string field96 = 96;
+  optional string field97 = 97;
+  optional string field98 = 98;
+  optional string field99 = 99;
+  optional string field100 = 100;
+  optional string field101 = 101;
+  optional string field102 = 102;
+  optional string field103 = 103;
+  optional string field104 = 104;
+  optional string field105 = 105;
+  optional string field106 = 106;
+  optional string field107 = 107;
+  optional string field108 = 108;
+  optional string field109 = 109;
+  optional string field110 = 110;
+  optional string field111 = 111;
+  optional string field112 = 112;
+  optional string field113 = 113;
+  optional string field114 = 114;
+  optional string field115 = 115;
+  optional string field116 = 116;
+  optional string field117 = 117;
+  optional string field118 = 118;
+  optional string field119 = 119;
+  optional string field120 = 120;
+  optional string field121 = 121;
+  optional string field122 = 122;
+  optional string field123 = 123;
+  optional string field124 = 124;
+  optional string field125 = 125;
+  optional string field126 = 126;
+  optional string field127 = 127;
+  optional string field128 = 128;
+  required string field129 = 129;
+}
+
+message TestFieldFlags {
+  optional int32 no_flags1          = 1;
+  required int32 no_flags2          = 2;
+  repeated int32 no_flags3          = 3;
+  repeated int32 packed             = 4 [packed=true];
+  repeated int32 packed_deprecated  = 5 [packed=true, deprecated=true];
+  repeated int32 deprecated         = 6 [deprecated=true];
+}
+
+message TestMessageCheck {
+  message SubMessage {
+    required string str = 1;
+  }
+  required SubMessage required_msg  = 1;
+  repeated SubMessage repeated_msg  = 2;
+  optional SubMessage optional_msg  = 3;
+  required string required_string   = 4;
+  repeated string repeated_string   = 5;
+  optional string optional_string   = 6;
+  required bytes required_bytes     = 7;
+  repeated bytes repeated_bytes     = 8;
+  optional bytes optional_bytes     = 9;
+}
+
+message TestMessSubMess {
+  required TestMess rep_mess = 1;
+  required TestMessOptional opt_mess = 2;
+  required TestMessOneof oneof_mess = 3;
+  required SubMess req_mess = 4;
+  required DefaultOptionalValues def_mess = 5;
+}

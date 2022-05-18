@@ -240,23 +240,23 @@ int32_t pyamp_aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_u
 {
     int32_t res = STATE_SUCCESS;
     void *mqtt_handle = NULL;
-    char *url = "iot-as-mqtt.cn-shanghai.aliyuncs.com"; /* 阿里云平台上海站点的域名后缀
-                                                         */
     char host[100] = { 0 };          /* 用这个数组拼接设备连接的云平台站点全地址, 规则是
-                        ${productKey}.iot-as-mqtt.cn-shanghai.aliyuncs.com */
+                                        ${YourProductKey}.iot-as-mqtt.${YourRegionId}.aliyuncs.com" */
     uint16_t port = 443;             /* 无论设备是否使用TLS连接阿里云平台, 目的端口都是443 */
     aiot_sysdep_network_cred_t cred; /* 安全凭据结构体, 如果要用TLS, 这个结构体中配置CA证书等参数 */
 
     /* get device tripple info */
-    char product_key[IOTX_PRODUCT_KEY_LEN] = { 0 };
-    char device_name[IOTX_DEVICE_NAME_LEN] = { 0 };
-    char device_secret[IOTX_DEVICE_SECRET_LEN] = { 0 };
+    char region[IOTX_REGION_LEN + 1] = { 0 };
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = { 0 };
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = { 0 };
+    char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = { 0 };
 
+    int region_len = IOTX_REGION_LEN;
     int productkey_len = IOTX_PRODUCT_KEY_LEN;
     int devicename_len = IOTX_DEVICE_NAME_LEN;
     int devicesecret_len = IOTX_DEVICE_SECRET_LEN;
 
-
+    aos_kv_get(AMP_CUSTOMER_REGION, region, &region_len);
     aos_kv_get(AMP_CUSTOMER_PRODUCTKEY, product_key, &productkey_len);
     aos_kv_get(AMP_CUSTOMER_DEVICENAME, device_name, &devicename_len);
     aos_kv_get(AMP_CUSTOMER_DEVICESECRET, device_secret, &devicesecret_len);
@@ -290,8 +290,7 @@ int32_t pyamp_aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_u
         memset(&cred, 0, sizeof(aiot_sysdep_network_cred_t));
         cred.option = AIOT_SYSDEP_NETWORK_CRED_NONE;
     }
-
-    snprintf(host, 100, "%s.%s", product_key, url);
+    sprintf(host, "%s.iot-as-mqtt.%s.aliyuncs.com", product_key, region);
     /* 配置MQTT服务器地址 */
     aiot_mqtt_setopt(mqtt_handle, AIOT_MQTTOPT_HOST, (void *)host);
     /* 配置MQTT服务器端口 */
@@ -329,7 +328,7 @@ int32_t pyamp_aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_u
 
     aos_task_t mqtt_process_task;
 
-    if (aos_task_new_ext(&mqtt_process_task, "mqtt_process", pyamp_aiot_app_mqtt_process_thread, mqtt_handle, 1024 * 2,
+    if (aos_task_new_ext(&mqtt_process_task, "mqtt_process", pyamp_aiot_app_mqtt_process_thread, mqtt_handle, 1024 * 4,
                          AOS_DEFAULT_APP_PRI) != 0) {
         amp_debug(MOD_STR, "management mqtt process task create failed!\r\n");
         aiot_mqtt_deinit(&mqtt_handle);
