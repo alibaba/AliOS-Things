@@ -1,6 +1,6 @@
 # timer - TIMER外设驱动库
 
-* 类功能：  
+* 类功能：
 TIMER硬件定时器功能。
 
 
@@ -8,7 +8,7 @@ TIMER硬件定时器功能。
 * 函数原型：
 > timerObj = TIMER(ID)
 
-* 参数说明：  
+* 参数说明：
 
 |参数|类型|必选参数？|说明|
 |-----|----|:---:|----|
@@ -16,10 +16,10 @@ TIMER硬件定时器功能。
 
 <br>
 
-* 返回值：  
+* 返回值：
 TIMER对象成功，返回TIMER对象；TIMER对象创建失败，返回None
 
-* 示例代码： 
+* 示例代码：
 
 ```python
 from driver import TIMER
@@ -29,13 +29,13 @@ timerObj = TIMER(0)
 
 ## open - 打开硬件定时器
 
-* 函数功能：  
+* 函数功能：
 打开TIMER硬件定时器功能，并启动定时器
 
 * 函数原型：
 > TIMER.open(period, mode, function callback)
 
-* 参数说明：  
+* 参数说明：
 
 |参数|类型|必选参数？|说明|
 |-----|----|:---:|----|
@@ -54,10 +54,10 @@ TIMER中定时属性配置项说明如下：
 
 <br>
 
-* 返回值：  
+* 返回值：
 打开TIMER设备成功返回0；打开TIMER设备失败返回失败错误码
 
-* 示例： 
+* 示例：
 
 ```python
 from driver import TIMER
@@ -75,24 +75,24 @@ beep
 
 ## close - 关闭硬件定时器
 
-* 函数功能：  
+* 函数功能：
 关闭硬件定时器
 
-* 注意事项：  
+* 注意事项：
 需确保要关闭的TIMER处于open状态
 
 * 函数原型：
 > TIMER.close()
 
-* 参数说明：  
+* 参数说明：
 无
 
 <br>
 
-* 返回值：  
+* 返回值：
 关闭TIMER设备成功返回0；关闭TIMER设备失败返回失败错误码
 
-* 示例： 
+* 示例：
 
 ```python
 from driver import TIMER
@@ -110,10 +110,10 @@ timerObj.close()
 
 ## start - 硬件定时器开始计时
 
-* 函数功能：  
+* 函数功能：
 打开硬件定时器，并开始计时
 
-* 注意事项：  
+* 注意事项：
 需确保此TIMER处于open状态
 
 * 函数原型：
@@ -124,10 +124,10 @@ timerObj.close()
 
 <br>
 
-* 返回值：  
+* 返回值：
 打开TIMER计时成功返回0；否则返回错误码；
 
-* 示例： 
+* 示例：
 
 ```python
 from driver import TIMER
@@ -153,10 +153,10 @@ beep
 
 ## stop - 硬件定时器停止计时
 
-* 函数功能：  
+* 函数功能：
 关闭硬件定时器，并停止计时
 
-* 注意事项：  
+* 注意事项：
 需确保此TIMER处于open状态
 
 * 函数原型：
@@ -167,10 +167,10 @@ beep
 
 <br>
 
-* 返回值：  
+* 返回值：
 关闭TIMER计时成功返回0；否则返回错误码；
 
-* 示例： 
+* 示例：
 
 ```python
 from driver import TIMER
@@ -185,10 +185,10 @@ timerObj.stop()
 
 ## period - 设置定时器定时时间
 
-* 函数功能：  
+* 函数功能：
 设置定时器定时时间，并重新开始计时
 
-* 注意事项：  
+* 注意事项：
 需确保此TIMER处于open状态
 
 * 函数原型：
@@ -202,10 +202,10 @@ timerObj.stop()
 
 <br>
 
-* 返回值：  
+* 返回值：
 设置定时器成功返回0；否则返回错误码；
 
-* 示例： 
+* 示例：
 
 ```python
 from driver import TIMER
@@ -228,10 +228,10 @@ beep
 
 ## reload - 重启定时器
 
-* 函数功能：  
+* 函数功能：
 重启TIMER定时器，并根据之前的设置重新开始计时
 
-* 注意事项：  
+* 注意事项：
 需确保此TIMER处于open状态
 
 * 函数原型：
@@ -242,10 +242,10 @@ beep
 
 <br>
 
-* 返回值：  
+* 返回值：
 设置定时器成功返回0；否则返回错误码；
 
-* 示例： 
+* 示例：
 
 ```python
 from driver import TIMER
@@ -275,6 +275,7 @@ def oneshot_callback(args):
 
 tim1 = TIMER(0)
 tim1.open(mode=tim1.ONE_SHOT, period=5000, callback=oneshot_callback)
+tim1.start()
 
 i = 1
 while (i<5):

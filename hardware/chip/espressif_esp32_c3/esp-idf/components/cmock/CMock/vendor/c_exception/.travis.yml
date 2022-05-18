@@ -1,0 +1,16 @@
+sudo: required
+language: ruby c
+
+os:
+  - linux
+
+rvm:
+  - "2.3"
+  - "2.4"
+  - "2.6"
+
+install:
+  - gem install ceedling
+
+script:
+  - ceedling clobber test:all

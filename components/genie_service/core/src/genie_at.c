@@ -606,6 +606,9 @@ int genie_at_cmd_mesh_test(int argc, char *argv[])
     switch (opcode)
     {
     case MESH_TEST_RSSI:
+        if (argc < 3) {
+            return AT_ERR_FORMAT;
+        }
         err = str2_char(argv[2], test_dev_mac);
         //at_debug("test_dev_mac: %s\n", bt_hex(test_dev_mac, sizeof(test_dev_mac)));
         if (err != 0)

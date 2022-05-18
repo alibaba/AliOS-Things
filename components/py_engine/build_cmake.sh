@@ -98,6 +98,9 @@ elif [[ $macro_list =~ "M5STACKCORE2" ]]; then
 elif [[ $macro_list =~ "NODEMCU32C3" ]]; then
     TARGET_BOARD="GENERIC_C3"
     TARGET_PLATFORM="ESP32"
+elif [[ $macro_list =~ "NODEMCU32S3" ]]; then
+    TARGET_BOARD="GENERIC_S3"
+    TARGET_PLATFORM="ESP32"
 else
     TARGET_BOARD="GENERIC"
     TARGET_PLATFORM="ESP32"
@@ -128,6 +131,7 @@ do
     fi
 done
 echo "list(APPEND MICROPY_DEF_MODULES_PORT ${TARGET_BOARD})" >> ${modules_dir}/config.cmake
+echo "list(APPEND MICROPY_DEF_MODULES_PORT AOS_KERNEL_BUILD=1)" >> ${modules_dir}/config.cmake
 
 # =======================================================
 if [ $TARGET_PLATFORM = "HAAS" ]; then
@@ -180,14 +184,9 @@ elif [ $TARGET_PLATFORM = "ESP32" ]; then
     rm -rf ${solution_dir}/esp_sdk/lib/*
 
     # 1: prepare IDF env
-    if [ ${TARGET_BOARD} = "GENERIC_C3" ]; then
-        ${comp_dir}/../../hardware/chip/espressif_esp32_c3/build.sh
-        . ${comp_dir}/../../hardware/chip/espressif_esp32_c3/esp-idf/export.sh
-    else
-        ${comp_dir}/../../hardware/chip/espressif_esp32/build.sh
-        . ${comp_dir}/../../hardware/chip/espressif_esp32/esp-idf/export.sh
-        export ADF_PATH=${comp_dir}/../../hardware/chip/espressif_esp32/esp-adf
-    fi
+    ${comp_dir}/../../hardware/chip/espressif_esp32/build.sh ${TARGET_BOARD}
+    . ${comp_dir}/../../hardware/chip/espressif_esp32/esp-idf/export.sh
+    export ADF_PATH=${comp_dir}/../../hardware/chip/espressif_esp32/esp-adf
 
     # 2：prepare fs for esp target
     port_dir=${comp_dir}/adapter/esp32

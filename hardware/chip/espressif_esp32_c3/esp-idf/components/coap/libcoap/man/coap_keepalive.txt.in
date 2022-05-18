@@ -1,0 +1,78 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap_keepalive(3)
+=================
+:doctype: manpage
+:man source:   coap_keepalive
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap_keepalive,
+coap_context_set_keepalive
+- Work with CoAP keepalive
+
+SYNOPSIS
+--------
+*#include <coap@LIBCOAP_API_VERSION@/coap.h>*
+
+*void coap_context_set_keepalive(coap_context_t *_context_,
+unsigned int _seconds_);*
+
+For specific (D)TLS library support, link with
+*-lcoap-@LIBCOAP_API_VERSION@-notls*, *-lcoap-@LIBCOAP_API_VERSION@-gnutls*,
+*-lcoap-@LIBCOAP_API_VERSION@-openssl*, *-lcoap-@LIBCOAP_API_VERSION@-mbedtls*
+or *-lcoap-@LIBCOAP_API_VERSION@-tinydtls*.   Otherwise, link with
+*-lcoap-@LIBCOAP_API_VERSION@* to get the default (D)TLS library support.
+
+DESCRIPTION
+-----------
+There may be a requirement to send out keepalive traffic when the CoAP session
+is idle (no packets have been sent or received for a specified period) to keep,
+say, an interim NAT device "warm" with the NAT translation state, or to
+periodically check whether the device at the other end of the session
+has "gone away".
+
+For UDP/DTLS, this is done with the confirmable CoAP (0.00) Ping packet, which
+solicits a CoAP RST response.  For TCP/TLS, this is done with CoAP (7.02) Ping
+packet, which solicits a CoAP (7.03) Pong response, all handled by libcoap.
+
+The *coap_context_set_keepalive*() function needs to be called to update the
+_context_ with the keepalive for idle traffic timeout of _seconds_.  If
+_seconds_ is set to 0 (the default), then the sending of keepalives is
+disabled.  Any sessions created from this _context_ will use the same
+_seconds_ value to determine whether a keepalive "ping" is to be sent out or
+not.
+
+Applications can track the usage of the receipt of "pings" and receipt of
+"responses" by defining the respective handlers to use by using
+*coap_register_ping_handler*() and *coap_register_pong_handler*().
+
+If the keepalive fails to solicit a response, then this can be tracked by
+defining the handler to use by using *coap_register_nack_handler*() which will
+be called with a reason of COAP_NACK_TOO_MANY_RETRIES.
+
+*NOTE:* *coap_context_set_keepalive*() is supported by both the CoAP client and
+CoAP server.
+
+SEE ALSO
+--------
+*coap_handler*(3)
+
+FURTHER INFORMATION
+-------------------
+"RFC7252: The Constrained Application Protocol (CoAP)"
+
+"RFC8323: CoAP (Constrained Application Protocol) over TCP, TLS, and WebSockets"
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net or raise an issue on GitHub at
+https://github.com/obgm/libcoap/issues
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

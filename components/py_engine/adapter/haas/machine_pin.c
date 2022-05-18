@@ -270,8 +270,7 @@ STATIC mp_obj_t machine_pin_irq(size_t n_args, const mp_obj_t *pos_args, mp_map_
             self->trigger = trigger;
 
             gpio_dev_t dev = { 0 };
-            dev.port = self->id;
-            dev.config = mp_hal_pin_config_get(self->id);
+            dev = mp_hal_gpio_dev_get(self->id);
 
             aos_hal_gpio_enable_irq(&dev, trigger, machine_pin_isr_handler, (void *)self);
         }
@@ -290,8 +289,7 @@ STATIC mp_obj_t machine_pin_irq_enable(mp_obj_t self_in)
     }
 
     gpio_dev_t dev = { 0 };
-    dev.port = self->id;
-    dev.config = mp_hal_pin_config_get(self->id);
+    dev = mp_hal_gpio_dev_get(self->id);
     aos_hal_gpio_enable_irq(&dev, self->trigger, machine_pin_isr_handler, (void *)self);
     return mp_const_none;
 }
@@ -301,8 +299,7 @@ STATIC mp_obj_t machine_pin_irq_disable(mp_obj_t self_in)
 {
     machine_pin_obj_t *self = MP_OBJ_TO_PTR(self_in);
     gpio_dev_t dev = { 0 };
-    dev.port = self->id;
-    dev.config = mp_hal_pin_config_get(self->id);
+    dev = mp_hal_gpio_dev_get(self->id);
     aos_hal_gpio_disable_irq(&dev);
     return mp_const_none;
 }
@@ -312,8 +309,7 @@ STATIC mp_obj_t machine_pin_deinit(mp_obj_t self_in)
 {
     machine_pin_obj_t *self = MP_OBJ_TO_PTR(self_in);
     gpio_dev_t dev = { 0 };
-    dev.port = self->id;
-    dev.config = mp_hal_pin_config_get(self->id);
+    dev = mp_hal_gpio_dev_get(self->id);
 
     mp_int_t ret = -1;
     if (mp_const_none != self->callback) {

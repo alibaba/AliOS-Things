@@ -1,13 +1,12 @@
-
-## 第一部分： 基础信息
+## 第一部分：基础信息
 name: gpio                                          # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
 version: rel_3.3.0                                    # <必选项> 组件版本号
-description: GPIO 通用驱动                          # <必选项> 建议至少20字以上
+description: GPIO通用驱动                           # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
 tag: 第三方驱动                                     # <可选项> 组件分类，缺省值： ''
 keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
-  - gpio core and vfs driver
+  - gpio driver
 license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
 
 ## 第二部分：依赖信息
@@ -18,7 +17,7 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - aos: >=v7.2.0
 depends:
   - base: rel_3.3.0
-  - vfs: rel_3.3.0
+  - csi: rel_3.3.0 ? <AOS_CONFIG_GPIOC_CSI>
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -47,11 +46,10 @@ build_config:
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
-  - src/gpio_dev.c ? <CONFIG_U_GPIO_DEV>
+  - src/gpio.c
   - src/gpioc.c
   - src/gpioc_csi.c ? <AOS_CONFIG_GPIOC_CSI>
-  # example code
-  # - example/gpio_example.c ? <CONFIG_U_GPIO_DEV>
+  - src/gpio_dev.c ? <CONFIG_U_GPIO_DEV>
 
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项
@@ -59,7 +57,7 @@ source_file:
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y
 def_config:
-
+  AOS_COMP_GPIO: 1
   CONFIG_U_GPIO_DEV: 1                      # GPIO device node named witch "/dev/gpio[x]"
   CONFIG_U_GPIO_CORE: 0                     # GPIO subsys AOS API driver
 
@@ -69,8 +67,9 @@ def_config:
 #     source:                              # 安装源列表
 #      - src/*.h                           # 支持通配符，相对路径
 install:
-  - dest: "include/devices"
+  - dest: "include/aos"
     source:
+      - "include/aos/gpio.h"
 
 ## 第七部分：导出部分
 # export:

@@ -41,7 +41,7 @@ STATIC mp_int_t parser_from_board_configuration_file(const char *id, modbus_dev_
 
 out:
     if (0 != ret) {
-        py_board_disattach_item(MODULE_ADC, &modbus_handle);
+        py_board_disattach_item(MODULE_MODBUS, &modbus_handle);
     }
 
     return ret;

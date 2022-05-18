@@ -20,8 +20,21 @@ board:
   chip_name: espressif_esp32
 
 build_config:
+  preconfig_script: yaml_copy.sh
+
   libs:
     - lvgl ? <MICROPY_PY_LVGL>
+  ldflag: >
+        -mlongcalls -Wno-frame-address -z muldefs -fno-rtti -lm -lgcc -lstdc++ -lgcov -lc -fno-lto
+        -mfix-esp32-psram-cache-issue  -mfix-esp32-psram-cache-strategy=memw
+        -uesp_app_desc -uvfs_include_syscalls_impl -upthread_include_pthread_impl
+        -upthread_include_pthread_cond_impl  -upthread_include_pthread_local_storage_impl -uapp_main
+        -ucall_user_start_cpu0 -uld_include_panic_highint_hdl -unewlib_include_locks_impl
+        -unewlib_include_heap_impl -unewlib_include_syscalls_impl  -unewlib_include_pthread_impl
+        -u__cxa_guard_dummy -u__cxx_fatal_exception
+        -Wl,--cref -Wl,--Map="aos.map" -Wl,--wrap=vPortCleanUpTCB -Wl,--gc-sections -Wl,--undefined=uxTopUsedPriority
+        -Tesp32.rom.newlib-time.ld -Tesp32.rom.ld  -Tesp32.rom.libgcc.ld  -Tesp32.rom.newlib-data.ld
+        -Tesp32.rom.syscalls.ld -Tesp32.rom.newlib-funcs.ld -Tesp32_out.ld  -Tesp32.extram.bss.ld -Tesp32.project.ld -Tesp32.peripherals.ld -z muldefs
 
 def_config:
   BOARD_M5STACKCORE2: 1
@@ -29,6 +42,7 @@ def_config:
   MICROPY_PY_UCLOUD_AI: 1
   MICROPY_PY_MINICV: 1
   MICROPY_PY_LVGL: 1
+  MICROPY_PY_TFT: 1
   MICROPY_PY_AUDIO: 1
   MICROPY_PY_SNTP: 1
 
@@ -44,7 +58,5 @@ def_config:
   #  CONFIG_LFS_PAGE_NUM_PER_BLOCK: 4 # choose the right value for nand, and usually any value for nor
   #  CONFIG_LFS_BLOCK_NUMS: 1198 # the total block count for lfs parition
   MICROPY_PY_UCAMERA: 1
-  MICROPY_PY_DISPLAY: 1
-  MICROPY_PY_DISPLAY_TFT: 1
-  MICROPY_PY_DISPLAY_LVGL: 1
   CONFIG_UART_CAMERA_ENABLE: 1
+

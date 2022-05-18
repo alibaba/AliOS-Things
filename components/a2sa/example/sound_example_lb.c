@@ -74,7 +74,7 @@ static void sound_loopback_thread(void *arg)
             ret = aos_pcm_readi(cap_pcm, dataBuf, aos_pcm_bytes_to_frames(cap_pcm, buf_size));
             if(ret > 0) {
                 //LOGD(LOG_TAG, "%s:%d: readi frames(%d) bytes(%d) successfully. ", __func__, __LINE__, ret, aos_pcm_frames_to_bytes(cap_pcm, ret));
-                ret = aos_pcm_writei(pb_pcm, dataBuf, aos_pcm_bytes_to_frames(pb_pcm, aos_pcm_frames_to_bytes(cap_pcm, ret)));
+                aos_pcm_writei(pb_pcm, dataBuf, aos_pcm_bytes_to_frames(pb_pcm, aos_pcm_frames_to_bytes(cap_pcm, ret)));
             }
         } else {
             if(pb_pcm) {
@@ -112,11 +112,12 @@ static void sound_example_loopback_init(void)
     pthread_attr_init(&attr);
     pthread_attr_setstacksize(&attr, AUDIO_PLAYER_HIGH_STACKSIZE);
     sched.sched_priority = AUDIO_PLAYER_DEFAULT_PRIORITY;
+    sched.slice = 0;
     pthread_attr_setschedparam(&attr, &sched);
-
     pthread_create(&g_play_thread, &attr, sound_loopback_thread, NULL);
-    pthread_setname_np(g_play_thread, "soundplaythread");
-
+    if (g_play_thread) {
+        pthread_setname_np(g_play_thread, "soundplaythread");
+    }
     pthread_attr_destroy(&attr);
     bCreateAudioThreadFlag = true;
 }

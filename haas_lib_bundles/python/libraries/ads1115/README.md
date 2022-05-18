@@ -1,4 +1,4 @@
-# 温湿度传感器 - ADS1115
+# ADC转换器 - ADS1115
 
 ## 一、产品简介
 ADS1115是德州仪器出品的一个超小，低功率，16位精度并带有内部参考电压的AD转换器（Analog to Digital Converter）。主要运用于高精度仪表，汽车电子，蓄电池电压采集等高精度采集场合。
@@ -33,6 +33,9 @@ ADS1115传感器外观及引脚功能说明如下：
 
 ## 三、软件接口
 
+ADS1115 ADC转换器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/ads1115)
+<br>
+
 ### ADS1115(i2cObj) - 创建ADS1115驱动对象
 * 函数原型：
 > adcObj = ADS1115(i2cObj)
@@ -50,14 +53,14 @@ ADS1115传感器外观及引脚功能说明如下：
 
 ```python
 from driver import I2C               # 驱动库
-import ads11x5                       # ADS1115 ADC传感器驱动库
+import ads1x15                       # ADS1x15系列ADC传感器驱动库
 
 # 初始化I2C类型的设备
 i2cObj = I2C()
 i2cObj.open("ads1115")                # 按照board.json中名为"ads1115"的设备节点的配置参数（主设备I2C端口号，从设备地址，总线频率等）初始化I2C类型设备对象
 print("ADS1115 inited!")
 
-adcDev = ads1115.ADS1115(i2cObj)  # 初始化ADS1115传感器对象
+adcDev = ads1x15.ADS1115(i2cObj)  # 初始化ADS1115传感器对象
 
 i2cObj.close()                    # 关闭I2C设备
 del adcDev                        # 删除ADS1115设备对象
@@ -90,14 +93,14 @@ ADS1115 inited!
 
 ```python
 from driver import I2C               # 驱动库
-import ads11x5                       # ADS1115 ADC传感器驱动库
+import ads1x15                       # ADS1x15 ADC传感器驱动库
 
 # 初始化I2C类型的设备
 i2cObj = I2C()
 i2cObj.open("ads1115")                # 按照board.json中名为"ads1115"的设备节点的配置参数（主设备I2C端口号，从设备地址，总线频率等）初始化I2C类型设备对象
 print("ADS1115 inited!")
 
-adcDev = ads1115.ADS1115(i2cObj)  # 初始化ADS1115传感器对象
+adcDev = ads1x15.ADS1115(i2cObj)  # 初始化ADS1115传感器对象
 
 temp = adcDev.readVoltage(0)      # 量测A0通道的输入电压值
 print("A0 input voltage is ", temp, " mV")
@@ -136,14 +139,14 @@ A0 input voltage is 1100 mV
 
 ```python
 from driver import I2C               # 驱动库
-import ads11x5                       # ADS1115 ADC传感器驱动库
+import ads1x15                       # ADS1x15 ADC传感器驱动库
 
 # 初始化I2C类型的设备
 i2cObj = I2C()
 i2cObj.open("ads1115")                # 按照board.json中名为"ads1115"的设备节点的配置参数（主设备I2C端口号，从设备地址，总线频率等）初始化I2C类型设备对象
 print("ADS1115 inited!")
 
-adcDev = ads1115.ADS1115(i2cObj)  # 初始化ADS1115传感器对象
+adcDev = ads1x15.ADS1115(i2cObj)  # 初始化ADS1115传感器对象
 
 adcDev.setMaxVoltage(3300)           # 设置电压量测范围为+/-3300mV
 print("setMaxVoltage done")
@@ -186,14 +189,14 @@ setMaxVoltage done
 
 ```python
 from driver import I2C               # 驱动库
-import ads11x5                       # ADS1115 ADC传感器驱动库
+import ads1x15                       # ADS1x15 ADC传感器驱动库
 
 # 初始化I2C类型的设备
 i2cObj = I2C()
 i2cObj.open("ads1115")                # 按照board.json中名为"ads1115"的设备节点的配置参数（主设备I2C端口号，从设备地址，总线频率等）初始化I2C类型设备对象
 print("ADS1115 inited!")
 
-adcDev = ads1115.ADS1115(i2cObj)  # 初始化ADS1115传感器对象
+adcDev = ads1x15.ADS1115(i2cObj)  # 初始化ADS1115传感器对象
 
 while True:
     temp = adcDev.readVoltage(0)      # 量测A0通道的输入电压值
@@ -232,7 +235,7 @@ A0 input voltage is 1121 mV
 ```python
     通过I2C向ADS1x15_POINTER_CONFIG寄存器写入ADC量测的参数（目标通道、增益、测量模式、测量速率）
     等待ADC采样结束（时间为一个采样周期（1/采样周期）+一个很小的偏差，如0.1ms）
-    通过I2C发送读取ADS11x5的ADS1x15_POINTER_CONVERSION寄存器值的指令
+    通过I2C发送读取ads1x15的ADS1x15_POINTER_CONVERSION寄存器值的指令
     将测量结果转换成实际电压
 ```
 > 测量的数字结果转化为实际电压算法请参考驱动中的readVoltage函数的实现

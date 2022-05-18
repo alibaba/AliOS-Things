@@ -1,0 +1,208 @@
+#!/usr/bin/expect -f
+#
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+proc skip_on_macos {} {
+    set OSTYPE [lindex $::tcl_platform(os) 0]
+
+    if { $OSTYPE == "Darwin" } {
+        exit 77
+    }
+}
+
+proc wait_for {command success {failure {[\r\n]FAILURE_NOT_EXPECTED[\r\n]}}} {
+    set timeout 1
+    for {set i 0} {$i < 20} {incr i} {
+        if {$command != ""} {
+            send "$command\n"
+        }
+
+        expect {
+            -re $success {
+                return 0
+            }
+            -re $failure {
+                fail "Failed due to '$failure' found"
+            }
+            timeout {
+                # Do nothing
+            }
+        }
+    }
+    fail "Failed due to '$success' not found"
+}
+
+proc expect_line {line} {
+    set timeout 10
+    expect -re "\[\r\n \]($line)(?=\[\r\n>\])"
+    return $expect_out(1,string)
+}
+
+proc spawn_node {id {type ""} {radio_url ""}} {
+    global spawn_id
+    global spawn_ids
+    global argv0
+
+    if {${type} == ""} {
+        set type $::env(OT_NODE_TYPE)
+    }
+
+    if {${radio_url} == ""} {
+        set radio_url "spinel+hdlc+uart://$::env(OT_SIMULATION_APPS)/ncp/ot-rcp?forkpty-arg=$id"
+    }
+
+    send_user "\n# ${id} ${type}\n"
+
+    if {[info exists ::env(CC)] && $::env(CC) == "clang"} {
+        set gcov_prefix ""
+    } else {
+        set gcov_prefix "ot-run/$argv0/ot-gcda.$id"
+    }
+
+    switch -regexp ${type} {
+        {rcp|rcp-cli} {
+            spawn /usr/bin/env GCOV_PREFIX=$gcov_prefix $::env(OT_POSIX_APPS)/ot-cli $radio_url
+            send "factoryreset\n"
+            wait_for "state" "disabled"
+            expect_line "Done"
+            send "routerselectionjitter 1\n"
+            expect_line "Done"
+        }
+        cli {
+            spawn /usr/bin/env GCOV_PREFIX=$gcov_prefix $::env(OT_SIMULATION_APPS)/cli/ot-cli-ftd $id
+            send "factoryreset\n"
+            wait_for "state" "disabled"
+            expect_line "Done"
+            send "routerselectionjitter 1\n"
+            expect_line "Done"
+        }
+        mtd {
+            spawn /usr/bin/env GCOV_PREFIX=$gcov_prefix $::env(OT_SIMULATION_APPS)/cli/ot-cli-mtd $id
+            send "factoryreset\n"
+            wait_for "state" "disabled"
+            expect_line "Done"
+        }
+    }
+
+    expect_after {
+        timeout { fail "Timed out" }
+    }
+
+    set spawn_ids($id) $spawn_id
+
+    return $spawn_id
+}
+
+proc switch_node {id} {
+    global spawn_ids
+    global spawn_id
+
+    send_user "\n# ${id}\n"
+    set spawn_id $spawn_ids($id)
+}
+
+proc setup_leader {} {
+    send "dataset init new\n"
+    expect_line "Done"
+    send "dataset networkkey 00112233445566778899aabbccddeeff\n"
+    expect_line "Done"
+    send "dataset commit active\n"
+    expect_line "Done"
+    send "ifconfig up\n"
+    expect_line "Done"
+    send "thread start\n"
+    expect_line "Done"
+    wait_for "state" "leader"
+    expect_line "Done"
+}
+
+proc dispose_node {id} {
+    switch_node $id
+    send "\x04"
+    expect eof
+}
+
+proc dispose_all {} {
+    global spawn_ids
+    set max_node [array size spawn_ids]
+    for {set i 1} {$i <= $max_node} {incr i} {
+        dispose_node $i
+    }
+    array unset spawn_ids
+}
+
+proc get_ipaddr {type} {
+    send "ipaddr $type\n"
+    expect "ipaddr $type"
+    set rval [expect_line {([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}}]
+    expect_line "Done"
+
+    return $rval
+}
+
+proc get_extaddr {} {
+    send "extaddr\n"
+    set rval [expect_line {[0-9a-fA-F]{16}}]
+    expect_line "Done"
+
+    return $rval
+}
+
+proc get_meshlocal_prefix {} {
+    send "prefix meshlocal\n"
+    expect -re {[\r\n ](([0-9a-fA-F]{1,4}:){3}[0-9a-fA-f]{1,4})::/64(?=[\r\n>])}
+    set rval $expect_out(1,string)
+    expect_line "Done"
+
+    return $rval
+}
+
+proc get_rloc16 {} {
+    send "rloc16\n"
+    expect "rloc16"
+    set rval [expect_line {[0-9a-fA-F]{4}}]
+    expect_line "Done"
+
+    return $rval
+}
+
+proc setup_default_network {} {
+    send "channel 11\n"
+    expect_line "Done"
+    send "panid 0xface\n"
+    expect_line "Done"
+    send "networkkey 00112233445566778899aabbccddeeff\n"
+    expect_line "Done"
+}
+
+proc fail {message} {
+    dispose_all
+    error $message
+}
+
+set timeout 10

@@ -4758,6 +4758,7 @@ FRESULT f_rename (
 	DWORD dw;
 	DEF_NAMBUF
 
+    memset(&djo, 0, sizeof(djo));
 
 	get_ldnumber(&path_new);						/* Snip the drive number of new name off */
 	res = find_volume(&path_old, &fs, FA_WRITE);	/* Get logical drive of the old object */

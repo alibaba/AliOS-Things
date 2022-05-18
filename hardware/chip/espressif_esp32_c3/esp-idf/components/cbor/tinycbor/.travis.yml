@@ -1,0 +1,84 @@
+language: cpp
+matrix:
+  include:
+    - os: linux
+      dist: xenial
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:beineri/opt-qt-5.12.1-xenial'
+          packages:
+            - qt512base valgrind
+            - doxygen
+      env:
+        - QMAKESPEC=linux-g++
+        - EVAL="CC=gcc && CXX=g++"
+        - CFLAGS="-Os"
+        - LDFLAGS="-Wl,--no-undefined -lm"
+        - QMAKEFLAGS="-config release"
+        - QT_NO_CPU_FEATURE=rdrnd
+    - os: linux
+      dist: xenial
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:beineri/opt-qt-5.12.1-xenial'
+          packages:
+            - qt512base
+      env:
+        - QMAKESPEC=linux-clang
+        - EVAL="CC=clang && CXX=clang++"
+        - CFLAGS="-Oz"
+        - LDFLAGS="-Wl,--no-undefined -lm"
+        - QMAKEFLAGS="-config release"
+        - MAKEFLAGS=-s
+        - TESTARGS=-silent
+    - os: linux
+      dist: xenial
+      env:
+        - QMAKESPEC=linux-gcc-freestanding
+        - EVAL="CXX=false"
+        - CFLAGS="-ffreestanding -Os"
+        - LDFLAGS="-Wl,--no-undefined -lm"
+    - os: linux
+      dist: xenial
+      env:
+        - QMAKESPEC=linux-gcc-no-math
+        - EVAL="CXX=false && touch src/math.h src/float.h"
+        - CFLAGS="-ffreestanding -DCBOR_NO_FLOATING_POINT -Os"
+        - LDFLAGS="-Wl,--no-undefined"
+        - LDLIBS=""
+    - os: osx
+      env:
+        - QMAKESPEC=macx-clang
+        - CFLAGS="-Oz"
+        - QMAKEFLAGS="-config debug"
+        - MAKEFLAGS=-s
+        - TESTARGS=-silent
+        - PATH=/usr/local/opt/qt5/bin:$PATH
+install:
+  - if [ "${TRAVIS_OS_NAME}" != "linux" ]; then
+        brew update;
+        brew install qt5;
+    fi
+script:
+  - PATH=`echo /opt/qt*/bin`:$PATH
+  - eval "$EVAL"
+  - make -s -f Makefile.configure configure | tee .config
+  - make -k
+        CFLAGS="$CFLAGS -march=native -g1 -Wall -Wextra -Werror"
+        CPPFLAGS="-DNDEBUG"
+        lib/libtinycbor.a
+  - size lib/libtinycbor.a | tee sizes
+  - make -s clean
+  - make -k
+        CFLAGS="$CFLAGS -O0 -g"
+        LDFLAGS="$LDFLAGS" ${LDLIBS+LDLIBS="$LDLIBS"}
+  - grep -q freestanding-pass .config || make
+        QMAKEFLAGS="$QMAKEFLAGS QMAKE_CXX=$CXX"
+        tests/Makefile
+  - grep -q freestanding-pass .config ||
+        (cd tests && make TESTARGS=-silent check -k
+        TESTRUNNER=`which valgrind 2>/dev/null`)
+  - make -s clean
+  - ./scripts/update-docs.sh

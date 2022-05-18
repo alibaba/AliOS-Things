@@ -1,0 +1,15 @@
+# -*- Mode: Makefile for  OSS-Fuzz checks -*-
+
+top_builddir=../..
+top_srcdir=../..
+
+LDLIBS+=-lFuzzingEngine
+export LDLIBS
+
+.PHONY: oss-fuzz clean
+
+oss-fuzz:
+	$(MAKE) -f Makefile.ci
+
+clean:
+	$(MAKE) -f Makefile.ci clean

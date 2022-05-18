@@ -26,24 +26,23 @@
 #include <string.h>
 
 #if MICROPY_PY_AUDIO
-#include "py/objstr.h"
-#include "py/runtime.h"
-
+#include "amrnb_encoder.h"
+#include "amrwb_encoder.h"
 #include "audio_hal.h"
 #include "audio_pipeline.h"
 #include "board.h"
 #include "filter_resample.h"
-
 #include "i2s_stream.h"
+#include "py/objstr.h"
+#include "py/runtime.h"
 #include "raw_stream.h"
 #include "vfs_stream.h"
-
-#include "amrnb_encoder.h"
 #include "wav_encoder.h"
 
 enum {
     PCM,
     AMR,
+    AMR_WB,
     WAV,
     MP3
 };
@@ -80,20 +79,28 @@ STATIC audio_element_handle_t audio_recorder_create_filter(int encoder_type)
     rsp_cfg.task_core = 1;
 
     switch (encoder_type) {
-        case PCM: {
+    case PCM:
+        {
             rsp_cfg.dest_rate = 16000;
             break;
         }
-        case AMR: {
+    case AMR:
+        {
             rsp_cfg.dest_rate = 8000;
             break;
         }
-        case WAV: {
+    case AMR_WB:
+        {
             rsp_cfg.dest_rate = 16000;
             break;
         }
-        default:
+    case WAV:
+        {
+            rsp_cfg.dest_rate = 16000;
             break;
+        }
+    default:
+        break;
     }
     return rsp_filter_init(&rsp_cfg);
 }
@@ -103,20 +110,29 @@ STATIC audio_element_handle_t audio_recorder_create_encoder(int encoder_type)
     audio_element_handle_t encoder = NULL;
 
     switch (encoder_type) {
-        case AMR: {
+    case AMR:
+        {
             amrnb_encoder_cfg_t amr_enc_cfg = DEFAULT_AMRNB_ENCODER_CONFIG();
             amr_enc_cfg.task_core = 1;
             encoder = amrnb_encoder_init(&amr_enc_cfg);
             break;
         }
-        case WAV: {
+    case AMR_WB:
+        {
+            amrwb_encoder_cfg_t amrwb_enc_cfg = DEFAULT_AMRWB_ENCODER_CONFIG();
+            amrwb_enc_cfg.task_core = 1;
+            encoder = amrwb_encoder_init(&amrwb_enc_cfg);
+            break;
+        }
+    case WAV:
+        {
             wav_encoder_cfg_t wav_cfg = DEFAULT_WAV_ENCODER_CONFIG();
             wav_cfg.task_core = 1;
             encoder = wav_encoder_init(&wav_cfg);
             break;
         }
-        default:
-            break;
+    default:
+        break;
     }
 
     return encoder;
@@ -125,7 +141,7 @@ STATIC audio_element_handle_t audio_recorder_create_encoder(int encoder_type)
 STATIC audio_element_handle_t audio_recorder_create_outstream(const char *uri)
 {
     audio_element_handle_t out_stream = NULL;
-    if (strstr(uri, "/sdcard/") != NULL) {
+    if (strstr(uri, "/sdcard/") != NULL || strstr(uri, "/data/") != NULL) {
         vfs_stream_cfg_t vfs_cfg = VFS_STREAM_CFG_DEFAULT();
         vfs_cfg.type = AUDIO_STREAM_WRITER;
         vfs_cfg.task_core = 1;
@@ -142,7 +158,7 @@ STATIC audio_element_handle_t audio_recorder_create_outstream(const char *uri)
     return out_stream;
 }
 
-STATIC void audio_recorder_create(audio_recorder_obj_t *self, const char *uri, int format)
+STATIC void audio_recorder_create(audio_recorder_obj_t *self, const char *uri, int format, int sample_rate)
 {
     // init audio board
     audio_board_handle_t board_handle = audio_board_init();
@@ -155,11 +171,19 @@ STATIC void audio_recorder_create(audio_recorder_obj_t *self, const char *uri, i
     i2s_stream_cfg_t i2s_cfg = I2S_STREAM_CFG_DEFAULT();
     i2s_cfg.type = AUDIO_STREAM_READER;
     i2s_cfg.uninstall_drv = false;
-    i2s_cfg.i2s_config.sample_rate = 48000;
+    i2s_cfg.i2s_config.sample_rate = sample_rate;
     i2s_cfg.task_core = 1;
+    i2s_cfg.i2s_config.mode = I2S_MODE_MASTER | I2S_MODE_RX;
+#ifdef M5STACK_CORE2
+    i2s_cfg.i2s_config.mode |= I2S_MODE_PDM;
+#endif
+    i2s_cfg.i2s_config.channel_format = I2S_CHANNEL_FMT_ONLY_LEFT;
     self->i2s_stream = i2s_stream_init(&i2s_cfg);
     // filter
-    self->filter = audio_recorder_create_filter(format);
+    // passthrough filter to save cpu load
+    // self->filter = audio_recorder_create_filter(format);
+    self->filter = NULL;
+
     // encoder
     self->encoder = audio_recorder_create_encoder(format);
     // out stream
@@ -176,22 +200,22 @@ STATIC void audio_recorder_create(audio_recorder_obj_t *self, const char *uri, i
     if (format == WAV) {
         audio_element_info_t out_stream_info;
         audio_element_getinfo(self->out_stream, &out_stream_info);
-        out_stream_info.sample_rates = 16000;
+        out_stream_info.sample_rates = sample_rate;
         out_stream_info.channels = 1;
         audio_element_setinfo(self->out_stream, &out_stream_info);
     }
     // link
     if (self->filter && self->encoder) {
-        const char *link_tag[4] = {"i2s", "filter", "encoder", "out"};
+        const char *link_tag[4] = { "i2s", "filter", "encoder", "out" };
         audio_pipeline_link(self->pipeline, &link_tag[0], 4);
     } else if (self->filter) {
-        const char *link_tag[3] = {"i2s", "filter", "out"};
+        const char *link_tag[3] = { "i2s", "filter", "out" };
         audio_pipeline_link(self->pipeline, &link_tag[0], 3);
     } else if (self->encoder) {
-        const char *link_tag[3] = {"i2s", "encoder", "out"};
+        const char *link_tag[3] = { "i2s", "encoder", "out" };
         audio_pipeline_link(self->pipeline, &link_tag[0], 3);
     } else {
-        const char *link_tag[2] = {"i2s", "out"};
+        const char *link_tag[2] = { "i2s", "out" };
         audio_pipeline_link(self->pipeline, &link_tag[0], 2);
     }
 }
@@ -211,13 +235,15 @@ STATIC mp_obj_t audio_recorder_start(mp_uint_t n_args, const mp_obj_t *args_in, 
         ARG_uri,
         ARG_format,
         ARG_maxtime,
-        ARG_endcb
+        ARG_endcb,
+        ARG_sample_rate
     };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_uri, MP_ARG_REQUIRED | MP_ARG_OBJ, { .u_obj = mp_const_none } },
         { MP_QSTR_format, MP_ARG_INT, { .u_int = PCM } },
         { MP_QSTR_maxtime, MP_ARG_INT, { .u_int = 0 } },
         { MP_QSTR_endcb, MP_ARG_OBJ, { .u_obj = mp_const_none } },
+        { MP_QSTR_sr, MP_ARG_INT, { .u_int = 8000 } },
     };
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
     audio_recorder_obj_t *self = args_in[0];
@@ -227,7 +253,14 @@ STATIC mp_obj_t audio_recorder_start(mp_uint_t n_args, const mp_obj_t *args_in, 
         return mp_obj_new_bool(false);
     }
 
-    audio_recorder_create(self, mp_obj_str_get_str(args[ARG_uri].u_obj), args[ARG_format].u_int);
+    int format = args[ARG_format].u_int;
+    int sample_rate = args[ARG_sample_rate].u_int;
+
+    if (format == AMR_WB) {
+        sample_rate = 16000;
+    }
+
+    audio_recorder_create(self, mp_obj_str_get_str(args[ARG_uri].u_obj), format, sample_rate);
     if (audio_pipeline_run(self->pipeline) == ESP_OK) {
         if (args[ARG_maxtime].u_int > 0) {
             esp_timer_create_args_t timer_conf = {
@@ -286,6 +319,7 @@ STATIC const mp_rom_map_elem_t recorder_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_is_running), MP_ROM_PTR(&audio_recorder_is_running_obj) },
     { MP_ROM_QSTR(MP_QSTR_PCM), MP_ROM_INT(PCM) },
     { MP_ROM_QSTR(MP_QSTR_AMR), MP_ROM_INT(AMR) },
+    { MP_ROM_QSTR(MP_QSTR_AMR_WB), MP_ROM_INT(AMR_WB) },
     { MP_ROM_QSTR(MP_QSTR_WAV), MP_ROM_INT(WAV) },
     { MP_ROM_QSTR(MP_QSTR_MP3), MP_ROM_INT(MP3) },
 };

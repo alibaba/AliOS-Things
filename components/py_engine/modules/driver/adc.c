@@ -143,7 +143,10 @@ STATIC mp_obj_t adc_readVoltage(size_t n_args, const mp_obj_t *args)
 
     int32_t adc_value = -1;
     int32_t ret = aos_hal_adc_voltage_value_get(adc_device, &adc_value, 0);
-    if(ret != 0) {
+    if (ret > 0) {
+        /* Make sure return negative value on error.*/
+        return MP_OBJ_NEW_SMALL_INT(-ret);
+    } else if (ret < 0) {
         return MP_OBJ_NEW_SMALL_INT(ret);
     } else {
         return MP_OBJ_NEW_SMALL_INT(adc_value);

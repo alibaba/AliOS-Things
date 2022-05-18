@@ -3,10 +3,14 @@
  */
 
 #include <aos/tty_core.h>
+#ifdef AOS_COMP_DEVFS
+#include <stdio.h>
+#include <inttypes.h>
+#endif
 
 #define STA_TX_EN               ((uint32_t)1 << 0)  /* reserved for XON/XOFF flow control */
 
-#define RW_BUDGET               256
+#define RW_BUDGET               64
 #define RX_COUNT_THRESHOLD      ((size_t)UINT8_MAX)
 #define TX_SPACE_THRESHOLD      ((size_t)UINT8_MAX)
 
@@ -20,11 +24,11 @@
 #define tx_space_to_event(x)    ((x) < TX_SPACE_THRESHOLD ? EVENT_TX_SPACE(x) : EVENT_TX_SPACE_MASK)
 
 #define rx_buf_count(tty) \
-    ((AOS_TTY_RX_BUF_SIZE + (tty)->rx_buf_head - (tty)->rx_buf_tail) & (AOS_TTY_RX_BUF_SIZE - 1))
-#define rx_buf_space(tty)       (AOS_TTY_RX_BUF_SIZE - 1 - rx_buf_count(tty))
+    ((AOS_CONFIG_TTY_RX_BUF_SIZE + (tty)->rx_buf_head - (tty)->rx_buf_tail) & (AOS_CONFIG_TTY_RX_BUF_SIZE - 1))
+#define rx_buf_space(tty)       (AOS_CONFIG_TTY_RX_BUF_SIZE - 1 - rx_buf_count(tty))
 #define tx_buf_count(tty) \
-    ((AOS_TTY_TX_BUF_SIZE + (tty)->tx_buf_head - (tty)->tx_buf_tail) & (AOS_TTY_TX_BUF_SIZE - 1))
-#define tx_buf_space(tty)       (AOS_TTY_TX_BUF_SIZE - 1 - tx_buf_count(tty))
+    ((AOS_CONFIG_TTY_TX_BUF_SIZE + (tty)->tx_buf_head - (tty)->tx_buf_tail) & (AOS_CONFIG_TTY_TX_BUF_SIZE - 1))
+#define tx_buf_space(tty)       (AOS_CONFIG_TTY_TX_BUF_SIZE - 1 - tx_buf_count(tty))
 
 aos_status_t aos_tty_get(aos_tty_ref_t *ref, uint32_t id)
 {
@@ -174,6 +178,7 @@ static ssize_t rx_buffer_consume(aos_tty_t *tty, void *buf, size_t count)
         count = SIZE_MAX / 2 - 1;
 
     while (c < count) {
+        uint8_t tmp_buf[RW_BUDGET];
         size_t to_rx = count - c;
         size_t buf_count;
         uint32_t old_event;
@@ -196,8 +201,8 @@ static ssize_t rx_buffer_consume(aos_tty_t *tty, void *buf, size_t count)
         old_event = rx_count_to_event(buf_count);
 
         for (size_t i = 0; i < to_rx; i++) {
-            ((uint8_t *)buf)[c++] = tty->rx_buf[tty->rx_buf_tail++];
-            tty->rx_buf_tail &= AOS_TTY_RX_BUF_SIZE - 1;
+            tmp_buf[i] = tty->rx_buf[tty->rx_buf_tail++];
+            tty->rx_buf_tail &= AOS_CONFIG_TTY_RX_BUF_SIZE - 1;
         }
 
         new_event = rx_count_to_event(rx_buf_count(tty));
@@ -209,11 +214,10 @@ static ssize_t rx_buffer_consume(aos_tty_t *tty, void *buf, size_t count)
 
         aos_spin_unlock_irqrestore(&tty->lock, flags);
 
-#ifdef AOS_TTY_RESERVED_FOR_USERSPACE
-        /* reserved for copying to user space */
-        if (0)
+        if (aos_umem_copy((uint8_t *)buf + c, tmp_buf, to_rx))
             return -EFAULT;
-#endif
+
+        c += to_rx;
     }
 
     return (ssize_t)c;
@@ -246,7 +250,7 @@ static ssize_t read_timeout(aos_tty_t *tty, void *buf, size_t count, uint32_t *t
             break;
         }
 
-        if (*timeout == 0) {
+        if (*timeout == AOS_NO_WAIT) {
             ret = -EAGAIN;
             break;
         }
@@ -403,8 +407,7 @@ static ssize_t read_retro(aos_tty_t *tty, void *buf, size_t count)
     return ret;
 }
 
-/* reserved for POSIX */
-static ssize_t aos_tty_read_fancy(aos_tty_ref_t *ref, void *buf, size_t count, uint32_t *timeout)
+static ssize_t read_fancy(aos_tty_ref_t *ref, void *buf, size_t count, uint32_t *timeout)
 {
     aos_tty_t *tty;
     ssize_t ret;
@@ -424,7 +427,7 @@ static ssize_t aos_tty_read_fancy(aos_tty_ref_t *ref, void *buf, size_t count, u
 
 ssize_t aos_tty_read(aos_tty_ref_t *ref, void *buf, size_t count, uint32_t timeout)
 {
-    return aos_tty_read_fancy(ref, buf, count, &timeout);
+    return read_fancy(ref, buf, count, &timeout);
 }
 
 static size_t tx_buffer_produce(aos_tty_t *tty, const void *buf, size_t count)
@@ -435,6 +438,7 @@ static size_t tx_buffer_produce(aos_tty_t *tty, const void *buf, size_t count)
         count = SIZE_MAX / 2 - 1;
 
     while (c < count) {
+        uint8_t tmp_buf[RW_BUDGET];
         size_t to_tx = count - c;
         size_t buf_space;
         size_t old_count;
@@ -446,11 +450,8 @@ static size_t tx_buffer_produce(aos_tty_t *tty, const void *buf, size_t count)
         if (to_tx > RW_BUDGET)
             to_tx = RW_BUDGET;
 
-#ifdef AOS_TTY_RESERVED_FOR_USERSPACE
-        /* reserved for copying from user space */
-        if (0)
+        if (aos_umem_copy(tmp_buf, (const uint8_t *)buf + c, to_tx))
             return -EFAULT;
-#endif
 
         flags = aos_spin_lock_irqsave(&tty->lock);
 
@@ -466,8 +467,8 @@ static size_t tx_buffer_produce(aos_tty_t *tty, const void *buf, size_t count)
         old_event = tx_space_to_event(buf_space);
 
         for (size_t i = 0; i < to_tx; i++) {
-            tty->tx_buf[tty->tx_buf_head++] = ((const uint8_t *)buf)[c++];
-            tty->tx_buf_head &= AOS_TTY_TX_BUF_SIZE - 1;
+            tty->tx_buf[tty->tx_buf_head++] = tmp_buf[i];
+            tty->tx_buf_head &= AOS_CONFIG_TTY_TX_BUF_SIZE - 1;
         }
 
         new_count = tx_buf_count(tty);
@@ -486,13 +487,13 @@ static size_t tx_buffer_produce(aos_tty_t *tty, const void *buf, size_t count)
         }
 
         aos_spin_unlock_irqrestore(&tty->lock, flags);
+        c += to_tx;
     }
 
     return c;
 }
 
-/* reserved for POSIX */
-static ssize_t aos_tty_write_fancy(aos_tty_ref_t *ref, const void *buf, size_t count, uint32_t *timeout)
+static ssize_t write_fancy(aos_tty_ref_t *ref, const void *buf, size_t count, uint32_t *timeout)
 {
     aos_tty_t *tty;
     ssize_t ret;
@@ -525,7 +526,7 @@ static ssize_t aos_tty_write_fancy(aos_tty_ref_t *ref, const void *buf, size_t c
             break;
         }
 
-        if (timeout && *timeout == 0) {
+        if (timeout && *timeout == AOS_NO_WAIT) {
             ret = -EAGAIN;
             break;
         }
@@ -549,7 +550,94 @@ static ssize_t aos_tty_write_fancy(aos_tty_ref_t *ref, const void *buf, size_t c
 
 ssize_t aos_tty_write(aos_tty_ref_t *ref, const void *buf, size_t count, uint32_t timeout)
 {
-    return aos_tty_write_fancy(ref, buf, count, &timeout);
+    return write_fancy(ref, buf, count, &timeout);
+}
+
+aos_status_t aos_tty_drain(aos_tty_ref_t *ref)
+{
+    aos_tty_t *tty;
+    aos_status_t ret;
+
+    if (!ref || !aos_dev_ref_is_valid(ref))
+        return -EINVAL;
+
+    tty = aos_container_of(ref->dev, aos_tty_t, dev);
+
+    while (1) {
+        size_t count;
+        uint32_t val;
+        aos_status_t r;
+        aos_irqsave_t flags;
+
+        aos_dev_lock(&tty->dev);
+        flags = aos_spin_lock_irqsave(&tty->lock);
+        count = tx_buf_count(tty);
+        aos_spin_unlock_irqrestore(&tty->lock, flags);
+        aos_dev_unlock(&tty->dev);
+
+        if (count == 0) {
+            ret = 0;
+            break;
+        }
+
+        r = aos_event_get(&tty->event, EVENT_TX_EMPTY, AOS_EVENT_OR, &val, AOS_WAIT_FOREVER);
+        if (r == -EINTR) {
+            /* reserved for signal mechanism */
+            ret = -EINTR;
+            break;
+        }
+    }
+
+    return ret;
+}
+
+aos_status_t aos_tty_flush(aos_tty_ref_t *ref, int where)
+{
+    aos_tty_t *tty;
+    bool flush_rx;
+    bool flush_tx;
+    aos_irqsave_t flags;
+
+    if (!ref || !aos_dev_ref_is_valid(ref))
+        return -EINVAL;
+
+    switch (where) {
+    case TCIFLUSH:
+        flush_rx = true;
+        flush_tx = false;
+        break;
+    case TCOFLUSH:
+        flush_rx = false;
+        flush_tx = true;
+        break;
+    case TCIOFLUSH:
+        flush_rx = true;
+        flush_tx = true;
+        break;
+    default:
+        return -EINVAL;
+    }
+
+    tty = aos_container_of(ref->dev, aos_tty_t, dev);
+    aos_dev_lock(&tty->dev);
+    flags = aos_spin_lock_irqsave(&tty->lock);
+
+    if (flush_rx) {
+        tty->rx_buf_head = 0;
+        tty->rx_buf_tail = 0;
+        aos_event_set(&tty->event, ~EVENT_RX_COUNT_MASK, AOS_EVENT_AND);
+    }
+
+    if (flush_tx) {
+        tty->tx_buf_head = 0;
+        tty->tx_buf_tail = 0;
+        aos_event_set(&tty->event, EVENT_TX_SPACE_MASK | EVENT_TX_EMPTY, AOS_EVENT_OR);
+    }
+
+    aos_spin_unlock_irqrestore(&tty->lock, flags);
+    aos_dev_unlock(&tty->dev);
+
+    return 0;
 }
 
 static void reset_termios(struct termios *termios)
@@ -598,7 +686,7 @@ static aos_status_t dev_tty_get(aos_dev_ref_t *ref)
         return ret;
 
     tty->status |= STA_TX_EN;
-    event_mask = tx_space_to_event(AOS_TTY_TX_BUF_SIZE - 1);
+    event_mask = tx_space_to_event(AOS_CONFIG_TTY_TX_BUF_SIZE - 1);
     event_mask |= EVENT_TX_EMPTY;
     aos_event_set(&tty->event, event_mask, AOS_EVENT_OR);
 
@@ -634,9 +722,202 @@ static const aos_dev_ops_t dev_tty_ops = {
     .put        = dev_tty_put,
 };
 
+#ifdef AOS_COMP_DEVFS
+
+static aos_status_t devfs_tty_ioctl(aos_devfs_file_t *file, int cmd, uintptr_t arg)
+{
+    aos_tty_ref_t *ref = aos_devfs_file2ref(file);
+    aos_status_t ret;
+
+    switch (cmd) {
+    case TCGETS:
+        {
+            struct termios termios;
+            if (!aos_devfs_file_is_readable(file)) {
+                ret = -EPERM;
+                break;
+            }
+            ret = aos_tty_get_attr(ref, &termios);
+            if (ret)
+                break;
+            if (!aos_umem_check((const void *)arg, sizeof(termios))) {
+                ret = -EFAULT;
+                break;
+            }
+            ret = aos_umem_copy((void *)arg, &termios, sizeof(termios)) ? -EFAULT : 0;
+        }
+        break;
+    case TCSETS:
+        {
+            struct termios termios;
+            if (!aos_devfs_file_is_writable(file)) {
+                ret = -EPERM;
+                break;
+            }
+            if (!aos_umem_check((const void *)arg, sizeof(termios))) {
+                ret = -EFAULT;
+                break;
+            }
+            if (aos_umem_copy(&termios, (const void *)arg, sizeof(termios))) {
+                ret = -EFAULT;
+                break;
+            }
+            ret = aos_tty_set_attr(ref, TCSANOW, &termios);
+        }
+        break;
+    case TCSETSW:
+        {
+            struct termios termios;
+            if (!aos_devfs_file_is_writable(file)) {
+                ret = -EPERM;
+                break;
+            }
+            if (!aos_umem_check((const void *)arg, sizeof(termios))) {
+                ret = -EFAULT;
+                break;
+            }
+            if (aos_umem_copy(&termios, (const void *)arg, sizeof(termios))) {
+                ret = -EFAULT;
+                break;
+            }
+            ret = aos_tty_set_attr(ref, TCSADRAIN, &termios);
+        }
+        break;
+    case TCSETSF:
+        {
+            struct termios termios;
+            if (!aos_devfs_file_is_writable(file)) {
+                ret = -EPERM;
+                break;
+            }
+            if (!aos_umem_check((const void *)arg, sizeof(termios))) {
+                ret = -EFAULT;
+                break;
+            }
+            if (aos_umem_copy(&termios, (const void *)arg, sizeof(termios))) {
+                ret = -EFAULT;
+                break;
+            }
+            ret = aos_tty_set_attr(ref, TCSAFLUSH, &termios);
+        }
+        break;
+    case TCSBRK:
+        if (arg == 0) {
+            ret = -ENOTSUP;
+        } else {
+            if (!aos_devfs_file_is_writable(file)) {
+                ret = -EPERM;
+                break;
+            }
+            ret = aos_tty_drain(ref);
+        }
+        break;
+    case TCXONC:
+        ret = -ENOTSUP;
+        break;
+    case TCFLSH:
+        if (!aos_devfs_file_is_writable(file)) {
+            ret = -EPERM;
+            break;
+        }
+        ret = aos_tty_flush(ref, arg);
+        break;
+    case TIOCGWINSZ:
+        {
+            struct winsize win_size = {
+                .ws_row = 24,
+                .ws_col = 80,
+                .ws_xpixel = 0,
+                .ws_ypixel = 0,
+            };
+            if (!aos_devfs_file_is_readable(file)) {
+                ret = -EPERM;
+                break;
+            }
+            if (!aos_umem_check((const void *)arg, sizeof(win_size))) {
+                ret = -EFAULT;
+                break;
+            }
+            ret = aos_umem_copy((void *)arg, &win_size, sizeof(win_size)) ? -EFAULT : 0;
+        }
+        break;
+    case TIOCSWINSZ:
+        ret = -ENOTSUP;
+        break;
+    default:
+        ret = -EINVAL;
+        break;
+    }
+
+    return ret;
+}
+
+static aos_status_t devfs_tty_poll(aos_devfs_file_t *file, aos_devfs_poll_request_t *req)
+{
+    aos_tty_ref_t *ref = aos_devfs_file2ref(file);
+    aos_tty_t *tty = aos_container_of(ref->dev, aos_tty_t, dev);
+    aos_status_t ret = 0;
+    aos_irqsave_t flags;
+
+    aos_dev_lock(&tty->dev);
+    aos_devfs_poll_add(&tty->dev.devfs_node, AOS_DEVFS_WQ_RD, req);
+    aos_devfs_poll_add(&tty->dev.devfs_node, AOS_DEVFS_WQ_WR, req);
+    flags = aos_spin_lock_irqsave(&tty->lock);
+    ret |= (rx_buf_count(tty) > 0) ? POLLIN : 0;
+    ret |= (tx_buf_space(tty) > 0) ? POLLOUT : 0;
+    aos_spin_unlock_irqrestore(&tty->lock, flags);
+    aos_dev_unlock(&tty->dev);
+
+    return ret;
+}
+
+static ssize_t devfs_tty_read(aos_devfs_file_t *file, void *buf, size_t count)
+{
+    aos_tty_ref_t *ref = aos_devfs_file2ref(file);
+    mode_t mode = aos_devfs_file_get_mode(file);
+    uint32_t timeout = AOS_NO_WAIT;
+
+    if (!aos_devfs_file_is_readable(file))
+        return -EPERM;
+
+    if (buf && !aos_umem_check(buf, count))
+        return -EFAULT;
+
+    return read_fancy(ref, buf, count, (mode & O_NONBLOCK) ? &timeout : NULL);
+}
+
+static ssize_t devfs_tty_write(aos_devfs_file_t *file, const void *buf, size_t count)
+{
+    aos_tty_ref_t *ref = aos_devfs_file2ref(file);
+    mode_t mode = aos_devfs_file_get_mode(file);
+    uint32_t timeout = AOS_NO_WAIT;
+
+    if (!aos_devfs_file_is_writable(file))
+        return -EPERM;
+
+    if (buf && !aos_umem_check(buf, count))
+        return -EFAULT;
+
+    return write_fancy(ref, buf, count, (mode & O_NONBLOCK) ? &timeout : NULL);
+}
+
+static const aos_devfs_file_ops_t devfs_tty_ops = {
+    .ioctl      = devfs_tty_ioctl,
+    .poll       = devfs_tty_poll,
+    .mmap       = NULL,
+    .read       = devfs_tty_read,
+    .write      = devfs_tty_write,
+    .lseek      = NULL,
+};
+
+#endif /* AOS_COMP_DEVFS */
+
 aos_status_t aos_tty_register(aos_tty_t *tty)
 {
     aos_status_t ret;
+#ifdef AOS_COMP_DEVFS
+    int name_len;
+#endif
 
     if (!tty)
         return -EINVAL;
@@ -647,9 +928,12 @@ aos_status_t aos_tty_register(aos_tty_t *tty)
 
     tty->dev.type = AOS_DEV_TYPE_TTY;
     tty->dev.ops = &dev_tty_ops;
-#ifdef AOS_COMP_VFS
-    tty->dev.vfs_helper.name[0] = '\0';
-    tty->dev.vfs_helper.ops = NULL;
+#ifdef AOS_COMP_DEVFS
+    aos_devfs_node_init(&tty->dev.devfs_node);
+    tty->dev.devfs_node.ops = &devfs_tty_ops;
+    name_len = snprintf(tty->dev.devfs_node.name, sizeof(tty->dev.devfs_node.name), "ttyS%" PRIu32, tty->dev.id);
+    if (name_len < 0 || name_len >= sizeof(tty->dev.devfs_node.name))
+        return -EINVAL;
 #endif
     reset_termios(&tty->termios);
     tty->status = 0;
@@ -693,21 +977,30 @@ aos_status_t aos_tty_unregister(uint32_t id)
 size_t aos_tty_rx_buffer_produce(aos_tty_t *tty, const void *buf, size_t count)
 {
     size_t c = 0;
+    size_t old_count;
+    size_t new_count;
     uint32_t old_event;
     uint32_t new_event;
 
-    old_event = rx_count_to_event(rx_buf_count(tty));
+    old_count = rx_buf_count(tty);
+    old_event = rx_count_to_event(old_count);
 
     while (c < count && rx_buf_space(tty) > 0) {
         tty->rx_buf[tty->rx_buf_head++] = ((const uint8_t *)buf)[c++];
-        tty->rx_buf_head &= AOS_TTY_RX_BUF_SIZE - 1;
+        tty->rx_buf_head &= AOS_CONFIG_TTY_RX_BUF_SIZE - 1;
     }
 
-    new_event = rx_count_to_event(rx_buf_count(tty));
+    new_count = rx_buf_count(tty);
+    new_event = rx_count_to_event(new_count);
     if (new_event != old_event) {
         aos_event_set(&tty->event, ~EVENT_RX_COUNT_MASK, AOS_EVENT_AND);
         aos_event_set(&tty->event, new_event, AOS_EVENT_OR);
     }
+
+#ifdef AOS_COMP_DEVFS
+    if (old_count == 0 && new_count > 0)
+        aos_devfs_poll_wakeup(&tty->dev.devfs_node, AOS_DEVFS_WQ_RD);
+#endif
 
     return c;
 }
@@ -717,19 +1010,23 @@ size_t aos_tty_tx_buffer_consume(aos_tty_t *tty, void *buf, size_t count)
     size_t c = 0;
     size_t old_count;
     size_t new_count;
+    size_t old_space;
+    size_t new_space;
     uint32_t old_event;
     uint32_t new_event;
 
     old_count = tx_buf_count(tty);
-    old_event = tx_space_to_event(tx_buf_space(tty));
+    old_space = tx_buf_space(tty);
+    old_event = tx_space_to_event(old_space);
 
     while (c < count && tx_buf_count(tty) > 0) {
         ((uint8_t *)buf)[c++] = tty->tx_buf[tty->tx_buf_tail++];
-        tty->tx_buf_tail &= AOS_TTY_TX_BUF_SIZE - 1;
+        tty->tx_buf_tail &= AOS_CONFIG_TTY_TX_BUF_SIZE - 1;
     }
 
     new_count = tx_buf_count(tty);
-    new_event = tx_space_to_event(tx_buf_space(tty));
+    new_space = tx_buf_space(tty);
+    new_event = tx_space_to_event(new_space);
 
     if (new_event != old_event) {
         aos_event_set(&tty->event, ~EVENT_TX_SPACE_MASK, AOS_EVENT_AND);
@@ -738,6 +1035,11 @@ size_t aos_tty_tx_buffer_consume(aos_tty_t *tty, void *buf, size_t count)
 
     if (old_count > 0 && new_count == 0)
         aos_event_set(&tty->event, EVENT_TX_EMPTY, AOS_EVENT_OR);
+
+#ifdef AOS_COMP_DEVFS
+    if (old_space == 0 && new_space > 0)
+        aos_devfs_poll_wakeup(&tty->dev.devfs_node, AOS_DEVFS_WQ_WR);
+#endif
 
     return c;
 }

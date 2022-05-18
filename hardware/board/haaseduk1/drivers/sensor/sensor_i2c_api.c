@@ -20,7 +20,7 @@ int32_t sensor_i2c_open(uint32_t port, uint16_t dev_addr, uint32_t freq, uint32_
     p_fd = &g_i2c_fd[port];
 
     if (*p_fd >= 0) {
-        LOGE("SENSOR", "i2c%d is already opened\r\n", port, *p_fd);
+        LOGE("SENSOR", "i2c%d is already opened\r\n", port);
         return -EALREADY;
     }
     memset(&c, 0, sizeof(io_i2c_control_u));

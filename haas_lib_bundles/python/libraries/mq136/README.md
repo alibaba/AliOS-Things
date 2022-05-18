@@ -25,6 +25,9 @@ MQ-136 是一种硫化氢检测传感器，感应范围为 1 - 200ppm。传感�
 
 ## 三、软件接口
 
+MQ-136硫化氢传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/mq136)
+<br>
+
 ### MQ136(adcObj) - 创建MQ136燃气气体传感器驱动对象
 
 * 函数原型

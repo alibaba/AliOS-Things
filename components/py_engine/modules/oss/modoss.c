@@ -17,7 +17,6 @@
 STATIC mp_obj_t obj_uploadFile(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
-    int ret = -1;
     char *url = NULL;
     if (n_args < 5) {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);
@@ -29,25 +28,33 @@ STATIC mp_obj_t obj_uploadFile(size_t n_args, const mp_obj_t *args)
     char *endPoint = (char *)mp_obj_str_get_str(args[2]);
     char *bucketName = (char *)mp_obj_str_get_str(args[3]);
     char *filePath = (char *)mp_obj_str_get_str(args[4]);
+    char *ossPath = NULL;
+    if (n_args == 6) {
+        ossPath = (char *)mp_obj_str_get_str(args[5]);
+    } else {
+        ossPath = &filePath[1];
+    }
+
     LOGD(LOG_TAG, "key = %s;\n", key);
     LOGD(LOG_TAG, "secret = %s;\n", secret);
     LOGD(LOG_TAG, "endPoint = %s;\n", endPoint);
     LOGD(LOG_TAG, "bucketName = %s;\n", bucketName);
     LOGD(LOG_TAG, "filePath = %s;\n", filePath);
+    LOGD(LOG_TAG, "ossPath = %s;\n", ossPath);
+
     MP_THREAD_GIL_EXIT();
-    url = oss_upload_local_file(key, secret, endPoint, bucketName, filePath);
+    url = oss_upload_file(key, secret, endPoint, bucketName, filePath, ossPath);
     MP_THREAD_GIL_ENTER();
     if (url)
         return mp_obj_new_strn(url);
     else
         return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(oss_obj_uploadFile, 5, obj_uploadFile);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(oss_obj_uploadFile, 5, 6, obj_uploadFile);
 
 STATIC mp_obj_t obj_uploadContent(size_t n_args, const mp_obj_t *args)
 {
     LOGD(LOG_TAG, "entern  %s; n_args = %d;\n", __func__, n_args);
-    int ret = -1;
     char *url = NULL;
     if (n_args < 6) {
         LOGE(LOG_TAG, "%s: args num is illegal :n_args = %d;\n", __func__, n_args);

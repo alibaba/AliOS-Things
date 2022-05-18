@@ -1,0 +1,155 @@
+# Makefile for tinydtls
+#
+#
+# Copyright (c) 2011-2020 Olaf Bergmann (TZI) and others.
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# and Eclipse Distribution License v. 1.0 which accompanies this distribution.
+#
+# The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
+# and the Eclipse Distribution License is available at 
+# http://www.eclipse.org/org/documents/edl-v10.php.
+#
+# Contributors:
+#    Olaf Bergmann  - initial API and implementation
+#
+
+# the library's version
+VERSION:=@PACKAGE_VERSION@
+
+# tools
+@SET_MAKE@
+SHELL = /bin/sh
+MKDIR = mkdir
+ETAGS = @ETAGS@
+CC=@CC@
+AR=@AR@
+RANLIB=@RANLIB@
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+abs_builddir = @abs_builddir@
+top_builddir = @top_builddir@
+top_srcdir = @top_srcdir@
+libdir = @libdir@
+includedir = @includedir@/@PACKAGE_NAME@
+package = @PACKAGE_TARNAME@-@PACKAGE_VERSION@
+
+install := cp
+RMDIR?=rmdir
+
+# files and flags
+SOURCES:= dtls.c crypto.c ccm.c hmac.c netq.c peer.c dtls_time.c session.c dtls_debug.c dtls_prng.c
+SUB_OBJECTS:=aes/rijndael.o aes/rijndael_wrap.o @OPT_OBJS@
+OBJECTS:= $(patsubst %.c, %.o, $(SOURCES)) $(SUB_OBJECTS)
+HEADERS:=dtls.h hmac.h dtls_debug.h dtls_config.h uthash.h numeric.h crypto.h global.h ccm.h \
+ netq.h alert.h utlist.h dtls_prng.h peer.h state.h dtls_time.h session.h \
+ tinydtls.h dtls_mutex.h
+CFLAGS:=-Wall -pedantic -std=c99 -DSHA2_USE_INTTYPES_H @CFLAGS@ @WARNING_CFLAGS@
+CPPFLAGS:=@CPPFLAGS@ -DDTLS_CHECK_CONTENTTYPE -I$(top_srcdir)
+SUBDIRS:=tests tests/unit-tests doc platform-specific sha2 aes ecc
+DISTSUBDIRS:=$(SUBDIRS)
+DISTDIR=$(top_builddir)/$(package)
+FILES:=Makefile.in configure configure.ac dtls_config.h.in \
+  Makefile.tinydtls $(SOURCES) $(HEADERS)
+LIB:=libtinydtls
+LIBS:=$(LIB).a
+ifeq ("@ENABLE_SHARED@", "1")
+LIBS:=$(LIBS) $(LIB).so
+endif
+LDFLAGS:=@LDFLAGS@ @LIBS@
+ARFLAGS:=cru
+doc:=doc
+
+.PHONY: all dirs clean install dist distclean .gitignore doc TAGS uninstall
+
+ifneq ("@WITH_CONTIKI@", "1")
+.SUFFIXES:
+.SUFFIXES:      .c .o
+
+all:	$(LIBS) dirs
+
+check:	tests
+	echo DISTDIR: $(DISTDIR)
+	echo top_builddir: $(top_builddir)
+	$(MAKE) -C tests check
+
+tests: $(LIBS)
+	$(MAKE) -C tests
+
+dirs:	$(SUBDIRS)
+	for dir in $^; do \
+		$(MAKE) -C $$dir ; \
+	done
+
+$(SUB_OBJECTS)::
+	$(MAKE) -C $(@D) $(@F)
+
+$(LIB).so: $(OBJECTS)
+	$(LINK.c) $(LDFLAGS) -shared $^ -o $@
+
+$(LIB).a: $(OBJECTS)
+	$(AR) $(ARFLAGS) $@ $^ 
+	$(RANLIB) $@
+
+clean:
+	@rm -f $(PROGRAM) main.o $(LIBS) $(OBJECTS)
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir clean ; \
+	done
+endif # WITH_CONTIKI
+
+doc:	
+	$(MAKE) -C doc
+
+distclean:	clean
+	@rm -rf $(DISTDIR)
+	@rm -f *~ $(DISTDIR).tar.gz
+
+dist:	$(FILES) $(DISTSUBDIRS)
+	test -d $(DISTDIR) || mkdir $(DISTDIR)
+	cp $(FILES) $(DISTDIR)
+	for dir in $(DISTSUBDIRS); do \
+		$(MAKE) -C $$dir dist; \
+	done
+	tar czf $(package).tar.gz $(DISTDIR)
+
+install:	$(LIBS) $(HEADERS) $(SUBDIRS)
+	test -d $(DESTDIR)$(libdir) || mkdir -p $(DESTDIR)$(libdir)
+	test -d $(DESTDIR)$(includedir) || mkdir -p $(DESTDIR)$(includedir)
+	$(install) $(LIBS) $(DESTDIR)$(libdir)/
+	$(install) $(HEADERS) $(DESTDIR)$(includedir)/
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir install="$(install)" includedir=$(includedir) install; \
+	done
+
+uninstall:
+	for file in $(LIBS); do \
+		if test -f $(DESTDIR)$(libdir)/$$file ; then $(RM) $(DESTDIR)$(libdir)/$$file ; fi ;\
+	done
+	for file in $(HEADERS); do \
+		if test -f $(DESTDIR)$(includedir)/$$file ; then $(RM) $(DESTDIR)$(includedir)/$$file ; fi ;\
+	done
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir install="$(install)" includedir=$(includedir) RMDIR=$(RMDIR) uninstall; \
+	done
+	if test -d $(DESTDIR)$(includedir) ; then $(RMDIR) $(DESTDIR)$(includedir) ; fi
+
+TAGS:	
+	$(ETAGS) -o $@.new $(SOURCES) 
+	$(ETAGS) -a -o $@.new $(HEADERS) 
+	mv $@.new $@
+
+# files that should be ignored by git
+GITIGNOREDS:= core \*~ \*.[oa] \*.gz \*.cap \*.pcap Makefile \
+ autom4te.cache/ config.h config.log config.status configure \
+ doc/Doxyfile doc/doxygen.out doc/html/ $(LIBS) tests/ccm-test \
+ tests/dtls-client tests/dtls-server tests/prf-test $(package) \
+ $(DISTDIR)/ TAGS \*.patch .gitignore ecc/testecc ecc/testfield \
+ \*.d \*.hex \*.elf \*.map obj_\* tinydtls.h dtls_config.h \
+ $(addprefix \*., $(notdir $(wildcard ../../platform/*))) \
+ .project
+
+.gitignore:
+	echo $(GITIGNOREDS) | sed 's/ /\n/g' > $@
+

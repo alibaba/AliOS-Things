@@ -426,7 +426,9 @@ static int netdev_cmd_ping(char* target_name, uint32_t times, size_t size, int f
     uint64_t start_time = aos_now_ms();
 	uint64_t min_us=0,avg_us=0,max_us=0,mdev_us=0,sum_us=0;
 	uint64_t d_sum = 0;
-
+    if (times == 0) {
+        return 0;
+    }
     if (size == 0)
     {
         size = NETDEV_PING_DATA_SIZE;

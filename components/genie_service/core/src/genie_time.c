@@ -1259,6 +1259,7 @@ int genie_time_handle_model_mesg(genie_transport_model_param_t *p_msg)
 {
     u16_t attr_type = 0;
     uint8_t *p_data = NULL;
+    uint16_t remain_len;
     uint8_t is_time_mesg = 1;
 
     if (!p_msg || !p_msg->data || p_msg->len == 0)
@@ -1267,6 +1268,7 @@ int genie_time_handle_model_mesg(genie_transport_model_param_t *p_msg)
     }
 
     p_data = p_msg->data;
+    remain_len = p_msg->len;
 
     switch (p_msg->opid)
     {
@@ -1274,6 +1276,7 @@ int genie_time_handle_model_mesg(genie_transport_model_param_t *p_msg)
     {
         attr_type = *p_data++;
         attr_type += (*p_data++ << 8);
+        remain_len -= 2;
 
         if (attr_type == UNIX_TIME_T ||
             attr_type == TIMEZONE_SETTING_T ||
@@ -1300,26 +1303,39 @@ int genie_time_handle_model_mesg(genie_transport_model_param_t *p_msg)
     {
         attr_type = *p_data++;
         attr_type += (*p_data++ << 8);
+        remain_len -= 2;
 
         if (attr_type == UNIX_TIME_T)
         {
+            if (remain_len < 4) {
+                return -1;
+            }
             uint32_t unix_time = (p_data[0]) | (p_data[1] << 8) | (p_data[2] << 16) | (p_data[3] << 24);
             p_data += 4;
+            remain_len -= 4;
             genie_time_local_time_update(unix_time);
             genie_time_operate_status(p_msg->tid, attr_type);
         }
         else if (attr_type == TIMEZONE_SETTING_T)
         {
+            if (remain_len < 1) {
+                return -1;
+            }
             int8_t timezone = *p_data++;
+            remain_len -= 1;
             genie_time_timezone_update(timezone);
             genie_time_operate_status(p_msg->tid, attr_type);
         }
         else if (attr_type == TIMING_SYNC_T)
         {
+            if (remain_len < 4) {
+                return -1;
+            }
             u16_t period_time = (p_data[0]) | (p_data[1] << 8);
             p_data += 2;
             u8_t retry_delay = *p_data++;
             u8_t retry_times = *p_data++;
+            remain_len -= 4;
             genie_time_time_sync_set(period_time, retry_delay, retry_times);
             genie_time_operate_status(p_msg->tid, attr_type);
         }
@@ -1346,9 +1362,13 @@ int genie_time_handle_model_mesg(genie_transport_model_param_t *p_msg)
     {
         attr_type = *p_data++;
         attr_type += (*p_data++ << 8);
+        remain_len -= 2;
 
         if (attr_type == UNIX_TIME_T)
         {
+            if (remain_len < 4) {
+                return -1;
+            }
             uint32_t unix_time = (p_data[0]) | (p_data[1] << 8) | (p_data[2] << 16) | (p_data[3] << 24);
             genie_time_local_time_update(unix_time);
         }

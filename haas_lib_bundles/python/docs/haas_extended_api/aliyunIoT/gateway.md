@@ -40,7 +40,7 @@ connect succeed!  ('192.168.170.30', '255.255.255.0', '192.168.170.26', '192.168
 > 1、为了节约篇幅，接下去的各接口示例代码都在前一个案例基础上追加即可。<br>
 > 2、在示例以及输出结果中对敏感数据做了替换处理。
 
-## gateway - 初始化
+## gateway - 创建对象
 
 - 函数功能：
 对象初始化，初始化物联网平台Gateway类，获取Gateway实例。
@@ -80,17 +80,16 @@ create gateway succeed!
 - 参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
-    | data | dictionary | 是 | 在[物联网平台](https://iot.console.aliyun.com/product)创建的三元组信息 |
+    | gatewayInfo | dictionary | 是 | 在[物联网平台](https://iot.console.aliyun.com/product)创建的三元组信息 |
 
-- data结构说明：
+- gatewayInfo结构说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | deviceName | String | 是 | 物联网平台上注册的deviceName |
     | deviceSecret | String | 是 | 物联网平台上注册的deviceSecre |
     | productKey | String | 是 | 物联网平台上注册的productKey |
-    | productSecret | String | 否 | 物联网平台上注册的productSecret |
-    | region | String | 否 | 阿里云region，默认值：cn-shanghai |
-    | keepaliveSec | int | 否 | 物联网平台上注册的keepaliveSec |
+    | region | String | 是 | 阿里云region，默认值：cn-shanghai，如修改请参考物联网平台的常用Region查询 |
+    | keepaliveSec | int | 是 | 物联网平台上注册的keepaliveSec |
 
 - 返回值：
 成功返回0， 其他表示失败。
@@ -101,19 +100,25 @@ create gateway succeed!
 
 from aliyunIoT import Gateway
 
-def cb_lk_register(data):
-  global g_register_flag
-  print("gateway regiter succeed !")
-  g_register_flag = True
+# 三元组信息
+productKey = "请输入您的productKey"  #需要填入物联网云平台申请到的productKey信息
+deviceName = "请输入您的deviceName"  #需要填入物联网云平台申请到的deviceName信息
+deviceSecret = "请输入您的deviceSecret" #需要填入物联网云平台申请到的deviceSecret信息
+region = "请输入您的region" #需要填入物联网云平台申请到的设备所在的地域名，比如cn-shanghai
 
-productKey = "产品key"
-deviceName = "设备名称"
-productSecret = "产品密钥"
+# 物联网平台连接标志位
+iot_connected = False
 
-dev_register_info = {
+def on_connect(data):
+    global iot_connected
+    iot_connected = True
+
+key_info = {
+    'region': region,
     'productKey': productKey,
     'deviceName': deviceName,
-    'productSecret': productSecret
+    'deviceSecret': deviceSecret,
+    'keepaliveSec': 60
 }
 
 # 将三元组信息设置到iot组件中
@@ -153,13 +158,13 @@ sleep for 2s
 - 函数功能：注册Gateway的回调函数，在相应事件触发时回调。
 - 注意事项：确保网络以及物联网平台连接成功。
 - 函数原型：
-> gateway.on(event,  cb)
+> gateway.on(eventType, callback)
 
 - 参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
-    | event | int | 是 | 注册的事件类型 |
-    | cb | fuction | 是 | 监听事件的回调函数 |
+    | eventType | int | 是 | 注册的事件类型 |
+    | callback | fuction | 是 | 监听事件的回调函数 |
 - 事件类型：
     | 事件 | 说明 |
     | --- | --- |
@@ -187,12 +192,13 @@ sleep for 2s
 - 参数说明：无
 - 返回值说明：成功，设备信息（gatewayInfo，字典类型）；失败，None
 - gatewayInfo结构说明
-    | 参数 | 类型 | 说明 |
+    | 键值 | 类型 | 说明 |
     | --- | --- | --- |
     | deviceName | String | 物联网平台上注册的deviceName |
     | deviceSecret | String | 物联网平台上注册的deviceSecre |
     | productKey | String | 物联网平台上注册的productKey |
     | productSecret | String| 物联网平台上注册的productSecret |
+    | region | String | 阿里云region，参考物联网平台常用Region查询 |
 - 函数示例
 
 ```python
@@ -212,7 +218,7 @@ else:
 - 输出
 ```shell
 get gatewayinfo succeed
-{'productSecret': 'xxx', 'productKey': 'xxx', 'deviceName': 'xxx', 'deviceSecret': 'xxx'}
+{'region': 'xxx', 'productSecret': 'xxx', 'productKey': 'xxx', 'deviceName': 'xxx', 'deviceSecret': 'xxx'}
 ```
 
 ## getGatewayHandle - 获取网关句柄
@@ -246,11 +252,11 @@ get gateway handle successfully
 - 函数功能：从物联网平台获得网络时间。
 - 注意事项：确保网络以及物联网平台连接成功并且已经创建gateway对象。
 - 函数原型：
-> getNtpTime(cb(data))
+> getNtpTime(callback(data))
 - 参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
-    | cb | func | 是 | 回调函数 |
+    | callback | function | 是 | 回调函数 |
 - 返回值说明：成功：Gateway实例，失败：None
 - 参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
@@ -320,6 +326,170 @@ timestamp: 1645005337
 sleep for 2s
 ```
 
+## uploadFile - 上传文件
+- 函数功能：上传文件到物联网平台。
+- 注意事项：
+    确保网络以及物联网平台连接成功；
+    上传的文件以及字符须准确并符合命名规范；
+    文件大小需小于16MB，如超过请使用oss接口。
+
+- 函数原型
+> uploadFile(remoteFileName, localFilePath, callback)
+- 参数说明
+    | 参数 | 类型 | 必选参数 | 说明 |
+    | --- | --- | --- | --- |
+    | remoteFileName | string | 是 | 物联网平台上保存的文件名字（只支持数字0-9，字符‘a’～‘z’、‘A’~‘Z’) |
+    | localFilePath | string | 是 | 本地文件路径（包含文件名）|
+    | callback | function | 是 | 回调函数 |
+
+- 返回值说明：成功，uploadID（字符串类型）；失败，None
+- 函数示例
+
+```python
+# 请首先添加连接WIFI连接代码
+
+# 连接物联网云平台代码
+from aliyunIoT import Gateway
+
+productKey = '产品密钥'
+deviceName = '设备名称'
+deviceSecret = '设备密钥'
+
+# 物联网平台连接标志位
+iot_connected = False
+
+def on_connect(data):
+    global iot_connected
+    iot_connected = True
+
+key_info = {
+    'region': 'cn-shanghai',
+    'productKey': productKey,
+    'deviceName': deviceName,
+    'deviceSecret': deviceSecret,
+    'keepaliveSec': 60
+}
+# 将三元组信息设置到iot组件中
+aliyunIoT_gateway = Gateway()
+
+# 设定连接到物联网平台的回调函数，如果连接物联网平台成功，则调用on_connect函数
+aliyunIoT_gateway.on(aliyunIoT_gateway.ON_CONNECT, on_connect)
+
+# 启动连接阿里云物联网平台过程
+aliyunIoT_gateway.connect(key_info)# 请首先添加连接WIFI连接代码
+
+# 等待设备成功连接到物联网平台
+while(True):
+    if iot_connected:
+        print('物联网平台连接成功')
+        break
+    else:
+        print('sleep for 1 s')
+        utime.sleep(1)
+
+# 上传1.jpg到物联网平台，图片大小建议小于10K.
+ret = aliyunIoT_gateway.uploadFile("aa.jpg", "data/pyamp/1.jpg", None)
+if ret != None :
+  print('图片上传成功')
+else :
+  print('图片上传失败')
+
+utime.sleep(1)
+aliyunIoT_gateway.end()
+```
+- 输出
+
+```shell
+sleep for 1 s
+tcp_connect: can only connect from state CLOSED
+success to establish tcp, fd=54
+物联网平台连接成功
+图片上传成功
+```
+## uploadContent - 上传数据流
+- 函数功能：上传文件数据流，上传数据保存为指定文件文件名由参数指定。
+- 注意事项：
+    确保网络以及物联网平台连接成功;
+    上传的文件以及字符须准确并符合命名规范;
+    文件大小需小于16MB，超过请使用oss接口。
+- 函数原型：
+> uploadContent(remoteFileName,  content,  callback)
+- 参数说明
+    | 参数 | 类型 | 必选参数 | 说明 |
+    | --- | --- | --- | --- |
+    | remoteFileName | string | 是 | 服务端保存的文件名（只支持数字0-9，字符‘a’～‘z’、‘A’~‘Z’) |
+    | content | string | 是 | 本地文件内容（buffer） |
+    | callback | function | 是 | 回调函数 |
+- 返回值说明：成功，uploadID（字符串类型）；失败，None
+- 函数示例
+
+```python
+# 请首先添加连接WIFI连接代码
+
+# 连接物联网云平台代码
+from aliyunIoT import Gateway
+
+productKey = '产品密钥'
+deviceName = '设备名称'
+deviceSecret = '设备密钥'
+
+# 物联网平台连接标志位
+iot_connected = False
+
+def on_connect(data):
+    global iot_connected
+    iot_connected = True
+
+key_info = {
+    'region': 'cn-shanghai',
+    'productKey': productKey,
+    'deviceName': deviceName,
+    'deviceSecret': deviceSecret,
+    'keepaliveSec': 60
+}
+# 将三元组信息设置到iot组件中
+aliyunIoT_gateway = Gateway()
+
+# 设定连接到物联网平台的回调函数，如果连接物联网平台成功，则调用on_connect函数
+aliyunIoT_gateway.on(aliyunIoT_gateway.ON_CONNECT, on_connect)
+
+# 启动连接阿里云物联网平台过程
+aliyunIoT_gateway.connect(key_info)# 请首先添加连接WIFI连接代码
+
+# 等待设备成功连接到物联网平台
+while(True):
+    if iot_connected:
+        print('物联网平台连接成功')
+        break
+    else:
+        print('sleep for 1 s')
+        utime.sleep(1)
+
+# 上传1.jpg到物联网平台，建议小于10k
+import os
+f = open("data/pyamp/1.jpg", "r")
+content = f.read()
+
+#设定上传后的名字为bb.jpg
+remoteFileName = "bb.jpg"
+fileid = aliyunIoT_gateway.uploadContent(remoteFileName, content, None)
+if fileid != None :
+  print('图片上传成功')
+else :
+  print('图片上传失败')
+
+utime.sleep(1)
+aliyunIoT_gateway.end()
+```
+- 输出
+```shell
+sleep for 1 s
+tcp_connect: can only connect from state CLOSED
+success to establish tcp, fd=54
+物联网平台连接成功
+图片上传成功
+```
+
 ## addTopo - 添加子设备
 
 - 函数功能：对网关设备添加子设备。
@@ -337,8 +507,6 @@ sleep for 2s
     | deviceSecret | String | 是 | 物联网平台上注册的deviceSecre |
     | productKey | String | 是 | 物联网平台上注册的productKey |
     | productSecret | String | 否 | 物联网平台上注册的productSecret |
-    | region | String | 否 | 阿里云region，默认值：cn-shanghai |
-    | keepaliveSec | int | 否 | 物联网平台上注册的keepaliveSec |
 - 返回值说明：
 成功：0，失败：非0整数。
 
@@ -507,8 +675,6 @@ login out succeed
     | deviceName | String | 是 | 物联网平台上注册的deviceName |
     | productKey | String | 是 | 物联网平台上注册的productKey |
     | productSecret | String | 是 | 物联网平台上注册的productSecret |
-    | region | String | 否 | 阿里云region，默认值：cn-shanghai |
-    | keepaliveSec | int | 否 | 物联网平台上注册的keepaliveSec |
 
 - 返回值说明：
 成功：0，失败：非0整数
@@ -560,12 +726,12 @@ subdevice register succeed
 用于自定义Topic订阅。
 - 注意事项：确保网络以及物联网平台连接成功。
 - 函数原型：
-> subscribe(data)
+> subscribe(topicInfo)
 - 参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
-    | data | dictionary | 是 | tpoic信息 |
-- data参数说明：
+    | topicInfo | dictionary | 是 | tpoic信息 |
+- topicInfo参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | topic | String | 是 | 创建时指定 |
@@ -605,12 +771,12 @@ topic subscribe succeed
 - 函数功能：发布消息到指定topic。
 - 注意事项：确保网络以及物联网平台连接成功并且已经创建对象，确保已经订阅该topic。
 - 函数原型：
-> publish(data)
+> publish(topicInfo)
 - 参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
-    | data | dictionary | 是 | tpoic信息 |
-- data参数说明
+    | topicInfo | dictionary | 是 | tpoic信息 |
+- topicInfo参数说明
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | topic | String | 是 | 创建时指定 |
@@ -648,12 +814,12 @@ topic publsih succeed
 - 函数功能：取消订阅自定义topic。
 - 注意事项：确保网络以及物联网平台连接成功，并且该topic已经订阅。
 - 函数原型：
-> unsubscribe(data)
+> unsubscribe(topicInfo)
 - 参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
-    | data | dictionary | 是 | tpoic信息 |
-- data参数说明：
+    | topicInfo | dictionary | 是 | tpoic信息 |
+- topicInfo参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | topic | String | 是 | 创建时指定 |

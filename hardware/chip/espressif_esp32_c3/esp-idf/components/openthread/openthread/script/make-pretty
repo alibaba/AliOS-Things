@@ -1,0 +1,325 @@
+#!/bin/bash
+#
+#  Copyright (c) 2019, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+#
+# The script to check or format source code of OpenThread.
+#
+# Format c/c++, markdown, python, and shell:
+#
+#     script/make-pretty
+#
+# Format c/c++ only:
+#
+#     script/make-pretty clang
+#     script/make-pretty clang-format
+#     script/make-pretty clang-tidy
+#
+# Format markdown only:
+#
+#     script/make-pretty markdown
+#
+# Format python only:
+#
+#     script/make-pretty python
+#
+# Format shell only:
+#
+#     script/make-pretty shell
+#
+# Check only:
+#
+#     script/make-pretty check clang
+#     script/make-pretty check clang-format
+#     script/make-pretty check clang-tidy
+#     script/make-pretty check markdown
+#     script/make-pretty check python
+#     script/make-pretty check shell
+#
+
+set -euo pipefail
+
+readonly OT_BUILD_JOBS=$(getconf _NPROCESSORS_ONLN)
+readonly OT_EXCLUDE_DIRS=(third_party doc/site)
+
+readonly OT_CLANG_SOURCES=('*.c' '*.cc' '*.cpp' '*.h' '*.hpp')
+readonly OT_MARKDOWN_SOURCES=('*.md')
+readonly OT_PYTHON_SOURCES=('*.py')
+
+readonly OT_CLANG_TIDY_FIX_DIRS=('examples' 'include' 'src' 'tests')
+readonly OT_CLANG_TIDY_BUILD_OPTS=(
+    '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON'
+    '-DOT_ANYCAST_LOCATOR=ON'
+    '-DOT_APP_RCP=OFF'
+    '-DOT_MTD=OFF'
+    '-DOT_RCP=OFF'
+    '-DOT_PLATFORM=simulation'
+    '-DOT_BACKBONE_ROUTER=ON'
+    '-DOT_BORDER_AGENT=ON'
+    '-DOT_BORDER_ROUTER=ON'
+    '-DOT_CHANNEL_MANAGER=ON'
+    '-DOT_CHANNEL_MONITOR=ON'
+    '-DOT_CHILD_SUPERVISION=ON'
+    '-DOT_COAP=ON'
+    '-DOT_COAP_BLOCK=ON'
+    '-DOT_COAP_OBSERVE=ON'
+    '-DOT_COAPS=ON'
+    '-DOT_COMMISSIONER=ON'
+    '-DOT_CSL_RECEIVER=ON'
+    '-DOT_DATASET_UPDATER=ON'
+    '-DOT_DHCP6_CLIENT=ON'
+    '-DOT_DHCP6_SERVER=ON'
+    '-DOT_DIAGNOSTIC=ON'
+    '-DOT_DNS_CLIENT=ON'
+    '-DOT_DNSSD_SERVER=ON'
+    '-DOT_DUA=ON'
+    '-DOT_MLR=ON'
+    '-DOT_ECDSA=ON'
+    '-DOT_HISTORY_TRACKER=ON'
+    '-DOT_IP6_FRAGM=ON'
+    '-DOT_JAM_DETECTION=ON'
+    '-DOT_JOINER=ON'
+    '-DOT_LEGACY=ON'
+    '-DOT_LINK_RAW=ON'
+    '-DOT_LINK_METRICS_INITIATOR=ON'
+    '-DOT_LINK_METRICS_SUBJECT=ON'
+    '-DOT_MAC_FILTER=ON'
+    '-DOT_MTD_NETDIAG=ON'
+    '-DOT_NETDATA_PUBLISHER=ON'
+    '-DOT_PING_SENDER=ON'
+    '-DOT_REFERENCE_DEVICE=ON'
+    '-DOT_SERVICE=ON'
+    '-DOT_SLAAC=ON'
+    '-DOT_SNTP_CLIENT=ON'
+    '-DOT_SRP_CLIENT=ON'
+    '-DOT_SRP_SERVER=ON'
+    '-DOT_THREAD_VERSION=1.2'
+    '-DOT_TREL=ON'
+    '-DOT_COVERAGE=ON'
+    '-DOT_LOG_LEVEL_DYNAMIC=ON'
+    '-DOT_COMPILE_WARNING_AS_ERROR=ON'
+    '-DOT_UPTIME=ON'
+)
+
+readonly OT_CLANG_TIDY_CHECKS="\
+-*,\
+google-explicit-constructor,\
+google-readability-casting,\
+misc-unused-using-decls,\
+modernize-use-bool-literals,\
+modernize-use-equals-default,\
+modernize-use-equals-delete,\
+modernize-use-nullptr,\
+readability-avoid-const-params-in-decls,\
+readability-else-after-return,\
+readability-inconsistent-declaration-parameter-name,\
+readability-make-member-function-const,\
+readability-redundant-member-init,\
+readability-simplify-boolean-expr,\
+readability-static-accessed-through-instance,\
+"
+
+#performance-for-range-copy\
+
+do_clang_format()
+{
+    echo -e '========================================'
+    echo -e '     format c/c++ (clang-format)'
+    echo -e '========================================'
+
+    git ls-files "${OT_CLANG_SOURCES[@]}" | grep -v -E "^($(echo "${OT_EXCLUDE_DIRS[@]}" | tr ' ' '|'))" \
+        | xargs -n3 -P"$OT_BUILD_JOBS" script/clang-format -style=file -i -verbose
+}
+
+do_clang_format_check()
+{
+    echo -e '========================================'
+    echo -e '     check c/c++ (clang-format)'
+    echo -e '========================================'
+
+    git ls-files "${OT_CLANG_SOURCES[@]}" | grep -v -E "^($(echo "${OT_EXCLUDE_DIRS[@]}" | tr ' ' '|'))" \
+        | xargs -n3 -P"$OT_BUILD_JOBS" script/clang-format-check
+}
+
+do_clang_tidy_fix()
+{
+    echo -e '========================================'
+    echo -e '     format c/c++ (clang-tidy)'
+    echo -e '========================================'
+
+    (mkdir -p ./build/cmake-tidy \
+        && cd ./build/cmake-tidy \
+        && THREAD_VERSION=1.2 cmake "${OT_CLANG_TIDY_BUILD_OPTS[@]}" ../.. \
+        && ../../script/clang-tidy -header-filter='.*' -checks="${OT_CLANG_TIDY_CHECKS}" -j"$OT_BUILD_JOBS" "${OT_CLANG_TIDY_FIX_DIRS[@]}" -fix)
+}
+
+do_clang_tidy_check()
+{
+    echo -e '========================================'
+    echo -e '     check c/c++ (clang-tidy)'
+    echo -e '========================================'
+
+    (
+        mkdir -p ./build/cmake-tidy \
+            && cd ./build/cmake-tidy \
+            && THREAD_VERSION=1.2 cmake "${OT_CLANG_TIDY_BUILD_OPTS[@]}" ../.. \
+            && ../../script/clang-tidy -header-filter='.*' -checks="${OT_CLANG_TIDY_CHECKS}" -j"$OT_BUILD_JOBS" "${OT_CLANG_TIDY_FIX_DIRS[@]}" \
+            | grep -v -E "third_party" >output.txt
+        if grep -q "warning: \|error: " output.txt; then
+            echo "You must pass the clang tidy checks before submitting a pull request"
+            echo ""
+            grep --color -E 'warning: |error: ' -A 5 output.txt
+            exit 1
+        fi
+    )
+}
+
+do_markdown_format()
+{
+    echo -e '========================================'
+    echo -e '     format markdown'
+    echo -e '========================================'
+
+    git ls-files "${OT_MARKDOWN_SOURCES[@]}" | grep -v -E "^($(echo "${OT_EXCLUDE_DIRS[@]}" | tr ' ' '|'))" \
+        | xargs -n10 -P"$OT_BUILD_JOBS" npx prettier@2.0.4 --write
+}
+
+do_markdown_check()
+{
+    echo -e '========================================'
+    echo -e '     check markdown'
+    echo -e '========================================'
+
+    git ls-files "${OT_MARKDOWN_SOURCES[@]}" | grep -v -E "^($(echo "${OT_EXCLUDE_DIRS[@]}" | tr ' ' '|'))" \
+        | xargs -n10 -P"$OT_BUILD_JOBS" npx prettier@2.0.4 --check
+}
+
+do_python_format()
+{
+    echo -e '========================================'
+    echo -e '     format python'
+    echo -e '========================================'
+
+    git ls-files "${OT_PYTHON_SOURCES[@]}" | grep -v -E "^($(echo "${OT_EXCLUDE_DIRS[@]}" | tr ' ' '|'))" \
+        | xargs -n10 -P"$OT_BUILD_JOBS" python3 -m yapf --verbose --style '{based_on_style: google, column_limit: 119}' -ipr
+}
+
+do_python_check()
+{
+    echo -e '========================================'
+    echo -e '     check python'
+    echo -e '========================================'
+
+    git ls-files "${OT_PYTHON_SOURCES[@]}" | grep -v -E "^($(echo "${OT_EXCLUDE_DIRS[@]}" | tr ' ' '|'))" \
+        | xargs -n10 -P"$OT_BUILD_JOBS" python3 -m yapf --verbose --style '{based_on_style: google, column_limit: 119}' -dpr
+}
+
+do_shell_format()
+{
+    echo -e '========================================'
+    echo -e '     format shell'
+    echo -e '========================================'
+
+    git ls-files | xargs shfmt -f | grep -v -E "^($(echo "${OT_EXCLUDE_DIRS[@]}" | tr ' ' '|'))" \
+        | xargs -n10 -P"$OT_BUILD_JOBS" shfmt -i 4 -bn -ci -fn -s -w
+}
+
+do_shell_check()
+{
+    echo -e '========================================'
+    echo -e '     check shell'
+    echo -e '========================================'
+
+    git ls-files | xargs shfmt -f | grep -v -E "^($(echo "${OT_EXCLUDE_DIRS[@]}" | tr ' ' '|'))" \
+        | xargs -n10 -P"$OT_BUILD_JOBS" shfmt -i 4 -bn -ci -fn -s -d
+
+    git ls-files | xargs shfmt -f | grep -v -E "^($(echo "${OT_EXCLUDE_DIRS[@]}" | tr ' ' '|'))" \
+        | xargs -n10 -P"$OT_BUILD_JOBS" shellcheck
+}
+
+do_check()
+{
+    if [ $# == 0 ]; then
+        do_clang_format_check
+        do_clang_tidy_check
+        do_markdown_check
+        do_python_check
+        do_shell_check
+    elif [ "$1" == 'clang' ]; then
+        do_clang_format_check
+        do_clang_tidy_check
+    elif [ "$1" == 'clang-format' ]; then
+        do_clang_format_check
+    elif [ "$1" == 'clang-tidy' ]; then
+        do_clang_tidy_check
+    elif [ "$1" == 'markdown' ]; then
+        do_markdown_check
+    elif [ "$1" == 'python' ]; then
+        do_python_check
+    elif [ "$1" == 'shell' ]; then
+        do_shell_check
+    else
+        echo >&2 "Unsupported check: $1. Supported: clang, markdown, python, shell"
+        # 128 for Invalid arguments
+        exit 128
+    fi
+}
+
+main()
+{
+    if [ $# == 0 ]; then
+        do_clang_tidy_fix
+        do_clang_format
+        do_markdown_format
+        do_python_format
+        do_shell_format
+    elif [ "$1" == 'clang' ]; then
+        do_clang_tidy_fix
+        do_clang_format
+    elif [ "$1" == 'clang-format' ]; then
+        do_clang_format
+    elif [ "$1" == 'clang-tidy' ]; then
+        do_clang_tidy_fix
+    elif [ "$1" == 'markdown' ]; then
+        do_markdown_format
+    elif [ "$1" == 'python' ]; then
+        do_python_format
+    elif [ "$1" == 'shell' ]; then
+        do_shell_format
+    elif [ "$1" == 'check' ]; then
+        shift
+        do_check "$@"
+    else
+        echo >&2 "Unsupported action: $1. Supported: clang, markdown, python, shell"
+        # 128 for Invalid arguments
+        exit 128
+    fi
+
+}
+
+main "$@"

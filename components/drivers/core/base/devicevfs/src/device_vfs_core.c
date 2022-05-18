@@ -759,24 +759,45 @@ int aos_dev_reg_with_flag (struct subsys_dev *sdev, subsys_file_ops_t *sfops, st
 #endif
 
     pdev = (struct u_platform_device *)malloc(sizeof(*pdev));
-    pdrv = (struct u_platform_driver *)malloc(sizeof(*pdrv));
-    fops = (subsys_file_ops_t *)malloc(sizeof(*fops));
-    path_name_len = strlen(NODE_PREFIX) + strlen(sdev->node_name) + 1;
-    path_name = (char *)malloc(path_name_len);
-
-    dev_n = (struct subsys_dev_node *)malloc(sizeof(*dev_n) + strlen(sdev->node_name) + 1);
-
-    if (!pdev || !pdrv || !fops || !path_name || !dev_n) {
-        ddkc_err("malloc failed, pdev:%p, pdrv:%p, fops:%p dev:%p, or path_name:%p\r\n", pdev, pdrv, fops, dev_n, path_name);
+    if (pdev) {
+        memset(pdev, 0, sizeof(*pdev));
+    } else {
         ret = -ENOMEM;
         goto err_malloc;
     }
 
-    memset(pdev, 0, sizeof(*pdev));
-    memset(pdrv, 0, sizeof(*pdrv));
-    memset(fops, 0, sizeof(*fops));
-    memset(path_name, 0, path_name_len);
-    memset(dev_n, 0, sizeof(*dev_n) + strlen(sdev->node_name) + 1);
+    pdrv = (struct u_platform_driver *)malloc(sizeof(*pdrv));
+    if (pdrv) {
+        memset(pdrv, 0, sizeof(*pdrv));
+    } else {
+        ret = -ENOMEM;
+        goto err_malloc;
+    }
+
+    fops = (subsys_file_ops_t *)malloc(sizeof(*fops));
+    if (fops) {
+        memset(fops, 0, sizeof(*fops));
+    } else {
+        ret = -ENOMEM;
+        goto err_malloc;
+    }
+
+    path_name_len = strlen(NODE_PREFIX) + strlen(sdev->node_name) + 1;
+    path_name = (char *)malloc(path_name_len);
+    if (path_name) {
+        memset(path_name, 0, path_name_len);
+    } else {
+        ret = -ENOMEM;
+        goto err_malloc;
+    }
+
+    dev_n = (struct subsys_dev_node *)malloc(sizeof(*dev_n) + strlen(sdev->node_name) + 1);
+    if (dev_n) {
+        memset(dev_n, 0, sizeof(*dev_n) + strlen(sdev->node_name) + 1);
+    } else {
+        ret = -ENOMEM;
+        goto err_malloc;
+    }
 
     //TODO: use sdrv->drv_name later
     pdev->name = strdup(sdev->node_name);

@@ -18,6 +18,8 @@
 #include "plat_types.h"
 #include "bwifi_interface.h"
 #include "bes_sniffer.h"
+#include <aos/kernel.h>
+#include <errno.h>
 
 typedef enum {
     SCAN_NORMAL,
@@ -33,6 +35,8 @@ static struct {
     uint8_t sap_connected:1;
     uint8_t smart_config:1;
     uint8_t zero_config:1;
+    /*wifi is connecting*/
+    volatile uint8_t connecting:1;
 
     struct {
         int ap_num;
@@ -50,6 +54,7 @@ static struct {
 
 static monitor_data_cb_t promisc_cb;
 static monitor_data_cb_t mgnt_frame_cb;
+static aos_sem_t wifi_connect_sem;
 
 struct netif *wifi_get_netif(netdev_t *dev, wifi_mode_t mode)
 {
@@ -250,6 +255,12 @@ static int haas1000_wifi_init(netdev_t *dev)
     if (inited)
         return 0;
 
+    ret = aos_sem_create(&wifi_connect_sem, 1, 0);
+    if (ret) {
+        printf("%s:%d: aos_sem_create ret:%d\n", __func__, __LINE__, ret);
+        return -1;
+    }
+
     ret = bwifi_init();
     if (ret) {
         printf("bwifi init fail\n");
@@ -272,6 +283,7 @@ static int haas1000_wifi_init(netdev_t *dev)
 
 static int haas1000_wifi_deinit(netdev_t *dev)
 {
+    aos_sem_free(&wifi_connect_sem);
     return 0;
 }
 
@@ -292,8 +304,9 @@ static void wifi_connect_task(void *arg)
 {
     int ret = 0;
     wifi_config_t *init_para = (wifi_config_t*)arg;
-    if (!init_para)
-        return;
+
+    aos_sem_wait(&wifi_connect_sem, AOS_WAIT_FOREVER);
+
     ret = bwifi_connect_to_ssid(init_para->ssid, init_para->password, 0, 0, NULL);
     if (ret) {
         printf("wifi connect to %s fail:%d\n", init_para->ssid, ret);
@@ -307,6 +320,8 @@ static void wifi_connect_task(void *arg)
     aos_free(init_para);
     //aos_task_exit(0);
     osThreadExitPub();
+    wifi_status.connecting = 0;
+    aos_sem_signal(&wifi_connect_sem);
 }
 
 static int start_ap(netdev_t *dev,
@@ -357,6 +372,7 @@ static int stop_ap(netdev_t *dev)
 __SRAMDATA osThreadDef(wifi_connect_task, osPriorityNormal, 1, (4096), "wifi_connect");
 static int haas1000_wifi_connect(netdev_t *dev, wifi_config_t* config)
 {
+    aos_status_t ret;
     if (!config) {
         printf("%s: invalid argument!\n", __func__);
         return -1;
@@ -366,6 +382,11 @@ static int haas1000_wifi_connect(netdev_t *dev, wifi_config_t* config)
         return -1;
 
     if (config->mode == WIFI_MODE_STA) {
+        /*wifi_connect_task use the static stack space, only 1 instance can run.*/
+        if (wifi_status.connecting) {
+            printf("%s:%d: wifi is connecting, please try again later.\n", __func__, __LINE__);
+            return -1;
+        }
         wifi_config_t *init_config_ptr = aos_malloc(sizeof(wifi_config_t));
         if (!init_config_ptr) {
             printf("Failed to alloc init para for wifi_connect_task\n");
@@ -373,12 +394,21 @@ static int haas1000_wifi_connect(netdev_t *dev, wifi_config_t* config)
         }
         strncpy(init_config_ptr->ssid, config->ssid, sizeof(init_config_ptr->ssid)-1);
         strncpy(init_config_ptr->password, config->password, sizeof(init_config_ptr->password)-1);
-        //if (aos_task_new("wifi_connect", wifi_connect_task, init_para_ptr, 4096)) {
-        if (osThreadCreate(osThread(wifi_connect_task), init_config_ptr) == NULL) {
-            printf("Failed to create wifi_connect_task\n");
+        /* Serialize this task and wifi_connect_task. */
+        ret = aos_sem_wait(&wifi_connect_sem, 100);
+        if (ret != 0) {
+            printf("%s:%d: wifi_connect_task is running, please try again later.\n", __func__, __LINE__);
             aos_free(init_config_ptr);
             return -1;
         }
+        if (osThreadCreate(osThread(wifi_connect_task), init_config_ptr) == NULL) {
+            printf("Failed to create wifi_connect_task\n");
+            aos_free(init_config_ptr);
+            aos_sem_signal(&wifi_connect_sem);
+            return -1;
+        }
+        wifi_status.connecting = 1;
+        aos_sem_signal(&wifi_connect_sem);
     } else if (config->mode == WIFI_MODE_AP) {
         return start_ap(dev, config->ssid, config->password, config->ap_config.beacon_interval, config->ap_config.hide_ssid);
     }
@@ -391,6 +421,7 @@ static int haas1000_wifi_notify_ip_state2drv(netdev_t *dev,
                        wifi_mode_t mode)
 {
 #if LWIP_ETHERNETIF && !LWIP_SUPPORT
+    int ret;
     struct ip_info ip;
 
     if (!in_net_para) {
@@ -403,9 +434,21 @@ static int haas1000_wifi_notify_ip_state2drv(netdev_t *dev,
         printf("set ip: %s\n", in_net_para->ip);
         printf("set mask: %s\n", in_net_para->mask);
         printf("set gw: %s\n", in_net_para->gate);
-        inet_aton(in_net_para->ip, &ip.ip);
-        inet_aton(in_net_para->mask, &ip.netmask);
-        inet_aton(in_net_para->gate, &ip.gw);
+        ret = inet_aton(in_net_para->ip, &ip.ip);
+        if (!ret) {
+            printf("%s:%d: invalid ip address %s\n", __func__, __LINE__, in_net_para->ip);
+            return -1;
+        }
+        ret = inet_aton(in_net_para->mask, &ip.netmask);
+        if (!ret) {
+            printf("%s:%d: invalid network mask %s\n", __func__, __LINE__, in_net_para->mask);
+            return -1;
+        }
+        ret = inet_aton(in_net_para->gate, &ip.gw);
+        if (!ret) {
+            printf("%s:%d: invalid gateway address %s\n", __func__, __LINE__, in_net_para->gate);
+            return -1;
+        }
         return bwifi_set_ip_addr(WIFI_IF_STATION, &ip);
     }
 #endif
@@ -470,6 +513,8 @@ static int wifi_scan(netdev_t *dev, wifi_scan_config_t* config, bool block, scan
     static wifi_scan_result_t result = {0};
     int index = 0, a_size = 0;
     int scan_chs[] =  {1, 6, 11, 2, 3, 4, 5, 7, 8, 9, 10, 12, 13, 0};
+    int scan_req_num = 0;
+    int scan_req_ap_list_size = 0;
 
     if (WARN_ON(!wifi_status.wifi_started || wifi_status.resetting))
         return -1;
@@ -477,7 +522,11 @@ static int wifi_scan(netdev_t *dev, wifi_scan_config_t* config, bool block, scan
     if (t == SCAN_SPECIFIED) {
         prev_scan_ssid = NULL;
         a_size = sizeof(scan_chs)/sizeof(scan_chs[0]) - 1;
-        for (i = 0; i < wifi_status.scan_req.ap_num; i++) {
+        /* Check again to make sure ap_list array doesn't overrun, and make static analysis happy. */
+        scan_req_ap_list_size = sizeof(wifi_status.scan_req.ap_list) / sizeof(wifi_status.scan_req.ap_list[0]);
+        scan_req_num = wifi_status.scan_req.ap_num > scan_req_ap_list_size ?
+                       scan_req_ap_list_size : wifi_status.scan_req.ap_num;
+        for (i = 0; i < scan_req_num; i++) {
             index = find_index_by_value(wifi_status.scan_req.ap_list[i].channel, scan_chs, a_size);
             if( index < a_size && index > i) {
                 scan_chs[index] = scan_chs[i];

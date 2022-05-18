@@ -1,0 +1,50 @@
+############################################################################
+#
+# OpenSSL dual versions
+#
+# Works with CentOS 7
+#
+############################################################################
+#
+# Add in alternative OpenSSL support into /opt/openssl.  /opt/openssl is
+# chosen instead of the default of /usr/local so that existing utilities
+# continue to use the original version of OpenSSL and so only specific
+# applications that requires the newer version of OpenSSL will pick up the
+# new code.
+#
+# Download latest stable version of openssl.X.Y.Z.tar.gz from
+# https://www.openssl.org/source/
+
+tar zxovf openssl.X.Y.Z.tar.gz
+cd openssl.X.Y.X
+./config --prefix=/opt/openssl --openssldir=/opt/openssl
+make
+sudo make install_sw
+
+# The following should not clash the existing OpenSSL lib*.so.1.0 usage unless
+# the previous OpenSSL version is 1.1.0 or later.
+# It just makes things for running executables a lot simpler.
+sudo cp /opt/openssl/lib/lib*.so.1.1 /lib64
+cd ..
+
+############################################################################
+#
+# libcoap build with updated OpenSSL
+#
+############################################################################
+
+# Get the latest libcoap
+git clone https://github.com/obgm/libcoap.git
+
+# Build code
+cd libcoap
+./autogen.sh
+# Update --enable- / --disable- options as appropriate
+# libcoap libraries are put into /usr/lib64 for ease of linking
+PKG_CONFIG_PATH=/opt/openssl/lib/pkgconfig ./configure --libdir=/usr/lib64 \
+  --with-openssl --enable-tests --enable-examples --disable-doxygen \
+  --disable-manpages
+make
+sudo make install
+cd ..
+

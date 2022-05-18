@@ -1,0 +1,284 @@
+#!/usr/bin/expect -f
+#
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+source "tests/scripts/expect/_common.exp"
+source "tests/scripts/expect/_multinode.exp"
+
+
+# The expect on macOS doesn't support `try` or `file tempfile`.
+skip_on_macos
+
+file tempfile socat_out
+set socat_pid [exec socat -d -d pty,raw,echo=0 pty,raw,echo=0 >/dev/null 2>$socat_out &]
+while {true} {
+    if {[exec head -n2 $socat_out | wc -l] == 2} {
+        set radio_pty [exec head -n1 $socat_out | grep -o {/dev/.\+}]
+        set host_pty [exec head -n2 $socat_out | tail -n1 | grep -o {/dev/.\+}]
+        break
+    }
+    sleep 1
+}
+
+puts "Radio PTY: $radio_pty"
+puts "Host PTY: $host_pty"
+
+set rcp_pid [exec $::env(OT_SIMULATION_APPS)/ncp/ot-rcp 1 < $radio_pty > $radio_pty &]
+puts "RCP PID: $rcp_pid"
+
+try {
+    puts "Before enabling"
+
+    spawn_node 1 "rcp" "spinel+hdlc_uart://$host_pty"
+
+    exec kill $rcp_pid
+    puts "Killed $rcp_pid"
+    sleep 1
+    set rcp_pid [exec $::env(OT_SIMULATION_APPS)/ncp/ot-rcp 1 < $radio_pty > $radio_pty &]
+    puts "RCP PID: $rcp_pid"
+
+    expect eof
+
+
+    puts "Queued parent-to-child packets, as parent"
+
+    spawn_node 1 "rcp" "spinel+hdlc_uart://$host_pty"
+    spawn_node 2
+
+    setup_two_nodes "-" false
+
+    switch_node 2
+    set addr_2 [get_ipaddr mleid]
+    send "udp open\n"
+    expect_line "Done"
+    send "udp bind :: 11003\n"
+    expect_line "Done"
+    send "pollperiod 100000\n"
+    expect_line "Done"
+
+    sleep 1
+
+    switch_node 1
+    set addr_1 [get_ipaddr mleid]
+    send "udp open\n"
+    expect_line "Done"
+    send "udp bind :: 11004\n"
+    expect_line "Done"
+    send "udp connect $addr_2 11003\n"
+    expect_line "Done"
+    send "udp send hello\n"
+    expect_line "Done"
+    send "udp send there\n"
+    expect_line "Done"
+
+    sleep 1
+
+    exec kill $rcp_pid
+    puts "Killed $rcp_pid"
+    sleep 1
+    set rcp_pid [exec $::env(OT_SIMULATION_APPS)/ncp/ot-rcp 1 < $radio_pty > $radio_pty &]
+    puts "RCP PID: $rcp_pid"
+
+    sleep 1
+
+    switch_node 2
+    send "pollperiod 1000\n"
+    expect_line "Done"
+    expect "5 bytes from $addr_1 11004 hello"
+    expect "5 bytes from $addr_1 11004 there"
+
+    dispose_all
+
+
+    puts "Queued parent-to-child packets, as child"
+
+    exec kill $rcp_pid
+    puts "Killed $rcp_pid"
+    sleep 1
+    set rcp_pid [exec $::env(OT_SIMULATION_APPS)/ncp/ot-rcp 2 < $radio_pty > $radio_pty &]
+    puts "RCP PID: $rcp_pid"
+
+    spawn_node 1
+    spawn_node 2 "rcp" "spinel+hdlc_uart://$host_pty"
+
+    setup_two_nodes "-" false
+
+    switch_node 2
+    set addr_2 [get_ipaddr mleid]
+    send "udp open\n"
+    expect_line "Done"
+    send "udp bind :: 11003\n"
+    expect_line "Done"
+    send "pollperiod 100000\n"
+    expect_line "Done"
+
+    sleep 1
+
+    switch_node 1
+    set addr_1 [get_ipaddr mleid]
+    send "udp open\n"
+    expect_line "Done"
+    send "udp bind :: 11004\n"
+    expect_line "Done"
+    send "udp connect $addr_2 11003\n"
+    expect_line "Done"
+    send "udp send hello\n"
+    expect_line "Done"
+
+    sleep 1
+
+    exec kill $rcp_pid
+    puts "Killed $rcp_pid"
+    sleep 1
+    set rcp_pid [exec $::env(OT_SIMULATION_APPS)/ncp/ot-rcp 2 < $radio_pty > $radio_pty &]
+    puts "RCP PID: $rcp_pid"
+
+    sleep 1
+
+    switch_node 2
+    send "pollperiod 1000\n"
+    expect_line "Done"
+    expect "5 bytes from $addr_1 11004 hello"
+
+    dispose_all
+
+    exec kill $rcp_pid
+    puts "Killed $rcp_pid"
+    sleep 1
+    set rcp_pid [exec $::env(OT_SIMULATION_APPS)/ncp/ot-rcp 1 < $radio_pty > $radio_pty &]
+    puts "RCP PID: $rcp_pid"
+
+
+    puts "Many children, queued child-to-child packets"
+
+    spawn_node 1 "rcp" "spinel+hdlc_uart://$host_pty"
+    setup_leader
+    set addr(1) [get_ipaddr mleid]
+    send "udp open\n"
+    expect_line "Done"
+    send "udp bind :: 11004\n"
+    expect_line "Done"
+
+    set max_children 10
+    for {set i 2} {$i <= $max_children + 1} {incr i} {
+        spawn_node $i
+        setup_node $i "-"
+        switch_node $i
+        set addr($i) [get_ipaddr mleid]
+        send "udp open\n"
+        expect_line "Done"
+        send "udp bind :: 11003\n"
+        expect_line "Done"
+        send "pollperiod 100000\n"
+        expect_line "Done"
+    }
+
+    sleep 1
+
+    switch_node 1
+    for {set i 2} {$i <= $max_children + 1} {incr i} {
+        send "udp send $addr($i) 11003 hello\n"
+        expect_line "Done"
+    }
+
+    sleep 1
+
+    exec kill $rcp_pid
+    puts "Killed $rcp_pid"
+    sleep 1
+    set rcp_pid [exec $::env(OT_SIMULATION_APPS)/ncp/ot-rcp 1 < $radio_pty > $radio_pty &]
+    puts "RCP PID: $rcp_pid"
+
+    sleep 1
+
+    for {set i 7} {$i <= 9} {incr i} {
+        switch_node $i
+        send "pollperiod 1000\n"
+        expect_line "Done"
+        expect "5 bytes from $addr(1) 11004 hello"
+    }
+
+    switch_node 4
+    send "udp send $addr(5) 11003 hello_from_node_4\n"
+    expect_line "Done"
+    if {$::env(THREAD_VERSION) != "1.1"} {
+        expect "5 bytes from $addr(1) 11004 hello"
+    }
+
+    sleep 1
+
+    exec kill $rcp_pid
+    puts "Killed $rcp_pid"
+    sleep 1
+    set rcp_pid [exec $::env(OT_SIMULATION_APPS)/ncp/ot-rcp 1 < $radio_pty > $radio_pty &]
+    puts "RCP PID: $rcp_pid"
+
+    sleep 1
+
+    switch_node 5
+    send "pollperiod 1000\n"
+    expect_line "Done"
+    expect "17 bytes from $addr(4) 11003 hello_from_node_4"
+
+    dispose_all
+
+
+    puts "While energy scanning"
+
+    spawn_node 1 "rcp" "spinel+hdlc_uart://$host_pty"
+    send "ifconfig up\n"
+    expect_line "Done"
+    send "thread start\n"
+    expect_line "Done"
+    wait_for "state" "leader"
+    expect_line "Done"
+
+    send "scan energy 100\n"
+    expect "| Ch | RSSI |"
+    expect "+----+------+"
+
+    sleep 1
+
+    exec kill $rcp_pid
+    puts "Killed $rcp_pid"
+    sleep 1
+    set rcp_pid [exec $::env(OT_SIMULATION_APPS)/ncp/ot-rcp 1 < $radio_pty > $radio_pty &]
+    puts "RCP PID: $rcp_pid"
+
+    sleep 1
+
+    for {set i 11} {$i <= 26} {incr i} {
+        expect -re "\\| +$i \\| +-?\\d+ \\|"
+    }
+    expect_line "Done"
+
+    dispose_all
+} finally {
+    exec kill $rcp_pid
+    exec kill $socat_pid
+}

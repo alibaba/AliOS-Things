@@ -8,3 +8,6 @@
 #define SOC_TWAI_SUPPORTED 1
 #define SOC_CPU_CORES_NUM 1
 #define SOC_SUPPORTS_SECURE_DL_MODE 1
+
+// ESP32-S2 have 2 I2S
+#define SOC_I2S_NUM            (1)

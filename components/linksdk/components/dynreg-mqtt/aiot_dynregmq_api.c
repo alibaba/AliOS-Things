@@ -29,7 +29,7 @@ static void _dynregmq_exec_dec(dynregmq_handle_t *dynregmq_handle)
 static void _dynregmq_recv_handler(void *handle, const aiot_mqtt_recv_t *packet, void *userdata)
 {
     dynregmq_handle_t *dynregmq_handle = (dynregmq_handle_t *)userdata;
-
+    int err = 0;
     if (dynregmq_handle->recv_handler == NULL) {
         return;
     }
@@ -48,10 +48,10 @@ static void _dynregmq_recv_handler(void *handle, const aiot_mqtt_recv_t *packet,
                 char *ds = NULL;
                 uint32_t ds_len = 0;
 
-                core_json_value(payload, payload_len, key_ds, strlen(key_ds),
+                err = core_json_value(payload, payload_len, key_ds, strlen(key_ds),
                                 &ds, &ds_len);
 
-                if (ds == NULL || ds_len == 0) {
+                if (ds == NULL || ds_len == 0 || err < 0) {
                     break;
                 }
 
@@ -74,10 +74,10 @@ static void _dynregmq_recv_handler(void *handle, const aiot_mqtt_recv_t *packet,
                 uint32_t client_id_len = 0;
                 uint32_t device_token_len = 0;
 
-                core_json_value(payload, payload_len, key_clientid, strlen(key_clientid), &client_id, &client_id_len);
-                core_json_value(payload, payload_len, key_devicetoken, strlen(key_devicetoken), &device_token, &device_token_len);
+                err = core_json_value(payload, payload_len, key_clientid, strlen(key_clientid), &client_id, &client_id_len);
+                err += core_json_value(payload, payload_len, key_devicetoken, strlen(key_devicetoken), &device_token, &device_token_len);
 
-                if (client_id == NULL || device_token == NULL || client_id_len == 0 || device_token_len == 0) {
+                if (client_id == NULL || device_token == NULL || client_id_len == 0 || device_token_len == 0 || err < 0) {
                     break;
                 }
 

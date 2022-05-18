@@ -32,6 +32,12 @@
 #include "audio_mem.h"
 #include "audio_error.h"
 
+#define RB_OK           (ESP_OK)
+#define RB_FAIL         (ESP_FAIL)
+#define RB_DONE         (-2)
+#define RB_ABORT        (-3)
+#define RB_TIMEOUT      (-4)
+
 static const char *TAG = "RINGBUF";
 
 struct ringbuf {
@@ -48,6 +54,8 @@ struct ringbuf {
     bool is_done_write;         /**< To signal that we are done writing */
     bool unblock_reader_flag;   /**< To unblock instantly from rb_read */
 };
+
+typedef struct ringbuf *ringbuf_handle_t;
 
 static esp_err_t rb_abort_read(ringbuf_handle_t rb);
 static esp_err_t rb_abort_write(ringbuf_handle_t rb);

@@ -75,21 +75,20 @@ create device succeed!
 - 函数功能：设备动态注册，用于一型一密设备获取deviceSecret。
 - 注意事项：首先确保网络连接成功。确保物联网平台产品、设备创建成功 。
 - 函数原型
-> register(data, cb)
+> register(deviceInfo, callback)
 - 参数说明
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
-    | data | dictionary | 是 | 设备信息 |
-    | cb | func | 是 | 注册回调函数 |
+    | deviceInfo | dictionary | 是 | 设备信息 |
+    | callback | func | 是 | 注册回调函数 |
 
-- data参数说明
+- deviceInfo参数说明
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | deviceName | String | 是 | 物联网平台上注册的deviceName |
     | productKey | String | 是 | 物联网平台上注册的productKey |
     | productSecret | String | 是 | 物联网平台上注册的productSecret |
-    | region | String | 否 | 阿里云region，默认值：cn-shanghai |
-    | keepaliveSec | int | 否 | 物联网平台上注册的keepaliveSec |
+    | region | String | 是 | 阿里云region，默认值：cn-shanghai，如修改请参考物联网平台的常用Region查询 |
 
 - 返回值说明：成功，0； 失败，非0整数
 - 使用示例
@@ -107,11 +106,13 @@ def cb_lk_register(data):
 productKey = "产品key"
 deviceName = "设备名称"
 productSecret = "产品密钥"
+region = "地域名"
 
 dev_register_info = {
     'productKey': productKey,
     'deviceName': deviceName,
-    'productSecret': productSecret
+    'productSecret': productSecret,
+    'region': region
 }
 
 aliyunIoT_device = Device()
@@ -131,19 +132,19 @@ device regiter succeed !
 - 函数功能：连接物联网平台。
 - 注意事项：确保网络连接成功。
 - 函数原型
-> connect(data)
+> connect(deviceInfo)
 - 参数说明
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
-    | data | dictionary | 是 | 设备模型 |
-- data参数说明
+    | deviceInfo | dictionary | 是 | 设备模型 |
+- deviceInfo参数说明
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | deviceName | String | 是 | 物联网平台上注册的deviceName |
     | deviceSecret | String | 是 | 物联网平台上注册的deviceSecre |
     | productKey | String | 是 | 物联网平台上注册的productKey |
-    | region | String | 否 | 阿里云region，默认值：cn-shanghai |
-    | keepaliveSec | int | 否 | 物联网平台上注册的keepaliveSec |
+    | region | String | 是 | 阿里云region，默认值：cn-shanghai，如需修改请参考物联网平台的常用Region查询 |
+    | keepaliveSec | int | 是 | 物联网平台上注册的keepaliveSec |
 
 - 返回值说明：成功返回0， 其他表示失败
 - 函数示例
@@ -156,7 +157,7 @@ from aliyunIoT import Device
 productKey = "请输入您的productKey"  #需要填入物联网云平台申请到的productKey信息
 deviceName = "请输入您的deviceName"  #需要填入物联网云平台申请到的deviceName信息
 deviceSecret = "请输入您的deviceSecret" #需要填入物联网云平台申请到的deviceSecret信息
-
+region = "请输入您的region" #需要填入物联网云平台申请到的设备所在的地域名，比如cn-shanghai
 # 物联网平台连接标志位
 iot_connected = False
 
@@ -165,7 +166,7 @@ def on_connect(data):
     iot_connected = True
 
 key_info = {
-    'region': 'cn-shanghai',
+    'region': region,
     'productKey': productKey,
     'deviceName': deviceName,
     'deviceSecret': deviceSecret,
@@ -211,15 +212,15 @@ sleep for 2s
 - 注意事项：确保网络以及物联网平台连接成功
 - 函数原型
 
-> device.on(event_type, cb)
+> device.on(eventType, callback)
 
 - 参数说明
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
-    | event | int | 是 | 注册的事件类型 |
-    | cb | fuction | 是 | 监听事件的回调函数 |
+    | eventType | int | 是 | 注册的事件类型 |
+    | callback | function | 是 | 监听事件的回调函数 |
 
-- 事件类型说明（event）
+- 事件类型说明（eventType）
     | 事件 | 说明 |
     | --- | --- |
     | ON_CONNECT | 连接成功 |
@@ -249,10 +250,12 @@ sleep for 2s
 - deviceInfo结构体说明
     | 键值 | 类型 | 说明 |
     | --- | --- | --- |
+    | region | String | 阿里云region，默认值：cn-shanghai，如需修改请参考物联网平台的常用Region查询 |
     | deviceName | String | 物联网平台上注册的deviceName |
     | deviceSecret | String | 物联网平台上注册的deviceSecre |
     | productKey | String | 物联网平台上注册的productKey |
     | productSecret | String | 物联网平台上注册的productSecret |
+
 
 - 函数示例
 
@@ -273,7 +276,7 @@ else:
 
 ```shell
 get DeviceInfo succeed
-{'productSecret': 'xxx', 'productKey': 'xxx', 'deviceName': 'mpy_002', 'deviceSecret': 'xxx'}
+{'region': 'ch-shanghai'， 'productSecret': 'xxx', 'productKey': 'xxx', 'deviceName': 'mpy_002', 'deviceSecret': 'xxx'}
 ```
 ## getDeviceHandle - 获取句柄
 
@@ -308,11 +311,11 @@ get device handle succeed
 - 函数功能：从物联网平台获得网络时间
 - 注意事项：确保网络以及物联网平台连接成功。
 - 函数原型：
-> getNtpTime(cb(data))
+> getNtpTime(callback(data))
 - 参数说明
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
-    | cb | func | 是 | 注册回调函数 |
+    | callback | function | 是 | 注册回调函数 |
 
 - 返回值说明：成功，时间信息（字典类型，data） ；失败，非0整数
 - data结构说明
@@ -542,7 +545,7 @@ success to establish tcp, fd=54
 ```
 ## postRaw - 上报自定义数据
 
-- 函数功能：上报自定义Raw数据。
+- 函数功能：上报自定义（Raw）数据。
 - 注意事项：确保网络以及物联网平台连接成功。
 - 函数原型：
 > postRaw(data)
@@ -625,15 +628,18 @@ RAW数据上报成功
 ## uploadFile - 上传文件
 - 函数功能：上传文件到物联网平台。
 - 注意事项：
-确保网络以及物联网平台连接成功。
-文件大小需小于16MB，如超过请使用oss接口。
+    确保网络以及物联网平台连接成功；
+    上传的文件以及字符须准确并符合命名规范；
+    文件大小需小于16MB，如超过请使用oss接口。
+
 - 函数原型
-> uploadFile(fileName, cb)
+> uploadFile(remoteFileName, localFilePath, callback)
 - 参数说明
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
-    | fileName | str | 是 | 本地文件名字，包含路径名 |
-    | cb | fun | 是 | 回调函数 |
+    | remoteFileName | string | 是 | 物联网平台上保存的文件名字（只支持数字0-9，字符‘a’～‘z’、‘A’~‘Z’) |
+    | localFilePath | string | 是 | 本地文件路径（包含文件名）|
+    | callback | function | 是 | 回调函数 |
 
 - 返回值说明：成功，uploadID（字符串类型）；失败，None
 - 函数示例
@@ -681,13 +687,13 @@ while(True):
         utime.sleep(1)
 
 # 上传1.jpg到物联网平台，图片大小建议小于10K.
-ret = aliyunIoT_device.uploadFile("data/pyamp/1.jpg", None)
+ret = aliyunIoT_device.uploadFile("aa.jpg", "data/pyamp/1.jpg", None)
 if ret != None :
   print('图片上传成功')
 else :
   print('图片上传失败')
 
-utime.sleep(10)
+utime.sleep(1)
 aliyunIoT_device.end()
 ```
 - 输出
@@ -702,16 +708,17 @@ success to establish tcp, fd=54
 ## uploadContent - 上传数据流
 - 函数功能：上传文件数据流，上传数据保存为指定文件文件名由参数指定。
 - 注意事项：
-确保网络以及物联网平台连接成功。
-文件大小需小于16MB，超过请使用oss接口。
+    确保网络以及物联网平台连接成功。
+    上传的文件以及字符须准确并符合命名规范。
+    文件大小需小于16MB，超过请使用oss接口。
 - 函数原型：
-> uploadContent(fileName,  buf,  cb)
+> uploadContent(remoteFileName,  content,  callback)
 - 参数说明
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
-    | fileName | str | 是 | 文件名字，用于在物联网云平台生成文件  |
-    | buf | str | 是 | 待传输的数据 |
-    | cb | fun | 是 | 回调函数 |
+    | remoteFileName | string | 是 | 服务端保存的文件名（只支持数字0-9，字符‘a’～‘z’、‘A’~‘Z’) |
+    | content | string | 是 | 本地文件内容（buffer） |
+    | callback | function | 是 | 回调函数 |
 - 返回值说明：成功，uploadID（字符串类型）；失败，None
 - 函数示例
 
@@ -760,11 +767,11 @@ while(True):
 # 上传1.jpg到物联网平台，建议小于10k
 import os
 f = open("data/pyamp/1.jpg", "r")
-frame = f.read()
+content = f.read()
 
-#设定上传后的名字为aa.jpg
-fileName = "aa.jpg"
-fileid = aliyunIoT_device.uploadContent(fileName, frame, None)
+#设定上传后的名字为bb.jpg
+remoteFileName = "bb.jpg"
+fileid = aliyunIoT_device.uploadContent(remoteFileName, content, None)
 if fileid != None :
   print('图片上传成功')
 else :
@@ -786,12 +793,12 @@ success to establish tcp, fd=54
 - 函数功能：自定义Topic订阅
 - 注意事项：确保网络以及物联网平台连接成功并且已经创建deveice对象。
 - 函数原型
-> subscribe(data)
+> subscribe(topicInfo)
 - 参数说明
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
-    | data | dictionary | 是 | tpoic信息 |
-- data参数说明
+    | topicInfo | dictionary | 是 | tpoic信息 |
+- topicInfo参数说明
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | topic | String | 是 | 创建时指定 |
@@ -877,13 +884,13 @@ Topic订阅成功
 确保网络以及物联网平台连接成功并且已经创建对象。
 确保已经subscribe成功。
 - 函数原型
-> publish(data)
+> publish(topicInfo)
 - 参数说明：
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
-    | data | dictionary | 是 | tpoic信息 |
+    | topicInfo | dictionary | 是 | tpoic信息 |
 
-- data参数说明
+- topicInfo参数说明
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | topic | String | 是 | 创建时指定 |
@@ -985,13 +992,13 @@ Topic发布成功
 确保已经subscribe过。
 - 函数原型：
 
-> unsubscribe(data)
+> unsubscribe(topicInfo)
 
 - 参数说明
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
-    | data | dictionary | 是 | tpoic信息 |
-- data参数说明
+    | topicInfo | dictionary | 是 | tpoic信息 |
+- topicInfo参数说明
     | 参数 | 类型 | 必选参数 | 说明 |
     | --- | --- | --- | --- |
     | topic | String | 是 | 创建时指定 |

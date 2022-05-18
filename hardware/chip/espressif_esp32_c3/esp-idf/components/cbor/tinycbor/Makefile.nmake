@@ -1,0 +1,47 @@
+CFLAGS = -W3
+
+TINYCBOR_HEADERS = src\cbor.h src\cborjson.h
+TINYCBOR_SOURCES = \
+	src\cborerrorstrings.c \
+	src\cborencoder.c \
+	src\cborencoder_close_container_checked.c \
+	src\cborparser.c \
+	src\cborparser_dup_string.c \
+	src\cborpretty.c \
+	src\cborpretty_stdio.c \
+	src\cborvalidation.c
+TINYCBOR_OBJS = \
+	src\cborerrorstrings.obj \
+	src\cborencoder.obj \
+	src\cborencoder_close_container_checked.obj \
+	src\cborparser.obj \
+	src\cborparser_dup_string.obj \
+	src\cborpretty.obj \
+	src\cborpretty_stdio.obj \
+	src\cborvalidation.obj
+
+all: lib\tinycbor.lib
+check: tests\Makefile lib\tinycbor.lib
+	cd tests & $(MAKE) check
+silentcheck:
+	cd tests & set TESTARGS=-silent & $(MAKE) -s check
+tests\Makefile: tests\tests.pro
+	qmake -o $@ $**
+
+lib\tinycbor.lib: $(TINYCBOR_OBJS)
+	-if not exist lib\NUL md lib
+	lib -nologo /out:$@ $**
+
+mostlyclean:
+	-del $(TINYCBOR_OBJS)
+clean: mostlyclean
+	-del lib\tinycbor.lib
+	if exist tests\Makefile (cd tests & $(MAKE) clean)
+distclean: clean
+	if exist tests\Makefile (cd tests & $(MAKE) distclean)
+tag:
+	@perl maketag.pl
+
+{src\}.c{src\}.obj:
+	$(CC) -nologo $(CFLAGS) -Isrc -c -Fo$@ $<
+

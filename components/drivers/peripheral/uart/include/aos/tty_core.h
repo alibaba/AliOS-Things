@@ -8,13 +8,13 @@
 #include <aos/device_core.h>
 #include <aos/tty.h>
 
-#define AOS_TTY_F_UNIQUE_REF    ((uint32_t)1 << 0)
+#define AOS_TTY_F_UNIQUE_REF            ((uint32_t)1 << 0)
 
-#ifndef AOS_TTY_RX_BUF_SIZE
-#define AOS_TTY_RX_BUF_SIZE     1024
+#ifndef AOS_CONFIG_TTY_RX_BUF_SIZE
+#define AOS_CONFIG_TTY_RX_BUF_SIZE      1024
 #endif
-#ifndef AOS_TTY_TX_BUF_SIZE
-#define AOS_TTY_TX_BUF_SIZE     1024
+#ifndef AOS_CONFIG_TTY_TX_BUF_SIZE
+#define AOS_CONFIG_TTY_TX_BUF_SIZE      1024
 #endif
 
 struct aos_tty_ops;
@@ -32,10 +32,10 @@ typedef struct {
     aos_event_t event;
     size_t rx_buf_head;
     size_t rx_buf_tail;
-    uint8_t rx_buf[AOS_TTY_RX_BUF_SIZE];
+    uint8_t rx_buf[AOS_CONFIG_TTY_RX_BUF_SIZE];
     size_t tx_buf_head;
     size_t tx_buf_tail;
-    uint8_t tx_buf[AOS_TTY_TX_BUF_SIZE];
+    uint8_t tx_buf[AOS_CONFIG_TTY_TX_BUF_SIZE];
 } aos_tty_t;
 
 typedef struct aos_tty_ops {

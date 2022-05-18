@@ -46,6 +46,7 @@ source_file:
   - src/iobox/pwd.c ? <CLI_IOBOX_ENABLE>
   - src/iobox/hexdump.c ? <CLI_IOBOX_ENABLE>
   - src/iobox/path_helper.c ? <CLI_IOBOX_ENABLE>
+  - src/iobox/exit.c ? <CLI_IOBOX_ENABLE>
 
 def_config:
   AOS_COMP_CLI: 1

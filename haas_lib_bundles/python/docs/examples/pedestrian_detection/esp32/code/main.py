@@ -3,18 +3,17 @@
 '''
 @File       :    main.py
 @Description:    人体检测案例
-@Author     :    luokui
-@version    :    1.0
+@Author     :    luokui & jiangyu
+@version    :    2.0
 '''
 
-from aliyunIoT import Device
 import display      # 显示库
 import network      # 网络库
 import ucamera      # 摄像头库
 import utime        # 延时函数在utime库中
 import _thread      # 线程库
 import sntp         # 网络时间同步库
-import ujson as json
+from cloudAI import *
 
 # Wi-Fi SSID和Password设置
 SSID='Your-AP-SSID'
@@ -25,8 +24,6 @@ productKey = "Your-ProductKey"
 deviceName  = "Your-devicename"
 deviceSecret  = "Your-deviceSecret"
 
-g_lk_connect = False
-g_lk_service = False
 detected = False
 
 key_info = {
@@ -56,86 +53,33 @@ def connect_wifi(ssid, pwd):
             ip = wlan.ifconfig()[0]
             print('IP: %s' %ip)
             disp.text(20, 50, ip, disp.RED)
-
             # NTP时间更新，如果更新不成功，将不能进行识别
             print('NTP start')
             disp.text(20, 70, 'NTP start...', disp.RED)
             sntp.setTime()
             print('NTP done')
-            disp.textClear(20, 70, 'sntp start...')
+            disp.textClear(20, 70, 'NTP start...')
             disp.text(20, 70, 'NTP done', disp.RED)
             break
         utime.sleep_ms(500)
     utime.sleep(2)
 
-def cb_lk_service(data):
-    global g_lk_service, detected, name
-    if data != None:
-        params = data['params']
-        params_dict = json.loads(params)
-        print(params_dict)
-        ext = params_dict['ext']
-        ext_dict = json.loads(ext)
-        result = ext_dict['result']
-        if result == 'success':
-            i = 0
-            data = ext_dict['data']
-            data_dict = json.loads(data)
-            elements_list = data_dict['elements']
-            while (i < len(elements_list)) :
-                g_score = elements_list[i]['score']
-                if g_score > 0.6:
-                    print('Pedestrian Detected')
-                    detected = True
-                else:
-                    detected = False
-                i += 1
-        else:
-            print('dont detect!')
-            detected = False
 
-    g_lk_service = True
+def recognize_cb(commandReply, result) :
+    global detected
+    detected = False
 
-
-def cb_lk_connect(data):
-    global g_lk_connect
-    print('link platform connected')
-    g_lk_connect = True
-
-
-def detectPedestrian(frame, fileName, productKey, devName, devSecret) :
-    start = utime.ticks_ms()
-    global dev
-    # 上传图片到LP
-    fileid = dev.uploadContent(fileName, frame, None)
-    if fileid != None:
-        ext = { 'filePosition':'lp', 'fileName': fileName, 'fileId': fileid }
-        ext_str = json.dumps(ext)
-        all_params = {'id': 1, 'version': '1.0', 'params': { 'eventType': 'haas.faas', 'eventName': 'detectPedestrian', 'argInt': 1, 'ext': ext_str }}
-        all_params_str = json.dumps(all_params)
-        upload_file = {
-            'topic': '/sys/' + productKey + '/' + deviceName + '/thing/event/hli_event/post',
-            'qos': 1,
-            'payload': all_params_str
-        }
-
-        # 上传完成通知HaaS聚合平台
-        # print(upload_file)
-        dev.publish(upload_file)
-
-        while g_lk_service == False:
-            continue
-    else:
-        print('filedid is none, upload content fail')
-    time_diff = utime.ticks_diff(utime.ticks_ms(), start)
-    print('get response time : %d' % time_diff)
+    if commandReply == 'DetectPedestrianReply' :
+        detected = result
+    else :
+        print('unknown command reply')
 
 # 识别线程函数
-def detectPedestrianThread():
+def recognizeThread():
     global frame
     while True:
         if frame != None:
-            detectPedestrian(frame, 'pede.jpg', productKey, deviceName, deviceSecret)
+            engine.detectPedestrian(frame)
             utime.sleep_ms(1000)
         else:
             utime.sleep_ms(1000)
@@ -143,7 +87,7 @@ def detectPedestrianThread():
 # 显示线程函数
 def displayThread():
     # 引用全局变量
-    global disp, frame, detected
+    global disp, frame, detected, gesture
     # 定义清屏局部变量
     clearFlag = False
     # 定义显示文本局部变量
@@ -156,9 +100,7 @@ def displayThread():
         if frame != None:
             if detected == True:
                 # 清除屏幕内容
-                if clearFlag == False:
-                    disp.clear()
-                    clearFlag = True
+                disp.clear()
                 # 设置文字字体
                 disp.font(disp.FONT_DejaVu40)
                 # 显示识别结果
@@ -175,14 +117,13 @@ def displayThread():
                     # 设置显示字体
                     disp.font(disp.FONT_DejaVu18)
                     # 显示文字
-                    disp.text(2, 0, 'Recognizing ...', disp.WHITE)
+                    disp.text(2, 0, 'Recognizing...', disp.WHITE)
                     textShowFlag = True
-                clearFlag = False
 
-# 多线程案例
+
 def main():
     # 全局变量
-    global disp, dev, frame
+    global disp, frame, detected, engine
     # 创建lcd display对象
     disp = display.TFT()
     frame = None
@@ -191,15 +132,7 @@ def main():
     # 连接网络
     connect_wifi(SSID, PWD)
 
-    # 设备初始化
-    dev = Device()
-    dev.on(Device.ON_CONNECT, cb_lk_connect)
-    dev.on(Device.ON_SERVICE, cb_lk_service)
-    dev.connect(key_info)
-
-    while True:
-        if g_lk_connect:
-            break
+    engine = CloudAI(key_info, recognize_cb)
 
     # 初始化摄像头
     ucamera.init('uart', 33, 32)
@@ -208,10 +141,10 @@ def main():
     try:
         # 启动显示线程
         _thread.start_new_thread(displayThread, ())
-        # 设置识别线程stack
+        # 设置比对线程stack
         _thread.stack_size(20 * 1024)
-        # 启动识别线程
-        _thread.start_new_thread(detectPedestrianThread, ())
+        # 启动比对线程
+        _thread.start_new_thread(recognizeThread, ())
     except:
        print("Error: unable to start thread")
 

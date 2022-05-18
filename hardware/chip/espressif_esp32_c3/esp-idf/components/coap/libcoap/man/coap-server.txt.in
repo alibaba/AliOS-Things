@@ -1,0 +1,258 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap-server(5)
+==============
+:doctype: manpage
+:man source:   coap-server
+:man version:  @PACKAGE_VERSION@
+:man manual:   coap-server Manual
+
+NAME
+-----
+coap-server,
+coap-server-gnutls,
+coap-server-mbedtls,
+coap-server-openssl,
+coap-server-notls - CoAP Server based on libcoap
+
+SYNOPSIS
+--------
+*coap-server* [*-d* max] [*-e*] [*-g* group] [*-G* group_if] [*-l* loss]
+              [*-p* port] [*-v* num] [*-A* address] [*-L* value] [*-N*]
+              [*-P* scheme://addr[:port],name1[,name2..]]
+              [[*-h* hint] [*-i* match_identity_file] [*-k* key]
+              [*-s* match_psk_sni_file] [*-u* user]]
+              [[*-c* certfile] [*-j* keyfile] [*-n*] [*-C* cafile]
+              [*-J* pkcs11_pin] [*-M* rpk_file] [*-R* trust_casfile]
+              [*-S* match_pki_sni_file]]
+
+For *coap-server* versions that use libcoap compiled for different
+(D)TLS libraries, *coap-server-notls*, *coap-server-gnutls*,
+*coap-server-openssl*, *coap-server-mbedtls* or *coap-server-tinydtls* may be
+available.  Otherwise, *coap-server* uses the default libcoap (D)TLS support.
+
+DESCRIPTION
+-----------
+*coap-server* is an example server for the 'Constrained Application Protocol`
+(RFC 7252).
+
+OPTIONS - General
+-----------------
+*-d* max::
+   Enable support for creation of dynamic resources when doing a PUT up to a
+   limit of 'max'.  If 'max' is reached, a 4.06 code is returned until one of
+   the dynamic resources has been deleted.
+
+*-e* ::
+   Echo back the data sent with a PUT.
+
+*-g* group::
+   Join specified multicast 'group' on start up.
+   *Note:* DTLS over multicast is not currently supported.
+
+*-G* group_if::
+   Use this interface for listening for the multicast group. This can be
+   different from the implied interface if the *-A* option is used.
+
+*-l* list::
+   Fail to send some datagrams specified by a comma separated list of
+   numbers or number ranges (debugging only).
+
+*-l* loss%::
+   Randomly failed to send datagrams with the specified probability - 100%
+   all datagrams, 0% no datagrams (debugging only).
+
+*-p* port::
+   The 'port' on the given address will be listening for incoming connections.
+   If (D)TLS is supported, then 'port' + 1 will also be listened on for
+   (D)TLS connections.
+   The default port is 5683 if not given any other value.
+
+*-v* num::
+   The verbosity level to use (default 3, maximum is 9). Above 7, there is
+   increased verbosity in GnuTLS and OpenSSL logging.
+
+*-A* address::
+   The local address of the interface which the server has to listen on.
+
+*-L* value::
+   Sum of one or more COAP_BLOCK_* flag values for different block handling
+   methods. Default is 1 (COAP_BLOCK_USE_LIBCOAP).
+
+     COAP_BLOCK_USE_LIBCOAP  1
+     COAP_BLOCK_SINGLE_BODY  2
+
+*-N* ::
+   Send NON-confirmable message for "observe" responses. If option *-N* is
+   not specified, a confirmable response will be sent.  Even if set, every
+   fifth response will still be sent as a confirmable response
+   (RFC 7641 requirement).
+
+*-P* scheme://address[:port],name1[,name2[,name3..]] ::
+   Scheme, address, optional port of how to connect to the next proxy server
+   and one or more names (comma separated) that this proxy server is known by.
+   If the hostname of the incoming proxy request matches one of these names,
+   then this server is considered to be the final endpoint. If
+   scheme://address[:port] is not defined before the leading , (comma) of the
+   first name, then the ongoing connection will be a direct connection.
+   Scheme is one of coap, coaps, coap+tcp and coaps+tcp.
+
+
+OPTIONS - PSK
+-------------
+(If supported by underlying (D)TLS library)
+
+*-h* hint::
+   Identity Hint to send. Default is *CoAP*. Zero length is no hint.
+
+*-i* match_identiity_file::
+   This is a file that contains one or more lines of Identity Hints and (user)
+   Identities to match for a different new Pre-Shared Key (PSK) (comma
+   separated) to be used. E.g., per line +
+   hint_to_match,identity_to_match,use_key +
+   A line that starts with # is treated as a comment. +
+   Note: *-k* still needs to be defined for the default case. +
+   Note: A match using the *-s* option may mean that the current Identity Hint
+   is different to that defined by *-h*.
+
+*-k* key::
+   Pre-shared key to use for inbound connections. This cannot be empty if
+   defined. +
+   Note: if *-c cafile* is defined, you need to define *-k key* as well to
+   have the server support both PSK and PKI.
+
+*-s* match_psk_sni_file::
+   This is a file that contains one or more lines of received Subject Name
+   Identifier (SNI) to match to use a different Identity Hint and associated
+   Pre-Shared Key (PSK) (comma separated) instead of the *-h hint* and
+   *-k key* options. E.g., per line +
+   sni_to_match,use_hint,with_key +
+   Note: *-k key* still needs to be defined for the default case if there is
+   not a match. +
+   Note: The associated Pre-Shared Key will get updated if there is also a *-i*
+   match. The update checking order is *-s* followed by *-i*.
+
+*-u* user ::
+   User identity for pre-shared key mode (only used if option *-P* is set).
+
+OPTIONS - PKI
+-------------
+(If supported by underlying (D)TLS library)
+
+*Note:* If any one of *certfile*, *keyfile* or *cafile* is in PKCS11 URI
+naming format (pkcs11: prefix), then any remaining non PKCS11 URI file
+definitions have to be in DER, not PEM, format.  Otherwise all of
+*certfile*, *keyfile* or *cafile* are in PEM format.
+
+*-c* certfile::
+  PEM file or PKCS11 URI for the certificate. The private key can also be in
+  the PEM file, or has the same PKCS11 URI. If not, the private key is defined
+  by *-j keyfile*. +
+  Note: if *-k key* is defined, you need to define *-c certfile* as well to
+  have the server support both PSK and PKI.
+
+*-j* keyfile::
+  PEM file or PKCS11 URI for the private key for the certificate in *-c
+  certfile* if the parameter is different from certfile in *-c certfile*.
+
+*-n* ::
+  Disable remote peer certificate checking. This gives clients the ability to
+  use PKI, but without any defined certificates.
+
+*-C* cafile::
+  PEM file or PKCS11 URI that contains a list of one or more CAs that are to
+  be passed to the client for the client to determine what client certificate
+  to use.  Normally, this list of CAs would be the root CA and and any
+  intermediate CAs. Ideally the server certificate should be signed by the
+  same CA so that mutual authentication can take place. The contents of
+  *cafile* are added to the trusted store of root CAs.  Using the *-C* or *-R*
+  options will will trigger the validation of the client certificate unless
+  overridden by the *-n* option.
+
+*-J* pkcs11_pin::
+   The user pin to unlock access to the PKCS11 token.
+
+*-M*::
+  Raw Public Key (RPK) PEM file or PKCS11 URI that contains both PUBLIC KEY
+  and PRIVATE KEY or just EC PRIVATE KEY. (GnuTLS and TinyDTLS(PEM) support
+  only).  *-C cafile* or *-R trust_casfile* are not required.
+
+*-R* trust_casfile::
+  PEM file containing the set of trusted root CAs that are to be used to
+  validate the client certificate. Alternatively, this can point to a
+  directory containing a set of CA PEM files. The *-C cafile* CA does not have
+  to be in this list and is trusted for the validation. Using
+  *-R trust_casfile* disables common CA mutual authentication which can only
+  be done by using *-C cafile*. Using the *-C* or *-R* options will will
+  trigger the validation of the server certificate unless overridden by the
+  *-n* option.
+
+*-S* match_pki_sni_file::
+   This option denotes a file that contains one or more lines of Subject Name
+   Identifier (SNI) to match for new certificate File and new CA File (comma
+   separated) to be used. E.g., entry per line +
+   sni_to_match,new_cert_file,new_ca_file +
+   A line that starts with # is treated as a comment. +
+   Note: *-c certfile* and *-C cafile* still needs to be defined for the
+   default case
+
+EXAMPLES
+--------
+* Example
+----
+coap-server -A ::1
+----
+Let the server listen on localhost (port '5683') for UDP/TCP.
+
+* Example
+----
+coap-server -A ::1 -k mysecretKey -h myhint
+----
+Let the server listen on localhost (port '5683' for UDP/TCP and port '5684' for
+DTLS/TLS) with the server set up for PSK authentication if the client uses
+coaps:// or coaps+tcp://.
+
+* Example
+----
+coap-server -A ::1 -k mysecretKey -h myhint -p 13011
+----
+The same, except the UDP/TCP listening port is '13011' and the DTLS/TLS
+listening port is '13012' (and not the default ports '5683' and '5684').
+
+* Example
+----
+coap-server -A 2001:db8:81a8:0:6ef0:dead:feed:beef -v 5
+----
+The listening address is set to '2001:db8:81a8:0:6ef0:dead:feed:beef' and the
+verbosity level is set to '5'.
+
+* Example
+----
+coap-server -A 2001:db8:81a8:0:6ef0:dead:feed:beef -g FF02::FD
+----
+Set listening address to '2001:db8:81a8:0:6ef0:dead:feed:beef' and join the
+All CoAP Nodes multicast group 'FF02::FD'.
+
+FILES
+------
+There are no configuration files.
+
+EXIT STATUS
+-----------
+*0*::
+   Success
+
+*1*::
+   Failure (syntax or usage error; configuration error; document
+   processing failure; unexpected error)
+
+BUGS
+-----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net or raise an issue on GitHub at
+https://github.com/obgm/libcoap/issues
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

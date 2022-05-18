@@ -136,9 +136,7 @@ class CountDown:
         global lvglInitialized
 
         if lvglInitialized == False:
-            lv.init()
-            from display import LVGL as disp
-            disp.init()
+            import display_driver
             lvglInitialized = True
         print("Enter count down")
 

@@ -19,7 +19,7 @@ void *mp_sal_get_stack_addr()
     return (void *)(task->task_stack_base);
 }
 
-void mp_sal_task_delete(aos_task_t *id, mp_int_t *status)
+void mp_sal_task_delete(mp_task_t *id, mp_int_t *status)
 {
     *status = aos_task_delete(id);
 }

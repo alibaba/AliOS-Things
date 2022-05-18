@@ -1,0 +1,663 @@
+#!/bin/bash
+#
+#  Copyright (c) 2018, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+#    Description:
+#      This file runs various tests of OpenThread.
+#
+
+set -euo pipefail
+
+readonly OT_BUILDDIR="${OT_BUILDDIR:-${PWD}/build}"
+readonly OT_SRCDIR="${PWD}"
+
+readonly OT_COLOR_PASS='\033[0;32m'
+readonly OT_COLOR_FAIL='\033[0;31m'
+readonly OT_COLOR_SKIP='\033[0;33m'
+readonly OT_COLOR_NONE='\033[0m'
+
+readonly OT_NODE_TYPE="${OT_NODE_TYPE:-cli}"
+readonly OT_NATIVE_IP="${OT_NATIVE_IP:-0}"
+readonly THREAD_VERSION="${THREAD_VERSION:-1.2}"
+readonly INTER_OP="${INTER_OP:-0}"
+readonly VERBOSE="${VERBOSE:-0}"
+readonly BORDER_ROUTING="${BORDER_ROUTING:-1}"
+readonly INTER_OP_BBR="${INTER_OP_BBR:-1}"
+
+readonly OT_COREDUMP_DIR="${PWD}/ot-core-dump"
+readonly FULL_LOGS=${FULL_LOGS:-0}
+readonly TREL=${TREL:-0}
+readonly LOCAL_OTBR_DIR=${LOCAL_OTBR_DIR:-""}
+
+build_simulation()
+{
+    local version="$1"
+    local options=(
+        "-DBUILD_TESTING=ON"
+        "-DOT_ANYCAST_LOCATOR=ON"
+        "-DOT_DNS_CLIENT=ON"
+        "-DOT_DNSSD_SERVER=ON"
+        "-DOT_ECDSA=ON"
+        "-DOT_HISTORY_TRACKER=ON"
+        "-DOT_MESSAGE_USE_HEAP=ON"
+        "-DOT_NETDATA_PUBLISHER=ON"
+        "-DOT_PING_SENDER=ON"
+        "-DOT_REFERENCE_DEVICE=ON"
+        "-DOT_SERVICE=ON"
+        "-DOT_SRP_CLIENT=ON"
+        "-DOT_SRP_SERVER=ON"
+        "-DOT_UPTIME=ON"
+        "-DOT_THREAD_VERSION=${version}"
+    )
+
+    if [[ ${FULL_LOGS} == 1 ]]; then
+        options+=("-DOT_FULL_LOGS=ON")
+    fi
+
+    if [[ ${version} == "1.2" ]]; then
+        options+=("-DOT_DUA=ON")
+        options+=("-DOT_MLR=ON")
+    fi
+
+    if [[ ${VIRTUAL_TIME} == 1 ]]; then
+        options+=("-DOT_SIMULATION_VIRTUAL_TIME=ON")
+    fi
+
+    if [[ ${version} == "1.2" ]]; then
+        options+=("-DOT_CSL_RECEIVER=ON")
+        options+=("-DOT_LINK_METRICS_INITIATOR=ON")
+        options+=("-DOT_LINK_METRICS_SUBJECT=ON")
+    fi
+
+    if [[ ${ot_extra_options[*]+x} ]]; then
+        options+=("${ot_extra_options[@]}")
+    fi
+
+    OT_CMAKE_BUILD_DIR="${OT_BUILDDIR}/openthread-simulation-${version}" "${OT_SRCDIR}"/script/cmake-build simulation "${options[@]}"
+
+    if [[ ${VIRTUAL_TIME} == 1 ]] && [[ ${OT_NODE_TYPE} == rcp* ]]; then
+        OT_CMAKE_NINJA_TARGET=ot-rcp OT_CMAKE_BUILD_DIR="${OT_BUILDDIR}/openthread-simulation-${version}" "${OT_SRCDIR}"/script/cmake-build simulation "${options[@]}" "-DOT_SIMULATION_VIRTUAL_TIME_UART=ON"
+    fi
+
+    if [[ ${version} == "1.2" && ${INTER_OP_BBR} == 1 ]]; then
+
+        options+=("-DOT_BACKBONE_ROUTER=ON")
+
+        OT_CMAKE_BUILD_DIR="${OT_BUILDDIR}/openthread-simulation-${version}-bbr" "${OT_SRCDIR}"/script/cmake-build simulation "${options[@]}"
+
+        if [[ ${VIRTUAL_TIME} == 1 ]] && [[ ${OT_NODE_TYPE} == rcp* ]]; then
+            OT_CMAKE_NINJA_TARGET=ot-rcp OT_CMAKE_BUILD_DIR="${OT_BUILDDIR}/openthread-simulation-${version}-bbr" "${OT_SRCDIR}"/script/cmake-build simulation "${options[@]}" "-DOT_SIMULATION_VIRTUAL_TIME_UART=ON"
+        fi
+
+    fi
+}
+
+build_posix()
+{
+    local version="$1"
+    local options=("-DOT_MESSAGE_USE_HEAP=ON" "-DOT_THREAD_VERSION=${version}" "-DBUILD_TESTING=ON")
+
+    if [[ ${version} == "1.2" ]]; then
+        options+=("-DOT_DUA=ON")
+        options+=("-DOT_MLR=ON")
+    fi
+
+    if [[ ${FULL_LOGS} == 1 ]]; then
+        options+=("-DOT_FULL_LOGS=ON")
+    fi
+
+    if [[ ${VIRTUAL_TIME} == 1 ]]; then
+        options+=("-DOT_POSIX_VIRTUAL_TIME=ON")
+    fi
+
+    if [[ ${OT_NATIVE_IP} == 1 ]]; then
+        options+=("-DOT_PLATFORM_UDP=ON" "-DOT_PLATFORM_NETIF=ON")
+    fi
+
+    if [[ ${ot_extra_options[*]+x} ]]; then
+        options+=("${ot_extra_options[@]}")
+    fi
+
+    OT_CMAKE_BUILD_DIR="${OT_BUILDDIR}/openthread-posix-${version}" "${OT_SRCDIR}"/script/cmake-build posix "${options[@]}"
+
+    if [[ ${version} == "1.2" && ${INTER_OP_BBR} == 1 ]]; then
+
+        options+=("-DOT_BACKBONE_ROUTER=ON")
+
+        OT_CMAKE_BUILD_DIR="${OT_BUILDDIR}/openthread-posix-${version}-bbr" "${OT_SRCDIR}"/script/cmake-build posix "${options[@]}"
+    fi
+}
+
+build_for_one_version()
+{
+    local version="$1"
+
+    build_simulation "${version}"
+
+    if [[ ${OT_NODE_TYPE} == rcp* ]]; then
+        build_posix "${version}"
+    fi
+}
+
+do_build()
+{
+    build_for_one_version "${THREAD_VERSION}"
+
+    if [[ ${THREAD_VERSION} == "1.2" && ${INTER_OP} == "1" ]]; then
+        build_for_one_version 1.1
+    fi
+}
+
+do_clean()
+{
+    ./script/gcda-tool clean
+    rm -rfv "${OT_BUILDDIR}" || sudo rm -rfv "${OT_BUILDDIR}"
+}
+
+do_unit_version()
+{
+    local version=$1
+    local builddir="${OT_BUILDDIR}/openthread-simulation-${version}"
+
+    if [[ ! -d ${builddir} ]]; then
+        echo "Cannot find build directory: ${builddir}"
+        exit 1
+    fi
+
+    (
+        cd "${builddir}"
+        ninja test
+    )
+}
+
+do_unit()
+{
+    do_unit_version "${THREAD_VERSION}"
+
+    if [[ ${THREAD_VERSION} == "1.2" && ${INTER_OP_BBR} == 1 ]]; then
+        do_unit_version "1.2-bbr"
+    fi
+}
+
+do_cert()
+{
+    export top_builddir="${OT_BUILDDIR}/openthread-simulation-${THREAD_VERSION}"
+    export top_srcdir="${OT_SRCDIR}"
+
+    case "${OT_NODE_TYPE}" in
+        rcp | rcp-cli | cli)
+            export NODE_TYPE=sim
+            ;;
+        rcp-ncp | ncp)
+            export NODE_TYPE=ncp-sim
+            ;;
+    esac
+
+    if [[ ${THREAD_VERSION} == "1.2" ]]; then
+        export top_builddir_1_2_bbr="${OT_BUILDDIR}/openthread-simulation-1.2-bbr"
+        if [[ ${INTER_OP} == "1" ]]; then
+            export top_builddir_1_1="${OT_BUILDDIR}/openthread-simulation-1.1"
+        fi
+    fi
+
+    export PYTHONPATH=tests/scripts/thread-cert
+
+    [[ ! -d tmp ]] || rm -rvf tmp
+    PYTHONUNBUFFERED=1 "$@"
+    exit 0
+}
+
+do_cert_suite()
+{
+    export top_builddir="${OT_BUILDDIR}/openthread-simulation-${THREAD_VERSION}"
+
+    if [[ ${THREAD_VERSION} == "1.2" ]]; then
+        export top_builddir_1_2_bbr="${OT_BUILDDIR}/openthread-simulation-1.2-bbr"
+        if [[ ${INTER_OP} == "1" ]]; then
+            export top_builddir_1_1="${OT_BUILDDIR}/openthread-simulation-1.1"
+        fi
+    fi
+
+    export PYTHONPATH=tests/scripts/thread-cert
+    export VIRTUAL_TIME
+
+    python3 tests/scripts/thread-cert/run_cert_suite.py --multiply "${MULTIPLY:-1}" "$@"
+    exit 0
+}
+
+do_get_thread_wireshark()
+{
+    echo "Downloading thread-wireshark from https://github.com/openthread/wireshark/releases ..."
+    local download_url=https://github.com/openthread/wireshark/releases/download/ot-pktverify-20200727/thread-wireshark.tar.gz
+    local save_file=/tmp/thread-wireshark.tar.gz
+
+    rm -rf /tmp/thread-wireshark || true
+    rm -rf "${save_file}" || true
+    curl -L "${download_url}" -o "${save_file}"
+    tar -C /tmp -xvzf "${save_file}"
+
+    LD_LIBRARY_PATH=/tmp/thread-wireshark /tmp/thread-wireshark/tshark -v
+    LD_LIBRARY_PATH=/tmp/thread-wireshark /tmp/thread-wireshark/dumpcap -v
+    rm -rf "${save_file}"
+}
+
+do_build_otbr_docker()
+{
+    echo "Building OTBR Docker ..."
+    local otdir
+    local otbrdir
+    local otbr_options=(
+        "-DOT_ANYCAST_LOCATOR=ON"
+        "-DOT_COVERAGE=ON"
+        "-DOT_DNS_CLIENT=ON"
+        "-DOT_DUA=ON"
+        "-DOT_MLR=ON"
+        "-DOT_NETDATA_PUBLISHER=ON"
+        "-DOT_SLAAC=ON"
+        "-DOT_SRP_CLIENT=ON"
+        "-DOT_FULL_LOGS=ON"
+        "-DOT_UPTIME=ON"
+        "-DOTBR_DUA_ROUTING=ON"
+        "-DCMAKE_CXX_FLAGS='-DOPENTHREAD_CONFIG_DNSSD_SERVER_BIND_UNSPECIFIED_NETIF=1'"
+    )
+
+    if [[ ${TREL} == 1 ]]; then
+        otbr_options+=("-DOT_TREL=ON")
+    else
+        otbr_options+=("-DOT_TREL=OFF")
+    fi
+
+    local otbr_docker_image=${OTBR_DOCKER_IMAGE:-otbr-ot12-backbone-ci}
+
+    otbrdir=$(mktemp -d -t otbr_XXXXXX)
+    otdir=$(pwd)
+
+    (
+        if [[ -z ${LOCAL_OTBR_DIR} ]]; then
+            ./script/git-tool clone https://github.com/openthread/ot-br-posix.git --depth 1 "${otbrdir}"
+        else
+            cp -r "${LOCAL_OTBR_DIR}"/* "${otbrdir}"
+            rm -rf "${otbrdir}"/build
+        fi
+        cd "${otbrdir}"
+        rm -rf third_party/openthread/repo
+        cp -r "${otdir}" third_party/openthread/repo
+        rm -rf .git
+        docker build -t "${otbr_docker_image}" -f etc/docker/Dockerfile . \
+            --build-arg BORDER_ROUTING="${BORDER_ROUTING}" \
+            --build-arg INFRA_IF_NAME=eth0 \
+            --build-arg BACKBONE_ROUTER=1 \
+            --build-arg REFERENCE_DEVICE=1 \
+            --build-arg OT_BACKBONE_CI=1 \
+            --build-arg NAT64=0 \
+            --build-arg REST_API=0 \
+            --build-arg WEB_GUI=0 \
+            --build-arg MDNS="${OTBR_MDNS:-mDNSResponder}" \
+            --build-arg OTBR_OPTIONS="${otbr_options[*]}"
+    )
+
+    rm -rf "${otbrdir}"
+}
+
+do_pktverify()
+{
+    python3 ./tests/scripts/thread-cert/pktverify/verify.py "$1"
+}
+
+ot_exec_expect_script()
+{
+    local log_file="tmp/log_expect"
+
+    for script in "$@"; do
+        echo -e "\n${OT_COLOR_PASS}EXEC${OT_COLOR_NONE} ${script}"
+        sudo killall ot-rcp || true
+        sudo killall ot-cli || true
+        sudo killall ot-cli-ftd || true
+        sudo killall ot-cli-mtd || true
+        sudo rm -rf tmp
+        mkdir tmp
+        {
+            if [[ ${OT_NATIVE_IP} == 1 ]]; then
+                sudo -E expect -df "${script}" 2>"${log_file}"
+            else
+                expect -df "${script}" 2>"${log_file}"
+            fi
+        } || {
+            local EXIT_CODE=$?
+
+            # The exit status 77 for skipping is inherited from automake's test driver for script-based testsuites
+            if [[ ${EXIT_CODE} == 77 ]]; then
+                echo -e "\n${OT_COLOR_SKIP}SKIP${OT_COLOR_NONE} ${script}"
+                return 0
+            else
+                echo -e "\n${OT_COLOR_FAIL}FAIL${OT_COLOR_NONE} ${script}"
+                cat "${log_file}" >&2
+                return "${EXIT_CODE}"
+            fi
+        }
+        echo -e "\n${OT_COLOR_PASS}PASS${OT_COLOR_NONE} ${script}"
+        if [[ ${VERBOSE} == 1 ]]; then
+            cat "${log_file}" >&2
+        fi
+    done
+}
+
+do_expect()
+{
+    local test_patterns
+
+    if [[ ${OT_NODE_TYPE} == rcp* ]]; then
+        if [[ ${OT_NATIVE_IP} == 1 ]]; then
+            test_patterns=(-name 'tun-*.exp')
+        else
+            test_patterns=(-name 'posix-*.exp' -o -name 'cli-*.exp')
+            if [[ ${THREAD_VERSION} == "1.2" ]]; then
+                test_patterns+=(-o -name 'v1_2-*.exp')
+            fi
+        fi
+    else
+        test_patterns=(-name 'cli-*.exp' -o -name 'simulation-*.exp')
+    fi
+
+    if [[ $# != 0 ]]; then
+        ot_exec_expect_script "$@"
+    else
+        export OT_COLOR_PASS OT_COLOR_FAIL OT_COLOR_SKIP OT_COLOR_NONE OT_NATIVE_IP VERBOSE
+        export -f ot_exec_expect_script
+
+        find tests/scripts/expect -type f -perm "$([[ $OSTYPE == darwin* ]] && echo '+' || echo '/')"111 \( "${test_patterns[@]}" \) -exec bash -c 'set -euo pipefail;ot_exec_expect_script "$@"' _ {} +
+    fi
+
+    exit 0
+}
+
+print_usage()
+{
+    echo "USAGE: [ENVIRONMENTS] $0 COMMANDS
+
+ENVIRONMENTS:
+    OT_NODE_TYPE    'cli' for CLI simulation, 'ncp' for NCP simulation.
+                    'rcp' or 'rcp-cli' for CLI on POSIX platform.
+                    'rcp-ncp' for NCP on POSIX platform.
+                    The default is 'cli'.
+    OT_NATIVE_IP    1 to enable platform UDP and netif on POSIX platform. The default is 0.
+    OT_BUILDDIR     The output directory for cmake build. By default the directory is './build'. For example,
+                    'OT_BUILDDIR=\${PWD}/my_awesome_build ./script/test clean build'.
+    VERBOSE         1 to build or test verbosely. The default is 0.
+    VIRTUAL_TIME    1 for virtual time, otherwise real time. The default value is 0 when running expect tests,
+                    otherwise default value is 1.
+    THREAD_VERSION  1.1 for Thread 1.1 stack, 1.2 for Thread 1.2 stack. The default is 1.2.
+    INTER_OP        1 to build 1.1 together. Only works when THREAD_VERSION is 1.2. The default is 0.
+    INTER_OP_BBR    1 to build bbr version together. Only works when THREAD_VERSION is 1.2. The default is 1.
+
+COMMANDS:
+    clean           Clean built files to prepare for new build.
+    build           Build project for running tests. This can be used to rebuild the project for changes.
+    cert            Run a single thread-cert test. ENVIRONMENTS should be the same as those given to build or update.
+    cert_suite      Run a batch of thread-cert tests and summarize the test results. Only echo logs for failing tests.
+    unit            Run all the unit tests. This should be called after simulation is built.
+    expect          Run expect tests.
+    help            Print this help.
+
+EXAMPLES:
+    # Test CLI with default settings
+    $0 clean build cert tests/scripts/thread-cert/Cert_5_1_01_RouterAttach.py
+    $0 cert tests/scripts/thread-cert/Cert_5_1_02_ChildAddressTimeout.py
+
+    # Test NCP with default settings
+    $0 clean build cert tests/scripts/thread-cert/Cert_5_1_01_RouterAttach.py
+    $0 cert tests/scripts/thread-cert/Cert_5_1_02_ChildAddressTimeout.py
+
+    # Test CLI with radio only
+    $0 clean build cert tests/scripts/thread-cert/Cert_5_1_01_RouterAttach.py
+    $0 cert tests/scripts/thread-cert/Cert_5_1_02_ChildAddressTimeout.py
+
+    # Test CLI with real time
+    VIRTUAL_TIME=0 $0 clean build cert tests/scripts/thread-cert/Cert_5_1_01_RouterAttach.py
+    VIRTUAL_TIME=0 $0 cert tests/scripts/thread-cert/Cert_5_1_02_ChildAddressTimeout.py
+
+    # Test Thread 1.1 CLI with real time
+    THREAD_VERSION=1.1 VIRTUAL_TIME=0 $0 clean build cert tests/scripts/thread-cert/Cert_5_1_01_RouterAttach.py
+    THREAD_VERSION=1.1 VIRTUAL_TIME=0 $0 cert tests/scripts/thread-cert/Cert_5_1_02_ChildAddressTimeout.py
+
+    # Test Thread 1.2 with real time, use 'INTER_OP=1' when the case needs both versions.
+    VIRTUAL_TIME=0 $0 clean build cert tests/scripts/thread-cert/v1_2_test_enhanced_keep_alive.py
+    INTER_OP=1 VIRTUAL_TIME=0 $0 clean build cert tests/scripts/thread-cert/v1_2_router_5_1_1.py
+    INTER_OP=1 VIRTUAL_TIME=0 $0 clean build cert_suite tests/scripts/thread-cert/v1_2_*
+
+    # Run a single expect test
+    $0 clean build expect tests/scripts/expect/cli-log-level.exp
+
+    # Run all expect tests
+    $0 clean build expect
+    "
+
+    exit "$1"
+}
+
+do_prepare_coredump_upload()
+{
+    echo "$OT_COREDUMP_DIR/corefile-%e-%p-%t" | sudo tee /proc/sys/kernel/core_pattern
+    rm -rf "$OT_COREDUMP_DIR"
+    mkdir -p "$OT_COREDUMP_DIR"
+}
+
+do_copy_so_lib()
+{
+    mkdir -p "$OT_COREDUMP_DIR/so-lib"
+    cp /lib/x86_64-linux-gnu/libgcc_s.so.1 "$OT_COREDUMP_DIR/so-lib"
+    cp /lib/x86_64-linux-gnu/libc.so.6 "$OT_COREDUMP_DIR/so-lib"
+    cp /lib64/ld-linux-x86-64.so.2 "$OT_COREDUMP_DIR/so-lib"
+}
+
+do_check_crash()
+{
+    shopt -s nullglob
+
+    # Scan core dumps and collect binaries which crashed
+    declare -A bin_list=([dummy]='')
+    for f in "$OT_COREDUMP_DIR"/core*; do
+        bin=$(file "$f" | grep -E -o "execfn: '(.*')," | sed -r "s/execfn: '(.*)',/\1/")
+        bin_list[$bin]=''
+    done
+
+    for key in "${!bin_list[@]}"; do
+        if [ "$key" != "dummy" ]; then
+            # Add postfix for binaries to avoid conflicts caused by different Thread version
+            postfix=""
+            if [[ $key =~ openthread-(simulation|posix)-([0-9]\.[0-9]) ]]; then
+                postfix="-$(echo "$key" | sed -r "s/.*openthread-(simulation|posix)-([0-9]\.[0-9]).*/\2/")"
+            fi
+            bin_name=$(basename "$key")
+            cp "$key" "$OT_COREDUMP_DIR"/"$bin_name""$postfix"
+        fi
+    done
+
+    # echo 1 and copy so libs if crash found, echo 0 otherwise
+    [[ ${#bin_list[@]} -gt 1 ]] && (
+        echo 1
+        do_copy_so_lib
+    ) || echo 0
+}
+
+do_generate_coverage()
+{
+    mkdir -p tmp/
+    sudo chmod 777 tmp/
+    rm -f tmp/coverage.lcov
+    if [[ $1 == "llvm" ]]; then
+        local llvm_gcov
+        llvm_gcov="$(mktemp -d)/llvm-gcov"
+        echo '#!/bin/bash' >>"$llvm_gcov"
+        echo 'exec llvm-cov gcov "$@"' >>"$llvm_gcov"
+        chmod +x "$llvm_gcov"
+        lcov --gcov-tool "$llvm_gcov" --directory . --capture --output-file tmp/coverage.info
+    else
+        ./script/gcda-tool collect
+        ./script/gcda-tool install
+
+        lcov --directory . --capture --output-file tmp/coverage.info
+    fi
+    lcov --list tmp/coverage.info
+    lcov --extract tmp/coverage.info "$PWD/src/core/common/message.cpp" | c++filt
+}
+
+do_combine_coverage()
+{
+    ls -R coverage/
+
+    readarray -d '' files < <(find coverage/ -type f -name 'coverage*.info' -print0)
+
+    local args=()
+    for i in "${files[@]}"; do
+        args+=('-a')
+        args+=("$i")
+    done
+    lcov "${args[@]}" -o final.info
+}
+
+envsetup()
+{
+    export THREAD_VERSION
+
+    if [[ ${OT_NODE_TYPE} == rcp* ]]; then
+        export RADIO_DEVICE="${OT_BUILDDIR}/openthread-simulation-${THREAD_VERSION}/examples/apps/ncp/ot-rcp"
+        export OT_CLI_PATH="${OT_BUILDDIR}/openthread-posix-${THREAD_VERSION}/src/posix/ot-cli"
+
+        if [[ ${THREAD_VERSION} == "1.2" ]]; then
+            export RADIO_DEVICE_1_1="${OT_BUILDDIR}/openthread-simulation-1.1/examples/apps/ncp/ot-rcp"
+            export OT_CLI_PATH_1_1="${OT_BUILDDIR}/openthread-posix-1.1/src/posix/ot-cli"
+            export OT_CLI_PATH_1_2_BBR="${OT_BUILDDIR}/openthread-posix-1.2-bbr/src/posix/ot-cli"
+        fi
+    fi
+
+    export OT_SIMULATION_APPS="${OT_BUILDDIR}/openthread-simulation-${THREAD_VERSION}/examples/apps"
+    export OT_POSIX_APPS="${OT_BUILDDIR}/openthread-posix-${THREAD_VERSION}/src/posix"
+
+    if [[ ! ${VIRTUAL_TIME+x} ]]; then
+        # All expect tests only works in real time mode.
+        VIRTUAL_TIME=1
+        for arg in "$@"; do
+            if [[ $arg == expect ]]; then
+                VIRTUAL_TIME=0
+                break
+            fi
+        done
+    fi
+
+    readonly VIRTUAL_TIME
+    export OT_NODE_TYPE VIRTUAL_TIME
+
+    # CMake always works in verbose mode if VERBOSE exists in environments.
+    if [[ ${VERBOSE} == 1 ]]; then
+        export VERBOSE
+    else
+        export -n VERBOSE
+    fi
+
+    if [[ ${OT_OPTIONS+x} ]]; then
+        read -r -a ot_extra_options <<<"${OT_OPTIONS}"
+    else
+        ot_extra_options=()
+    fi
+}
+
+main()
+{
+    envsetup "$@"
+
+    if [[ -z ${1:-} ]]; then
+        print_usage 1
+    fi
+
+    [[ ${VIRTUAL_TIME} == 1 ]] && echo "Using virtual time" || echo "Using real time"
+    [[ ${THREAD_VERSION} == "1.2" ]] && echo "Using Thread 1.2 stack" || echo "Using Thread 1.1 stack"
+
+    while [[ $# != 0 ]]; do
+        case "$1" in
+            clean)
+                do_clean
+                ;;
+            build)
+                do_build
+                ;;
+            cert)
+                shift
+                do_cert "$@"
+                shift $#
+                ;;
+            cert_suite)
+                shift
+                do_cert_suite "$@"
+                shift $#
+                ;;
+            get_thread_wireshark)
+                do_get_thread_wireshark
+                ;;
+            build_otbr_docker)
+                do_build_otbr_docker
+                ;;
+            pktverify)
+                shift
+                do_pktverify "$1"
+                ;;
+            unit)
+                do_unit
+                ;;
+            help)
+                print_usage
+                ;;
+            package)
+                ./script/package "${ot_extra_options[@]}"
+                ;;
+            expect)
+                shift
+                do_expect "$@"
+                ;;
+            prepare_coredump_upload)
+                do_prepare_coredump_upload
+                ;;
+            check_crash)
+                do_check_crash
+                ;;
+            generate_coverage)
+                shift
+                do_generate_coverage "$1"
+                ;;
+            combine_coverage)
+                do_combine_coverage
+                ;;
+            *)
+                echo
+                echo -e "${OT_COLOR_FAIL}Warning:${OT_COLOR_NONE} Ignoring: '$1'"
+                ;;
+        esac
+        shift
+    done
+}
+
+main "$@"

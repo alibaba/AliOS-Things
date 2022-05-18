@@ -144,7 +144,11 @@ static bool mdns_initialised = false;
 
 static uint8_t conf_wifi_sta_reconnects = 0;
 static uint8_t wifi_sta_reconnects;
+#if MICROPY_PY_CHANNEL_ENABLE
+char _amp_ssid[64] = { 0 };
+char _amp_password[64] = { 0 };
 
+#endif
 // This function is called by the system-event task and so runs in a different
 // thread to the main MicroPython task.  It must not raise any Python exceptions.
 static esp_err_t event_handler(void *ctx, system_event_t *event) {
@@ -160,10 +164,17 @@ static esp_err_t event_handler(void *ctx, system_event_t *event) {
             ESP_LOGI("network", "GOT_IP");
             wifi_sta_connected = true;
             wifi_sta_disconn_reason = 0; // Success so clear error. (in case of new error will be replaced anyway)
-
             extern int activation_report(void);
             activation_report(); // report HaaS activation info once.
-
+            #if MICROPY_PY_CHANNEL_ENABLE
+            extern int check_channel_enable(void);
+            extern int save_ssid_and_password(char *ssid, char *passwd);
+            extern int on_get_url(char *url);
+            save_ssid_and_password(_amp_ssid, _amp_password);
+            if (check_channel_enable() == 0) {
+                amp_otaput_init(on_get_url);
+            }
+            #endif
             #if MICROPY_HW_ENABLE_MDNS_QUERIES || MICROPY_HW_ENABLE_MDNS_RESPONDER
             if (!mdns_initialised) {
                 mdns_init();
@@ -361,10 +372,17 @@ STATIC mp_obj_t esp_connect(size_t n_args, const mp_obj_t *pos_args, mp_map_t *k
         if (args[ARG_ssid].u_obj != mp_const_none) {
             p = mp_obj_str_get_data(args[ARG_ssid].u_obj, &len);
             memcpy(wifi_sta_config.sta.ssid, p, MIN(len, sizeof(wifi_sta_config.sta.ssid)));
+            #if MICROPY_PY_CHANNEL_ENABLE
+            strcpy(_amp_ssid, p);
+            #endif
+
         }
         if (args[ARG_password].u_obj != mp_const_none) {
             p = mp_obj_str_get_data(args[ARG_password].u_obj, &len);
             memcpy(wifi_sta_config.sta.password, p, MIN(len, sizeof(wifi_sta_config.sta.password)));
+            #if MICROPY_PY_CHANNEL_ENABLE
+            strcpy(_amp_password, p);
+            #endif
         }
         if (args[ARG_bssid].u_obj != mp_const_none) {
             p = mp_obj_str_get_data(args[ARG_bssid].u_obj, &len);

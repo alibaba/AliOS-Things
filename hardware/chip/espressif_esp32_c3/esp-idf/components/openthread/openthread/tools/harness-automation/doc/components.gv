@@ -1,0 +1,18 @@
+digraph G {
+  subgraph cluster_os {
+    style=filled;
+    color=grey;
+    label="Windows";
+
+    subgraph cluster_python {
+      label="Automation Tool/Python";
+      color=lightgrey;
+      HarnessCase -> HarnessController;
+      HarnessCase -> OpenThreadController;
+    }
+
+    HarnessCase -> Chrome [label="selenium"];
+    HarnessController -> "Thread Harness";
+  }
+  OpenThreadController -> DUT [label="serial port"];
+}

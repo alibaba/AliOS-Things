@@ -15,7 +15,7 @@
   * [起夜灯](./docs/examples/human_detector/esp32/README.md)
   * [燃气检测系统](./docs/examples/gas_detector/esp32/README.md)
   * [甲醛检测系统](./docs/examples/hcho_detector/esp32/README.md)
-  * [花卉养殖](./docs/examples/floriculture/esp32/README.md)
+  * [花卉养植](./docs/examples/floriculture/esp32/README.md)
   * [火焰检测](./docs/examples/fire_detector/esp32/README.md)
   * [智慧路灯](./docs/examples/smart_public_lighting/esp32/README.md)
   * [车辆定位](./docs/examples/vehicle_location/esp32/README.md)

@@ -16,20 +16,36 @@ HaaS EDU K1支持使用C/C++、Python和JavaScript语言进行开发。本节则
 
 &emsp;&emsp;
 ### HaaS EDU K1固件列表
+* [HaaSPython-HaaSEDUK1-v2.0.0](https://hli.aliyuncs.com/o/config/HaaSPython/HaaSPython-HaaSEDUK1-v2.0.0.zip)
+  * 版本更新说明（2022-04-10）
+    * HaaS轻应用标准升级到2.0（AliyunIoT增加文件上传功能，Driver SPI API增加多字节连续读写，AI，UI等能力）
+    * 新增30+[传感器](https://haas.iot.aliyun.com/solution/hardware)支持
+    * 新增30+[趣味案例](https://haas.iot.aliyun.com/solution)
 
 * [HaaSPython-HaaSEDUK1-v1.0.2](https://hli.aliyuncs.com/p/config/HaaS_Python/HaaSPython-HaaSEDUK1-v1.0.2.zip)
-  * 版本更新说明（2022-01-20）
-    * 开源HaaS EDU K1教育案例 [开源链接](https://gitee.com/haasedu/haasedu/blob/master/HaaS_EDU_K1_%E5%9C%BA%E6%99%AF%E6%A1%88%E4%BE%8B%E9%9B%86%E9%94%A6.md)
-    * 新增5个趣味案例
-      * [甲醛浓度检测系统](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800A17B751A65A4800000002&dataId=800A17B751A65A48)
-      * [起夜灯](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800A582C35A56CD500000001&dataId=800A582C35A56CD5)
-      * [燃气检测系统](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800A6E925AC06A9300000001&dataId=800A6E925AC06A93)
-      * [花卉养植系统](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800AC5B00B951C5300000001&dataId=800AC5B00B951C53)
-      * [火焰检测系统](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800AC9C2BDF9CEC100000001&dataId=800AC9C2BDF9CEC1)
+
+  <details>
+  <summary>版本更新说明（2022-01-20）</summary>
+
+  * 开源HaaS EDU K1教育案例 [开源链接](https://gitee.com/haasedu/haasedu/blob/master/HaaS_EDU_K1_%E5%9C%BA%E6%99%AF%E6%A1%88%E4%BE%8B%E9%9B%86%E9%94%A6.md)
+  * 新增5个趣味案例
+    * [甲醛浓度检测系统](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800A17B751A65A4800000002&dataId=800A17B751A65A48)
+    * [起夜灯](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800A582C35A56CD500000001&dataId=800A582C35A56CD5)
+    * [燃气检测系统](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800A6E925AC06A9300000001&dataId=800A6E925AC06A93)
+    * [花卉养植系统](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800AC5B00B951C5300000001&dataId=800AC5B00B951C53)
+    * [火焰检测系统](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800AC9C2BDF9CEC100000001&dataId=800AC9C2BDF9CEC1)
+
+  </details>
 
 * [HaaSPython-HaaSEDUK1-v1.0.1](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-HaaSEDUK1-1.0.1.zip)
-  * 版本更新说明（2022-01-13）
-    * 对齐到HaaS Python 2.0 API标准
+
+  <details>
+  <summary>版本更新说明（2022-01-13）</summary>
+
+  * 对齐到HaaS Python 2.0 API标准
+
+  </details>
+
 <br>
 
 ## HaaS EDU K1开发环境准备
@@ -71,14 +87,14 @@ VS Code安装包下载网站： https://code.visualstudio.com/
 插件第一次安装完成后，会提示安装相关工具才能激活插件，请同意安装相关工具。第一次新建或者打开python轻应用工程，也会安装轻应用开发相关工具，同样需要同意安装。
 
 <div align="center">
-<img src=../images/haas-studio-tool-install.png width=80%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-tool-install.png width=80%/>
 </div>
 
 &emsp;&emsp;
 插件安装完成后，则 VSCode 左下角的状态栏会显示"快速开始"的图标，如下图所示。
 
 <div align="center">
-<img src=../images/haas-studio-startup-page.png width=80%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-startup-page.png width=80%/>
 </div>
 
 &emsp;&emsp;
@@ -93,14 +109,14 @@ VS Code安装包下载网站： https://code.visualstudio.com/
 * 注意高级模式某些平台可能不支持，比如低版本的linux，M1系列MACOS等，如果平台不支持，会自动设置成 disable。
 
 <div align="center">
-<img src=../images/haas-studio-python-advance.png width=80%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-python-advance.png width=80%/>
 </div>
 
 &emsp;&emsp;
 python高级模式打开之后，这些按钮的功能变成如下图所示：
 
 <div align="center">
-<img src=../images/haas-studio-python-advance-enable.png width=40%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-python-advance-enable.png width=40%/>
 </div>
 
 ### HaaS EDU K1串口名称确认
@@ -110,7 +126,7 @@ python高级模式打开之后，这些按钮的功能变成如下图所示：
 读者请通过控制面板下的设备管理器，查询当前电脑下HaaS EDU K1插入后新增的端口。下图中显示HaaS EDUK1连接后新增的串口为“COM7”。
 > 注意：每台PC的串口可能都不一样，如果有多个串口，可以断开PC和HaaS EDU K1之间的连线，然后将PC和HaaS EDU K1相连，找到新增的那个串口。
 
-![HaaS EDU K1串口示意图](../images/1_HaaS_EDU_K1_WINDOWS_COM.png)
+![HaaS EDU K1串口示意图](https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_EDU_K1_WINDOWS_COM.png)
 
 &emsp;&emsp;
 如果连接HaaS EDU K1之前和之后，没有新增串口，则需要安装HaaS EDU K1的串口驱动，[请点我下载](https://ftdichip.com/drivers/vcp-drivers/)。
@@ -158,7 +174,7 @@ zsh: no matches found: /dev/tty.usb*
 > 如果“串口名字”下拉框中没有正确的串口号，可以拔插HaaS EDU K1的USB口后，点击“刷新”按钮刷新串口列表。
 
 <div align="center">
-<img src=../images/haas-studio-firmware-burn.png width=85%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-firmware-burn.png width=85%/>
 </div>
 
 &emsp;&emsp;
@@ -270,7 +286,7 @@ Burn "[('/Users/xxx/Downloads/HaaSPython-HaaSEDUK1/HaaSPython-HaaSEDUK1-1.0.1.bi
 &emsp;&emsp;
 点击HaaS-Studio的“部署运行”按钮（<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_部署运行.png width=5%/>），HaaS Studio工具上面会弹出如下的选择框，请按照如下的步骤逐步选择完成后，HaaS-Studio开始推出送固件。
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_Python_HaaS_EDU_K1_推送脚本.png width=50%/>
+<img src=../images/1_HaaS_Studio_Python_本地推送脚本.png width=60%/>
 </div>
 
 &emsp;&emsp;
@@ -352,4 +368,13 @@ helloworld例程运行起来就说明HaaS Python开发环境安装好了。接�
 
 &emsp;&emsp;
 如果您想看HaaS Python都提供哪些库和API，请点击左侧导航栏查看。
+
+## HaaS EDU K1扩展接口图
+&emsp;&emsp;
+HaaS Python固件刷入HaaS EDU K1开发版之后，开发板端口详细定义及说明请参考下图：
+
+<div align="center">
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/HaaSEDUK1扩展接口定义.png width=150%/>
+</div>
+
 <br>

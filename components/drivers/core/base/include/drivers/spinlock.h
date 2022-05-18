@@ -85,9 +85,6 @@ typedef struct spinlock {
 }
 
 #define spin_lock_init(lock) do { \
-	int ret = -1; \
-	if ((lock)->flag == 1) \
-		break; \
 	aos_spin_lock_init(&((lock)->as)); \
 	(lock)->flag = 1; \
 } while (0)

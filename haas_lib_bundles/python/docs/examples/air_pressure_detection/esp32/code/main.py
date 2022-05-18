@@ -1,10 +1,7 @@
 import lvgl as lv
-from display import LVGL as disp
+import display_driver
 from bmp280 import *
 import ujson
-
-lv.init()
-disp.init()
 
 
 def set_value(indic, v):

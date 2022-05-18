@@ -1,0 +1,382 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap_cache(3)
+=============
+:doctype: manpage
+:man source:   coap_cache
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap_cache,
+coap_cache_derive_key,
+coap_cache_derive_key_w_ignore,
+coap_cache_delete_key,
+coap_cache_ignore_options,
+coap_new_cache_entry,
+coap_delete_cache_entry,
+coap_cache_get_by_key,
+coap_cache_get_by_pdu,
+coap_cache_get_pdu,
+coap_cache_set_app_data,
+coap_cache_get_app_data
+- Work with CoAP cache functions
+
+SYNOPSIS
+--------
+*#include <coap@LIBCOAP_API_VERSION@/coap.h>*
+
+*coap_cache_key_t *coap_cache_derive_key(const coap_session_t *_session_,
+const coap_pdu_t *_pdu_, coap_cache_session_based_t _session_based_);*
+
+*coap_cache_key_t *coap_cache_derive_key_w_ignore(
+const coap_session_t *_session_, const coap_pdu_t *_pdu_,
+coap_cache_session_based_t _session_based_,
+const uint16_t *_ignore_options_, size_t _ignore_count_);*
+
+*void coap_delete_cache_key(coap_cache_key_t *_cache_key_);*
+
+*int coap_cache_ignore_options(coap_context_t *_context_,
+const uint16_t *_options_, size_t _count_);*
+
+*coap_cache_entry_t *coap_new_cache_entry(coap_session_t *_session_,
+const coap_pdu_t *_pdu_, coap_cache_record_pdu_t _record_pdu_,
+coap_cache_session_based_t _session_based_, unsigned int _idle_timeout_);*
+
+*void coap_delete_cache_entry(coap_context_t *_context_,
+coap_cache_entry_t *_cache_entry_);*
+
+*coap_cache_entry_t *coap_cache_get_by_key(coap_context_t *_context_,
+const coap_cache_key_t *_cache_key_);*
+
+*coap_cache_entry_t *coap_cache_get_by_pdu(coap_session_t *_session_,
+const coap_pdu_t *_pdu_, coap_cache_session_based_t _session_based_);*
+
+*const coap_pdu_t *coap_cache_get_pdu(const coap_cache_entry_t *_cache_entry_);*
+
+*void coap_cache_set_app_data(coap_cache_entry_t *_cache_entry_, void *_data_,
+coap_cache_app_data_free_callback_t _callback_);*
+
+*void *coap_cache_get_app_data(const coap_cache_entry_t *_cache_entry_);*
+
+For specific (D)TLS library support, link with
+*-lcoap-@LIBCOAP_API_VERSION@-notls*, *-lcoap-@LIBCOAP_API_VERSION@-gnutls*,
+*-lcoap-@LIBCOAP_API_VERSION@-openssl*, *-lcoap-@LIBCOAP_API_VERSION@-mbedtls*
+or *-lcoap-@LIBCOAP_API_VERSION@-tinydtls*.   Otherwise, link with
+*-lcoap-@LIBCOAP_API_VERSION@* to get the default (D)TLS library support.
+
+DESCRIPTION
+-----------
+
+The CoAP Cache provides support for two opaque objects that can be used for
+tracking requests and responses.
+
+The first is the ability to derive a Cache Key from the cacheable parts of a
+CoAP PDU as defined in
+https://tools.ietf.org/html/rfc7252#section-5.6 updated by
+https://tools.ietf.org/html/rfc7641#section-2 and
+https://tools.ietf.org/html/rfc8132#section-2 .
+
+The Cache Key is a SHA256 digest if libcoap was built with TLS support,
+otherwise it uses the coap_hash() function, using the information abstracted
+from the PDU and (optionally) the CoAP session.
+
+This Cache Key can then be used to match against incoming PDUs and then
+appropriate action logic can take place.
+
+There is support for excluding specific CoAP options from the Cache Key.
+Examples could be to exclude CoAP BLOCK1 and BLOCK2 Options for the client or
+server for ease of tracking a large PUT or GET response, but to not exclude
+these CoAP options in a proxy where it makes sense to cache the individual
+blocks.
+
+The second is providing Cache Entries (which can be looked up by PDU and hence
+by Cache Key) which hold additional information to make information tracking
+simpler.  These Cache Entries are automatically deleted when a session closes
+or a context is deleted. These Cache Entries are maintained on a hashed list
+for speed of lookup.
+
+The following enums are defined.
+
+[source, c]
+----
+typedef enum coap_cache_session_based_t {
+  COAP_CACHE_NOT_SESSION_BASED,
+  COAP_CACHE_IS_SESSION_BASED
+} coap_cache_session_based_t;
+
+typedef enum coap_cache_record_pdu_t {
+  COAP_CACHE_NOT_RECORD_PDU,
+  COAP_CACHE_RECORD_PDU
+} coap_cache_record_pdu_t;
+----
+
+The *coap_cache_derive_key*() function abstracts all the non NoCacheKey CoAP
+options, ignores the CoAP Observer option and includes a FETCH body from _pdu_.
+If _session_based_ is COAP_CACHE_IS_SESSION_BASED, then _session_ pointer is
+also included. CoAP options can be specifically ignored by the use of
+*coap_cache_ignore_options*().  A digest is then built from all of the
+information and returned. NULL is returned on error.
+
+The *coap_cache_derive_key_w_ignore*() function abstracts all the non
+NoCacheKey CoAP options, ignores the CoAP Observer option and includes a FETCH
+body from _pdu_. Further options to ignore are specified by the _ignore_count_
+of _ignore_options_.  If _session_based_ is COAP_CACHE_IS_SESSION_BASED, then
+_session_ pointer is also included. A digest is then built from all of the
+information and returned. NULL is returned on error.
+
+The *coap_delete_cache_key*() function deletes the _cache_key_ that was
+returned from a *coap_cache_derive_key*() call.
+
+The *coap_cache_ignore_options*() function is used to store in _context_ a
+list of _count_ options held in _options_.  The specified _options_ will not
+be included in the data used for the *coap_cache_derive_key*() function.
+
+The *coap_new_cache_entry*() function will create a new Cache Entry based on
+the Cache Key derived from the _pdu_, _session_based_ and _session_. If
+_record_pdu_ is COAP_CACHE_RECORD_PDU, then a copy of the _pdu_ is stored in
+the Cache Entry for subsequent retrieval. The Cache Entry can also store
+application specific data (*coap_cache_set_app_data*() and
+*coap_cache_get_app_data*()).  _idle_timeout_ in seconds defines the length of
+time not being used before it gets deleted.  If _idle_timeout_ is set to
+0, then the Cache Entry will not get idle expired. The created Cache
+Entry is returned, or NULL on error.
+
+The *coap_delete_cache_entry*() function can be used to delete the Cache Entry
+_cache_entry_.  This will remove the Cache Entry from the hash lookup list and
+free off any internally held data.  If the Cache Entry is session based, then
+it will automatically get deleted when the session is freed off or when the
+idle timeout expires.
+
+The *coap_cache_get_by_key*() function will locate the Cache Entry held in the
+_context_ environment that has Cache Key _cache_key_.  Returns NULL if the
+Cache Key was not found.
+
+The *coap_cache_get_by_pdu*() function will locate the Cache Entry held in the
+_context_ environment that has a Cache Key derived from the _pdu_ and
+whether _session_based_ or not.
+
+The *coap_cache_get_pdu*() function returns the PDU that was stored with the
+Cache Entry when it was created with *coap_new_cache_entry*() and _record_pdu_
+was set.  If a PDU was not initially stored, NULL is returned. +
+*NOTE:* A copy of the returned PDU must be taken for using in sending a CoAP
+packet.
+
+The *coap_cache_set_app_data*() function is used to associate _data_ with the
+_cache_entry_.  If _callback_ is not NULL, it points to a function to free off
+_data_ when the _cache_entry_ is deleted.  If any data has been previously
+stored in the _cache_entry_, the pointer to the old data will get overwritten,
+but the old data will not get freed off.
+
+The _callback_ handler function prototype is defined as:
+[source, c]
+----
+typedef void (*coap_cache_app_data_free_callback_t)(void *data);
+----
+where _data_ is passed into the callback function whenever the Cache Entry is
+deleted.
+
+The *coap_cache_get_app_data*() function is used to get the previously stored
+_data_ in the _cache_entry_.
+
+RETURN VALUES
+-------------
+*coap_cache_derive_key*() and *coap_cache_derive_key_w_ignore*() functions
+returns a newly created Cache Key or NULL if there is a creation failure.
+
+*coap_cache_ignore_options*() function returns 1 if success, 0 on failure.
+
+*coap_new_cache_entry*(), *coap_cache_get_by_key*() and
+*coap_cache_get_by_pdu*() functions return the Cache Entry or NULL if there
+is a failure.
+
+*coap_cache_get_pdu*() function the PDU that is held within the Cache Entry or
+NULL if there is no PDU available.
+
+EXAMPLES
+--------
+*PUT Handler supporting BLOCK1*
+
+[source, c]
+----
+#include <coap@LIBCOAP_API_VERSION@/coap.h>
+
+static coap_binary_t *example_data_ptr = NULL;
+static int example_data_media_type = COAP_MEDIATYPE_TEXT_PLAIN;
+
+static void
+cache_free_app_data(void *data) {
+  coap_binary_t *bdata = (coap_binary_t*)data;
+  coap_delete_binary(bdata);
+}
+
+/*
+ * Large Data PUT handler
+ */
+
+static void
+hnd_put_example_data(coap_context_t *ctx,
+        coap_resource_t *resource,
+        coap_session_t *session,
+        coap_pdu_t *request,
+        coap_binary_t *token,
+        coap_string_t *query,
+        coap_pdu_t *response
+) {
+  size_t size;
+  const uint8_t *data;
+  coap_opt_iterator_t opt_iter;
+  coap_opt_t *option;
+  size_t offset;
+  size_t total;
+  coap_binary_t *data_so_far;
+
+  /* Remove (void) definition if variable is used */
+  (void)ctx;
+  (void)token;
+  (void)query;
+
+  if (coap_get_data_large(request, &size, &data, &offset, &total) &&
+    size != total) {
+    /*
+     * A part of the data has been received (COAP_BLOCK_SINGLE_BODY not set).
+     * However, total unfortunately is only an indication, so it is not safe to
+     * allocate a block based on total.  As per
+     * https://tools.ietf.org/html/rfc7959#section-4
+     *   o  In a request carrying a Block1 Option, to indicate the current
+     *         estimate the client has of the total size of the resource
+     *         representation, measured in bytes ("size indication").
+     */
+    coap_cache_entry_t *cache_entry = coap_cache_get_by_pdu(session,
+                                                            request,
+                                              COAP_CACHE_IS_SESSION_BASED);
+
+    if (offset == 0) {
+      if (!cache_entry) {
+        /*
+         * Set idle_timeout parameter to COAP_MAX_TRANSMIT_WAIT if you want
+         * early removal on transmission failure. 0 means only delete when
+         * the session is deleted as session_based is set here.
+         */
+        cache_entry = coap_new_cache_entry(session, request,
+                                         COAP_CACHE_NOT_RECORD_PDU,
+                                         COAP_CACHE_IS_SESSION_BASED, 0);
+      }
+      else {
+        data_so_far = coap_cache_get_app_data(cache_entry);
+        if (data_so_far) {
+          coap_delete_binary(data_so_far);
+          data_so_far = NULL;
+        }
+        coap_cache_set_app_data(cache_entry, NULL, NULL);
+      }
+    }
+    if (!cache_entry) {
+      if (offset == 0) {
+        coap_log(LOG_WARNING, "Unable to create a new cache entry\n");
+      }
+      else {
+        coap_log(LOG_WARNING,
+                 "No cache entry available for the non-first BLOCK\n");
+      }
+      coap_pdu_set_code(response, COAP_RESPONSE_CODE_INTERNAL_ERROR);
+      return;
+    }
+
+    if (size) {
+      /* Add in the new data to cache entry */
+      data_so_far = coap_cache_get_app_data(cache_entry);
+      data_so_far = coap_block_build_body(data_so_far, size, data,
+                                          offset, total);
+      /* Yes, data_so_far can be NULL if error */
+      coap_cache_set_app_data(cache_entry, data_so_far, cache_free_app_data);
+    }
+    if (offset + size == total) {
+      /* All the data is now in */
+      data_so_far = coap_cache_get_app_data(cache_entry);
+      coap_cache_set_app_data(cache_entry, NULL, NULL);
+    }
+    else {
+      /* Give us the next block response */
+      coap_pdu_set_code(response, COAP_RESPONSE_CODE_CONTINUE);
+      return;
+    }
+  }
+  else {
+    /* single body of data received */
+    data_so_far = coap_new_binary(size);
+    if (data_so_far) {
+      memcpy(data_so_far->s, data, size);
+    }
+  }
+
+  if (example_data_ptr) {
+    /* pre-existed response */
+    coap_pdu_set_code(response, COAP_RESPONSE_CODE_CHANGED);
+    coap_delete_binary(example_data_ptr);
+  }
+  else
+    /* just generated response */
+    coap_pdu_set_code(response, COAP_RESPONSE_CODE_CREATED);
+
+  example_data_ptr = data_so_far;
+  if ((option = coap_check_option(request, COAP_OPTION_CONTENT_FORMAT,
+                                  &opt_iter)) != NULL) {
+    example_data_media_type =
+            coap_decode_var_bytes (coap_opt_value (option),
+                                   coap_opt_length (option));
+  }
+  else {
+    example_data_media_type = COAP_MEDIATYPE_TEXT_PLAIN;
+  }
+
+  coap_pdu_set_code(response, COAP_RESPONSE_CODE_CHANGED);
+  coap_resource_notify_observers(resource, NULL);
+}
+
+int main(int argc, char* argv[]){
+  coap_context_t *ctx = NULL;  /* Set up as normal */
+  /* ... */
+  uint16_t cache_ignore_options[] = { COAP_OPTION_BLOCK1,
+                                      COAP_OPTION_BLOCK2 };
+
+  /* Remove (void) definition if variable is used */
+  (void)argc;
+  (void)argv;
+
+  /* ... */
+
+  /** Define the options to ignore when setting up cache-keys */
+  coap_cache_ignore_options(ctx, cache_ignore_options,
+             sizeof(cache_ignore_options)/sizeof(cache_ignore_options[0]));
+
+  /* ... */
+
+}
+----
+
+SEE ALSO
+--------
+*coap_block*(3), *coap_pdu_setup*(3), *coap_resource*(3) and *coap_string*(3)
+
+FURTHER INFORMATION
+-------------------
+See
+
+"RFC7252: The Constrained Application Protocol (CoAP)"
+
+"RFC7959: Block-Wise Transfers in the Constrained Application Protocol (CoAP)"
+
+for further information.
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net or raise an issue on GitHub at
+https://github.com/obgm/libcoap/issues
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

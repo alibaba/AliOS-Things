@@ -33,7 +33,9 @@ depends:
   - ble_host: "rel_3.3.0 ? <MICROPY_PY_BLE>"
   - sntp: "rel_3.3.0 ? <MICROPY_PY_SNTP, HAAS_PLATFORM>"
   - ugraphics: "rel_3.3.0 ? <PY_BUILD_UGRAPHICS>"
-  - little_ui: "rel_3.3.0 ? <MICROPY_PY_LVGL>"
+  - st7789: "rel_3.3.0 ? <MICROPY_PY_LVGL, HAAS_PLATFORM>"
+  - ft6336: "rel_3.3.0 ? <MICROPY_PY_LVGL, HAAS_PLATFORM>"
+  - m5driver: "rel_3.3.0 ? <MICROPY_PY_LVGL, ESP_PLATFORM>"
 
 build_config:
   prebuild_script: build_cmake.sh
@@ -47,6 +49,7 @@ build_config:
     # boards file
     - adapter/esp32/boards/GENERIC_C3/ ? <ESP_PLATFORM, BOARD_NODEMCU32C3>
     - adapter/esp32/boards/GENERIC/ ? <ESP_PLATFORM, BOARD_NODEMCU32S>
+    - adapter/esp32/boards/GENERIC_S3/ ? <ESP_PLATFORM, BOARD_NODEMCU32S3>
     - adapter/esp32/boards/M5STACK_CORE2/ ? <ESP_PLATFORM, BOARD_M5STACKCORE2>
     - adapter/haas/boards/HaaSEDUk1/ ? <HAAS_PLATFORM>
     - adapter/haas/boards/HaaS200/ ? <HAAS_PLATFORM>
@@ -54,6 +57,7 @@ build_config:
     # cmake generated files
     - adapter/esp32/build-GENERIC_C3/ ? <ESP_PLATFORM, BOARD_NODEMCU32C3>
     - adapter/esp32/build-GENERIC/ ? <ESP_PLATFORM, BOARD_NODEMCU32S>
+    - adapter/esp32/build-GENERIC_S3/ ? <ESP_PLATFORM, BOARD_NODEMCU32S3>
     - adapter/esp32/build-M5STACK_CORE2/ ? <ESP_PLATFORM, BOARD_M5STACKCORE2>
     - adapter/haas/build-HaaSEDUk1/ ? <HAAS_PLATFORM>
     - adapter/haas/build-HaaS200/ ? <HAAS_PLATFORM>
@@ -65,6 +69,9 @@ build_config:
     - engine/extmod/
     - engine/lib/
     - engine/lib/littlefs/
+    - engine/lib/lv_bindings/ ? <MICROPY_PY_LVGL>"
+    - engine/lib/lv_bindings/lvgl/ ? <MICROPY_PY_LVGL>"
+    - engine/lib/lv_bindings/lvgl/src/ ? <MICROPY_PY_LVGL>"
     - engine/shared/
     - engine/lib/berkeley-db-1.xx/
     - engine/lib/berkeley-db-1.xx/include/
@@ -76,15 +83,18 @@ build_config:
     - external/app_mgr/ ? <MICROPY_PY_OTA>
     - external/unzip/internal/ ? <MICROPY_PY_OTA>
     - external/unzip/include/ ? <MICROPY_PY_OTA>
-    - modules/display/esp32/ ? <MICROPY_PY_DISPLAY, ESP_PLATFORM>
+    - modules/display/esp32/ ? <MICROPY_PY_LVGL, ESP_PLATFORM>
+    - modules/display/esp32/ ? <MICROPY_PY_TFT, ESP_PLATFORM>
+    - modules/display/haas/ ? <MICROPY_PY_LVGL, HAAS_PLATFORM>
 
   libs:
-    - ampchannel ? <PY_CHANNEL_ENABLE>
+    - otaput ? <MICROPY_PY_CHANNEL_ENABLE>
 
   libpath:
     - external/libs/haas1000 ? <BOARD_HAAS100>
     - external/libs/haas1000 ? <BOARD_HAASEDUK1>
     - external/libs/rtl872xd ? <BOARD_HAAS200>
+    - external/libs/esp32 ? <ESP_PLATFORM>
 
 source_file:
   # adapter

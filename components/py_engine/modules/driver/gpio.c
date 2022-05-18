@@ -268,6 +268,22 @@ STATIC mp_obj_t obj_on(size_t n_args, const mp_obj_t *args)
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(gpio_on_obj, 2, 3, obj_on);
 
+STATIC mp_obj_t gpio_port(size_t n_args, const mp_obj_t *args)
+{
+    mp_obj_base_t *self = (mp_obj_base_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_gpio_obj_t *driver_obj = (mp_gpio_obj_t *)self;
+    if (NULL == driver_obj) {
+        LOGE(LOG_TAG, "driver_obj is NULL\n");
+        return MP_ROM_INT(-EINVAL);
+    }
+    if (NULL == driver_obj->gpio_device) {
+        LOGE(LOG_TAG, "driver_obj has closed\n");
+        return MP_ROM_INT(-ENXIO);
+    }
+
+    return MP_ROM_INT(driver_obj->gpio_device->port);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(gpio_obj_port, 1, gpio_port);
 
 STATIC const mp_rom_map_elem_t gpio_locals_dict_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_GPIO) },
@@ -275,6 +291,7 @@ STATIC const mp_rom_map_elem_t gpio_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&gpio_obj_close) },
     { MP_ROM_QSTR(MP_QSTR_read), MP_ROM_PTR(&gpio_obj_read) },
     { MP_ROM_QSTR(MP_QSTR_write), MP_ROM_PTR(&gpio_obj_write) },
+    { MP_ROM_QSTR(MP_QSTR_port), MP_ROM_PTR(&gpio_obj_port) },
     { MP_ROM_QSTR(MP_QSTR_on), MP_ROM_PTR(&gpio_on_obj) },
     { MP_ROM_QSTR(MP_QSTR_RisingEdge), MP_ROM_INT(IRQ_RISING_EDGE) },
     { MP_ROM_QSTR(MP_QSTR_FallingEdge), MP_ROM_INT(IRQ_FALLING_EDGE) },

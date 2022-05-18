@@ -1,0 +1,40 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+pkg.name: "targets/porting_default"
+pkg.type: "target"
+pkg.description: This target is used to generate syscfg.h file and other artifacts for default Nimble port includes.
+pkg.author:
+pkg.homepage:
+
+pkg.deps:
+    - "@apache-mynewt-core/kernel/os"
+    - "@apache-mynewt-core/sys/console/stub"
+    - "@apache-mynewt-core/sys/log/stub"
+    - "@apache-mynewt-core/sys/stats/stub"
+    - "@apache-mynewt-nimble/nimble/host"
+    - "@apache-mynewt-nimble/nimble/transport/socket"
+    - "@apache-mynewt-nimble/nimble/host/services/ans"
+    - "@apache-mynewt-nimble/nimble/host/services/bas"
+    - "@apache-mynewt-nimble/nimble/host/services/dis"
+    - "@apache-mynewt-nimble/nimble/host/services/gap"
+    - "@apache-mynewt-nimble/nimble/host/services/gatt"
+    - "@apache-mynewt-nimble/nimble/host/services/ias"
+    - "@apache-mynewt-nimble/nimble/host/services/ipss"
+    - "@apache-mynewt-nimble/nimble/host/services/lls"
+    - "@apache-mynewt-nimble/nimble/host/services/tps"

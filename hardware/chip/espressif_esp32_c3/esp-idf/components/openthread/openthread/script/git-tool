@@ -1,0 +1,119 @@
+#!/bin/bash
+#
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+#    Description:
+#      A tool to download projects with the ability to apply dependent PRs.
+#
+
+set -euxo pipefail
+
+apply_dependencies()
+{
+    local project_name
+
+    project_name=$(git remote get-url origin | grep -oE '[^/:]+/[^/:]+\.git$' | cut -d. -f1)
+    echo "project name: ${project_name}"
+
+    git config user.name || git config user.name 'OpenThread Git'
+    git config user.email || git config user.email 'git@openthread'
+
+    while read -r dependency; do
+        echo "${dependency}"
+        depends_on_pr="$(echo "${dependency}" | tr -d '\r\n' | cut -d# -f2)"
+        echo "pr: #${depends_on_pr}"
+        git pull --no-edit origin "pull/${depends_on_pr}/merge"
+    done < <(grep -E "^Depends-On: *${project_name}" || true)
+}
+
+get_pr_body()
+{
+    local pr
+
+    [[ ${GITHUB_ACTIONS+x} && ${GITHUB_REF-} =~ ^refs/pull/[0-9]+/merge ]] || {
+        echo 'Not a pull request.' >&2
+        return 0
+    }
+
+    pr="$(echo "${GITHUB_REF}" | cut -d/ -f3)"
+
+    # do not print GITHUB_TOKEN
+    set +x
+    curl -H "authorization: Bearer ${GITHUB_TOKEN}" -H 'content-type: application/json' \
+        "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${pr}" \
+        | jq -r .body
+    set -x
+}
+
+try_update()
+{
+    cd "$1"
+
+    get_pr_body | apply_dependencies
+}
+
+try_clone()
+{
+    local dest_dir
+
+    dest_dir="$(git clone "$@" 2>&1 | tee | cut -d\' -f2)"
+
+    cd "${dest_dir}"
+    get_pr_body | apply_dependencies
+}
+
+print_help()
+{
+    echo "EXAMPLES:
+    $0 http://github.com/openthread/ot-br-posix.git
+    $0 http://github.com/openthread/ot-ns.git --depth 1 /tmp/ot-ns"
+}
+
+main()
+{
+    if [[ $# == 0 ]]; then
+        print_help
+        return 0
+    fi
+
+    case $1 in
+        update)
+            shift
+            try_update "$@"
+            ;;
+        clone)
+            shift
+            try_clone "$@"
+            ;;
+        *)
+            print_help
+            return 1
+            ;;
+    esac
+}
+
+main "$@"

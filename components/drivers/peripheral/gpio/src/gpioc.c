@@ -4,11 +4,11 @@
 
 #include <aos/gpioc_core.h>
 
-#ifndef AOS_GPIO_IRQ_TASK_DEFAULT_PRIO
-#define AOS_GPIO_IRQ_TASK_DEFAULT_PRIO  30
+#ifndef AOS_CONFIG_GPIO_IRQ_TASK_DEFAULT_PRIO
+#define AOS_CONFIG_GPIO_IRQ_TASK_DEFAULT_PRIO   30
 #endif
-#ifndef AOS_GPIO_IRQ_TASK_STACK_SIZE
-#define AOS_GPIO_IRQ_TASK_STACK_SIZE    4096
+#ifndef AOS_CONFIG_GPIO_IRQ_TASK_STACK_SIZE
+#define AOS_CONFIG_GPIO_IRQ_TASK_STACK_SIZE     4096
 #endif
 
 aos_status_t aos_gpioc_get(aos_gpioc_ref_t *ref, uint32_t id)
@@ -83,7 +83,7 @@ static inline uint32_t mode_to_irq_trig(uint32_t mode)
 {
     uint32_t trig;
 
-    if ((mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_INPUT)
+    if ((mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_INPUT || (mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_BOTH)
         trig = mode & AOS_GPIO_IRQ_TRIG_MASK;
     else
         trig = AOS_GPIO_IRQ_TRIG_NONE;
@@ -100,13 +100,13 @@ static void irq_task_func(void *arg)
         uint32_t trig;
         uint32_t val;
         bool dying;
+        aos_irqsave_t flags;
 
         (void)aos_event_get(&pin->irq_event, 0xFFFFFFFF, AOS_EVENT_OR, &val, AOS_WAIT_FOREVER);
         (void)aos_sem_wait(&pin->irq_sem, AOS_WAIT_FOREVER);
-
-        if (aos_event_get(&pin->irq_event, 0xFFFFFFFF, AOS_EVENT_OR_CLEAR, &val, AOS_NO_WAIT))
-            val = 0;
-
+        flags = aos_spin_lock_irqsave(&gpioc->lock);
+        (void)aos_event_get(&pin->irq_event, 0xFFFFFFFF, AOS_EVENT_OR_CLEAR, &val, AOS_NO_WAIT);
+        aos_spin_unlock_irqrestore(&gpioc->lock, flags);
         pin->irq_new_task = pin->irq_task;
         trig = mode_to_irq_trig(pin->mode);
 
@@ -185,6 +185,8 @@ static aos_status_t set_mode_irq(aos_gpioc_t *gpioc, uint32_t pin, bool in_irq, 
 {
     uint32_t old_mode;
     int old_value;
+    bool old_threaded;
+    bool new_threaded;
     aos_task_t new_task = NULL;
     aos_status_t ret;
 
@@ -210,7 +212,7 @@ static aos_status_t set_mode_irq(aos_gpioc_t *gpioc, uint32_t pin, bool in_irq, 
         case AOS_GPIO_IRQ_TRIG_EDGE_BOTH:
         case AOS_GPIO_IRQ_TRIG_LEVEL_HIGH:
         case AOS_GPIO_IRQ_TRIG_LEVEL_LOW:
-            if (!irq_handler)
+            if (!(mode & AOS_GPIO_IRQ_ALTERNATE) && !irq_handler)
                 return -EINVAL;
             break;
         default:
@@ -228,6 +230,31 @@ static aos_status_t set_mode_irq(aos_gpioc_t *gpioc, uint32_t pin, bool in_irq, 
             return -EINVAL;
         }
         irq_handler = NULL;
+        break;
+    case AOS_GPIO_DIR_BOTH:
+        switch (mode & AOS_GPIO_OUTPUT_CFG_MASK) {
+        case AOS_GPIO_OUTPUT_CFG_DEFAULT:
+        case AOS_GPIO_OUTPUT_CFG_PP:
+        case AOS_GPIO_OUTPUT_CFG_ODNP:
+        case AOS_GPIO_OUTPUT_CFG_ODPU:
+            break;
+        default:
+            return -EINVAL;
+        }
+        switch (mode & AOS_GPIO_IRQ_TRIG_MASK) {
+        case AOS_GPIO_IRQ_TRIG_NONE:
+            break;
+        case AOS_GPIO_IRQ_TRIG_EDGE_RISING:
+        case AOS_GPIO_IRQ_TRIG_EDGE_FALLING:
+        case AOS_GPIO_IRQ_TRIG_EDGE_BOTH:
+        case AOS_GPIO_IRQ_TRIG_LEVEL_HIGH:
+        case AOS_GPIO_IRQ_TRIG_LEVEL_LOW:
+            if (!(mode & AOS_GPIO_IRQ_ALTERNATE) && !irq_handler)
+                return -EINVAL;
+            break;
+        default:
+            return -EINVAL;
+        }
         break;
     default:
         return -EINVAL;
@@ -250,13 +277,15 @@ static aos_status_t set_mode_irq(aos_gpioc_t *gpioc, uint32_t pin, bool in_irq, 
         aos_spin_unlock_irqrestore(&gpioc->lock, flags);
     }
 
-    if ((irq_handler != NULL && gpioc->pins[pin].irq_handler == NULL) ||
-        (irq_handler != NULL && gpioc->pins[pin].irq_handler != NULL &&
-         (mode & AOS_GPIO_IRQ_PRIO_MASK) != (old_mode & AOS_GPIO_IRQ_PRIO_MASK))) {
+    old_threaded = (gpioc->pins[pin].irq_handler != NULL && !(old_mode & AOS_GPIO_IRQ_ALTERNATE));
+    new_threaded = (irq_handler != NULL && !(mode & AOS_GPIO_IRQ_ALTERNATE));
+
+    if ((new_threaded && !old_threaded) ||
+        (new_threaded && old_threaded && (mode & AOS_GPIO_IRQ_PRIO_MASK) != (old_mode & AOS_GPIO_IRQ_PRIO_MASK))) {
         uint32_t prio = ((mode & AOS_GPIO_IRQ_PRIO_MASK) == AOS_GPIO_IRQ_PRIO_DEFAULT) ?
-                        AOS_GPIO_IRQ_TASK_DEFAULT_PRIO : ((mode & AOS_GPIO_IRQ_PRIO_MASK) >> 16);
+                        AOS_CONFIG_GPIO_IRQ_TASK_DEFAULT_PRIO : ((mode & AOS_GPIO_IRQ_PRIO_MASK) >> 16);
         ret = aos_task_new_ext(&new_task, "gpio_irq_task", irq_task_func, &gpioc->pins[pin],
-                               AOS_GPIO_IRQ_TASK_STACK_SIZE, prio);
+                               AOS_CONFIG_GPIO_IRQ_TASK_STACK_SIZE, prio);
         if (ret) {
             if ((in_irq && (mode_to_irq_trig(old_mode) == AOS_GPIO_IRQ_TRIG_EDGE_RISING ||
                             mode_to_irq_trig(old_mode) == AOS_GPIO_IRQ_TRIG_EDGE_FALLING ||
@@ -273,7 +302,8 @@ static aos_status_t set_mode_irq(aos_gpioc_t *gpioc, uint32_t pin, bool in_irq, 
     }
 
     gpioc->pins[pin].mode = mode;
-    gpioc->pins[pin].value = ((mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_OUTPUT) ?
+    gpioc->pins[pin].value = ((mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_OUTPUT ||
+                              (mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_BOTH) ?
                              !!(mode & AOS_GPIO_OUTPUT_INIT_HIGH) : 0;
     ret = gpioc->ops->set_mode(gpioc, pin);
     if (ret) {
@@ -294,35 +324,35 @@ static aos_status_t set_mode_irq(aos_gpioc_t *gpioc, uint32_t pin, bool in_irq, 
         return ret;
     }
 
-    if (irq_handler != NULL && gpioc->pins[pin].irq_handler != NULL) {
+    if (new_threaded && old_threaded) {
         if (new_task) {
             if (in_irq) {
-                /* gpioc->pins[pin].irq_new_task != NULL because gpioc->pins[pin].irq_handler != NULL */
+                /* gpioc->pins[pin].irq_new_task != NULL */
                 if (gpioc->pins[pin].irq_new_task != gpioc->pins[pin].irq_task)
                     (void)aos_task_delete(&gpioc->pins[pin].irq_new_task);
                 gpioc->pins[pin].irq_new_task = new_task;
             } else {
-                /* gpioc->pins[pin].irq_task != NULL because gpioc->pins[pin].irq_handler != NULL */
+                /* gpioc->pins[pin].irq_task != NULL */
                 (void)aos_task_delete(&gpioc->pins[pin].irq_task);
                 gpioc->pins[pin].irq_task = new_task;
             }
         }
-    } else if (irq_handler != NULL && gpioc->pins[pin].irq_handler == NULL) {
+    } else if (new_threaded && !old_threaded) {
         if (in_irq) {
-            /* gpioc->pins[pin].irq_new_task == NULL because gpioc->pins[pin].irq_handler == NULL */
+            /* gpioc->pins[pin].irq_new_task == NULL */
             gpioc->pins[pin].irq_new_task = new_task;
         } else {
-            /* gpioc->pins[pin].irq_task == NULL because gpioc->pins[pin].irq_handler == NULL */
+            /* gpioc->pins[pin].irq_task == NULL */
             gpioc->pins[pin].irq_task = new_task;
         }
-    } else if (irq_handler == NULL && gpioc->pins[pin].irq_handler != NULL) {
+    } else if (!new_threaded && old_threaded) {
         if (in_irq) {
-            /* gpioc->pins[pin].irq_new_task != NULL because gpioc->pins[pin].irq_handler != NULL */
+            /* gpioc->pins[pin].irq_new_task != NULL */
             if (gpioc->pins[pin].irq_new_task != gpioc->pins[pin].irq_task)
                 (void)aos_task_delete(&gpioc->pins[pin].irq_new_task);
             gpioc->pins[pin].irq_new_task = NULL;
         } else {
-            /* gpioc->pins[pin].irq_task != NULL because gpioc->pins[pin].irq_handler != NULL */
+            /* gpioc->pins[pin].irq_task != NULL */
             (void)aos_task_delete(&gpioc->pins[pin].irq_task);
             gpioc->pins[pin].irq_task = NULL;
         }
@@ -361,14 +391,14 @@ aos_status_t aos_gpioc_set_mode_irq(aos_gpioc_ref_t *ref, uint32_t pin, uint32_t
         return -EINVAL;
 
     in_irq = is_in_irq(gpioc, pin);
-    if (in_irq)
+    if (!in_irq)
         (void)aos_sem_wait(&gpioc->pins[pin].irq_sem, AOS_WAIT_FOREVER);
 
     aos_dev_lock(ref->dev);
     ret = set_mode_irq(gpioc, pin, in_irq, mode, irq_handler, irq_arg);
     aos_dev_unlock(ref->dev);
 
-    if (in_irq)
+    if (!in_irq)
         aos_sem_signal(&gpioc->pins[pin].irq_sem);
 
     return ret;
@@ -396,7 +426,7 @@ aos_status_t aos_gpioc_set_mode(aos_gpioc_ref_t *ref, uint32_t pin, uint32_t mod
         return -EINVAL;
 
     in_irq = is_in_irq(gpioc, pin);
-    if (in_irq)
+    if (!in_irq)
         (void)aos_sem_wait(&gpioc->pins[pin].irq_sem, AOS_WAIT_FOREVER);
 
     aos_dev_lock(ref->dev);
@@ -404,7 +434,7 @@ aos_status_t aos_gpioc_set_mode(aos_gpioc_ref_t *ref, uint32_t pin, uint32_t mod
     ret = set_mode_irq(gpioc, pin, in_irq, mode, irq_handler, irq_arg);
     aos_dev_unlock(ref->dev);
 
-    if (in_irq)
+    if (!in_irq)
         aos_sem_signal(&gpioc->pins[pin].irq_sem);
 
     return ret;
@@ -422,7 +452,7 @@ aos_status_t aos_gpioc_get_irq_trigger(aos_gpioc_ref_t *ref, uint32_t pin, uint3
     if (ret)
         return ret;
 
-    if ((mode & AOS_GPIO_DIR_MASK) != AOS_GPIO_DIR_INPUT)
+    if ((mode & AOS_GPIO_DIR_MASK) != AOS_GPIO_DIR_INPUT && (mode & AOS_GPIO_DIR_MASK) != AOS_GPIO_DIR_BOTH)
         return -ENOTSUP;
 
     *trig = mode & AOS_GPIO_IRQ_TRIG_MASK;
@@ -448,15 +478,15 @@ aos_status_t aos_gpioc_set_irq_trigger(aos_gpioc_ref_t *ref, uint32_t pin, uint3
         return -EINVAL;
 
     in_irq = is_in_irq(gpioc, pin);
-    if (in_irq)
+    if (!in_irq)
         (void)aos_sem_wait(&gpioc->pins[pin].irq_sem, AOS_WAIT_FOREVER);
 
     aos_dev_lock(ref->dev);
     get_mode_irq(gpioc, pin, &mode, &irq_handler, &irq_arg);
 
-    if ((mode & AOS_GPIO_DIR_MASK) != AOS_GPIO_DIR_INPUT) {
+    if ((mode & AOS_GPIO_DIR_MASK) != AOS_GPIO_DIR_INPUT && (mode & AOS_GPIO_DIR_MASK) != AOS_GPIO_DIR_BOTH) {
         aos_dev_unlock(ref->dev);
-        if (in_irq)
+        if (!in_irq)
             aos_sem_signal(&gpioc->pins[pin].irq_sem);
         return -ENOTSUP;
     }
@@ -466,7 +496,7 @@ aos_status_t aos_gpioc_set_irq_trigger(aos_gpioc_ref_t *ref, uint32_t pin, uint3
     ret = set_mode_irq(gpioc, pin, in_irq, mode, irq_handler, irq_arg);
     aos_dev_unlock(ref->dev);
 
-    if (in_irq)
+    if (!in_irq)
         aos_sem_signal(&gpioc->pins[pin].irq_sem);
 
     return ret;
@@ -489,7 +519,7 @@ aos_status_t aos_gpioc_get_value(aos_gpioc_ref_t *ref, uint32_t pin)
     aos_dev_lock(ref->dev);
     mode = gpioc->pins[pin].mode;
 
-    if ((mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_INPUT)
+    if ((mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_INPUT || (mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_BOTH)
         ret = (aos_status_t)!!gpioc->ops->get_value(gpioc, pin);
     else if ((mode & AOS_GPIO_DIR_MASK) == AOS_GPIO_DIR_OUTPUT)
         ret = (aos_status_t)gpioc->pins[pin].value;
@@ -517,7 +547,7 @@ aos_status_t aos_gpioc_set_value(aos_gpioc_ref_t *ref, uint32_t pin, int val)
     aos_dev_lock(ref->dev);
     mode = gpioc->pins[pin].mode;
 
-    if ((mode & AOS_GPIO_DIR_MASK) != AOS_GPIO_DIR_OUTPUT) {
+    if ((mode & AOS_GPIO_DIR_MASK) != AOS_GPIO_DIR_OUTPUT && (mode & AOS_GPIO_DIR_MASK) != AOS_GPIO_DIR_BOTH) {
         aos_dev_unlock(ref->dev);
         return -ENOTSUP;
     }
@@ -551,7 +581,7 @@ aos_status_t aos_gpioc_toggle(aos_gpioc_ref_t *ref, uint32_t pin)
     aos_dev_lock(ref->dev);
     mode = gpioc->pins[pin].mode;
 
-    if ((mode & AOS_GPIO_DIR_MASK) != AOS_GPIO_DIR_OUTPUT) {
+    if ((mode & AOS_GPIO_DIR_MASK) != AOS_GPIO_DIR_OUTPUT && (mode & AOS_GPIO_DIR_MASK) != AOS_GPIO_DIR_BOTH) {
         aos_dev_unlock(ref->dev);
         return -ENOTSUP;
     }
@@ -563,29 +593,241 @@ aos_status_t aos_gpioc_toggle(aos_gpioc_ref_t *ref, uint32_t pin)
     return 0;
 }
 
+aos_status_t aos_gpioc_poll_irq(aos_gpioc_ref_t *ref, uint32_t pin, uint32_t timeout)
+{
+    aos_gpioc_t *gpioc;
+    aos_status_t ret;
+
+    if (!ref || !aos_dev_ref_is_valid(ref))
+        return -EINVAL;
+
+    gpioc = aos_container_of(ref->dev, aos_gpioc_t, dev);
+
+    if (pin >= gpioc->num_pins)
+        return -EINVAL;
+
+    while (1) {
+        uint32_t mode;
+        uint32_t trig;
+        uint32_t val;
+        aos_status_t r;
+
+        aos_dev_lock(ref->dev);
+        mode = gpioc->pins[pin].mode;
+        trig = mode_to_irq_trig(mode);
+
+        if (trig == AOS_GPIO_IRQ_TRIG_NONE || !(mode & AOS_GPIO_IRQ_ALTERNATE)) {
+            aos_dev_unlock(ref->dev);
+            ret = -ENOTSUP;
+            break;
+        } else {
+            int polarity = -1;
+            aos_irqsave_t flags;
+
+            flags = aos_spin_lock_irqsave(&gpioc->lock);
+            (void)aos_event_get(&gpioc->pins[pin].irq_event, 0xFFFFFFFF, AOS_EVENT_OR, &val, AOS_NO_WAIT);
+            aos_spin_unlock_irqrestore(&gpioc->lock, flags);
+
+            if (trig == AOS_GPIO_IRQ_TRIG_LEVEL_HIGH) {
+                if (val == 0x2)
+                    polarity = 1;
+            } else if (trig == AOS_GPIO_IRQ_TRIG_LEVEL_LOW) {
+                if (val == 0x1)
+                    polarity = 0;
+            } else if (trig == AOS_GPIO_IRQ_TRIG_EDGE_RISING) {
+                if ((val & 0x3) == 0x2)
+                    polarity = 1;
+            } else if (trig == AOS_GPIO_IRQ_TRIG_EDGE_FALLING) {
+                if ((val & 0x3) == 0x1)
+                    polarity = 0;
+            } else {
+                if ((val & 0x3) == 0x1)
+                    polarity = 0;
+                else if ((val & 0x3) == 0x2)
+                    polarity = 1;
+            }
+
+            if (polarity >= 0) {
+                aos_dev_unlock(ref->dev);
+                ret = polarity;
+                break;
+            }
+        }
+
+        aos_dev_unlock(ref->dev);
+
+        if (timeout == AOS_NO_WAIT) {
+            ret = -EAGAIN;
+            break;
+        }
+
+        r = aos_event_get(&gpioc->pins[pin].irq_event, 0xFFFFFFFF, AOS_EVENT_OR, &val, timeout);
+        if (r == -ETIMEDOUT) {
+            ret = -ETIMEDOUT;
+            break;
+        } else if (r == -EINTR) {
+            /* reserved for signal mechanism */
+            ret = -EINTR;
+            break;
+        }
+    }
+
+    return ret;
+}
+
+aos_status_t aos_gpioc_enter_irq(aos_gpioc_ref_t *ref, uint32_t pin, uint32_t timeout)
+{
+    aos_gpioc_t *gpioc;
+    aos_status_t ret;
+
+    if (!ref || !aos_dev_ref_is_valid(ref))
+        return -EINVAL;
+
+    gpioc = aos_container_of(ref->dev, aos_gpioc_t, dev);
+
+    if (pin >= gpioc->num_pins)
+        return -EINVAL;
+
+    while (1) {
+        uint32_t mode;
+        uint32_t trig;
+        uint32_t val;
+        aos_status_t r;
+
+        aos_dev_lock(ref->dev);
+        mode = gpioc->pins[pin].mode;
+        trig = mode_to_irq_trig(mode);
+
+        if (trig == AOS_GPIO_IRQ_TRIG_NONE || !(mode & AOS_GPIO_IRQ_ALTERNATE)) {
+            aos_dev_unlock(ref->dev);
+            ret = -ENOTSUP;
+            break;
+        } else {
+            int polarity = -1;
+            aos_irqsave_t flags;
+
+            flags = aos_spin_lock_irqsave(&gpioc->lock);
+            (void)aos_event_get(&gpioc->pins[pin].irq_event, 0xFFFFFFFF, AOS_EVENT_OR_CLEAR, &val, AOS_NO_WAIT);
+
+            if (trig == AOS_GPIO_IRQ_TRIG_LEVEL_HIGH) {
+                if (val == 0x2)
+                    polarity = 1;
+            } else if (trig == AOS_GPIO_IRQ_TRIG_LEVEL_LOW) {
+                if (val == 0x1)
+                    polarity = 0;
+            } else if (trig == AOS_GPIO_IRQ_TRIG_EDGE_RISING) {
+                if ((val & 0x3) == 0x2) {
+                    polarity = 1;
+                    val >>= 2;
+                    if (val != 0)
+                        (void)aos_event_set(&gpioc->pins[pin].irq_event, val, AOS_EVENT_OR);
+                }
+            } else if (trig == AOS_GPIO_IRQ_TRIG_EDGE_FALLING) {
+                if ((val & 0x3) == 0x1) {
+                    polarity = 0;
+                    val >>= 2;
+                    if (val != 0)
+                        (void)aos_event_set(&gpioc->pins[pin].irq_event, val, AOS_EVENT_OR);
+                }
+            } else {
+                if ((val & 0x3) == 0x1 || (val & 0x3) == 0x2) {
+                    polarity = ((val & 0x3) == 0x1) ? 0 : 1;
+                    val >>= 2;
+                    if (val != 0)
+                        (void)aos_event_set(&gpioc->pins[pin].irq_event, val, AOS_EVENT_OR);
+                }
+            }
+
+            aos_spin_unlock_irqrestore(&gpioc->lock, flags);
+
+            if (polarity >= 0) {
+                aos_dev_unlock(ref->dev);
+                ret = polarity;
+                break;
+            }
+        }
+
+        aos_dev_unlock(ref->dev);
+
+        if (timeout == AOS_NO_WAIT) {
+            ret = -EAGAIN;
+            break;
+        }
+
+        r = aos_event_get(&gpioc->pins[pin].irq_event, 0xFFFFFFFF, AOS_EVENT_OR, &val, timeout);
+        if (r == -ETIMEDOUT) {
+            ret = -ETIMEDOUT;
+            break;
+        } else if (r == -EINTR) {
+            /* reserved for signal mechanism */
+            ret = -EINTR;
+            break;
+        }
+    }
+
+    return ret;
+}
+
+aos_status_t aos_gpioc_exit_irq(aos_gpioc_ref_t *ref, uint32_t pin)
+{
+    aos_gpioc_t *gpioc;
+    uint32_t mode;
+    uint32_t trig;
+
+    if (!ref || !aos_dev_ref_is_valid(ref))
+        return -EINVAL;
+
+    gpioc = aos_container_of(ref->dev, aos_gpioc_t, dev);
+
+    if (pin >= gpioc->num_pins)
+        return -EINVAL;
+
+    aos_dev_lock(ref->dev);
+    mode = gpioc->pins[pin].mode;
+    trig = mode_to_irq_trig(mode);
+
+    if (trig == AOS_GPIO_IRQ_TRIG_NONE || !(mode & AOS_GPIO_IRQ_ALTERNATE)) {
+        aos_dev_unlock(ref->dev);
+        return -ENOTSUP;
+    } else if (trig == AOS_GPIO_IRQ_TRIG_LEVEL_HIGH || trig == AOS_GPIO_IRQ_TRIG_LEVEL_LOW) {
+        uint32_t val;
+        aos_irqsave_t flags;
+        flags = aos_spin_lock_irqsave(&gpioc->lock);
+        (void)aos_event_get(&gpioc->pins[pin].irq_event, 0xFFFFFFFF, AOS_EVENT_OR_CLEAR, &val, AOS_NO_WAIT);
+        if (val == 0 && !gpioc->pins[pin].hard_irq_en) {
+            gpioc->pins[pin].hard_irq_en = true;
+            gpioc->ops->enable_irq(gpioc, pin);
+        }
+        aos_spin_unlock_irqrestore(&gpioc->lock, flags);
+    }
+
+    aos_dev_unlock(ref->dev);
+
+    return 0;
+}
+
 static void dev_gpioc_unregister(aos_dev_t *dev)
 {
     aos_gpioc_t *gpioc = aos_container_of(dev, aos_gpioc_t, dev);
 
     for (uint32_t i = 0; i < gpioc->num_pins; i++) {
         aos_gpioc_pin_t *pin = &gpioc->pins[i];
+        aos_irqsave_t flags;
 
-        if (mode_to_irq_trig(pin->mode) != AOS_GPIO_IRQ_TRIG_NONE) {
-            aos_irqsave_t flags;
+        /* no deadlock here */
+        (void)aos_sem_wait(&pin->irq_sem, AOS_WAIT_FOREVER);
 
-            /* no deadlock here */
-            (void)aos_sem_wait(&pin->irq_sem, AOS_WAIT_FOREVER);
+        if (pin->irq_handler != NULL && !(pin->mode & AOS_GPIO_IRQ_ALTERNATE))
             (void)aos_task_delete(&pin->irq_task);
-            flags = aos_spin_lock_irqsave(&gpioc->lock);
 
-            if (pin->hard_irq_en) {
-                pin->hard_irq_en = false;
-                gpioc->ops->disable_irq(gpioc, i);
-            }
+        flags = aos_spin_lock_irqsave(&gpioc->lock);
 
-            aos_spin_unlock_irqrestore(&gpioc->lock, flags);
+        if (pin->hard_irq_en) {
+            pin->hard_irq_en = false;
+            gpioc->ops->disable_irq(gpioc, i);
         }
 
+        aos_spin_unlock_irqrestore(&gpioc->lock, flags);
         pin->mode = AOS_GPIO_DIR_NONE;
         (void)gpioc->ops->set_mode(gpioc, i);
         aos_sem_free(&pin->irq_sem);
@@ -630,9 +872,8 @@ aos_status_t aos_gpioc_register(aos_gpioc_t *gpioc)
 
     gpioc->dev.type = AOS_DEV_TYPE_GPIOC;
     gpioc->dev.ops = &dev_gpioc_ops;
-#ifdef AOS_COMP_VFS
-    gpioc->dev.vfs_helper.name[0] = '\0';
-    gpioc->dev.vfs_helper.ops = NULL;
+#ifdef AOS_COMP_DEVFS
+    aos_devfs_node_init(&gpioc->dev.devfs_node);
 #endif
     aos_spin_lock_init(&gpioc->lock);
 
@@ -659,7 +900,7 @@ aos_status_t aos_gpioc_register(aos_gpioc_t *gpioc)
 
         ret = aos_event_new(&pin->irq_event, 0);
         if (ret) {
-            aos_sem_free(&gpioc->pins[i].irq_sem);
+            aos_sem_free(&pin->irq_sem);
             for (uint32_t j = 0; j < i; j++) {
                 aos_sem_free(&gpioc->pins[j].irq_sem);
                 aos_event_free(&gpioc->pins[j].irq_event);

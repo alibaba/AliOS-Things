@@ -15,14 +15,14 @@ def copy_resources_objs(script_in, build_params_in):
     data_prebuild_dir=''
     if 'ALI_AOS_HAAS_EDU_K1' in data:  # haasedu
         print('HaaS EDU platform')
-        data_prebuild_dir = 'hardware/chip/haas1000/prebuild/data/'
+        data_prebuild_dir = 'hardware/chip/haas1000/prebuild/data/data/'
 
     elif 'ALI_AOS_HAAS200' in data:     # haas200
         print('HaaS 200 platform')
-        data_prebuild_dir = 'hardware/chip/rtl872xd/prebuild/data/'
+        data_prebuild_dir = 'hardware/chip/rtl872xd/prebuild/data/data/'
     else:                               # haas100
         print('HaaS100 chip')
-        data_prebuild_dir='hardware/chip/haas1000/prebuild/data/'
+        data_prebuild_dir='hardware/chip/haas1000/prebuild/data/data/'
 
     print('data_prebuild_dir = %s' % data_prebuild_dir)
 

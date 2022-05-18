@@ -1,0 +1,4 @@
+include:
+  - project: 'espressif/wlan_ci'
+    ref: master
+    file: '/ci/templates/wifi_lib_pipeline_tests.yaml'

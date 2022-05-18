@@ -120,6 +120,7 @@
 
 ![敲击手势检测系统_物联网平台开发_设备列表.png](./../../../images/敲击手势检测系统_物联网平台开发_设备列表.png)
 
+&emsp;&emsp;
 点击前往“查看”按钮，就可以看到此设备的详细信息了。
 ![敲击手势检测系统_物联网平台开发_设备详情.png](./../../../images/敲击手势检测系统_物联网平台开发_设备详情.png)
 
@@ -148,48 +149,55 @@
 </div>
 
 &emsp;&emsp;
-将[敲击手势检测系统代码](./code/)文件下的所有脚本进行复制到“tap_detection”工程根目录中，main.py 代码如下所示。
+将[敲击手势检测系统代码](./code/)文件下的所有脚本进行复制到“tap_detection”工程根目录中，其中比较核心的部分是[motion模块](../../haas_extended_api/../../haas_extended_api/motion.md)。main.py代码如下所示：
 
 ```python
+def get_data():
+    acc = mpu6886Dev.acceleration
+    gyro = mpu6886Dev.gyro
+    # print(acc)
+    # print(gyro)
+    return acc, gyro                    # 返回读取到的加速度、角速度值
+
+def tap_detected():
+    upload_data = {'params': ujson.dumps({
+            'tap_count': motionObj.detectAction.tap_detect_count,
+        })
+    }
+    # 上传状态到物联网平台
+    if (iot_connected):
+        device.postProps(upload_data)
+
 if __name__ == '__main__':
-    wlan = network.WLAN(network.STA_IF)  # 创建WLAN对象
+    # 网络初始化
+    wlan = network.WLAN(network.STA_IF)    #创建WLAN对象
     get_wifi_status()
     connect_lp(productKey, deviceName, deviceSecret)
 
     # 硬件初始化
     i2cObj = I2C()
-    # 按照board.json中名为"mpu6886"的设备节点的配置参数（主设备I2C端口号，从设备地址，总线频率等）初始化I2C类型设备对象
-    i2cObj.open("mpu6886")
-    if not isinstance(i2cObj, I2C):
-        raise ValueError("parameter is not an I2C object")
+    i2cObj.open("mpu6886")                 # 按照board.json中名为"mpu6886"的设备节点的配置参数（主设备I2C端口号，从设备地址，总线频率等）初始化I2C类型设备对象
     print("mpu6886 inited!")
     mpu6886Dev = mpu6886.MPU6886(i2cObj)   # 初始化MPU6886传感器
 
-    # 跌倒检测算法初始化
-    tapDetection = tap_detection.tap_detection(mpu6886Dev)
-    tapDetection.enable_tap_detection()   # 设置tap_detection参数
-    tapDetection.calibrate()              # 校准传感器
+    # 获取跌倒检测的motion实例
+    motionObj = motion.Motion("double_tap", get_data, tap_detected)
 
-    while True:
-        tap_count = tapDetection.detect_tap()  # 检测是否跌倒
-        if (tap_count == True):                   # in event of a tap detection
-            print("tap_count DETECTED using MPU sensor")
-            # 上传敲击手势到物联网平台
-            if (iot_connected):
-                upload_data = {'params': ujson.dumps({
-                    'tap_count': tapDetection.tap_detect_count,
-                })
-                }
-                device.postProps(upload_data)
-        utime.sleep_us(10)
-    i2cObj.close()                                      # 关闭I2C设备对象
-    del mpu6886Dev
+    # 使能action检测，并以Dictionary格式传入灵敏度参数
+    sensitivity = { "ACCELERATION_UP_THREADHOLD" : 30 }
+    motionObj.enable(sensitivity)
+
+    # 关闭action检测，可再次使能，支持传入新的灵敏度
+    # motionObj.disable()
+
+    # i2cObj.close()                                      # 关闭I2C设备对象
+    # del mpu6886Dev
 ```
 
 1. **修改路由器名称及密码**
 
 &emsp;&emsp;
-修改 tap_detection 工程里 main.py 中 SSID 和 PWD 的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
+修改 tap_detection 工程里main.py中 SSID 和 PWD 的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
 
 ```python
 # Wi-Fi SSID和Password设置
@@ -203,7 +211,7 @@ PWD='Your-AP-Password'
 2. **修改设备的三元组信息**
 
 &emsp;&emsp;
-将在阿里云物联网平台申请的设备三元组信息，填入 main.py 中：
+将在阿里云物联网平台申请的设备三元组信息，填入main.py中：
 
 ```python
 # HaaS设备三元组
@@ -215,49 +223,31 @@ deviceSecret  = "Your-deviceSecret"
 3. **设置手势动作检测参数**
 
 &emsp;&emsp;
-在 tap_detection 工程的 main.py 里，调用 enable_tap_detection 函数可以设置手势动作检测参数，如果不传参数，则 enable_tap_detection 函数将使用默认参数。
+在 tap_detection 工程的main.py里，通过 Motion() 构造函数的第一个参数可以设定是"single_tap"（单击手势）还是"double_tap"（双击手势）。调用 enable(sensitivity) 函数可以设置手势动作检测参数，如果不传参数，则 enable() 函数将使用默认参数。
 
 ```python
-# 设置enable_tap_detection参数
-tapDetection.enable_tap_detection()
-"""
-        The tap detection parameters.
+# 设置手势检测的参数
+motionObj = motion.Motion("double_tap", get_data, tap_detected) # 目前支持double_tap（双击手势）和single_tap（单击手势）检测
 
-        :param int tap_count: 手势对应的敲击次数参数, 1代表识别单击手势, 2代表识别双击手势, 默认值2.
-
-        :param float accelerator_up_threshold: 手势检测阈值，越小越灵敏，默认值为30.
-
-        :param int latency: 两次敲击动作之间的最大间隔, 默认值150.
-
-        .. code-block:: python
-            # 如果不传参数，将会使用默认参数值。
-            accelerometer.enable_tap_detection(
-                tap_detect_count = 2,
-                accelerator_up_threshold = 30,
-                latency = 150
-            )
-
- """
+# 使能action检测，并以Dictionary格式传入灵敏度参数
+sensitivity = { "ACCELERATION_UP_THREADHOLD" : 30 }
+motionObj.enable(sensitivity)
 ```
 
-4. **检测手势动作**
+4. **使能手势动作检测**
 
 &emsp;&emsp;
-在 tap_detection 工程的 main.py 里，调用 tapDetection.detect_tap()函数来进行手势识别，并上传识别结果到云端。
+调用 motionObj.enable(sensitivity) 函数后，会使能手势动作检测detect_action()函数，如果识别到手势动作，会上传识别结果到云端。
 
 ```python
 # 手势识别主循环
-while True:
-        tap_count = tapDetection.detect_tap()  # 检测是否跌倒
-        if (tap_count == True):                # in event of a tap detection
-            print("tap_count DETECTED using MPU sensor")
-            # 上传敲击手势到物联网平台
-            if (iot_connected):
-                upload_data = {'params': ujson.dumps({
-                    'tap_count': tapDetection.tap_detect_count,
-                })
-                }
-                device.postProps(upload_data)
+def detect_action(self):
+    while(self.enableDetection == True):
+        isDetected = self.detectAction.detect()                  # 检测Action是否产生
+        if (isDetected == True):                                 # Action被检测到
+            print(self.action, "detected!")
+            if (hasattr(self, 'onActionDetected')):
+                self.onActionDetected()
         utime.sleep_us(10)
 ```
 
@@ -284,7 +274,7 @@ while True:
 3. **敲击 M5StackCore2**
 
 &emsp;&emsp;
-用手指敲击 M5StackCore2 的屏幕 n 次，n 与 tapDetection.enable_tap_detection()初始化函数的 tap_detect_count 参数对应。
+用手指敲击 M5StackCore2 的屏幕 n 次，n 与 motionObj = motion.Motion("n_tap", get_data, tap_detected) 初始化函数的 "n_tap" 参数对应。目前 "n_tap" 参数可取的值有 "single_tap" 和 "double_tap"，对应单击手势检测和双击手势检测。
 
 <div align="center">
 <img src=./../../../images/敲击手势检测系统-敲击示例.png width=30%/>
@@ -293,7 +283,7 @@ while True:
 4. **程序运行时的日志**
 
 &emsp;&emsp;
-设备上通过串口打印的信息如下，当打印“Now you can start tap detection!”后，即可开始敲击手势动作的检测。打印“tap_count DETECTED using MPU sensor”表示识别到一次“敲击手势动作（Tap）”。
+设备上通过串口打印的信息如下，当打印“Now you can start tap detection!”后，即可开始敲击手势动作的检测。打印“double_tap detected!”表示识别到一次“敲击手势动作（Tap）”。
 
 <div align="center">
 <img src=./../../../images/敲击手势检测系统-串口Log.png width=90%/>
@@ -303,6 +293,7 @@ while True:
 
 ## 云端查看
 
+&emsp;&emsp;
 进入阿里云官网，用阿里云账号[登录物联网平台](https://iot.console.aliyun.com/devices/)查看状态
 
 <div align="center">
@@ -311,4 +302,5 @@ while True:
 
 <br>
 
+&emsp;&emsp;
 到此为止，敲击手势检测系统案例就已经完成了。如果想学习更多实验，请参考[HaaS 案例实践详解](https://gitee.com/haasedu/haasedu/tree/release_2.0)。

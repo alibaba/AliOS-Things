@@ -1,0 +1,801 @@
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+import("../../etc/gn/openthread.gni")
+
+visibility = [ "../../*" ]
+
+if (openthread_enable_core_config_args) {
+  config("core_config_args") {
+    defines = []
+
+    if (openthread_config_thread_version == "1.1") {
+      defines += [ "OPENTHREAD_CONFIG_THREAD_VERSION=OT_THREAD_VERSION_1_1" ]
+    } else if (openthread_config_thread_version == "1.2") {
+      defines += [ "OPENTHREAD_CONFIG_THREAD_VERSION=OT_THREAD_VERSION_1_2" ]
+    } else if (openthread_config_thread_version != "") {
+      assert(false,
+             "Unrecognized Thread version: ${openthread_config_thread_version}")
+    }
+
+    if (openthread_config_log_output == "none") {
+      defines +=
+          [ "OPENTHREAD_CONFIG_LOG_OUTPUT=OPENTHREAD_CONFIG_LOG_OUTPUT_NONE" ]
+    } else if (openthread_config_log_output == "debug_uart") {
+      defines += [
+        "OPENTHREAD_CONFIG_LOG_OUTPUT=OPENTHREAD_CONFIG_LOG_OUTPUT_DEBUG_UART",
+      ]
+    } else if (openthread_config_log_output == "app") {
+      defines +=
+          [ "OPENTHREAD_CONFIG_LOG_OUTPUT=OPENTHREAD_CONFIG_LOG_OUTPUT_APP" ]
+    } else if (openthread_config_log_output == "platform_defined") {
+      defines += [ "OPENTHREAD_CONFIG_LOG_OUTPUT=OPENTHREAD_CONFIG_LOG_OUTPUT_PLATFORM_DEFINED" ]
+    } else if (openthread_config_log_output != "") {
+      assert(false, "Unrecognized log output: ${openthread_config_log_output}")
+    }
+
+    if (!openthread_config_assert_enable) {
+      defines += [ "OPENTHREAD_CONFIG_ASSERT_ENABLE=0" ]
+    }
+
+    if (openthread_config_anycast_locator_enable) {
+      defines += [ "OPENTHREAD_CONFIG_ANYCAST_LOCATOR_ENABLE=1" ]
+    }
+
+    if (openthread_config_backbone_router_enable) {
+      defines += [ "OPENTHREAD_CONFIG_BACKBONE_ROUTER_ENABLE=1" ]
+    }
+
+    if (openthread_config_border_agent_enable) {
+      defines += [ "OPENTHREAD_CONFIG_BORDER_AGENT_ENABLE=1" ]
+    }
+
+    if (openthread_config_border_router_enable) {
+      defines += [ "OPENTHREAD_CONFIG_BORDER_ROUTER_ENABLE=1" ]
+    }
+
+    if (openthread_config_border_routing_enable) {
+      defines += [ "OPENTHREAD_CONFIG_BORDER_ROUTING_ENABLE=1" ]
+    }
+
+    if (openthread_external_mbedtls != "") {
+      defines += [ "OPENTHREAD_CONFIG_ENABLE_BUILTIN_MBEDTLS=0" ]
+    } else if (!openthread_config_enable_builtin_mbedtls_management) {
+      defines += [ "OPENTHREAD_CONFIG_ENABLE_BUILTIN_MBEDTLS_MANAGEMENT=0" ]
+    }
+
+    if (openthread_config_channel_manager_enable) {
+      defines += [ "OPENTHREAD_CONFIG_CHANNEL_MANAGER_ENABLE=1" ]
+    }
+
+    if (openthread_config_channel_monitor_enable) {
+      defines += [ "OPENTHREAD_CONFIG_CHANNEL_MONITOR_ENABLE=1" ]
+    }
+
+    if (openthread_config_child_supervision_enable) {
+      defines += [ "OPENTHREAD_CONFIG_CHILD_SUPERVISION_ENABLE=1" ]
+    }
+
+    if (openthread_config_coap_api_enable) {
+      defines += [ "OPENTHREAD_CONFIG_COAP_API_ENABLE=1" ]
+    }
+
+    if (openthread_config_coap_secure_api_enable) {
+      defines += [ "OPENTHREAD_CONFIG_COAP_SECURE_API_ENABLE=1" ]
+    }
+
+    if (openthread_config_coap_observe_api_enable) {
+      defines += [ "OPENTHREAD_CONFIG_COAP_OBSERVE_API_ENABLE=1" ]
+    }
+
+    if (openthread_config_commissioner_enable) {
+      defines += [ "OPENTHREAD_CONFIG_COMMISSIONER_ENABLE=1" ]
+    }
+
+    if (openthread_config_mac_csl_receiver_enable) {
+      defines += [ "OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE=1" ]
+    }
+
+    if (openthread_config_dhcp6_client_enable) {
+      defines += [ "OPENTHREAD_CONFIG_DHCP6_CLIENT_ENABLE=1" ]
+    }
+
+    if (openthread_config_dhcp6_server_enable) {
+      defines += [ "OPENTHREAD_CONFIG_DHCP6_SERVER_ENABLE=1" ]
+    }
+
+    if (openthread_config_diag_enable) {
+      defines += [ "OPENTHREAD_CONFIG_DIAG_ENABLE=1" ]
+    }
+
+    if (openthread_config_dns_client_enable) {
+      defines += [ "OPENTHREAD_CONFIG_DNS_CLIENT_ENABLE=1" ]
+    }
+
+    if (openthread_config_dnssd_server_enable) {
+      defines += [ "OPENTHREAD_CONFIG_DNSSD_SERVER_ENABLE=1" ]
+    }
+
+    if (openthread_config_ecdsa_enable) {
+      defines += [ "OPENTHREAD_CONFIG_ECDSA_ENABLE=1" ]
+    }
+
+    if (openthread_config_dua_enable) {
+      defines += [ "OPENTHREAD_CONFIG_DUA_ENABLE=1" ]
+    }
+
+    if (openthread_config_mlr_enable) {
+      defines += [ "OPENTHREAD_CONFIG_MLR_ENABLE=1" ]
+    }
+
+    if (openthread_config_heap_external_enable) {
+      defines += [ "OPENTHREAD_CONFIG_HEAP_EXTERNAL_ENABLE=1" ]
+    }
+
+    if (openthread_config_ip6_fragmentation_enable) {
+      defines += [ "OPENTHREAD_CONFIG_IP6_FRAGMENTATION_ENABLE=1" ]
+    }
+
+    if (openthread_config_jam_detection_enable) {
+      defines += [ "OPENTHREAD_CONFIG_JAM_DETECTION_ENABLE=1" ]
+    }
+
+    if (openthread_config_joiner_enable) {
+      defines += [ "OPENTHREAD_CONFIG_JOINER_ENABLE=1" ]
+    }
+
+    if (openthread_config_legacy_enable) {
+      defines += [ "OPENTHREAD_CONFIG_LEGACY_ENABLE=1" ]
+    }
+
+    if (openthread_config_link_metrics_initiator_enable) {
+      defines += [ "DOPENTHREAD_CONFIG_MLE_LINK_METRICS_INITIATOR_ENABLE=1" ]
+    }
+
+    if (openthread_config_link_metrics_subject_enable) {
+      defines += [ "DOPENTHREAD_CONFIG_MLE_LINK_METRICS_SUBJECT_ENABLE=1" ]
+    }
+
+    if (openthread_config_link_raw_enable) {
+      defines += [ "OPENTHREAD_CONFIG_LINK_RAW_ENABLE=1" ]
+    }
+
+    if (openthread_config_log_level_dynamic_enable) {
+      defines += [ "OPENTHREAD_CONFIG_LOG_LEVEL_DYNAMIC_ENABLE=1" ]
+    }
+
+    if (openthread_config_mac_filter_enable) {
+      defines += [ "OPENTHREAD_CONFIG_MAC_FILTER_ENABLE=1" ]
+    }
+
+    if (openthread_config_message_use_heap) {
+      defines += [ "OPENTHREAD_CONFIG_MESSAGE_USE_HEAP_ENABLE=1" ]
+    }
+
+    if (openthread_config_mle_long_routes_enable) {
+      defines += [ "OPENTHREAD_CONFIG_MLE_LONG_ROUTES_ENABLE=1" ]
+    }
+
+    if (openthread_config_tmf_network_diag_mtd_enable) {
+      defines += [ "OPENTHREAD_CONFIG_TMF_NETWORK_DIAG_MTD_ENABLE=1" ]
+    }
+
+    if (openthread_config_multiple_instance_enable) {
+      defines += [ "OPENTHREAD_CONFIG_MULTIPLE_INSTANCE_ENABLE=1" ]
+    }
+
+    if (openthread_config_platform_netif_enable) {
+      defines += [ "OPENTHREAD_CONFIG_PLATFORM_NETIF_ENABLE=1" ]
+    }
+
+    if (openthread_config_platform_udp_enable) {
+      defines += [ "OPENTHREAD_CONFIG_PLATFORM_UDP_ENABLE=1" ]
+    }
+
+    if (openthread_config_reference_device_enable) {
+      defines += [ "OPENTHREAD_CONFIG_REFERENCE_DEVICE_ENABLE=1" ]
+    }
+
+    if (openthread_config_tmf_netdata_service_enable) {
+      defines += [ "OPENTHREAD_CONFIG_TMF_NETDATA_SERVICE_ENABLE=1" ]
+    }
+
+    if (openthread_settings_ram) {
+      defines += [ "OPENTHREAD_SETTINGS_RAM=1" ]
+    }
+
+    if (openthread_config_ip6_slaac_enable) {
+      defines += [ "OPENTHREAD_CONFIG_IP6_SLAAC_ENABLE=1" ]
+    }
+
+    if (openthread_config_sntp_client_enable) {
+      defines += [ "OPENTHREAD_CONFIG_SNTP_CLIENT_ENABLE=1" ]
+    }
+
+    if (openthread_config_srp_client_enable) {
+      defines += [ "OPENTHREAD_CONFIG_SRP_CLIENT_ENABLE=1" ]
+    }
+
+    if (openthread_config_srp_server_enable) {
+      defines += [ "OPENTHREAD_CONFIG_SRP_SERVER_ENABLE=1" ]
+    }
+
+    if (openthread_config_ping_sender) {
+      defines += [ "OPENTHREAD_CONFIG_PING_SENDER_ENABLE=1" ]
+    }
+
+    if (openthread_config_time_sync_enable) {
+      defines += [ "OPENTHREAD_CONFIG_TIME_SYNC_ENABLE=1" ]
+    }
+
+    if (openthread_config_udp_forward_enable) {
+      defines += [ "OPENTHREAD_CONFIG_UDP_FORWARD_ENABLE=1" ]
+    }
+
+    if (openthread_config_full_logs) {
+      defines += [ "OPENTHREAD_CONFIG_LOG_LEVEL=OT_LOG_LEVEL_DEBG" ]
+      defines += [ "OPENTHREAD_CONFIG_LOG_PREPEND_LEVEL=1" ]
+      defines += [ "OPENTHREAD_CONFIG_LOG_PREPEND_REGION=1" ]
+    }
+
+    if (openthread_config_otns_enable) {
+      defines += [ "OPENTHREAD_CONFIG_OTNS_ENABLE=1" ]
+    }
+  }
+}
+
+config("core_config") {
+  defines = []
+  configs = []
+
+  if (openthread_project_core_config_file != "") {
+    defines += [ "OPENTHREAD_PROJECT_CORE_CONFIG_FILE=\"${openthread_project_core_config_file}\"" ]
+  }
+
+  if (openthread_core_config_platform_check_file != "") {
+    defines += [ "OPENTHREAD_CORE_CONFIG_PLATFORM_CHECK_FILE=\"${openthread_core_config_platform_check_file}\"" ]
+  }
+
+  if (openthread_package_name != "") {
+    defines += [ "PACKAGE_NAME=\"${openthread_package_name}\"" ]
+  }
+
+  if (openthread_package_version != "") {
+    defines += [ "PACKAGE_VERSION=\"${openthread_package_version}\"" ]
+  }
+
+  if (openthread_enable_core_config_args) {
+    configs += [ ":core_config_args" ]
+  }
+
+  include_dirs = [
+    "..",
+    ".",
+  ]
+}
+
+openthread_core_files = [
+  "api/backbone_router_api.cpp",
+  "api/backbone_router_ftd_api.cpp",
+  "api/border_agent_api.cpp",
+  "api/border_router_api.cpp",
+  "api/channel_manager_api.cpp",
+  "api/channel_monitor_api.cpp",
+  "api/child_supervision_api.cpp",
+  "api/coap_api.cpp",
+  "api/coap_secure_api.cpp",
+  "api/commissioner_api.cpp",
+  "api/crypto_api.cpp",
+  "api/dataset_api.cpp",
+  "api/dataset_ftd_api.cpp",
+  "api/dataset_updater_api.cpp",
+  "api/diags_api.cpp",
+  "api/dns_api.cpp",
+  "api/dns_server_api.cpp",
+  "api/entropy_api.cpp",
+  "api/error_api.cpp",
+  "api/heap_api.cpp",
+  "api/history_tracker_api.cpp",
+  "api/icmp6_api.cpp",
+  "api/instance_api.cpp",
+  "api/ip6_api.cpp",
+  "api/jam_detection_api.cpp",
+  "api/joiner_api.cpp",
+  "api/link_api.cpp",
+  "api/link_metrics_api.cpp",
+  "api/link_raw_api.cpp",
+  "api/logging_api.cpp",
+  "api/message_api.cpp",
+  "api/multi_radio_api.cpp",
+  "api/netdata_api.cpp",
+  "api/netdata_publisher_api.cpp",
+  "api/netdiag_api.cpp",
+  "api/network_time_api.cpp",
+  "api/ping_sender_api.cpp",
+  "api/random_crypto_api.cpp",
+  "api/random_noncrypto_api.cpp",
+  "api/server_api.cpp",
+  "api/sntp_api.cpp",
+  "api/srp_client_api.cpp",
+  "api/srp_client_buffers_api.cpp",
+  "api/srp_server_api.cpp",
+  "api/tasklet_api.cpp",
+  "api/tcp_api.cpp",
+  "api/thread_api.cpp",
+  "api/thread_ftd_api.cpp",
+  "api/udp_api.cpp",
+  "backbone_router/backbone_tmf.cpp",
+  "backbone_router/backbone_tmf.hpp",
+  "backbone_router/bbr_leader.cpp",
+  "backbone_router/bbr_leader.hpp",
+  "backbone_router/bbr_local.cpp",
+  "backbone_router/bbr_local.hpp",
+  "backbone_router/bbr_manager.cpp",
+  "backbone_router/bbr_manager.hpp",
+  "backbone_router/multicast_listeners_table.cpp",
+  "backbone_router/multicast_listeners_table.hpp",
+  "backbone_router/ndproxy_table.cpp",
+  "backbone_router/ndproxy_table.hpp",
+  "border_router/infra_if_platform.cpp",
+  "border_router/router_advertisement.cpp",
+  "border_router/router_advertisement.hpp",
+  "border_router/routing_manager.cpp",
+  "border_router/routing_manager.hpp",
+  "coap/coap.cpp",
+  "coap/coap.hpp",
+  "coap/coap_message.cpp",
+  "coap/coap_message.hpp",
+  "coap/coap_secure.cpp",
+  "coap/coap_secure.hpp",
+  "common/arg_macros.hpp",
+  "common/array.hpp",
+  "common/as_core_type.hpp",
+  "common/bit_vector.hpp",
+  "common/clearable.hpp",
+  "common/code_utils.hpp",
+  "common/const_cast.hpp",
+  "common/crc16.cpp",
+  "common/crc16.hpp",
+  "common/data.hpp",
+  "common/debug.hpp",
+  "common/encoding.hpp",
+  "common/equatable.hpp",
+  "common/error.cpp",
+  "common/error.hpp",
+  "common/extension.hpp",
+  "common/heap_string.cpp",
+  "common/heap_string.hpp",
+  "common/instance.cpp",
+  "common/instance.hpp",
+  "common/iterator_utils.hpp",
+  "common/linked_list.hpp",
+  "common/locator.hpp",
+  "common/locator_getters.hpp",
+  "common/logging.cpp",
+  "common/logging.hpp",
+  "common/message.cpp",
+  "common/message.hpp",
+  "common/new.hpp",
+  "common/non_copyable.hpp",
+  "common/notifier.cpp",
+  "common/notifier.hpp",
+  "common/numeric_limits.hpp",
+  "common/pool.hpp",
+  "common/random.hpp",
+  "common/random_manager.cpp",
+  "common/random_manager.hpp",
+  "common/settings.cpp",
+  "common/settings.hpp",
+  "common/settings_driver.hpp",
+  "common/string.cpp",
+  "common/string.hpp",
+  "common/tasklet.cpp",
+  "common/tasklet.hpp",
+  "common/time.hpp",
+  "common/time_ticker.cpp",
+  "common/time_ticker.hpp",
+  "common/timer.cpp",
+  "common/timer.hpp",
+  "common/tlvs.cpp",
+  "common/tlvs.hpp",
+  "common/trickle_timer.cpp",
+  "common/trickle_timer.hpp",
+  "common/type_traits.hpp",
+  "common/uptime.cpp",
+  "common/uptime.hpp",
+  "crypto/aes_ccm.cpp",
+  "crypto/aes_ccm.hpp",
+  "crypto/aes_ecb.cpp",
+  "crypto/aes_ecb.hpp",
+  "crypto/context_size.hpp",
+  "crypto/crypto_platform.cpp",
+  "crypto/ecdsa.cpp",
+  "crypto/ecdsa.hpp",
+  "crypto/hkdf_sha256.cpp",
+  "crypto/hkdf_sha256.hpp",
+  "crypto/hmac_sha256.cpp",
+  "crypto/hmac_sha256.hpp",
+  "crypto/mbedtls.cpp",
+  "crypto/mbedtls.hpp",
+  "crypto/pbkdf2_cmac.cpp",
+  "crypto/pbkdf2_cmac.hpp",
+  "crypto/sha256.cpp",
+  "crypto/sha256.hpp",
+  "crypto/storage.cpp",
+  "crypto/storage.hpp",
+  "diags/factory_diags.cpp",
+  "diags/factory_diags.hpp",
+  "mac/channel_mask.cpp",
+  "mac/channel_mask.hpp",
+  "mac/data_poll_handler.cpp",
+  "mac/data_poll_handler.hpp",
+  "mac/data_poll_sender.cpp",
+  "mac/data_poll_sender.hpp",
+  "mac/link_raw.cpp",
+  "mac/link_raw.hpp",
+  "mac/mac.cpp",
+  "mac/mac.hpp",
+  "mac/mac_filter.cpp",
+  "mac/mac_filter.hpp",
+  "mac/mac_frame.cpp",
+  "mac/mac_frame.hpp",
+  "mac/mac_links.cpp",
+  "mac/mac_links.hpp",
+  "mac/mac_types.cpp",
+  "mac/mac_types.hpp",
+  "mac/sub_mac.cpp",
+  "mac/sub_mac.hpp",
+  "mac/sub_mac_callbacks.cpp",
+  "meshcop/announce_begin_client.cpp",
+  "meshcop/announce_begin_client.hpp",
+  "meshcop/border_agent.cpp",
+  "meshcop/border_agent.hpp",
+  "meshcop/commissioner.cpp",
+  "meshcop/commissioner.hpp",
+  "meshcop/dataset.cpp",
+  "meshcop/dataset.hpp",
+  "meshcop/dataset_local.cpp",
+  "meshcop/dataset_local.hpp",
+  "meshcop/dataset_manager.cpp",
+  "meshcop/dataset_manager.hpp",
+  "meshcop/dataset_manager_ftd.cpp",
+  "meshcop/dataset_updater.cpp",
+  "meshcop/dataset_updater.hpp",
+  "meshcop/dtls.cpp",
+  "meshcop/dtls.hpp",
+  "meshcop/energy_scan_client.cpp",
+  "meshcop/energy_scan_client.hpp",
+  "meshcop/joiner.cpp",
+  "meshcop/joiner.hpp",
+  "meshcop/joiner_router.cpp",
+  "meshcop/joiner_router.hpp",
+  "meshcop/meshcop.cpp",
+  "meshcop/meshcop.hpp",
+  "meshcop/meshcop_leader.cpp",
+  "meshcop/meshcop_leader.hpp",
+  "meshcop/meshcop_tlvs.cpp",
+  "meshcop/meshcop_tlvs.hpp",
+  "meshcop/panid_query_client.cpp",
+  "meshcop/panid_query_client.hpp",
+  "meshcop/timestamp.cpp",
+  "meshcop/timestamp.hpp",
+  "net/checksum.cpp",
+  "net/checksum.hpp",
+  "net/dhcp6.hpp",
+  "net/dhcp6_client.cpp",
+  "net/dhcp6_client.hpp",
+  "net/dhcp6_server.cpp",
+  "net/dhcp6_server.hpp",
+  "net/dns_client.cpp",
+  "net/dns_client.hpp",
+  "net/dns_types.cpp",
+  "net/dns_types.hpp",
+  "net/dnssd_server.cpp",
+  "net/dnssd_server.hpp",
+  "net/icmp6.cpp",
+  "net/icmp6.hpp",
+  "net/ip4_address.cpp",
+  "net/ip4_address.hpp",
+  "net/ip6.cpp",
+  "net/ip6.hpp",
+  "net/ip6_address.cpp",
+  "net/ip6_address.hpp",
+  "net/ip6_filter.cpp",
+  "net/ip6_filter.hpp",
+  "net/ip6_headers.cpp",
+  "net/ip6_headers.hpp",
+  "net/ip6_mpl.cpp",
+  "net/ip6_mpl.hpp",
+  "net/nd_agent.cpp",
+  "net/nd_agent.hpp",
+  "net/netif.cpp",
+  "net/netif.hpp",
+  "net/sntp_client.cpp",
+  "net/sntp_client.hpp",
+  "net/socket.cpp",
+  "net/socket.hpp",
+  "net/srp_client.cpp",
+  "net/srp_client.hpp",
+  "net/srp_server.cpp",
+  "net/srp_server.hpp",
+  "net/tcp6.cpp",
+  "net/tcp6.hpp",
+  "net/udp6.cpp",
+  "net/udp6.hpp",
+  "radio/max_power_table.hpp",
+  "radio/radio.cpp",
+  "radio/radio.hpp",
+  "radio/radio_callbacks.cpp",
+  "radio/radio_platform.cpp",
+  "radio/trel_interface.cpp",
+  "radio/trel_interface.hpp",
+  "radio/trel_link.cpp",
+  "radio/trel_link.hpp",
+  "radio/trel_packet.cpp",
+  "radio/trel_packet.hpp",
+  "thread/address_resolver.cpp",
+  "thread/address_resolver.hpp",
+  "thread/announce_begin_server.cpp",
+  "thread/announce_begin_server.hpp",
+  "thread/announce_sender.cpp",
+  "thread/announce_sender.hpp",
+  "thread/anycast_locator.cpp",
+  "thread/anycast_locator.hpp",
+  "thread/child_mask.hpp",
+  "thread/child_table.cpp",
+  "thread/child_table.hpp",
+  "thread/csl_tx_scheduler.cpp",
+  "thread/csl_tx_scheduler.hpp",
+  "thread/discover_scanner.cpp",
+  "thread/discover_scanner.hpp",
+  "thread/dua_manager.cpp",
+  "thread/dua_manager.hpp",
+  "thread/energy_scan_server.cpp",
+  "thread/energy_scan_server.hpp",
+  "thread/indirect_sender.cpp",
+  "thread/indirect_sender.hpp",
+  "thread/indirect_sender_frame_context.hpp",
+  "thread/key_manager.cpp",
+  "thread/key_manager.hpp",
+  "thread/link_metrics.cpp",
+  "thread/link_metrics.hpp",
+  "thread/link_metrics_tlvs.hpp",
+  "thread/link_quality.cpp",
+  "thread/link_quality.hpp",
+  "thread/lowpan.cpp",
+  "thread/lowpan.hpp",
+  "thread/mesh_forwarder.cpp",
+  "thread/mesh_forwarder.hpp",
+  "thread/mesh_forwarder_ftd.cpp",
+  "thread/mesh_forwarder_mtd.cpp",
+  "thread/mle.cpp",
+  "thread/mle.hpp",
+  "thread/mle_router.cpp",
+  "thread/mle_router.hpp",
+  "thread/mle_tlvs.hpp",
+  "thread/mle_types.cpp",
+  "thread/mle_types.hpp",
+  "thread/mlr_manager.cpp",
+  "thread/mlr_manager.hpp",
+  "thread/mlr_types.hpp",
+  "thread/neighbor_table.cpp",
+  "thread/neighbor_table.hpp",
+  "thread/network_data.cpp",
+  "thread/network_data.hpp",
+  "thread/network_data_leader.cpp",
+  "thread/network_data_leader.hpp",
+  "thread/network_data_leader_ftd.cpp",
+  "thread/network_data_leader_ftd.hpp",
+  "thread/network_data_local.cpp",
+  "thread/network_data_local.hpp",
+  "thread/network_data_notifier.cpp",
+  "thread/network_data_notifier.hpp",
+  "thread/network_data_publisher.cpp",
+  "thread/network_data_publisher.hpp",
+  "thread/network_data_service.cpp",
+  "thread/network_data_service.hpp",
+  "thread/network_data_tlvs.cpp",
+  "thread/network_data_tlvs.hpp",
+  "thread/network_data_types.cpp",
+  "thread/network_data_types.hpp",
+  "thread/network_diagnostic.cpp",
+  "thread/network_diagnostic.hpp",
+  "thread/network_diagnostic_tlvs.hpp",
+  "thread/panid_query_server.cpp",
+  "thread/panid_query_server.hpp",
+  "thread/radio_selector.cpp",
+  "thread/radio_selector.hpp",
+  "thread/router_table.cpp",
+  "thread/router_table.hpp",
+  "thread/src_match_controller.cpp",
+  "thread/src_match_controller.hpp",
+  "thread/thread_netif.cpp",
+  "thread/thread_netif.hpp",
+  "thread/thread_tlvs.hpp",
+  "thread/time_sync_service.cpp",
+  "thread/time_sync_service.hpp",
+  "thread/tmf.cpp",
+  "thread/tmf.hpp",
+  "thread/topology.cpp",
+  "thread/topology.hpp",
+  "thread/uri_paths.cpp",
+  "thread/uri_paths.hpp",
+  "utils/channel_manager.cpp",
+  "utils/channel_manager.hpp",
+  "utils/channel_monitor.cpp",
+  "utils/channel_monitor.hpp",
+  "utils/child_supervision.cpp",
+  "utils/child_supervision.hpp",
+  "utils/flash.cpp",
+  "utils/flash.hpp",
+  "utils/heap.cpp",
+  "utils/heap.hpp",
+  "utils/history_tracker.cpp",
+  "utils/history_tracker.hpp",
+  "utils/jam_detector.cpp",
+  "utils/jam_detector.hpp",
+  "utils/lookup_table.cpp",
+  "utils/lookup_table.hpp",
+  "utils/otns.cpp",
+  "utils/otns.hpp",
+  "utils/parse_cmdline.cpp",
+  "utils/parse_cmdline.hpp",
+  "utils/ping_sender.cpp",
+  "utils/ping_sender.hpp",
+  "utils/slaac_address.cpp",
+  "utils/slaac_address.hpp",
+  "utils/srp_client_buffers.cpp",
+  "utils/srp_client_buffers.hpp",
+]
+
+openthread_radio_sources = [
+  "api/diags_api.cpp",
+  "api/error_api.cpp",
+  "api/instance_api.cpp",
+  "api/link_raw_api.cpp",
+  "api/logging_api.cpp",
+  "api/random_noncrypto_api.cpp",
+  "api/tasklet_api.cpp",
+  "common/error.hpp",
+  "common/instance.cpp",
+  "common/logging.cpp",
+  "common/random_manager.cpp",
+  "common/string.cpp",
+  "common/tasklet.cpp",
+  "common/timer.cpp",
+  "common/uptime.cpp",
+  "crypto/aes_ccm.cpp",
+  "crypto/aes_ecb.cpp",
+  "crypto/crypto_platform.cpp",
+  "crypto/storage.cpp",
+  "diags/factory_diags.cpp",
+  "mac/link_raw.cpp",
+  "mac/mac_frame.cpp",
+  "mac/mac_types.cpp",
+  "mac/sub_mac.cpp",
+  "mac/sub_mac_callbacks.cpp",
+  "radio/radio.cpp",
+  "radio/radio_callbacks.cpp",
+  "radio/radio_platform.cpp",
+  "thread/link_quality.cpp",
+  "utils/lookup_table.cpp",
+  "utils/parse_cmdline.cpp",
+]
+
+header_pattern = [
+  "*.h",
+  "*.hpp",
+]
+
+openthread_core_headers = filter_include(openthread_core_files, header_pattern)
+openthread_core_sources = filter_exclude(openthread_core_files, header_pattern)
+
+source_set("libopenthread_core_config") {
+  public = [
+    "config/announce_sender.h",
+    "config/backbone_router.h",
+    "config/border_router.h",
+    "config/channel_manager.h",
+    "config/channel_monitor.h",
+    "config/child_supervision.h",
+    "config/coap.h",
+    "config/commissioner.h",
+    "config/crypto.h",
+    "config/dataset_updater.h",
+    "config/dhcp6_client.h",
+    "config/dhcp6_server.h",
+    "config/diag.h",
+    "config/dns_client.h",
+    "config/dnssd_server.h",
+    "config/dtls.h",
+    "config/history_tracker.h",
+    "config/ip6.h",
+    "config/joiner.h",
+    "config/link_quality.h",
+    "config/link_raw.h",
+    "config/logging.h",
+    "config/mac.h",
+    "config/mle.h",
+    "config/netdata_publisher.h",
+    "config/openthread-core-config-check.h",
+    "config/openthread-core-default-config.h",
+    "config/parent_search.h",
+    "config/ping_sender.h",
+    "config/platform.h",
+    "config/radio_link.h",
+    "config/sntp_client.h",
+    "config/srp_client.h",
+    "config/srp_server.h",
+    "config/time_sync.h",
+    "config/tmf.h",
+    "openthread-core-config.h",
+  ]
+  public_configs = [
+    ":core_config",
+    "../..:openthread_config",
+  ]
+  public_deps = [ "../../include/openthread:openthread_config" ]
+  public_deps += openthread_core_config_deps
+}
+
+source_set("libopenthread_core_headers") {
+  public = openthread_core_headers
+  public_deps = [
+    ":libopenthread_core_config",
+    "../../include/openthread",
+  ]
+  visibility += [ "*" ]
+}
+
+group("libopenthread_platform") {
+  public_deps = []
+  if (openthread_external_platform != "") {
+    public_deps += [ openthread_external_platform ]
+  }
+  public_deps += [
+    ":libopenthread_core_headers",
+    "${mbedtls_target}",
+  ]
+}
+
+static_library("libopenthread-ftd") {
+  sources = openthread_core_sources
+  public_deps = [ ":libopenthread_platform" ]
+  public_configs = [ "../..:openthread_ftd_config" ]
+}
+
+static_library("libopenthread-mtd") {
+  sources = openthread_core_sources
+  public_deps = [ ":libopenthread_platform" ]
+  public_configs = [ "../..:openthread_mtd_config" ]
+}
+
+static_library("libopenthread-radio") {
+  sources = openthread_radio_sources
+  public_deps = [ ":libopenthread_platform" ]
+  public_configs = [ "../..:openthread_radio_config" ]
+}

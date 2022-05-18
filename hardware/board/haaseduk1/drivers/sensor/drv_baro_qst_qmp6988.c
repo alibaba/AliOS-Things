@@ -48,6 +48,7 @@ uint8_t qmp6988_WriteReg(uint8_t slave, uint8_t reg_add, uint8_t reg_dat)
     write_buf[0] = reg_add;
     write_buf[1] = reg_dat;
     sensor_i2c_master_send(1, slave, write_buf, 2, 1000);
+    return 1;
 #endif
 }
 
@@ -416,7 +417,7 @@ uint8_t qmp6988_init(qmp6988_data *qmp6988)
     int32_t ret = sensor_i2c_open(1, QMP6988_SLAVE_ADDRESS_H, I2C_BUS_BIT_RATES_100K, 0);
     if (ret) {
         printf("sensor i2c open failed, ret:%d\n", ret);
-        return;
+        return 0;
     }
 
     ret = qmp6988_device_check(qmp6988);

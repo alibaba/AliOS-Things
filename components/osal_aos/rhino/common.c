@@ -3,6 +3,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "aos/kernel.h"
 #include "k_config.h"
@@ -66,21 +67,21 @@ void aos_srand(uint32_t seed)
         seed_val = SEED_MAGIC;
     }
     seed_val += seed;
-    srand(seed_val);
+    srandom(seed_val);
 
-    seed_val = rand();
+    seed_val = (uint32_t)random();
     ret = aos_kv_set(g_seed_key, &seed_val, sizeof(seed_val), 1);
     if (ret) {
         printf("aos_kv_set error, return :%d\r\n", ret);
     }
 #else
-    srand(seed);
+    srandom(seed);
 #endif
 }
 
 int32_t aos_rand(void)
 {
-    return rand();
+    return (int32_t)random();
 }
 
 const char *aos_comp_version_get(const char *comp_name)
@@ -124,3 +125,25 @@ int32_t aos_comp_version_set(const char *comp_name, const char *version)
     return -1;
 }
 
+bool aos_umem_check(const void *start, size_t size)
+{
+    if (!start || size == 0)
+        return false;
+
+    /* TODO */
+
+    return true;
+}
+
+aos_status_t aos_umem_copy(void *dst, const void *src, size_t count)
+{
+    if (count == 0)
+        return 0;
+
+    if (!dst || !src)
+        return -EINVAL;
+
+    (void)memcpy(dst, src, count);
+
+    return 0;
+}

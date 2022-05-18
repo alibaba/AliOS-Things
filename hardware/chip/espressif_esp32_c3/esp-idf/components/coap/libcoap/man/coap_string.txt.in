@@ -1,0 +1,182 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap_string(3)
+==============
+:doctype: manpage
+:man source:   coap_string
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap_string,
+coap_new_string,
+coap_delete_string,
+coap_new_str_const,
+coap_delete_str_const,
+coap_new_binary,
+coap_delete_binary,
+coap_resize_binary,
+coap_new_bin_const,
+coap_delete_bin_const,
+coap_make_str_const,
+coap_string_equal,
+coap_binary_equal
+- Work with CoAP string functions
+
+SYNOPSIS
+--------
+*#include <coap@LIBCOAP_API_VERSION@/coap.h>*
+
+*coap_string_t *coap_new_string(size_t _size_);*
+
+*void coap_delete_string(coap_string_t *_string_);*
+
+*coap_str_const_t *coap_new_str_const(const uint8_t *_data_, size_t _size_);*
+
+*void coap_delete_str_const(coap_str_const_t *_string_);*
+
+*coap_str_const_t *coap_make_str_const(const char *_string_);*
+
+*int coap_string_equal(coap_string_t *_string1_, coap_string_t *_string2_);*
+
+*coap_binary_t *coap_new_binary(size_t _size_);*
+
+*void coap_delete_binary(coap_binary_t *_binary_);*
+
+*coap_binary_t *coap_resize_binary(coap_binary_t *_binary_, size_t _new_size_);*
+
+*coap_bin_const_t *coap_new_bin_const(const uint8_t *_data_, size_t _size_);*
+
+*void coap_delete_bin_const(coap_bin_const_t *_binary_);*
+
+*int coap_binary_equal(coap_binary_t *_binary1_, coap_binary_t *_binary2_);*
+
+For specific (D)TLS library support, link with
+*-lcoap-@LIBCOAP_API_VERSION@-notls*, *-lcoap-@LIBCOAP_API_VERSION@-gnutls*,
+*-lcoap-@LIBCOAP_API_VERSION@-openssl*, *-lcoap-@LIBCOAP_API_VERSION@-mbedtls*
+or *-lcoap-@LIBCOAP_API_VERSION@-tinydtls*.   Otherwise, link with
+*-lcoap-@LIBCOAP_API_VERSION@* to get the default (D)TLS library support.
+
+DESCRIPTION
+-----------
+There is support for storing strings (usually readable data) and for storing
+binary data.  These are used by a number of functions and provide the
+information in some of the callbacks.
+
+There are 4 supported string/binary types as follows
+
+[source, c]
+----
+/*
+ * Coap string data definition
+ */
+typedef struct coap_string_t {
+  size_t length;    /* length of string */
+  uint8_t *s;       /* string data */
+} coap_string_t;
+
+/*
+ * Coap string data definition with const data
+ */
+typedef struct coap_str_const_t {
+  size_t length;    /* length of string */
+  const uint8_t *s; /* read-only string data */
+} coap_str_const_t;
+
+/*
+ * Coap binary data definition
+ */
+typedef struct coap_binary_t {
+  size_t length;    /* length of binary data */
+  uint8_t *s;       /* binary data */
+} coap_binary_t;
+
+/*
+ * Coap binary data definition with const data
+ */
+typedef struct coap_bin_const_t {
+  size_t length;    /* length of binary data */
+  const uint8_t *s; /* read-only binary data */
+} coap_bin_const_t;
+----
+
+The *coap_new_string*() function allocates a new coap_string_t of _size_
+where _s_ points to uninitialized data of length _size_ with an extra trailing
+NULL at _size_ + 1. _length_ is set to _size_.
+
+The *coap_delete_string*() function is used to delete the coap_string_t
+created by *coap_new_string*().
+
+The *coap_new_str_const*() function allocates a coap_str_const_t of _size_
+where _s_ is filled in with _data_ and has a trailing NULL added.
+_length_ is set to _size_. _s_ is read-only.
+
+The *coap_delete_str_const*() function is used to delete the coap_str_const_t
+created by *coap_new_str_const*().
+
+The *coap_make_str_const*() function is used to take some read-only text and
+uses a static coap_str_const_t for use in different function calls. There are
+two static entries that are cycled through so that a single function call can
+call *coap_make_str_const*() twice.
+
+The *coap_string_equal*() function is used to compare two different string
+objects _string1_ and _string2_.
+
+The *coap_new_binary*() function allocates a new coap_binary_t of _size_
+where _s_ points to uninitialized data of length _size_. _length_ is set
+to _size_.
+
+The *coap_resize_binary*() function is used resize the size of _s_ to the new
+size of _new_size_.  The data between the old _length_ and the _new_size_ is
+unitialized.  _length_ is set to _new_size_.
+
+The *coap_delete_binary*() function is used to delete the coap_binary_t
+created by *coap_new_binary*().
+
+The *coap_new_bin_const*() function allocates a coap_bin_const_t of _size_
+where _s_ is filled in with in with _data_ and has a trailing NULL added.
+_length_ is set to _size_. _s_ is read-only.
+
+The *coap_delete_bin_const*() function is used to delete the coap_bin_const_t
+created by *coap_new_bin_const*().
+
+The *coap_binary_equal*() function is used to compare two different binary
+objects _binary1_ and _binary2_.
+
+RETURN VALUES
+-------------
+The *coap_new_string*() function returns a pointer to an allocated
+coap_string_t or NULL if there was a failure.
+
+The *coap_new_str_const*() function returns a pointer to an allocated
+coap_str_const_t or NULL if there was a failure.
+
+The *coap_new_binary*() function returns a pointer to an allocated
+coap_binary_t or NULL if there was a failure.
+
+The *coap_resize_binary*() function returns a pointer to an re-allocated
+coap_binary_t or NULL if there was a failure.
+
+The *coap_new_bin_const*() function returns a pointer to an allocated
+coap_bin_const_t or NULL if there was a failure.
+
+SEE ALSO
+--------
+*coap_attribute*(3), *coap_context*(3), *coap_handler*(3), *coap_pdu_setup*(3)
+and *coap_resource*(3)
+
+FURTHER INFORMATION
+-------------------
+"RFC7252: The Constrained Application Protocol (CoAP)"
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net or raise an issue on GitHub at
+https://github.com/obgm/libcoap/issues
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

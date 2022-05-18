@@ -1,0 +1,112 @@
+menu "ESP-TLS"
+    choice ESP_TLS_LIBRARY_CHOOSE
+        prompt "Choose SSL/TLS library for ESP-TLS (See help for more Info)"
+        default ESP_TLS_USING_MBEDTLS
+        help
+            The ESP-TLS APIs support multiple backend TLS libraries. Currently mbedTLS and WolfSSL are
+            supported. Different TLS libraries may support different features and have different resource
+            usage. Consult the ESP-TLS documentation in ESP-IDF Programming guide for more details.
+        config ESP_TLS_USING_MBEDTLS
+            bool "mbedTLS"
+        config ESP_TLS_USING_WOLFSSL
+            depends on TLS_STACK_WOLFSSL
+            bool "wolfSSL (License info in wolfSSL directory README)"
+    endchoice
+
+    config ESP_TLS_USE_SECURE_ELEMENT
+        bool "Use Secure Element (ATECC608A) with ESP-TLS"
+        depends on IDF_TARGET_ESP32 && ESP_TLS_USING_MBEDTLS
+        select ATCA_MBEDTLS_ECDSA
+        select ATCA_MBEDTLS_ECDSA_SIGN
+        select ATCA_MBEDTLS_ECDSA_VERIFY
+        default n
+        help
+            Enable use of Secure Element for ESP-TLS, this enables internal support for
+            ATECC608A peripheral on ESPWROOM32SE, which can be used for TLS connection.
+
+    config ESP_TLS_USE_DS_PERIPHERAL
+        bool "Use Digital Signature (DS) Peripheral with ESP-TLS"
+        depends on (IDF_TARGET_ESP32C3 || IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32H2 || IDF_TARGET_ESP32S3)
+        depends on ESP_TLS_USING_MBEDTLS
+        default y
+        help
+            Enable use of the Digital Signature Peripheral for ESP-TLS.The DS peripheral
+            can only be used when it is appropriately configured for TLS.
+            Consult the ESP-TLS documentation in ESP-IDF Programming Guide for more details.
+
+    config ESP_TLS_SERVER
+        bool "Enable ESP-TLS Server"
+        default n
+        help
+            Enable support for creating server side SSL/TLS session, available for mbedTLS
+            as well as wolfSSL TLS library.
+
+    config ESP_TLS_CLIENT_SESSION_TICKETS
+        bool "Enable client session tickets"
+        depends on ESP_TLS_USING_MBEDTLS && MBEDTLS_CLIENT_SSL_SESSION_TICKETS
+        default n
+        help
+            Enable session ticket support as specified in RFC5077.
+
+    config ESP_TLS_SERVER_SESSION_TICKETS
+        bool "Enable server session tickets"
+        depends on ESP_TLS_SERVER && ESP_TLS_USING_MBEDTLS && MBEDTLS_SERVER_SSL_SESSION_TICKETS
+        default n
+        help
+            Enable session ticket support as specified in RFC5077
+
+    config ESP_TLS_SERVER_SESSION_TICKET_TIMEOUT
+        int "Server session ticket timeout in seconds"
+        depends on ESP_TLS_SERVER_SESSION_TICKETS
+        default 86400
+        help
+            Sets the session ticket timeout used in the tls server.
+
+    config ESP_TLS_PSK_VERIFICATION
+        bool "Enable PSK verification"
+        select MBEDTLS_PSK_MODES if ESP_TLS_USING_MBEDTLS
+        select MBEDTLS_KEY_EXCHANGE_PSK if ESP_TLS_USING_MBEDTLS
+        select MBEDTLS_KEY_EXCHANGE_DHE_PSK if ESP_TLS_USING_MBEDTLS
+        select MBEDTLS_KEY_EXCHANGE_ECDHE_PSK if ESP_TLS_USING_MBEDTLS
+        select MBEDTLS_KEY_EXCHANGE_RSA_PSK if ESP_TLS_USING_MBEDTLS
+        default n
+        help
+            Enable support for pre shared key ciphers, supported for both mbedTLS as well as
+            wolfSSL TLS library.
+
+    config ESP_TLS_INSECURE
+        bool "Allow potentially insecure options"
+        help
+            You can enable some potentially insecure options. These options should only be used for testing pusposes.
+            Only enable these options if you are very sure.
+
+    config ESP_TLS_SKIP_SERVER_CERT_VERIFY
+        bool "Skip server certificate verification by default (WARNING: ONLY FOR TESTING PURPOSE, READ HELP)"
+        depends on ESP_TLS_INSECURE
+        help
+            After enabling this option the esp-tls client will skip the server certificate verification
+            by default. Note that this option will only modify the default behaviour of esp-tls client
+            regarding server cert verification. The default behaviour should only be applicable when
+            no other option regarding the server cert verification is opted in the esp-tls config
+            (e.g. crt_bundle_attach, use_global_ca_store etc.).
+            WARNING : Enabling this option comes with a potential risk of establishing a TLS connection
+            with a server which has a fake identity, provided that the server certificate
+            is not provided either through API or other mechanism like ca_store etc.
+
+    config ESP_WOLFSSL_SMALL_CERT_VERIFY
+        bool "Enable SMALL_CERT_VERIFY"
+        depends on ESP_TLS_USING_WOLFSSL
+        default y
+        help
+            Enables server verification with Intermediate CA cert, does not authenticate full chain
+            of trust upto the root CA cert (After Enabling this option client only needs to have Intermediate
+            CA certificate of the server to authenticate server, root CA cert is not necessary).
+
+    config ESP_DEBUG_WOLFSSL
+        bool "Enable debug logs for wolfSSL"
+        depends on ESP_TLS_USING_WOLFSSL
+        default n
+        help
+            Enable detailed debug prints for wolfSSL SSL library.
+
+endmenu

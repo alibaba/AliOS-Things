@@ -62,15 +62,17 @@ static int mv_main(int argc, char **argv)
     ret = rename(from, to);
     if (ret < 0 && errno != EXDEV) {
         aos_cli_printf("rename %s to %s failed - %s\n", from, to, strerror(errno));
-        return -1;
+        ret = -1;
+        goto free;
     } else if (ret == 0) {
-        return 0;
+        goto free;
     }
 
     fd_from = open(from, O_RDONLY);
     if (fd_from < 0) {
         aos_cli_printf("open %s failed - %s\n", from, strerror(errno));
-        return -1;
+        ret = -1;
+        goto free;
     }
 
     fd_to = open(to, O_WRONLY | O_CREAT | O_TRUNC);
@@ -103,6 +105,7 @@ close_to:
     close(fd_to);
 close_from:
     close(fd_from);
+free:
     if (isdir)
         free(to);
     return ret;

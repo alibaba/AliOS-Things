@@ -111,9 +111,12 @@ static int create_cap_task(void)
     pthread_attr_init(&attr);
     pthread_attr_setstacksize(&attr, CAP_HIGH_STACKSIZE);
     sched.sched_priority = CAP_DEFAULT_PRIORITY;
+    sched.slice = 0;
     pthread_attr_setschedparam(&attr, &sched);
     pthread_create(&cap_thread, &attr, cap_thread_loop, NULL);
-    pthread_setname_np(cap_thread, "capthread");
+    if (cap_thread) {
+        pthread_setname_np(cap_thread, "capthread");
+    }
     pthread_attr_destroy(&attr);
     bCreateCapThreadFlag = true;
     return 0;

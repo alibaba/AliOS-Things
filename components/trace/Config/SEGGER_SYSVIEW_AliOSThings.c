@@ -56,10 +56,29 @@ Revision: $Rev: 7947 $
 
 /*********************************************************************
 *
+*       SYSVIEW_SendTaskInfo()
+*
+*  Function description
+*    Record task information.
+*/
+static void SYSVIEW_SendTaskInfo(U32 TaskID, const char* sName, unsigned Prio, U32 StackBase, unsigned StackSize) {
+  SEGGER_SYSVIEW_TASKINFO TaskInfo;
+
+  memset(&TaskInfo, 0, sizeof(TaskInfo)); // Fill all elements with 0 to allow extending the structure in future version without breaking the code
+  TaskInfo.TaskID     = TaskID;
+  TaskInfo.sName      = sName;
+  TaskInfo.Prio       = Prio;
+  TaskInfo.StackBase  = StackBase;
+  TaskInfo.StackSize  = StackSize;
+  SEGGER_SYSVIEW_SendTaskInfo(&TaskInfo);
+}
+
+/*********************************************************************
+*
 *       _cbSendTaskList()
 *
 *  Function description
-*    This function is part of the link between FreeRTOS and SYSVIEW.
+*    This function is part of the link between AliOS Things and SYSVIEW.
 *    Called from SystemView when asked by the host, it uses SYSVIEW
 *    functions to send the entire task list to the host.
 */
@@ -82,7 +101,7 @@ static void _cbSendTaskList(void) {
 *       _cbGetTime()
 *
 *  Function description
-*    This function is part of the link between FreeRTOS and SYSVIEW.
+*    This function is part of the link between AliOS Things and SYSVIEW.
 *    Called from SystemView when asked by the host, returns the
 *    current system time in micro seconds.
 */
@@ -92,37 +111,11 @@ static U64 _cbGetTime(void) {
 
 /*********************************************************************
 *
-*       Global functions
-*
-**********************************************************************
-*/
-
-/*********************************************************************
-*
-*       SYSVIEW_SendTaskInfo()
-*
-*  Function description
-*    Record task information.
-*/
-void SYSVIEW_SendTaskInfo(U32 TaskID, const char* sName, unsigned Prio, U32 StackBase, unsigned StackSize) {
-  SEGGER_SYSVIEW_TASKINFO TaskInfo;
-
-  memset(&TaskInfo, 0, sizeof(TaskInfo)); // Fill all elements with 0 to allow extending the structure in future version without breaking the code
-  TaskInfo.TaskID     = TaskID;
-  TaskInfo.sName      = sName;
-  TaskInfo.Prio       = Prio;
-  TaskInfo.StackBase  = StackBase;
-  TaskInfo.StackSize  = StackSize;
-  SEGGER_SYSVIEW_SendTaskInfo(&TaskInfo);
-}
-
-/*********************************************************************
-*
 *       Public API structures
 *
 **********************************************************************
 */
-// Callbacks provided to SYSTEMVIEW by FreeRTOS
+// Callbacks provided to SYSTEMVIEW by AliOS Things
 const SEGGER_SYSVIEW_OS_API SYSVIEW_X_OS_TraceAPI = {
   _cbGetTime,
   _cbSendTaskList,

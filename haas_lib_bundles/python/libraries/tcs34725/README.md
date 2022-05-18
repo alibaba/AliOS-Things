@@ -28,6 +28,9 @@ TCS34725是一款低成本，高性价比的RGB全彩颜色识别传感器，传
 
 ## 三、软件接口
 
+TCS34725颜色传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/tcs34725)
+<br>
+
 ### TCS34725(i2cObj) - 创建颜色传感器驱动对象
 * 函数原型：
 > colorDev = TCS34725(i2cObj)

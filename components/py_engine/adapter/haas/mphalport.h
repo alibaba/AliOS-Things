@@ -39,6 +39,9 @@ extern void mp_hal_set_interrupt_char(int c);
 
 #define mp_hal_delay_us_fast(us) mp_hal_delay_us(us)
 
+#define mp_hal_quiet_timing_enter() MICROPY_BEGIN_ATOMIC_SECTION()
+#define mp_hal_quiet_timing_exit(irq_state) MICROPY_END_ATOMIC_SECTION(irq_state)
+
 #include "aos_hal_gpio.h"
 #include "py/obj.h"
 
@@ -51,10 +54,10 @@ extern void mp_hal_set_interrupt_char(int c);
 #define MP_HAL_PIN_FMT   "%u"
 #define mp_hal_pin_obj_t mp_uint_t
 
-extern gpio_config_t mphal_gpio_config_obj_t[PY_GPIO_NUM_MAX];
+extern gpio_dev_t mphal_gpio_config_obj_t[PY_GPIO_NUM_MAX];
 
 mp_hal_pin_obj_t machine_pin_get_id(mp_obj_t pin_in);
-gpio_config_t mp_hal_pin_config_get(mp_hal_pin_obj_t pin_obj);
+gpio_dev_t mp_hal_gpio_dev_get(mp_hal_pin_obj_t pin_obj);
 mp_int_t mp_hal_pin_low(mp_hal_pin_obj_t pin_obj);
 mp_int_t mp_hal_pin_high(mp_hal_pin_obj_t pin_obj);
 mp_int_t mp_hal_pin_config_set(mp_hal_pin_obj_t pin_obj, gpio_config_t config);

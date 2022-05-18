@@ -1,0 +1,274 @@
+#!/bin/bash
+#
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+set -euxo pipefail
+
+readonly OT_BUILD_JOBS=$(getconf _NPROCESSORS_ONLN)
+
+reset_source()
+{
+    rm -rf build output tmp
+}
+
+build_all_features()
+{
+    local options=(
+        "-DOPENTHREAD_CONFIG_ANNOUNCE_SENDER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_ANYCAST_LOCATOR=1"
+        "-DOPENTHREAD_CONFIG_BORDER_AGENT_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_BORDER_ROUTER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_CHANNEL_MANAGER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_CHANNEL_MONITOR_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_CHILD_SUPERVISION_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_COAP_API_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_COAP_SECURE_API_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_COMMISSIONER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_DATASET_UPDATER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_DHCP6_CLIENT_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_DHCP6_SERVER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_DIAG_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_DNS_CLIENT_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_ECDSA_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_HEAP_EXTERNAL_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_HISTORY_TRACKER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_IP6_FRAGMENTATION_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_IP6_SLAAC_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_JAM_DETECTION_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_JOINER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_LEGACY_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_LINK_RAW_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_LOG_LEVEL_DYNAMIC_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_MAC_BEACON_RSP_WHEN_JOINABLE_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_MAC_FILTER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_MAC_RETRY_SUCCESS_HISTOGRAM_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_MAC_SOFTWARE_ACK_TIMEOUT_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_MAC_SOFTWARE_CSMA_BACKOFF_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_MAC_SOFTWARE_ENERGY_SCAN_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_MAC_SOFTWARE_RETRANSMIT_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_MAC_SOFTWARE_TX_SECURITY_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_MLE_ATTACH_BACKOFF_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_MLE_STEERING_DATA_SET_OOB_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_MPL_DYNAMIC_INTERVAL_ENABLE"
+        "-DOPENTHREAD_CONFIG_NCP_HDLC_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_NCP_SPI_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_PING_SENDER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_PLATFORM_FLASH_API_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_PLATFORM_RADIO_COEX_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_PLATFORM_USEC_TIMER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_REFERENCE_DEVICE_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_SNTP_CLIENT_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_SRP_CLIENT_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_TMF_NETDATA_SERVICE_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_TMF_NETWORK_DIAG_MTD_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_UDP_FORWARD_ENABLE=1"
+    )
+
+    local options_1_2=(
+        "-DOPENTHREAD_CONFIG_BACKBONE_ROUTER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_DUA_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_MLR_ENABLE=1"
+    )
+
+    # Build Thread 1.1 with full features and no log
+    export CPPFLAGS="${options[*]} -DOPENTHREAD_CONFIG_LOG_LEVEL=OT_LOG_LEVEL_NONE"
+    reset_source
+    make -f examples/Makefile-simulation THREAD_VERSION=1.1
+
+    # Build Thread 1.1 with full features and full logs
+    export CPPFLAGS="${options[*]}"
+    reset_source
+    make -f examples/Makefile-simulation THREAD_VERSION=1.1 FULL_LOGS=1
+
+    # Build Thread 1.1 with full features and full logs (Logs defined as macros)
+    export CPPFLAGS="${options[*]} -DOPENTHREAD_CONFIG_LOG_DEFINE_AS_MACRO_ONLY=1"
+    make -f examples/Makefile-simulation THREAD_VERSION=1.1 FULL_LOGS=1
+
+    # Build Thread 1.2 with full features and logs
+    export CPPFLAGS="${options[*]} ${options_1_2[*]} -DOPENTHREAD_CONFIG_LOG_LEVEL=OT_LOG_LEVEL_NONE"
+    reset_source
+    make -f examples/Makefile-simulation THREAD_VERSION=1.2
+
+    # Build Thread 1.2 with full features and full logs
+    export CPPFLAGS="${options[*]} ${options_1_2[*]}"
+    reset_source
+    make -f examples/Makefile-simulation THREAD_VERSION=1.2 FULL_LOGS=1
+
+    # Build Thread 1.1 with ASSERT disabled
+    export CPPFLAGS="${options[*]} -DOPENTHREAD_CONFIG_ASSERT_ENABLE=0"
+    reset_source
+    make -f examples/Makefile-simulation THREAD_VERSION=1.1
+
+    # Build Thread 1.1 OTNS
+    export CPPFLAGS="${options[*]}"
+    reset_source
+    make -f examples/Makefile-simulation THREAD_VERSION=1.1 OTNS=1
+}
+
+build_nest_common()
+{
+    local options=(
+        "-DOPENTHREAD_CONFIG_BORDER_ROUTER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_CHANNEL_MANAGER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_CHANNEL_MONITOR_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_CHILD_SUPERVISION_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_DATASET_UPDATER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_DIAG_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_JAM_DETECTION_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_LEGACY_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_MAC_FILTER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_PING_SENDER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_NCP_SPI_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_PLATFORM_FLASH_API_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_TMF_NETDATA_SERVICE_ENABLE=1"
+    )
+    export CPPFLAGS="${options[*]}"
+
+    reset_source
+    mkdir build && cd build
+    ../configure \
+        --enable-cli \
+        --enable-mtd \
+        --with-examples=simulation \
+        --disable-docs \
+        --disable-tests
+    make -j"${OT_BUILD_JOBS}"
+    cd ..
+
+    options=(
+        "-DOPENTHREAD_CONFIG_ANOUNCE_SENDER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_PLATFORM_FLASH_API_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_TIME_SYNC_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_NCP_HDLC_ENABLE=1"
+    )
+    export CPPFLAGS="${options[*]}"
+
+    reset_source
+    mkdir build && cd build
+    ../configure \
+        --enable-cli \
+        --enable-ftd \
+        --enable-mtd \
+        --enable-ncp \
+        --enable-radio-only \
+        --enable-radio-cli \
+        --disable-docs \
+        --disable-tests \
+        --with-examples=simulation
+    make -j"${OT_BUILD_JOBS}"
+    cd ..
+
+    options=(
+        "-DOPENTHREAD_CONFIG_NCP_HDLC_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_PLATFORM_FLASH_API_ENABLE=1"
+    )
+    export CPPFLAGS="${options[*]}"
+
+    reset_source
+    mkdir build && cd build
+    ../configure \
+        --enable-ftd \
+        --enable-mtd \
+        --enable-ncp \
+        --with-examples=simulation \
+        --disable-docs \
+        --disable-tests \
+        --with-vendor-extension=../src/core/common/extension_example.cpp \
+        --with-ncp-vendor-hook-source=../src/ncp/example_vendor_hook.cpp
+    make -j"${OT_BUILD_JOBS}"
+    cd ..
+}
+
+build_multi_radio_links()
+{
+    # TREL radio link only.
+    local options=(
+        "-DOPENTHREAD_CONFIG_NCP_HDLC_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_PLATFORM_FLASH_API_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_LOG_LEVEL=OT_LOG_LEVEL_DEBG"
+        "-DOPENTHREAD_CONFIG_RADIO_LINK_IEEE_802_15_4_ENABLE=0"
+        "-DOPENTHREAD_CONFIG_RADIO_LINK_TREL_ENABLE=1"
+    )
+    export CPPFLAGS="${options[*]}"
+
+    reset_source
+    mkdir build && cd build
+    ../configure \
+        --enable-cli \
+        --enable-ftd \
+        --enable-mtd \
+        --enable-ncp \
+        --enable-radio-only \
+        --enable-radio-cli \
+        --with-examples=simulation \
+        --disable-docs \
+        --disable-tests
+    make -j"${OT_BUILD_JOBS}"
+    cd ..
+
+    # Multi radio link - 15.4 and TREL.
+    options=(
+        "-DOPENTHREAD_CONFIG_NCP_HDLC_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_PLATFORM_FLASH_API_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_DIAG_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_LINK_RAW_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_LOG_LEVEL_DYNAMIC_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_LOG_LEVEL=OT_LOG_LEVEL_DEBG"
+        "-DOPENTHREAD_CONFIG_MAC_FILTER_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_RADIO_LINK_IEEE_802_15_4_ENABLE=1"
+        "-DOPENTHREAD_CONFIG_RADIO_LINK_TREL_ENABLE=1"
+    )
+    export CPPFLAGS="${options[*]}"
+
+    reset_source
+    mkdir build && cd build
+    ../configure \
+        --enable-cli \
+        --enable-ftd \
+        --enable-mtd \
+        --enable-ncp \
+        --enable-radio-only \
+        --enable-radio-cli \
+        --with-examples=simulation \
+        --disable-docs \
+        --disable-tests
+    make -j"${OT_BUILD_JOBS}"
+    cd ..
+}
+
+main()
+{
+    ./bootstrap
+
+    build_all_features
+    build_nest_common
+    build_multi_radio_links
+}
+
+main "$@"

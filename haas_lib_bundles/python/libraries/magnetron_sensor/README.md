@@ -25,6 +25,9 @@
 
 ## 三、软件接口
 
+干簧管HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/magnetron_sensor)
+<br>
+
 ### MagnetronSensor - 创建磁控管开关对象
 
 * 函数原型

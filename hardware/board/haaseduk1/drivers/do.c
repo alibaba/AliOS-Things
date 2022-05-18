@@ -38,7 +38,7 @@ int32_t expansion_board_do_init(void)
     for (i = 0; i < DO_PORT_SIZE; i++) {
         ret = hal_gpio_init(&gpio_dev_output[i].gpio_dev);
         if (ret) {
-            LOGE(TAG, "do %d pin %d init fail ret", i,
+            LOGE(TAG, "do %d pin %d init fail ret %d", i,
                  gpio_dev_output[i].gpio_dev.port, ret);
             return -1;
         }

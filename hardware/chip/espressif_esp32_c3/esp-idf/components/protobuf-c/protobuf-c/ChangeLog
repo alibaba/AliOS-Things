@@ -1,0 +1,441 @@
+protobuf-c (1.3.0)
+
+  [ Robert Edmonds ]
+  * Release 1.3.0.
+
+  * Add test case for the issue in #220 (#254).
+
+  * Fix issue #251, "Bad enums with multiple oneofs" (#256).
+
+  * Add warning flags to my_CFLAGS (#257).
+
+  * Fix namespace errors when compiled with latest protobuf (#280).
+
+  * Bump minimum required header version for proto3 syntax (#282).
+
+  [ Paolo Borelli ]
+  * Turn the compiler into a protoc plugin (#206). This allows the protobuf-c
+    compiler to be invoked as "protoc --c_out=...". For backwards
+    compatibility, we still ship a protoc-c command, but it's a symlink to the
+    protoc-gen-c binary.
+
+  * proto3 support (#228).
+
+  * Remove leftover FIXME comment (#258).
+
+  * Fix proto3 "is zeroish" evaluation (#264).
+
+  * Small cleanup in oneof handling (#265).
+
+  * Rework is_zeroish one more time (#267).
+
+  * proto3: make strings default to "" instead of NULL (#274).
+
+  [ Tomek Wasilczyk ]
+  * Fix -Wsign-compare warnings (#213).
+
+  * Fix ISO C90 -Wdeclaration-after-statement warnings (#214).
+
+  * Fix bigendian -Wunused-label warning (#215).
+
+  [ Ilya Lipnitsky ]
+  * protoc-c/c_message.cc: Force int size on oneof enums (#221). Fixes wrong
+    enum generation and handling for onceof cases (#220).
+
+  [ Adnan ]
+  * Fix cmake build if built as part of an external project (#231).
+
+  [ Gregory Detal ]
+  * Remove .pb.{cc,h} in distdir instead of top_distdir in order to prevent
+    removing files from other projects when protobuf-c is included as an
+    autotools subproject (#232).
+
+  [ Ben Farnham ]
+  * Relax autoconf constraint from v2.64 to v2.63 so that it works on older
+    Linux distros (#233).
+
+  [ Thomas Köckerbauer ]
+  * rm argument fix for Solaris (#234).
+
+  * Add 'const' qualifier to 'init_value' variable in generated files (#236).
+
+  [ Richard Kettlewell ]
+  * Document and extend the effect of passing NULL to ..._free_unpacked
+    functions (#255).
+
+  [ Alex Milich ]
+  * CMake: Workaround for static builds that use MSVC (#243).
+
+  [ Josh Junon ]
+  * CMake: Allow protobuf-c to be included via include_subdirectory (#245).
+
+  [ Alexei Kasatkin ]
+  * CMake: Windows fixes (#266).
+
+protobuf-c (1.2.1)
+
+  [ Robert Edmonds ]
+  * Release 1.2.1.
+
+  [ Paolo Borelli ]
+  * protoc-c: Generate code that uses the universal zero initializer {0} when
+    initializing a oneof union (#187, #205).
+
+protobuf-c (1.2.0)
+
+  [ Robert Edmonds ]
+  * Release 1.2.0.
+
+  [ Ilya Lipnitsky ]
+  * Implement the "optimize_for = CODE_SIZE" option (#183).
+
+  * Eliminate undefined behavior in zigzag functions (#198).
+
+  * Pack negative enum values correctly (#199).
+
+  [ Peter Leschev ]
+  * Fix protobuf_c_message_get_packed_size() on 16-bit systems (#196, #197).
+
+  [ Diego Elio Pettenò ]
+  * Update link to Autotools Mythbuster to canonical site (#201).
+
+  [ Zex Li ]
+  * Skip test suite when cross-compiling (#184).
+
+protobuf-c (1.1.1)
+
+  [ Robert Edmonds ]
+  * Release 1.1.1.
+
+  * Use protobuf 2.6.1 in the Travis-CI environment.
+
+  [ Ilya Lipnitskiy ]
+  * Munge C block comment delimiters in protobuf comments, preventing syntax
+    errors in generated header files (Issue #180, #185).
+
+  * Add static qualifier to ProtobufCEnumValue and ProtobufCEnumValueIndex
+    variables in generated output.
+
+  [ Oleg Efimov ]
+  * Fix -Wpointer-sign compiler diagnostics in the test suite.
+
+  * Check for NULL pointers in protobuf_c_message_free_unpacked()
+    (Issue #177).
+
+  * Exclude protoc-c and downloaded protobuf sources from Coveralls report.
+
+  [ Andrey Myznikov ]
+  * Fix incorrect 'short_name' field values in ProtobufCServiceDescriptor
+    variables in generated output.
+
+protobuf-c (1.1.0)
+
+  [ Robert Edmonds ]
+  * Release 1.1.0.
+
+  [ Ilya Lipnitskiy ]
+  * Fix a bug when merging optional byte fields.
+
+  * Documentation updates.
+
+  * Implement oneof support (Issue #174). Protobuf 2.6.0 or newer is now
+    required to build protobuf-c.
+
+  * Print leading comments for enum, message, and field definitions into
+    generated header files (Issue #175).
+
+protobuf-c (1.0.2)
+
+  [ Robert Edmonds ]
+  * Release 1.0.2.
+
+  [ Ilya Lipnitskiy ]
+  * Fix a build failure with Protobuf 2.6.0 related to aliased enum constants
+    (Issue #163).
+
+  * Protobuf 2.5.0 or newer is now required to build protobuf-c (Issue #166).
+    This is due to the fix for #163.
+
+  [ Alexei Kasatkin ]
+  * Eliminate void pointer arithmetic (Issue #167).
+
+  * Always define PROTOBUF_C__DEPRECATED, even on compilers that are not GCC
+    (Issue #167).
+
+  * Work around the lack of the 'inline' keyword in Microsoft compilers
+    (Issue #167).
+
+  * Add a CMakeLists.txt file as a fallback build system for Windows
+    (Issue #168).
+
+  [ Natanael Copa ]
+  * Fix a build failure in the test suite that occurred with a parallel make
+    running on a system with a large number of CPUs (Issue #156, #169).
+
+protobuf-c (1.0.1)
+
+  [ Robert Edmonds ]
+  * Explicitly set the .data field of ProtobufCBinaryData's to NULL when
+    unpacking a zero length byte string (Issue #157).
+
+protobuf-c (1.0.0)
+
+  [ Andrei Nigmatulin ]
+  * Append "u", "ull", and "ll" integer literal suffixes for uint32, uint64,
+    and int64 default values in generated code, in order to avoid "integer
+    constant is so large that it is unsigned" compiler warnings.
+    (Issue #136.)
+
+  * Revert the problematic hash-based required field detection.
+    (Related to Issue #60, #79, #137.)
+
+  * Replace the 'packed' member of ProtobufCFieldDescriptor with a 'flags'
+    word. Define flags for packed and deprecated fields. (Issue #138.)
+
+  [ Dave Benson ]
+  * Treat a "length-prefixed" wire-type message for a repeated field as
+    packed-repeated whenever it makes sense (for all types other than
+    messages, strings, and bytes).
+
+  * Switch to New BSD license.
+
+  * Add protobuf_c_message_check().
+
+  * Compile error in packing 64-bit versions on some platforms
+    (srobbins99: Issue #68 Comment 1).
+
+  * Fix for memory error if the required-field check fails. See Issue #63
+    for demo (w/ nice test case by dror.harari).
+
+  * Add PROTOBUF_C_{MAJOR,MINOR} for compile-time checks and
+    protobuf_c_{major,minor} for checks about the running library
+    (Issue #53).
+
+  * Use a small constant-size hash-table instead of alloca() for detecting
+    required fields, and it also prevents us from using too much stack, etc.
+    (Related to Issue #60, #79).
+
+  * Add a macro to ensure enums are the size of ints (Issue #69).
+
+  [ Ilya Lipnitskiy ]
+  * Travis-CI integration.
+
+  * Add source .proto filename to generated files.
+
+  * Add protobuf-c version to protoc-c --version output (Issue #52).
+
+  * For embedded submessage fields, merge multiple instances of the same
+    field, per the protobuf documentation (Issue #91).
+
+  * Don't print unpack errors by default.
+
+  * Optionally allow running the test suite under valgrind with ./configure
+    --enable-valgrind-tests. (Based on valgrind-tests.m4 from gnulib.)
+
+  [ Kevin Lyda ]
+  * Autoconf portability fixes.
+
+  * Add doxygen detection and make targets to the build system.
+
+  * Doxygen documentation for the libprotobuf-c public API (Issue #132).
+
+  [ Nick Galbreath ]
+  * Prevent possible overflow on 64-bit systems (Issue #106).
+
+  [ Robert Edmonds ]
+  * Remove CMake (Issue #87).
+
+  * Modernize the build system.
+    - Don't generate any diagnostics when building the build system with
+      modern autotools (Issue #89).
+
+    - Use the PKG_CHECK_MODULES macro to locate protobuf.
+
+    - Use the AC_C_BIGENDIAN macro to detect endianness, rather than custom
+      code.
+
+    - Use the automake silent-rules option so the build output is actually
+      readable.
+
+    - Generate our own pkg-config .pc files.
+
+  * Reorganize the source tree. This affects the public protobuf-c header
+    path, which is now <protobuf-c/protobuf-c.h>. A compatibility symlink from
+    <google/protobuf-c/> to <protobuf-c/> has been installed so that existing
+    code will continue to compile. New code should at some point begin using
+    the new include path, i.e., "#include <protobuf-c/protobuf-c.h>" rather
+    than "#include <google/protobuf-c/protobuf-c.h>".
+
+  * The RPC code has been split out into a separate project, protobuf-c-rpc.
+
+  * Fix a potential use of an unitialized value in protobuf_c_message_unpack()
+    and several memory leaks in protoc-c, discovered by a commercial static code
+    analysis tool.
+
+  * Bump the libprotobuf-c SONAME.
+
+  * Begin versioning the library's symbols. (Based on ld-version-script.m4
+    from gnulib.)
+
+  * Preserve case in enum value names generated by protoc-c (Issue #129).
+    Reported by Oleg Efimov.
+
+  * Add library functions protobuf_c_version() and protobuf_c_version_string()
+    for retrieving the version of the compiled library, and header macros
+    PROTOBUF_C_VERSION and PROTOBUF_C_VERSION_STRING for retrieving the
+    version of the header file. This replaces the interfaces for retrieving
+    the protobuf-c version numbers in Issue #53.
+
+  * Add a version guard that ensures that the output of protoc-c is only
+    compiled against a protobuf-c header file from the exact same protobuf-c
+    release.
+
+  * Add a --enable-code-coverage option to configure, which enables a
+    "make check-code-coverage" build target. This generates a code coverage
+    report and requires the lcov tool to be installed.
+
+  * Remove the old DocBook documentation in doc/c-code-generator.{html,xml}.
+    Relevant material has been updated and incorporated into the Doxygen
+    documentation in the protobuf-c header file.
+
+  * Remove the protobuf_c_default_allocator and protobuf_c_system_allocator
+    global variables from the exported library interface. All exported library
+    functions that need to perform dynamic memory allocation receive a
+    user-provided ProtobufCAllocator* parameter. If this parameter is NULL,
+    the system's default memory allocator will be used.
+
+    Client code that previously passed "&protobuf_c_system_allocator" to
+    protobuf-c library functions taking a ProtobufCAllocator* argument should
+    be updated to pass "NULL" instead.
+
+    Client code that previously overrode protobuf_c_default_allocator with
+    custom allocation functions and passed NULL as the ProtobufCAllocator*
+    argument to protobuf-c library functions should be updated to instead
+    enclose the custom allocation functions in a ProtobufCAllocator struct and
+    pass this object to protobuf-c library functions taking a
+    ProtobufCAllocator* parameter.
+
+  * Update copyright and license statements throughout. The original
+    protobuf code released by Google was relicensed from Apache-2.0 to
+    BSD-3-Clause. Dave Benson also converted his license from BSD-3-Clause
+    to BSD-2-Clause.
+
+  [ Tomasz Wasilczyk ]
+  * Don't export protobuf_c_message_init_generic() as an external symbol.
+
+  * Don't use C++ style comments in C code.
+
+  * Fix -Wcast-align warnings when compiled with clang.
+
+protobuf-c (0.15)
+      - make protobuf_c_message_init() into a function (Issue #49, daveb)
+      - Fix for freeing memory after unpacking bytes w/o a default-value.
+        (Andrei Nigmatulin)
+      - minor windows portability issues (use ProtobufC_FD) (Pop Stelian)
+      - --with-endianness={little,big} (Pop Stelian)
+      - bug setting up values of has_idle in public dispatch,
+        make protobuf_c_dispatch_run() use only public members (daveb)
+      - provide cmake support and some Windows compatibility (Nikita Manovich)
+
+protobuf-c (0.14)
+      - build fix (missing dependency in test directory)
+      - add generation / installation of pkg-config files. (Bobby Powers)
+      - support for packed repeated fields (Dave Benson)
+      - bug in protobuf_c_dispatch_close_fd(), which usually only
+        showed up in later function calls.
+      - support for deprecated fields -- enable a GCC warning
+        if a field has the "deprecated" option enabled. (Andrei Nigmatulin)
+      - hackery to try to avoid touching inttypes.h on windows (Issue #41)
+      - fix for protobuf_c_message_unpack() to issue error if any
+        "required" field is missing in input stream. (Andrei Nigmatulin)
+
+protobuf-c (0.13)
+      - Fix for when the number of connections gets too great in RPC.
+        (Leszek Swirski) (issue #32)
+      - Add --disable-protoc to only build libprotobuf-c (daveb)
+      - Bug fixes for protobuf_c_enum_descriptor_get_value_by_name()
+        and protobuf_c_service_descriptor_get_method_by_name()
+      - if descriptor->message_init != NULL, use it from unpack()
+        as an optimization (daveb)
+      - implement protobuf_c_{client,server}_set_error_handler()
+
+protobuf-c (0.12)
+      - for field names which are reserved words, use the real name
+        given in the protobuf-c file, not the mangled name which
+        is the name of the member in the C structure.  (Andrei Nigmatulin)
+      - add protobuf_c_message_init() function; add virtual function
+        that implements it efficiently.  (Andrei Nigmatulin)
+      - bug fix for sfixed32, fixed32, float wire-types on
+        big-endian platforms (Robert Edmonds)
+      - compile with the latest protobuf (the header file wire_format_inl.h
+        is now wire_format.h) (Robert Edmonds)
+
+protobuf-c (0.11)
+      - allow CFLAGS=-DPRINT_UNPACK_ERRORS=0 to suppress
+        unpack warnings from being printed at compile time (Andrei Nigmatulin)
+      - give error if an unknown wire-type is encountered (Andrei Nigmatulin)
+      - fix technically possible overflows during unpack of very
+        large messages (Andrei Nigmatulin)
+      - [UNFINISHED] windows RPC work
+      - use automake's "foreign" mode from within configure.ac
+        and add version information to the library (Robert Edmonds)
+      - ProtobufCServiceDescriptor::method_indices_by_name:  missing
+        const.  (Issue 21)
+      - Update to support new UnknownFields API.  (fix by dcreager) (Issue 20)
+
+protobuf-c (0.10)
+      - build issue on platforms which don't compute library dependencies
+        automatically.
+      - fix for certain types of corrupt messages (Landon Fuller) (issue 16)
+
+protobuf-c (0.9)
+      - build issue: needed $(EXEEXT) in dependency lists for cygwin
+      - bug fix:  protobuf_c_service_get_method_by_name() was not correct b/c
+        the service's methods were not sorted by name (the header file
+        used to incorrectly state that they were).
+        Now we correctly implement protobuf_c_service_get_method_by_name()
+        (using a bsearch indexed by separate array).
+      - generated source incompatibility:  we added a new
+        member to ProtobufCServiceDescriptor (method_indices_by_name).
+        You will have to run the latest protobuf
+        to generate those structures.
+      - rename rpc-client's "autoretry" mechanism to "autoreconnect".
+      - bug fixes using TCP clients with the RPC system.
+      - handle allocation failures more gracefully (Jason Lunz) (issue 15)
+
+protobuf-c (0.8)
+      - Destroy function typedef for Services was omitting a "*"
+      - service_machgen_invoke was broken. (issue 12)
+      - add RPC system (BETA)
+      - don't segfault when packing NULL strings and messages. (issue 13)
+
+protobuf-c (0.7)
+      - memory leak:  unknown fields were not being freed by free_unpacked()
+      - lowercase field names consistently when composing
+        default_value names. (issue 11)
+      - remove spurious semicolon (issue 10)
+
+protobuf-c (0.6)
+      - Warning suppression for -Wcast-qual and -Wshadow.
+      - Support for default values of all types allowed by core protobuf.
+      - Generate message__init functions, for when the static initializer
+        isn't convenient.
+      - add some reserved fields at the end of the various descriptors
+
+protobuf-c (0.5)
+      - License now included in major files.
+      - Use little-endian optimizations; fix a bug therein.
+      - Include 'make deb' target.
+
+protobuf-c (0.4)
+      - Update to work with protobuf 2.0.1.
+
+protobuf-c (0.2)
+protobuf-c (0.3)
+      - Minor pedantic concerns about generated code.
+
+protobuf-c (0.1)
+      - Lots of test code (and bug fixes).
+
+protobuf-c (0.0)
+      - Initial release.

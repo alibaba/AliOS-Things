@@ -48,6 +48,8 @@ L298N 采用Multiwatt 15封装，N是L298的封装标识符。如图是市面上
 * 驱动板尺寸：48mm * 43mm * 33mm
 
 ## 三、软件接口
+
+L298N电机驱动HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/l298)
 <br>
 
 ### L298DC - 创建直流电机驱动对象

@@ -53,12 +53,6 @@ build_config:
     - tools
   internal_include:
     - hal
-    - 2ndboot/include
-    - 2ndboot/updater/include
-    - 2ndboot/updater/xz/linux/lib/xz
-    - 2ndboot/updater/xz/linux/include/linux
-    - tools/xz/include
-
   libs:
 
 
@@ -67,9 +61,9 @@ build_config:
 source_file:
   - hal/ota_hal_fs_plat.c
   - hal/ota_hal_param.c   ? <ESP_PLATFORM>
-  - hal/ota_hal_vfs_param.c ? <!ESP_PLATFORM>
+  - hal/ota_hal_aos_param.c ? <!ESP_PLATFORM>
   - hal/ota_hal_plat.c ? <ESP_PLATFORM>
-  - hal/ota_hal_vfs_plat.c ? <!ESP_PLATFORM>
+  - hal/ota_hal_aos_plat.c ? <!ESP_PLATFORM>
   - hal/ota_hal_os.c
   - hal/ota_hal_ctrl.c
   - hal/ota_hal_trans.c

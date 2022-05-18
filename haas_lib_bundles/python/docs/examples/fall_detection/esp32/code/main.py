@@ -1,10 +1,10 @@
+from motion import motion
+from mpu6886 import mpu6886
 import utime   # 延时函数在utime
 from driver import I2C               # 驱动库
-import mpu6886
 import network                   # Wi-Fi功能所在库
 import ujson                     # json字串解析库
 from aliyunIoT import Device     # iot组件是连接阿里云物联网平台的组件
-import fall_detection
 
 i2cObj = None
 mpu6886Dev = None
@@ -98,7 +98,26 @@ def connect_lp(productKey, deviceName, deviceSecret):
     utime.sleep(2)
 
 
+def get_data():
+    acc = mpu6886Dev.acceleration
+    gyro = mpu6886Dev.gyro
+    # print(acc)
+    # print(gyro)
+    return acc, gyro                    # 返回读取到的加速度、角速度值
+
+
+def fall_detected():
+    upload_data = {'params': ujson.dumps({
+        'isFall': 1,
+    })
+    }
+    # 上传状态到物联网平台
+    if (iot_connected):
+        device.postProps(upload_data)
+
+
 if __name__ == '__main__':
+    # 网络初始化
     wlan = network.WLAN(network.STA_IF)  # 创建WLAN对象
     get_wifi_status()
     connect_lp(productKey, deviceName, deviceSecret)
@@ -110,21 +129,16 @@ if __name__ == '__main__':
     print("mpu6886 inited!")
     mpu6886Dev = mpu6886.MPU6886(i2cObj)   # 初始化MPU6886传感器
 
-    # 跌倒检测算法初始化
-    fallDetection = fall_detection.fall_detection(mpu6886Dev)
-    fallDetection.calibrate()              # 校准传感器
+    # 获取跌倒检测的motion实例
+    motionObj = motion.Motion("fall", get_data, fall_detected)
 
-    while True:
-        fall = fallDetection.detect_fall()  # 检测是否跌倒
-        if (fall == True):                   # in event of a fall detection
-            print("FALL DETECTED using MPU sensor")
-            upload_data = {'params': ujson.dumps({
-                'isFall': 1,
-            })
-            }
-            # 上传状态到物联网平台
-            if (iot_connected):
-                device.postProps(upload_data)
-        utime.sleep_us(10)
-    i2cObj.close()                                      # 关闭I2C设备对象
-    del mpu6886Dev
+    # 使能action检测，并以Dictionary格式传入灵敏度参数
+    sensitivity = {"ACCELERATION_LOW_THREADHOLD": 4, "ACCELERATION_UP_THREADHOLD": 30,
+                   "ANGULAR_VELOCITY_LOW_THREADHOLD": 1, "ANGULAR_VELOCITY_UP_THREADHOLD": 10}
+    motionObj.enable(sensitivity)
+
+    # 关闭action检测，可再次使能，支持传入新的灵敏度
+    # motionObj.disable()
+
+    # i2cObj.close()                                      # 关闭I2C设备对象
+    # del mpu6886Dev

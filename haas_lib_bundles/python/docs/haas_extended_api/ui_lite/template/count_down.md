@@ -69,7 +69,7 @@ create countDown object
 
 * 示例代码
 ```python
-from count_down import CountDown
+from countDown import CountDown
 
 countDownPage = CountDown()
 print('create countDown object')

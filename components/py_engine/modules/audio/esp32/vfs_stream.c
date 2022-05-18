@@ -107,7 +107,7 @@ static esp_err_t _lfs_open(audio_element_handle_t self)
         return ESP_FAIL;
     }
 
-    ESP_LOGW(TAG, "_vfs_open, uri:%s", uri);
+    ESP_LOGW(TAG, "_lfs_open, uri:%s", uri);
     const char *path = NULL;
     const char *prefix = "file:/";
     if (strstr(uri, prefix) != NULL) {
@@ -116,13 +116,13 @@ static esp_err_t _lfs_open(audio_element_handle_t self)
 
     audio_element_getinfo(self, &info);
     if (path == NULL) {
-        ESP_LOGE(TAG, "Error, need file path[%s] to open", uri);
+        ESP_LOGE(TAG, "Error, uri path[%s] not exist", uri);
         return ESP_FAIL;
     } else {
         struct stat sb = { 0 };
         /* check if path exists */
-        if (stat(path, &sb) != 0) {
-            ESP_LOGE(TAG, "Error, path[%s] not exist", path);
+        if (vfs->type == AUDIO_STREAM_READER && stat(path, &sb) != 0) {
+            ESP_LOGE(TAG, "Error, file not exist, path=[%s]", path);
             return ESP_FAIL;
         } else {
             info.total_bytes = sb.st_size;
@@ -136,7 +136,7 @@ static esp_err_t _lfs_open(audio_element_handle_t self)
         vfs->file = open(path, O_RDONLY);
         ESP_LOGI(TAG, "File size is %d byte,pos:%d", (int)info.total_bytes, (int)info.byte_pos);
     } else if (vfs->type == AUDIO_STREAM_WRITER) {
-        vfs->file = open(path, O_WRONLY);
+        vfs->file = open(path, O_WRONLY | O_CREAT | O_TRUNC);
         vfs->w_type = get_type(path);
         if (vfs->file > 0 && STREAM_TYPE_WAV == vfs->w_type) {
             wav_header_t info = { 0 };
@@ -266,13 +266,13 @@ static esp_err_t _vfs_open(audio_element_handle_t self)
 
     audio_element_getinfo(self, &info);
     if (path == NULL) {
-        ESP_LOGE(TAG, "Error, need file path[%s] to open", uri);
+        ESP_LOGE(TAG, "Error, uri path[%s] not exist", uri);
         return ESP_FAIL;
     } else {
         struct stat sb = { 0 };
-        /* check if path exists */
-        if (stat(path, &sb) != 0) {
-            ESP_LOGE(TAG, "Error, path[%s] not exist", path);
+        /* check if path exists for player */
+        if ((vfs->type == AUDIO_STREAM_READER) && stat(path, &sb) != 0) {
+            ESP_LOGE(TAG, "Error, file not exist, path=[%s]", path);
             return ESP_FAIL;
         }
     }

@@ -32,6 +32,11 @@ hr_timer_t soc_hr_hw_cnt_get(void)
     return DWT->CYCCNT;
 }
 
+uint64_t soc_hr_hw_freq_get(void)
+{
+    return hal_sys_timer_calc_cpu_freq(5, 0);
+}
+
 lr_timer_t soc_lr_hw_cnt_get(void)
 {
     return (lr_timer_t)hal_sys_timer_get();
@@ -178,7 +183,11 @@ void board_detect()
 
     FisImu_read_reg(0, &chip_id, 1);
     aos_msleep(100);
-    sensor_i2c_close(1);
+    ret = sensor_i2c_close(1);
+    if (ret) {
+        printf("sensor i2c close failed, ret:%d\n", ret);
+        return;
+    }
 
     if (chip_id == 0xfc) {
         g_haasedu_boardname = HAAS_EDU_K1C;

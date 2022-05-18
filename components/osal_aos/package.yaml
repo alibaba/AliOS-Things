@@ -1,8 +1,7 @@
-
-## 第一部分： 基础信息
-name: osal_aos                                          # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: rel_3.3.0                                     # <必选项> 组件版本号
-description: os interface adaptation layer                 # <必选项> 建议至少20字以上
+## 第一部分：基础信息
+name: osal_aos                                      # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: rel_3.3.0                                    # <必选项> 组件版本号
+description: os interface adaptation layer          # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
 tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
@@ -22,9 +21,9 @@ depends:
 #  - cli: rel_3.3.0
 
 ## 第四部分：编译连接信息
-#build_config:                            # <可选项> 编译配置项
-#  include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
-#    - include                              #        include 只能是该软件包下的目录，不能使用外部目录
+#build_config:                             # <可选项> 编译配置项
+#  include:                                # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#    - include                             #        include 只能是该软件包下的目录，不能使用外部目录
 #   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
 #     - include
 #   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
@@ -44,10 +43,10 @@ depends:
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 build_config:
   cflag: -Wall -Werror
-  internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+  internal_include:
     - rhino/include
-  include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
-    - include                              #        include 只能是该软件包下的目录，不能使用外部目录
+  include:
+    - include
 source_file:
   - rhino/*.c ? <!OS_FREERTOS>
   - freertos/*.c ? <OS_FREERTOS>
@@ -68,15 +67,12 @@ source_file:
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y
 def_config:
-  SYSINFO_SYSTEM_VERSION: "1.0.3"          # Anolis Things系统版本信息
+  SYSINFO_SYSTEM_VERSION: "2.1.0"          # Anolis Things系统版本信息
+  AOS_KERNEL_BUILD: 1
   OSAL_RHINO: 1
   AOS_HAL: 1
 
 ## 第六部分：安装信息
-install:
-  - dest: include/aos                      # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
-    source:                                # 安装源列表
-     - include/aos/*.h                     # 支持通配符，相对路径
 
 ## 第七部分：导出部分
 # export:
