@@ -62,15 +62,17 @@ build_config:
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
-  - platform/aos/aos_fs.c ? <!ESP_PLATFORM>
+  - platform/aos/*.c ? <!ESP_PLATFORM>
   - platform/aos/haas100/amp_ota_port.c ? <BOARD_HAAS100>
   - platform/aos/haas200/amp_ota_port.c ? <BOARD_HAAS200>
   - platform/aos/haaseduk1/amp_ota_port.c ? <BOARD_HAASEDUK1>
   - platform/aos/aos_system.c ? <!ESP_PLATFORM>
+  - platform/aos/app_ota.c ? <!ESP_PLATFORM>
   - platform/aos/network/*.c ? <!ESP_PLATFORM>
   - platform/aos/peripheral/*.c     ? <!ESP_PLATFORM>
-  - platform/esp_idf/peripheral/*.c ? <ESP_PLATFORM>
   - platform/esp_idf/*.c ? <ESP_PLATFORM>
+  - platform/esp_idf/peripheral/*.c ? <ESP_PLATFORM>
+
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项
 #   CONFIG_DEBUG: y
