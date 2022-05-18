@@ -1,0 +1,70 @@
+menu "Bluetooth"
+    visible if (IDF_TARGET_ESP32 || IDF_TARGET_ESP32C3 || IDF_TARGET_ESP32S3)
+
+    config BT_ENABLED
+        bool "Bluetooth"
+        depends on (IDF_TARGET_ESP32 || IDF_TARGET_ESP32C3 || IDF_TARGET_ESP32S3)
+        help
+            Select this option to enable Bluetooth and show the submenu with Bluetooth configuration choices.
+
+    config BT_SOC_SUPPORT_5_0
+        bool
+        depends on BT_ENABLED && (IDF_TARGET_ESP32C3 || IDF_TARGET_ESP32S3)
+        default y if BT_ENABLED && (IDF_TARGET_ESP32C3 || IDF_TARGET_ESP32S3)
+        default n
+
+    menu "Bluetooth controller"
+        depends on BT_ENABLED
+
+        source "$IDF_PATH/components/bt/controller/$IDF_TARGET/Kconfig.in"
+    endmenu
+
+    choice BT_HOST
+        prompt "Bluetooth Host"
+        depends on BT_ENABLED && (BTDM_CTRL_HCI_MODE_VHCI || BT_CTRL_HCI_MODE_VHCI)
+        default BT_BLUEDROID_ENABLED
+        help
+            This helps to choose Bluetooth host stack
+
+        config BT_BLUEDROID_ENABLED
+            bool "Bluedroid - Dual-mode"
+            help
+                This option is recommended for classic Bluetooth or for dual-mode
+                usecases
+
+        config BT_NIMBLE_ENABLED
+            bool "NimBLE - BLE only"
+            help
+                This option is recommended for BLE only usecases to save on memory
+
+        config BT_CONTROLLER_ONLY
+            bool "Controller Only"
+            help
+                This option is recommended when you want to communicate directly with the
+                controller (without any host) or when you are using any other host stack
+                not supported by Espressif (not mentioned here).
+
+    endchoice
+
+    menu "Bluedroid Options"
+        depends on BT_BLUEDROID_ENABLED
+
+        source "$IDF_PATH/components/bt/host/bluedroid/Kconfig.in"
+    endmenu
+    menu "NimBLE Options"
+        depends on BT_NIMBLE_ENABLED
+
+        source "$IDF_PATH/components/bt/host/nimble/Kconfig.in"
+    endmenu
+
+endmenu
+
+menuconfig BLE_MESH
+    bool "ESP BLE Mesh Support"
+    depends on BT_ENABLED
+    help
+        This option enables ESP BLE Mesh support. The specific features that are
+        available may depend on other features that have been enabled in the
+        stack, such as Bluetooth Support, Bluedroid Support & GATT support.
+
+source "$IDF_PATH/components/bt/esp_ble_mesh/Kconfig.in"

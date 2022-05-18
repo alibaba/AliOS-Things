@@ -1,0 +1,186 @@
+#!/usr/bin/expect -f
+#
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+source "tests/scripts/expect/_common.exp"
+source "tests/scripts/expect/_multinode.exp"
+
+setup_two_nodes
+
+switch_node 1
+
+send "leaderdata\n"
+expect -re {Partition ID: \d+}
+expect -re {Weighting: \d+}
+expect -re {Data Version: \d+}
+expect -re {Stable Data Version: \d+}
+expect -re {Leader Router ID: \d+}
+expect_line "Done"
+
+send "help\n"
+expect_line "Done"
+
+send "bufferinfo\n"
+expect_line "Done"
+
+send "ccathreshold -62\n"
+expect_line "Done"
+send "ccathreshold\n"
+expect -- "-62 dBm"
+expect_line "Done"
+
+send "parent\n"
+expect_line "Done"
+
+send "delaytimermin 1\n"
+expect_line "Done"
+send "delaytimermin\n"
+expect "1"
+expect_line "Done"
+send "delaytimermin 1 2\n"
+send "counters mac 1\n"
+expect "Error 7: InvalidArgs"
+
+send "fem lnagain 11\n"
+expect_line "Done"
+send "fem lnagain\n"
+expect -- "11"
+expect_line "Done"
+send "fem\n"
+expect -- "LNA gain 11 dBm"
+expect_line "Done"
+
+send "ifconfig down\n"
+expect_line "Done"
+send "ifconfig\n"
+expect "down"
+expect_line "Done"
+send "ifconfig up\n"
+expect_line "Done"
+send "ifconfig\n"
+expect "up"
+expect_line "Done"
+
+send "ipaddr add ::\n"
+expect_line "Done"
+send "ipaddr del ::\n"
+expect_line "Done"
+
+send "leaderweight 1\n"
+expect_line "Done"
+send "leaderweight\n"
+expect "1"
+expect_line "Done"
+
+send "mode rdn\n"
+expect_line "Done"
+send "mode\n"
+expect -re "(?=.*r)(?=.*d)(?=.*n)"
+
+send "parent\n"
+expect_line "Done"
+
+send "singleton\n"
+expect -re "true|false"
+expect_line "Done"
+
+send "state\n"
+expect "disabled"
+expect_line "Done"
+
+send "txpower -10\n"
+expect_line "Done"
+send "txpower\n"
+expect -- "-10 dBm"
+expect_line "Done"
+
+send "thread version\n"
+expect_line "Done"
+
+send "version\n"
+expect_line "Done"
+send "version api\n"
+expect -re {\d+}
+expect_line "Done"
+send "version something_invalid\n"
+expect "Error 35: InvalidCommand"
+
+send "joinerport 10001\n"
+expect_line "Done"
+send "joinerport\n"
+expect "10001"
+expect_line "Done"
+
+send "parentpriority 1\n"
+expect_line "Done"
+send "parentpriority\n"
+expect "1"
+expect_line "Done"
+
+send "pollperiod 100000\n"
+expect_line "Done"
+send "pollperiod\n"
+expect "100000"
+expect_line "Done"
+
+send "prefix add ::/64 low pdcrosn\n"
+expect_line "Done"
+send "prefix\n"
+expect "0:0:0:0::/64 pdcrosn low"
+expect_line "Done"
+
+send "preferrouterid 1\n"
+expect_line "Done"
+
+send "route add ::/64 s low\n"
+expect_line "Done"
+send "route\n"
+expect "0:0:0:0::/64 s low"
+send "route remove ::/64\n"
+expect_line "Done"
+
+send "route add ::/0 s low\n"
+expect_line "Done"
+send "route\n"
+expect "::/0 s low"
+send "route remove ::/0\n"
+expect_line "Done"
+
+send "diag start\n"
+expect ": InvalidState"
+
+send "ba port\n"
+expect "Done"
+
+send "ba state\n"
+expect "Done"
+
+send "invalidcommand\n"
+expect_line "Error 35: InvalidCommand"
+
+dispose_all

@@ -1,0 +1,12 @@
+coverage:
+  status:
+    project: off
+    patch: off
+
+ignore:
+  - "tests/*"
+  - "third_party/**/*"
+
+comment:
+  layout: "diff, flags, files"
+  after_n_builds: 5

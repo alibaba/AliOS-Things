@@ -1,0 +1,3 @@
+buildconfig = "//third_party/build_gn/BUILDCONFIG.gn"
+
+check_system_includes = true

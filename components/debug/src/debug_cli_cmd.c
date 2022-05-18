@@ -240,7 +240,7 @@ static void func_cmd(char *buf, int32_t len, int32_t argc, char **argv)
     }
 
     aos_cli_printf("function %p runing...\r\n", func_ptr);
-#ifdef ARCH_CORTEX_M
+#ifdef __thumb__
     func_ptr = (func_ptr_t)((unsigned int)(func_ptr) + 1);
 #endif
     ret = func_ptr(para[0], para[1], para[2], para[3], para[4], para[5], para[6], para[7]);

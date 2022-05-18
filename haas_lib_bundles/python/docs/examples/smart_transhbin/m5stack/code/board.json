@@ -1,0 +1,30 @@
+{
+  "name": "m5stackcore2",
+  "version": "1.0.0",
+  "io": {
+    "ir": {
+      "type": "GPIO",
+      "port": 19,
+      "dir": "input",
+      "pull": "pullup"
+    },
+    "servo_harm": {
+      "type": "PWM",
+      "port": 27
+    },
+    "servo_dry": {
+      "type": "PWM",
+      "port": 3
+    },
+    "servo_recycle": {
+      "type": "PWM",
+      "port": 26
+    },
+    "servo_wet": {
+      "type": "PWM",
+      "port": 25
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

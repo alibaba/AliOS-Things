@@ -135,14 +135,30 @@ int32_t pyamp_httpc_construct_header(char *buf, uint16_t buf_size, const char *n
 static void http_request_notify(void *pdata)
 {
     http_param_t *msg = (http_param_t *)pdata;
-    LOGD(LOG_TAG, "buf is %s \r\n", msg->rec_data_buffer);
-    LOGD(LOG_TAG, "buf len is %d \r\n", strlen(msg->rec_data_buffer));
-    LOGD(LOG_TAG, "header is %s \r\n", msg->rec_header_buffer);
-    LOGD(LOG_TAG, "buf len is %d \r\n", strlen(msg->rec_header_buffer));
+    char *header_buf = msg->rec_header_buffer;
+    char *body_buf = msg->rec_data_buffer;
+    int32_t header_len = strlen(header_buf);
+    int32_t body_len = strlen(body_buf);
+
+    LOGD(LOG_TAG, "header is %s \r\n", header_buf);
+    LOGD(LOG_TAG, "header len is %d \r\n", header_len);
+    LOGD(LOG_TAG, "buf is %s \r\n", body_buf);
+    LOGD(LOG_TAG, "buf len is %d \r\n", body_len);
 
     mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
-    make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_STR, strlen(msg->rec_header_buffer), msg->rec_header_buffer, "header");
-    make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_STR, strlen(msg->rec_data_buffer), msg->rec_data_buffer, "body");
+
+    if (header_len != 0) {
+        make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_STR, header_len, header_buf, "header");
+    } else {
+        make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_STR, 0, NULL, "header");
+    }
+
+    if (body_len != 0) {
+        make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_STR, body_len, body_buf, "body");
+    } else {
+        make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_STR, 0, NULL, "body");
+    }
+
     callback_to_python_LoBo(msg->cb, mp_const_none, carg);
 }
 

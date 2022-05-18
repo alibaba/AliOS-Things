@@ -8,3 +8,6 @@ engine/mpy-cross/mpy-cross.map
 adapter/esp32/genhdr/mpversion.h
 adapter/haas/genhdr/mpversion.h
 adapter/haas/build-*/*
+modules/config.cmake
+engine/lib/lv_bindings/pycparser/pycparser/__pycache__
+engine/lib/lv_bindings/pycparser/pycparser/ply/__pycache__

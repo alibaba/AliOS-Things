@@ -1,0 +1,162 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap-rd(5)
+==========
+:doctype: manpage
+:man source:   coap-rd
+:man version:  @PACKAGE_VERSION@
+:man manual:   coap-rd Manual
+
+NAME
+-----
+coap-rd,
+coap-rd-gnutls ,
+coap-rd-mbedtls,
+coap-rd-openssl,
+coap-rd-notls - A CoAP Resource Directory based on libcoap
+
+SYNOPSIS
+--------
+*coap-rd* [*-g* group] [*-G* group_if] [*-p* port] [*-v* num] [*-A* address]
+          [[*-h* hint] [*-k* key]]
+          [[*-c* certfile] [*-n*] [*-C* cafile] [*-R* trusted_casfile]]
+
+For *coap-rd* versions that use libcoap compiled for different
+(D)TLS libraries, *coap-rd-notls*, *coap-rd-gnutls*,
+*coap-rd-openssl*, *coap-rd-mbedtls* or *coap-rd-tinydtls* may be
+available.  Otherwise, *coap-rd* uses the default libcoap (D)TLS support.
+
+DESCRIPTION
+-----------
+*coap-rd* is a simple CoAP Resource Directory server that can handle resource
+registrations using the protocol CoAP (RFC 7252).
+
+OPTIONS
+-------
+*-g* group::
+   Join specified multicast 'group' on startup.
+   *Note:* DTLS over multicast is not currently supported.
+
+*-G* group_if::
+   Use this interface for listening for the multicast group. This can be
+   different from the implied interface if the *-A* option is used.
+
+*-p* port::
+   The 'port' on the given address will be listening for incoming connections.
+   If (D)TLS is supported, then 'port' + 1 will also be listened on for
+   (D)TLS connections.
+   The default port is 5683 if not given any other value.
+
+*-v* num::
+   The verbosity level to use (default: 3, maximum is 9). Above 7, there is
+   increased verbosity in GnuTLS and OpenSSL logging.
+
+*-A* address::
+   The local address of the interface which the server has to listen on.
+
+OPTIONS - PSK
+-------------
+(If supported by underlying (D)TLS library)
+
+*-h* hint::
+   Identity Hint to send. Default is *CoAP*. Zero length is no hint.
+
+*-k* key::
+   Pre-shared key to use for inbound connections. This cannot be empty if
+   defined.
+   *Note:* if *-c cafile* is defined, you need to define *-k key* as well to
+   have the server support both PSK and PKI.
+
+OPTIONS - PKI
+-------------
+(If supported by underlying (D)TLS library)
+
+*-c* certfile::
+   Use the specified PEM file which contains the CERTIFICATE and PRIVATE
+   KEY information.
+   Note: if *-k key* is defined, you need to define *-c certfile* as well to
+   have the server support both PSK and PKI.
+
+*-n* ::
+  Disable remote peer certificate checking. This gives clients the ability to
+  use PKI, but without any defined certificates.
+
+*-C* cafile::
+  PEM file that contains a list of one or more CAs that are to
+  be passed to the client for the client to determine what client certificate
+  to use.  Normally, this list of CAs would be the root CA and and any
+  intermediate CAs. Ideally the server certificate should be signed by the
+  same CA so that mutual authentication can take place. The contents of
+  *cafile* are added to the trusted store of root CAs.  Using the *-C* or *-R*
+  options will will trigger the validation of the client certificate unless
+  overridden by the *-n* option.
+
+*-R* trust_casfile::
+  PEM file containing the set of trusted root CAs that are to be used to
+  validate the client certificate. Alternatively, this can point to a
+  directory containing a set of CA PEM files. The *-C cafile* CA does not have
+  to be in this list and is trusted for the validation. Using
+  *-R trust_casfile* disables common CA mutual authentication which can only
+  be done by using *-C cafile*. Using the *-C* or *-R* options will will
+  trigger the validation of the server certificate unless overridden by the
+  *-n* option.
+
+EXAMPLES
+--------
+* Example
+----
+coap-rd -A ::1
+----
+Let the server listen on localhost (port 5683).
+
+* Example
+----
+coap-rd -A ::1 -k mysecretKey -h myhint
+----
+Let the server listen on localhost (port '5683' and '5684') with the server
+set up for PSK authentication.
+
+* Example
+----
+coap-rd -A ::1 -p 13011
+----
+Quite the same, except listening port is '13011' (and not the default port
+5683).
+
+* Example
+----
+coap-rd -A 2001:db8:81a8:0:6ef0:dead:feed:beef  -v 5
+----
+The listening address is set to '2001:db8:81a8:0:6ef0:dead:feed:beef' and the
+verbosity level is set to '5'.
+
+* Example
+----
+coap-rd -A 2001:db8:81a8:0:6ef0:dead:feed:beef  -g FF02::FD
+----
+Set listening address to '2001:db8:81a8:0:6ef0:dead:feed:beef' and join the
+All CoAP Nodes multicast group 'FF02::FD'.
+
+FILES
+------
+There are no configuration files.
+
+EXIT STATUS
+-----------
+*0*::
+   Success
+
+*1*::
+   Failure (syntax or usage error; configuration error; document
+   processing failure; unexpected error)
+
+BUGS
+-----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net or raise an issue on GitHub at
+https://github.com/obgm/libcoap/issues
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

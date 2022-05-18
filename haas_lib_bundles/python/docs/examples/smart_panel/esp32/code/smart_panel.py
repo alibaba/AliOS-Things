@@ -37,13 +37,12 @@ def init():
     # indev_drv.register()
 
 
-    import lvgl as lv
-    lv.init()
+    #import lvgl as lv
+    #lv.init()
 
     # import display
     # display.init()
-    from display import LVGL as disp
-    disp.init()
+    import display_driver
 
     # # init display
     # draw_buf = lv.disp_draw_buf_t()

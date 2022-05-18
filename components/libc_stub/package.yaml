@@ -1,7 +1,7 @@
 ## 第一部分：基础信息
 description: libc_stub component
 name: libc_stub
-version: master                                     # <必选项> 建议至少20字以上
+version: master                                    # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
 tag:                                                # <可选项> 组件分类，缺省值： ''

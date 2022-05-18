@@ -492,6 +492,7 @@ static void aiot_mqtt_message_cb(iot_mqtt_message_t *message, void *userdata)
 static mp_obj_t aiot_dynreg(mp_obj_t self_in, mp_obj_t data, mp_obj_t cb)
 {
     int ret = -1;
+    char *region = NULL;
     char *productKey = NULL;
     char *deviceName = NULL;
     char *productSecret = NULL;
@@ -515,10 +516,20 @@ static mp_obj_t aiot_dynreg(mp_obj_t self_in, mp_obj_t data, mp_obj_t cb)
     index = mp_obj_new_str_via_qstr("deviceName", 10);
     deviceName = mp_obj_str_get_str(mp_obj_dict_get(data, index));
 
-    amp_debug(MOD_STR, "productKey: %s\r\n", productKey);
-    amp_debug(MOD_STR, "productSecret: %s\r\n", productSecret);
-    amp_debug(MOD_STR, "deviceName: %s\r\n", deviceName);
+    // Compatible with old usage， use cn-shanghai by default
+    if (mp_obj_dict_len(data) < 4) {
+        region = "cn-shanghai";
+    } else {
+        index = mp_obj_new_str_via_qstr("region", 6);
+        region = mp_obj_str_get_str(mp_obj_dict_get(data, index));
+    }
 
+    if (region == NULL || productKey == NULL || productSecret == NULL) {
+        amp_error(MOD_STR, "Invalid params, please check it. region=%s productKey=%s productSecret=%s deviceName=%d\r\n", region, productKey, productSecret,
+             deviceName);
+        return mp_obj_new_int(-1);
+    }
+    aos_kv_set(AMP_CUSTOMER_REGION, region, IOTX_REGION_LEN, 1);
     aos_kv_set(AMP_CUSTOMER_PRODUCTKEY, productKey, IOTX_PRODUCT_KEY_LEN, 1);
     aos_kv_set(AMP_CUSTOMER_DEVICENAME, deviceName, IOTX_DEVICE_NAME_LEN, 1);
     aos_kv_set(AMP_CUSTOMER_PRODUCTSECRET, productSecret, IOTX_PRODUCT_SECRET_LEN, 1);
@@ -591,10 +602,10 @@ static mp_obj_t aiot_create_device(mp_obj_t self_in, mp_obj_t data)
 {
     int res = -1;
     void *mqtt_handle = NULL;
-    const char *productKey;
-    const char *productSecret;
-    const char *deviceName;
-    const char *deviceSecret;
+    const char *region = NULL;
+    const char *productKey = NULL;
+    const char *deviceName = NULL;
+    const char *deviceSecret = NULL;
     u_int32_t keepaliveSec = 0;
     aos_task_t iot_device_task;
     // ota_service_t *ota_svc = &pyamp_g_aiot_device_appota_service;
@@ -630,8 +641,19 @@ static mp_obj_t aiot_create_device(mp_obj_t self_in, mp_obj_t data)
     index = mp_obj_new_str_via_qstr("keepaliveSec", 12);
     keepaliveSec = mp_obj_get_int(mp_obj_dict_get(data, index));
 
-    amp_info(MOD_STR, "productKey=%s deviceName=%s deviceSecret=%s keepaliveSec=%d\r\n", productKey, deviceName,
+    // Compatible with old usage， use cn-shanghai by default
+    if (mp_obj_dict_len(data) < 5) {
+        region = "cn-shanghai";
+    } else {
+        index = mp_obj_new_str_via_qstr("region", 6);
+        region = mp_obj_str_get_str(mp_obj_dict_get(data, index));
+    }
+
+    if (region == NULL || productKey == NULL || deviceSecret == NULL || deviceName == NULL) {
+        amp_error(MOD_STR, "Invalid params, please check it. region=%s productKey=%s deviceName=%s deviceSecret=%s keepaliveSec=%d\r\n", region, productKey, deviceName,
              deviceSecret, keepaliveSec);
+        return mp_obj_new_int(-1);
+    }
     /*
          memset(ota_svc->pk, 0, sizeof(ota_svc->pk));
          memset(ota_svc->dn, 0, sizeof(ota_svc->dn));
@@ -640,6 +662,7 @@ static mp_obj_t aiot_create_device(mp_obj_t self_in, mp_obj_t data)
          memcpy(ota_svc->dn, deviceName, strlen(deviceName));
          memcpy(ota_svc->ds, deviceSecret, strlen(deviceSecret));
      */
+    aos_kv_set(AMP_CUSTOMER_REGION, region, IOTX_REGION_LEN, 1);
     aos_kv_set(AMP_CUSTOMER_PRODUCTKEY, productKey, IOTX_PRODUCT_KEY_LEN, 1);
     aos_kv_set(AMP_CUSTOMER_DEVICENAME, deviceName, IOTX_DEVICE_NAME_LEN, 1);
     aos_kv_set(AMP_CUSTOMER_DEVICESECRET, deviceSecret, IOTX_DEVICE_SECRET_LEN, 1);
@@ -827,26 +850,27 @@ static mp_obj_t hapy_get_ntp_time(mp_obj_t self_in, mp_obj_t cb)
 MP_DEFINE_CONST_FUN_OBJ_2(native_aiot_get_ntp_time, hapy_get_ntp_time);
 
 /* upload File */
-static mp_obj_t aiot_uploadFile(mp_obj_t self_in, mp_obj_t data, mp_obj_t cb)
+static mp_obj_t aiot_uploadFile(size_t n_args, const mp_obj_t *args)
 {
     int ret = -1;
 
     char *upload_id = NULL;
-    linksdk_device_obj_t *self = (linksdk_device_obj_t *)MP_OBJ_TO_PTR(self_in);
+    linksdk_device_obj_t *self = (linksdk_device_obj_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_obj_t remoteFileName = args[1];
+    mp_obj_t localFilePath = args[2];
+    mp_obj_t cb = args[3];
     mp_buffer_info_t bufinfo;
-
-    // if (self_in == NULL) {
-    //     goto out;
-    // }
 
     iot_device_handle_t *iot_device_handle = self->iot_device_handle;
     if (!iot_device_handle) {
         amp_error(MOD_STR, "parameter must be handle\r\n");
         goto out;
     }
-    char *filename = (char *)mp_obj_str_get_str(data);
+    char *filename = (char *)mp_obj_str_get_str(remoteFileName);
+    char *filepath = (char *)mp_obj_str_get_str(localFilePath);
+
     MP_THREAD_GIL_EXIT();
-    upload_id = pyamp_aiot_upload_mqtt(iot_device_handle->mqtt_handle, filename, NULL, 0, cb);
+    upload_id = pyamp_aiot_upload_mqtt(iot_device_handle->mqtt_handle, filename, filepath, 0, cb);
     MP_THREAD_GIL_ENTER();
     if (!upload_id) {
         amp_error(MOD_STR, "aiot upload file failed!\r\n");
@@ -856,7 +880,7 @@ static mp_obj_t aiot_uploadFile(mp_obj_t self_in, mp_obj_t data, mp_obj_t cb)
 out:
     return mp_const_none;
 }
-STATIC MP_DEFINE_CONST_FUN_OBJ_3(native_aiot_uploadFile, aiot_uploadFile);
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(native_aiot_uploadFile, 3, aiot_uploadFile);
 
 /* upload Content */
 static mp_obj_t aiot_uploadContent(size_t n_args, const mp_obj_t *args)
@@ -1077,22 +1101,27 @@ static mp_obj_t aiot_getDeviceInfo(mp_obj_t self_in)
         goto out;
     }
     /* get device tripple info */
-    char productKey[IOTX_PRODUCT_KEY_LEN] = { 0 };
-    char productSecret[IOTX_PRODUCT_SECRET_LEN] = { 0 };
-    char deviceName[IOTX_DEVICE_NAME_LEN] = { 0 };
-    char deviceSecret[IOTX_DEVICE_SECRET_LEN] = { 0 };
+    char region[IOTX_REGION_LEN + 1] = {0};
+    char productKey[IOTX_PRODUCT_KEY_LEN + 1] = { 0 };
+    char productSecret[IOTX_PRODUCT_SECRET_LEN + 1] = { 0 };
+    char deviceName[IOTX_DEVICE_NAME_LEN + 1] = { 0 };
+    char deviceSecret[IOTX_DEVICE_SECRET_LEN + 1] = { 0 };
 
+    int regionLen = IOTX_REGION_LEN;
     int productKeyLen = IOTX_PRODUCT_KEY_LEN;
     int productSecretLen = IOTX_PRODUCT_SECRET_LEN;
     int deviceNameLen = IOTX_DEVICE_NAME_LEN;
     int deviceSecretLen = IOTX_DEVICE_SECRET_LEN;
 
+    aos_kv_get(AMP_CUSTOMER_REGION, region, &regionLen);
     aos_kv_get(AMP_CUSTOMER_PRODUCTKEY, productKey, &productKeyLen);
     aos_kv_get(AMP_CUSTOMER_PRODUCTSECRET, productSecret, &productSecretLen);
     aos_kv_get(AMP_CUSTOMER_DEVICENAME, deviceName, &deviceNameLen);
     aos_kv_get(AMP_CUSTOMER_DEVICESECRET, deviceSecret, &deviceSecretLen);
     // dict solution
-    mp_obj_t aiot_deviceinfo_dict = mp_obj_new_dict(4);
+    mp_obj_t aiot_deviceinfo_dict = mp_obj_new_dict(5);
+    mp_obj_dict_store(aiot_deviceinfo_dict, MP_OBJ_NEW_QSTR(qstr_from_str("region")),
+                        mp_obj_new_str(region, strlen(region)));
     mp_obj_dict_store(aiot_deviceinfo_dict, MP_OBJ_NEW_QSTR(qstr_from_str("productKey")),
                         mp_obj_new_str(productKey, strlen(productKey)));
     mp_obj_dict_store(aiot_deviceinfo_dict, MP_OBJ_NEW_QSTR(qstr_from_str("productSecret")),

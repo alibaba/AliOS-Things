@@ -1,0 +1,15 @@
+{
+  "name": "ESP-S3-12K-Kit",
+  "version": "1.0.0",
+  "io": {
+    "hcho": {
+      "type": "ADC",
+      "port": 2,
+      "atten": 2,
+      "width": 3,
+      "sampling": 12000000
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

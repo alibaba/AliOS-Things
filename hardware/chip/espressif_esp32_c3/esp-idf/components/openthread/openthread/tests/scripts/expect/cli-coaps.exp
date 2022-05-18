@@ -1,0 +1,106 @@
+#!/usr/bin/expect -f
+#
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+source "tests/scripts/expect/_common.exp"
+source "tests/scripts/expect/_multinode.exp"
+
+setup_two_nodes
+
+switch_node 1
+send "coaps x509\n"
+expect_line "Done"
+send "coaps start\n"
+expect_line "Done"
+send "coaps resource test/resource\n"
+expect_line "Done"
+send "coaps set Testing123\n"
+expect_line "Done"
+
+set addr_1 [get_ipaddr mleid]
+
+switch_node 2
+send "coaps x509\n"
+expect_line "Done"
+send "coaps start\n"
+expect_line "Done"
+send "coaps connect $addr_1 5684\n"
+expect_line "Done"
+expect "coaps connected"
+send "coaps get test/resource\n"
+expect_line "Done"
+expect "coaps response from $addr_1 with payload: 54657374696e67313233" # ASCII of "Testing123"
+send "coaps post test/resource con Testing123\n"
+expect_line "Done"
+expect "coaps response from $addr_1"
+send "coaps put test/resource con Testing123\n"
+expect_line "Done"
+expect "coaps response from $addr_1"
+send "coaps delete test/resource con\n"
+expect_line "Done"
+expect "coaps response from $addr_1"
+send "coaps post test/resource none Testing123\n"
+expect_line "Done"
+set addr_2 [get_ipaddr mleid]
+
+switch_node 1
+expect "coaps request from $addr_2 GET"
+expect "coaps response sent"
+expect "coaps request from $addr_2 POST with payload: 54657374696e67313233"
+expect "coaps response sent"
+expect "coaps request from $addr_2 PUT with payload: 54657374696e67313233"
+expect "coaps response sent"
+expect "coaps request from $addr_2 DELETE"
+expect "coaps response sent"
+expect "coaps request from $addr_2 POST with payload: 54657374696e67313233"
+send "coaps resource\n"
+expect "test/resource"
+expect_line "Done"
+send "coaps set\n"
+expect "Testing123"
+expect_line "Done"
+send "coaps help\n"
+expect_line "Done"
+send "coaps get\n"
+expect "Error 7: InvalidArgs"
+send "coaps\n"
+expect "Error 7: InvalidArgs"
+send "coaps start false\n"
+expect "Error 24: Already"
+send "coaps start something_invalid\n"
+expect "Error 7: InvalidArgs"
+
+switch_node 2
+send "coaps stop\n"
+expect_line "Done"
+
+switch_node 1
+send "coaps stop\n"
+expect_line "Done"
+
+dispose_all

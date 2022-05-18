@@ -1,0 +1,150 @@
+#!/bin/bash
+#
+#  Copyright (c) 2017, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+#    Description:
+#      This file installs all needed dependencies and toolchains needed for
+#      example compilation and programming.
+#
+
+set -euxo pipefail
+
+install_packages_pretty_format()
+{
+    echo 'Installing pretty tools useful for code contributions...'
+
+    # add clang-format and clang-tidy for pretty
+    sudo apt-get --no-install-recommends install -y clang-format-9 clang-tidy-9 || echo 'WARNING: could not install clang-format-9 and clang-tidy-9, which is useful if you plan to contribute C/C++ code to the OpenThread project.'
+
+    # add yapf for pretty
+    python3 -m pip install yapf==0.31.0 || echo 'WARNING: could not install yapf, which is useful if you plan to contribute python code to the OpenThread project.'
+
+    # add mdv for local size report
+    python3 -m pip install mdv || echo 'WARNING: could not install mdv, which is required to post markdown size report for OpenThread.'
+
+    # add shfmt for shell pretty, try brew only because snap does not support home directory not being /home and doesn't work in docker.
+    command -v shfmt || brew install shfmt || echo 'WARNING: could not install shfmt, which is useful if you plan to contribute shell scripts to the OpenThread project.'
+}
+
+install_packages_apt()
+{
+    echo 'Installing toolchain dependencies...'
+
+    # apt-get update and install dependencies
+    sudo apt-get update
+    sudo apt-get --no-install-recommends install -y automake g++ libtool lsb-release make cmake ninja-build shellcheck
+
+    echo 'Installing GNU Arm Embedded Toolchain...'
+
+    PLATFORM=$(lsb_release -is)
+    ARCH=$(arch)
+
+    if [ "$PLATFORM" = "Raspbian" ]; then
+        sudo apt-get --no-install-recommends install -y binutils-arm-none-eabi gcc-arm-none-eabi gdb-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+    elif [ "$PLATFORM" = "Ubuntu" ]; then
+        sudo apt-get --no-install-recommends install -y ca-certificates wget
+        (cd /tmp \
+            && wget --tries 4 --no-check-certificate --quiet -c https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2020q2/gcc-arm-none-eabi-9-2020-q2-update-"$ARCH"-linux.tar.bz2 \
+            && sudo tar xjf gcc-arm-none-eabi-9-2020-q2-update-"$ARCH"-linux.tar.bz2 -C /opt \
+            && rm gcc-arm-none-eabi-9-2020-q2-update-"$ARCH"-linux.tar.bz2 \
+            && sudo ln -s -f /opt/gcc-arm-none-eabi-9-2020-q2-update/bin/* /usr/local/bin/.)
+    fi
+
+    if [ "$PLATFORM" != "Raspbian" ]; then
+        install_packages_pretty_format
+    fi
+}
+
+install_packages_opkg()
+{
+    echo 'opkg not supported currently' && false
+}
+
+install_packages_rpm()
+{
+    echo 'rpm not supported currently' && false
+}
+
+install_packages_brew()
+{
+    echo 'Installing toolchain dependencies...'
+
+    # add build tools
+    brew install automake libtool cmake ninja shfmt shellcheck
+
+    echo 'Installing GNU Arm Embedded Toolchain...'
+
+    # add ARM toolchain
+    brew tap ArmMbed/homebrew-formulae
+    brew install arm-none-eabi-gcc
+
+    # check for gcc for simulation
+    if ! command -v gcc; then
+        echo 'warning: clang/gcc needed for simulation'
+        echo 'warning: please install Command Line Tools from https://developer.apple.com/download/more/'
+    fi
+
+    echo 'Installing pretty tools useful for code contributions...'
+
+    # add clang-format for pretty
+    CLANG_FORMAT_VERSION="clang-format version 9"
+    command -v clang-format-9 || (command -v clang-format && (clang-format --version | grep -q "${CLANG_FORMAT_VERSION}")) || {
+        brew install llvm@9
+        sudo ln -s "$(brew --prefix llvm@9)/bin/clang-format" /usr/local/bin/clang-format-9
+    } || echo 'WARNING: could not install llvm@9, which is useful if you plan to contribute C/C++ code to the OpenThread project.'
+
+    # add yapf for pretty
+    python3 -m pip install yapf || echo 'Failed to install python code formatter yapf. Install it manually if you need.'
+}
+
+install_packages_source()
+{
+    echo 'source not supported currently' && false
+}
+
+install_packages()
+{
+    PM=source
+    if command -v apt-get; then
+        PM=apt
+    elif command -v rpm; then
+        PM=rpm
+    elif command -v opkg; then
+        PM=opkg
+    elif command -v brew; then
+        PM=brew
+    fi
+    install_packages_$PM
+}
+
+main()
+{
+    install_packages
+    echo 'bootstrap completed successfully.'
+}
+
+main

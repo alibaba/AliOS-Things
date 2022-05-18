@@ -1,0 +1,25 @@
+# to format cmake files we use cmake-format:
+# pip install cmake-format --upgrade
+# information about the configuration here:
+# https://github.com/cheshirekow/cmake_format
+
+# How wide to allow formatted cmake files
+line_width: 80
+
+# How many spaces to tab for indent
+tab_size: 2
+
+# Format command names consistently as 'lower' or 'upper' case
+command_case: "lower"
+
+first_comment_is_literal: False
+
+# enable comment markup parsing and reflow
+enable_markup: False
+
+# If arglists are longer than this, break them always
+max_subargs_per_line: 1
+
+max_subgroups_hwrap: 2
+
+max_pargs_hwrap: 2

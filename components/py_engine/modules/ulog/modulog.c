@@ -81,7 +81,7 @@ static mp_obj_t set_log_file_size(mp_obj_t logsize)
 
     ret = ulog_fs_log_file_size(filesize);
     if (ret) {
-        amp_warn(MOD_STR, "fail to set log file size %d\n", filesize);
+        amp_error(MOD_STR, "fail to set log file size %d\n", filesize);
         return mp_obj_new_int(-1);
     }
 
@@ -100,7 +100,7 @@ static mp_obj_t debug_log_out(mp_obj_t log_str, mp_obj_t log)
         return mp_obj_new_int(-1);
     }
 
-    ulog(AOS_LL_DEBUG, tag, NULL, 0, msg);
+    ulog(AOS_LL_DEBUG, tag, NULL, 0, "%s\n", msg);
 
     return mp_obj_new_int(0);
 }
@@ -116,7 +116,7 @@ static mp_obj_t info_log_out(mp_obj_t log_str, mp_obj_t log)
         return mp_obj_new_int(-1);
     }
 
-    ulog(AOS_LL_INFO, tag, NULL, 0, msg);
+    ulog(AOS_LL_INFO, tag, NULL, 0, "%s\n", msg);
 
     return mp_obj_new_int(0);
 }
@@ -132,7 +132,7 @@ static mp_obj_t warn_log_out(mp_obj_t log_str, mp_obj_t log)
         return mp_obj_new_int(-1);
     }
 
-    ulog(AOS_LL_WARN, tag, NULL, 0, msg);
+    ulog(AOS_LL_WARN, tag, NULL, 0, "%s\n", msg);
 
     return mp_obj_new_int(0);
 }
@@ -148,7 +148,7 @@ static mp_obj_t error_log_out(mp_obj_t log_str, mp_obj_t log)
         return mp_obj_new_int(-1);
     }
 
-    ulog(AOS_LL_ERROR, tag, NULL, 0, msg);
+    ulog(AOS_LL_ERROR, tag, NULL, 0, "%s\n", msg);
 
     return mp_obj_new_int(0);
 }
@@ -164,7 +164,7 @@ static mp_obj_t fatal_log_out(mp_obj_t log_str, mp_obj_t log)
         return mp_obj_new_int(-1);
     }
 
-    ulog(AOS_LL_FATAL, tag, NULL, 0, msg);
+    ulog(AOS_LL_FATAL, tag, NULL, 0, "%s\n", msg);
 
     return mp_obj_new_int(0);
 }
@@ -191,7 +191,6 @@ STATIC const mp_rom_map_elem_t ulog_module_globals_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR_LOG_WARN), MP_ROM_INT(AOS_LL_WARN) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_LOG_ERROR), MP_ROM_INT(AOS_LL_ERROR) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_LOG_FATAL), MP_ROM_INT(AOS_LL_FATAL) },
-
 };
 
 STATIC MP_DEFINE_CONST_DICT(ulog_module_globals, ulog_module_globals_table);

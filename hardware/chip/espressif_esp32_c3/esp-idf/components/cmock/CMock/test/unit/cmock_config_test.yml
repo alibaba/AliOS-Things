@@ -1,0 +1,7 @@
+:cmock:
+  :plugins:
+    - 'soda'
+    - 'pizza'
+  :treat_externs:  :include
+  :treat_inlines:  :include
+  :inline_function_patterns: ['MY_INLINE_FUNCTION_DECLARATION_PATTERN']

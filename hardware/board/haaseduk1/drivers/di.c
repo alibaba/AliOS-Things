@@ -160,7 +160,7 @@ int32_t expansion_board_di_init()
     for (i = 0; i < DI_PORT_SIZE; i++) {
         ret = hal_gpio_init(&gpio_dev_input[i].gpio_dev);
         if (ret) {
-            LOGE(TAG, "di %d pin %d init fail ret", i,
+            LOGE(TAG, "di %d pin %d init fail ret %d", i,
                  gpio_dev_input[i].gpio_dev.port, ret);
             return -1;
         }

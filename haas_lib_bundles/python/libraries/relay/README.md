@@ -30,6 +30,9 @@
 
 ## 三、软件接口
 
+继电器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/relay)
+<br>
+
 ### Relay - 创建Relay驱动对象
 
 * 函数原型
@@ -40,7 +43,7 @@
 
 |  参数   | 类型  | 必选参数？ | 说明                                                    |
 | :-----: | :---: | :--------: | :------------------------------------------------------ |
-| gpioObj | GPIO  |     是     | 继电器控制引脚的PWM对象。调用此函数前需确保对象已被open |
+| gpioObj | GPIO  |     是     | 继电器控制引脚的GPIO对象。调用此函数前需确保对象已被open |
 | trigger |  int  |     是     | 继电器触发方式。低电平触发为0；高电平触发为1            |
 
 * 返回值
@@ -72,7 +75,7 @@ relayObj = Relay(relayIO, 1)    # 高电平触发
 
 * 函数原型：
 
-> Relay.open()
+> Relay.untriger()
 
 * 参数说明：
 
@@ -96,7 +99,7 @@ relayObj = Relay(relayIO, 1)    # 高电平触发
 
 * 函数原型：
 
-> Relay.close()
+> Relay.triger()
 
 * 参数说明：
 

@@ -21,8 +21,8 @@ int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
     aiot_devinfo_msg_t *devinfo = NULL;
     char *msg = NULL;
     int32_t msg_len = 0;
-    char product_key[IOTX_PRODUCT_KEY_LEN] = { 0 };
-    char device_name[IOTX_DEVICE_NAME_LEN] = { 0 };
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = { 0 };
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = { 0 };
     int productkey_len = IOTX_PRODUCT_KEY_LEN;
     int devicename_len = IOTX_DEVICE_NAME_LEN;
 
@@ -45,7 +45,7 @@ int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
     msg_len = strlen(DEVICE_INFO_UPDATE_FMT) + 32;
     msg = (char *)aos_malloc(msg_len);
     if (msg == NULL) {
-        amp_debug(MOD_STR, "malloc msg err");
+        amp_error(MOD_STR, "malloc msg err");
         goto exit;
     }
     memset(msg, 0, msg_len);
@@ -53,14 +53,14 @@ int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
     /* devinfo update message */
     res = snprintf(msg, msg_len, DEVICE_INFO_UPDATE_FMT, APPLICATION, MODULE_NAME);
     if (res <= 0) {
-        amp_debug(MOD_STR, "topic msg generate err");
+        amp_error(MOD_STR, "topic msg generate err");
         res = -1;
         goto exit;
     }
 
     devinfo = aos_malloc(sizeof(aiot_devinfo_msg_t));
     if (devinfo == NULL) {
-        amp_debug(MOD_STR, "device update info malloc failed");
+        amp_error(MOD_STR, "device devinfo info malloc failed");
         res = -1;
         goto exit;
     }
@@ -68,7 +68,7 @@ int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
 
     devinfo->product_key = aos_malloc(IOTX_PRODUCT_KEY_LEN);
     if (devinfo->product_key == NULL) {
-        amp_debug(MOD_STR, "device update info malloc failed");
+        amp_error(MOD_STR, "device product_key info malloc failed");
         res = -1;
         goto exit;
     }
@@ -76,15 +76,15 @@ int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
 
     devinfo->device_name = aos_malloc(IOTX_DEVICE_NAME_LEN);
     if (devinfo->device_name == NULL) {
-        amp_debug(MOD_STR, "device update info malloc failed");
+        amp_error(MOD_STR, "device device_name info malloc failed");
         res = -1;
         goto exit;
     }
     memset(devinfo->device_name, 0, IOTX_DEVICE_NAME_LEN);
 
     devinfo->data.update.params = aos_malloc(msg_len);
-    if (devinfo == NULL) {
-        amp_debug(MOD_STR, "device update info malloc failed");
+    if (devinfo->data.update.params == NULL) {
+        amp_error(MOD_STR, "device update info malloc failed");
         res = -1;
         goto exit;
     }
@@ -97,7 +97,7 @@ int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
 
     res = aiot_devinfo_send(devinfo_handle, devinfo);
     if (res < STATE_SUCCESS) {
-        amp_debug(MOD_STR, "das stepping failed");
+        amp_error(MOD_STR, "aiot_devinfo_send failed");
         res = -1;
     }
 

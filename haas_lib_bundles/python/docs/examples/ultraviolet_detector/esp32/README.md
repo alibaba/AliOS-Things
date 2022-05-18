@@ -96,7 +96,6 @@
 ### 创建产品属性（物模型）
 &emsp;&emsp;
 点击上图中的“查看”按钮，即可看到产品信息，Topic列表，功能定义，数据解析等跟产品相关功能的设定。点开“功能定义”标签页，可以看到设备物模型定义。
-> 物模型中的“地理位置”属性本案例后面的内容没有用到，读者可忽略。
 
 <div align="center">
 <img src=./../../../images/ultraviolet_detector/紫外线检测系统_产品详情页面.png width=100%/>
@@ -221,7 +220,7 @@
 ## 创建解决方案
 
 &emsp;&emsp;
-点击下图中的"快速开始"按键(<img src=./../../../images/ultraviolet_detector/紫外线检测系统_HaaS_Studio_创建工程按钮.png width=8%/>)会弹出HaaS Studio的欢迎页面，请点击“创建项目”按钮。
+点击下图中的"快速开始"按键会弹出HaaS Studio的欢迎页面，请点击“创建项目”按钮。
 
 &emsp;&emsp;
 在随后弹框中，设定好项目名称（“uvdetector）及工作区路径之后，硬件类型选择ESP32，点击“立即创建”，创建一个Python轻应用的解决方案。
@@ -430,7 +429,7 @@ uploading data:  {"uvlevel": 0}
 
 ### 紫外线强度监控系统
 &emsp;&emsp;
-下图是一个典型的物联网应用程序开发的流程图，接下来本节就按照这个流程介绍如何完成火焰监控系统web端应用程序的开发。
+下图是一个典型的物联网应用程序开发的流程图，接下来本节就按照这个流程介绍如何完成紫外线监控系统web端应用程序的开发。
 
 <div align="center">
 <img src=./../../../images/1_物联网应用开发的一般流程.png width=50%/>
@@ -487,7 +486,7 @@ web应用创建成功后会进入到应用界面设计页面。
 
 ### **关联产品和设备**
 &emsp;&emsp;
-此时回到”火焰监控系统“项目的主页，对产品和设备进行关联，如下图所示：
+此时回到”紫外线强度监控系统“项目的主页，对产品和设备进行关联，如下图所示：
 <div align="center">
 <img src=./../../../images/ultraviolet_detector/紫外线检测系统_关联产品和设备.png width=80%/>
 </div>
@@ -557,13 +556,22 @@ web应用创建成功后会进入到应用界面设计页面。
 
 
 绿色LED:
-
 <div align="center">
 <img src=./../../../images/ultraviolet_detector/紫外线检测系统_绿色指示灯_配置数据源.png width=80%/>
 </div>
 
 <div align="center">
 <img src=./../../../images/ultraviolet_detector/紫外线检测系统_绿色指示灯_配置数据源_颜色.png width=80%/>
+</div>
+
+蜂鸣器:
+
+<div align="center">
+<img src=./../../../images/ultraviolet_detector/紫外线检测系统_蜂鸣器_配置数据源.png width=80%/>
+</div>
+
+<div align="center">
+<img src=./../../../images/ultraviolet_detector/紫外线检测系统_蜂鸣器_配置数据源_颜色.png width=80%/>
 </div>
 
 实时曲线:
@@ -697,8 +705,6 @@ web应用创建成功后会进入到应用界面设计页面。
 <div align="center">
     <img src=./../../../images/ultraviolet_detector/紫外线检测系统_设备节点行为设定03.png width=80%/>
 </div>
-
-
 
 “紫外线监控报警设定04”如下图：
 

@@ -49,6 +49,11 @@ hr_timer_t soc_hr_hw_cnt_get(void)
     return tick;
 }
 
+uint64_t soc_hr_hw_freq_get(void)
+{
+    return 32768;
+}
+
 lr_timer_t soc_lr_hw_cnt_get(void)
 {
     uint32_t tick;

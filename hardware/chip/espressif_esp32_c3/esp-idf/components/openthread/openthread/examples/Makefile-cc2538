@@ -1,0 +1,309 @@
+#
+#  Copyright (c) 2016, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+.NOTPARALLEL:
+
+AR                              = arm-none-eabi-ar
+CCAS                            = arm-none-eabi-as
+CPP                             = arm-none-eabi-cpp
+CC                              = arm-none-eabi-gcc
+CXX                             = arm-none-eabi-g++
+LD                              = arm-none-eabi-ld
+STRIP                           = arm-none-eabi-strip
+NM                              = arm-none-eabi-nm
+RANLIB                          = arm-none-eabi-ranlib
+OBJCOPY                         = arm-none-eabi-objcopy
+
+BuildJobs                      ?= 10
+
+configure_OPTIONS               = \
+    --enable-cli                  \
+    --enable-ftd                  \
+    --enable-mtd                  \
+    --enable-ncp                  \
+    --enable-radio-only           \
+    --enable-linker-map           \
+    --with-examples=cc2538        \
+    $(NULL)
+
+TopSourceDir                    := $(dir $(shell readlink $(firstword $(MAKEFILE_LIST))))..
+AbsTopSourceDir                 := $(dir $(realpath $(firstword $(MAKEFILE_LIST))))..
+
+CC2538_CONFIG_FILE_CPPFLAGS  = -DOPENTHREAD_PROJECT_CORE_CONFIG_FILE='\"openthread-core-cc2538-config.h\"'
+CC2538_CONFIG_FILE_CPPFLAGS += -DOPENTHREAD_CORE_CONFIG_PLATFORM_CHECK_FILE='\"openthread-core-cc2538-config-check.h\"'
+CC2538_CONFIG_FILE_CPPFLAGS += -I$(AbsTopSourceDir)/examples/platforms/cc2538/
+
+COMMONCFLAGS                    := \
+    -fdata-sections                \
+    -ffunction-sections            \
+    -Os                            \
+    -g                             \
+    $(CC2538_CONFIG_FILE_CPPFLAGS) \
+    $(NULL)
+
+include $(dir $(abspath $(lastword $(MAKEFILE_LIST))))/common-switches.mk
+
+# Optional CC2592 options, first and foremost, whether to enable support for it
+# at all.
+ifeq ($(CC2592),1)
+COMMONCFLAGS += -DOPENTHREAD_CONFIG_CC2538_WITH_CC2592=1
+
+# If the PA_EN is on another port C pin, specify it with CC2592_PA_PIN.
+ifneq ($(CC2592_PA_EN),)
+COMMONCFLAGS += -DOPENTHREAD_CONFIG_CC2592_PA_EN_PIN=$(CC2592_PA_EN)
+endif
+
+# If the LNA_EN is on another port C pin, specify it with CC2592_LNA_PIN.
+ifneq ($(CC2592_LNA_EN),)
+COMMONCFLAGS += -DOPENTHREAD_CONFIG_CC2592_LNA_EN_PIN=$(CC2592_LNA_EN)
+endif
+
+# If we're not using HGM, set CC2538_USE_HGM to 0.
+ifeq ($(CC2592_USE_HGM),0)
+COMMONCFLAGS += -DOPENTHREAD_CONFIG_CC2592_USE_HGM=0
+else # CC2592_USE_HGM=1
+
+# HGM in use, if not on port D, specify the port here (A, B or C) with CC2592_HGM_PORT.
+ifneq ($(CC2592_HGM_PORT),)
+COMMONCFLAGS += -DOPENTHREAD_CONFIG_CC2592_HGM_PORT=GPIO_$(CC2592_HGM_PORT)_BASE
+endif
+
+# If HGM is not at pin 2, specify which pin here with CC2592_HGM_PIN.
+ifneq ($(CC2592_HGM_PIN),)
+COMMONCFLAGS += -DOPENTHREAD_CONFIG_CC2592_HGM_PIN=$(CC2592_HGM_PIN)
+endif
+
+# If we want it off by default, specify CC2592_HGM_DEFAULT_STATE=0
+ifeq ($(CC2592_HGM_DEFAULT_STATE),0)
+COMMONCFLAGS += -DOPENTHREAD_CONFIG_CC2592_HGM_DEFAULT_STATE=false
+endif
+
+endif # CC2592_USE_HGM
+
+endif # CC2592
+
+ifneq ($(CC2538_RECEIVE_SENSITIVITY),)
+COMMONCFLAGS += -DOPENTHREAD_CONFIG_CC2538_RECEIVE_SENSITIVITY=$(CC2538_RECEIVE_SENSITIVITY)
+endif
+
+ifneq ($(CC2538_RSSI_OFFSET),)
+COMMONCFLAGS += -DOPENTHREAD_CONFIG_CC2538_RSSI_OFFSET=$(CC2538_RSSI_OFFSET)
+endif
+
+CPPFLAGS                       += \
+    $(COMMONCFLAGS)               \
+    $(target_CPPFLAGS)            \
+    $(NULL)
+
+CFLAGS                         += \
+    $(COMMONCFLAGS)               \
+    $(target_CFLAGS)              \
+    $(NULL)
+
+CXXFLAGS                       += \
+    $(COMMONCFLAGS)               \
+    $(target_CXXFLAGS)            \
+    -fno-exceptions               \
+    -fno-rtti                     \
+    $(NULL)
+
+LDFLAGS                        += \
+    $(COMMONCFLAGS)               \
+    $(target_LDFLAGS)             \
+    -nostartfiles                 \
+    -specs=nano.specs             \
+    -specs=nosys.specs            \
+    -Wl,--gc-sections             \
+    $(NULL)
+
+ECHO                            := @echo
+MAKE                            := make
+MKDIR_P                         := mkdir -p
+LN_S                            := ln -s
+RM_F                            := rm -f
+
+INSTALL                         := /usr/bin/install
+INSTALLFLAGS                    := -p
+
+BuildPath                       = build
+TopBuildDir                     = $(BuildPath)
+AbsTopBuildDir                  = $(PWD)/$(TopBuildDir)
+
+ResultPath                      = output
+TopResultDir                    = $(ResultPath)
+AbsTopResultDir                 = $(PWD)/$(TopResultDir)
+
+TargetTuple                     = cc2538
+
+ARCHS                           = cortex-m3
+
+TopTargetLibDir                 = $(TopResultDir)/$(TargetTuple)/lib
+
+ifndef BuildJobs
+BuildJobs := $(shell getconf _NPROCESSORS_ONLN)
+endif
+JOBSFLAG := -j$(BuildJobs)
+
+#
+# configure-arch <arch>
+#
+# Configure OpenThread for the specified architecture.
+#
+#   arch - The architecture to configure.
+#
+define configure-arch
+$(ECHO) "  CONFIG   $(TargetTuple)..."
+(cd $(BuildPath)/$(TargetTuple) && $(AbsTopSourceDir)/configure \
+INSTALL="$(INSTALL) $(INSTALLFLAGS)" \
+CPP="$(CPP)" CC="$(CC)" CXX="$(CXX)" OBJC="$(OBJC)" OBJCXX="$(OBJCXX)" AR="$(AR)" RANLIB="$(RANLIB)" NM="$(NM)" STRIP="$(STRIP)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" \
+--host=arm-none-eabi \
+--prefix=/ \
+--exec-prefix=/$(TargetTuple) \
+$(configure_OPTIONS))
+endef # configure-arch
+
+#
+# build-arch <arch>
+#
+# Build the OpenThread intermediate build products for the specified
+# architecture.
+#
+#   arch - The architecture to build.
+#
+define build-arch
+$(ECHO) "  BUILD    $(TargetTuple)"
+$(MAKE) $(JOBSFLAG) -C $(BuildPath)/$(TargetTuple) --no-print-directory \
+all
+endef # build-arch
+
+#
+# stage-arch <arch>
+#
+# Stage (install) the OpenThread final build products for the specified
+# architecture.
+#
+#   arch - The architecture to stage.
+#
+define stage-arch
+$(ECHO) "  STAGE    $(TargetTuple)"
+$(MAKE) $(JOBSFLAG) -C $(BuildPath)/$(TargetTuple) --no-print-directory \
+DESTDIR=$(AbsTopResultDir) \
+install
+endef # stage-arch
+
+#
+# ARCH_template <arch>
+#
+# Define macros, targets and rules to configure, build, and stage the
+# OpenThread for a single architecture.
+#
+#   arch - The architecture to instantiate the template for.
+#
+define ARCH_template
+CONFIGURE_TARGETS += configure-$(1)
+BUILD_TARGETS     += do-build-$(1)
+STAGE_TARGETS     += stage-$(1)
+BUILD_DIRS        += $(BuildPath)/$(TargetTuple)
+DIRECTORIES       += $(BuildPath)/$(TargetTuple)
+
+configure-$(1): target_CPPFLAGS=$($(1)_target_CPPFLAGS)
+configure-$(1): target_CFLAGS=$($(1)_target_CFLAGS)
+configure-$(1): target_CXXFLAGS=$($(1)_target_CXXFLAGS)
+configure-$(1): target_LDFLAGS=$($(1)_target_LDFLAGS)
+
+configure-$(1): $(BuildPath)/$(TargetTuple)/config.status
+
+$(BuildPath)/$(TargetTuple)/config.status: | $(BuildPath)/$(TargetTuple)
+	$$(call configure-arch,$(1))
+
+do-build-$(1): configure-$(1)
+
+do-build-$(1):
+	+$$(call build-arch,$(1))
+
+stage-$(1): do-build-$(1)
+
+stage-$(1): | $(TopResultDir)
+	$$(call stage-arch,$(1))
+
+$(1): stage-$(1)
+endef # ARCH_template
+
+.DEFAULT_GOAL := all
+
+all: stage
+
+#
+# cortex-m3
+#
+
+cortex-m3_target_ABI                  = cortex-m3
+cortex-m3_target_CPPFLAGS             = -mcpu=cortex-m3 -mfloat-abi=soft -mthumb
+cortex-m3_target_CFLAGS               = -mcpu=cortex-m3 -mfloat-abi=soft -mthumb
+cortex-m3_target_CXXFLAGS             = -mcpu=cortex-m3 -mfloat-abi=soft -mthumb
+cortex-m3_target_LDFLAGS              = -mcpu=cortex-m3 -mfloat-abi=soft -mthumb
+
+# Instantiate an architecture-specific build template for each target
+# architecture.
+
+$(foreach arch,$(ARCHS),$(eval $(call ARCH_template,$(arch))))
+
+#
+# Common / Finalization
+#
+
+configure: $(CONFIGURE_TARGETS)
+
+build: $(BUILD_TARGETS)
+
+stage: $(STAGE_TARGETS)
+
+DIRECTORIES     = $(TopResultDir) $(TopResultDir)/$(TargetTuple)/lib $(BUILD_DIRS)
+
+CLEAN_DIRS      = $(TopResultDir) $(BUILD_DIRS)
+
+all: stage
+
+$(DIRECTORIES):
+	$(ECHO) "  MKDIR    $@"
+	@$(MKDIR_P) "$@"
+
+clean:
+	$(ECHO) "  CLEAN"
+	@$(RM_F) -r $(CLEAN_DIRS)
+
+help:
+	$(ECHO) "Simply type 'make -f $(firstword $(MAKEFILE_LIST))' to build OpenThread for the following "
+	$(ECHO) "architectures: "
+	$(ECHO) ""
+	$(ECHO) "    $(ARCHS)"
+	$(ECHO) ""
+	$(ECHO) "To build only a particular architecture, specify: "
+	$(ECHO) ""
+	$(ECHO) "    make -f $(firstword $(MAKEFILE_LIST)) <architecture>"
+	$(ECHO) ""

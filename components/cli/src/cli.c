@@ -1421,7 +1421,11 @@ int32_t cli_va_printf(const char *fmt, va_list va)
         } else {
             // cli_printf("%.*s\n", i + 1, p2);    // strlen = pos + 1
             memset(child_message, 0, CLI_OUTBUF_SIZE);
-            strncpy(child_message, p2, i + 1);
+            strncpy(child_message, p2, i);
+            if ((i > 0) && (*(p - 1) != '\r'))
+                strncpy(child_message + i, "\r\n", 2);
+            else
+                *(child_message + i) = '\n';
             cli_do_output(child_message);
         }
         p2 = p + 1; // skip '\n'

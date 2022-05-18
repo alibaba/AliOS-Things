@@ -1,0 +1,238 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap_session(3)
+===============
+:doctype: manpage
+:man source:   coap_session
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap_session,
+coap_session_reference,
+coap_session_release,
+coap_session_disconnected,
+coap_session_set_type_client,
+coap_session_set_app_data,
+coap_session_get_app_data,
+coap_session_get_addr_local,
+coap_session_get_addr_remote,
+coap_session_get_context,
+coap_session_get_ifindex,
+coap_session_get_proto,
+coap_session_get_state,
+coap_session_get_tls,
+coap_session_get_type,
+coap_session_get_psk_hint,
+coap_session_get_psk_key
+- Work with CoAP sessions
+
+SYNOPSIS
+--------
+*#include <coap@LIBCOAP_API_VERSION@/coap.h>*
+
+*coap_session_t *coap_session_reference(coap_session_t *_session_);*
+
+*void coap_session_release(coap_session_t *_session_);*
+
+*void coap_session_disconnected(coap_session_t *_session_, coap_nack_reason_t _reason_);*
+
+*int coap_session_set_type_client(coap_session_t *_session_);*
+
+*void coap_session_set_app_data(coap_session_t *_session_, void *_data_);*
+
+*void *coap_session_get_app_data(const coap_session_t *_session_);*
+
+*const coap_address_t *coap_session_get_addr_local(
+const coap_session_t *_session_);*
+
+*const coap_address_t *coap_session_get_addr_remote(
+const coap_session_t *_session_);*
+
+*coap_context_t *coap_session_get_context(const coap_session_t *_session_);*
+
+*int coap_session_get_ifindex(const coap_session_t *_session_);*
+
+*coap_proto_t coap_session_get_proto(const coap_session_t *_session_);*
+
+*coap_session_state_t coap_session_get_state(const coap_session_t *_session_);*
+
+*void *coap_session_get_tls(const coap_session_t *_session_,
+coap_tls_library_t *tls_lib);*
+
+*coap_session_type_t coap_session_get_type(const coap_session_t *_session_);*
+
+*const coap_bin_const_t *coap_session_get_psk_hint(
+const coap_session_t *_session_);*
+
+*const coap_bin_const_t *coap_session_get_psk_key(
+const coap_session_t *_session_);*
+
+For specific (D)TLS library support, link with
+*-lcoap-@LIBCOAP_API_VERSION@-notls*, *-lcoap-@LIBCOAP_API_VERSION@-gnutls*,
+*-lcoap-@LIBCOAP_API_VERSION@-openssl*, *-lcoap-@LIBCOAP_API_VERSION@-mbedtls*
+or *-lcoap-@LIBCOAP_API_VERSION@-tinydtls*.   Otherwise, link with
+*-lcoap-@LIBCOAP_API_VERSION@* to get the default (D)TLS library support.
+
+DESCRIPTION
+-----------
+This man page focuses on the CoAP Session and how to update or get information
+from the opaque coap_session_t structure.
+
+A CoAP Session maintains the state of an ongoing connection between a Client
+and Server which is stored in a coap_session_t Session object. A CoAP session
+is tracked by local port, CoAP protocol, remote IP address and remote port.
+
+The Session network traffic can be encrypted or un-encrypted if there is an
+underlying TLS library.
+
+The *coap_session_reference*() function is used to increment the reference
+count of the _session_.  Incrementing the reference count by an application
+means that the library will not inadvertently remove the session when it has
+finished processing the session.
+
+The *coap_session_release*() function is be used to decrement the _session_
+reference count, which when it gets to 0, will:-
+
+If type Client, free off the session which then clears all entries from the
+receive queue and send queue. *NOTE:*  All client sessions start off with a
+reference count of 1.
+
+If type Server, then the _session_ is added to an idle pool ready for subsequent
+re-use. If the Server _session_ is not used for 5 minutes, then it will get
+completely freed off.  *NOTE:* Unless the application increments the
+reference count, this is the case for all type server sessions as they start
+with a reference count of 0.
+
+The *coap_session_disconnected*() function is used to force the closure of a
+_session_ for the reason _reason_. It will cause any outstanding traffic to
+get dropped.
+
+The *coap_session_set_type_client*() function is used to convert the _session_
+frrm a session endpoint type of Server to Client.  This typically is used in a
+Call-Home type environment where the roles have to change following the
+establishment of a session.  The reference count is incremented by 1.
+
+The *coap_session_set_app_data*() function is used to define a _data_ pointer
+for the _session_ which can then be retrieved at a later date.
+
+The *coap_session_get_app_data*() function is used to retrieve the data
+pointer previously defined by *coap_session_set_app_data*().
+
+The *coap_session_get_addr_local*() function is used to get the local IP
+address and port information from the _session_.
+
+The *coap_session_get_addr_remote*() function is used to get the remote (peer)
+IP address and port information from the _session_.
+
+The *coap_session_get_context*() function is used to get the CoAP context
+associated with the _session_.
+
+The  *coap_session_get_ifindex*() function is used to get the network interface
+index that the traffic came in over from the _session_.
+
+[source, c]
+----
+COAP_PROTO_UDP
+COAP_PROTO_DTLS
+COAP_PROTO_TCP
+COAP_PROTO_TLS
+----
+
+The *coap_session_get_proto*() function is used to get the CoAP protocol from
+the _session_.
+
+[source, c]
+----
+COAP_SESSION_STATE_NONE
+COAP_SESSION_STATE_CONNECTING
+COAP_SESSION_STATE_HANDSHAKE
+COAP_SESSION_STATE_CSM
+COAP_SESSION_STATE_ESTABLISHED
+----
+
+The *coap_session_get_state*() function is used to get the current state
+of the _session_.
+
+[source, c]
+----
+OpenSSL:  SSL*
+GnuTLS:   gnutls_session_t (implicit *)
+Mbed TLS: mbedtls_ssl_context*
+TinyDTLS: struct dtls_context*
+----
+
+The *coap_session_get_tls*() function is used to get the pointer to the TLS
+information from the _session_.  This is TLS library specific. _tls_lib_ is
+updated with the underlying (D)TLS library type.
+
+[source, c]
+----
+COAP_SESSION_TYPE_CLIENT
+COAP_SESSION_TYPE_SERVER
+COAP_SESSION_TYPE_HELLO  /* Negotiating a (D)TLS session */
+----
+
+The *coap_session_get_type*() function is used to get the session type from the
+_session_.
+
+The *coap_session_get_psk_hint*() function is used to get the current server
+_session_'s pre-shared-key identity hint.
+
+The *coap_session_get_psk_key*() function is used to get the current
+_session_'s pre-shared-key key information.
+
+RETURN VALUES
+-------------
+
+*coap_session_reference*() function returns a pointer to the session.
+
+*coap_session_set_type_client*() function returns 1 on success, otherwise 0.
+
+*coap_session_get_app_data*() function return a previously defined pointer.
+
+*coap_session_get_addr_local*() and *coap_session_get_addr_remote*() return
+a pointer to the IP address / port or NULL on error.
+
+*coap_session_get_context*() returns a pointer to the current CoAP Context or
+NULL on error.
+
+*coap_session_get_ifindex*() returns the network interface the traffic last
+came in over, or -1 on error.
+
+*coap_session_get_proto*() returns the current session's protocol or 0 on error.
+
+*coap_session_get_state*() returns the current session's state or 0 on error.
+
+*coap_session_get_tls*() returns a pointer to the current session's TLS
+information (TLS library dependent) or NULL if there is none or there is an
+error.
+
+*coap_session_get_type*() returns the current session's type or 0 on error.
+
+*coap_session_get_psk_hint*() returns the current server session's
+pre-shared-key identity hint, or NULL if not defined.
+
+*coap_session_get_psk_key*() returns the current session's pre-shared-key
+key information, or NULL if not defined.
+
+SEE ALSO
+--------
+*coap_context*(3), *coap_endpoint_client*(3) and *coap_endpoint_server*(3)
+
+FURTHER INFORMATION
+-------------------
+See "RFC7252: The Constrained Application Protocol (CoAP)" for further
+information.
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net or raise an issue on GitHub at
+https://github.com/obgm/libcoap/issues
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

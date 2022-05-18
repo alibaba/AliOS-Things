@@ -1,0 +1,492 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap_block(3)
+=============
+:doctype: manpage
+:man source:   coap_block
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap_block,
+coap_context_set_block_mode,
+coap_add_data_large_request,
+coap_add_data_large_response,
+coap_get_data_large,
+coap_block_build_body
+- Work with CoAP Blocks
+
+SYNOPSIS
+--------
+*#include <coap@LIBCOAP_API_VERSION@/coap.h>*
+
+*void coap_context_set_block_mode(coap_context_t *_context_,
+uint8_t _block_mode_);*
+
+*int coap_add_data_large_request(coap_session_t *_session_,
+coap_pdu_t *_pdu_, size_t _length_, const uint8_t *_data_,
+coap_release_large_data_t _release_func_, void *_app_ptr_);*
+
+*int coap_add_data_large_response(coap_resource_t *_resource_,
+coap_session_t *_session_, const coap_pdu_t *_request_, coap_pdu_t *_response_,
+const coap_string_t *query, uint16_t _media_type_, int _maxage_,
+uint64_t etag, size_t _length_, const uint8_t *_data_,
+coap_release_large_data_t _release_func_, void *_app_ptr_);*
+
+*int coap_get_data_large(const coap_pdu_t *_pdu_, size_t *_length,
+const uint8_t **_data_, size_t *_offset_, size_t *_total_);*
+
+*coap_binary_t *
+coap_block_build_body(coap_binary_t *_body_data_, size_t _length_,
+const uint8_t *_data_, size_t _offset_, size_t _total_);*
+
+For specific (D)TLS library support, link with
+*-lcoap-@LIBCOAP_API_VERSION@-notls*, *-lcoap-@LIBCOAP_API_VERSION@-gnutls*,
+*-lcoap-@LIBCOAP_API_VERSION@-openssl*, *-lcoap-@LIBCOAP_API_VERSION@-mbedtls*
+or *-lcoap-@LIBCOAP_API_VERSION@-tinydtls*.   Otherwise, link with
+*-lcoap-@LIBCOAP_API_VERSION@* to get the default (D)TLS library support.
+
+DESCRIPTION
+-----------
+Regular setting up of a PDU and transmission is covered in *coap_pdu_setup*(3)
+where all the payload data can fit in a single packet.  This man page covers
+how to work with PDUs where the overall body of information may need to be
+split across several packets by using CoAP Block-Wise Transfers (RFC 7959).
+
+The block-wise transfers can be controlled by the application, or libcoap is
+instructed to do all the requests for the next blocks and only present the
+final body of the result to the application.  In summary, the following three
+ways handle processing a body of data that has to be split across multiple
+payloads (blocks).
+
+1. Application does all the work +
+It is the responsibility of the application to analyze each block transmission
+at receipt and then generate the next request as per RFC 7959.  In this case,
+*coap_context_set_block_mode*() function MUST NOT be called to maintain
+backward compatability with applications that did the block handling within the
+application.
+
+2. Application sees individual blocks +
+By calling *coap_context_set_block_mode(context, COAP_BLOCK_USE_LIBCOAP)* and
+using the appropriate functions, the requests for the next block of data is
+handled automatically by the libcoap layer.  Each individual block of data is
+presented to the application for processing. +
+By calling *coap_get_data_large*(), the application can determine if this is
+the first block or not (using _offset_ value), whether the first block is all
+the data (_offset_ = 0, _length_ = _total_) and whether this is the last block
+(_offset_ + _length_ = _total_). It is the responsibility of the application to
+re-assemble the individual blocks into a single body of data. +
+*NOTE:* _total_ is only an approximation (it will be > _offset_ + _length_)
+until the final block is received. +
+If this is the request handler in a server, the server still needs to return a
+COAP_RESPONSE_CODE_CONTINUE 2.31 (Continue) response code if the received data
+is not for the final block, otherwise a COAP_RESPONSE_CODE_CREATED 2.01
+(Created) or COAP_RESPONSE_CODE_CHANGED 2.04 (Changed) should be returned.
+
+3. Application only sees all of the body +
+By calling *coap_context_set_block_mode(context,
+COAP_BLOCK_USE_LIBCOAP|COAP_BLOCK_SINGLE_BODY)* and using the appropriate
+functions, the requests for all the blocks of data is handled automatically by
+the libcoap layer.  Only the complete body of the data is presented to the
+application, unless there is an error. +
+*coap_get_data_large*() will only return the entire body of data (_offset_
+always 0, _length_ = _total_) and there is no need to re-assemble individual
+blocks into a large body of data. +
+In RAM constrained environments, option 2 may be the preferred method.
+
+This man page focuses on getting libcoap to do all the work, not how to do it
+all in the application.
+
+However, if the client supplies a BLOCK1 or BLOCK2 Option in the PDU where the
+block number is not 0, this is assumed to be a random access request and any
+other blocks will not be requested by libcoap even if instructed otherwise.
+
+The functions that are named *_large* are intended as replacements for the
+equivalent functions as described in *coap_pdu_setup*(3).
+
+The *coap_context_set_block_mode*() function is used to set up the _context_
+level _block_mode_ block handling bits for supporting RFC7959. _block_mode_
+flows down to a session when a session is created and if the peer does not
+support the respective block mode, an appropriate bit may get disabled in the
+session _block_mode_.
+
+[source, c]
+----
+#define COAP_BLOCK_USE_LIBCOAP  0x01 /* Use libcoap to do block requests */
+#define COAP_BLOCK_SINGLE_BODY  0x02 /* Deliver the data as a single body */
+----
+_block_mode_ is an or'd set of zero or more COAP_BLOCK_* definitions.
+
+If COAP_BLOCK_SINGLE_BODY is set, then the entire body of data is presented to
+the receiving handler, otherwise each individual block is presented on arrival.
+To obtain the data, length and current offset, *coap_get_data_large*() must
+be used instead of *coap_get_data*().  It may be appropriate not to set
+COAP_BLOCK_SINGLE_BODY if there are RAM limitations.
+
+*NOTE:* It is the responsibility of the receiving application to re-assemble
+the _data_ as appropriate (e.g., using *coap_block_build_body*()) if
+COAP_BLOCK_SINGLE_BODY is not set.
+
+*NOTE:* If COAP_BLOCK_SINGLE_BODY is not set, then the CoAP server on receiving
+request data that is split over multiple data blocks must respond with
+COAP_RESPONSE_CODE_CONTINUE 2.31 (Continue) response code if the received data
+is not for the final block, otherwise a COAP_RESPONSE_CODE_CREATED 2.01
+(Created) or COAP_RESPONSE_CODE_CHANGED 2.04 (Changed) should be returned.
+
+If COAP_BLOCK_USE_LIBCOAP is set, then any PDUs presented to the application
+handlers will get the tokens set back to the initiating token so that requests
+can be matched with responses even if different tokens had to be used for the
+series of packet interchanges.  Furthermore, if COAP_BLOCK_SINGLE_BODY is set,
+then the PDU that presents the entire body will have any BLOCKx option removed.
+
+*NOTE:* COAP_BLOCK_USE_LIBCOAP must be set if libcoap is to do all the
+block tracking and requesting, otherwise the application will have to do all
+of this work (the default if *coap_context_set_block_mode*() is not called).
+
+[source, c]
+----
+/**
+ * Callback handler for de-allocating the data based on @p app_ptr provided to
+ * coap_add_data_large_*() functions following transmission of the supplied
+ * data.
+ *
+ * @param session The session that this data is associated with
+ * @param app_ptr The application provided pointer to the
+ *                coap_add_data_large_*() functions
+ */
+typedef void (*coap_release_large_data_t)(coap_session_t *session,
+                                          void *app_ptr);
+----
+
+The *coap_add_data_large_request*() function is similar to *coap_add_data*(),
+but supports the transmission of data that has a body size that is potentially
+larger than can be fitted into a single client request PDU. The specified
+payload _data_ of length _length_ is associated with the _session_ with the
+first block of data added to the PDU _pdu_ along with the appropriate CoAP
+options such as BLOCK1, and SIZE1 if the data does not fit in
+a single PDU.  When the block has been acknowledged by the peer, the library
+will then send the next block of data until all the data has been transmitted.
+This function must only be called once per _pdu_.  The _data_ passed to the
+function *coap_add_data_large_request*() must exist until all blocks have been
+transmitted. The callback function _release_func_ can be used to release
+storage that has been dynamically allocated to hold the transmit data. If not
+NULL, the callback function is called once the final block of _data_ has been
+transmitted. The user-defined parameter _app_ptr_ is the same value that was
+passed to *coap_add_data_large_request*().
+
+The *coap_add_data_large_response*() function is responsible for handling
+the server's large responses to requests. *coap_add_data_large_response*()
+should be used as a direct replacement for *coap_add_data*() if it is possible
+that the _length_ of _data_ will not fit in a single server's response pdu.
+This function adds in the initial part of the payload _data_ of length
+_length_ to the PDU _pdu_. The _data_ passed to the function
+*coap_add_data_large_response*() must exist until all blocks have been
+transmitted. The callback function _release_func_ can be used to release
+storage that has been dynamically allocated to hold the transmit data. If not
+NULL, the callback function is called once the final block of _data_ has been
+transmitted. The user-defined parameter _app_ptr_ is the same value that was
+passed to *coap_add_data_large_response*().
+
+It also adds in the appropriate CoAP options such as BLOCK2, SIZE2 and ETAG to
+handle block-wise transfer if the data does not fit in a single PDU.
+_resource_, _query_, _session_, _request_, and _response_ are the same
+parameters as in the called resource handler that invokes
+*coap_add_data_large_response*(). If _etag_ is 0, then a unique ETag value will
+be generated, else is the ETag value to use.
+The _media_type_ is for the format of the _data_ and _maxage_ defines the
+lifetime of the response.  If _maxage_ is set to -1,  then the MAXAGE option
+does not get included (which indicates the default value of 60 seconds
+according to RFC 7252). This function must only be called once per _pdu_.
+The application handler for the resource is only called once instead of
+potentially multiple times.
+
+The *coap_get_data_large*() function is used abstract from the _pdu_
+information about the received data by updating _length_ with the length of
+data available, _data_ with a pointer to where the data is located, _offset_
+with where this block of data starts and _total_ with the total amount of data.
+_offset_ will always be zero if block_mode includes COAP_BLOCK_SINGLE_BODY.
+All of the body's data has been received if "_offset_ + _length_ == _total_".
+
+*NOTE:* _total_ is potentially only an indication of the total size of the
+body and is only exact when all of the data has been received.
+
+The *coap_block_build_body*() function is used to re-assemble the received
+data as returned by *coap_get_data_large*() into a single blob of data. Data
+from _data_ of length _length_ starting from offset _offset_ is added to
+_body_data_.  The resultant state of _body_data_ is returned. If _body_data_
+is NULL, or _total_ is larger than the current size of _body_data_, then
+_body_data_ is re-allocated and returned.  If there is an error, _body_data_
+gets de-allocated.
+
+If _block_mode_ (as set by *coap_context_set_block_mode*()) includes
+COAP_BLOCK_SINGLE_BODY, then the response handler will only get called
+once with the entire body containing the data from all of the individual
+blocks. If there is a change of data during the blocks receipt (e.g., ETag
+value changes), then the entire set of data is re-requested and the partial
+body dropped.
+
+RETURN VALUES
+-------------
+The *coap_add_data_large_request*(), *coap_add_data_large_response*(), and
+*coap_get_data_large*() functions return 0 on failure, 1 on success.
+
+The  *coap_block_build_body*() returns the current state of the body's data
+(which may have some missing gaps) or NULL on error.
+
+EXAMPLES
+--------
+*Setup PDU and Transmit*
+
+[source, c]
+----
+#include <coap@LIBCOAP_API_VERSION@/coap.h>
+
+static int
+build_send_pdu(coap_context_t *context, coap_session_t *session,
+uint8_t msgtype, uint8_t request_code, const char *uri, const char *query,
+unsigned char *data, size_t length, int observe) {
+
+  coap_pdu_t *pdu;
+  uint8_t buf[1024];
+  size_t buflen;
+  uint8_t *sbuf = buf;
+  int res;
+  coap_optlist_t *optlist_chain = NULL;
+  /* Remove (void) definition if variable is used */
+  (void)context;
+
+  /* Create the pdu with the appropriate options */
+  pdu = coap_pdu_init(msgtype, request_code, coap_new_message_id(session),
+                      coap_session_max_pdu_size(session));
+  if (!pdu)
+    return 0;
+
+  /*
+   * Create unique token for this request for handling unsolicited /
+   * delayed responses
+   */
+  coap_session_new_token(session, &buflen, buf);
+  if (!coap_add_token(pdu, buflen, buf)) {
+    coap_log(LOG_DEBUG, "cannot add token to request\n");
+    goto error;
+  }
+
+  if (uri) {
+    /* Add in the URI options */
+    buflen = sizeof(buf);
+    res = coap_split_path((const uint8_t*)uri, strlen(uri), sbuf, &buflen);
+    while (res--) {
+      if (!coap_insert_optlist(&optlist_chain,
+                               coap_new_optlist(COAP_OPTION_URI_PATH,
+                        coap_opt_length(sbuf), coap_opt_value(sbuf))))
+        goto error;
+      sbuf += coap_opt_size(sbuf);
+    }
+  }
+
+  if (query) {
+    /* Add in the QUERY options */
+    buflen = sizeof(buf);
+    res = coap_split_query((const uint8_t*)query, strlen(query), sbuf, &buflen);
+    while (res--) {
+      if (!coap_insert_optlist(&optlist_chain,
+                               coap_new_optlist(COAP_OPTION_URI_QUERY,
+                        coap_opt_length(sbuf), coap_opt_value(sbuf))))
+        goto error;
+      sbuf += coap_opt_size(sbuf);
+    }
+  }
+
+  if (request_code == COAP_REQUEST_GET && observe) {
+    /* Indicate that we want to observe this resource */
+    if (!coap_insert_optlist(&optlist_chain,
+                             coap_new_optlist(COAP_OPTION_OBSERVE,
+                               coap_encode_var_safe(buf, sizeof(buf),
+                               COAP_OBSERVE_ESTABLISH), buf)
+                             ))
+      goto error;
+  }
+
+  /* ... Other code / options etc. ... */
+
+  /* Add in all the options (after internal sorting) to the pdu */
+  if (!coap_add_optlist_pdu(pdu, &optlist_chain))
+    goto error;
+
+  if (data && length) {
+    /* Add in the specified data */
+    if (!coap_add_data_large_request(session, pdu, length, data, NULL, NULL))
+      goto error;
+  }
+
+  if (coap_send(session, pdu) == COAP_INVALID_MID)
+    goto error;
+  return 1;
+
+error:
+
+  if (pdu)
+    coap_delete_pdu(pdu);
+  return 0;
+
+}
+
+int main(int argc, char *argv[]) {
+  coap_context_t *context = NULL;
+  coap_session_t *session = NULL;
+  unsigned char *data = NULL;
+  size_t data_length = 0;
+
+  (void)argc;
+  (void)argv;
+
+  /* ... Set up context, session etc. ... */
+
+  /* Set up using libcoap to do the block work */
+  coap_context_set_block_mode(context,
+                              COAP_BLOCK_USE_LIBCOAP | COAP_BLOCK_SINGLE_BODY);
+
+  /* ... Other code etc. ... */
+
+  /* .. build data and define data_length ... */
+
+  build_send_pdu(context, session, COAP_MESSAGE_CON, COAP_REQUEST_PUT,
+                 "/example/uri", NULL, data, data_length, 0);
+
+  /* ... Other code etc. ... */
+
+  return 0;
+}
+----
+
+*Resource Handler Response PDU Update*
+
+[source, c]
+----
+#include <coap@LIBCOAP_API_VERSION@/coap.h>
+
+#include <stdio.h>
+
+static void
+hnd_get_time(coap_resource_t *resource, coap_session_t *session,
+const coap_pdu_t *request, const coap_string_t *query, coap_pdu_t *response) {
+
+  unsigned char buf[40];
+  size_t len;
+  time_t now;
+
+  /* ... Additional analysis code for resource, request pdu etc.  ... */
+
+  /* After analysis, generate a failure response and return if needed */
+
+  now = time(NULL);
+
+  if (query != NULL && coap_string_equal(query, coap_make_str_const("secs"))) {
+    /* Output secs since Jan 1 1970 */
+    len = snprintf((char *)buf, sizeof(buf), "%lu", now);
+  }
+  else {
+    /* Output human-readable time */
+    struct tm *tmp;
+    tmp = gmtime(&now);
+    if (!tmp) {
+      /* If 'now' is not valid */
+      coap_pdu_set_code(response, COAP_RESPONSE_CODE_NOT_FOUND);
+      return;
+    }
+    len = strftime((char *)buf, sizeof(buf), "%b %d %H:%M:%S", tmp);
+  }
+  coap_pdu_set_code(response, COAP_RESPONSE_CODE_CONTENT);
+  /*
+   * Invoke coap_add_data_large_response() to do all the hard work.
+   * [A good practice, even though ins this case, the amount of data is small]
+   *
+   * Define the format - COAP_MEDIATYPE_TEXT_PLAIN - to add in
+   * Define how long this response is valid for (secs) - 1 - to add in.
+   *
+   * OBSERVE Option added internally if needed within the function
+   * BLOCK2 Option added internally if output too large
+   * SIZE2 Option added internally
+   * ETAG Option added internally
+   */
+  coap_add_data_large_response(resource, session, request, response,
+                               query, COAP_MEDIATYPE_TEXT_PLAIN, 1, 0,
+                               len,
+                               buf,
+                               NULL, NULL);
+}
+
+int main(int argc, char *argv[]) {
+  coap_context_t *context = NULL;
+  coap_resource_t *r;
+  coap_resource_t *time_resource;
+  int not_exit = 1;
+
+  (void)argc;
+  (void)argv;
+
+  /* ... Set up context etc. ... */
+
+  /* Set up using libcoap to do the block work */
+  coap_context_set_block_mode(context,
+                              COAP_BLOCK_USE_LIBCOAP | COAP_BLOCK_SINGLE_BODY);
+
+  /* Create a resource to return time */
+  r = coap_resource_init(coap_make_str_const("time"),
+                         COAP_RESOURCE_FLAGS_NOTIFY_CON);
+  coap_resource_set_get_observable(r, 1);
+  coap_register_handler(r, COAP_REQUEST_GET, hnd_get_time);
+
+  /* Document resource for 'time' request */
+  coap_add_attr(r, coap_make_str_const("ct"), coap_make_str_const("0"), 0);
+  coap_add_attr(r, coap_make_str_const("title"),
+                coap_make_str_const("\"Internal Clock\""), 0);
+  coap_add_attr(r, coap_make_str_const("rt"), coap_make_str_const("\"secs\""),
+                0);
+  coap_add_attr(r, coap_make_str_const("if"), coap_make_str_const("\"clock\""),
+                0);
+
+  coap_add_resource(context, r);
+  time_resource = r;
+
+  /* ... Loop waiting for incoming traffic ... */
+  while (!not_exit) {
+    coap_io_process(context, 1000);
+
+    /* Cause a notification to anyone Observing 'time' */
+    coap_resource_notify_observers(time_resource, NULL);
+  }
+
+  /* Clean up */
+
+  coap_free_context(context);
+  coap_cleanup();
+
+}
+----
+
+SEE ALSO
+--------
+*coap_pdu_setup*(3), *coap_observe*(3), and *coap_resource*(3)
+
+FURTHER INFORMATION
+-------------------
+See
+
+"RFC7252: The Constrained Application Protocol (CoAP)"
+
+"RFC7959: Block-Wise Transfers in the Constrained Application Protocol (CoAP)"
+
+for further information.
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net or raise an issue on GitHub at
+https://github.com/obgm/libcoap/issues
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

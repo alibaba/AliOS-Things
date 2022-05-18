@@ -36,7 +36,10 @@ ATK-AS608指纹识别模块是ALIENTEK推出的一款高性能的光学指纹识
 
 ## 三、软件接口
 
-### AS608(uartObj) - 创建ADS1115驱动对象
+AS608指纹识别模块HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/as608)
+<br>
+
+### AS608(uartObj) - 创建AS608驱动对象
 * 函数原型：
 > fig = AS608(uartObj)
 

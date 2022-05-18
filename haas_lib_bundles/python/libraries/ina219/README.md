@@ -26,6 +26,10 @@ INA219电压电流计可用于测量负载的电压、电流、功率等参数�
 * 支持最大电流：3.2A
 
 ## 三、软件接口
+
+INA219电压电流计HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/ina219)
+<br>
+
 ### INA219(i2cObj) - 创建INA219驱动对象
 * 函数原型：
 > ina219Obj = INA219(i2cObj)

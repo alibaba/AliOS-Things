@@ -1,0 +1,149 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap_context(3)
+===============
+:doctype: manpage
+:man source:   coap_context
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap_context,
+coap_new_context,
+coap_free_context,
+coap_context_set_max_idle_sessions,
+coap_context_get_max_idle_sessions,
+coap_context_set_max_handshake_sessions,
+coap_context_get_max_handshake_sessions,
+coap_context_set_session_timeout,
+coap_context_get_session_timeout,
+coap_context_set_csm_timeout,
+coap_context_get_csm_timeout
+- Work with CoAP contexts
+
+SYNOPSIS
+--------
+*#include <coap@LIBCOAP_API_VERSION@/coap.h>*
+
+*coap_context_t *coap_new_context(const coap_address_t *_listen_addr_);*
+
+*void coap_free_context(coap_context_t *_context_);*
+
+*void coap_context_set_max_idle_sessions(coap_context_t *_context_,
+unsigned int _max_idle_sessions_);*
+
+*unsigned int coap_context_get_max_idle_sessions(
+const coap_context_t *_context_);*
+
+*void coap_context_set_max_handshake_sessions(coap_context_t *_context_,
+unsigned int _max_handshake_sessions_);*
+
+*unsigned int coap_context_get_max_handshake_sessions(
+const coap_context_t *_context_);*
+
+*void coap_context_set_session_timeout(coap_context_t *_context_,
+unsigned int _session_timeout_);*
+
+*unsigned int coap_context_get_session_timeout(
+const coap_context_t *_context_);*
+
+*void coap_context_set_csm_timeout(coap_context_t *_context_,
+unsigned int _csm_timeout_);*
+
+*unsigned int coap_context_get_csm_timeout(const coap_context_t *_context_);*
+
+For specific (D)TLS library support, link with
+*-lcoap-@LIBCOAP_API_VERSION@-notls*, *-lcoap-@LIBCOAP_API_VERSION@-gnutls*,
+*-lcoap-@LIBCOAP_API_VERSION@-openssl*, *-lcoap-@LIBCOAP_API_VERSION@-mbedtls*
+or *-lcoap-@LIBCOAP_API_VERSION@-tinydtls*.   Otherwise, link with
+*-lcoap-@LIBCOAP_API_VERSION@* to get the default (D)TLS library support.
+
+DESCRIPTION
+-----------
+This man page focuses on the CoAP Context and how to update or get information
+from the opaque coap_context_t structure.
+
+The CoAP stack's global state is stored in a coap_context_t Context object.
+Resources, Endpoints and Sessions are associated with this context object.
+There can be more than one coap_context_t object per application, it is up to
+the application to manage each one accordingly.
+
+The *coap_new_context*() function creates a new Context that is then used
+to keep all the CoAP Resources, Endpoints and Sessions information.
+The optional _listen_addr_ parameter, if set for a CoAP server, creates an
+Endpoint that is added to the _context_ that is listening for un-encrypted
+traffic on the IP address and port number defined by _listen_addr_.
+
+The *coap_free_context*() function must be used to release the CoAP stack
+_context_.  It clears all entries from the receive queue and send queue and
+deletes the Resources that have been registered with _context_, and frees the
+attached Sessions and Endpoints.
+
+The *coap_context_set_max_idle_sessions*() function sets the maximum number of
+idle server sessions to _max_idle_sessions_ for _context_.  If this number is
+exceeded, the least recently used server session is completely removed. 0 (the
+initial default) means that the number of idle sessions is not monitored.
+
+The *coap_context_get_max_idle_sessions*() function returns the maximum number
+of idle server sessions for _context_.
+
+The *coap_context_set_max_handshake_sessions*() function sets the maximum
+number of outstanding server sessions in (D)TLS handshake to
+_max_handshake_sessions_ for _context_.  If this number is exceeded, the least
+recently used server session in handshake is completely removed. 0 (the default)
+means that the number of handshakes is not monitored.
+
+The *coap_context_get_max_handshake_sessions*() function returns the maximum
+number of outstanding server sessions in (D)TLS handshake for _context_.
+
+The *coap_context_set_session_timeout*() function sets the number of seconds of
+inactivity to _session_timeout_ for _context_ before an idle server session is
+removed. 0 (the default) means wait for the default of 300 seconds.
+
+The *coap_context_get_session_timeout*() function returns the seconds to wait
+before timing out an idle server session for _context_.
+
+The *coap_context_set_csm_timeout*() function sets the number of seconds to
+wait for a (TCP) CSM negotiation response from the peer to _csm_timeout_ for
+_context_.  0 (the default) means wait forever.
+
+The *coap_context_get_csm_timeout*() function returns the seconds to wait for
+a (TCP) CSM negotiation response from the peer for _context_,
+
+RETURN VALUES
+-------------
+*coap_new_context*() function returns a newly created context or
+NULL if there is a creation failure.
+
+*coap_context_get_max_idle_sessions*() returns the maximum number of idle
+server sessions.
+
+*coap_context_get_max_handshake_sessions*() returns the maximum number of
+outstanding server sessions in (D)TLS handshake.
+
+*coap_context_get_session_timeout*() returns the seconds to wait before timing
+out an idle server session.
+
+*coap_context_get_csm_timeout*() returns the seconds to wait for a (TCP) CSM
+negotiation response from the peer.
+
+SEE ALSO
+--------
+*coap_session*(3)
+
+FURTHER INFORMATION
+-------------------
+See "RFC7252: The Constrained Application Protocol (CoAP)" for further
+information.
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net or raise an issue on GitHub at
+https://github.com/obgm/libcoap/issues
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

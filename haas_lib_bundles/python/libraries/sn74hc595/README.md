@@ -21,6 +21,9 @@ SN74HC595是TI出品的一种能将串行信号转为并行信号芯片，常用
 
 ## 三、软件接口
 
+SN74HC595数码管驱动芯片HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/sn74hc595)
+<br>
+
 ### SN74HC595(rclk, sclk, dio) - 创建SN74HC595驱动对象
 * 函数原型:
 > displayDev = SN74HC595(rclk, sclk, dio)

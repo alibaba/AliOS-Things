@@ -1,0 +1,318 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap_handler(3)
+=================
+:doctype: manpage
+:man source:   coap_handler
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap_handler,
+coap_register_handler,
+coap_register_response_handler,
+coap_register_nack_handler,
+coap_register_ping_handler,
+coap_register_pong_handler,
+coap_register_event_handler
+- Work with CoAP handlers
+
+SYNOPSIS
+--------
+*#include <coap@LIBCOAP_API_VERSION@/coap.h>*
+
+*void coap_register_handler(coap_resource_t *_resource_, coap_request_t
+_method_, coap_method_handler_t _handler_);*
+
+*void coap_register_response_handler(coap_context_t *_context_,
+coap_response_handler_t _handler_)*;
+
+*void coap_register_nack_handler(coap_context_t *_context_,
+coap_nack_handler_t _handler_)*;
+
+*void coap_register_ping_handler(coap_context_t *_context_,
+coap_ping_handler_t _handler_)*;
+
+*void coap_register_pong_handler(coap_context_t *_context_,
+coap_pong_handler_t _handler_)*;
+
+*void coap_register_event_handler(coap_context_t *_context_,
+coap_event_handler_t _handler_)*;
+
+For specific (D)TLS library support, link with
+*-lcoap-@LIBCOAP_API_VERSION@-notls*, *-lcoap-@LIBCOAP_API_VERSION@-gnutls*,
+*-lcoap-@LIBCOAP_API_VERSION@-openssl*, *-lcoap-@LIBCOAP_API_VERSION@-mbedtls*
+or *-lcoap-@LIBCOAP_API_VERSION@-tinydtls*.   Otherwise, link with
+*-lcoap-@LIBCOAP_API_VERSION@* to get the default (D)TLS library support.
+
+DESCRIPTION
+-----------
+
+The *coap_register_handler*() function registers a callback handler _handler_
+that is called when there is a URI match against the _resource_ and there is
+a _method_ (e.g. PUT, POST etc.) match. _method_ can be one of the following.
+----
+COAP_REQUEST_GET
+COAP_REQUEST_POST
+COAP_REQUEST_PUT
+COAP_REQUEST_DELETE
+COAP_REQUEST_FETCH
+COAP_REQUEST_PATCH
+COAP_REQUEST_IPATCH
+----
+
+The method handler function prototype is defined as:
+[source, c]
+----
+typedef void (*coap_method_handler_t)(coap_resource_t *resource,
+                                      coap_session_t *session,
+                                      const coap_pdu_t *incoming_pdu,
+                                      const coap_string_t *query,
+                                      coap_pdu_t *response_pdu);
+----
+
+*NOTE:* _incoming_pdu_ will be NULL for the GET Handler if this is an
+internally generated Observe Response.  *coap_resource_get_uri_path*()
+can be used to determine the URI in this case.
+
+*NOTE:* Any data associated with _incoming_pdu_ is no longer be available after
+exiting this function as _incoming_pdu_ is deleted, unless *coap_add_data*()
+was used to update _response_pdu_ where a copy of the data is taken.  In
+particular _incoming_pdu_'s data must not be used if calling
+*coap_add_data_large_response*().
+
+The *coap_register_response_handler*() function defines a request's response
+_handler_ for traffic associated with the _context_.  The application can use
+this for handling any response packets, including sending a RST packet if this
+response was unexpected.  If _handler_ is NULL, then the handler is
+de-registered.
+
+The response handler function prototype is defined as:
+[source, c]
+----
+typedef enum coap_response_t {
+  COAP_RESPONSE_FAIL, /* Response not liked - send CoAP RST packet */
+  COAP_RESPONSE_OK    /* Response is fine */
+} coap_response_t;
+
+typedef coap_response_t (*coap_response_handler_t)(coap_session_t *session,
+                                                   const coap_pdu_t *sent,
+                                                   const coap_pdu_t *received,
+                                                   const coap_mid_t id);
+----
+
+*NOTE:* _sent_ will only be non NULL when the request PDU is Confirmable and
+this is an ACK or RST response to the request.  In general, matching of
+Requests and Responses whould be done by generating unique Tokens for each Request
+and then matching up based on the Token in _received_ Response.
+
+*NOTE:* If the returned value is COAP_RESPONSE_FAIL, then a CoAP RST packet will get
+sent to the server by libcoap.  The returned value of COAP_RESPONSE_OK indicates
+that all is OK.
+
+The *coap_register_nack_handler*() function defines a request's negative
+response _handler_ for traffic associated with the _context_.
+If _handler_ is NULL, then the handler is de-registered.
+
+The nack handler function prototype is defined as:
+[source, c]
+----
+typedef void (*coap_nack_handler_t)(coap_session_t *session,
+                                    const coap_pdu_t *sent,
+                                    const coap_nack_reason_t reason,
+                                    const coap_mid_t mid);
+----
+NACKs can be one of the following
+----
+COAP_NACK_TOO_MANY_RETRIES
+COAP_NACK_NOT_DELIVERABLE
+COAP_NACK_RST
+COAP_NACK_TLS_FAILED
+COAP_NACK_ICMP_ISSUE
+----
+
+The *coap_register_ping_handler*() function defines a _handler_ for tracking
+receipt of CoAP ping traffic associated with the _context_. If _handler_ is
+NULL, then the handler is de-registered.
+
+The ping handler function prototype is defined as:
+[source, c]
+----
+typedef void (*coap_ping_handler_t)(coap_session_t *session,
+                                    const coap_pdu_t *received,
+                                    const coap_mid_t mid);
+----
+
+The *coap_register_pong_handler*() function defines a _handler_ for tracking
+receipt of CoAP ping response traffic associated with the _context_.
+If _handler_ is NULL, then the handler is de-registered.
+
+The pong handler function prototype is defined as:
+[source, c]
+----
+typedef void (*coap_pong_handler_t)(coap_session_t *session,
+                                    const coap_pdu_t *received,
+                                    const coap_mid_t mid);
+----
+
+The *coap_register_event_handler*() function defines a _handler_ for tracking
+(D)TLS events associated with the _context_. If _handler_ is NULL, then
+the handler is de-registered.
+
+The event handler function prototype is defined as:
+[source, c]
+----
+typedef void (*coap_event_handler_t)(coap_session_t *session,
+                                     const coap_event_t event);
+----
+Events can be one of the following
+----
+/**
+ * (D)TLS events for COAP_PROTO_DTLS and COAP_PROTO_TLS
+ */
+COAP_EVENT_DTLS_CLOSED        0x0000
+COAP_EVENT_DTLS_CONNECTED     0x01DE
+COAP_EVENT_DTLS_RENEGOTIATE   0x01DF
+COAP_EVENT_DTLS_ERROR         0x0200
+/**
+ * TCP events for COAP_PROTO_TCP and COAP_PROTO_TLS
+ */
+COAP_EVENT_TCP_CONNECTED      0x1001
+COAP_EVENT_TCP_CLOSED         0x1002
+COAP_EVENT_TCP_FAILED         0x1003
+/**
+ * CSM exchange events for reliable protocols only
+ */
+COAP_EVENT_SESSION_CONNECTED  0x2001
+COAP_EVENT_SESSION_CLOSED     0x2002
+COAP_EVENT_SESSION_FAILED     0x2003
+----
+
+EXAMPLES
+--------
+*GET Resource Callback Handler*
+
+[source, c]
+----
+#include <coap@LIBCOAP_API_VERSION@/coap.h>
+
+#include <stdio.h>
+
+static void
+hnd_get_time(coap_resource_t *resource, coap_session_t *session,
+coap_pdu_t *request, coap_string_t *query, coap_pdu_t *response) {
+
+  unsigned char buf[40];
+  size_t len;
+  time_t now;
+
+  /* ... Additional analysis code for resource, request pdu etc.  ... */
+
+  /* After analysis, generate a suitable response */
+
+  now = time(NULL);
+
+  if (query != NULL && coap_string_equal(query, coap_make_str_const("secs"))) {
+    /* Output secs since Jan 1 1970 */
+    len = snprintf((char *)buf, sizeof(buf), "%lu", now);
+  }
+  else {
+    /* Output human-readable time */
+    struct tm *tmp;
+    tmp = gmtime(&now);
+    if (!tmp) {
+      /* If 'now' is not valid */
+      coap_pdu_set_code(response, COAP_RESPONSE_CODE_NOT_FOUND);
+      return;
+    }
+    len = strftime((char *)buf, sizeof(buf), "%b %d %H:%M:%S", tmp);
+  }
+  coap_pdu_set_code(response, COAP_RESPONSE_CODE_CONTENT);
+  /*
+   * Invoke coap_add_data_large_response() to do all the hard work.
+   *
+   * Define the format - COAP_MEDIATYPE_TEXT_PLAIN - to add in
+   * Define how long this response is valid for (secs) - 1 - to add in.
+   *
+   * OBSERVE Option added internally if needed within the function
+   * BLOCK2 Option added internally if output too large
+   * ETAG Option added internally
+   */
+  coap_add_data_large_response(resource, session, request, response,
+                               query, COAP_MEDIATYPE_TEXT_PLAIN, 1, 0,
+                               len,
+                               buf, NULL, 0);
+
+}
+----
+*Packet Response Handler*
+
+[source, c]
+----
+#include <coap@LIBCOAP_API_VERSION@/coap.h>
+
+static int check_token(coap_pdu_t *received) {
+  /* Remove (void) definition if variable is used */
+  (void)received;
+
+  /* Code to validate the token is what we expect */
+
+  return 1;
+}
+
+static coap_response_t
+response_handler(coap_context_t *ctx, coap_session_t *session,
+coap_pdu_t *sent, coap_pdu_t *received, const coap_mid_t mid) {
+  /* Remove (void) definition if variable is used */
+  (void)ctx;
+  (void)session;
+  (void)mid;
+  coap_pdu_type_t rcv_type = coap_pdu_get_type(received);
+  coap_pdu_code_t rcv_code = coap_pdu_get_code(received);
+
+  /* check if this is a response to our original request */
+  if (!check_token(received)) {
+    /* drop if this was just some message, or send RST in case of notification */
+    if (!sent && (rcv_type == COAP_MESSAGE_CON ||
+                  rcv_type == COAP_MESSAGE_NON)) {
+      /* Cause a CoAP RST to be sent */
+      return COAP_RESPONSE_FAIL;
+    }
+    return COAP_RESPONSE_OK;
+  }
+
+  if (rcv_type == COAP_MESSAGE_RST) {
+    coap_log(LOG_INFO, "got RST\n");
+    return COAP_RESPONSE_OK;
+  }
+
+  /* Output the received data, if any */
+  if (COAP_RESPONSE_CLASS(rcv_code) == 2) {
+    /* Additional code to deal with the response */
+
+  }
+  return COAP_RESPONSE_OK;
+
+}
+----
+
+SEE ALSO
+--------
+*coap_block*(3), *coap_observe*(3) and *coap_resource*(3)
+
+FURTHER INFORMATION
+-------------------
+See "RFC7252: The Constrained Application Protocol (CoAP)" for further
+information.
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net or raise an issue on GitHub at
+https://github.com/obgm/libcoap/issues
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

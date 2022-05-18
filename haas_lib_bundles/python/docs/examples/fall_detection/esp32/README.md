@@ -403,13 +403,13 @@ M5StackCore2 开发板一套，已内置 MPU6886 传感器，无需外接传感�
 如下图所示，打开 VS Code 之后在新建一个基于 hellworld 的 python 工程，设定好工程名称（`fall_detection`）及工作区路径之后，硬件类型选择 M5StackCore2，点击立即创建，创建一个 Python 轻应用的解决方案。
 
 <div align="center">
-<img src=./../../../images/跌倒检测系统_esp32_1.png width=40%/>
+<img src=./../../../images/跌倒检测系统_esp32_1.png width=80%/>
 </div>
 
 ### 案例代码
 
 &emsp;&emsp;
-将[fall_detection](./code/)文件夹下所有脚本代码复制后，覆盖刚创建的`fall_detection`工程根目录下的文件。main.py代码区如下图所示：
+将[fall_detection](./code/)文件夹下所有脚本代码复制后，覆盖刚创建的`fall_detection`工程根目录下的文件其中比较核心的部分是[motion模块](../../haas_extended_api/../../haas_extended_api/motion.md)。main.py代码如下所示：
 
 <div align="center">
 <img src=./../../../images/跌倒检测系统_esp32_2.png width=80%/>
@@ -429,7 +429,7 @@ wifiPassword = "请填写您的路由器密码"
 ```
 
 &emsp;&emsp;
-修改完成之后 get_wifi_status 函数中的 nm.connect(wifiSsid, wifiPassword) 语句就会连接读者自己设定的路由器。
+修改完成之后 get_wifi_status 函数中的 wlan.connect(wifiSsid, wifiPassword) 语句就会连接读者自己设定的路由器。
 
 2. **修改设备端三元组**
 
@@ -447,6 +447,23 @@ wifiPassword = "请填写您的路由器密码"
 main.py中下面的代码实现的是上传跌倒状态到云端的功能。其中 isFall 便是将跌倒状态上报云端所用的标识符。
 
 ```python
+def get_data():
+    acc = mpu6886Dev.acceleration
+    gyro = mpu6886Dev.gyro
+    # print(acc)
+    # print(gyro)
+    return acc, gyro                    # 返回读取到的加速度、角速度值
+
+def fall_detected():
+    upload_data = {'params': ujson.dumps({
+            'isFall': 1,
+        })
+    }
+    # 上传状态到物联网平台
+    if (iot_connected):
+        device.postProps(upload_data)
+
+if __name__ == '__main__':
     # 网络初始化
     wlan = network.WLAN(network.STA_IF)    #创建WLAN对象
     get_wifi_status()
@@ -455,29 +472,21 @@ main.py中下面的代码实现的是上传跌倒状态到云端的功能。其�
     # 硬件初始化
     i2cObj = I2C()
     i2cObj.open("mpu6886")                 # 按照board.json中名为"mpu6886"的设备节点的配置参数（主设备I2C端口号，从设备地址，总线频率等）初始化I2C类型设备对象
-    if not isinstance(i2cObj, I2C):
-        raise ValueError("parameter is not an I2C object")
     print("mpu6886 inited!")
     mpu6886Dev = mpu6886.MPU6886(i2cObj)   # 初始化MPU6886传感器
 
-    # 跌倒检测算法初始化
-    fallDetection = fall_detection.fall_detection(mpu6886Dev)
-    fallDetection.calibrate()              # 校准传感器
+    # 获取跌倒检测的motion实例
+    motionObj = motion.Motion("fall", get_data, fall_detected)
 
-    # 跌倒检测循环
-    while True:
-        fall = fallDetection.detect_fall() # 检测是否跌倒
-        if (fall==True):                   # in event of a fall detection
-            print("FALL DETECTED using MPU sensor")
-            upload_data = {'params': ujson.dumps({
-                'isFall': 1,
-                })
-            }
-            # 上传跌倒状态到物联网平台
-            device.postProps(upload_data)
-        utime.sleep_us(10)
-    i2cObj.close()                                      # 关闭I2C设备对象
-    del mpu6886Dev
+    # 使能action检测，并以Dictionary格式传入灵敏度参数
+    sensitivity = { "ACCELERATION_LOW_THREADHOLD" : 4, "ACCELERATION_UP_THREADHOLD" : 30, "ANGULAR_VELOCITY_LOW_THREADHOLD" : 1, "ANGULAR_VELOCITY_UP_THREADHOLD" : 10 }
+    motionObj.enable(sensitivity)
+
+    # 关闭action检测，可再次使能，支持传入新的灵敏度
+    # motionObj.disable()
+
+    # i2cObj.close()                                      # 关闭I2C设备对象
+    # del mpu6886Dev
 
 ```
 
@@ -548,12 +557,12 @@ success to establish tcp, fd=54
 sleep for 2s
 mpu6886 inited!
 Now you can start fall detection!
-FALL DETECTED using MPU sensor
-FALL DETECTED using MPU sensor
-FALL DETECTED using MPU sensor
+fall detected!
+fall detected!
+fall detected!
 ```
 
-当打印“Now you can start fall detection!”后，即可开始进行跌倒检测。打印“FALL DETECTED using MPU sensor”表示检测到一次“跌倒动作”，同时我们也会收到钉钉端机器人的相关通知。
+当打印“Now you can start fall detection!”后，即可开始进行跌倒检测。打印“fall detected!”表示检测到一次“跌倒动作”，同时我们也会收到钉钉端机器人的相关通知。
 
 <div align="center">
 <img src=./../../../images/跌倒检测系统_iotstudio_业务逻辑开发_钉钉发生跌倒通知.png width=50%/>
@@ -573,4 +582,4 @@ FALL DETECTED using MPU sensor
 <br>
 
 &emsp;&emsp;
-到此为止，跌倒检测系统的案例就已经完成了。感谢您的阅读!
+到此为止，跌倒检测系统的案例就已经完成了。如果想学习更多实验，请参考[HaaS案例实践详解](https://gitee.com/haasedu/haasedu/tree/release_2.0)。

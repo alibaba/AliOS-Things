@@ -1,0 +1,99 @@
+#!/usr/bin/expect -f
+#
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+source "tests/scripts/expect/_common.exp"
+
+spawn_node 1
+setup_leader
+
+set pskd "J01NME"
+set discerner "0xabc/12"
+
+send "netdata typo check $discerner\n"
+expect "InvalidCommand"
+send "netdata steeringdata typo $discerner\n"
+expect "InvalidArgs"
+send "netdata steeringdata check $discerner/0\n"
+expect "InvalidArgs"
+send "netdata steeringdata check $discerner\n"
+expect "InvalidState"
+send "commissioner start\n"
+expect_line "Done"
+expect "Commissioner: active"
+send "commissioner joiner add 1/0 $pskd\n"
+expect "InvalidArgs"
+send "netdata steeringdata check 0xabc/12\n"
+expect "NotFound"
+send "commissioner joiner add $discerner $pskd\n"
+expect_line "Done"
+wait_for "netdata steeringdata check $discerner" "Done"
+send "commissioner joiner remove $discerner\n"
+expect_line "Done"
+wait_for "netdata steeringdata check $discerner" "NotFound"
+send "commissioner joiner add $discerner $pskd\n"
+expect_line "Done"
+
+spawn_node 2
+
+send "mode r\n"
+expect_line "Done"
+send "ifconfig up\n"
+expect_line "Done"
+send "joiner discerner\n"
+expect "NotFound"
+send "joiner discerner 1/1 2\n"
+expect "InvalidArgs"
+send "joiner discerner 1\n"
+expect "InvalidArgs"
+send "joiner discerner 1/\n"
+expect "InvalidArgs"
+send "joiner discerner 1/128\n"
+expect "InvalidArgs"
+send "joiner discerner 1/-1\n"
+expect "InvalidArgs"
+send "joiner discerner 1/0\n"
+expect "InvalidArgs"
+send "joiner discerner invalid/20\n"
+expect "InvalidArgs"
+send "joiner discerner clear\n"
+expect_line "Done"
+send "joiner discerner $discerner\n"
+expect_line "Done"
+send "joiner discerner\n"
+expect "$discerner"
+expect_line "Done"
+send "joiner start $pskd\n"
+expect_line "Done"
+wait_for "" "Join success" "Join failed"
+send "thread start\n"
+expect_line "Done"
+wait_for "state" "child"
+expect_line "Done"
+
+dispose_all

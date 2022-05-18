@@ -1,0 +1,806 @@
+menu "Power system configuration (AXP192)"
+
+menu "Output control"
+    config AXP192_DCDC13_LDO23_CONTROL_BIT6_SELECTED
+        bool "Enable EXTEN"
+    config AXP192_DCDC13_LDO23_CONTROL_BIT4_SELECTED
+        bool "Enable DC-DC2"
+    config AXP192_DCDC13_LDO23_CONTROL_BIT3_SELECTED
+        bool "Enable LDO3"
+    config AXP192_DCDC13_LDO23_CONTROL_BIT2_SELECTED
+        bool "Enable LDO2"
+    config AXP192_GPIO0_CONTROL_LDOIO0_SELECTED
+        bool "Enable LDOIO0"
+    config AXP192_DCDC13_LDO23_CONTROL_BIT1_SELECTED
+        bool "Enable DC-DC3"
+    config AXP192_DCDC13_LDO23_CONTROL_BIT0_SELECTED
+        bool "Enable DC-DC1"
+endmenu
+
+config AXP192_EXTEN_DCDC2_CONTROL_BIT2
+    hex
+    default 0x00 if !AXP192_DCDC13_LDO23_CONTROL_BIT6_SELECTED
+    default 0x04 if AXP192_DCDC13_LDO23_CONTROL_BIT6_SELECTED
+
+config AXP192_EXTEN_DCDC2_CONTROL_BIT0
+    hex
+    default 0x00 if !AXP192_DCDC13_LDO23_CONTROL_BIT4_SELECTED
+    default 0x01 if AXP192_DCDC13_LDO23_CONTROL_BIT4_SELECTED
+
+config AXP192_DCDC13_LDO23_CONTROL_BIT6
+    hex
+    default 0x00 if !AXP192_DCDC13_LDO23_CONTROL_BIT6_SELECTED
+    default 0x40 if AXP192_DCDC13_LDO23_CONTROL_BIT6_SELECTED
+
+config AXP192_DCDC13_LDO23_CONTROL_BIT4
+    hex
+    default 0x00 if !AXP192_DCDC13_LDO23_CONTROL_BIT4_SELECTED
+    default 0x10 if AXP192_DCDC13_LDO23_CONTROL_BIT4_SELECTED
+
+config AXP192_DCDC13_LDO23_CONTROL_BIT3
+    hex
+    default 0x00 if !AXP192_DCDC13_LDO23_CONTROL_BIT3_SELECTED
+    default 0x08 if AXP192_DCDC13_LDO23_CONTROL_BIT3_SELECTED
+
+config AXP192_DCDC13_LDO23_CONTROL_BIT2
+    hex
+    default 0x00 if !AXP192_DCDC13_LDO23_CONTROL_BIT2_SELECTED
+    default 0x04 if AXP192_DCDC13_LDO23_CONTROL_BIT2_SELECTED
+
+config AXP192_GPIO0_CONTROL_BIT20
+    hex
+    default 0x07 if !AXP192_GPIO0_CONTROL_LDOIO0_SELECTED
+    default 0x02 if AXP192_GPIO0_CONTROL_LDOIO0_SELECTED
+
+config AXP192_DCDC13_LDO23_CONTROL_BIT1
+    hex
+    default 0x00 if !AXP192_DCDC13_LDO23_CONTROL_BIT1_SELECTED
+    default 0x02 if AXP192_DCDC13_LDO23_CONTROL_BIT1_SELECTED
+
+config AXP192_DCDC13_LDO23_CONTROL_BIT0
+    hex
+    default 0x00 if !AXP192_DCDC13_LDO23_CONTROL_BIT0_SELECTED
+    default 0x01 if AXP192_DCDC13_LDO23_CONTROL_BIT0_SELECTED
+
+menu "Output voltage"
+
+    config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74
+        hex
+        default 0x00 if !AXP192_GPIO0_CONTROL_LDOIO0_SELECTED
+
+    config AXP192_LDO23_VOLTAGE_BIT74
+        hex
+        default 0x00 if !AXP192_GPIO0_CONTROL_LDOIO0_SELECTED
+
+    config AXP192_LDO23_VOLTAGE_BIT30
+        hex
+        default 0x00 if !AXP192_GPIO0_CONTROL_LDOIO0_SELECTED
+
+    config AXP192_DCDC1_VOLTAGE_BIT60
+        hex
+        default 0x00 if !AXP192_DCDC13_LDO23_CONTROL_BIT0_SELECTED
+
+    config AXP192_DCDC3_VOLTAGE_BIT60
+        hex
+        default 0x00 if !AXP192_DCDC13_LDO23_CONTROL_BIT1_SELECTED
+
+    if AXP192_GPIO0_CONTROL_LDOIO0_SELECTED
+
+        choice AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74
+            prompt "LDOIO0 output voltage"
+            default AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_3V0
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_1V8
+                bool "1.8V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_1V9
+                bool "1.9V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V0
+                bool "2.0V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V1
+                bool "2.1V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V2
+                bool "2.2V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V3
+                bool "2.3V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V3
+                bool "2.4V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V4
+                bool "2.5V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V5
+                bool "2.6V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V6
+                bool "2.6V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V7
+                bool "2.7V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V8
+                bool "2.8V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V9
+                bool "2.9V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_3V0
+                bool "3.0V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_3V1
+                bool "3.1V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_3V2
+                bool "3.2V"
+            config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_3V3
+                bool "3.3V"
+        endchoice
+
+        config AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74
+            hex
+            default 0x00 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_1V8
+            default 0x10 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_1V9
+            default 0x20 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V0
+            default 0x30 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V1
+            default 0x40 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V2
+            default 0x50 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V3
+            default 0x60 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V4
+            default 0x70 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V5
+            default 0x80 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V6
+            default 0x90 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V7
+            default 0xa0 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V8
+            default 0xb0 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_2V9
+            default 0xc0 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_3V0
+            default 0xd0 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_3V1
+            default 0xe0 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_3V2
+            default 0xf0 if AXP192_GPIO0_LDOIO0_VOLTAGE_BIT74_3V3
+    endif
+
+    choice AXP192_LDO23_VOLTAGE_BIT74
+        prompt "LDO2 output voltage"
+        default AXP192_LDO23_VOLTAGE_BIT74_3V0
+        config AXP192_LDO23_VOLTAGE_BIT74_1V8
+            bool "1.8V"
+        config AXP192_LDO23_VOLTAGE_BIT74_1V9
+            bool "1.9V"
+        config AXP192_LDO23_VOLTAGE_BIT74_2V0
+            bool "2.0V"
+        config AXP192_LDO23_VOLTAGE_BIT74_2V1
+            bool "2.1V"
+        config AXP192_LDO23_VOLTAGE_BIT74_2V2
+            bool "2.2V"
+        config AXP192_LDO23_VOLTAGE_BIT74_2V3
+            bool "2.3V"
+        config AXP192_LDO23_VOLTAGE_BIT74_2V3
+            bool "2.4V"
+        config AXP192_LDO23_VOLTAGE_BIT74_2V4
+            bool "2.5V"
+        config AXP192_LDO23_VOLTAGE_BIT74_2V5
+            bool "2.6V"
+        config AXP192_LDO23_VOLTAGE_BIT74_2V6
+            bool "2.6V"
+        config AXP192_LDO23_VOLTAGE_BIT74_2V7
+            bool "2.7V"
+        config AXP192_LDO23_VOLTAGE_BIT74_2V8
+            bool "2.8V"
+        config AXP192_LDO23_VOLTAGE_BIT74_2V9
+            bool "2.9V"
+        config AXP192_LDO23_VOLTAGE_BIT74_3V0
+            bool "3.0V"
+        config AXP192_LDO23_VOLTAGE_BIT74_3V1
+            bool "3.1V"
+        config AXP192_LDO23_VOLTAGE_BIT74_3V2
+            bool "3.2V"
+        config AXP192_LDO23_VOLTAGE_BIT74_3V3
+            bool "3.3V"
+    endchoice
+
+    config AXP192_LDO23_VOLTAGE_BIT74
+        hex
+        default 0x00 if AXP192_LDO23_VOLTAGE_BIT74_1V8
+        default 0x10 if AXP192_LDO23_VOLTAGE_BIT74_1V9
+        default 0x20 if AXP192_LDO23_VOLTAGE_BIT74_2V0
+        default 0x30 if AXP192_LDO23_VOLTAGE_BIT74_2V1
+        default 0x40 if AXP192_LDO23_VOLTAGE_BIT74_2V2
+        default 0x50 if AXP192_LDO23_VOLTAGE_BIT74_2V3
+        default 0x60 if AXP192_LDO23_VOLTAGE_BIT74_2V4
+        default 0x70 if AXP192_LDO23_VOLTAGE_BIT74_2V5
+        default 0x80 if AXP192_LDO23_VOLTAGE_BIT74_2V6
+        default 0x90 if AXP192_LDO23_VOLTAGE_BIT74_2V7
+        default 0xa0 if AXP192_LDO23_VOLTAGE_BIT74_2V8
+        default 0xb0 if AXP192_LDO23_VOLTAGE_BIT74_2V9
+        default 0xc0 if AXP192_LDO23_VOLTAGE_BIT74_3V0
+        default 0xd0 if AXP192_LDO23_VOLTAGE_BIT74_3V1
+        default 0xe0 if AXP192_LDO23_VOLTAGE_BIT74_3V2
+        default 0xf0 if AXP192_LDO23_VOLTAGE_BIT74_3V3
+
+    choice AXP192_LDO23_VOLTAGE_BIT30
+        prompt "LDO3 output voltage"
+        default AXP192_LDO23_VOLTAGE_BIT30_3V0
+        config AXP192_LDO23_VOLTAGE_BIT30_1V8
+            bool "1.8V"
+        config AXP192_LDO23_VOLTAGE_BIT30_1V9
+            bool "1.9V"
+        config AXP192_LDO23_VOLTAGE_BIT30_2V0
+            bool "2.0V"
+        config AXP192_LDO23_VOLTAGE_BIT30_2V1
+            bool "2.1V"
+        config AXP192_LDO23_VOLTAGE_BIT30_2V2
+            bool "2.2V"
+        config AXP192_LDO23_VOLTAGE_BIT30_2V3
+            bool "2.3V"
+        config AXP192_LDO23_VOLTAGE_BIT30_2V3
+            bool "2.4V"
+        config AXP192_LDO23_VOLTAGE_BIT30_2V4
+            bool "2.5V"
+        config AXP192_LDO23_VOLTAGE_BIT30_2V5
+            bool "2.6V"
+        config AXP192_LDO23_VOLTAGE_BIT30_2V6
+            bool "2.6V"
+        config AXP192_LDO23_VOLTAGE_BIT30_2V7
+            bool "2.7V"
+        config AXP192_LDO23_VOLTAGE_BIT30_2V8
+            bool "2.8V"
+        config AXP192_LDO23_VOLTAGE_BIT30_2V9
+            bool "2.9V"
+        config AXP192_LDO23_VOLTAGE_BIT30_3V0
+            bool "3.0V"
+        config AXP192_LDO23_VOLTAGE_BIT30_3V1
+            bool "3.1V"
+        config AXP192_LDO23_VOLTAGE_BIT30_3V2
+            bool "3.2V"
+        config AXP192_LDO23_VOLTAGE_BIT30_3V3
+            bool "3.3V"
+    endchoice
+
+    config AXP192_LDO23_VOLTAGE_BIT30
+        hex
+        default 0x00 if AXP192_LDO23_VOLTAGE_BIT30_1V8
+        default 0x01 if AXP192_LDO23_VOLTAGE_BIT30_1V9
+        default 0x02 if AXP192_LDO23_VOLTAGE_BIT30_2V0
+        default 0x03 if AXP192_LDO23_VOLTAGE_BIT30_2V1
+        default 0x04 if AXP192_LDO23_VOLTAGE_BIT30_2V2
+        default 0x05 if AXP192_LDO23_VOLTAGE_BIT30_2V3
+        default 0x06 if AXP192_LDO23_VOLTAGE_BIT30_2V4
+        default 0x07 if AXP192_LDO23_VOLTAGE_BIT30_2V5
+        default 0x08 if AXP192_LDO23_VOLTAGE_BIT30_2V6
+        default 0x09 if AXP192_LDO23_VOLTAGE_BIT30_2V7
+        default 0x0a if AXP192_LDO23_VOLTAGE_BIT30_2V8
+        default 0x0b if AXP192_LDO23_VOLTAGE_BIT30_2V9
+        default 0x0c if AXP192_LDO23_VOLTAGE_BIT30_3V0
+        default 0x0d if AXP192_LDO23_VOLTAGE_BIT30_3V1
+        default 0x0e if AXP192_LDO23_VOLTAGE_BIT30_3V2
+        default 0x0f if AXP192_LDO23_VOLTAGE_BIT30_3V3
+
+    if AXP192_DCDC13_LDO23_CONTROL_BIT0_SELECTED
+
+        choice AXP192_DCDC1_VOLTAGE_BIT60
+            prompt "DC-DC1 output voltage"
+            default AXP192_DCDC1_VOLTAGE_BIT60_3V0
+
+            config AXP192_DCDC1_VOLTAGE_BIT60_0V7
+                bool "0.7V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_0V8
+                bool "0.8V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_0V9
+                bool "0.9V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_1V0
+                bool "1.0V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_1V1
+                bool "1.1V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_1V2
+                bool "1.2V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_1V3
+                bool "1.3V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_1V4
+                bool "1.4V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_1V5
+                bool "1.5V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_1V6
+                bool "1.6V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_1V7
+                bool "1.7V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_1V8
+                bool "1.8"
+            config AXP192_DCDC1_VOLTAGE_BIT60_1V9
+                bool "1.9V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_2V0
+                bool "2.0V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_2V1
+                bool "2.1V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_2V2
+                bool "2.2V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_2V3
+                bool "2.3V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_2V4
+                bool "2.4V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_2V5
+                bool "2.5V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_2V6
+                bool "2.6V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_2V7
+                bool "2.7V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_2V8
+                bool "2.8V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_2V9
+                bool "2.9V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_3V0
+                bool "3.0V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_3V1
+                bool "3.1V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_3V2
+                bool "3.2V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_3V3
+                bool "3.3V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_3V4
+                bool "3.4V"
+            config AXP192_DCDC1_VOLTAGE_BIT60_3V5
+                bool "3.5V"
+        endchoice
+
+        config AXP192_DCDC1_VOLTAGE_BIT60
+            hex
+            default 0x00 if AXP192_DCDC1_VOLTAGE_BIT60_0V7
+            default 0x04 if AXP192_DCDC1_VOLTAGE_BIT60_0V8
+            default 0x08 if AXP192_DCDC1_VOLTAGE_BIT60_0V9
+            default 0x0c if AXP192_DCDC1_VOLTAGE_BIT60_1V0
+            default 0x10 if AXP192_DCDC1_VOLTAGE_BIT60_1V1
+            default 0x14 if AXP192_DCDC1_VOLTAGE_BIT60_1V2
+            default 0x18 if AXP192_DCDC1_VOLTAGE_BIT60_1V3
+            default 0x1c if AXP192_DCDC1_VOLTAGE_BIT60_1V4
+            default 0x20 if AXP192_DCDC1_VOLTAGE_BIT60_1V5
+            default 0x24 if AXP192_DCDC1_VOLTAGE_BIT60_1V6
+            default 0x28 if AXP192_DCDC1_VOLTAGE_BIT60_1V7
+            default 0x2c if AXP192_DCDC1_VOLTAGE_BIT60_1V8
+            default 0x30 if AXP192_DCDC1_VOLTAGE_BIT60_1V9
+            default 0x34 if AXP192_DCDC1_VOLTAGE_BIT60_2V0
+            default 0x38 if AXP192_DCDC1_VOLTAGE_BIT60_2V1
+            default 0x3c if AXP192_DCDC1_VOLTAGE_BIT60_2V2
+            default 0x40 if AXP192_DCDC1_VOLTAGE_BIT60_2V3
+            default 0x44 if AXP192_DCDC1_VOLTAGE_BIT60_2V4
+            default 0x48 if AXP192_DCDC1_VOLTAGE_BIT60_2V5
+            default 0x4c if AXP192_DCDC1_VOLTAGE_BIT60_2V6
+            default 0x50 if AXP192_DCDC1_VOLTAGE_BIT60_2V7
+            default 0x54 if AXP192_DCDC1_VOLTAGE_BIT60_2V8
+            default 0x58 if AXP192_DCDC1_VOLTAGE_BIT60_2V9
+            default 0x5c if AXP192_DCDC1_VOLTAGE_BIT60_3V0
+            default 0x60 if AXP192_DCDC1_VOLTAGE_BIT60_3V1
+            default 0x64 if AXP192_DCDC1_VOLTAGE_BIT60_3V2
+            default 0x68 if AXP192_DCDC1_VOLTAGE_BIT60_3V3
+            default 0x6c if AXP192_DCDC1_VOLTAGE_BIT60_3V4
+            default 0x70 if AXP192_DCDC1_VOLTAGE_BIT60_3V5
+    endif
+
+    if AXP192_DCDC13_LDO23_CONTROL_BIT1_SELECTED
+
+        choice AXP192_DCDC3_VOLTAGE_BIT60
+            prompt "DC-DC3 output voltage"
+            default AXP192_DCDC3_VOLTAGE_BIT60_3V0
+
+            config AXP192_DCDC3_VOLTAGE_BIT60_0V7
+                bool "0.7V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_0V8
+                bool "0.8V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_0V9
+                bool "0.9V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_1V0
+                bool "1.0V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_1V1
+                bool "1.1V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_1V2
+                bool "1.2V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_1V3
+                bool "1.3V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_1V4
+                bool "1.4V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_1V5
+                bool "1.5V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_1V6
+                bool "1.6V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_1V7
+                bool "1.7V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_1V8
+                bool "1.8"
+            config AXP192_DCDC3_VOLTAGE_BIT60_1V9
+                bool "1.9V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_2V0
+                bool "2.0V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_2V1
+                bool "2.1V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_2V2
+                bool "2.2V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_2V3
+                bool "2.3V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_2V4
+                bool "2.4V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_2V5
+                bool "2.5V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_2V6
+                bool "2.6V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_2V7
+                bool "2.7V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_2V8
+                bool "2.8V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_2V9
+                bool "2.9V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_3V0
+                bool "3.0V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_3V1
+                bool "3.1V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_3V2
+                bool "3.2V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_3V3
+                bool "3.3V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_3V4
+                bool "3.4V"
+            config AXP192_DCDC3_VOLTAGE_BIT60_3V5
+                bool "3.5V"
+        endchoice
+
+        config AXP192_DCDC3_VOLTAGE_BIT60
+            hex
+            default 0x00 if AXP192_DCDC3_VOLTAGE_BIT60_0V7
+            default 0x04 if AXP192_DCDC3_VOLTAGE_BIT60_0V8
+            default 0x08 if AXP192_DCDC3_VOLTAGE_BIT60_0V9
+            default 0x0c if AXP192_DCDC3_VOLTAGE_BIT60_1V0
+            default 0x10 if AXP192_DCDC3_VOLTAGE_BIT60_1V1
+            default 0x14 if AXP192_DCDC3_VOLTAGE_BIT60_1V2
+            default 0x18 if AXP192_DCDC3_VOLTAGE_BIT60_1V3
+            default 0x1c if AXP192_DCDC3_VOLTAGE_BIT60_1V4
+            default 0x20 if AXP192_DCDC3_VOLTAGE_BIT60_1V5
+            default 0x24 if AXP192_DCDC3_VOLTAGE_BIT60_1V6
+            default 0x28 if AXP192_DCDC3_VOLTAGE_BIT60_1V7
+            default 0x2c if AXP192_DCDC3_VOLTAGE_BIT60_1V8
+            default 0x30 if AXP192_DCDC3_VOLTAGE_BIT60_1V9
+            default 0x34 if AXP192_DCDC3_VOLTAGE_BIT60_2V0
+            default 0x38 if AXP192_DCDC3_VOLTAGE_BIT60_2V1
+            default 0x3c if AXP192_DCDC3_VOLTAGE_BIT60_2V2
+            default 0x40 if AXP192_DCDC3_VOLTAGE_BIT60_2V3
+            default 0x44 if AXP192_DCDC3_VOLTAGE_BIT60_2V4
+            default 0x48 if AXP192_DCDC3_VOLTAGE_BIT60_2V5
+            default 0x4c if AXP192_DCDC3_VOLTAGE_BIT60_2V6
+            default 0x50 if AXP192_DCDC3_VOLTAGE_BIT60_2V7
+            default 0x54 if AXP192_DCDC3_VOLTAGE_BIT60_2V8
+            default 0x58 if AXP192_DCDC3_VOLTAGE_BIT60_2V9
+            default 0x5c if AXP192_DCDC3_VOLTAGE_BIT60_3V0
+            default 0x60 if AXP192_DCDC3_VOLTAGE_BIT60_3V1
+            default 0x64 if AXP192_DCDC3_VOLTAGE_BIT60_3V2
+            default 0x68 if AXP192_DCDC3_VOLTAGE_BIT60_3V3
+            default 0x6c if AXP192_DCDC3_VOLTAGE_BIT60_3V4
+            default 0x70 if AXP192_DCDC3_VOLTAGE_BIT60_3V5
+    endif
+
+endmenu
+
+menu "ADC control"
+    config AXP192_ADC_ENABLE_1_BIT7_SELECTED
+        bool "Enable BAT boltage ADC"
+    config AXP192_ADC_ENABLE_1_BIT6_SELECTED
+        bool "Enable BAT current ADC"
+    config AXP192_ADC_ENABLE_1_BIT5_SELECTED
+        bool "Enable ACIN voltage ADC"
+    config AXP192_ADC_ENABLE_1_BIT4_SELECTED
+        bool "Enable ACIN current ADC"
+    config AXP192_ADC_ENABLE_1_BIT3_SELECTED
+        bool "Enable VBUS voltage ADC"
+    config AXP192_ADC_ENABLE_1_BIT2_SELECTED
+        bool "Enable VBUS current ADC"
+    config AXP192_ADC_ENABLE_1_BIT1_SELECTED
+        bool "Enable APS voltage ADC"
+    config AXP192_ADC_ENABLE_1_BIT0_SELECTED
+        bool "Enable TS ADC"
+endmenu
+
+config AXP192_ADC_ENABLE_1_BIT7
+    hex
+    default 0x00 if !AXP192_ADC_ENABLE_1_BIT7_SELECTED
+    default 0x80 if AXP192_ADC_ENABLE_1_BIT7_SELECTED
+
+config AXP192_ADC_ENABLE_1_BIT6
+    hex
+    default 0x00 if !AXP192_ADC_ENABLE_1_BIT6_SELECTED
+    default 0x40 if AXP192_ADC_ENABLE_1_BIT6_SELECTED
+
+config AXP192_ADC_ENABLE_1_BIT5
+    hex
+    default 0x00 if !AXP192_ADC_ENABLE_1_BIT5_SELECTED
+    default 0x20 if AXP192_ADC_ENABLE_1_BIT5_SELECTED
+
+config AXP192_ADC_ENABLE_1_BIT4
+    hex
+    default 0x00 if !AXP192_ADC_ENABLE_1_BIT4_SELECTED
+    default 0x10 if AXP192_ADC_ENABLE_1_BIT4_SELECTED
+
+config AXP192_ADC_ENABLE_1_BIT3
+    hex
+    default 0x00 if !AXP192_ADC_ENABLE_1_BIT3_SELECTED
+    default 0x08 if AXP192_ADC_ENABLE_1_BIT3_SELECTED
+
+config AXP192_ADC_ENABLE_1_BIT2
+    hex
+    default 0x00 if !AXP192_ADC_ENABLE_1_BIT2_SELECTED
+    default 0x04 if AXP192_ADC_ENABLE_1_BIT2_SELECTED
+
+config AXP192_ADC_ENABLE_1_BIT1
+    hex
+    default 0x00 if !AXP192_ADC_ENABLE_1_BIT1_SELECTED
+    default 0x02 if AXP192_ADC_ENABLE_1_BIT1_SELECTED
+
+config AXP192_ADC_ENABLE_1_BIT0
+    hex
+    default 0x00 if !AXP192_ADC_ENABLE_1_BIT0_SELECTED
+    default 0x01 if AXP192_ADC_ENABLE_1_BIT0_SELECTED
+
+
+menu "Charge control"
+    config AXP192_CHARGE_CONTROL_1_BIT7_SELECTED
+        bool "Enable main battery charging"
+
+        config AXP192_CHARGE_CONTROL_1_BIT7
+            hex
+            default 0x00 if !AXP192_CHARGE_CONTROL_1_BIT7_SELECTED
+            default 0x80 if AXP192_CHARGE_CONTROL_1_BIT7_SELECTED
+
+        config AXP192_CHARGE_CONTROL_1_BIT65
+            hex
+            default 0x00 if !AXP192_CHARGE_CONTROL_1_BIT7_SELECTED
+
+        config AXP192_CHARGE_CONTROL_1_BIT30
+            hex
+            default 0x00 if !AXP192_CHARGE_CONTROL_1_BIT7_SELECTED
+
+        config AXP192_CHARGE_CONTROL_1_BIT4
+            hex
+            default 0x00 if !AXP192_CHARGE_CONTROL_1_BIT7_SELECTED
+
+        if AXP192_CHARGE_CONTROL_1_BIT7_SELECTED
+
+            choice AXP192_CHARGE_CONTROL_1_BIT65
+                prompt "Charge target voltage"
+                default AXP192_CHARGE_CONTROL_1_BIT65_42_SELECTED
+                config AXP192_CHARGE_CONTROL_1_BIT65_41_SELECTED
+                    bool "4.1V"
+                config AXP192_CHARGE_CONTROL_1_BIT65_415_SELECTED
+                    bool "4.15V"
+                config AXP192_CHARGE_CONTROL_1_BIT65_42_SELECTED
+                    bool "4.2V"
+                config AXP192_CHARGE_CONTROL_1_BIT65_436_SELECTED
+                    bool "4.36V"
+            endchoice
+
+            config AXP192_CHARGE_CONTROL_1_BIT65
+                hex
+                default 0x00 if AXP192_CHARGE_CONTROL_1_BIT65_41_SELECTED
+                default 0x20 if AXP192_CHARGE_CONTROL_1_BIT65_415_SELECTED
+                default 0x40 if AXP192_CHARGE_CONTROL_1_BIT65_42_SELECTED
+                default 0x60 if AXP192_CHARGE_CONTROL_1_BIT65_436_SELECTED
+
+            choice AXP192_CHARGE_CONTROL_1_BIT30
+                prompt "Charge current"
+                default AXP192_CHARGE_CONTROL_1_BIT30_100_SELECTED
+                config AXP192_CHARGE_CONTROL_1_BIT30_100_SELECTED
+                    bool "100mA"
+                config AXP192_CHARGE_CONTROL_1_BIT30_190_SELECTED
+                    bool "190mA"
+                config AXP192_CHARGE_CONTROL_1_BIT30_280_SELECTED
+                    bool "280mA"
+                config AXP192_CHARGE_CONTROL_1_BIT30_360_SELECTED
+                    bool "360mA"
+                config AXP192_CHARGE_CONTROL_1_BIT30_450_SELECTED
+                    bool "450mA"
+                config AXP192_CHARGE_CONTROL_1_BIT30_550_SELECTED
+                    bool "550mA"
+                config AXP192_CHARGE_CONTROL_1_BIT30_630_SELECTED
+                    bool "630mA"
+                config AXP192_CHARGE_CONTROL_1_BIT30_700_SELECTED
+                    bool "700mA"
+                config AXP192_CHARGE_CONTROL_1_BIT30_780_SELECTED
+                    bool "780mA"
+                config AXP192_CHARGE_CONTROL_1_BIT30_880_SELECTED
+                    bool "880mA"
+                config AXP192_CHARGE_CONTROL_1_BIT30_960_SELECTED
+                    bool "960mA"
+                config AXP192_CHARGE_CONTROL_1_BIT30_1000_SELECTED
+                    bool "1000mA"
+                config AXP192_CHARGE_CONTROL_1_BIT30_1160_SELECTED
+                    bool "1160mA"
+                config AXP192_CHARGE_CONTROL_1_BIT30_1240_SELECTED
+                    bool "1240mA"
+                config AXP192_CHARGE_CONTROL_1_BIT30_1320_SELECTED
+                    bool "1320mA"
+            endchoice
+
+            config AXP192_CHARGE_CONTROL_1_BIT30
+                hex
+                default 0x00 if AXP192_CHARGE_CONTROL_1_BIT30_100_SELECTED
+                default 0x01 if AXP192_CHARGE_CONTROL_1_BIT30_190_SELECTED
+                default 0x02 if AXP192_CHARGE_CONTROL_1_BIT30_280_SELECTED
+                default 0x03 if AXP192_CHARGE_CONTROL_1_BIT30_360_SELECTED
+                default 0x04 if AXP192_CHARGE_CONTROL_1_BIT30_450_SELECTED
+                default 0x05 if AXP192_CHARGE_CONTROL_1_BIT30_550_SELECTED
+                default 0x06 if AXP192_CHARGE_CONTROL_1_BIT30_630_SELECTED
+                default 0x07 if AXP192_CHARGE_CONTROL_1_BIT30_700_SELECTED
+                default 0x08 if AXP192_CHARGE_CONTROL_1_BIT30_780_SELECTED
+                default 0x0a if AXP192_CHARGE_CONTROL_1_BIT30_880_SELECTED
+                default 0x0b if AXP192_CHARGE_CONTROL_1_BIT30_960_SELECTED
+                default 0x0c if AXP192_CHARGE_CONTROL_1_BIT30_1000_SELECTED
+                default 0x0d if AXP192_CHARGE_CONTROL_1_BIT30_1160_SELECTED
+                default 0x0e if AXP192_CHARGE_CONTROL_1_BIT30_1240_SELECTED
+                default 0x0f if AXP192_CHARGE_CONTROL_1_BIT30_1320_SELECTED
+
+            choice AXP192_CHARGE_CONTROL_1_BIT4
+                prompt "Charge end current"
+                help
+                    When charging the battery chargin current will gradually will
+                    gradually drop towards the end. This setting will determine when
+                    to stop the charging process.
+
+                    For example if set to 10% and charge current was set to 1000mA
+                    charging will end when the charging current has dropped to 100mA.
+                default AXP192_CHARGE_CONTROL_1_BIT4_15_SELECTED
+
+                config AXP192_CHARGE_CONTROL_1_BIT4_10_SELECTED
+                    bool "10%"
+                config AXP192_CHARGE_CONTROL_1_BIT4_15_SELECTED
+                    bool "15%"
+            endchoice
+
+            config AXP192_CHARGE_CONTROL_1_BIT4
+                hex
+                default 0x00 if AXP192_CHARGE_CONTROL_1_BIT4_10_SELECTED
+                default 0x10 if AXP192_CHARGE_CONTROL_1_BIT4_15_SELECTED
+
+        endif
+
+    config AXP192_BATTERY_CHARGE_CONTROL_BIT7_SELECTED
+        bool "Enable backup battery charging"
+
+        config AXP192_BATTERY_CHARGE_CONTROL_BIT7
+            hex
+            default 0x00 if !AXP192_BATTERY_CHARGE_CONTROL_BIT7_SELECTED
+            default 0x80 if AXP192_BATTERY_CHARGE_CONTROL_BIT7_SELECTED
+
+        config AXP192_BATTERY_CHARGE_CONTROL_BIT65
+            hex
+            default 0x00 if !AXP192_BATTERY_CHARGE_CONTROL_BIT7_SELECTED
+
+        config AXP192_BATTERY_CHARGE_CONTROL_BIT10
+            hex
+            default 0x00 if !AXP192_BATTERY_CHARGE_CONTROL_BIT7_SELECTED
+
+        if AXP192_BATTERY_CHARGE_CONTROL_BIT7_SELECTED
+
+            choice AXP192_BATTERY_CHARGE_CONTROL_BIT65
+                prompt "Charge target voltage"
+                default AXP192_BATTERY_CHARGE_CONTROL_BIT65_30_SELECTED
+                config AXP192_BATTERY_CHARGE_CONTROL_BIT65_25_SELECTED
+                    bool "2.5V"
+                config AXP192_BATTERY_CHARGE_CONTROL_BIT65_30_SELECTED
+                    bool "3.0V"
+                config AXP192_BATTERY_CHARGE_CONTROL_BIT65_31_SELECTED
+                    bool "3.1V"
+                config AXP192_BATTERY_CHARGE_CONTROL_BIT65_36_SELECTED
+                    bool "3.6V"
+            endchoice
+
+            config AXP192_BATTERY_CHARGE_CONTROL_BIT65
+                hex
+                default 0x00 if AXP192_BATTERY_CHARGE_CONTROL_BIT65_31_SELECTED
+                default 0x20 if AXP192_BATTERY_CHARGE_CONTROL_BIT65_30_SELECTED
+                default 0x40 if AXP192_BATTERY_CHARGE_CONTROL_BIT65_36_SELECTED
+                default 0x60 if AXP192_BATTERY_CHARGE_CONTROL_BIT65_25_SELECTED
+
+            choice AXP192_BATTERY_CHARGE_CONTROL_BIT10
+                prompt "Charge current"
+                default AXP192_BATTERY_CHARGE_CONTROL_BIT10_50_SELECTED
+                config AXP192_BATTERY_CHARGE_CONTROL_BIT10_50_SELECTED
+                    bool "50uA"
+                config AXP192_BATTERY_CHARGE_CONTROL_BIT10_100_SELECTED
+                    bool "100uA"
+                config AXP192_BATTERY_CHARGE_CONTROL_BIT10_200_SELECTED
+                    bool "200uA"
+                config AXP192_BATTERY_CHARGE_CONTROL_BIT10_400_SELECTED
+                    bool "400mA"
+            endchoice
+
+            config AXP192_BATTERY_CHARGE_CONTROL_BIT10
+                hex
+                default 0x00 if AXP192_BATTERY_CHARGE_CONTROL_BIT10_50_SELECTED
+                default 0x01 if AXP192_BATTERY_CHARGE_CONTROL_BIT10_100_SELECTED
+                default 0x02 if AXP192_BATTERY_CHARGE_CONTROL_BIT10_200_SELECTED
+                default 0x03 if AXP192_BATTERY_CHARGE_CONTROL_BIT10_400_SELECTED
+        endif
+    endmenu
+
+menu "GPIO control"
+    choice AXP192_GPIO1_CONTROL_BIT20
+        prompt "GPIO1 function"
+        default AXP192_GPIO1_CONTROL_BIT20_FLOATING_SELECTED
+        config AXP192_GPIO1_CONTROL_BIT20_NMOS_SELECTED
+            bool "NMOS open drain output"
+        config AXP192_GPIO1_CONTROL_BIT20_GENERAL_INPUT_SELECTED
+            bool "General input"
+        config AXP192_GPIO1_CONTROL_BIT20_PWM1_SELECTED
+            bool "PWM1, high output is VINT"
+        config AXP192_GPIO1_CONTROL_BIT20_ADC_INPUT_SELECTED
+            bool "ADC input"
+        config AXP192_GPIO1_CONTROL_BIT20_LOW_OUTPUT_SELECTED
+            bool "Low output"
+        config AXP192_GPIO1_CONTROL_BIT20_FLOATING_SELECTED
+            bool "Floating"
+    endchoice
+
+    config AXP192_GPIO1_CONTROL_BIT20
+        hex
+        default 0x00 if AXP192_GPIO1_CONTROL_BIT20_NMOS_SELECTED
+        default 0x01 if AXP192_GPIO1_CONTROL_BIT20_GENERAL_INPUT_SELECTED
+        default 0x02 if AXP192_GPIO1_CONTROL_BIT20_PWM1_SELECTED
+        default 0x04 if AXP192_GPIO1_CONTROL_BIT20_ADC_INPUT_SELECTED
+        default 0x05 if AXP192_GPIO1_CONTROL_BIT20_LOW_OUTPUT_SELECTED
+        default 0x07 if AXP192_GPIO1_CONTROL_BIT20_FLOATING_SELECTED
+
+    choice AXP192_GPIO2_CONTROL_BIT20
+        prompt "GPIO2 function"
+        default AXP192_GPIO2_CONTROL_BIT20_FLOATING_SELECTED
+        config AXP192_GPIO2_CONTROL_BIT20_NMOS_SELECTED
+            bool "NMOS open drain output"
+        config AXP192_GPIO2_CONTROL_BIT20_GENERAL_INPUT_SELECTED
+            bool "General input"
+        config AXP192_GPIO2_CONTROL_BIT20_PWM1_SELECTED
+            bool "PWM1, high output is VINT"
+        config AXP192_GPIO2_CONTROL_BIT20_ADC_INPUT_SELECTED
+            bool "ADC input"
+        config AXP192_GPIO2_CONTROL_BIT20_LOW_OUTPUT_SELECTED
+            bool "Low output"
+        config AXP192_GPIO2_CONTROL_BIT20_FLOATING_SELECTED
+            bool "Floating"
+    endchoice
+
+    config AXP192_GPIO2_CONTROL_BIT20
+        hex
+        default 0x00 if AXP192_GPIO2_CONTROL_BIT20_NMOS_SELECTED
+        default 0x01 if AXP192_GPIO2_CONTROL_BIT20_GENERAL_INPUT_SELECTED
+        default 0x02 if AXP192_GPIO2_CONTROL_BIT20_PWM1_SELECTED
+        default 0x04 if AXP192_GPIO2_CONTROL_BIT20_ADC_INPUT_SELECTED
+        default 0x05 if AXP192_GPIO2_CONTROL_BIT20_LOW_OUTPUT_SELECTED
+        default 0x07 if AXP192_GPIO2_CONTROL_BIT20_FLOATING_SELECTED
+
+    choice AXP192_GPIO43_FUNCTION_CONTROL_BIT10
+        prompt "GPIO3 function"
+        default AXP192_GPIO43_FUNCTION_CONTROL_BIT10_CHARGE_CONTROL_SELECTED
+        config AXP192_GPIO43_FUNCTION_CONTROL_BIT10_CHARGE_CONTROL_SELECTED
+            bool "External charge control"
+        config AXP192_GPIO43_FUNCTION_CONTROL_BIT10_NMOS_SELECTED
+            bool "NMOS open drain output"
+        config AXP192_GPIO43_FUNCTION_CONTROL_BIT10_GENERAL_INPUT_SELECTED
+            bool "General input"
+        config AXP192_GPIO43_FUNCTION_CONTROL_BIT10_ADC_INPUT_SELECTED
+            bool "ADC input"
+    endchoice
+
+    config AXP192_GPIO43_FUNCTION_CONTROL_BIT10
+        hex
+        default 0x00 if AXP192_GPIO43_FUNCTION_CONTROL_BIT10_CHARGE_CONTROL_SELECTED
+        default 0x01 if AXP192_GPIO43_FUNCTION_CONTROL_BIT10_NMOS_SELECTED
+        default 0x02 if AXP192_GPIO43_FUNCTION_CONTROL_BIT10_GENERAL_INPUT_SELECTED
+        default 0x03 if AXP192_GPIO43_FUNCTION_CONTROL_BIT10_ADC_INPUT_SELECTED
+
+    choice AXP192_GPIO43_FUNCTION_CONTROL_BIT32
+        prompt "GPIO4 function"
+        default AXP192_GPIO43_FUNCTION_CONTROL_BIT32_CHARGE_CONTROL_SELECTED
+        config AXP192_GPIO43_FUNCTION_CONTROL_BIT32_CHARGE_CONTROL_SELECTED
+            bool "External charge control"
+        config AXP192_GPIO43_FUNCTION_CONTROL_BIT32_NMOS_SELECTED
+            bool "NMOS open drain output"
+        config AXP192_GPIO43_FUNCTION_CONTROL_BIT32_GENERAL_INPUT_SELECTED
+            bool "General input"
+    endchoice
+
+    config AXP192_GPIO43_FUNCTION_CONTROL_BIT32
+        hex
+        default 0x00 if AXP192_GPIO43_FUNCTION_CONTROL_BIT32_CHARGE_CONTROL_SELECTED
+        default 0x04 if AXP192_GPIO43_FUNCTION_CONTROL_BIT32_NMOS_SELECTED
+        default 0x08 if AXP192_GPIO43_FUNCTION_CONTROL_BIT32_GENERAL_INPUT_SELECTED
+
+    config AXP192_GPIO43_FUNCTION_CONTROL_BIT7
+        hex
+        default 0x00 if AXP192_GPIO43_FUNCTION_CONTROL_BIT10_CHARGE_CONTROL_SELECTED
+        default 0x00 if AXP192_GPIO43_FUNCTION_CONTROL_BIT32_CHARGE_CONTROL_SELECTED
+        default 0x80 if AXP192_GPIO43_FUNCTION_CONTROL_BIT10_NMOS_SELECTED
+        default 0x80 if AXP192_GPIO43_FUNCTION_CONTROL_BIT10_GENERAL_INPUT_SELECTED
+        default 0x80 if AXP192_GPIO43_FUNCTION_CONTROL_BIT10_ADC_INPUT_SELECTED
+        default 0x80 if AXP192_GPIO43_FUNCTION_CONTROL_BIT32_NMOS_SELECTED
+        default 0x80 if AXP192_GPIO43_FUNCTION_CONTROL_BIT32_GENERAL_INPUT_SELECTED
+
+endmenu
+
+endmenu

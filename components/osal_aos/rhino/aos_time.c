@@ -69,3 +69,34 @@ aos_status_t aos_now_time_str(char *buffer, size_t len)
 
     return 0;
 }
+
+#define POSIX_MAX_DELAY_NS 50000000UL
+
+void aos_ndelay(uint32_t nsecs)
+{
+    uint64_t start = HR_COUNT_GET();
+    uint64_t freq = HR_FREQ_GET();
+
+    /* Avoid cycly count overflow. */
+    if (nsecs > POSIX_MAX_DELAY_NS)
+        return;
+
+    if (!start || !freq)
+        return;
+
+    /* Loop until enough nanoseconds.
+     * The resolution depends on HR_FREQ_GET implementation in soc.
+     */
+    while ((HR_COUNT_GET() - start) < (nsecs * freq) / 1000000000ULL)
+        ;
+}
+
+void aos_udelay(uint32_t usecs)
+{
+    aos_ndelay(usecs * 1000);
+}
+
+void aos_mdelay(uint32_t msecs)
+{
+    aos_udelay(msecs * 1000);
+}

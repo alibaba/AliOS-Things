@@ -151,6 +151,7 @@ void pyamp_boot_cli_menu()
         case AMP_BOOT_CMD_FILE_TRANSFER:
             // pyamp_boot_cmd_begin(AMP_BOOT_CMD_FILE_TRANSFER);
             pyamp_boot_file_transfer();
+            pyamp_boot_uart_send_str("amp file transfer finish...\n");
             // pyamp_boot_cmd_end(AMP_BOOT_CMD_FILE_TRANSFER);
             break;
 

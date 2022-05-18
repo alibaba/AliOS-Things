@@ -228,6 +228,7 @@ int audio_ctl_elem_list(ctrl_device_t *dev, struct audio_ctl_elem_list *list)
     struct audio_ctl_elem_id *dst, *id;
     unsigned int offset, space, jidx;
     struct dlist_s *node;
+    unsigned int len = 0;
 
     if(!dev || !list) {
         LOGE(LOG_TAG, "%s:%d, dev or list is null", __func__, __LINE__);
@@ -289,7 +290,12 @@ int audio_ctl_elem_list(ctrl_device_t *dev, struct audio_ctl_elem_list *list)
         }
 
         /* 3. copy dst[] to list */
-        memcpy(list->pids, dst, list->used * sizeof(struct audio_ctl_elem_id));
+        if (space * sizeof(struct audio_ctl_elem_id) > list->used * sizeof(struct audio_ctl_elem_id)) {
+            len = list->used * sizeof(struct audio_ctl_elem_id);
+        } else {
+            len = space * sizeof(struct audio_ctl_elem_id);
+        }
+        memcpy(list->pids, dst, len);
     }
     return 0;
 }

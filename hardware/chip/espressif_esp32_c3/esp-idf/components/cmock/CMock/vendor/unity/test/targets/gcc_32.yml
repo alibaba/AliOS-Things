@@ -1,0 +1,45 @@
+---
+colour: true
+:unity:
+  :plugins: []
+:tools:
+  :test_compiler:
+    :name: compiler
+    :executable: gcc
+    :arguments:
+    - "-c"
+    - "-m32"
+    - "-Wall"
+    - "-Wno-address"
+    - "-std=c99"
+    - "-pedantic"
+    - '-I"$": COLLECTION_PATHS_TEST_TOOLCHAIN_INCLUDE'
+    - '-I"$": COLLECTION_PATHS_TEST_SUPPORT_SOURCE_INCLUDE_VENDOR'
+    - "-D$: COLLECTION_DEFINES_TEST_AND_VENDOR"
+    - "${1}"
+    - "-o ${2}"
+  :test_linker:
+    :name: linker
+    :executable: gcc
+    :arguments:
+    - "${1}"
+    - "-lm"
+    - "-m32"
+    - "-o ${2}"
+:extension:
+  :object: ".o"
+  :executable: ".exe"
+:paths:
+  :test:
+    - src/
+    - "../src/"
+    - testdata/
+    - tests/
+:defines:
+  :test:
+  - UNITY_EXCLUDE_STDINT_H
+  - UNITY_EXCLUDE_LIMITS_H
+  - UNITY_INCLUDE_DOUBLE
+  - UNITY_SUPPORT_TEST_CASES
+  - UNITY_INT_WIDTH=32
+  - UNITY_LONG_WIDTH=32

@@ -43,6 +43,10 @@ DS18B20是一款极具性价比的数字温度传感器，包括测量水温和�
 <br>
 
 ## 三、软件接口
+
+DS18B20温度传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/ds18b20)
+<br>
+
 ### DS18B20(gpioObj,resolution) - 创建DS18B20驱动对象
 * 函数原型：
 > ds18b20Obj = DS18B20(gpioObj , resolution)

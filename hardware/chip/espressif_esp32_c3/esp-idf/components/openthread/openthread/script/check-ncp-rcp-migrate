@@ -1,0 +1,150 @@
+#!/bin/bash
+#
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+set -e
+set -x
+
+at_exit()
+{
+    EXIT_CODE=$?
+
+    killall expect || true
+    killall ot-cli-ftd || true
+    killall ot-cli || true
+    killall ot-rcp || true
+
+    exit $EXIT_CODE
+}
+
+build()
+{
+    make -f examples/Makefile-simulation
+    make -f src/posix/Makefile-posix
+}
+
+check()
+{
+    trap at_exit INT TERM EXIT
+
+    rm -rf tmp/
+
+    PANID="0xc001"
+    EXT_PANID="0123456789abcdef"
+    NETWORK_NAME="OT_NCP_TO_RCP"
+    CHANNEL="20"
+    NETWORK_KEY="0123456789abcdef0123456789abcdef"
+
+    echo "Step 1. Start NCP platform and form a PAN..."
+    RADIO_NCP_CMD="$PWD/output/simulation/bin/ot-cli-ftd"
+
+    expect <<EOF
+spawn ${RADIO_NCP_CMD} 1
+set timeout 2
+expect_after {
+    timeout { exit 1 }
+}
+send "panid ${PANID}\r\n"
+expect "Done"
+send "extpanid ${EXT_PANID}\r\n"
+expect "Done"
+send "networkname ${NETWORK_NAME}\r\n"
+expect "Done"
+send "channel ${CHANNEL}\r\n"
+expect "Done"
+send "networkkey ${NETWORK_KEY}\r\n"
+expect "Done"
+send "ifconfig up\r\n"
+expect "Done"
+send "thread start\r\n"
+expect "Done"
+sleep 5
+send "state\r\n"
+expect "leader"
+expect "Done"
+send "exit\r\n"
+expect eof
+EOF
+
+    echo "Step 2. Start retrieving dataset from Radio..."
+    RADIO_NCP_PATH="$PWD/output/simulation/bin/ot-ncp-ftd"
+    "$PWD/output/posix/bin/ot-cli" -n --radio-version "spinel+hdlc+forkpty://${RADIO_NCP_PATH}?forkpty-arg=1&ncp-dataset=1"
+
+    echo "Step 3. Start posix app and check whether PAN dataset is the same..."
+    RADIO_RCP_PATH="$PWD/output/simulation/bin/ot-rcp"
+
+    OT_CLI_CMD="$PWD/output/posix/bin/ot-cli spinel+hdlc+forkpty://${RADIO_RCP_PATH}?forkpty-arg=1"
+
+    expect <<EOF
+spawn ${OT_CLI_CMD}
+set timeout 2
+expect_after {
+    timeout { exit 1 }
+}
+send "panid\r\n"
+expect ${PANID}
+expect "Done"
+send "extpanid\r\n"
+expect ${EXT_PANID}
+expect "Done"
+send "networkname\r\n"
+expect ${NETWORK_NAME}
+expect "Done"
+send "channel\r\n"
+expect ${CHANNEL}
+expect "Done"
+send "networkkey\r\n"
+expect ${NETWORK_KEY}
+expect "Done"
+send "exit\r\n"
+expect eof
+EOF
+
+    echo "Step 4. Start posix app and check whether it can get radio firmware version..."
+    RADIO_VERSION="$("$PWD/output/posix/bin/ot-cli" -n --radio-version "spinel+hdlc+forkpty://${RADIO_RCP_PATH}?forkpty-arg=1&ncp-dataset=1")" || true
+    echo "${RADIO_VERSION}"
+    test -n "{RADIO_VERSION}"
+}
+
+main()
+{
+    case "$1" in
+        build)
+            build
+            ;;
+        check)
+            check
+            ;;
+        *)
+            build
+            check
+            ;;
+    esac
+}
+
+main "$@"

@@ -102,12 +102,15 @@ got_file:
 
 void vfs_file_del(vfs_file_t *file)
 {
+    if (!file)
+        return;
+
     /* do NOT really use node if it is for redirect fd (i.e. -1 as node) */
-    if (file && file->node && file->node != (vfs_inode_t *)(-1)) {
+    if (file->node && file->node != (vfs_inode_t *)(-1)) {
         vfs_inode_unref(file->node);
     }
 
-    file->node  = NULL;
+    file->node = NULL;
     file->redirect_fd = -1;
 }
 

@@ -43,20 +43,24 @@ void pyamp_aiot_app_dynreg_recv_handler(void *handle,
 int32_t pyamp_aiot_dynreg_http(mp_obj_t cb)
 {
     int32_t res = STATE_SUCCESS;
-    char *auth_url = "iot-auth.cn-shanghai.aliyuncs.com"; /* 阿里云平台上海站点的域名后缀 */
+    char host[100] = { 0 };          /* 用这个数组拼接设备连接的云平台站点全地址, 规则是
+                                        ${YourProductKey}.iot-as-mqtt.${YourRegionId}.aliyuncs.com" */
     uint16_t port = 443; /* 无论设备是否使用TLS连接阿里云平台, 目的端口都是443 */
     aiot_sysdep_network_cred_t cred; /* 安全凭据结构体, 如果要用TLS, 这个结构体中配置CA证书等参数 */
     /* get device tripple info */
-    char product_key[IOTX_PRODUCT_KEY_LEN] = { 0 };
-    char product_secret[IOTX_PRODUCT_SECRET_LEN] = { 0 };
-    char device_name[IOTX_DEVICE_NAME_LEN] = { 0 };
-    char device_secret[IOTX_DEVICE_SECRET_LEN] = { 0 };
+    char region[IOTX_REGION_LEN + 1] = { 0 };
+    char product_key[IOTX_PRODUCT_KEY_LEN + 1] = { 0 };
+    char product_secret[IOTX_PRODUCT_SECRET_LEN + 1] = { 0 };
+    char device_name[IOTX_DEVICE_NAME_LEN + 1] = { 0 };
+    char device_secret[IOTX_DEVICE_SECRET_LEN + 1] = { 0 };
 
+    int region_len = IOTX_REGION_LEN;
     int productkey_len = IOTX_PRODUCT_KEY_LEN;
     int productsecret_len = IOTX_PRODUCT_SECRET_LEN;
     int devicename_len = IOTX_DEVICE_NAME_LEN;
     int devicesecret_len = IOTX_DEVICE_SECRET_LEN;
 
+    aos_kv_get(AMP_CUSTOMER_REGION, region, &region_len);
     aos_kv_get(AMP_CUSTOMER_PRODUCTKEY, product_key, &productkey_len);
     aos_kv_get(AMP_CUSTOMER_PRODUCTSECRET, product_secret, &productsecret_len);
     aos_kv_get(AMP_CUSTOMER_DEVICENAME, device_name, &devicename_len);
@@ -95,8 +99,10 @@ int32_t pyamp_aiot_dynreg_http(mp_obj_t cb)
 
         /* 配置网络连接的安全凭据, 上面已经创建好了 */
         aiot_dynreg_setopt(dynreg_handle, AIOT_DYNREGOPT_NETWORK_CRED, (void *)&cred);
+
+        sprintf(host, "iot-auth.%s.aliyuncs.com", region);
         /* 配置MQTT服务器地址 */
-        aiot_dynreg_setopt(dynreg_handle, AIOT_DYNREGOPT_HOST, (void *)auth_url);
+        aiot_dynreg_setopt(dynreg_handle, AIOT_DYNREGOPT_HOST, (void *)host);
         /* 配置MQTT服务器端口 */
         aiot_dynreg_setopt(dynreg_handle, AIOT_DYNREGOPT_PORT, (void *)&port);
         /* 配置设备productKey */

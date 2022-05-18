@@ -56,7 +56,7 @@ build_config:
     - components/mqtt-upload
 #    - components/diag
     - components/dynreg
-#    - components/dynreg-mqtt
+    - components/dynreg-mqtt
 #    - components/logpost
     - components/ntp
 #    - components/ota
@@ -79,7 +79,7 @@ source_file:
   - components/mqtt-upload/*.c
 #  - "components/diag/*.c"
   - "components/dynreg/*.c"
-#  - "components/dynreg-mqtt/*.c"
+  - "components/dynreg-mqtt/*.c"
 #  - "components/logpost/*.c"
   - "components/ntp/*.c"
 #  - "components/ota/*.c"

@@ -1,0 +1,98 @@
+############################################################################
+#
+# GnuTLS dual versions
+#
+# Works with CentOS 7
+#
+############################################################################
+#
+# Add in alternative GnuTLS support into /usr/local, and put all the
+# libraries into /usr/local/lib.
+#
+# Need the latest of the following packages
+#
+# gmp    (used 6.2.0)  https://gmplib.org/#DOWNLOAD
+# nettle (used 3.6)    https://ftp.gnu.org/gnu/nettle/
+# gnutls (used 3.6.13) https://www.gnutls.org/download.html
+#
+
+GMP_VER=6.2.0
+NETTLE_VER=3.6
+GNUTLS_VER=3.6.13
+
+#
+# gmp
+#
+tar xovf gmp-${GMP_VER}.tar.xz
+cd gmp-${GMP_VER}
+./configure
+make
+sudo make install
+cd ..
+
+#
+# nettle (by default wants to go into /usr/local/lib64 which gets messy)
+#
+tar zxovf nettle-${NETTLE_VER}.tar.gz
+cd nettle-${NETTLE_VER}
+PKG_CONFIG_PATH=/usr/local/lib/pkgconfig ./configure --libdir=/usr/local/lib \
+  LDFLAGS="-L/usr/local/lib"
+make
+sudo make install
+cd ..
+
+tar xovf gnutls-${GNUTLS_VER}.tar.xz
+cd gnutls-${GNUTLS_VER}
+#
+#
+# You may need to make the following change if you have an old version of
+# p11-kit
+#
+# $ diff -Nau a/lib/pkcs11_privkey.c b/lib/pkcs11_privkey.c
+# --- a/lib/pkcs11_privkey.c        2020-05-26 11:49:27.374385645 +0100
+# +++ b/lib/pkcs11_privkey.c        2020-05-26 11:58:24.300510455 +0100
+# @@ -265,13 +265,13 @@
+#  # define CKG_MGF1_SHA384 0x00000003UL
+#  # define CKG_MGF1_SHA512 0x00000004UL
+#
+# +#endif
+#  struct ck_rsa_pkcs_pss_params {
+#         ck_mechanism_type_t hash_alg;
+#         /* ck_rsa_pkcs_mgf_type_t is not defined in old versions of p11-kit */
+#         unsigned long mgf;
+#         unsigned long s_len;
+#  };
+# -#endif
+#
+#  static const struct hash_mappings_st hash_mappings[] =
+#  {
+#
+#
+PKG_CONFIG_PATH=/usr/local/lib/pkgconfig ./configure --with-included-unistring \
+  --disable-hardware-acceleration --disable-tests --with-included-libtasn1 \
+  --disable-doc LDFLAGS="-L/usr/local/lib"
+make
+sudo make install
+cd ..
+
+############################################################################
+#
+# libcoap build with updated GnuTLS
+#
+############################################################################
+
+# Get the latest libcoap
+git clone https://github.com/obgm/libcoap.git
+
+# Build code
+cd libcoap
+./autogen.sh
+# Update --enable- / --disable- options as appropriate
+# libcoap libraries are put into /usr/lib64 for ease of linking
+PKG_CONFIG_PATH=/usr/local/lib/pkgconfig ./configure --libdir=/usr/lib64 \
+  --with-gnutls --enable-tests --enable-examples --disable-doxygen \
+  --enable-manpages
+make
+sudo make install
+cd ..
+

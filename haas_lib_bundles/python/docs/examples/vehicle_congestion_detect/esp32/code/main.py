@@ -14,7 +14,7 @@ import ucamera      # 摄像头库
 import utime        # 延时函数在utime库中
 import sntp         # 网络时间同步库
 import _thread      # 线程库
-import ujson as json
+from cloudAI import *
 
 # Wi-Fi SSID和Password设置
 SSID='***'
@@ -25,9 +25,8 @@ productKey = "***"
 deviceName  = "***"
 deviceSecret  = "***"
 
-g_lk_connect = False
-g_lk_service = False
-g_score = 0
+detected = False
+num = 0
 
 key_info = {
     'region' : 'cn-shanghai' ,
@@ -68,90 +67,43 @@ def connect_wifi(ssid, pwd):
         utime.sleep_ms(500)
     utime.sleep(2)
 
-def cb_lk_service(data):
-    global g_lk_service, g_score, detected, num
-    num = 0
-    # dev.publish(compare_reply)
-    # print(data)
-    #resp = json.loads(data)
-    if data != None:
-        params = data['params']
-        params_dict = json.loads(params)
-        print(params_dict)
-        ext = params_dict['ext']
-        ext_dict = json.loads(ext)
-        result = ext_dict['result']
-        if result == 'success':
-            i = 0
-            item_list = ext_dict['elements']
-            num = len(item_list)
-            if num > 0:
-                print('detect: ' + str(num) + 'vehicle')
-                detected = True
-            if detected == False:
-                print('do not detect!')
-        else:
-            print('do not detect!')
-            num = 0
-            detected = False
-        postDeviceProps()
-    g_lk_service = True
-
-def cb_lk_connect(data):
-    global g_lk_connect
-    print('link platform connected')
-    g_lk_connect = True
-
 def postDeviceProps():
-    global dev,num
+    global engine, num
     value = {'vehicle_num' : num}
     data = {'params': json.dumps(value)}
-    ret = dev.postProps(data)
+    ret = engine.getDevice().postProps(data)
     if ret == 0 :
         print('车辆数量上报成功')
     else :
         print('车辆数量上报失败')
 
+def recognize_cb(commandReply, result) :
+    global detected, num
+    detected = False
+    num = 0
 
-def detectVehicleCongestion(frame, fileName, productKey, devName, devSecret) :
-    start = utime.ticks_ms()
-    global dev
-    # 上传图片到LP
-    fileid = dev.uploadContent(fileName, frame, None)
-    if fileid != None:
-        ext = { 'filePosition':'lp', 'fileName': fileName, 'fileId': fileid }
-        ext_str = json.dumps(ext)
-        all_params = {'id': 1, 'version': '1.0', 'params': { 'eventType': 'haas.faas', 'eventName': 'vehicleCongestionDetect', 'argInt': 1, 'ext': ext_str }}
-        all_params_str = json.dumps(all_params)
-        upload_file = {
-            'topic': '/sys/' + productKey + '/' + deviceName + '/thing/event/hli_event/post',
-            'qos': 1,
-            'payload': all_params_str
-        }
+    if commandReply == 'recognizeLogoReply' :
+        if result != 0 :
+            num = result
+            detected = True
+            postDeviceProps()
+    else :
+        print('unknown command reply')
 
-        # 上传完成通知HaaS聚合平台
-        # print(upload_file)
-        dev.publish(upload_file)
-
-        while g_lk_service == False:
-            continue
-    else:
-        print('filedid is none, upload content fail')
-    time_diff = utime.ticks_diff(utime.ticks_ms(), start)
-    print('get response time : %d' % time_diff)
-
-# 识别线程函数
-def detectVehicleCongestionThread():
+# 人脸比较线程函数
+def recognizeThread():
     global frame
     while True:
         if frame != None:
-            detectVehicleCongestion(frame, 'congestion.jpg', productKey, deviceName, deviceSecret)
-        utime.sleep_ms(3000)
+            engine.detectVehicleCongestion(frame)
+            utime.sleep_ms(1000)
+        else:
+            utime.sleep_ms(1000)
 
 # 显示线程函数
 def displayThread():
     # 引用全局变量
-    global disp, frame, detected
+    global disp, frame, detected, num
     # 定义清屏局部变量
     clearFlag = False
     # 定义显示文本局部变量
@@ -163,13 +115,12 @@ def displayThread():
         # print('end to capture')
         if frame != None:
             if detected == True:
+                # 清除屏幕内容
                 disp.clear()
                 # 设置文字字体
                 disp.font(disp.FONT_DejaVu40)
                 # 显示识别结果
-                # disp.text(40, 80, name, disp.RED)
                 disp.text(10, 60, 'Vehicle Num:' + str(num), disp.RED)
-                print('Vehicle Num:' + str(num) +' !!!')
                 utime.sleep_ms(1000)
                 textShowFlag = False
                 detected = False
@@ -182,13 +133,13 @@ def displayThread():
                     # 设置显示字体
                     disp.font(disp.FONT_DejaVu18)
                     # 显示文字
-                    disp.text(2, 0, 'Recognizing ...', disp.WHITE)
+                    disp.text(2, 0, 'Recognizing...', disp.WHITE)
                     textShowFlag = True
 
-# 多线程案例
+
 def main():
     # 全局变量
-    global disp, dev, frame, detected
+    global disp, frame, detected, engine
     # 创建lcd display对象
     disp = display.TFT()
     frame = None
@@ -197,15 +148,7 @@ def main():
     # 连接网络
     connect_wifi(SSID, PWD)
 
-    # 设备初始化
-    dev = Device()
-    dev.on(Device.ON_CONNECT, cb_lk_connect)
-    dev.on(Device.ON_SERVICE, cb_lk_service)
-    dev.connect(key_info)
-
-    while True:
-        if g_lk_connect:
-            break
+    engine = CloudAI(key_info, recognize_cb)
 
     # 初始化摄像头
     ucamera.init('uart', 33, 32)
@@ -214,10 +157,10 @@ def main():
     try:
         # 启动显示线程
         _thread.start_new_thread(displayThread, ())
-        # 设置识别线程stack
-        _thread.stack_size(16 * 1024)
-        # 启动识别线程
-        _thread.start_new_thread(detectVehicleCongestionThread, ())
+        # 设置比对线程stack
+        _thread.stack_size(20 * 1024)
+        # 启动比对线程
+        _thread.start_new_thread(recognizeThread, ())
     except:
        print("Error: unable to start thread")
 

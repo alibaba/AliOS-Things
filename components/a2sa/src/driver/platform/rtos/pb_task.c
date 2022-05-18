@@ -124,9 +124,12 @@ static int create_pb_task(void)
     pthread_attr_init(&attr);
     pthread_attr_setstacksize(&attr, PB_HIGH_STACKSIZE);
     sched.sched_priority = PB_DEFAULT_PRIORITY;
+    sched.slice = 0;
     pthread_attr_setschedparam(&attr, &sched);
     pthread_create(&pb_thread, &attr, pb_thread_loop, NULL);
-    pthread_setname_np(pb_thread, "pbthread");
+    if (pb_thread) {
+        pthread_setname_np(pb_thread, "pbthread");
+    }
     pthread_attr_destroy(&attr);
     bCreatePbThreadFlag = true;
     return 0;

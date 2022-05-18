@@ -170,8 +170,8 @@ static void key_rising_edge_handle(gpio_dev_t *gpio)
 
     ret = ioctl(g_gpio_fd, IOC_GPIO_SET_IRQ, &irq_config);
     if (ret) {
-        LOGE(TAG, "enable gpio irq:%d failed, ret %d", ret);
-        return -1;
+        LOGE(TAG, "enable gpio irq: failed, ret %d", ret);
+        return;
     }
 #else
 
@@ -222,8 +222,8 @@ static void key_falling_edge_handle(gpio_dev_t *gpio)
 
     ret = ioctl(g_gpio_fd, IOC_GPIO_SET_IRQ, &irq_config);
     if (ret) {
-        LOGE(TAG, "enable gpio irq:%d failed, ret %d", ret);
-        return -1;
+        LOGE(TAG, "enable gpio irq: failed, ret %d", ret);
+        return;
     }
 #else
     hal_gpio_clear_irq(key_gpio);

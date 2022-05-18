@@ -1,0 +1,14 @@
+body pre {
+  margin: 0.5em 10% 0.5em 1em;
+  line-height: 1.0;
+  color: navy;
+}
+dl {
+  margin: .2em 0;
+  line-height: 1.2;
+}
+
+dt {
+  margin-top: 0.1em;
+}
+

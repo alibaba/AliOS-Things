@@ -1,0 +1,31 @@
+[mapping:esp_system]
+archive: libesp_system.a
+entries:
+    if ESP_PANIC_HANDLER_IRAM = y:
+        panic (noflash)
+        panic_handler (noflash)
+        panic_arch (noflash)
+
+    esp_err (noflash)
+    esp_system:esp_system_abort (noflash)
+    ubsan (noflash)
+
+    if ESP_CONSOLE_USB_CDC_SUPPORT_ETS_PRINTF:
+        usb_console:esp_usb_console_write_char (noflash)
+        usb_console:esp_usb_console_write_buf (noflash)
+        usb_console:esp_usb_console_flush_internal (noflash)
+        usb_console:esp_usb_console_osglue_wait_proc (noflash)
+        usb_console:esp_usb_console_osglue_dis_int (noflash)
+        usb_console:esp_usb_console_osglue_ena_int (noflash)
+        usb_console:esp_usb_console_interrupt (noflash)
+        usb_console:esp_usb_console_poll_interrupts (noflash)
+        usb_console:esp_usb_console_cdc_acm_cb (noflash)
+        usb_console:esp_usb_console_dfu_detach_cb (noflash)
+        usb_console:esp_usb_console_before_restart (noflash)
+
+[mapping:vfs_cdcacm]
+archive: libvfs.a
+entries:
+    if ESP_CONSOLE_USB_CDC_SUPPORT_ETS_PRINTF:
+        vfs_cdcacm:cdcacm_tx_cb (noflash)
+        vfs_cdcacm:cdcacm_rx_cb (noflash)

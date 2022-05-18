@@ -52,8 +52,7 @@
 #include "lib/littlefs/lfs2.h"
 #include "extmod/vfs.h"
 #define DWORD _DWORD
-// #include "esp32/rom/tjpgd.h"
-#include "extra/libs/sjpg/tjpgd.h"
+#include "tjpgd.h"
 #undef DWORD
 
 #define DEG_TO_RAD 0.01745329252
@@ -2908,7 +2907,7 @@ void TFT_jpg_image(int x, int y, uint8_t scale, char *fname, uint8_t *buf, int s
             if (image_debug) mp_printf(&mp_plat_print, "File error: %ss\r\n", strerror(errno));
             goto exit;
         }
-    
+
         cfg.buffer = calloc(fs->cfg->cache_size, sizeof(uint8_t));
         res = lfs2_file_opencfg(fs, &dev.fhndl, fullname, LFS2_O_RDONLY, &cfg);
 
@@ -3374,7 +3373,7 @@ static void pngle_draw_callback(pngle_t *pngle, uint32_t x, uint32_t y, uint32_t
     _color.r = (color & 0xF800) >> 8;
     _color.g = (color & 0x07E0) >> 3;
     _color.b = (color & 0x001F) << 3;
-    
+
     if (rgba[3] >= p->alphaThreshold) {
         // TFT_fillRect(x, y, w, h, _color);
         TFT_drawPixel(x, y, _color, 1);
@@ -3435,7 +3434,7 @@ int TFT_png_image(int x, int y, uint8_t scale, char *fname, uint8_t *imgbuf, int
             err = res;
             goto exit;
         }
-        
+
         uint8_t buf[1024];
         int remain = 0;
         int len;

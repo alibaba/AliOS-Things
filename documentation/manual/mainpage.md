@@ -79,15 +79,13 @@
 
 # Release Note
 
-
-## 2022-02-24
-- JavaScript轻应用：
-- python轻应用：新增ESP32模组支持；适配<HaaS2.0轻应用统一编程标准>；组件采用CMake编译；新增micropython-lib部分组件；适配aliyunIoT，display组件
-- amp_adapter新增ESP32模组支持
-- osal_aos新增freertos系统支持 
-- solutions：新增py_engine_esp32_demo工程
-- haas_lib_bundles：新增haas_lib_bundles文件夹，包括轻应用文档及相关案例
-- hardware：新增nodemcu32s开发板
+## 2022-02-22
+- py_engine： 新增ESP32模组芯片支持，删除冗余的micropython-lib文件
+- oasl_aos： 修改不匹配的返回类型
+- posix： 增加ESP_IDF_VERSION以区分不同的IDF版本
+- ota： 用mbedtls_md5_starts_ret替换mbedtls_md5_starts
+- amp_adapter: 支持IDF4.4
+- nodemcu_c3: 新增ESP32-C3开发板支持
 
 ## 2022-01-19
 - py_engine: 修改python引擎程编译方式为CMake，

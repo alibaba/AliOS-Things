@@ -1,0 +1,1237 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap_encryption(3)
+===================
+:doctype: manpage
+:man source:   coap_encryption
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap_encryption,
+coap_dtls_cpsk_t,
+coap_dtls_spsk_t,
+coap_dtls_pki_t
+- Work with CoAP TLS/DTLS
+
+SYNOPSIS
+--------
+*#include <coap@LIBCOAP_API_VERSION@/coap.h>*
+
+*struct coap_dtls_cpsk_t;*
+
+*struct coap_dtls_spsk_t;*
+
+*struct coap_dtls_pki_t;*
+
+For specific (D)TLS library support, link with
+*-lcoap-@LIBCOAP_API_VERSION@-notls*, *-lcoap-@LIBCOAP_API_VERSION@-gnutls*,
+*-lcoap-@LIBCOAP_API_VERSION@-openssl*, *-lcoap-@LIBCOAP_API_VERSION@-mbedtls*
+or *-lcoap-@LIBCOAP_API_VERSION@-tinydtls*.   Otherwise, link with
+*-lcoap-@LIBCOAP_API_VERSION@* to get the default (D)TLS library support.
+
+DESCRIPTION
+-----------
+This man page focuses on setting up CoAP to use encryption.
+
+When the libcoap library was built, it will have been compiled using a
+specific underlying TLS implementation type (e.g. OpenSSL, GnuTLS, Mbed TLS,
+TinyDTLS or noTLS).
+When the libcoap library is linked into an application, it is possible
+that the application needs to dynamically determine whether DTLS or TLS is
+supported, what type of TLS implementation libcoap was compiled with, as well
+as detect what is the version of the currently loaded TLS library.
+
+*NOTE:* If OpenSSL is being used, then the minimum supported OpenSSL library
+version is 1.1.0.
+
+*NOTE:* If GnuTLS is being used, then the minimum GnuTLS library version is
+3.3.0.
+
+*NOTE:* If Mbed TLS is being used, then the minimum Mbed TLS library version is
+2.7.10.
+
+*NOTE:* If GnuTLS is going to interoperate with TinyDTLS, then a minimum
+revision of GnuTLS 3.5.5 which supports CCM algorithms is required
+by TinyDTLS as TinyDTLS currently only supports CCM.
+
+*NOTE:* For Raw Public Key support, GnuTLS library version must be 3.6.6 or
+later. TinyDTLS only supports TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8, curve
+secp256r1 and hash SHA-256.  There currently is no OpenSSL or Mbed TLS RPK support
+(respective library limitations).
+
+Network traffic can be un-encrypted or encrypted with libcoap if there is an
+underlying TLS library.
+
+If TLS is going to be used for encrypting the network traffic, then the TLS
+information for Pre-Shared Keys (PSK), Public Key Infrastructure (PKI) or
+Raw Public Key (RPK) needs to be configured before any network traffic starts
+to flow. For Servers, this has to be done before the Endpoint is created,
+for Clients, this is done during the Client Session set up.
+
+For Servers, all the encryption information is held internally by the TLS
+Context level and the CoAP Context level as the Server is listening for new
+incoming traffic based on the Endpoint definition.  The TLS and CoAP session
+will not get built until the new traffic starts, which is done by the libcoap
+library, with the session having a reference count of 1.
+
+For Clients, all the encryption information will be held internally by the TLS
+Context and/or TLS Session level and internally by the CoAP Session level.
+
+In principle the set-up sequence for CoAP Servers looks like
+----
+coap_new_context()
+coap_context_set_pki_root_cas() - if the root CAs need to be updated and PKI
+coap_context_set_pki() and/or coap_context_set_psk2() - if encryption is required
+coap_new_endpoint()
+----
+
+Multiple endpoints can be set up per Context, each listening for a new traffic
+flow with different TCP/UDP protocols, TLS protocols, port numbers etc. When a
+new traffic flow is started, then the CoAP library will create and start a new
+server session.
+
+In principle the set-up sequence for CoAP Clients looks like
+----
+coap_new_context()
+coap_context_set_pki_root_cas() - if the root CAs need to be updated and PKI
+coap_new_client_session(), coap_new_client_session_pki() or coap_new_client_session_psk2()
+----
+
+Multiple client sessions are supported per Context.
+
+Due to the nature of TLS, there are Callbacks that are invoked as the TLS
+session negotiates encryption algorithms, encryption keys etc.
+Where possible, the CoAP layer handles all this automatically based on
+different configuration options passed in by the coap_context_set_pki(),
+coap_new_client_session_pki(), coap_context_set_psk2() and
+coap_new_client_session_psk2() functions.
+
+PSK CLIENT INFORMATION
+----------------------
+
+For Client PSK setup, the required information needs to be provided in the setup
+calls with optional application callbacks defined to update the Identity and
+PSK. Initially, the Client has to provide an Identity and a Pre-Shared Key.
+
+Libcoap will put the Identity and Pre-Shared Key as appropriate into the TLS
+environment.
+
+*SECTION: PSK Client: coap_dtls_cpsk_t*
+[source, c]
+----
+typedef struct coap_dtls_cpsk_t {
+  uint8_t version; /** Set to COAP_DTLS_CPSK_SETUP_VERSION
+                       to support the version of the struct */
+
+  /* Options to enable different TLS functionality in libcoap */
+  uint8_t reserved[7];             /* Reserved - must be set to 0 for
+                                      future compatibility */
+
+  /** Identity Hint check callback function.
+   * If not NULL, is called when the Identity Hint (TLS1.2 or earlier) is
+   * provided by the server.
+   * The appropriate Identity and Pre-Shared Key to use can then be returned.
+   */
+  coap_dtls_ih_callback_t validate_ih_call_back;
+  void *ih_call_back_arg;  /* Passed in to the Identity Hint callback
+                              function */
+
+  char* client_sni;    /*  If not NULL, SNI to use in client TLS setup.
+                           Owned by the client app and must remain valid
+                           during the call to coap_new_client_session_pki().
+                           Note: Not supported by TinyDTLS. */
+
+  coap_dtls_cpsk_info_t psk_info;  /* Client PSK definition */
+} coap_dtls_cpsk_t;
+----
+
+More detailed explanation of the coap_dtls_cpsk_t structure follows.
+
+*WARNING*: For all the parameter definitions that are pointers to other
+locations, these locations must remain valid during the lifetime of all the
+underlying TLS sessions that are, or will get created based on this PSK
+definition.
+
+*SECTION: PSK Client: coap_dtls_cpsk_t: Version*
+[source, c]
+----
+#define COAP_DTLS_CPSK_SETUP_VERSION 1 /**< Latest CPSK setup version */
+----
+
+*version* is set to COAP_DTLS_CPSK_SETUP_VERSION.  This will then allow
+support for different versions of the coap_dtls_cpsk_t structure in the future.
+
+*SECTION: PSK Client: coap_dtls_cpsk_t: Reserved*
+
+*reserved* All must be set to 0.  Future functionality updates will make use of
+these reserved definitions.
+
+*SECTION: PSK Client: coap_dtls_cpsk_t: Identity Hint Callback*
+[source, c]
+----
+/**
+ * Identity Hint Validation callback that can be set up by
+ * coap_new_client_session_psk2().
+ * Invoked when libcoap has done the validation checks at the TLS level,
+ * but the application needs to check that the Identity Hint is allowed, and
+ * needs to use the appropriate PSK information for the (D)TLS session.
+ * Note: Identity Hint is not supported in (D)TLS1.3.
+ *
+ * @param hint  The server provided Identity Hint
+ * @param coap_session  The CoAP session associated with the Identity Hint
+ * @param arg  The same as was passed into coap_new_client_session_psk2()
+ *             in setup_data->ih_call_back_arg
+ *
+ * @return New coap_dtls_cpsk_info_t object or @c NULL on error.
+ */
+typedef const coap_dtls_cpsk_info_t *(*coap_dtls_ih_callback_t)(
+                                coap_str_const_t *hint,
+                                coap_session_t *coap_session,
+                                void *arg);
+----
+
+*validate_ih_call_back* points to an application provided Identity Hint callback
+function or NULL. The application can make use of this Identity Hint information
+to decide what Identity and Pre-Shared Key should be used for this session.
+The Callback returns the new coap_dtls_cpsk_info_t on success,
+or NULL if the Identity Hint is unacceptable.
+
+*NOTE:* The Server may not provide a hint, or a zero length hint to indicate
+there is no hint.  In this case the initially provided Identity and
+Pre-Shared Key should be used.
+
+*ih_call_back_arg* points to a user defined set of data that will get passed
+in to the validate_ih_call_back() function's arg parameter and can be used by
+that function.  An example would be a set of Identity Hints that map into new
+Identity / Pre-Shared Key to use.
+
+*SECTION: PSK Client: coap_dtls_cpsk_t: Subject Name Indicator (SNI) Definition*
+
+*client_sni* points to the SNI name that will be added in as a TLS extension,
+if not NULL.  This typically is the DNS name of the server that the client is
+trying to contact.  The server is then able to decide, based on the name in the
+SNI extension, whether, for example, a different Hint and/or Pre-Shared Key is
+to be used.
+
+Note: Not supported by TinyDTLS.
+
+*SECTION: PSK Client: coap_dtls_cpsk_t: PSK Client Definitions*
+[source, c]
+----
+typedef struct coap_dtls_cpsk_info_t {
+  coap_bin_const_t identity; /* The Identity */
+  coap_bin_const_t key;      /* The Pre-Shared Key */
+} coap_dtls_cpsk_info_t;
+----
+
+*identity* defines the Identity to use.
+
+*key* defines the Pre-Shared Key to use
+
+PSK SERVER INFORMATION
+----------------------
+
+For PSK setup, the required information needs to be provided in the setup
+calls with optional application Callbacks defined to update the Identity Hint
+and Pre-SHared Key. Initially, the Server has to provided with an (optional)
+Identity Hint and a (required) Pre-Shared Key.
+
+Libcoap will put the Hint and Pre-Shared Key as appropriate into the TLS
+environment.
+
+*SECTION: PSK Server: coap_dtls_spsk_t*
+[source, c]
+----
+typedef struct coap_dtls_spsk_t {
+  uint8_t version; /** Set to COAP_DTLS_SPSK_SETUP_VERSION
+                       to support the version of the struct */
+
+  /* Options to enable different TLS functionality in libcoap */
+  uint8_t reserved[7];             /* Reserved - must be set to 0 for
+                                      future compatibility */
+
+  /** Identity check callback function.
+   * If not @p NULL, is called when the Identity is provided by the client.
+   *  The appropriate Pre-Shared Key to use can then be returned.
+   */
+  coap_dtls_id_callback_t validate_id_call_back;
+  void *id_call_back_arg;  /* Passed in to the Identity callback function */
+
+  /** SNI check callback function.
+   * If not @p NULL, called if the SNI is not previously seen and exexuted
+   * prior to sending an Identity Hint back to the client so that the
+   * appropriate PSK information can be used based on the requesting SNI.
+   */
+  coap_dtls_psk_sni_callback_t validate_sni_call_back;
+  void *sni_call_back_arg;  /* Passed in to the SNI callback function */
+
+  coap_dtls_spsk_info_t psk_info;  /* Server PSK definition */
+} coap_dtls_spsk_t;
+----
+
+More detailed explanation of the coap_dtls_spsk_t structure follows.
+
+*WARNING*: For all the parameter definitions that are pointers to other
+locations, these locations must remain valid during the lifetime of all the
+underlying TLS sessions that are, or will get created based on this PSK
+definition.
+
+*SECTION: PSK Server: coap_dtls_spsk_t: Version*
+[source, c]
+----
+#define COAP_DTLS_SPSK_SETUP_VERSION 1 /**< Latest SPSK setup version */
+----
+
+*version* is set to COAP_DTLS_SPSK_SETUP_VERSION.  This will then allow
+support for different versions of the coap_dtls_spsk_t structure in the future.
+
+*SECTION: PSK Server: coap_dtls_spsk_t: Reserved*
+
+*reserved* All must be set to 0.  Future functionality updates will make use of
+these reserved definitions.
+
+*SECTION: PSK Server: coap_dtls_spsk_t: Identity Validation Callback*
+[source, c]
+----
+/**
+ * Identity Validation callback that can be set up by
+ * coap_context_set_psk2().
+ * Invoked when libcoap has done the validation checks at the TLS level,
+ * but the application needs to check that the Identity is allowed, and
+ * needs to use the appropriate Pre-Shared Key for the (D)TLS session.
+ *
+ * @param identity  The client provided Identity (should be NULL terminated)
+ * @param coap_session  The CoAP session associated with the Identity Hint
+ * @param arg  The same as was passed into coap_context_set_psk2()
+ *             in setup_data->id_call_back_arg
+ *
+ * @return New coap_bin_const_t Pre-Shared Key object or @c NULL on error.
+ */
+typedef const coap_bin_const_t *(*coap_dtls_id_callback_t)(
+                                 coap_bin_const_t *identity,
+                                 coap_session_t *coap_session,
+                                 void *arg);
+----
+
+*WARNING:* If both *validate_id_call_back* and *validate_sni_call_back* are
+defined, validate_id_call_back() is invoked after validate_sni_call_back(),
+and so if the Pre-Shared Key is changed in validate_sni_call_back(),
+validate_id_call_back() needs to be sure that the appropriate Pre-Shared Key
+is provided.
+
+*validate_id_call_back* points to an application provided Identity callback
+function or NULL. The application can make use of this Identity information
+to decide what PSK should be used for this session.
+The Callback returns the new coap_bin_const_t Pre-Shared Key on success,
+or NULL if the Identity is unacceptable.
+
+*NOTE:* The Client may be using a binary Identity that contains an embedded
+zero. However OpenSSL and GnuTLS do not currently support this.
+
+*id_call_back_arg* points to a user defined set of data that will get passed
+in to the validate_id_call_back() function and can be used by that function.
+An example would be a set of Identities that map into new Pre-Shared Keys
+to use.
+
+*SECTION: PSK Server: coap_dtls_spsk_t: Subject Name Identifier (SNI) Callback*
+[source, c]
+----
+/**
+ * PSK SNI callback that can be set up by coap_context_set_psk2().
+ * Invoked when libcoap has done the validation checks at the TLS level,
+ * but the application needs to check that the SNI is allowed, and needs
+ * to use the appropriate PSK information for the (D)TLS session.
+ *
+ * @param sni  The client provided SNI
+ * @param coap_session  The CoAP session associated with the SNI
+ * @param arg  The same as was passed into coap_new_client_session_psk2()
+ *             in setup_data->sni_call_back_arg
+ *
+ * @return New coap_dtls_spsk_info_t object or @c NULL on error.
+ */
+typedef const coap_dtls_spsk_info_t *(*coap_dtls_psk_sni_callback_t)(
+                                 const char *sni,
+                                 coap_session_t *coap_session,
+                                 void *arg);
+----
+
+*validate_sni_call_back* points to an application provided SNI callback
+checking function or NULL. The application can make use of this SNI information
+to decide whether the SNI is valid, and hence what new Hint and Pre-Shared Key
+to use.
+Thus it is possible for the coap server to host multiple domains with
+different Hints and PSKs allocated to each SNI domain.
+The Callback returns a coap_dtls_spsk_info_t pointer to the Hint and
+Pre-Shared Key to use for this SNI, or NULL if the connection is to get
+rejected.  Libcoap remembers the association between a specific SNI and Hint +
+Pre-Shared Key set and will only invoke this callback if the SNI is unknown.
+
+Note: Not supported by TinyDTLS.
+
+*sni_call_back_arg* points to a user defined set of data that will get passed
+in to the validate_sni_call_back() function and can be used by that function.
+An example would be a set of SNIs that are allowed with their matching
+Hint + Pre-Shared Key sets.
+
+*SECTION: PSK Server: coap_dtls_spsk_t: PSK Information Definitions*
+[source, c]
+----
+typedef struct coap_dtls_spsk_info_t {
+  coap_bin_const_t hint; /* The identity hint to use */
+  coap_bin_const_t key;  /* The Pre-Shared Key to use */
+} coap_dtls_spsk_info_t;
+----
+
+*identity* defines the Identity Hint to use.
+
+*key* defines the Pre-Shared Key to use
+
+PKI/RPK CLIENT AND SERVER INFORMATION
+-------------------------------------
+
+For PKI or RPK setup, if the libcoap PKI/RPK configuration options do not
+handle a specific requirement as defined by the available options, then an
+application defined Callback can called to do the additional specific checks.
+
+The information passed to this Application Callback will be the
+TLS session (as well the configuration information), but the structures
+containing this information will be different as they will be based on the
+underlying TLS library type. coap_get_tls_library_version() is provided to help
+here.
+
+Libcoap will add in the defined Certificate (or Public Key), Private Key and
+CA Certificate into the TLS environment.  The CA Certificate is also added
+in to the list of valid CAs for Certificate checking.
+
+The internal Callbacks (and optionally the Application Callback) will then
+check the required information as defined in the coap_dtls_pki_t described
+below.
+
+*SECTION: PKI/RPK: coap_dtls_pki_t*
+[source, c]
+----
+typedef struct coap_dtls_pki_t {
+  uint8_t version;            /* COAP_DTLS_PKI_SETUP_VERSION */
+
+  /* Options to enable different TLS functionality in libcoap */
+  uint8_t verify_peer_cert;         /* 1 if peer cert is to be verified */
+  uint8_t check_common_ca;          /* 1 if peer cert is to be signed by
+                                     * the same CA as the local cert */
+  uint8_t allow_self_signed;        /* 1 if self-signed certs are allowed */
+  uint8_t allow_self_signed;        /* 1 if self-signed certs are allowed.
+                                     * Ignored if check_common_ca set */
+  uint8_t allow_expired_certs;      /* 1 if expired certs are allowed */
+  uint8_t cert_chain_validation;    /* 1 if to check cert_chain_verify_depth */
+  uint8_t cert_chain_verify_depth;  /* recommended depth is 3 */
+  uint8_t check_cert_revocation;    /* 1 if revocation checks wanted */
+  uint8_t allow_no_crl;             /* 1 ignore if CRL not there */
+  uint8_t allow_expired_crl;        /* 1 if expired crl is allowed */
+  uint8_t allow_bad_md_hash;        /* 1 if unsupported MD hashes are allowed */
+  uint8_t allow_short_rsa_length;   /* 1 if small RSA keysizes are allowed */
+  uint8_t is_rpk_not_cert;          /* 1 is RPK instead of Public Certificate.
+                                     *   If set, PKI key format type cannot be
+                                     *   COAP_PKI_KEY_PEM */
+  uint8_t reserved[3];              /* Reserved - must be set to 0 for
+                                       future compatibility */
+
+  /** CN check callback function
+   * If not NULL, is called when the TLS connection has passed the configured
+   * TLS options above for the application to verify if the CN is valid.
+   */
+  coap_dtls_cn_callback_t validate_cn_call_back;
+  void *cn_call_back_arg;  /* Passed in to the CN callback function */
+
+  /** SNI check callback function
+   * If not NULL, called if the SNI is not previously seen and prior to sending
+   * a certificate set back to the client so that the appropriate certificate
+   * set can be used based on the requesting SNI.
+   */
+  coap_dtls_sni_callback_t validate_sni_call_back;
+  void *sni_call_back_arg;  /* Passed in to the SNI callback function */
+
+  /** Additional Security callback handler that is invoked when libcoap has
+   * done the standard, defined validation checks at the TLS level,
+   * If not NULL, called from within the TLS Client Hello connection
+   * setup.
+   */
+  coap_dtls_security_setup_t additional_tls_setup_call_back;
+
+  char* client_sni;       /* If not NULL, SNI to use in client TLS setup.
+                             Owned by the client app and must remain valid
+                             during the call to coap_new_client_session_pki() */
+
+  coap_dtls_key_t pki_key; /* PKI key definition */
+} coap_dtls_pki_t;
+----
+
+More detailed explanation of the coap_dtls_pki_t structure follows.
+
+*WARNING*: For all the parameter definitions that are pointers to other
+locations, these locations must remain valid during the lifetime of all the
+underlying TLS sessions that are, or will get created based on this PKI/RPK
+definition.
+
+The first parameter in each subsection enables/disables the functionality, the
+remaining parameter(s) control what happens when the functionality is
+enabled.
+
+*SECTION: PKI/RPK: coap_dtls_pki_t: Version*
+[source, c]
+----
+#define COAP_DTLS_PKI_SETUP_VERSION 1
+----
+
+*version* is set to COAP_DTLS_PKI_SETUP_VERSION.  This will then allow support
+for different versions of the coap_dtls_pki_t structure in the future.
+
+*SECTION: PKI/RPK: coap_dtls_pki_t: Peer Certificate Checking*
+
+*verify_peer_cert* Set to 1 to check that the peer's certificate is valid if
+provided, else 0. If not set, check_common_ca, allow_self_signed,
+allow_expired_certs, cert_chain_validation, cert_chain_verify_depth,
+check_cert_revocation, allow_no_crl, allow_expired_crl, allow_bad_md_hash
+and allow_short_rsa_length settings are all ignored.
+
+*check_common_ca* Set to 1 to check that the CA that signed the peer's
+certificate is the same CA that signed the local certificate
+else 0.  If set to 1 and *verify_peer_cert* is set to 1, then for the server, a
+list of valid CAs are sent to client.  For the client, the logic will check
+that both the client and server certificates are signed by the same CA.
+
+*allow_self_signed* Set to 1 to allow the peer (or any certificate in the
+certificate chain) to be a self-signed certificate, else 0. If
+*check_common_ca* is set, then a self-signed certificate will not be allowed.
+
+*allow_expired_certs* Set to 1 to allow certificates that have either expired,
+or are not yet valid to be allowed, else 0.
+
+*SECTION: PKI/RPK: coap_dtls_pki_t: Certificate Chain Validation*
+
+*cert_chain_validation* Set to 1 to check that the certificate chain is valid,
+else 0.
+
+*cert_chain_verify_depth* Set to the chain depth that is to be checked. This
+is the number of intermediate CAs in the chain. If set to 0, then there can be
+no intermediate CA in the chain.
+
+*SECTION: PKI/RPK: coap_dtls_pki_t: Certificate Revocation*
+
+*check_cert_revocation* Set to 1 to check whether any certificate in the chain
+has been revoked, else 0.
+
+*allow_no_crl* Set to 1 to not check any certificate that does not have a CRL,
+else 0.
+
+*allow_expired_crl* Set to 1 to allow an certificate that has an expired CRL
+definition to be valid, else 0.
+
+*SECTION: PKI/RPK: coap_dtls_pki_t: Other*
+
+*allow_bad_md_hash* Set to 1 if unsupported MD hashes are allowed, else 0.
+
+*allow_short_rsa_length* Set to 1 if small RSA keysizes are allowed, else 0.
+
+*is_rpk_not_cert* Set to 1 if the Certificate is actually a Raw Public Key.
+If set, PKI key format type cannot be COAP_PKI_KEY_PEM.  If set,
+check_common_ca, allow_self_signed, allow_expired_certs,
+cert_chain_validation, cert_chain_verify_depth, check_cert_revocation,
+allow_no_crl, allow_expired_crl, allow_bad_md_hash and
+allow_short_rsa_length settings are all ignored.
+
+*SECTION: PKI/RPK: coap_dtls_pki_t: Reserved*
+
+*reserved* All must be set to 0.  Future functionality updates will make use of
+these reserved definitions.
+
+*SECTION: PKI/RPK: coap_dtls_pki_t: Common Name (CN) Callback*
+[source, c]
+----
+#define COAP_DTLS_RPK_CERT_CN "RPK"
+
+/**
+ * CN Validation callback that can be set up by coap_context_set_pki().
+ * Invoked when libcoap has done the validation checks at the TLS level,
+ * but the application needs to check that the CN is allowed.
+ * CN is the SubjectAltName in the cert, if not present, then the leftmost
+ * Common Name (CN) component of the subject name.
+ * NOTE: If using RPK, then the Public Key does not contain a CN, but the
+ * content of COAP_DTLS_RPK_CERT_CN is presented for the @p cn parameter.
+ *
+ * @param cn  The determined CN from the certificate
+ * @param asn1_public_cert  The ASN.1 encoded (DER) X.509 certificate
+ * @param asn1_length  The ASN.1 length
+ * @param session  The coap session associated with the certificate update
+ * @param depth  Depth in cert chain.  If 0, then client cert, else a CA
+ * @param validated  TLS can find no issues if 1
+ * @param arg  The same as was passed into coap_context_set_pki()
+ *             in setup_data->cn_call_back_arg
+ *
+ * @return 1 if accepted, else 0 if to be rejected
+ */
+typedef int (*coap_dtls_cn_callback_t)(const char *cn,
+             const uint8_t *asn1_public_cert,
+             size_t asn1_length,
+             coap_session_t *session,
+             unsigned int depth,
+             int validated,
+             void *arg);
+----
+
+*validate_cn_call_back* points to an application provided CN callback
+checking function or NULL. The application can make use of this CN information
+to decide, for example, that the CN is valid coming from a particular peer.
+The Callback returns 1 on success, 0 if the TLS connection is to be aborted.
+
+*cn_call_back_arg* points to a user defined set of data that will get passed
+in to the validate_cn_call_back() function and can be used by that function.
+An example would be a set of CNs that are allowed.
+
+*SECTION: PKI/RPK: coap_dtls_pki_t: Subject Name Identifier (SNI) Callback*
+[source, c]
+----
+typedef struct coap_dtls_key_t {
+  coap_pki_key_t key_type;          /* key format type */
+  union {
+    coap_pki_key_pem_t pem;         /* for PEM file keys */
+    coap_pki_key_pem_buf_t pem_buf; /* for PEM memory keys */
+    coap_pki_key_asn1_t asn1;       /* for ASN.1 (DER) memory keys */
+    coap_pki_key_pkcs11_t pkcs11;   /* for PKCS11 keys */
+  } key;
+} coap_dtls_key_t;
+
+/**
+ * SNI Validation callback that can be set up by coap_context_set_pki().
+ * Invoked if the SNI is not previously seen and prior to sending a certificate
+ * set back to the client so that the appropriate certificate set can be used
+ * based on the requesting SNI.
+ *
+ * @param sni  The requested SNI
+ * @param arg  The same as was passed into coap_context_set_pki()
+ *             in setup_data->sni_call_back_arg
+ *
+ * @return new set of certificates to use, or NULL if SNI is to be rejected.
+ */
+typedef coap_dtls_key_t *(*coap_dtls_sni_callback_t)(const char *sni,
+             void* arg);
+----
+
+*validate_sni_call_back* points to an application provided SNI callback
+checking function or NULL. The application can make use of this SNI information
+to decide whether the SNI is valid, and what set of certificates to give to the
+client.  Thus it is possible for the coap server to host multiple domains with
+different certificates allocated to each domain.
+The Callback returns a pointer to the certificates to use for this SNI, or NULL
+if the connection it to get rejected.  libcoap remembers the association
+between the SNI and Certificate set and will only invoke this callback if the
+SNI is unknown.
+
+*sni_call_back_arg* points to a user defined set of data that will get passed
+in to the validate_sni_call_back() function and can be used by that function.
+An example would be a set of SNIs that are allowed with their matching
+certificate sets.
+
+*SECTION: PKI/RPK: coap_dtls_pki_t: Application Additional Setup Callback*
+[source, c]
+----
+/**
+ * Additional Security setup handler that can be set up by
+ * coap_context_set_pki().
+ * Invoked when libcoap has done the validation checks at the TLS level,
+ * but the application needs to do some additional checks/changes/updates.
+ *
+ * @param session The security session definition - e.g. SSL * for OpenSSL.
+ *                This will be dependent on the underlying TLS library
+ *                - see coap_get_tls_library_version()
+ * @param setup_data A structure containing setup data originally passed into
+ *                   coap_context_set_pki() or coap_new_client_session_pki().
+ * @return 1 if successful, else 0
+ */
+typedef int (*coap_dtls_security_setup_t)(void *context, void* session,
+                                          coap_dtls_pki_t *setup_data);
+----
+
+*additional_tls_setup_call_back* points to an application provided callback
+function that will do additional checking/changes/updates after libcoap has
+done all of the configured TLS setup checking, or NULL to do no additional
+checking.
+
+*SECTION: PKI/RPK: coap_dtls_pki_t: Subject Name Indicator (SNI) Definition*
+
+*client_sni* points to the SNI name that will be added in as a TLS extension,
+or set NULL.  This typically is the DNS name of the server that the client is
+trying to contact.  This is only used by a client application and the server
+is then able to decide, based on the name in the SNI extension, whether, for
+example, a different certificate should be provided.
+
+*SECTION: PKI/RPK: coap_dtls_pki_t: Key Type Definition*
+[source, c]
+----
+typedef enum coap_pki_key_t {
+  COAP_PKI_KEY_PEM,     /* The PKI key type is PEM file */
+  COAP_PKI_KEY_ASN1,    /* The PKI key type is ASN.1 (DER) buffer */
+  COAP_PKI_KEY_PEM_BUF, /* The PKI key type is PEM buffer */
+  COAP_PKI_KEY_PKCS11,  /* The PKI key type is PKCS11 (DER) */
+} coap_pki_key_t;
+----
+
+*key_type* defines the format that the certificates / keys are provided in.
+This can be COAP_PKI_KEY_PEM, COAP_PKI_KEY_PEM_BUF, COAP_PKI_KEY_ASN1 or
+COAP_PKI_KEY_PKCS11.
+
+*SECTION: PKI: coap_dtls_pki_t: PEM Key Definitions*
+[source, c]
+----
+typedef struct coap_pki_key_pem_t {
+  const char *ca_file;       /* File location of Common CA in PEM format */
+  const char *public_cert;   /* File location of Public Cert */
+  const char *private_key;   /* File location of Private Key in PEM format */
+} coap_pki_key_pem_t;
+----
+
+*key.pem.ca_file* points to the CA File location on disk which will be in
+PEM format, or NULL. This file should only contain one CA (that has signed the
+public certificate) as this is passed from the server to the client when
+requesting the client's certificate. This certificate is also added into
+the valid root CAs list if not already present.
+
+*key.pem.public_cert* points to the public certificate location on disk which
+will be in PEM format.
+
+*key.pem.private_key* points to the private key location on disk which
+will be in PEM format.  This file cannot be password protected.
+
+*SECTION: PKI/RPK: coap_dtls_pki_t: PEM Memory Key Definitions*
+[source, c]
+----
+typedef struct coap_pki_key_pem_buf_t {
+  const uint8_t *ca_cert;     /* PEM buffer Common CA Cert */
+  const uint8_t *public_cert; /* PEM buffer Public Cert, or Public Key if RPK */
+  const uint8_t *private_key; /* PEM buffer Private Key */
+                                 If RPK and 'EC PRIVATE KEY' this can be used
+                                 for both the public_cert and private_key */
+  size_t ca_cert_len;         /* PEM buffer CA Cert length */
+  size_t public_cert_len;     /* PEM buffer Public Cert length */
+  size_t private_key_len;     /* PEM buffer Private Key length */
+} coap_pki_key_pem_buf_t;
+----
+
+*key.pem_buf.ca_cert* points to the CA location in memory which will be in
+PEM format, or NULL. This file should only contain one CA (that has signed the
+public certificate) as this is passed from the server to the client when
+requesting the client's certificate. This certificate is also added into
+the valid root CAs list if not already present.
+
+*key.pem_buf.ca_cert_len* is the length of the CA.
+
+*key.pem_buf.public_cert* points to the public certificate (or public key if
+RPK) location in memory which will be in PEM format.
+
+*key.pem_buf.public_cert_len* is the length of the public certificate.
+
+*key.pem_buf.private_key* points to the private key location in memory which
+will be in PEM format.  This data cannot be password protected. If RPK and
+'EC PRIVATE KEY' this can be used for both the public_cert and private_key.
+
+*key.pem_buf.private_key* is the length of the private key.
+
+* Note:*  The PEM buffer Certs and Key should be be NULL terminated strings for
+performance reasons (to save a potential buffer copy) and the length include
+this NULL terminator. It is not a requirement to have the NULL terminator
+though and the length must then reflect the actual data size.
+
+*SECTION: PKI/RPK: coap_dtls_pki_t: ASN1 Key Definitions*
+[source, c]
+----
+typedef struct coap_pki_key_asn1_t {
+  const uint8_t *ca_cert;     /* ASN1 Common CA Certificate */
+  const uint8_t *public_cert; /* ASN1 (DER) Public Cert, or Public Key if RPK */
+  const uint8_t *private_key; /* ASN1 Private Key */
+  int ca_cert_len;            /* ASN1 CA Certificate length */
+  int public_cert_len;        /* ASN1 Public Certificate length */
+  int private_key_len;        /* ASN1 Private Key length */
+  coap_asn1_privatekey_type_t private_key_type; /* Private Key Type
+                                                   COAP_ASN1_PKEY_* */
+} coap_pki_key_asn1_t;
+
+typedef enum coap_asn1_privatekey_type_t {
+  COAP_ASN1_PKEY_NONE,
+  COAP_ASN1_PKEY_RSA,
+  COAP_ASN1_PKEY_RSA2,
+  COAP_ASN1_PKEY_DSA,
+  COAP_ASN1_PKEY_DSA1,
+  COAP_ASN1_PKEY_DSA2,
+  COAP_ASN1_PKEY_DSA3,
+  COAP_ASN1_PKEY_DSA4,
+  COAP_ASN1_PKEY_DH,
+  COAP_ASN1_PKEY_DHX,
+  COAP_ASN1_PKEY_EC,
+  COAP_ASN1_PKEY_HMAC,
+  COAP_ASN1_PKEY_CMAC,
+  COAP_ASN1_PKEY_TLS1_PRF,
+  COAP_ASN1_PKEY_HKDF
+} coap_asn1_privatekey_type_t;
+----
+
+*key.asn1.ca_cert* points to a DER encoded ASN.1 definition of the CA
+Certificate, or NULL.  This certificate is passed from the server to the client
+when requesting the client's certificate. This certificate is also added into
+the valid root CAs list if not already present.
+
+*key.asn1.public_cert* points to a DER encoded ASN.1 definition of the
+public certificate (or public key if RPK).
+
+*key.asn1.private_key* points to DER encoded ASN.1 definition of the
+private key.
+
+*key.asn1.ca_cert_len* is the length of the DER encoded ASN.1 definition of
+the CA Certificate.
+
+*key.asn1.public_cert_len* is the length of the DER encoded ASN.1 definition
+of the public certificate.
+
+*key.asn1.private_key_len* is the length of the DER encoded ASN.1 definition
+of the private key.
+
+*key.asn1.private_key_type* is the encoding type of the DER encoded ASN.1
+definition of the private key.  This will be one of the COAP_ASN1_PKEY_*
+definitions.
+
+*SECTION: PKI: coap_dtls_pki_t: PKCS11 Key Definitions*
+[source, c]
+----
+typedef struct coap_pki_key_pkcs11_t {
+  const char *ca;            /* pkcs11: URI for Common CA Certificate */
+  const char *public_cert;   /* pkcs11: URI for Public Cert */
+  const char *private_key;   /* pkcs11: URI for Private Key */
+  const char *pin;           /* pin to access PKCS11.  If NULL, then
+                                pin-value= parameter must be set in
+                                pkcs11: URI as a query. */
+} coap_pki_key_pkcs11_t;
+----
+
+*key.pkcs11.ca* is a pkcs11: URI for the CA certificate or NULL.  This is for
+the CA (that has signed the public certificate) as this is passed from the
+server to the client when requesting the client's certificate. This certificate
+is also added into the valid root CAs list if not already present.
+An example URI is 'pkcs11:pkcs11:token=My%20Token;id=%aa%bb%cc%dd' which is
+for token 'My Token' and (hex) id of 'aabbccdd'.
+
+*key.pkcs11.public_cert* is a pkcs11: URI for the Public Certificate which
+was signed by *key.pkcs11.ca* or NULL.
+
+*key.pkcs11.private_key* is a pkcs11: URI for the Private Key for the
+public certificate defined by *key.pkcs11.public_cert* or NULL.
+
+*key.pkcs11.user_pin* is the user pin used to unlock the token or NULL.
+If NULL, the pin can be defined on the other pkcs11: URI entries by using
+pin-value=XXX as a query - e.g.
+'pkcs11:pkcs11:token=My%20Token;id=%aa%bb%cc%dd?pin-value=XXX' where XXX is
+the user pin.
+
+EXAMPLES
+--------
+*CoAP Server DTLS PKI Setup*
+[source, c]
+----
+#include <coap@LIBCOAP_API_VERSION@/coap.h>
+
+typedef struct valid_cns_t {
+  int count;
+  char **cn_list;
+} valid_cns_t;
+
+/**
+ * CN Validation callback that can be set up by coap_context_set_pki().
+ * Invoked when libcoap has done the validation checks at the TLS level,
+ * but the application needs to check that the CN is allowed.
+ * CN is the SubjectAltName in the cert, if not present, then the leftmost
+ * Common Name (CN) component of the subject name.
+ * NOTE: If using RPK, then the Public Key does not contain a CN, but "RPK"
+ * is presented for the cn parameter.
+ *
+ * @param cn  The determined CN from the certificate
+ * @param asn1_public_cert  The ASN.1 encoded (DER) X.509 certificate
+ * @param asn1_length  The ASN.1 length
+ * @param session  The coap session associated with the certificate update
+ * @param depth  Depth in cert chain.  If 0, then client cert, else a CA
+ * @param validated  TLS can find no issues if 1
+ * @param arg  The same as was passed into coap_context_set_pki()
+ *             in setup_data->cn_call_back_arg
+ *
+ * @return 1 if accepted, else 0 if to be rejected
+ */
+static int
+verify_cn_callback(const char *cn,
+                   const uint8_t *asn1_public_cert,
+                   size_t asn1_length,
+                   coap_session_t *c_session,
+                   unsigned depth,
+                   int validated,
+                   void *arg
+) {
+  valid_cns_t *valid_cn_list = (valid_cns_t*)arg;
+  int i;
+  /* Remove (void) definition if variable is used */
+  (void)asn1_public_cert;
+  (void)asn1_length;
+  (void)c_session;
+  (void)depth;
+  (void)validated;
+
+  /* Check that the CN is valid */
+  for (i = 0; i < valid_cn_list->count; i++) {
+    if (!strcasecmp(cn, valid_cn_list->cn_list[i])) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+typedef struct sni_def_t {
+  char* sni;
+  coap_dtls_key_t key;
+} sni_def_t;
+
+typedef struct valid_snis_t {
+  int count;
+  sni_def_t *sni_list;
+} valid_snis_t;
+
+/**
+ * SNI Validation callback that is set up by coap_context_set_pki().
+ * Invoked if the SNI is not previously seen and prior to sending a certificate
+ * set back to the client so that the appropriate certificate set can be used
+ * based on the requesting SNI.
+ *
+ * @param sni  The requested SNI
+ * @param arg  The same as was passed into coap_context_set_pki()
+ *             in setup_data->sni_call_back_arg
+ *
+ * @return new set of certificates to use, or NULL if SNI is to be rejected.
+ */
+static coap_dtls_key_t *
+verify_pki_sni_callback(const char *sni,
+                        void *arg
+) {
+  valid_snis_t *valid_sni_list = (valid_snis_t *)arg;
+  int i;
+
+  /* Check that the SNI is valid */
+  for (i = 0; i < valid_sni_list->count; i++) {
+    if (!strcasecmp(sni, valid_sni_list->sni_list[i].sni)) {
+      return &valid_sni_list->sni_list[i].key;
+    }
+  }
+  return NULL;
+}
+
+/*
+ * Set up PKI encryption information
+ */
+static coap_context_t *
+setup_server_context_pki (const char *public_cert_file,
+                          const char *private_key_file,
+                          const char *ca_file,
+                          valid_cns_t *valid_cn_list,
+                          valid_snis_t *valid_sni_list
+) {
+  coap_endpoint_t *endpoint;
+  coap_address_t listen_addr;
+  coap_dtls_pki_t dtls_pki;
+  coap_context_t *context;
+
+  /* See coap_tls_library(3) */
+  if (!coap_dtls_is_supported())
+    return NULL;
+
+  /* See coap_context(3) */
+  context = coap_new_context(NULL);
+  if (!context)
+    return NULL;
+  /* See coap_block(3) */
+  coap_context_set_block_mode(context,
+                              COAP_BLOCK_USE_LIBCOAP | COAP_BLOCK_SINGLE_BODY);
+
+
+  memset (&dtls_pki, 0, sizeof (dtls_pki));
+
+  dtls_pki.version                 = COAP_DTLS_PKI_SETUP_VERSION;
+  dtls_pki.verify_peer_cert        = 1;
+  dtls_pki.check_common_ca         = 1;
+  dtls_pki.allow_self_signed       = 1;
+  dtls_pki.allow_expired_certs     = 1;
+  dtls_pki.cert_chain_validation   = 1;
+  dtls_pki.cert_chain_verify_depth = 1;
+  dtls_pki.check_cert_revocation   = 1;
+  dtls_pki.allow_no_crl            = 1;
+  dtls_pki.allow_expired_crl       = 1;
+  dtls_pki.allow_bad_md_hash       = 0;
+  dtls_pki.allow_short_rsa_length  = 0;
+  dtls_pki.is_rpk_not_cert         = 0; /* Set to 1 if RPK */
+  dtls_pki.validate_cn_call_back   = verify_cn_callback;
+  dtls_pki.cn_call_back_arg        = valid_cn_list;
+  dtls_pki.validate_sni_call_back  = verify_pki_sni_callback;
+  dtls_pki.sni_call_back_arg       = valid_sni_list;
+  dtls_pki.additional_tls_setup_call_back = NULL;
+  dtls_pki.client_sni              = NULL;
+  dtls_pki.pki_key.key_type        = COAP_PKI_KEY_PEM;
+  dtls_pki.pki_key.key.pem.ca_file = ca_file;
+  dtls_pki.pki_key.key.pem.public_cert = public_cert_file;
+  dtls_pki.pki_key.key.pem.private_key = private_key_file;
+
+  /* See coap_context(3) */
+  if (coap_context_set_pki(context, &dtls_pki)) {
+    coap_free_context(context);
+    return NULL;
+  }
+
+  coap_address_init(&listen_addr);
+  listen_addr.addr.sa.sa_family = AF_INET;
+  listen_addr.addr.sin.sin_port = htons (5684);
+
+  /* See coap_context(3) */
+  endpoint = coap_new_endpoint(context, &listen_addr, COAP_PROTO_DTLS);
+  if (!endpoint) {
+    coap_free_context(context);
+    return NULL;
+  }
+
+  /* Initialize resources - See coap_resource(3) init_resources() example */
+
+  return context;
+}
+----
+
+*CoAP Server DTLS PSK Setup*
+[source, c]
+----
+#include <coap@LIBCOAP_API_VERSION@/coap.h>
+
+typedef struct id_def_t {
+  char *hint_match;
+  coap_bin_const_t id;
+  coap_bin_const_t key;
+} id_def_t;
+
+typedef struct valid_ids_t {
+  size_t count;
+  id_def_t *id_list;
+} valid_ids_t;
+
+/*
+ * PSK Identity Pre-Shared Key selection Callback function
+ */
+static const coap_bin_const_t *
+verify_id_callback(coap_bin_const_t *identity,
+                   coap_session_t *c_session,
+                   void *arg
+) {
+  valid_ids_t *valid_id_list = (valid_ids_t*)arg;
+  const coap_bin_const_t *s_psk_hint = coap_session_get_psk_hint(c_session);
+  size_t i;
+
+  /* Check that the Identity is valid */
+  for (i = 0; i < valid_id_list->count; i++) {
+    if (s_psk_hint &&
+        strcmp((const char *)s_psk_hint->s,
+               valid_id_list->id_list[i].hint_match)) {
+      continue;
+    }
+    if (coap_binary_equal(identity, &valid_id_list->id_list[i].id)) {
+      return &valid_id_list->id_list[i].key;
+    }
+  }
+  return NULL;
+}
+
+typedef struct sni_psk_def_t {
+  char* sni;
+  coap_dtls_spsk_info_t psk_info;
+} sni_psk_def_t;
+
+typedef struct valid_psk_snis_t {
+  int count;
+  sni_psk_def_t *sni_list;
+} valid_psk_snis_t;
+
+/*
+ * PSK Subject Name Identifier (SNI) callback verifier
+ */
+static const coap_dtls_spsk_info_t *
+verify_psk_sni_callback(const char *sni,
+                        coap_session_t *c_session,
+                        void *arg
+) {
+  valid_psk_snis_t *valid_sni_list = (valid_psk_snis_t *)arg;
+  int i;
+  /* Remove (void) definition if variable is used */
+  (void)c_session;
+
+  /* Check that the SNI is valid */
+  for (i = 0; i < valid_sni_list->count; i++) {
+    if (!strcasecmp(sni, valid_sni_list->sni_list[i].sni)) {
+      return &valid_sni_list->sni_list[i].psk_info;
+    }
+  }
+  return NULL;
+}
+
+static coap_context_t *
+setup_server_context_psk (const char *hint,
+                          const uint8_t *key,
+                          unsigned int key_len,
+                          valid_ids_t *valid_id_list,
+                          valid_psk_snis_t *valid_sni_list
+) {
+  coap_endpoint_t *endpoint;
+  coap_address_t listen_addr;
+  coap_context_t *context;
+  coap_dtls_spsk_t dtls_psk;
+
+  /* See coap_tls_library(3) */
+  if (!coap_dtls_is_supported())
+    return NULL;
+
+  context = coap_new_context(NULL);
+  if (!context)
+    return NULL;
+  /* See coap_block(3) */
+  coap_context_set_block_mode(context,
+                              COAP_BLOCK_USE_LIBCOAP | COAP_BLOCK_SINGLE_BODY);
+
+
+  memset (&dtls_psk, 0, sizeof (dtls_psk));
+
+  /* see coap_encryption(3) */
+  dtls_psk.version                 = COAP_DTLS_SPSK_SETUP_VERSION;
+  dtls_psk.validate_id_call_back   = verify_id_callback;
+  dtls_psk.id_call_back_arg        = valid_id_list;
+  dtls_psk.validate_sni_call_back  = verify_psk_sni_callback;
+  dtls_psk.sni_call_back_arg       = valid_sni_list;
+  dtls_psk.psk_info.hint.s         = (const uint8_t*)hint;
+  dtls_psk.psk_info.hint.length    = hint ? strlen(hint) : 0;
+  dtls_psk.psk_info.key.s          = key;
+  dtls_psk.psk_info.key.length     = key_len;
+
+  if (coap_context_set_psk2(context, &dtls_psk)) {
+    coap_free_context(context);
+    return NULL;
+  }
+
+  coap_address_init(&listen_addr);
+  listen_addr.addr.sa.sa_family = AF_INET;
+  listen_addr.addr.sin.sin_port = htons (5684);
+
+  endpoint = coap_new_endpoint(context, &listen_addr, COAP_PROTO_DTLS);
+  if (!endpoint) {
+    coap_free_context(context);
+    return NULL;
+  }
+
+  /* Initialize resources - See coap_resource(3) init_resources() example */
+
+  return context;
+}
+----
+
+*CoAP Client DTLS PSK Setup*
+[source, c]
+----
+#include <coap@LIBCOAP_API_VERSION@/coap.h>
+
+#include <stdio.h>
+
+#ifndef min
+#define min(a,b) ((a) < (b) ? (a) : (b))
+#endif
+
+static const coap_dtls_cpsk_info_t *
+verify_ih_callback(coap_str_const_t *hint,
+                   coap_session_t *c_session,
+                   void *arg
+) {
+  coap_dtls_cpsk_info_t *psk_info = (coap_dtls_cpsk_info_t *)arg;
+  /* Remove (void) definition if variable is used */
+  (void)c_session;
+
+  coap_log(LOG_INFO, "Identity Hint '%.*s' provided\n", (int)hint->length, hint->s);
+
+  /* Just use the defined information for now as passed in by arg */
+  return psk_info;
+}
+
+static coap_dtls_cpsk_t dtls_psk;
+static char client_sni[256];
+
+static coap_session_t *
+setup_client_session_psk (const char *uri,
+                          struct in_addr ip_address,
+                          const uint8_t *identity,
+                          unsigned int identity_len,
+                          const uint8_t *key,
+                          unsigned int key_len
+) {
+  coap_session_t *session;
+  coap_address_t server;
+  /* See coap_context(3) */
+  coap_context_t *context = coap_new_context(NULL);
+
+  if (!context)
+    return NULL;
+  /* See coap_block(3) */
+  coap_context_set_block_mode(context,
+                              COAP_BLOCK_USE_LIBCOAP | COAP_BLOCK_SINGLE_BODY);
+
+
+  coap_address_init(&server);
+  server.addr.sa.sa_family = AF_INET;
+  server.addr.sin.sin_addr = ip_address;
+  server.addr.sin.sin_port = htons (5684);
+
+  /* See coap_encryption(3) */
+  memset (&dtls_psk, 0, sizeof(dtls_psk));
+  dtls_psk.version = COAP_DTLS_CPSK_SETUP_VERSION;
+  dtls_psk.validate_ih_call_back = verify_ih_callback;
+  dtls_psk.ih_call_back_arg = &dtls_psk.psk_info;
+  if (uri)
+    memcpy(client_sni, uri, min(strlen(uri), sizeof(client_sni)-1));
+  else
+    memcpy(client_sni, "localhost", 9);
+  dtls_psk.client_sni = client_sni;
+  dtls_psk.psk_info.identity.s = identity;
+  dtls_psk.psk_info.identity.length = identity_len;
+  dtls_psk.psk_info.key.s = key;
+  dtls_psk.psk_info.key.length = key_len;
+  session = coap_new_client_session_psk2(context, NULL, &server,
+                                        COAP_PROTO_DTLS, &dtls_psk);
+  if (!session) {
+    coap_free_context(context);
+    return NULL;
+  }
+  /* The context is in session->context */
+  return session;
+}
+----
+
+SEE ALSO
+--------
+*coap_block*(3), *coap_context*(3), *coap_resource*(3), *coap_session*(3) and
+*coap_tls_library*(3).
+
+FURTHER INFORMATION
+-------------------
+See "RFC7252: The Constrained Application Protocol (CoAP)" for further
+information.
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net or raise an issue on GitHub at
+https://github.com/obgm/libcoap/issues
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

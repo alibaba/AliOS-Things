@@ -3,348 +3,476 @@
  */
 
 #include "st7789.h"
-#include "aos/vfs.h"
-#include "vfsdev/gpio_dev.h"
-#include "vfsdev/spi_dev.h"
-
-#include <drivers/char/u_device.h>
-#include <drivers/u_ld.h>
+#include "aos/hal/gpio.h"
+#include "aos/hal/spi.h"
+#include "hal_iomux_haas1000.h"
 #include <stdio.h>
-#include <sys/ioctl.h>
+
+#define ST7789_HEIGHT    240
+#define ST7789_WIDTH     320
+#define ST7789_DC_PIN    HAL_GPIO_PIN_P0_4
+#define ST7789_RESET_PIN HAL_GPIO_PIN_P0_0
+
+#define ST7789_NOP     0x00
+#define ST7789_SWRESET 0x01
+
+#define ST7789_SLPIN   0x10
+#define ST7789_SLPOUT  0x11
+#define ST7789_PTLON   0x12
+#define ST7789_NORON   0x13
+#define ST7789_INVOFF  0x20
+#define ST7789_INVON   0x21
+#define ST7789_DISPOFF 0x28
+#define ST7789_DISPON  0x29
+#define ST7789_IDMOFF  0x38
+#define ST7789_IDMON   0x39
+
+#define ST7789_CASET 0x2A
+#define ST7789_RASET 0x2B
+#define ST7789_RAMWR 0x2C
+#define ST7789_RAMRD 0x2E
+
+#define ST7789_COLMOD 0x3A
+#define ST7789_MADCTL 0x36
+
+#define ST7789_PTLAR    0x30
+#define ST7789_VSCRDEF  0x33
+#define ST7789_VSCRSADD 0x37
+
+#define ST7789_WRDISBV  0x51
+#define ST7789_WRCTRLD  0x53
+#define ST7789_WRCACE   0x55
+#define ST7789_WRCABCMB 0x5e
+
+#define ST7789_POWSAVE    0xbc
+#define ST7789_DLPOFFSAVE 0xbd
+
+#define ST7789_MADCTL_MY  0x80
+#define ST7789_MADCTL_MX  0x40
+#define ST7789_MADCTL_MV  0x20
+#define ST7789_MADCTL_ML  0x10
+#define ST7789_MADCTL_RGB 0x00
+
+#define ST_CMD_DELAY 0x80
 
 #define SPI_MAX_BLOCK 60000
 
-typedef enum {
-    CMD = 0,
-    DAT = 1,
-} st7789_dc_t;
+static spi_dev_t  spi_st7789 = {0};
+static gpio_dev_t gpio_st7789_dc;
+static gpio_dev_t gpio_st7789_reset;
+static gpio_dev_t gpio_st7789_blk;
 
-static int gpio_output(int gpio_fd, int gpio_id, bool output)
-{
-    struct gpio_io_config config = {0};
-    config.id                    = gpio_id;
-    config.config                = GPIO_IO_OUTPUT | GPIO_IO_OUTPUT_PP;
-    config.data                  = output > 0;
-    int ret = ioctl(gpio_fd, IOC_GPIO_SET, (unsigned long)&config);
-    return ret;
-}
-
-static inline void spi_write(int spi_fd, const void *data, uint32_t size)
+static inline void spi_write(const void *data, uint32_t size)
 {
     if (size > SPI_MAX_BLOCK) {
         uint32_t rest  = size;
         uint32_t start = 0;
         while (rest > SPI_MAX_BLOCK) {
-            write(spi_fd, (const void *)(data + start), SPI_MAX_BLOCK);
+            hal_spi_send(&spi_st7789, (const void *)(data + start),
+                         SPI_MAX_BLOCK, 10);
             start += SPI_MAX_BLOCK;
             rest -= SPI_MAX_BLOCK;
         }
-        write(spi_fd, (const void *)(data + start), rest);
+        hal_spi_send(&spi_st7789, (const void *)(data + start), rest, 10);
     } else {
-        write(spi_fd, (const void *)data, (uint16_t)size);
+        hal_spi_send(&spi_st7789, (const void *)data, (uint16_t)size, 10);
     }
 }
 
-static inline void st7789_dc_write_bytes(st7789_dev_t st7789_dev,
-                                         st7789_dc_t  st7789_dc,
-                                         uint8_t *bytes,
-                                         uint32_t     size)
+static inline void write_command(uint8_t c)
 {
-    gpio_output(st7789_dev.gpio_fd, st7789_dev.gpio_dc_id, st7789_dc);
-    spi_write(st7789_dev.spi_fd, bytes, size);
+    hal_gpio_output_low(&gpio_st7789_dc);
+    spi_write(&c, sizeof(c));
 }
 
-static inline void st7789_dc_write_byte(st7789_dev_t st7789_dev,
-                                        st7789_dc_t  st7789_dc,
-                                        uint8_t      byte)
+static inline void write_data(uint8_t c)
 {
-    gpio_output(st7789_dev.gpio_fd, st7789_dev.gpio_dc_id, st7789_dc);
-    spi_write(st7789_dev.spi_fd, &byte, 1);
+    hal_gpio_output_high(&gpio_st7789_dc);
+    spi_write(&c, sizeof(c));
 }
 
-int st7789_hw_init(st7789_dev_t *st7789_dev)
+static void
+set_addr_window(uint16_t x_0, uint16_t y_0, uint16_t x_1, uint16_t y_1)
 {
-    int ret = 0;
+    uint8_t data[4];
 
-    char spi_dev_name[20] = {0};
-    sprintf(spi_dev_name, "/dev/spi%d", st7789_dev->spi_port);
-
-    st7789_dev->spi_fd = open(spi_dev_name, 0);
-
-    if (st7789_dev->spi_fd > 0) {
-        ret |= ioctl(st7789_dev->spi_fd, IOC_SPI_SET_CFLAG,
-                     SPI_MODE_3 | SPI_MSB | SPI_MASTER | SPI_DATA_8BIT);
-        ret |=
-            ioctl(st7789_dev->spi_fd, IOC_SPI_SET_FREQ, st7789_dev->spi_freq);
-        ret |= ioctl(st7789_dev->spi_fd, IOC_SPI_SET_SERIAL_LEN, 8);
-    } else {
-        printf(
-            "st7789 hardware_init fail, open /dev/spi%d fiail, spi_fd is %d\n",
-            st7789_dev->spi_port, st7789_dev->spi_fd);
-        return 1;
+    if (x_0 > x_1) {
+        x_0 = x_0 ^ x_1;
+        x_1 = x_0 ^ x_1;
+        x_0 = x_0 ^ x_1;
+    }
+    if (y_0 > y_1) {
+        y_0 = y_0 ^ y_1;
+        y_1 = y_0 ^ y_1;
+        y_0 = y_0 ^ y_1;
     }
 
-    st7789_dev->gpio_fd = open("/dev/gpio", 0);
-    if (st7789_dev->gpio_fd > 0) {
-        ret |= gpio_output(st7789_dev->gpio_fd, st7789_dev->gpio_reset_id, 0);
-        usleep(50 * 1000);
-        ret |= gpio_output(st7789_dev->gpio_fd, st7789_dev->gpio_reset_id, 1);
-    } else {
-        printf(
-            "st7789 hardware_init fail, open /dev/gpio fail, gpio_fd is %d\n",
-            st7789_dev->gpio_fd);
-        return 1;
+    write_command(ST7789_CASET);
+    hal_gpio_output_high(&gpio_st7789_dc);
+    data[0] = x_0 >> 8;
+    data[1] = x_0;
+    data[2] = x_1 >> 8;
+    data[3] = x_1;
+    spi_write(data, 4);
+    write_command(ST7789_RASET);
+    hal_gpio_output_high(&gpio_st7789_dc);
+    data[0] = y_0 >> 8;
+    data[1] = y_0;
+    data[2] = y_1 >> 8;
+    data[3] = y_1;
+    spi_write(data, 4);
+    write_command(ST7789_RAMWR);
+}
+
+static void command_list(void)
+{
+    hal_gpio_output_high(&gpio_st7789_reset);
+    aos_msleep(1);
+    hal_gpio_output_low(&gpio_st7789_reset);
+    aos_msleep(10);
+    hal_gpio_output_high(&gpio_st7789_reset);
+    aos_msleep(120);
+
+    write_command(0x36);
+    write_data(0x00);
+
+    write_command(0x3a);
+    write_data(0x05);
+
+    write_command(0xb2);
+    write_data(0x0c);
+    write_data(0x0c);
+    write_data(0x00);
+    write_data(0x33);
+    write_data(0x33);
+
+    write_command(0xb7);
+    write_data(0x70);
+
+    write_command(0xbb);
+    write_data(0x21);
+
+    write_command(0xc0);
+    write_data(0x2c);
+
+    write_command(0xc2);
+    write_data(0x01);
+
+    write_command(0xc3);
+    write_data(0x0B);
+
+    write_command(0xc4);
+    write_data(0x27);
+
+    write_command(0xc6);
+    write_data(0x0f);
+
+    write_command(0xd0);
+    write_data(0xa4);
+    write_data(0xA1);
+
+    write_command(0xe0);
+    write_data(0xD0);
+    write_data(0x06);
+    write_data(0x0B);
+    write_data(0x09);
+    write_data(0x08);
+    write_data(0x30);
+    write_data(0x30);
+    write_data(0x5B);
+    write_data(0x4B);
+    write_data(0x18);
+    write_data(0x14);
+    write_data(0x14);
+    write_data(0x2C);
+    write_data(0x32);
+
+    write_command(0xe1);
+    write_data(0xD0);
+    write_data(0x05);
+    write_data(0x0A);
+    write_data(0x0A);
+    write_data(0x07);
+    write_data(0x28);
+    write_data(0x32);
+    write_data(0x2C);
+    write_data(0x49);
+    write_data(0x18);
+    write_data(0x13);
+    write_data(0x13);
+    write_data(0x2C);
+    write_data(0x33);
+
+    write_command(0x21);
+
+    write_command(0x2A);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0xEF);
+
+    write_command(0x2B);
+    write_data(0x00);
+    write_data(0x00);
+    write_data(0x01);
+    write_data(0x3F);
+
+    write_command(0x11);
+    aos_msleep(120);
+
+    write_command(0x29);
+    write_command(0x2c);
+}
+
+static uint8_t hardware_init(void)
+{
+    int32_t ret = 0;
+
+    spi_st7789.port              = 0;
+    spi_st7789.config.mode       = SPI_WORK_MODE_3; // CPOL = 1; CPHA = 1
+    spi_st7789.config.freq       = 26000000;
+    spi_st7789.config.role       = SPI_ROLE_MASTER;
+    spi_st7789.config.firstbit   = SPI_FIRSTBIT_MSB;
+    spi_st7789.config.t_mode     = SPI_TRANSFER_NORMAL;
+    spi_st7789.config.serial_len = 8;
+    spi_st7789.config.data_size  = SPI_DATA_SIZE_8BIT;
+    spi_st7789.config.cs         = SPI_CS_DIS;
+
+    gpio_st7789_dc.port   = ST7789_DC_PIN;
+    gpio_st7789_dc.config = OUTPUT_PUSH_PULL;
+    gpio_st7789_dc.priv   = NULL;
+
+    gpio_st7789_reset.port   = ST7789_RESET_PIN;
+    gpio_st7789_reset.config = OUTPUT_PUSH_PULL;
+    gpio_st7789_reset.priv   = NULL;
+
+    gpio_st7789_blk.port   = HAL_IOMUX_PIN_P0_6;
+    gpio_st7789_blk.config = OUTPUT_PUSH_PULL;
+    hal_gpio_output_high(&gpio_st7789_blk);
+
+    printf("hardware_init START\r\n");
+
+    ret |= hal_spi_init(&spi_st7789);
+
+    ret |= hal_gpio_init(&gpio_st7789_dc);
+    ret |= hal_gpio_init(&gpio_st7789_reset);
+
+    printf("hal_gpio_init done\r\n");
+
+    ret |= hal_gpio_output_low(&gpio_st7789_reset);
+    aos_msleep(500);
+    ret |= hal_gpio_output_high(&gpio_st7789_reset);
+
+    printf("hal_spi_init done\r\n");
+
+    if (ret) {
+        printf("hardware_init fail\r\n");
+        return ret;
     }
-
-    st7789_init_command(*st7789_dev);
-
-    printf("st7789 hardware_init %s\n", ret == 0 ? "success" : "fail");
 
     return ret;
 }
 
-static void st7789_init_command(st7789_dev_t st7789_dev)
+uint8_t st7789_init(void)
 {
-    st7789_dc_write_byte(st7789_dev, CMD, ST7789_MADCTL);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x00);
+    uint8_t err_code;
 
-    st7789_dc_write_byte(st7789_dev, CMD, ST7789_COLMOD);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x05);
-
-    st7789_dc_write_byte(st7789_dev, CMD, 0xb2);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x0c);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x0c);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x00);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x33);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x33);
-
-    st7789_dc_write_byte(st7789_dev, CMD, 0xb7);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x70);
-
-    st7789_dc_write_byte(st7789_dev, CMD, 0xbb);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x21);
-
-    st7789_dc_write_byte(st7789_dev, CMD, 0xc0);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x2c);
-
-    st7789_dc_write_byte(st7789_dev, CMD, 0xc2);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x01);
-
-    st7789_dc_write_byte(st7789_dev, CMD, 0xc3);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x0B);
-
-    st7789_dc_write_byte(st7789_dev, CMD, 0xc4);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x27);
-
-    st7789_dc_write_byte(st7789_dev, CMD, 0xc6);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x0f);
-
-    st7789_dc_write_byte(st7789_dev, CMD, 0xd0);
-    st7789_dc_write_byte(st7789_dev, DAT, 0xa4);
-    st7789_dc_write_byte(st7789_dev, DAT, 0xa1);
-
-    st7789_dc_write_byte(st7789_dev, CMD, 0xe0);
-    st7789_dc_write_byte(st7789_dev, DAT, 0xD0);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x06);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x0B);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x09);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x08);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x30);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x30);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x5B);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x4B);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x18);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x14);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x14);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x2C);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x32);
-
-    st7789_dc_write_byte(st7789_dev, CMD, 0xe1);
-    st7789_dc_write_byte(st7789_dev, DAT, 0xD0);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x05);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x0A);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x0A);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x07);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x28);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x32);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x2C);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x49);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x18);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x13);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x13);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x2C);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x33);
-
-    st7789_dc_write_byte(st7789_dev, CMD, ST7789_INVON);
-
-    st7789_dc_write_byte(st7789_dev, CMD, ST7789_CASET);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x00);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x00);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x00);
-    st7789_dc_write_byte(st7789_dev, DAT, 0xEF);
-
-    st7789_dc_write_byte(st7789_dev, CMD, ST7789_RASET);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x00);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x00);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x01);
-    st7789_dc_write_byte(st7789_dev, DAT, 0x3F);
-
-    st7789_dc_write_byte(st7789_dev, CMD, ST7789_SLPOUT);
-    usleep(120 * 1000);
-
-    st7789_dc_write_byte(st7789_dev, CMD, ST7789_DISPON);
-    st7789_dc_write_byte(st7789_dev, CMD, ST7789_RAMWR);
-}
-
-int st7789_hw_uninit(st7789_dev_t *st7789_dev)
-{
-    int ret = 0;
-    ret |= close(st7789_dev->spi_fd);
-    ret |= close(st7789_dev->gpio_fd);
-    return ret;
-}
-
-static void set_addr_window(st7789_dev_t st7789_dev,
-                            uint16_t     x_0,
-                            uint16_t     y_0,
-                            uint16_t     x_1,
-                            uint16_t     y_1)
-{
-    uint8_t data[4] = {0};
-    if (x_0 < x_1) {
-        data[0] = x_0 >> 8;
-        data[1] = x_0;
-        data[2] = x_1 >> 8;
-        data[3] = x_1;
-    } else {
-        data[0] = x_1 >> 8;
-        data[1] = x_1;
-        data[2] = x_0 >> 8;
-        data[3] = x_0;
+    err_code = hardware_init();
+    if (err_code != 0) {
+        return err_code;
     }
-    st7789_dc_write_byte(st7789_dev, CMD, ST7789_CASET);
-    st7789_dc_write_bytes(st7789_dev, DAT, data, 4);
-    if (y_0 < y_1) {
-        data[0] = y_0 >> 8;
-        data[1] = y_0;
-        data[2] = y_1 >> 8;
-        data[3] = y_1;
-    } else {
-        data[0] = y_1 >> 8;
-        data[1] = y_1;
-        data[2] = y_0 >> 8;
-        data[3] = y_0;
-    }
-    st7789_dc_write_byte(st7789_dev, CMD, ST7789_RASET);
-    st7789_dc_write_bytes(st7789_dev, DAT, data, 4);
 
-    st7789_dc_write_byte(st7789_dev, CMD, ST7789_RAMWR);
+    command_list();
+
+    st7789_rotation_set(90);
+
+    return err_code;
 }
 
-void st7789_draw_pixel(st7789_dev_t st7789_dev,
-                       uint16_t     x,
-                       uint16_t     y,
-                       uint16_t     color)
+static void st7789_uninit(void)
 {
-    set_addr_window(st7789_dev, x, y, x, y);
-    uint8_t data[2] = {color >> 8, color};
-    st7789_dc_write_bytes(st7789_dev, DAT, data, 2);
+    ;
 }
 
-void st7789_draw_area(st7789_dev_t st7789_dev,
-                      uint16_t     x,
-                      uint16_t     y,
-                      uint16_t     width,
-                      uint16_t     height,
-                      uint8_t *frame)
+void st7789_pixel_draw(uint16_t x, uint16_t y, uint16_t color)
+{
+    set_addr_window(x, y, x, y);
+
+    const uint8_t data[2] = {color >> 8, color};
+
+    hal_gpio_output_high(&gpio_st7789_dc);
+
+    spi_write(data, sizeof(data));
+
+    hal_gpio_output_low(&gpio_st7789_dc);
+}
+
+void st7789_rect_draw(uint16_t x,
+                      uint16_t y,
+                      uint16_t width,
+                      uint16_t height,
+                      uint16_t color)
+{
+    set_addr_window(x, y, x + width - 1, y + height - 1);
+    uint32_t bufferSize = width * height;
+    hal_gpio_output_high(&gpio_st7789_dc);
+    unsigned char *burst_buffer = (unsigned char *)malloc(bufferSize * 2);
+    for (uint32_t i = 0; i < bufferSize; i++) {
+        burst_buffer[2 * i]     = color >> 8;
+        burst_buffer[2 * i + 1] = color;
+    }
+    spi_write(burst_buffer, bufferSize * 2);
+    free(burst_buffer);
+}
+
+void st7789_line_draw(uint16_t x,
+                      uint16_t y,
+                      uint16_t length,
+                      uint8_t  dir,
+                      uint16_t color)
+{
+    if (dir == 0) {
+        st7789_rect_draw(x, y, length, 1, color);
+    } else {
+        st7789_rect_draw(x, y, 1, length, color);
+    }
+}
+
+void st7789_area_draw(uint16_t x,
+                      uint16_t y,
+                      uint16_t width,
+                      uint16_t height,
+                      uint8_t *frame,
+                      uint32_t areaSize)
 {
     uint16_t *rgb565_frame = (uint16_t *)frame;
 
-    set_addr_window(st7789_dev, x, y, x + width - 1, y + height - 1);
-    uint32_t       bufferSize   = width * height * sizeof(uint16_t);
-    unsigned char *burst_buffer = (unsigned char *)malloc(bufferSize);
-    for (uint32_t i = 0; i < bufferSize; i++) {
-        burst_buffer[i] =
-            (bufferSize % 2) ? rgb565_frame[i] : rgb565_frame[i] >> 8;
+    if (width * height != areaSize) {
+        printf("error parm width * height != areaSize\n");
+        return;
     }
-    st7789_dc_write_bytes(st7789_dev, DAT, burst_buffer, bufferSize);
+
+    set_addr_window(x, y, x + width - 1, y + height - 1);
+    uint32_t bufferSize = width * height;
+    hal_gpio_output_high(&gpio_st7789_dc);
+    unsigned char *burst_buffer = (unsigned char *)malloc(bufferSize * 2);
+    for (uint32_t i = 0; i < bufferSize; i++) {
+        burst_buffer[2 * i]     = rgb565_frame[i] >> 8;
+        burst_buffer[2 * i + 1] = rgb565_frame[i];
+    }
+    spi_write(burst_buffer, bufferSize * 2);
     free(burst_buffer);
 }
 
-void st7789_draw_rect(st7789_dev_t st7789_dev,
-                      uint16_t     x,
-                      uint16_t     y,
-                      uint16_t     width,
-                      uint16_t     height,
-                      uint16_t     color)
-{
-    set_addr_window(st7789_dev, x, y, x + width - 1, y + height - 1);
-    uint32_t       bufferSize   = width * height * sizeof(uint16_t);
-    unsigned char *burst_buffer = (unsigned char *)malloc(bufferSize);
-    for (uint32_t i = 0; i < bufferSize; i++) {
-        burst_buffer[i] = (bufferSize % 2) ? color : color >> 8;
-    }
-    st7789_dc_write_bytes(st7789_dev, DAT, burst_buffer, bufferSize);
-    free(burst_buffer);
-}
-
-void st7789_draw_frame(st7789_dev_t st7789_dev, uint8_t *frame)
+void st7789_frame_draw(uint8_t *frame)
 {
     uint16_t *rgb565_frame = (uint16_t *)frame;
-    uint32_t  bufferSize   = ST7789_HEIGHT * ST7789_WIDTH * sizeof(uint16_t);
-    set_addr_window(st7789_dev, 0, 0, ST7789_WIDTH - 1, ST7789_HEIGHT - 1);
-    unsigned char *burst_buffer = (unsigned char *)malloc(bufferSize);
+    uint32_t  bufferSize   = ST7789_HEIGHT * ST7789_WIDTH;
+
+    set_addr_window(0, 0, ST7789_WIDTH - 1, ST7789_HEIGHT - 1);
+    hal_gpio_output_high(&gpio_st7789_dc);
+
+    unsigned char *burst_buffer = (unsigned char *)malloc(bufferSize * 2);
+
     for (uint32_t i = 0; i < bufferSize; i++) {
-        burst_buffer[i] =
-            (bufferSize % 2) ? rgb565_frame[i] : rgb565_frame[i] >> 8;
+        burst_buffer[2 * i]     = rgb565_frame[i] >> 8;
+        burst_buffer[2 * i + 1] = rgb565_frame[i];
     }
-    st7789_dc_write_bytes(st7789_dev, DAT, burst_buffer, bufferSize);
+
+    spi_write(burst_buffer, bufferSize * 2);
+
     free(burst_buffer);
 }
-
-void st7789_set_rotation(st7789_dev_t st7789_dev, uint16_t rotation)
+#if 0
+void    st7789_local_refresh(uint16_t x1,
+                         uint16_t y1,
+                         uint16_t x2,
+                         uint16_t y2,
+                         uint8_t *frame)
 {
-    st7789_dc_write_byte(st7789_dev, CMD, ST7789_MADCTL);
+    uint16_t *rgb565_frame = (uint16_t *)frame;
+    uint32_t  bufferSize   = ST7789_HEIGHT * ST7789_WIDTH;
+
+    set_addr_window(x1, y1, x2, y2);
+    hal_gpio_output_high(&gpio_st7789_dc);
+
+    unsigned char *burst_buffer = (unsigned char *)malloc(bufferSize * 2);
+
+    for (uint32_t i = 0; i < bufferSize; i++) {
+        burst_buffer[2 * i]     = rgb565_frame[i] >> 8;
+        burst_buffer[2 * i + 1] = rgb565_frame[i];
+    }
+
+    spi_write(burst_buffer, bufferSize * 2);
+
+    free(burst_buffer);
+}
+#else
+void    st7789_local_refresh(uint16_t x1,
+                         uint16_t y1,
+                         uint16_t x2,
+                         uint16_t y2,
+                         uint8_t *frame)
+{
+    printf("new st7789_local_refresh\r\n");
+    uint16_t *rgb565_frame = (uint16_t *)frame;
+    uint32_t  bufferSize   = (x2 -x1 + 1) * (y2 -y1 +1);
+
+    set_addr_window(x1, y1, x2, y2);
+    hal_gpio_output_high(&gpio_st7789_dc);
+
+    unsigned char *burst_buffer = (unsigned char *)malloc(bufferSize * 2);
+
+    for (uint32_t i = 0; i < bufferSize; i++) {
+        burst_buffer[2 * i]     = rgb565_frame[i] >> 8;
+        burst_buffer[2 * i + 1] = rgb565_frame[i];
+    }
+
+    spi_write(burst_buffer, bufferSize * 2);
+
+    free(burst_buffer);
+}
+#endif
+void st7789_dummy_display(void) { /* No implementation needed. */ }
+
+void st7789_rotation_set(uint16_t rotation)
+{
+    write_command(ST7789_MADCTL);
     switch (rotation) {
         case 0:
-            st7789_dc_write_byte(st7789_dev, DAT,
-                                 ST7789_MADCTL_MX | ST7789_MADCTL_RGB);
+            write_data(ST7789_MADCTL_MX | ST7789_MADCTL_RGB);
             break;
         case 90:
-            st7789_dc_write_byte(st7789_dev, DAT,
-                                 ST7789_MADCTL_MV | ST7789_MADCTL_MX |
-                                     ST7789_MADCTL_RGB);
+            write_data(ST7789_MADCTL_MV | ST7789_MADCTL_MX | ST7789_MADCTL_RGB);
             break;
         case 180:
-            st7789_dc_write_byte(st7789_dev, DAT,
-                                 ST7789_MADCTL_MY | ST7789_MADCTL_RGB);
+            write_data(ST7789_MADCTL_MY | ST7789_MADCTL_RGB);
             break;
         case 270:
-            st7789_dc_write_byte(st7789_dev, DAT,
-                                 ST7789_MADCTL_MX | ST7789_MADCTL_MY |
-                                     ST7789_MADCTL_MV | ST7789_MADCTL_RGB);
+            write_data(ST7789_MADCTL_MX | ST7789_MADCTL_MY | ST7789_MADCTL_MV |
+                       ST7789_MADCTL_RGB);
             break;
         default:
             break;
     }
 }
 
-void st7789_set_invert(st7789_dev_t st7789_dev, uint8_t invert)
+static void st7789_display_invert(uint8_t invert)
 {
-    st7789_dc_write_byte(st7789_dev, CMD,
-                         invert ? ST7789_INVON : ST7789_INVOFF);
+    write_command(invert ? ST7789_INVON : ST7789_INVOFF);
 }
 
-void st7789_enter_sleep(st7789_dev_t st7789_dev)
+void EnterSleep(void)
 {
-    st7789_dc_write_byte(st7789_dev, CMD, 0x28);
-    usleep(20 * 1000);
-    st7789_dc_write_byte(st7789_dev, CMD, 0x10);
+    write_command(0x28);
+    aos_msleep(20);
+    write_command(0x10);
 }
 
-void st7789_exit_sleep(st7789_dev_t st7789_dev)
+void ExitSleep(void)
+
 {
-    st7789_dc_write_byte(st7789_dev, CMD, 0x11);
-    usleep(120 * 1000);
-    st7789_dc_write_byte(st7789_dev, CMD, 0x29);
+    write_command(0x11);
+    aos_msleep(120);
+    write_command(0x29);
 }

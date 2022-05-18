@@ -1,0 +1,139 @@
+{
+  "schema": "https://iotx-tsl.oss-ap-southeast-1.aliyuncs.com/schema.json",
+  "profile": {
+    "version": "1.0",
+    "productKey": "a1CHxgMIMku"
+  },
+  "properties": [
+    {
+      "identifier": "fireVoltage",
+      "name": "火焰检测电压",
+      "accessMode": "r",
+      "desc": "火焰传感器检测的电压值",
+      "required": false,
+      "dataType": {
+        "type": "int",
+        "specs": {
+          "min": "0",
+          "max": "5000",
+          "unit": "mV",
+          "unitName": "毫伏",
+          "step": "1"
+        }
+      }
+    },
+    {
+      "identifier": "alarmState",
+      "name": "报警状态",
+      "accessMode": "rw",
+      "required": false,
+      "dataType": {
+        "type": "bool",
+        "specs": {
+          "0": "关闭报警",
+          "1": "开始报警"
+        }
+      }
+    }
+  ],
+  "events": [
+    {
+      "identifier": "post",
+      "name": "post",
+      "type": "info",
+      "required": true,
+      "desc": "属性上报",
+      "method": "thing.event.property.post",
+      "outputData": [
+        {
+          "identifier": "fireVoltage",
+          "name": "火焰检测电压",
+          "dataType": {
+            "type": "int",
+            "specs": {
+              "min": "0",
+              "max": "5000",
+              "unit": "mV",
+              "unitName": "毫伏",
+              "step": "1"
+            }
+          }
+        },
+        {
+          "identifier": "alarmState",
+          "name": "报警状态",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭报警",
+              "1": "开始报警"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "services": [
+    {
+      "identifier": "set",
+      "name": "set",
+      "required": true,
+      "callType": "async",
+      "desc": "属性设置",
+      "method": "thing.service.property.set",
+      "inputData": [
+        {
+          "identifier": "alarmState",
+          "name": "报警状态",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭报警",
+              "1": "开始报警"
+            }
+          }
+        }
+      ],
+      "outputData": []
+    },
+    {
+      "identifier": "get",
+      "name": "get",
+      "required": true,
+      "callType": "async",
+      "desc": "属性获取",
+      "method": "thing.service.property.get",
+      "inputData": [
+        "fireVoltage",
+        "alarmState"
+      ],
+      "outputData": [
+        {
+          "identifier": "fireVoltage",
+          "name": "火焰检测电压",
+          "dataType": {
+            "type": "int",
+            "specs": {
+              "min": "0",
+              "max": "5000",
+              "unit": "mV",
+              "unitName": "毫伏",
+              "step": "1"
+            }
+          }
+        },
+        {
+          "identifier": "alarmState",
+          "name": "报警状态",
+          "dataType": {
+            "type": "bool",
+            "specs": {
+              "0": "关闭报警",
+              "1": "开始报警"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

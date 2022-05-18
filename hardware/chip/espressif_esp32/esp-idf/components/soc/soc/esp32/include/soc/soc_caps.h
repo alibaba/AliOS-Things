@@ -14,3 +14,6 @@
 #define SOC_EMAC_SUPPORTED 1
 
 #define SOC_CPU_CORES_NUM 2
+
+// ESP32 have 2 I2S
+#define SOC_I2S_NUM            (2)

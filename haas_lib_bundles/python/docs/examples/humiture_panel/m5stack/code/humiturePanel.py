@@ -17,10 +17,7 @@ class HumiturePanel:
         global lvglInitialized
 
         if lvglInitialized == False:
-            import lvgl as lv
-            lv.init()
-            from display import LVGL as disp
-            disp.init()
+            import display_driver
             lvglInitialized = True
 
         # init scr

@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+set -euxo pipefail
+
+readonly OT_BUILDDIR="$(pwd)/build"
+
+readonly OT_COMMON_OPTIONS=(
+    "-DOT_COMPILE_WARNING_AS_ERROR=ON"
+)
+
+readonly OT_BASIC_CHECK_OPTIONS=(
+    "-DOT_COMMISSIONER=ON"
+    "-DOT_DHCP6_CLIENT=ON"
+    "-DOT_DHCP6_SERVER=ON"
+    "-DOT_DNS_CLIENT=ON"
+    "-DOT_JOINER=ON"
+)
+
+reset_source()
+{
+    rm -rf "$OT_BUILDDIR"
+}
+
+build_cc2538()
+{
+    local options=(
+        # cc2538 does not have enough resources to support Thread 1.2
+        "-DOT_THREAD_VERSION=1.1"
+    )
+
+    reset_source
+    "$(dirname "$0")"/cmake-build cc2538 "${OT_COMMON_OPTIONS[@]}" "${OT_BASIC_CHECK_OPTIONS[@]}" "${options[@]}"
+}
+
+main()
+{
+    export CPPFLAGS="${CPPFLAGS:-} -DNDEBUG"
+
+    if [[ $# == 0 ]]; then
+        build_cc2538
+        return 0
+    fi
+
+    while [[ $# != 0 ]]; do
+        "build_$1"
+        shift
+    done
+}
+
+main "$@"

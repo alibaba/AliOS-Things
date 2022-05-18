@@ -26,7 +26,7 @@ int32_t qmc5883l_i2c_master_recv(uint8_t *data, uint16_t size, uint32_t timeout)
     return sensor_i2c_master_recv(QMC5883L_I2C_PORT, QMC5883L_ADDR, data, size, timeout);
 }
 
-static qmc5883l_write_register(uint8_t addr, uint8_t reg, uint8_t data)
+static void qmc5883l_write_register(uint8_t addr, uint8_t reg, uint8_t data)
 {
     uint8_t write_buffer[2] = {reg, data};
     qmc5883l_i2c_master_send(write_buffer, 2, 1000);
@@ -55,6 +55,8 @@ static void qmc5883l_reconfig()
                             oversampling | range | rate | mode);
     qmc5883l_write_register(addr, QMC5883L_CONFIG2, 0x1);
 }
+
+void qmc5883l_resetCalibration(void);
 
 static void qmc5883l_reset()
 {
@@ -155,7 +157,7 @@ int qmc5883l_readRaw(int16_t *x, int16_t *y, int16_t *z)
     return 1;
 }
 
-void qmc5883l_resetCalibration()
+void qmc5883l_resetCalibration(void)
 {
     x_max = y_max = z_max = INT16_MIN;
     x_min = y_min = z_min = INT16_MAX;

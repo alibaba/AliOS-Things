@@ -72,7 +72,7 @@ STATIC mp_obj_t hapy_netmgr_init(void)
             LOGE(LOG_TAG, "netmgr_service_init failed");
             return ret;
         }
-        netmgr_set_auto_reconnect(NULL, true);
+        // netmgr_set_auto_reconnect(NULL, true);
         ret = netmgr_wifi_set_auto_save_ap(true);
         if (ret != 0) {
             LOGE(LOG_TAG, "netmgr_wifi_set_auto_save_ap failed");

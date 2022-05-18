@@ -1,4 +1,4 @@
-# 温湿度传感器 - BMP280
+# 气压传感器 - BMP280
 
 ## 一、产品简介
 BMP280是博世出品的气压传感器，它集成了压电压力传感单元、信号处理电路及模数转换器,气压值可以通过SPI或I2C读出,在室内导航、无人机、气象站等场景有广泛应用。
@@ -22,6 +22,9 @@ BMP280是博世出品的气压传感器，它集成了压电压力传感单元�
 * 工作温度范围: -40摄氏度 - +85摄氏度
 
 ## 三、软件接口
+
+BMP280气压传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/bmp280)
+<br>
 
 ### BMP280(i2cObj) - 创建BMP280驱动对象
 * 函数原型：

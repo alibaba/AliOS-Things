@@ -140,8 +140,8 @@ static int32_t topic_subscribe(void *mqtt_handle, const char *fmt, void *callbac
     int res = STATE_SUCCESS;
     int topic_len = 0;
     char *topic = NULL;
-    char amp_internal_productkey[IOTX_PRODUCT_KEY_LEN] = { 0 };
-    char amp_internal_devicename[IOTX_DEVICE_NAME_LEN] = { 0 };
+    char amp_internal_productkey[IOTX_PRODUCT_KEY_LEN + 1] = { 0 };
+    char amp_internal_devicename[IOTX_DEVICE_NAME_LEN + 1] = { 0 };
     int productkey_len = IOTX_PRODUCT_KEY_LEN;
     int devicename_len = IOTX_DEVICE_NAME_LEN;
 
@@ -173,8 +173,8 @@ static int32_t topic_publish(void *handle, const char *fmt, char *payload)
     int res = STATE_SUCCESS;
     char *topic = NULL;
     int topic_len = 0;
-    char amp_internal_productkey[IOTX_PRODUCT_KEY_LEN] = { 0 };
-    char amp_internal_devicename[IOTX_DEVICE_NAME_LEN] = { 0 };
+    char amp_internal_productkey[IOTX_PRODUCT_KEY_LEN + 1] = { 0 };
+    char amp_internal_devicename[IOTX_DEVICE_NAME_LEN + 1] = { 0 };
     int productkey_len = IOTX_PRODUCT_KEY_LEN;
     int devicename_len = IOTX_DEVICE_NAME_LEN;
 
