@@ -202,5 +202,5 @@ int32_t aos_hal_uart_callback(aos_hal_uart_dev_t *uart, void (*cb)(int, void *, 
     uart->userdata = userdata;
     uart_dev_table[uart->port] = uart;
     uart_set_select_notif_callback(uart->port, select_notif_callback_isr);
-    return 0;
+    return -ENOTSUP;
 }
