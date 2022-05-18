@@ -1,0 +1,26 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "buzzer": {
+      "type": "GPIO",
+      "port": 27,
+      "dir": "output",
+      "pull": "pullup"
+    },
+    "trig": {
+      "type": "GPIO",
+      "port": 25,
+      "dir": "output",
+      "pull": "pullup"
+    },
+    "echo": {
+      "type": "GPIO",
+      "port": 26,
+      "dir": "input",
+      "pull": "pullup"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
