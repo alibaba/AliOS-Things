@@ -1,0 +1,19 @@
+[mapping:app_trace]
+archive: libapp_trace.a
+entries:
+    app_trace (noflash)
+    app_trace_util (noflash)
+    if APPTRACE_SV_ENABLE = y:
+      SEGGER_SYSVIEW (noflash)
+      SEGGER_RTT_esp (noflash)
+      SEGGER_SYSVIEW_Config_FreeRTOS (noflash)
+      SEGGER_SYSVIEW_FreeRTOS (noflash)
+
+[mapping:app_trace_driver]
+archive: libdriver.a
+entries:
+    if APPTRACE_SV_TS_SOURCE_TIMER_00 = y || APPTRACE_SV_TS_SOURCE_TIMER_01 = y
+       || APPTRACE_SV_TS_SOURCE_TIMER_10 = y || APPTRACE_SV_TS_SOURCE_TIMER_11 = y:
+      timer (noflash)
+    else:
+      * (default)

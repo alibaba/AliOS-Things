@@ -1,0 +1,244 @@
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE]
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+_openthread_config_file = ""
+if (current_os == "fuchsia") {
+  _openthread_config_file = "<openthread-config-android.h>"
+}
+
+declare_args() {
+  # OpenThread config header.
+  openthread_config_file = _openthread_config_file
+
+  # Extra deps for OpenThread configuration.
+  openthread_config_deps = []
+
+  # Include directories for project specific configs.
+  openthread_project_include_dirs = []
+
+  # OpenThread project-specific core config header
+  openthread_project_core_config_file = ""
+
+  # OpenThread platform-specific config check header
+  openthread_core_config_platform_check_file = ""
+
+  # Extra deps for OpenThread core configuration.
+  openthread_core_config_deps = []
+
+  # Use external platform.
+  openthread_external_platform = ""
+
+  # Use external mbedtls. If blank, internal mbedtls will be used.
+  openthread_external_mbedtls = ""
+
+  # Package name for OpenThread.
+  openthread_package_name = "OPENTHREAD"
+
+  # Package version for OpenThread.
+  openthread_package_version = "1.0.0"
+}
+
+declare_args() {
+  # Configure OpenThread via GN arguments.
+  openthread_enable_core_config_args = openthread_project_core_config_file == ""
+}
+
+if (openthread_enable_core_config_args) {
+  declare_args() {
+    # Thread version: 1.1, 1.2
+    openthread_config_thread_version = ""
+
+    # Log output: none, debug_uart, app, platform
+    openthread_config_log_output = ""
+
+    # Enable assertions.
+    openthread_config_assert_enable = true
+
+    # Enable anycast locator functionality
+    openthread_config_anycast_locator_enable = false
+
+    # Enable backbone router functionality
+    openthread_config_backbone_router_enable = false
+
+    # Enable border agent support
+    openthread_config_border_agent_enable = false
+
+    # Enable border router support
+    openthread_config_border_router_enable = false
+
+    # Enable border routing support
+    openthread_config_border_routing_enable = false
+
+    # Enable channel manager support
+    openthread_config_channel_manager_enable = false
+
+    # Enable channel monitor support
+    openthread_config_channel_monitor_enable = false
+
+    # Enable child supervision support
+    openthread_config_child_supervision_enable = false
+
+    # Enable coap api support
+    openthread_config_coap_api_enable = false
+
+    # Enable secure coap api support
+    openthread_config_coap_secure_api_enable = false
+
+    # Enable coap observe (RFC7641) api support
+    openthread_config_coap_observe_api_enable = false
+
+    # Enable commissioner support
+    openthread_config_commissioner_enable = false
+
+    # Enable csl receiver
+    openthread_config_mac_csl_receiver_enable = false
+
+    # Enable DHCP6 client support
+    openthread_config_dhcp6_client_enable = false
+
+    # Enable DHCP6 server support
+    openthread_config_dhcp6_server_enable = false
+
+    # Enable diagnostic support
+    openthread_config_diag_enable = false
+
+    # Enable DNS client support
+    openthread_config_dns_client_enable = false
+
+    # Enable DNS-SD server support
+    openthread_config_dnssd_server_enable = false
+
+    # Enable ECDSA support
+    openthread_config_ecdsa_enable = false
+
+    # Enable Domain Unicast Address feature for Thread 1.2
+    openthread_config_dua_enable = false
+
+    # Enable Multicast Listener Registration feature for Thread 1.2
+    openthread_config_mlr_enable = false
+
+    # Enable external heap support
+    openthread_config_heap_external_enable = false
+
+    # Enable ipv6 fragmentation support
+    openthread_config_ip6_fragmentation_enable = false
+
+    # Enable jam detection support
+    openthread_config_jam_detection_enable = false
+
+    # Enable joiner support
+    openthread_config_joiner_enable = false
+
+    # Enable legacy network support
+    openthread_config_legacy_enable = false
+
+    # Enable link metrics initiator
+    openthread_config_link_metrics_initiator_enable = false
+
+    # Enable link metrics subject
+    openthread_config_link_metrics_subject_enable = false
+
+    # Enable link raw service
+    openthread_config_link_raw_enable = false
+
+    # Enable dynamic log level control
+    openthread_config_log_level_dynamic_enable = false
+
+    # Enable mac filter support
+    openthread_config_mac_filter_enable = false
+
+    # Enable use built-in heap for message buffers
+    openthread_config_message_use_heap = false
+
+    # Enable MLE long routes extension (experimental, breaks Thread conformance]
+    openthread_config_mle_long_routes_enable = false
+
+    # Enable TMF network diagnostics on MTDs
+    openthread_config_tmf_network_diag_mtd_enable = false
+
+    # Enable multiple instances
+    openthread_config_multiple_instance_enable = false
+
+    # Enable platform netif support
+    openthread_config_platform_netif_enable = false
+
+    # Enable platform UDP support
+    openthread_config_platform_udp_enable = false
+
+    # Enable Thread Test Harness reference device support
+    openthread_config_reference_device_enable = false
+
+    # Enable support for injecting Service entries into the Thread Network Data
+    openthread_config_tmf_netdata_service_enable = false
+
+    # Enable volatile-only storage of settings
+    openthread_settings_ram = false
+
+    # Enable support for adding of auto-configured SLAAC addresses by OpenThread
+    openthread_config_ip6_slaac_enable = false
+
+    # Enable SNTP Client support
+    openthread_config_sntp_client_enable = false
+
+    # Enable SRP Client support
+    openthread_config_srp_client_enable = false
+
+    # Enable SRP Server support
+    openthread_config_srp_server_enable = false
+
+    # Enable ping sender support
+    openthread_config_ping_sender = false
+
+    # Enable the time synchronization service feature
+    openthread_config_time_sync_enable = false
+
+    # Enable UDP forward support
+    openthread_config_udp_forward_enable = false
+
+    # Enable full logs
+    openthread_config_full_logs = false
+
+    # Enable OTNS support
+    openthread_config_otns_enable = false
+
+    # Enable NCP SPI support
+    openthread_config_ncp_spi_enable = false
+
+    # Enable NCP HDLC support
+    openthread_config_ncp_hdlc_enable = false
+
+    # Enable builtin mbedtls management
+    openthread_config_enable_builtin_mbedtls_management =
+        openthread_external_mbedtls == ""
+  }
+}
+
+if (openthread_external_mbedtls != "") {
+  mbedtls_target = openthread_external_mbedtls
+} else {
+  mbedtls_target = "../../third_party/mbedtls"
+}

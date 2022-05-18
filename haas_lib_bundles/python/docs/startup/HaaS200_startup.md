@@ -13,7 +13,10 @@ HaaS200版本固件，请通过下面固件列表链接下载开发板对应的�
 
 &emsp;&emsp;
 ### HaaS200固件列表
-[HaaSPython-HaaS200-v1.1.0](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-HaaS200-v1.1.0.zip)
+[HaaSPython-HaaS200-v2.1.0](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-HaaS200-v2.1.0.zip)
+  * 版本更新说明（2022-04-24）
+    * HaaS轻应用标准升级到2.1
+    * 新增6个[HaaS200趣味案例](https://haas.iot.aliyun.com/solution)
 
 <br>
 
@@ -284,7 +287,7 @@ sram test successfully
 &emsp;&emsp;
 点击HaaS-Studio的“部署运行”按钮（<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_部署运行.png width=5%/>），HaaS Studio工具上面会弹出如下的选择框，请按照如下的步骤逐步选择完成后，HaaS-Studio开始推送出脚本。
 <div align="center">
-<img src=../images/HaaS200startup_HaaS_Studio_Python_HaaS200_推送脚本.png width=50%/>
+<img src=../images/1_HaaS_Studio_Python_本地推送脚本.png width=60%/>
 </div>
 
 &emsp;&emsp;

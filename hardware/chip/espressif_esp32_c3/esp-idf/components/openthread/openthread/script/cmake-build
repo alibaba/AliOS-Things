@@ -1,0 +1,175 @@
+#!/bin/bash
+#
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+#
+#  This script calls cmake and ninja to compile OpenThread for the given platform.
+#
+#  Compile with default build options:
+#
+#      script/cmake-build ${platform}
+#
+#  Compile with the specified build option enabled:
+#
+#      script/cmake-build ${platform} -D${option}=ON
+#
+#  Compile with the specified build option disabled that already enabled by default:
+#
+#      script/cmake-build ${platform} -D${option}=OFF
+#
+#  Compile with the specified ninja build target:
+#
+#      OT_CMAKE_NINJA_TARGET="ot-cli-ftd" script/cmake-build ${platform}
+#
+#  Compile with the specified build directory:
+#
+#      OT_CMAKE_BUILD_DIR="./build/temp"  script/cmake-build ${platform}
+#
+#  Examples:
+#
+#      script/cmake-build simulation
+#
+#      script/cmake-build simulation -DOT_FULL_LOGS=ON -DOT_CHANNEL_MANAGER=OFF
+#
+#      OT_CMAKE_NINJA_TARGET="ot-cli-mtd" OT_CMAKE_BUILD_DIR="./build/temp" script/cmake-build simulation -DOT_FULL_LOGS=ON -DOT_CHANNEL_MANAGER=OFF
+#
+
+set -euxo pipefail
+
+OT_CMAKE_NINJA_TARGET=${OT_CMAKE_NINJA_TARGET:-}
+
+readonly OT_SRCDIR="$(pwd)"
+readonly OT_PLATFORMS=(cc2538 simulation posix)
+readonly OT_POSIX_SIM_COMMON_OPTIONS=(
+    "-DOT_ANYCAST_LOCATOR=ON"
+    "-DOT_BORDER_AGENT=ON"
+    "-DOT_BORDER_ROUTER=ON"
+    "-DOT_COAP=ON"
+    "-DOT_COAP_BLOCK=ON"
+    "-DOT_COAP_OBSERVE=ON"
+    "-DOT_COAPS=ON"
+    "-DOT_COMMISSIONER=ON"
+    "-DOT_CHANNEL_MANAGER=ON"
+    "-DOT_CHANNEL_MONITOR=ON"
+    "-DOT_CHILD_SUPERVISION=ON"
+    "-DOT_DATASET_UPDATER=ON"
+    "-DOT_DHCP6_CLIENT=ON"
+    "-DOT_DHCP6_SERVER=ON"
+    "-DOT_DIAGNOSTIC=ON"
+    "-DOT_DNS_CLIENT=ON"
+    "-DOT_ECDSA=ON"
+    "-DOT_HISTORY_TRACKER=ON"
+    "-DOT_IP6_FRAGM=ON"
+    "-DOT_JAM_DETECTION=ON"
+    "-DOT_JOINER=ON"
+    "-DOT_LEGACY=ON"
+    "-DOT_MAC_FILTER=ON"
+    "-DOT_MTD_NETDIAG=ON"
+    "-DOT_NEIGHBOR_DISCOVERY_AGENT=ON"
+    "-DOT_NETDATA_PUBLISHER=ON"
+    "-DOT_PING_SENDER=ON"
+    "-DOT_REFERENCE_DEVICE=ON"
+    "-DOT_SERVICE=ON"
+    "-DOT_SNTP_CLIENT=ON"
+    "-DOT_SRP_CLIENT=ON"
+    "-DOT_COVERAGE=ON"
+    "-DOT_LOG_LEVEL_DYNAMIC=ON"
+    "-DOT_COMPILE_WARNING_AS_ERROR=ON"
+    "-DOT_RCP_RESTORATION_MAX_COUNT=2"
+    "-DOT_UPTIME=ON"
+)
+
+die()
+{
+    echo " ** ERROR: Openthread CMake doesn't support platform \"$1\""
+    exit 1
+}
+
+build()
+{
+    local platform=$1
+    local builddir="${OT_CMAKE_BUILD_DIR:-build/${platform}}"
+    shift
+
+    mkdir -p "${builddir}"
+    cd "${builddir}"
+
+    cmake -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DOT_COMPILE_WARNING_AS_ERROR=ON "$@" "${OT_SRCDIR}"
+
+    if [[ -n ${OT_CMAKE_NINJA_TARGET[*]} ]]; then
+        ninja "${OT_CMAKE_NINJA_TARGET[@]}"
+    else
+        ninja
+    fi
+
+    cd "${OT_SRCDIR}"
+}
+
+main()
+{
+    if [[ $# == 0 ]]; then
+        echo "Please specify a platform: ${OT_PLATFORMS[*]}"
+        exit 1
+    fi
+
+    local platform="$1"
+    # Check if the platform supports cmake.
+    echo "${OT_PLATFORMS[@]}" | grep -wq "${platform}" || die "${platform}"
+
+    shift
+    local local_options=()
+    local options=(
+        "-DOT_PLATFORM=${platform}"
+        "-DOT_SLAAC=ON"
+    )
+
+    case "${platform}" in
+        posix)
+            local_options+=(
+                "-DOT_LOG_OUTPUT=PLATFORM_DEFINED"
+                "-DOT_POSIX_MAX_POWER_TABLE=ON"
+            )
+            options+=("${OT_POSIX_SIM_COMMON_OPTIONS[@]}" "${local_options[@]}")
+            ;;
+        simulation)
+            local_options=("-DOT_LINK_RAW=ON")
+            options+=("${OT_POSIX_SIM_COMMON_OPTIONS[@]}" "${local_options[@]}")
+            ;;
+        cc2538)
+            options+=("-DCMAKE_TOOLCHAIN_FILE=examples/platforms/${platform}/arm-none-eabi.cmake" "-DCMAKE_BUILD_TYPE=MinSizeRel")
+            ;;
+        *)
+            options+=("-DCMAKE_TOOLCHAIN_FILE=examples/platforms/${platform}/arm-none-eabi.cmake")
+            ;;
+    esac
+
+    options+=("$@")
+    build "${platform}" "${options[@]}"
+}
+
+main "$@"

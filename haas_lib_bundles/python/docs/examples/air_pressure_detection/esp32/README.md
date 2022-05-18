@@ -64,7 +64,8 @@
 
 ## 开发步骤
 
-###搭建开发环境
+### 搭建开发环境
+
 &emsp;&emsp;
 在进行开发之前请确保ESP32开发环境已经搭建完毕。详情请参考[M5StackCore2开发环境](../../../startup/M5StackCore2_startup.md)的说明。
 

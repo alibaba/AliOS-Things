@@ -1,0 +1,17 @@
+{
+  "name": "ESP-S3-12K-Kit",
+  "version": "1.0.0",
+  "io": {
+    "gnss": {
+      "type": "UART",
+      "port": 1,
+      "dataWidth": 8,
+      "baudRate": 9600,
+      "stopBits": 1,
+      "flowControl": "disable",
+      "parity": "none"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

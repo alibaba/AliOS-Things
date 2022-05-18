@@ -1,6 +1,6 @@
 # 车辆拥堵检测
 &emsp;&emsp;
-本案例导学步骤
+本案例导学步骤如下图所示。
 <div align="center">
 <img src=./../../../images/vehicle_congestion_detect/车辆拥堵检测_案例步骤.png width=80%/>
 </div>
@@ -33,6 +33,7 @@
 <br>
 
 ## 阿里云IoT物联网平台创建产品、设备
+&emsp;&emsp;
 在本案例中涉及到云端平台功能都聚合在HaaS云端积木中，所以无需单独使用**对象存储OSS**和**视觉智能开发平台**。
 
 ## 注册阿里云账号
@@ -112,7 +113,7 @@
 
 ### 开发环境准备
 &emsp;&emsp;
-在进行下一步之前请确保M5StackCore2中已经烧录了HaaS Python固件并且其开发环境已经搭建完毕。详情请参考[M5stackCore2开发环境](../../../startup/M5StackCore2_startup.md)的说明。
+在进行下一步之前请确保M5StackCore2开发环境已经搭建完毕。详情请参考[M5StackCore2快速开始](../../../startup/M5StackCore2_startup.md)的说明。
 <br>
 
 ### 创建解决方案

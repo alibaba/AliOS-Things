@@ -428,10 +428,10 @@ static mp_obj_t aiot_create_gateway(mp_obj_t self_in, mp_obj_t data)
 {
     int res = -1;
     void *mqtt_handle = NULL;
-    const char *productKey;
-    const char *productSecret;
-    const char *deviceName;
-    const char *deviceSecret;
+    const char *region = NULL;
+    const char *productKey = NULL;
+    const char *deviceName = NULL;
+    const char *deviceSecret = NULL;
     u_int32_t keepaliveSec = 0;
     aos_task_t iot_gateway_task;
     iot_gateway_handle_t *iot_gateway_handle = NULL;
@@ -460,8 +460,18 @@ static mp_obj_t aiot_create_gateway(mp_obj_t self_in, mp_obj_t data)
     index = mp_obj_new_str_via_qstr("keepaliveSec", 12);
     keepaliveSec = mp_obj_get_int(mp_obj_dict_get(data, index));
 
-    amp_info(MOD_STR, "productKey=%s deviceName=%s deviceSecret=%s keepaliveSec=%d\r\n", productKey, deviceName,
+    if (mp_obj_dict_len(data) < 5) {
+        region = "cn-shanghai";
+    } else {
+        index = mp_obj_new_str_via_qstr("region", 6);
+        region = mp_obj_str_get_str(mp_obj_dict_get(data, index));
+    }
+
+    if (region == NULL || productKey == NULL || deviceSecret == NULL || deviceName == NULL) {
+        amp_error(MOD_STR, "Invalid params, please check it. region=%s productKey=%s deviceName=%s deviceSecret=%s keepaliveSec=%d\r\n", region, productKey, deviceName,
              deviceSecret, keepaliveSec);
+        return mp_obj_new_int(-1);
+    }
     /*
         memset(ota_svc->pk, 0, sizeof(ota_svc->pk));
         memset(ota_svc->dn, 0, sizeof(ota_svc->dn));
@@ -470,6 +480,7 @@ static mp_obj_t aiot_create_gateway(mp_obj_t self_in, mp_obj_t data)
         memcpy(ota_svc->dn, deviceName, strlen(deviceName));
         memcpy(ota_svc->ds, deviceSecret, strlen(deviceSecret));
     */
+    aos_kv_set(AMP_CUSTOMER_REGION, region, IOTX_REGION_LEN, 1);
     aos_kv_set(AMP_CUSTOMER_PRODUCTKEY, productKey, IOTX_PRODUCT_KEY_LEN, 1);
     aos_kv_set(AMP_CUSTOMER_DEVICENAME, deviceName, IOTX_DEVICE_NAME_LEN, 1);
     aos_kv_set(AMP_CUSTOMER_DEVICESECRET, deviceSecret, IOTX_DEVICE_SECRET_LEN, 1);
@@ -845,23 +856,27 @@ static mp_obj_t aiot_getGatewayInfo(mp_obj_t self_in)
         goto out;
     }
     /* get device tripple info */
-    char productKey[IOTX_PRODUCT_KEY_LEN] = { 0 };
-    char productSecret[IOTX_PRODUCT_SECRET_LEN] = { 0 };
-    char deviceName[IOTX_DEVICE_NAME_LEN] = { 0 };
-    char deviceSecret[IOTX_DEVICE_SECRET_LEN] = { 0 };
+    char region[IOTX_REGION_LEN + 1] = {0};
+    char productKey[IOTX_PRODUCT_KEY_LEN + 1] = { 0 };
+    char productSecret[IOTX_PRODUCT_SECRET_LEN + 1] = { 0 };
+    char deviceName[IOTX_DEVICE_NAME_LEN + 1] = { 0 };
+    char deviceSecret[IOTX_DEVICE_SECRET_LEN + 1] = { 0 };
 
+    int regionLen = IOTX_REGION_LEN;
     int productKeyLen = IOTX_PRODUCT_KEY_LEN;
     int productSecretLen = IOTX_PRODUCT_SECRET_LEN;
     int deviceNameLen = IOTX_DEVICE_NAME_LEN;
     int deviceSecretLen = IOTX_DEVICE_SECRET_LEN;
 
+    aos_kv_get(AMP_CUSTOMER_REGION, region, &regionLen);
     aos_kv_get(AMP_CUSTOMER_PRODUCTKEY, productKey, &productKeyLen);
     aos_kv_get(AMP_CUSTOMER_PRODUCTSECRET, productSecret, &productSecretLen);
     aos_kv_get(AMP_CUSTOMER_DEVICENAME, deviceName, &deviceNameLen);
     aos_kv_get(AMP_CUSTOMER_DEVICESECRET, deviceSecret, &deviceSecretLen);
-
     // dict solution
-    mp_obj_t aiot_gatewayinfo_dict = mp_obj_new_dict(4);
+    mp_obj_t aiot_gatewayinfo_dict = mp_obj_new_dict(5);
+    mp_obj_dict_store(aiot_gatewayinfo_dict, MP_OBJ_NEW_QSTR(qstr_from_str("region")),
+                        mp_obj_new_str(region, strlen(region)));
     mp_obj_dict_store(aiot_gatewayinfo_dict, MP_OBJ_NEW_QSTR(qstr_from_str("productKey")),
                         mp_obj_new_str(productKey, strlen(productKey)));
     mp_obj_dict_store(aiot_gatewayinfo_dict, MP_OBJ_NEW_QSTR(qstr_from_str("productSecret")),
@@ -871,7 +886,6 @@ static mp_obj_t aiot_getGatewayInfo(mp_obj_t self_in)
     mp_obj_dict_store(aiot_gatewayinfo_dict, MP_OBJ_NEW_QSTR(qstr_from_str("deviceSecret")),
                         mp_obj_new_str(deviceSecret, strlen(deviceSecret)));
     return aiot_gatewayinfo_dict;
-
 out:
     return mp_obj_new_int((mp_int_t)0);
 }
@@ -900,11 +914,78 @@ static mp_obj_t hapy_get_ntp_time(mp_obj_t self_in, mp_obj_t cb)
 }
 MP_DEFINE_CONST_FUN_OBJ_2(native_gateway_get_ntp_time, hapy_get_ntp_time);
 
+/* upload File */
+static mp_obj_t gateway_aiot_uploadFile(size_t n_args, const mp_obj_t *args)
+{
+    int ret = -1;
+
+    char *upload_id = NULL;
+    linksdk_gateway_obj_t *self = (linksdk_gateway_obj_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_obj_t remoteFileName = args[1];
+    mp_obj_t localFilePath = args[2];
+    mp_obj_t cb = args[3];
+    mp_buffer_info_t bufinfo;
+
+    iot_gateway_handle_t *iot_gateway_handle = self->iot_gateway_handle;
+    if (!iot_gateway_handle) {
+        amp_error(MOD_STR, "parameter must be handle\r\n");
+        goto out;
+    }
+    char *filename = (char *)mp_obj_str_get_str(remoteFileName);
+    char *filepath = (char *)mp_obj_str_get_str(localFilePath);
+
+    MP_THREAD_GIL_EXIT();
+    upload_id = pyamp_aiot_upload_mqtt(iot_gateway_handle->mqtt_handle, filename, filepath, 0, cb);
+    MP_THREAD_GIL_ENTER();
+    if (!upload_id) {
+        amp_error(MOD_STR, "aiot upload file failed!\r\n");
+        goto out;
+    }
+    return mp_obj_new_str(upload_id, strlen(upload_id));
+out:
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(native_gateway_aiot_uploadFile, 3, gateway_aiot_uploadFile);
+
+/* upload Content */
+static mp_obj_t gateway_aiot_uploadContent(size_t n_args, const mp_obj_t *args)
+{
+    int ret = -1;
+
+    char *upload_id = NULL;
+    linksdk_gateway_obj_t *self = (linksdk_gateway_obj_t *)MP_OBJ_TO_PTR(args[0]);
+    mp_obj_t file_name = args[1];
+    mp_obj_t data = args[2];
+    mp_obj_t cb = args[3];
+    mp_buffer_info_t bufinfo;
+
+    iot_gateway_handle_t *iot_gateway_handle = self->iot_gateway_handle;
+    if (!iot_gateway_handle) {
+        amp_error(MOD_STR, "parameter must be handle\r\n");
+        goto out;
+    }
+    char *filename = (char *)mp_obj_str_get_str(file_name);
+    mp_get_buffer_raise(data, &bufinfo, MP_BUFFER_READ);
+    MP_THREAD_GIL_EXIT();
+    upload_id = pyamp_aiot_upload_mqtt(iot_gateway_handle->mqtt_handle, filename, bufinfo.buf, bufinfo.len, cb);
+    MP_THREAD_GIL_ENTER();
+    if (!upload_id) {
+        amp_error(MOD_STR, "aiot upload content failed!\r\n");
+        goto out;
+    }
+    return mp_obj_new_str(upload_id, strlen(upload_id));
+out:
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_VAR(native_gateway_aiot_uploadContent, 3, gateway_aiot_uploadContent);
+
 STATIC const mp_rom_map_elem_t linkkit_gateway_locals_dict_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR_on), MP_ROM_PTR(&native_gateway_register_cb) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_connect), MP_ROM_PTR(&native_gateway_create_gateway) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_getGatewayHandle), MP_ROM_PTR(&native_gateway_get_gateway_handle) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_getGatewayInfo), MP_ROM_PTR(&native_aiot_getGatewayInfo) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_uploadFile), MP_ROM_PTR(&native_gateway_aiot_uploadFile) },
+    { MP_OBJ_NEW_QSTR(MP_QSTR_uploadContent), MP_ROM_PTR(&native_gateway_aiot_uploadContent) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_subscribe), MP_ROM_PTR(&native_gateway_subscribe) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_unsubscribe), MP_ROM_PTR(&native_gateway_unsubscribe) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_publish), MP_ROM_PTR(&native_gateway_publish) },

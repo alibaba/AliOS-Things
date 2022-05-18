@@ -1,0 +1,205 @@
+menu "Driver configurations"
+
+    menu "ADC configuration"
+
+        config ADC_FORCE_XPD_FSM
+            bool "Use the FSM to control ADC power"
+            default n
+            help
+                ADC power can be controlled by the FSM instead of software. This allows the ADC to
+                be shut off when it is not working leading to lower power consumption. However
+                using the FSM control ADC power will increase the noise of ADC.
+
+        config ADC_DISABLE_DAC
+            bool "Disable DAC when ADC2 is used on GPIO 25 and 26"
+            default y
+            help
+                If this is set, the ADC2 driver will disable the output of the DAC corresponding to the specified
+                channel. This is the default value.
+
+                For testing, disable this option so that we can measure the output of DAC by internal ADC.
+
+    endmenu  # ADC Configuration
+
+    menu "MCPWM configuration"
+
+        config MCPWM_ISR_IN_IRAM
+            bool "Place MCPWM ISR function into IRAM"
+            default n
+            help
+                If this option is not selected, the MCPWM interrupt will be deferred when the Cache
+                is in a disabled state (e.g. Flash write/erase operation).
+
+                Note that if this option is selected, all user registered ISR callbacks should never
+                try to use cache as well. (with IRAM_ATTR)
+
+    endmenu # MCPWM Configuration
+
+    menu "SPI configuration"
+
+        config SPI_MASTER_IN_IRAM
+            bool "Place transmitting functions of SPI master into IRAM"
+            default n
+            select SPI_MASTER_ISR_IN_IRAM
+            help
+                Normally only the ISR of SPI master is placed in the IRAM, so that it
+                can work without the flash when interrupt is triggered.
+                For other functions, there's some possibility that the flash cache
+                miss when running inside and out of SPI functions, which may increase
+                the interval of SPI transactions.
+                Enable this to put ``queue_trans``, ``get_trans_result`` and
+                ``transmit`` functions into the IRAM to avoid possible cache miss.
+
+                During unit test, this is enabled to measure the ideal case of api.
+
+        config SPI_MASTER_ISR_IN_IRAM
+            bool "Place SPI master ISR function into IRAM"
+            default y
+            help
+                Place the SPI master ISR in to IRAM to avoid possible cache miss.
+
+                Also you can forbid the ISR being disabled during flash writing
+                access, by add ESP_INTR_FLAG_IRAM when initializing the driver.
+
+        config SPI_SLAVE_IN_IRAM
+            bool "Place transmitting functions of SPI slave into IRAM"
+            default n
+            select SPI_SLAVE_ISR_IN_IRAM
+            help
+                Normally only the ISR of SPI slave is placed in the IRAM, so that it
+                can work without the flash when interrupt is triggered.
+                For other functions, there's some possibility that the flash cache
+                miss when running inside and out of SPI functions, which may increase
+                the interval of SPI transactions.
+                Enable this to put ``queue_trans``, ``get_trans_result`` and
+                ``transmit`` functions into the IRAM to avoid possible cache miss.
+
+        config SPI_SLAVE_ISR_IN_IRAM
+            bool "Place SPI slave ISR function into IRAM"
+            default y
+            help
+                Place the SPI slave ISR in to IRAM to avoid possible cache miss.
+
+                Also you can forbid the ISR being disabled during flash writing
+                access, by add ESP_INTR_FLAG_IRAM when initializing the driver.
+
+    endmenu # SPI Configuration
+
+    menu "TWAI configuration"
+
+        config TWAI_ISR_IN_IRAM
+            bool "Place TWAI ISR function into IRAM"
+            default n
+            help
+                Place the TWAI ISR in to IRAM. This will allow the ISR to avoid
+                cache misses, and also be able to run whilst the cache is disabled
+                (such as when writing to SPI Flash).
+                Note that if this option is enabled:
+                - Users should also set the ESP_INTR_FLAG_IRAM in the driver
+                configuration structure when installing the driver (see docs for
+                specifics).
+                - Alert logging (i.e., setting of the TWAI_ALERT_AND_LOG flag)
+                will have no effect.
+
+        config TWAI_ERRATA_FIX_BUS_OFF_REC
+            bool "Add SW workaround for REC change during bus-off"
+            depends on IDF_TARGET_ESP32
+            default n
+            help
+                When the bus-off condition is reached, the REC should be reset to 0 and frozen (via LOM) by the
+                driver's ISR. However on the ESP32, there is an edge case where the REC will increase before the
+                driver's ISR can respond in time (e.g., due to the rapid occurrence of bus errors), thus causing the
+                REC to be non-zero after bus-off. A non-zero REC can prevent bus-off recovery as the bus-off recovery
+                condition is that both TEC and REC become 0. Enabling this option will add a workaround in the driver
+                to forcibly reset REC to zero on reaching bus-off.
+
+        config TWAI_ERRATA_FIX_TX_INTR_LOST
+            bool "Add SW workaround for TX interrupt lost errata"
+            depends on IDF_TARGET_ESP32
+            default n
+            help
+                On the ESP32, when a transmit interrupt occurs, and interrupt register is read on the same APB clock
+                cycle, the transmit interrupt could be lost. Enabling this option will add a workaround that checks the
+                transmit buffer status bit to recover any lost transmit interrupt.
+
+        config TWAI_ERRATA_FIX_RX_FRAME_INVALID
+            bool "Add SW workaround for invalid RX frame errata"
+            depends on IDF_TARGET_ESP32
+            default n
+            help
+                On the ESP32, when receiving a data or remote frame, if a bus error occurs in the data or CRC field,
+                the data of the next received frame could be invalid. Enabling this option will add a workaround that
+                will reset the peripheral on detection of this errata condition. Note that if a frame is transmitted on
+                the bus whilst the reset is ongoing, the message will not be receive by the peripheral sent on the bus
+                during the reset, the message will be lost.
+
+        config TWAI_ERRATA_FIX_RX_FIFO_CORRUPT
+            bool "Add SW workaround for RX FIFO corruption errata"
+            depends on IDF_TARGET_ESP32
+            default n
+            help
+                On the ESP32, when the RX FIFO overruns and the RX message counter maxes out at 64 messages, the entire
+                RX FIFO is no longer recoverable. Enabling this option will add a workaround that resets the peripheral
+                on detection of this errata condition. Note that if a frame is being sent on the bus during the reset
+                bus during the reset, the message will be lost.
+
+    endmenu # TWAI Configuration
+
+    menu "UART configuration"
+
+        config UART_ISR_IN_IRAM
+            bool "Place UART ISR function into IRAM"
+            default n
+            help
+                If this option is not selected, UART interrupt will be disabled for a long time and
+                may cause data lost when doing spi flash operation.
+
+    endmenu # UART Configuration
+
+    menu "RTCIO configuration"
+        visible if IDF_TARGET_ESP32
+
+        config RTCIO_SUPPORT_RTC_GPIO_DESC
+            bool "Support array `rtc_gpio_desc` for ESP32"
+            depends on IDF_TARGET_ESP32
+            default n
+            help
+                The the array `rtc_gpio_desc` will don't compile by default.
+                If this option is selected, the array `rtc_gpio_desc` can be compile.
+                If user use this array, please enable this configuration.
+
+    endmenu # RTCIO Configuration
+
+    menu "GPIO Configuration"
+        visible if IDF_TARGET_ESP32
+
+        config GPIO_ESP32_SUPPORT_SWITCH_SLP_PULL
+            bool "Support light sleep GPIO pullup/pulldown configuration for ESP32"
+            depends on IDF_TARGET_ESP32
+            help
+                This option is intended to fix the bug that ESP32 is not able to switch to configured
+                pullup/pulldown mode in sleep.
+                If this option is selected, chip will automatically emulate the behaviour of switching,
+                and about 450B of source codes would be placed into IRAM.
+
+    endmenu # GPIO Configuration
+
+    menu "GDMA Configuration"
+        config GDMA_CTRL_FUNC_IN_IRAM
+            bool "Place GDMA control functions into IRAM"
+            default n
+            help
+                Place GDMA control functions (like start/stop/append/reset) into IRAM,
+                so that these functions can be IRAM-safe and able to be called in the other IRAM interrupt context.
+                Enabling this option can improve driver performance as well.
+
+        config GDMA_ISR_IRAM_SAFE
+            bool "GDMA ISR IRAM-Safe"
+            default n
+            help
+                This will ensure the GDMA interrupt handler is IRAM-Safe, allow to avoid flash
+                cache misses, and also be able to run whilst the cache is disabled.
+                (e.g. SPI Flash write).
+    endmenu # GDMA Configuration
+
+endmenu  # Driver configurations

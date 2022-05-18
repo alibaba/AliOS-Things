@@ -153,19 +153,31 @@ static int32_t hapy_http_construct_header(char *buf, uint16_t buf_size, const ch
 
 static void http_request_notify(hapy_http_param_t *http_param_request, int8_t *header_buf, int8_t *body_buf)
 {
-    char dummy_buf[2] = { 0 };
-    mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
+    int32_t header_len = 0;
+    int32_t body_len = 0;
 
     if (header_buf != NULL) {
-        make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_STR, strlen(header_buf), header_buf, "header");
-    } else {
-        make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_STR, strlen(dummy_buf), dummy_buf, "header");
+        header_len = strlen(header_buf);
     }
 
     if (body_buf != NULL) {
-        make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_STR, strlen(body_buf), body_buf, "body");
+        body_len = strlen(body_buf);
+    }
+
+    ESP_LOGE(LOG_TAG, "http_request_notify with header_len=%d, body_len=%d", header_len, body_len);
+
+    mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
+
+    if (header_len != 0) {
+        make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_STR, header_len, header_buf, "header");
     } else {
-        make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_STR, strlen(dummy_buf), dummy_buf, "body");
+        make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_STR, 0, NULL, "header");
+    }
+
+    if (body_len != 0) {
+        make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_STR, body_len, body_buf, "body");
+    } else {
+        make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_STR, 0, NULL, "body");
     }
 
     callback_to_python_LoBo(http_param_request->cb, mp_const_none, carg);
@@ -173,7 +185,20 @@ static void http_request_notify(hapy_http_param_t *http_param_request, int8_t *h
 
 static void http_download_notify(hapy_http_param_t *http_param_download, http_dl_status ret)
 {
-    callback_to_python_LoBo(http_param_download->cb, MP_OBJ_NEW_SMALL_INT(ret), NULL);
+    char *status = "fali";
+    if (ret == HTTP_DL_STATUS_OK) {
+        status = "success";
+    } else if (ret == HTTP_DL_STATUS_FAIL) {
+        status = "fail";
+    } else if (ret == HTTP_DL_STATUS_PATH_NULL) {
+        status = "url_null";
+    } else {
+        status = "unknown";
+    }
+
+    mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_SINGLE);
+    make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_STR, strlen(status), status, NULL);
+    callback_to_python_LoBo(http_param_download->cb, mp_const_none, carg);
 }
 
 static esp_err_t _http_request_event_handler(esp_http_client_event_t *evt)
@@ -208,7 +233,7 @@ static esp_err_t _http_request_event_handler(esp_http_client_event_t *evt)
         if (!esp_http_client_is_chunked_response(evt->client)) {
             ESP_LOGD(LOG_TAG, "HTTP_EVENT_ON_DATA, len = %d", esp_http_client_get_content_length(evt->client));
             if (resp_body_buffer == NULL) {
-                resp_body_buffer = (char *)malloc(esp_http_client_get_content_length(evt->client) + 1);
+                resp_body_buffer = (char *)calloc(esp_http_client_get_content_length(evt->client) + 1, 1);
                 body_len = 0;
                 if (resp_body_buffer == NULL) {
                     ESP_LOGE(LOG_TAG, "Failed to allocate memory for output buffer");
@@ -430,10 +455,7 @@ static void task_http_request_func(void *arg)
         printf("HTTP POST request failed: %s\r\n", esp_err_to_name(err));
     }
 
-    if (client != NULL) {
-        esp_http_client_close(client);
-        esp_http_client_cleanup(client);
-    }
+    esp_http_client_cleanup(client);
 
     // notify to python app
     http_request_notify(&http_param_request, resp_header_buffer, resp_body_buffer);

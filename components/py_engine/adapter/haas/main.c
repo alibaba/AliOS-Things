@@ -34,8 +34,6 @@
 #include "aos/cli.h"
 #endif
 #include "haas_main.h"
-#include "miniunz.h"
-
 #define LOG_TAG "haas_main"
 
 static int8_t *stack_top = NULL;
@@ -117,21 +115,18 @@ static uint8_t *is_mainpy_exist()
     /* check whether main/pyamp/main.py */
     FILE *fd = fopen(AMP_PY_ENTRY_DEFAULE, "r");
     if (fd != NULL) {
-        printf(" ==== python execute from %s ====\n", AMP_PY_ENTRY_DEFAULE);
         fclose(fd);
         return AMP_PY_ENTRY_DEFAULE;
     }
 
     fd = fopen(AMP_PY_ENTRY_BAK, "r");
     if (fd != NULL) {
-        printf(" ==== python execute from %s ====\n", AMP_PY_ENTRY_BAK);
         fclose(fd);
         return AMP_PY_ENTRY_BAK;
     }
 
     fd = fopen(MP_PY_ENTRY_BAK, "r");
     if (fd != NULL) {
-        printf(" ==== python execute from %s ====\n", MP_PY_ENTRY_BAK);
         fclose(fd);
         return MP_PY_ENTRY_BAK;
     }
@@ -216,17 +211,19 @@ static void py_engine_task(void *p)
     aos_task_exit(0);
 }
 
-#if PY_CHANNEL_ENABLE
-static void network_func(void *argv)
-{
-    while (!aos_get_network_status()) {
-        aos_msleep(1000);
-    }
-    py_app_management_center_init();
-    aos_task_exit(0);
-    return;
-}
-#endif
+// #if PY_CHANNEL_ENABLE
+// static void network_func(void *argv)
+// {
+//     while (!aos_get_network_status()) {
+//         aos_msleep(1000);
+//     }
+//     //py_app_management_center_init();
+//     extern int pyamp_app_upgrade(char *url);
+//     amp_otaput_init(pyamp_app_upgrade);
+//     aos_task_exit(0);
+//     return;
+// }
+// #endif
 
 static void python_entry(int32_t argc, int8_t **argv)
 {
@@ -339,9 +336,8 @@ void haas_main(int32_t argc, int8_t **argv)
     ulog_init();
     aos_log_level_t log_level = get_logLevel();
     aos_set_log_level(log_level);
-
     /* net init */
-    net_init();
+    // net_init();
 
     aos_task_t engine_task;
     ret = aos_task_new_ext(&engine_task, "py_engine_task", py_engine_task, NULL, 1024 * 8, AOS_DEFAULT_APP_PRI);
@@ -350,15 +346,15 @@ void haas_main(int32_t argc, int8_t **argv)
         return;
     }
 
-#if PY_CHANNEL_ENABLE
-    aos_task_t network_task;
-    /* network start */
-    ret = aos_task_new_ext(&network_task, "mpy_network", network_func, NULL, 1024 * 4, AOS_DEFAULT_APP_PRI);
-    if (ret != 0) {
-        LOGE(LOG_TAG, "network task creat failed!");
-        return ret;
-    }
-#endif
+// #if PY_CHANNEL_ENABLE
+//     aos_task_t network_task;
+//     /* network start */
+//     ret = aos_task_new_ext(&network_task, "mpy_network", network_func, NULL, 1024 * 8, AOS_DEFAULT_APP_PRI);
+//     if (ret != 0) {
+//         LOGE(LOG_TAG, "network task creat failed!");
+//         return ret;
+//     }
+// #endif
 
     /* Check whether we have main.py to execute */
     // defalut entry python engine
@@ -572,13 +568,13 @@ soft_reset:
     // run boot-up scripts
     // pyexec_frozen_module("_boot.py");
     // do not delete this message, haas studio need use this message judge python status
-    printf(" ==== python execute bootpy ====\n");
-    pyexec_file_if_exists("boot.py");
+    // printf(" ==== python execute bootpy ====\n");
+    pyexec_file_if_exists("/boot.py");
     if (pyexec_mode_kind == PYEXEC_MODE_FRIENDLY_REPL) {
         char *path = is_mainpy_exist();
         if (path != NULL) {
             // do not delete this message, haas studio need use this message judge python status
-            printf(" ==== python execute from %s ====\n", path);
+           // printf(" ==== python execute from %s ====\n", path);
             int ret = pyexec_file_if_exists(path);
             if (ret & PYEXEC_FORCED_EXIT) {
                 goto soft_reset_exit;
@@ -617,7 +613,9 @@ soft_reset:
     }
 
 soft_reset_exit:
+    mp_hal_stdout_tx_str("MPY: soft reboot\r\n");
     mp_deinit();
+
     #if MICROPY_PY_AOS_QUIT
     goto soft_reset;
     #endif

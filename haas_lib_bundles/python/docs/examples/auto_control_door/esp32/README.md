@@ -1,6 +1,6 @@
-# 自动感应门管控
+# 自动感应门
 &emsp;&emsp;
-本案例导学步骤
+下图是本案例的四步导学。
 <div align="center">
 <img src=./../../../images/auto_control_door/自动感应门-导览.png width=80%/>
 </div>
@@ -227,7 +227,7 @@ deviceName  = "Your-devicename"
 deviceSecret  = "Your-deviceSecret"
 ```
 &emsp;&emsp;
-导入代码后的目录结构及更新wifi和三元组位置如下截图
+导入代码后的目录结构及更新Wi-Fi和三元组位置如下截图
 <div align="center">
 <img src=./../../../images/auto_control_door/自动感应门_HaaSStudio_代码目录和参数替换.png width=100%/>
 </div>
@@ -297,4 +297,4 @@ object detected, count = 27
 
 ## 后记
 &emsp;&emsp;
-开发者可以参考此案例完善下结构设计。
+笔者这里实现了软件和硬件的开发，实际产品还需要结构设计，读者完成此案例之后可以尝试设计此自动开门系统的结构设计（可以用3D打印或亚克力外壳裁剪拼接）。

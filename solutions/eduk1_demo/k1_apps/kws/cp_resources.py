@@ -20,7 +20,7 @@ print(comp_path)
 src_mp3_path = comp_path + "/resources/mp3"
 
 # new folder
-data_path = comp_path + "/../../../../hardware/chip/haas1000/prebuild/data"
+data_path = comp_path + "/../../../../hardware/chip/haas1000/prebuild/data/data"
 mp3_dst_path = data_path + "/mp3"
 
 # delete prebuild/data resources

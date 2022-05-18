@@ -17,14 +17,10 @@ UI Lite for Python以LVGL 8.1为基础进行打造，最低只需要64k Flash和
 
 1. 对屏幕进行初始化
 
-在调用lvgl和display提供的API之前，需要先对其进行初始化操作，代码如下：
+在调用lvgl提供的API之前，需要先对其进行初始化操作，代码如下：
 
 ```python
-import lvgl as lv                # 导入lvgl库，并设置别名为lv
-lv.init()                        # 对lvgl进行初始化操作
-
-from display import LVGL as disp # 从display库中导入LVGL类，并设置别名为disp
-disp.init()                      # 对LVGL类进行初始化操作
+import display_driver            # 导入display_driver库，初始化display和lvgl
 ```
 
 2. 创建屏幕对象和label

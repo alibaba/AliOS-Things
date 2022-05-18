@@ -1,0 +1,13 @@
+package foo;
+
+option optimize_for = CODE_SIZE;
+
+enum TestEnumLite {
+  LITE = 0;
+  LITE1 = 1;
+}
+
+message TestMessLite {
+  required int32 field1 = 1;
+  required TestEnumLite field2 = 2;
+}

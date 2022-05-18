@@ -29,6 +29,11 @@ hr_timer_t soc_hr_hw_cnt_get(void)
     return DWT->CYCCNT;
 }
 
+uint64_t soc_hr_hw_freq_get(void)
+{
+    return hal_sys_timer_calc_cpu_freq(5, 0);
+}
+
 lr_timer_t soc_lr_hw_cnt_get(void)
 {
     return (lr_timer_t)hal_sys_timer_get();

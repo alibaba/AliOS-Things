@@ -61,7 +61,7 @@ static int audio_pcm_close(file_t *file)
         return -EINVAL;
     }
     pcm = (pcm_device_t *)(dev->private_data);
-    if(!pcm && !pcm->ops) {
+    if (!pcm || !pcm->ops) {
         LOGE(LOG_TAG, "%s:%d, private_date is null", __func__, __LINE__);
         return -EINVAL;
     }
@@ -86,22 +86,22 @@ static int audio_pcm_ioctl(file_t *file, int cmd, unsigned long arg)
         return -EINVAL;
     }
     inode = file->node;
-    if(!inode) {
+    if (!inode) {
         LOGE(LOG_TAG, "%s:%d, inode is null.", __func__, __LINE__);
         return -EINVAL;
     }
 
     dev = audio_get_device(inode->i_name);
-    if(!dev) {
+    if (!dev) {
         LOGE(LOG_TAG, "%s:%d, no matched device", __func__, __LINE__);
         return -EINVAL;
     }
     pcm = (pcm_device_t *)(dev->private_data);
-    if(!pcm && !pcm->ops) {
+    if (!pcm || !pcm->ops) {
         LOGE(LOG_TAG, "%s:%d, private_date is null", __func__, __LINE__);
         return -EINVAL;
     }
-    switch(cmd) {
+    switch (cmd) {
         case AUDIO_PCM_IOCTL_HW_PARAMS:
             ret = pcm->ops->hw_params(pcm->private_data, (audio_hw_params_t *)arg);
             break;
@@ -155,21 +155,21 @@ static int audio_ctrl_open(inode_t *inode, file_t *file)
 {
     ctrl_device_t *ctrl = NULL;
     audio_device_t *dev = NULL;
-    if(!inode || !file) {
+    if (!inode || !file) {
         LOGE(LOG_TAG, "%s:%d, inode is null", __func__, __LINE__);
         return -EINVAL;
     }
     dev = audio_get_device(inode->i_name);
-    if(!dev) {
+    if (!dev) {
         LOGE(LOG_TAG, "%s:%d, no matched device", __func__, __LINE__);
         return -EINVAL;
     }
     ctrl = (ctrl_device_t *)(dev->private_data);
-    if(!ctrl) {
+    if (!ctrl) {
         LOGE(LOG_TAG, "%s:%d, ctrl dev is null", __func__, __LINE__);
         return -EINVAL;
     }
-    if(true == ctrl->ctrl_dev_state) {
+    if (true == ctrl->ctrl_dev_state) {
         LOGE(LOG_TAG, "%s:%d, ctrl device already opened", __func__, __LINE__);
         return -EACCES;
     }
@@ -185,25 +185,25 @@ static int audio_ctrl_close(file_t *file)
     ctrl_device_t *ctrl = NULL;
     audio_device_t *dev = NULL;
 
-    if(!file) {
+    if (!file) {
         LOGE(LOG_TAG, "%s:%d, file is null", __func__, __LINE__);
         return -EINVAL;
     }
-    if(!file->node) {
+    if (!file->node) {
         LOGE(LOG_TAG, "%s:%d, file->node is null", __func__, __LINE__);
         return -EINVAL;
     }
     dev = audio_get_device(file->node->i_name);
-    if(!dev) {
+    if (!dev) {
         LOGE(LOG_TAG, "%s:%d, no matched device", __func__, __LINE__);
         return -EINVAL;
     }
     ctrl = (ctrl_device_t *)(dev->private_data);
-    if(!ctrl) {
+    if (!ctrl) {
         LOGE(LOG_TAG, "%s:%d, ctrl dev is null", __func__, __LINE__);
         return -EINVAL;
     }
-    if(false == ctrl->ctrl_dev_state) {
+    if (false == ctrl->ctrl_dev_state) {
         LOGE(LOG_TAG, "%s:%d, ctrl device already closed", __func__, __LINE__);
         return -EACCES;
     }
@@ -219,28 +219,28 @@ static int audio_ctrl_ioctl(file_t *file, int cmd, unsigned long arg)
     audio_device_t *dev = NULL;
     inode_t *inode = NULL;
 
-    if(!file) {
+    if (!file) {
         LOGE(LOG_TAG, "%s:%d, file is null.", __func__, __LINE__);
         return -EINVAL;
     }
     inode = file->node;
-    if(!inode) {
+    if (!inode) {
         LOGE(LOG_TAG, "%s:%d, inode is null.", __func__, __LINE__);
         return -EINVAL;
     }
 
     dev = audio_get_device(inode->i_name);
-    if(!dev) {
+    if (!dev) {
         LOGE(LOG_TAG, "%s:%d, no matched device", __func__, __LINE__);
         return -EINVAL;
     }
     ctrl = (ctrl_device_t *)(dev->private_data);
-    if(!ctrl) {
+    if (!ctrl) {
         LOGE(LOG_TAG, "%s:%d, private_data is null", __func__, __LINE__);
         return -EINVAL;
     }
 
-    switch(cmd) {
+    switch (cmd) {
         case AUDIO_CTL_IOCTL_CARD_INFO:
             ret = audio_ctl_card_info(ctrl, (struct audio_ctl_card_info *)arg);
             break;
@@ -292,45 +292,45 @@ int audio_register_device(int type, const char *name, void *private_data)
     int ret = RET_ERR;
     audio_device_t *new_dev = NULL, *node = NULL;
 
-    if(!name || !private_data) {
+    if (!name || !private_data) {
         LOGE(LOG_TAG, "%s:%d, invalid name or private_data.", __func__, __LINE__);
         return -EINVAL;
     }
-    if((type < AUDIO_DEVICE_TYPE_PCM_CAPTURE) || (type > AUDIO_DEVICE_TYPE_CONTROL)) {
+    if ((type < AUDIO_DEVICE_TYPE_PCM_CAPTURE) || (type > AUDIO_DEVICE_TYPE_CONTROL)) {
         LOGE(LOG_TAG, "%s:%d, invalid type %d.", __func__, __LINE__, type);
         return -EINVAL;
     }
 
     dlist_for_each_entry(&dev_head, node, audio_device_t, list) {
-        if((node->type == type) && (node->private_data == private_data)) {
+        if ((node->type == type) && (node->private_data == private_data)) {
             LOGE(LOG_TAG, "%s:%d, adevice %d 0x%x already existed.", __func__, __LINE__, type, private_data);
             return -EINVAL;
         }
     }
 
     new_dev = (audio_device_t *)malloc(sizeof(audio_device_t));
-    if(!new_dev) {
+    if (!new_dev) {
         LOGE(LOG_TAG, "%s:%d, new_dev is null.", __func__, __LINE__);
         return -ENOMEM;
     }
     memset(new_dev, 0, sizeof(audio_device_t));
 
     new_dev->name = strdup(name);
-    if(!new_dev->name) {
+    if (!new_dev->name) {
         LOGE(LOG_TAG, "%s:%d, name is null.", __func__, __LINE__);
         return -ENOMEM;
     }
     dlist_init(&new_dev->list);
     new_dev->type = type;
     new_dev->private_data = private_data;
-    if(type == AUDIO_DEVICE_TYPE_PCM_CAPTURE || type == AUDIO_DEVICE_TYPE_PCM_PLAYBACK) {
+    if (type == AUDIO_DEVICE_TYPE_PCM_CAPTURE || type == AUDIO_DEVICE_TYPE_PCM_PLAYBACK) {
         new_dev->f_ops = &audio_fops[0];
     } else if (type == AUDIO_DEVICE_TYPE_CONTROL){
         new_dev->f_ops = &audio_fops[1];
     }
 
     ret = aos_register_driver(new_dev->name, new_dev->f_ops, NULL);
-    if(ret < 0) {
+    if (ret < 0) {
         LOGE(LOG_TAG, "%s:%d, register %s failed, ret %d", __func__, __LINE__, new_dev->name, ret);
         if(new_dev->name)
             free(new_dev->name);
@@ -351,14 +351,14 @@ int audio_unregister_device(audio_device_t *dev)
         return -EINVAL;
     }
     dlist_for_each_entry(&dev_head, node, audio_device_t, list) {
-        if((node->type == dev->type) && (!strcmp(node->name, dev->name) && (node->private_data == dev->private_data))) {
+        if (node && (node->type == dev->type) && (!strcmp(node->name, dev->name) && (node->private_data == dev->private_data))) {
             dlist_del(&node->list);
             aos_unregister_driver(node->name);
-            if(node->name)
+            if (node->name)
                 free(node->name);
-            if(node->private_data)
+            if (node->private_data)
                 free(node->private_data);
-            if(node)
+            if (node)
                 free(node);
             return RET_SUCCESS;
         }
@@ -369,7 +369,7 @@ int audio_unregister_device(audio_device_t *dev)
 audio_device_t *audio_get_device(const char *name)
 {
     audio_device_t *node = NULL;
-    if(!name) {
+    if (!name) {
         LOGE(LOG_TAG, "%s:%d, name is null.", __func__, __LINE__);
         return NULL;
     }

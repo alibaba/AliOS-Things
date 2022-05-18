@@ -32,6 +32,9 @@ LCD1602 字符型液晶显示模块是专门用于显示字母、数字、符号
 
 ## 三、软件接口
 
+LCD1602液晶屏HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/lcd1602)
+<br>
+
 ### LCD1602(...) - 创建 LCD1602 驱动对象
 * 函数原型：
 > drv = LCD1602(RS, RW, E, D4, D5, D6, D7)

@@ -1,7 +1,7 @@
 ## 第一部分： 基础信息
 name: espressif_esp32                                     # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
 version: master                                    # <必选项> 组件版本号
-description: driver & sdk for mcu esp32          # <必选项> 建议至少20字以上
+description: esp-idf for esp32          # <必选项> 建议至少20字以上
 type: chip                                          # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
 tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
@@ -320,8 +320,7 @@ hw_info:
   cpu_name: esp32
   toolchain_prefix: xtensa-esp32-elf
   vendor_name: espressif
-  ld_script: _esp32_alios.lds
-  flash_program: release/aos_burn_tool/flash_program.py
+  ld_script: espressif_idf.lds
 
 ## 第六部分：安装信息
 # install:

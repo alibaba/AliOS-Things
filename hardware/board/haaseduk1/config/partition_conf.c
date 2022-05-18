@@ -176,7 +176,7 @@ static int flash_partitions_init(void)
         ret = aos_flashpart_register(&partitions[i]);
         if (ret) {
             for (size_t j = 0; j < i; j++)
-                (void)aos_flashpart_unregister(partitions[j].dev.id);
+                (void)aos_flashpart_unregister(j);
             return ret;
         }
     }

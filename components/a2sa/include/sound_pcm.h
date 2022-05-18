@@ -138,8 +138,8 @@ typedef struct {
 	long minperiodtime;
 	int poll_fd_count;
 	unsigned short poll_events;
-	int setup: 1,
-	    compat: 1;
+    int setup;
+    int compat;
 	unsigned int mmap_rw: 1;
 	unsigned int mmap_shadow: 1;
 	unsigned int donot_close: 1;

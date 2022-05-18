@@ -1,0 +1,356 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap_pdu_access(3)
+=================
+:doctype: manpage
+:man source:   coap_pdu_access
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap_pdu_access,
+coap_check_option,
+coap_decode_var_bytes,
+coap_decode_var_bytes8,
+coap_get_data,
+coap_opt_length,
+coap_opt_value,
+coap_option_filter_clear,
+coap_option_filter_get,
+coap_option_filter_set,
+coap_option_filter_unset,
+coap_option_iterator_init,
+coap_option_next,
+coap_pdu_get_code,
+coap_pdu_get_mid,
+coap_pdu_get_token,
+coap_pdu_get_type
+- Accessing CoAP PDUs
+
+SYNOPSIS
+--------
+*#include <coap@LIBCOAP_API_VERSION@/coap.h>*
+
+*coap_opt_t *coap_check_option(const coap_pdu_t *_pdu_,
+coap_option_num_t _number_, coap_opt_iterator_t *_oi_);*
+
+*unsigned int coap_decode_var_bytes(const uint8_t *_buf_, size_t _length_);*
+
+*uint64_t coap_decode_var_bytes8(const uint8_t *_buf_, size_t _length_);*
+
+*int coap_get_data(const coap_pdu_t *_pdu_, size_t *_length,
+const uint8_t **_data_);*
+
+*uint32_t coap_opt_length(const coap_opt_t *_opt_);*
+
+*const uint8_t *coap_opt_value(const coap_opt_t *_opt_);*
+
+*void coap_option_filter_clear(coap_opt_filter_t *_filter_);*
+
+*int coap_option_filter_get(coap_opt_filter_t *_filter_,
+coap_option_num_t _number_);*
+
+*int coap_option_filter_set(coap_opt_filter_t *_filter_,
+coap_option_num_t _number_)*;
+
+*int coap_option_filter_unset(coap_opt_filter_t *_filter_,
+coap_option_num_t _number_);*
+
+*coap_opt_iterator_t *coap_option_iterator_init(const coap_pdu_t *_pdu_,
+coap_opt_iterator_t *_oi_, const coap_opt_filter_t *_filter_);*
+
+*coap_opt_t *coap_option_next(coap_opt_iterator_t *_oi_);*
+
+*coap_pdu_code_t coap_pdu_get_code(const coap_pdu_t *_pdu_);*
+
+*coap_mid_t coap_pdu_get_mid(const coap_pdu_t *_pdu_);*
+
+*coap_bin_const_t coap_pdu_get_token(const coap_pdu_t *_pdu_);*
+
+*coap_pdu_type_t coap_pdu_get_type(const coap_pdu_t *_pdu_);*
+
+For specific (D)TLS library support, link with
+*-lcoap-@LIBCOAP_API_VERSION@-notls*, *-lcoap-@LIBCOAP_API_VERSION@-gnutls*,
+*-lcoap-@LIBCOAP_API_VERSION@-openssl*, *-lcoap-@LIBCOAP_API_VERSION@-mbedtls*
+or *-lcoap-@LIBCOAP_API_VERSION@-tinydtls*.   Otherwise, link with
+*-lcoap-@LIBCOAP_API_VERSION@* to get the default (D)TLS library support.
+
+DESCRIPTION
+-----------
+The CoAP PDU is of the form
+
+--header--|--optional token--|--optional options--|--optional payload--
+
+The terminology used is taken mainly from
+https://tools.ietf.org/html/rfc7252#section-1.2
+
+The following functions provide access to the information held within a PDU.
+
+*Header:*
+
+The *coap_pdu_get_type*() function returns one of the messages types below from
+the PDU _pdu_.
+
+[source, c]
+----
+COAP_MESSAGE_CON  Type confirmable.
+COAP_MESSAGE_NON  Type non-confirmable.
+COAP_MESSAGE_ACK  Type acknowledge
+COAP_MESSAGE_RST  Type reset.
+----
+
+The *coap_pdu_get_code*() function returns one of the codes below from the
+PDU _pdu_. It is possible that new codes are added in over time.
+
+[source, c]
+----
+COAP_EMPTY_CODE                               0.00
+COAP_REQUEST_CODE_GET                         0.01
+COAP_REQUEST_CODE_POST                        0.02
+COAP_REQUEST_CODE_PUT                         0.03
+COAP_REQUEST_CODE_DELETE                      0.04
+COAP_REQUEST_CODE_FETCH                       0.05
+COAP_REQUEST_CODE_PATCH                       0.06
+COAP_REQUEST_CODE_IPATCH                      0.07
+COAP_RESPONSE_CODE_OK                         2.00
+COAP_RESPONSE_CODE_CREATED                    2.01
+COAP_RESPONSE_CODE_DELETED                    2.02
+COAP_RESPONSE_CODE_VALID                      2.03
+COAP_RESPONSE_CODE_CHANGED                    2.04
+COAP_RESPONSE_CODE_CONTENT                    2.05
+COAP_RESPONSE_CODE_CONTINUE                   2.31
+COAP_RESPONSE_CODE_BAD_REQUEST                4.00
+COAP_RESPONSE_CODE_UNAUTHORIZED               4.01
+COAP_RESPONSE_CODE_BAD_OPTION                 4.02
+COAP_RESPONSE_CODE_FORBIDDEN                  4.03
+COAP_RESPONSE_CODE_NOT_FOUND                  4.04
+COAP_RESPONSE_CODE_NOT_ALLOWED                4.05
+COAP_RESPONSE_CODE_NOT_ACCEPTABLE             4.06
+COAP_RESPONSE_CODE_INCOMPLETE                 4.08
+COAP_RESPONSE_CODE_CONFLICT                   4.09
+COAP_RESPONSE_CODE_PRECONDITION_FAILED        4.12
+COAP_RESPONSE_CODE_REQUEST_TOO_LARGE          4.13
+COAP_RESPONSE_CODE_UNSUPPORTED_CONTENT_FORMAT 4.15
+COAP_RESPONSE_CODE_UNPROCESSABLE              4.22
+COAP_RESPONSE_CODE_TOO_MANY_REQUESTS          4.29
+COAP_RESPONSE_CODE_INTERNAL_ERROR             5.00
+COAP_RESPONSE_CODE_NOT_IMPLEMENTED            5.01
+COAP_RESPONSE_CODE_BAD_GATEWAY                5.02
+COAP_RESPONSE_CODE_SERVICE_UNAVAILABLE        5.03
+COAP_RESPONSE_CODE_GATEWAY_TIMEOUT            5.04
+COAP_RESPONSE_CODE_PROXYING_NOT_SUPPORTED     5.05
+COAP_RESPONSE_CODE_HOP_LIMIT_REACHED          5.08
+COAP_SIGNALING_CODE_CSM                       7.01
+COAP_SIGNALING_CODE_PING                      7.02
+COAP_SIGNALING_CODE_PONG                      7.03
+COAP_SIGNALING_CODE_RELEASE                   7.04
+COAP_SIGNALING_CODE_ABORT                     7.05
+----
+
+The *coap_pdu_get_mid*() returns the message id from the PDU _pdu_.
+
+*Token:*
+
+The *coap_pdu_get_token*() returns the token information held in the PDU _pdu_
+which may be zero length.
+
+*Options:*
+
+The following is the current list of options with their numeric value
+----
+/*
+ * The C, U, and N flags indicate the properties
+ * Critical, Unsafe, and NoCacheKey, respectively.
+ * If U is set, then N has no meaning as per
+ * https://tools.ietf.org/html/rfc7252#section-5.10
+ * and is set to a -.
+ * Separately, R is for the options that can be repeated
+ *
+ * The least significant byte of the option is set as followed
+ * as per https://tools.ietf.org/html/rfc7252#section-5.4.6
+ *
+ *   0   1   2   3   4   5   6   7
+ * --+---+---+---+---+---+---+---+
+ *           | NoCacheKey| U | C |
+ * --+---+---+---+---+---+---+---+
+ *
+ * https://tools.ietf.org/html/rfc8613#section-4 goes on to define E, I and U
+ * properties Encrypted and Integrity Protected, Integrity Protected Only and
+ * Unprotected respectively.  Integrity Protected Only is not currently used.
+ *
+ * An Option is tagged with CUNREIU with any of the letters replaced with _ if
+ * not set, or - for N if U is set (see above) for aiding understanding of the
+ * Option.
+ */
+
+COAP_OPTION_IF_MATCH        1 /* C__RE__, opaque,    0-8 B, RFC7252 */
+COAP_OPTION_URI_HOST        3 /* CU-___U, String,  1-255 B, RFC7252 */
+COAP_OPTION_ETAG            4 /* ___RE__, opaque,    1-8 B, RFC7252 */
+COAP_OPTION_IF_NONE_MATCH   5 /* C___E__, empty,       0 B, RFC7252 */
+COAP_OPTION_OBSERVE         6 /* _U-_E_U, empty/uint,  0 B/0-3 B, RFC7641 */
+COAP_OPTION_URI_PORT        7 /* CU-___U, uint,      0-2 B, RFC7252 */
+COAP_OPTION_LOCATION_PATH   8 /* ___RE__, String,  0-255 B, RFC7252 */
+COAP_OPTION_OSCORE          9 /* C_____U, *,       0-255 B, RFC8613 */
+COAP_OPTION_URI_PATH       11 /* CU-RE__, String,  0-255 B, RFC7252 */
+COAP_OPTION_CONTENT_FORMAT 12 /* ____E__, uint,      0-2 B, RFC7252 */
+/* COAP_OPTION_MAXAGE default 60 seconds if not set */
+COAP_OPTION_MAXAGE         14 /* _U-_E_U, uint,      0-4 B, RFC7252 */
+COAP_OPTION_URI_QUERY      15 /* CU-RE__, String,  1-255 B, RFC7252 */
+COAP_OPTION_HOP_LIMIT      16 /* ______U, uint,        1 B, RFC8768 */
+COAP_OPTION_ACCEPT         17 /* C___E__, uint,      0-2 B, RFC7252 */
+COAP_OPTION_LOCATION_QUERY 20 /* ___RE__, String,  0-255 B, RFC7252 */
+COAP_OPTION_BLOCK2         23 /* CU-_E_U, uint,      0-3 B, RFC7959 */
+COAP_OPTION_BLOCK1         27 /* CU-_E_U, uint,      0-3 B, RFC7959 */
+COAP_OPTION_SIZE2          28 /* __N_E_U, uint,      0-4 B, RFC7959 */
+COAP_OPTION_PROXY_URI      35 /* CU-___U, String, 1-1034 B, RFC7252 */
+COAP_OPTION_PROXY_SCHEME   39 /* CU-___U, String,  1-255 B, RFC7252 */
+COAP_OPTION_SIZE1          60 /* __N_E_U, uint,      0-4 B, RFC7252 */
+COAP_OPTION_NORESPONSE    258 /* _U-_E_U, uint,      0-1 B, RFC7967 */
+----
+See FURTHER INFORMATION as to how to get the latest list.
+
+The *coap_check_option*() function is used to check whether the specified option
+_number_ is in the PDU _pdu_.  The option iterator _oi_ is used as an internal
+storage location while iterating through the options looking for the specific
+_number_.  If the _number_ is repeated in the _pdu_, only the first occurrence
+will be returned.  If the option is not found, NULL is returned.
+
+Alternatively, the *coap_option_iterator_init*() function can be used to
+initialize option iterator _oi_, applying a filter _filter_ to indicate which
+options are to be ignored when iterating through the options.  The _filter_ can
+be NULL (or COAP_OPT_ALL) if all of the options are required. Then this is
+followed by using the *coap_option_next*() function in a loop to return all
+the appropriate options until NULL is returned -  indicating the end of
+available the options. See EXAMPLES below for further information.
+
+To set up the filter, the following 4 functions are available.
+
+The *coap_option_filter_clear*() function initializes _filter_ to have no
+options set.
+
+The *coap_option_filter_get*() function is used to check whether option _number_
+is set in _filter_.
+
+The *coap_option_filter_set*() function is used to set option _number_ in
+_filter_.
+
+The *coap_option_filter_unset*() function is used to remove option _number_ in
+_filter_.
+
+The *coap_opt_length*() function returns the length of the option _opt_.
+
+The *coap_opt_val*() function returns a pointer to the start of the data for
+the option.
+
+The *coap_decode_var_bytes*() function will decode an option up to 4 bytes
+long from _buf_ and _length_ into an unsigned 32bit number.
+
+The *coap_decode_var_bytes*8() function will decode an option up to 8 bytes
+long from _buf_ and _length_ into an unsigned 64bit number.
+
+*Payload:*
+
+The *coap_get_data*() function is used abstract from the _pdu_
+information about the received data by updating _length_ with the length of
+data available, and _data_ with a pointer to where the data is located.
+
+*NOTE:* This function has been updated by *coap_get_data_large*() when large
+transfers may take place.  See coap_block(3).
+
+EXAMPLES
+--------
+*Abstract information from PDU*
+
+[source, c]
+----
+#include <coap@LIBCOAP_API_VERSION@/coap.h>
+
+static void
+get_pdu_information(coap_pdu_t *pdu) {
+
+  int ret;
+  /* Header variables */
+  coap_pdu_type_t pdu_type;
+  coap_pdu_code_t pdu_code;
+  coap_mid_t pdu_mid;
+  /* Token variables */
+  coap_bin_const_t pdu_token;
+  /* Option variables */
+  coap_opt_iterator_t opt_iter;
+  coap_opt_t *option;
+  coap_opt_filter_t ignore_options;
+
+  /* Data payload variables */
+  size_t pdu_data_length;
+  const uint8_t *pdu_data;
+  size_t pdu_data_offset;
+  size_t pdu_data_total_length;
+
+  /* Pull in the header information */
+  pdu_type = coap_pdu_get_type(pdu);
+  pdu_code = coap_pdu_get_code(pdu);
+  pdu_mid = coap_pdu_get_mid(pdu);
+
+  /* Pull in the token information */
+  pdu_token = coap_pdu_get_token(pdu);
+
+  /* Pull in the option information */
+  /* Specific option check */
+  option = coap_check_option(pdu, COAP_OPTION_OBSERVE, &opt_iter);
+  if (option) {
+    uint32_t value = coap_decode_var_bytes(coap_opt_value(option),
+                                           coap_opt_length(option));
+    coap_log(LOG_INFO, "Option OBSERVE, value %u\n", value);
+  }
+  /* Iterate through all options */
+  coap_option_iterator_init(pdu, &opt_iter, COAP_OPT_ALL);
+  while ((option = coap_option_next(&opt_iter))) {
+    coap_log(LOG_INFO, "A: Option %d, Length %u\n",
+             opt_iter.number, coap_opt_length(option));
+  }
+  /* Iterate through options, some ignored */
+  coap_option_filter_clear(&ignore_options);
+  coap_option_filter_set(&ignore_options, COAP_OPTION_OBSERVE);
+  coap_option_iterator_init(pdu, &opt_iter, &ignore_options);
+  while ((option = coap_option_next(&opt_iter))) {
+    coap_log(LOG_INFO, "I: Option %d, Length %u\n",
+             opt_iter.number, coap_opt_length(option));
+  }
+
+  /* Pull in the payload information */
+  ret = coap_get_data(pdu, &pdu_data_length, &pdu_data);
+    /* or */
+  ret = coap_get_data_large(pdu, &pdu_data_length, &pdu_data,
+                            &pdu_data_offset, &pdu_data_total_length);
+
+}
+----
+
+SEE ALSO
+--------
+*coap_block*(3) and *coap_pdu_setup*(3)
+
+FURTHER INFORMATION
+-------------------
+See
+
+"RFC7252: The Constrained Application Protocol (CoAP)"
+
+"RFC8613: Object Security for Constrained RESTful Environments (OSCORE)"
+
+for further information.
+
+See https://www.iana.org/assignments/core-parameters/core-parameters.xhtml#option-numbers
+for the current set of defined CoAP Options.
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net or raise an issue on GitHub at
+https://github.com/obgm/libcoap/issues
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

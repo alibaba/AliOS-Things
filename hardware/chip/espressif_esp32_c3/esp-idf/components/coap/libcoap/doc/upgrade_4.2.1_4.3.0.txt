@@ -1,0 +1,431 @@
+= Upgrade from 4.2.1 to 4.3.0
+
+== Summary
+
+When compiling 4.2.1 based code with a 4.3.0 environment, this will initially
+throw up many errors as the API has been updated to make future coding simpler,
+adds more functionality and adds more rigorous coding checks.  Updating your
+code with the following steps will significantly reduce the reported issues.
+
+The examples are now also named with the (D)TLS library type as a suffix.
+E.g. coap-client is now coap-client-openssl.
+
+== Include directory changes
+
+Because of the API changes, the libcoap's include file directory has changed from `coap2/` to `coap3/`. Also, there is now no need to define additional include paths to the compiler options such as `-I include/coap3`.
+
+=== Update coap2 to coap3
+
+Example
+----
+4.2.1
+  #include <coap2/coap.h>
+4.3.0
+  #include <coap3/coap.h>
+----
+No other libcoap include files need to be included in your application.
+
+== Call-back handler updates
+
+Infrequently used parameters (which can easily be recreated) have been removed
+and others have been made const.  These call-back handlers are those
+registered with the `coap_register_*()` functions as follows:
+
+=== coap_register_handler()
+
+The definition of `coap_method_handler_t` has been updated, so all the
+functions registered by `coap_register_handler()` need to be updated. Any
+application functions called by these functions may need to include `const` in
+their calling parameters.
+
+Example
+----
+4.2.1
+static void
+  hnd_get_time(coap_context_t *context,
+               coap_resource_t *resource,
+               coap_session_t *session,
+               coap_pdu_t *request,
+               coap_binary_t *token,
+               coap_string_t *query,
+               coap_pdu_t *response) {
+4.3.0
+  static void
+  hnd_get_time(coap_resource_t *resource,
+               coap_session_t *session,
+               const coap_pdu_t *request,
+               const coap_string_t *query,
+               coap_pdu_t *response) {
+----
+If `context` or `token` need to be recreated, this is done by
+----
+  coap_context_t *context = coap_session_get_context(session);
+  coap_bin_const_t rcvd_token = coap_pdu_get_token(request);
+----
+
+=== coap_register_response_handler()
+
+The definition of `coap_response_handler_t` has been updated, so all the
+functions registered by `coap_register_response_handler()` need to be updated.
+Any application functions called by these functions may need to include `const`
+in their calling parameters.  There is a new handler function exit code
+`COAP_RESPONSE_FAIL` (if the response is not liked and needs to be rejected
+with a `RST` packet) or `COAP_RESPONSE_OK`. Note that `coap_tid_t` has been
+replaced with `coap_mid_t` to reflect the parameter is the message id.
+
+Example
+----
+4.2.1
+  static void
+  message_handler(struct coap_context_t *context,
+                  coap_session_t *session,
+                  coap_pdu_t *sent,
+                  coap_pdu_t *received,
+                  const coap_tid_t id) {
+4.3.0
+  static coap_response_t
+  message_handler(coap_session_t *session,
+                  const coap_pdu_t *sent,
+                  const coap_pdu_t *received,
+                  const coap_mid_t mid) {
+----
+If `context` needs to be recreated, this is done by
+----
+  coap_context_t *context = coap_session_get_context(session);
+----
+
+=== coap_register_nack_handler()
+
+The definition of `coap_nack_handler_t` has been updated, so all the functions
+registered by `coap_register_nack_handler()` need to be updated. Any
+application functions called by these functions may need to include `const` in
+their calling parameters. Note that `coap_tid_t` has been replaced with
+`coap_mid_t` to reflect the parameter is the message id.
+
+Example
+----
+4.2.1
+  static void
+  nack_handler(coap_context_t *context,
+               coap_session_t *session,
+               coap_pdu_t *sent,
+               coap_nack_reason_t reason,
+               const coap_tid_t id) {
+4.3.0
+  static void
+  nack_handler(coap_session_t *session,
+               const coap_pdu_t *sent,
+               const coap_nack_reason_t reason,
+               const coap_mid_t mid) {
+----
+If `context` needs to be recreated, this is done by
+----
+  coap_context_t *context = coap_session_get_context(session);
+----
+
+=== coap_register_event_handler()
+
+The definition of `coap_event_handler_t` been updated, so all the functions
+registered by `coap_register_event_handler()` need to be updated. Any
+application functions called by these functions may need to include `const` in
+their calling parameters.
+
+Example
+----
+4.2.1
+  static int
+  event_handler(coap_context_t *context,
+                coap_event_t event,
+                struct coap_session_t *session) {
+4.3.0
+  static int
+  event_handler(coap_session_t *session,
+                const coap_event_t event) {
+----
+Note the reversed order of the parameters. If `context` needs to be
+recreated, this is done by
+----
+  coap_context_t *context = coap_session_get_context(session);
+----
+
+=== coap_register_ping_handler()
+
+The definition of `coap_ping_handler_t` been updated, so all the functions
+registered by `coap_register_ping_handler()` need to be updated. Any
+application functions called by these functions may need to include `const` in
+their calling parameters. Note that `coap_tid_t` has been replaced with
+`coap_mid_t` to reflect the parameter is the message id.
+
+Example
+
+----
+4.2.1
+  void
+  ping_handler(coap_context_t *context,
+               coap_session_t *session,
+               coap_pdu_t *received,
+               const coap_tid_t id);
+4.3.0
+  void
+  ping_handler(coap_session_t *session,
+               const coap_pdu_t *received,
+               const coap_mid_t mid);
+----
+If `context` needs to be recreated, this is done by
+----
+  coap_context_t *context = coap_session_get_context(session);
+----
+
+=== coap_register_pong_handler()
+
+The definition of `coap_pong_handler_t` been updated, so all the functions
+registered by `coap_register_pong_handler()` need to be updated. Any
+application functions called by these functions may need to include `const` in
+their calling parameters. Note that `coap_tid_t` has been replaced with
+`coap_mid_t` to reflect the parameter is the message id.
+
+Example
+----
+4.2.1
+  void
+  pong_handler(coap_context_t *context,
+               coap_session_t *session,
+               coap_pdu_t *received,
+               const coap_tid_t id);
+4.3.0
+  void
+  pong_handler(coap_session_t *session,
+               const coap_pdu_t *received,
+               const coap_mid_t mid);
+----
+If `context` needs to be recreated, this is done by
+----
+  coap_context_t *context = coap_session_get_context(session);
+----
+
+== libcoap structures no longer directly accessible
+
+Many of the structures internally used by libcoap are no longer exposed to
+applications. Additional functions of the form `coap_X_get_Y()` and
+`coap_X_set_Y()` where `X` is the structure type and `Y` is the variable. Below
+is a non exhaustive set of examples,
+
+=== coap_pdu_t code variable
+
+
+Example
+----
+4.2.1
+  if (received->code ==
+4.3.0
+  coap_pdu_code_t rcvd_code = coap_pdu_get_code(received);
+  ...
+  if (rcvd_code ==
+----
+
+Example
+----
+4.2.1
+  response->code = COAP_RESPONSE_CODE(404);
+4.3.0
+  coap_pdu_set_code(response, COAP_RESPONSE_CODE_NOT_FOUND);
+----
+Note that more descriptive names are now supported for the response codes, but
+the old form can still be used.
+
+=== coap_pdu_t type variable
+
+
+Example
+----
+4.2.1
+  if (received->type ==
+4.3.0
+  coap_pdu_code_t rcvd_type = coap_pdu_get_type(received);
+  ...
+  if (rcvd_type ==
+----
+
+Example
+----
+4.2.1
+  request->type = COAP_MESSAGE_NON;
+4.3.0
+  coap_pdu_set_type(request, COAP_MESSAGE_NON);
+----
+
+=== coap_pdu_t token variable
+
+
+Example
+----
+4.2.1
+  static inline int
+  check_token(coap_pdu_t *received) {
+    return received->token_length == the_token.length &&
+      memcmp(received->token, the_token.s, the_token.length) == 0;
+  }
+4.3.0
+  static inline int
+  check_token(const coap_pdu_t *received) {
+    coap_bin_const_t rcvd_token = coap_pdu_get_token(received);
+
+    return rcvd_token.length == the_token.length &&
+      memcmp(rcvd_token.s, the_token.s, the_token.length) == 0;
+  }
+----
+
+=== coap_session_t context variable
+
+
+Example
+----
+4.2.1
+  if (session->context ==
+4.3.0
+  coap_context_t context = coap_session_get_context(session);
+  ...
+  if (context ==
+----
+
+=== coap_session_t proto variable
+
+
+Example
+----
+4.2.1
+  if (session->proto ==
+4.3.0
+  coap_proto_t proto = coap_session_get_proto(session);
+  ...
+  if (proto ==
+----
+
+
+== Functions with changed parameters
+
+Some functions have had the parameters updated.  Below are some of the more common ones.
+
+=== coap_pdu_init()
+
+The definition of the second parameter has changed from `coap_request_t` to
+`coap_pdu_code_t`.
+
+Example
+----
+4.2.1
+  pdu = coap_pdu_init(msgtype,
+                      COAP_REQUEST_GET,
+                      coap_new_message_id(session),
+                      coap_session_max_pdu_size(session));
+4.3.0
+  pdu = coap_pdu_init(msgtype,
+                      COAP_REQUEST_CODE_GET,
+                      coap_new_message_id(session),
+                      coap_session_max_pdu_size(session));
+----
+Note that the second parameter (`COAP_REQUEST_CODE_GET`) goes further than
+just request codes and includes the possibility of response codes (e.g.
+`COAP_RESPONSE_CODE_CREATED`) from the `enum coap_pdu_code_t`. Hence the
+addition of `_CODE` in the parameter value.
+
+=== coap_get_data()
+
+The definition of the third parameter has been changed to be `const`
+
+Example
+----
+4.2.1
+  uint8_t *data;
+  ...
+  ret = coap_get_data(pdu, &length, &data);
+4.3.0
+  const uint8_t *data;
+  ...
+  ret = coap_get_data(pdu, &length, &data);
+----
+
+== Large Data Handling
+
+Splitting up large data transmission into blocks (RFC7959) can now all be
+handled by internally by libcoap, removing the need for applications to know
+anything about how to work with blocks, or need to do any block packet loss
+recovery. In simple terms, `coap_context_set_block_mode()` must be called,
+`coap_add_data()` (or `coap_add_data_blocked_response()`) is replaced by
+`coap_add_data_large_response()` or `coap_add_data_large_request()`, and
+`coap_get_data_large()` used instead of `coap_get_data()`.  See man page
+`coap_block(3)` for further information.
+
+There are 3 ways of handling the block transfers
+
+=== Application does all the work
+
+This is how things were done in 4.2.1.  The application recognizes the next
+block request coming in and then generates the next block response (including
+setting up the PDU if client).  To continue using this method,
+`coap_context_set_block_mode()` must not be called and none of the `_large`
+functions used.
+
+=== Application sees individual blocks
+
+By calling `coap_context_set_block_mode(context, COAP_BLOCK_USE_LIBCOAP)` and
+using the `_large` functions, all the existing code that builds the next block
+response is no longer needed (and must be removed to prevent packet
+request/response duplication) as libcoap does this for the application.
+
+By calling `coap_get_data_large()`, the application can determine if this is
+the first block or not (using `offset` value), whether the first block is all
+the data (`offset` = `0`, `length` = `total`) and whether this is the last
+block (`offset` + `length` = `total`).  It is the responsibility of the
+application to re-assemble the individual blocks into a single body of data.
+
+If this is the request handler in a server, the server still needs to return a
+`2.31 (Continue)` response code if the received data is not for the final block,
+otherwise a `2.01 (Created)` or `2.04 (Changed)` should be returned.
+
+=== Application only sees all the data
+
+By calling `coap_context_set_block_mode(context,
+COAP_BLOCK_USE_LIBCOAP|COAP_BLOCK_SINGLE_BODY)` and using the `_large`
+functions, all the existing code that builds the next block response is no
+longer needed (and must be removed to prevent request/response packet
+duplication) as libcoap does this for the application.
+
+`coap_get_data_large()` will only return the entire body of data (`offset`
+always `0`, `length` = `total`) and there is no need to re-assemble individual
+blocks into a large body of data.
+
+In RAM constrained environments, option 2 may be the preferred method.
+
+== Observe Handling
+
+In the server's request handler's call-back, there is no longer any need to
+check whether this is an Observe call (or Observe triggered requesting
+additional response call) and add in the Observe Option into the response pdu.
+This is now added by libcoap, and trying to add in the Observe Option for the
+second time in the call-back handler will throw up a Informational warning.
+
+For the client, there is a new function `coap_cancel_observe()` that can be
+called to cancel an observation on the server. To use it,
+`coap_context_set_block_mode()` has to be called prior to sending the initial
+request containing the Observe option.
+
+== Unused function parameters
+
+`UNUSED_PARAM` has been replaced with `COAP_UNUSED`. If `COAP_UNUSED` is used,
+then the definition for `UNUSED_PARAM` can be removed.
+
+== CoAP Message IDs
+
+`coap_tid_t` has been replaced with `coap_mid_t`, as well as `COAP_TID_INVALID`
+has been replaced with `COAP_MID_INVALID`. This is so that the Message ID aligns
+with the definition in RFC7252.
+
+== Async Support
+
+The `async` support has been re-written to simplify usage, and allows the
+underlying libcoap to do the main management / work. A primary change is to
+register the async request with a defined delay time before triggering - which
+if set to 0 is an infinite time and the delay time subsequently updated if
+required.  Consequently the `coap_async_*()` functions now have different
+parameters.

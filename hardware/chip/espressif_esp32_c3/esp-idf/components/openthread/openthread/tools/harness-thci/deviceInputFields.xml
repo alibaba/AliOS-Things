@@ -1,0 +1,131 @@
+<DEVICE_FIELDS>
+    <DEVICE name="ARM" thumbnail="arm-board.jpg" description = "ARM: NXP FRDM-K64F with FireFly 6LoWPAN SHIELD">
+        <ITEM label="Serial Line"
+              type="text"
+              forParam="SerialPort"
+              validation="COM"
+              hint="eg: COM1">COM
+        </ITEM>
+        <ITEM label="Speed"
+              type="text"
+              forParam="SerialBaudRate"
+              validation="baud-rate"
+              hint="eg: 115200">115200
+        </ITEM>
+    </DEVICE>
+    <DEVICE name="NXP" thumbnail="USB-KW24.jpg" description = " NXP(Freescale): USB-KW24D512 Dongles">
+        <ITEM label="Serial Line"
+              type="text"
+              forParam="SerialPort"
+              validation="COM"
+              hint="eg: COM1">COM
+        </ITEM>
+        <ITEM label="Speed"
+              type="text"
+              forParam="SerialBaudRate"
+              validation="baud-rate"
+              hint="eg: 115200">115200
+        </ITEM>
+    </DEVICE>
+    <!--DEVICE name="SiLabs_IP" thumbnail="silabs-board.bmp" description = "Ember Debug Adapter (ISA3) + EM35x Interface board + MeshConnect ZICM3588SP0-1" THCI="SiLabs">
+        <ITEM label="IP addr"
+              type="text"
+              forParam="TelnetIP"
+              validation="ipv4"
+              hint="eg: 192.168.4.195">
+        </ITEM>
+        <ITEM label="PORT"
+              type="text"
+              forParam="TelnetPort"
+              validation="port"
+              hint="eg: 4901">4901
+        </ITEM>
+        <ITEM type="hidden" label = ""
+              forParam="Param5">ip
+        </ITEM>
+    </DEVICE-->
+
+    <DEVICE name="SiLabs" thumbnail="ZM357S-USB.jpg" description = "SiLabs: EM358x USB Stick" THCI="SiLabs">
+        <ITEM label="Serial Line"
+              type="text"
+              forParam="SerialPort"
+              validation="COM"
+              hint="eg: COM1">COM
+        </ITEM>
+        <ITEM label="Speed"
+              type="text"
+              forParam="SerialBaudRate"
+              validation="baud-rate"
+              hint="eg: 115200">115200
+        </ITEM>
+        <ITEM label= "" type="hidden"
+              forParam="Param5">usb
+        </ITEM>
+    </DEVICE>
+    <DEVICE name="OpenThread" thumbnail="OpenThread.png" description = "OpenThread: TI CC2538DK" THCI="OpenThread">
+        <ITEM label="Serial Line"
+              type="text"
+              forParam="SerialPort"
+              validation="COM"
+              hint="eg: COM1">COM
+        </ITEM>
+        <ITEM label="Speed"
+              type="text"
+              forParam="SerialBaudRate"
+              validation="baud-rate"
+              hint="eg: 115200">115200
+        </ITEM>
+    </DEVICE>
+    <DEVICE name="OpenThread_WpanCtl" thumbnail="OpenThread_WpanCtl.png" description = "OpenThread_WpanCtl: Wpantund + NCP" THCI="OpenThread_WpanCtl">
+        <ITEM label="Serial Line"
+              type="text"
+              forParam="SerialPort"
+              validation="COM"
+              hint="eg: COM1">COM
+        </ITEM>
+        <ITEM label="Speed"
+              type="text"
+              forParam="SerialBaudRate"
+              validation="baud-rate"
+              hint="eg: 115200">115200
+        </ITEM>
+        <ITEM type="hidden"
+              label = ""
+              forParam="Param9">stty cols 256
+        </ITEM>
+    </DEVICE>
+    <DEVICE name="OpenThread_WpanCtl_SSH" thumbnail="OpenThread_WpanCtl.png" description = "OpenThread_WpanCtl: Wpantund + NCP (SSH)" THCI="OpenThread_WpanCtl">
+        <ITEM label="IP addr"
+              type="text"
+              forParam="TelnetIP"
+              validation="ipv4"
+              hint="eg: 192.168.1.111">192.168.1.100
+        </ITEM>
+        <ITEM label="PORT"
+              type="text"
+              forParam="TelnetPort"
+              validation="port"
+              hint="eg: 4901">22
+        </ITEM>
+        <ITEM type="hidden"
+              label = ""
+              forParam="Param5">ip
+        </ITEM>
+        <ITEM type="hidden"
+              label = ""
+              forParam="Param6">pi
+        </ITEM>
+        <ITEM type="hidden"
+              label = ""
+              forParam="Param7">raspberry
+        </ITEM>
+        <ITEM type="hidden"
+              label = ""
+              forParam="Param8">pi@raspberrypi, sudo wpanctl -I wpan0, wpan0
+        </ITEM>
+        <ITEM type="hidden"
+              label = ""
+              forParam="Param9">stty cols 256
+        </ITEM>
+     </DEVICE>
+</DEVICE_FIELDS>

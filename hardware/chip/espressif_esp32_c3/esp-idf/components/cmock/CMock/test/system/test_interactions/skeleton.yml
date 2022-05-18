@@ -1,0 +1,55 @@
+---
+:cmock:
+  :plugins:
+  - # none
+  :skeleton_path: system/generated
+
+:systest:
+  :types: |
+    #define UINT32 unsigned int
+
+  :mockable: |
+    UINT32 something(int a);
+
+  :skeleton: skeleton.h
+
+  :source:
+    :header: |
+      void function_a(void);
+      int function_b(int a, int b);
+      const char* function_c(void);
+
+    # we are purposefully not including a :code section because it will be generated with skeleton
+
+  :tests:
+    :common: |
+      void setUp(void) {}
+      void tearDown(void) {}
+
+    :units:
+    - :pass: TRUE
+      :should: 'generate an empty shell for functions with no return values'
+      :code: |
+        test()
+        {
+          function_a();
+        }
+
+    - :pass: TRUE
+      :should: 'return numerical zero for numerical return values'
+      :code: |
+        test()
+        {
+          TEST_ASSERT_EQUAL_INT(0, function_b(1, 2));
+        }
+
+    - :pass: TRUE
+      :should: 'return null for pointer return values'
+      :code: |
+        test()
+        {
+          TEST_ASSERT_NULL(function_c());
+        }
+
+
+...

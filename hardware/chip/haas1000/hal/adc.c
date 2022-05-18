@@ -2,6 +2,7 @@
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
+#include <errno.h>
 #include "aos/hal/adc.h"
 #include "hal_trace.h"
 #include "hal_gpadc.h"
@@ -45,16 +46,29 @@ int32_t hal_adc_init(adc_dev_t *adc)
  */
 int32_t hal_adc_value_get(adc_dev_t *adc, uint32_t *output, uint32_t timeout)
 {
+	int count = 5;
+	enum HAL_GPADC_CHAN_T channel;
 	HAL_GPADC_MV_T volt = HAL_GPADC_BAD_VALUE;
 
-    hal_gpadc_open(__hal_adc_port2chan(adc->port), HAL_GPADC_ATP_ONESHOT, NULL);
-    osDelay(1);
+	if (output == NULL)
+		return -EINVAL;
 
-    if (output && hal_gpadc_get_volt(__hal_adc_port2chan(adc->port), &volt)) {
-        *output = volt;
-        /*printf("%s port=%d, sampling_cycle=%d, priv=%p => output=%d\r\n", __FUNCTION__, adc->port, adc->config.sampling_cycle, adc->priv, *output);*/
-    }
-    return 0;
+	channel = __hal_adc_port2chan(adc->port);
+	if (channel >= HAL_GPADC_CHAN_QTY)
+		return -EINVAL;
+
+	hal_gpadc_open(channel, HAL_GPADC_ATP_ONESHOT, NULL);
+	osDelay(1);
+
+	while (count--) {
+		if (hal_gpadc_get_volt(channel, &volt)) {
+			*output = volt;
+			return 0;
+		}
+		osDelay(1);
+	}
+
+	return -EIO;
 }
 
 /**

@@ -1,0 +1,25 @@
+{
+  "name": "ESP-32S",
+  "version": "1.0.0",
+  "io": {
+    "ir": {
+      "type": "GPIO",
+      "port": 12,
+      "dir": "input",
+      "pull": "pullup"
+    },
+    "servo": {
+      "type": "PWM",
+      "port": 27
+    },
+    "waterlevel": {
+      "type": "ADC",
+      "port": 0,
+      "atten": 2,
+      "width": 3,
+      "sampling": 12000000
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

@@ -1,0 +1,194 @@
+// -*- mode:doc; -*-
+// vim: set syntax=asciidoc,tw=0:
+
+coap_async(3)
+=============
+:doctype: manpage
+:man source:   coap_async
+:man version:  @PACKAGE_VERSION@
+:man manual:   libcoap Manual
+
+NAME
+----
+coap_async,
+coap_async_is_supported,
+coap_register_async,
+coap_async_set_delay,
+coap_find_async,
+coap_free_async,
+coap_async_set_app_data,
+coap_async_get_app_data
+- Work with CoAP async support
+
+SYNOPSIS
+--------
+*#include <coap@LIBCOAP_API_VERSION@/coap.h>*
+
+*int coap_async_is_supported(void);*
+
+*coap_async_t *coap_register_async(coap_session_t *_session_,
+const coap_pdu_t *_request_, coap_tick_t _delay_);*
+
+*void coap_async_set_delay(coap_async_t *_async_, coap_tick_t _delay_);*
+
+*void coap_free_async(coap_session_t *_session_, coap_async_t *_async_);*
+
+*coap_async_t *coap_find_async(coap_session_t *_session_,
+coap_bin_const_t _token_);*
+
+*void coap_async_set_app_data(coap_async_t *_async_, void *_app_data_);*
+
+*void *coap_async_get_app_data(const coap_async_t *_async_);*
+
+For specific (D)TLS library support, link with
+*-lcoap-@LIBCOAP_API_VERSION@-notls*, *-lcoap-@LIBCOAP_API_VERSION@-gnutls*,
+*-lcoap-@LIBCOAP_API_VERSION@-openssl*, *-lcoap-@LIBCOAP_API_VERSION@-mbedtls*
+or *-lcoap-@LIBCOAP_API_VERSION@-tinydtls*.   Otherwise, link with
+*-lcoap-@LIBCOAP_API_VERSION@* to get the default (D)TLS library support.
+
+DESCRIPTION
+-----------
+CoAP server responses can be piggybacked (RFC7252 5.2.1) or separate
+(RFC7252 5.2.2).
+
+For piggybacked responses, the response packet contains both the status and
+any data.
+
+For separate responses, there is an initial empty ACK response (Confirmable
+only - to stop the client re-transmitting the request) followed at a later time
+by the packet containing the status and any data.
+
+Usually responses are piggybacked, but this man page focuses on separate
+(async) support.
+
+The function *coap_async_is_supported*() is used to determine if there is
+async support or not.
+
+The *coap_register_async*() function is used to set up an asynchronous delayed
+request for the _request_ PDU associated with the _session_. The
+application request handler will get called with a copy of _request_ after
+_delay_ ticks which will then cause a response to be sent.  If _delay_ is 0,
+then the application request handler will not get called.
+
+The *coap_async_set_delay*() function is used to update the remaining _delay_
+before the application request handler is called for the _async_ definition. If
+_delay_ is set to 0, then the application request handler will not get called.
+
+An example of usage here is *coap_register_async*() sets _delay_ to 0, and
+then when the response is ready at an indeterminate point in the future,
+*coap_async_set_delay*() is called setting _delay_ to 1.
+
+The *coap_free_async*() function is used to delete an _async_ definition.
+
+The *coap_find_async*() function is used to determine if there is an async
+definition based on the _session_ and token _token_.
+
+The *coap_async_set_app_data*() function is used to add in user defined
+_app_data_ to the _async_ definition.  It is the responsibility of the
+application to release this data if appropriate.  This would usually be done
+when the application request handler is called under 'async' control.
+
+The *coap_async_get_app_data*() function is used to retrieve any defined
+application data from the  _async_ definition.
+
+RETURN VALUES
+-------------
+
+*coap_async_is_supported*() returns 1 if support is available, 0 otherwise.
+
+*coap_register_async*() and *coap_find_async*() return a pointer to an async
+definition or NULL if there is an error.
+
+*coap_async_get_app_data*() returns a pointer to the user defined data.
+
+EXAMPLES
+--------
+*CoAP Server Non-Encrypted Setup*
+
+[source, c]
+----
+#include <coap@LIBCOAP_API_VERSION@/coap.h>
+
+/*
+ * This example is used to demonstrate how to set up and use a "separate"
+ * response (empty ACK followed by data response at a later stage).
+ */
+static void
+hnd_get_with_delay(coap_session_t *session,
+              coap_resource_t *resource,
+              coap_pdu_t *request,
+              coap_string_t *query,
+              coap_pdu_t *response) {
+  unsigned long delay = 5;
+  size_t size;
+  coap_async_t *async;
+  coap_bin_const_t token = coap_pdu_get_token(request);
+
+  /*
+   * See if this is the initial, or delayed request
+   */
+
+  async = coap_find_async(session, token);
+  if (!async) {
+    /* Set up an async request to trigger delay in the future */
+    if (query) {
+      const uint8_t *p = query->s;
+
+      delay = 0;
+      for (size = query->length; size; --size, ++p)
+        delay = delay * 10 + (*p - '0');
+      if (delay == 0) {
+        coap_log(LOG_INFO, "async: delay of 0 not supported\n");
+        coap_pdu_set_code(response, COAP_RESPONSE_CODE_BAD_REQUEST);
+        return;
+      }
+    }
+    async = coap_register_async(session,
+                                request,
+                                COAP_TICKS_PER_SECOND * delay);
+    if (async == NULL) {
+      coap_pdu_set_code(response, COAP_RESPONSE_CODE_SERVICE_UNAVAILABLE);
+      return;
+    }
+    /*
+     * Not setting response code will cause empty ACK to be sent
+     * if Confirmable
+     */
+    return;
+  }
+  /* async is set up, so this is the delayed request */
+
+  /* remove any stored app data associated with 'async' here */
+
+  /* Send back the appropriate data */
+  coap_add_data_large_response(resource, session, request, response,
+                               query, COAP_MEDIATYPE_TEXT_PLAIN, -1, 0, 4,
+                               (const uint8_t *)"done", NULL, NULL);
+  coap_pdu_set_code(response, COAP_RESPONSE_CODE_CONTENT);
+
+  /* async is automatically removed by libcoap on return from this handler */
+}
+
+----
+
+SEE ALSO
+--------
+*coap_handler*(3)
+
+FURTHER INFORMATION
+-------------------
+See
+
+"RFC7252: The Constrained Application Protocol (CoAP)"
+
+for further information.
+
+BUGS
+----
+Please report bugs on the mailing list for libcoap:
+libcoap-developers@lists.sourceforge.net or raise an issue on GitHub at
+https://github.com/obgm/libcoap/issues
+
+AUTHORS
+-------
+The libcoap project <libcoap-developers@lists.sourceforge.net>

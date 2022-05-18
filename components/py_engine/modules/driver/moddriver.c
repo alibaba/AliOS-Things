@@ -12,6 +12,7 @@
 #include "py/mperrno.h"
 #include "py/obj.h"
 #include "py/runtime.h"
+#include "drivers/dht/dht.h"
 // #include "ulog/ulog.h"
 
 extern const mp_obj_type_t driver_adc_type;
@@ -52,6 +53,7 @@ STATIC const mp_rom_map_elem_t driver_locals_dict_table[] = {
     // { MP_OBJ_NEW_QSTR(MP_QSTR_Location), MP_ROM_PTR(&driver_location_type) },
     // { MP_OBJ_NEW_QSTR(MP_QSTR_UND), MP_ROM_PTR(&driver_und_type) },
     // { MP_OBJ_NEW_QSTR(MP_QSTR_Crypto), MP_ROM_PTR(&driver_crypto_type) },
+    { MP_ROM_QSTR(MP_QSTR_dht_readinto), MP_ROM_PTR(&dht_readinto_obj) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(driver_locals_dict, driver_locals_dict_table);

@@ -220,6 +220,7 @@ static void TelnetServerProcess(void* arg)
 
    telnetserver_is_running = true;
 
+   cli_task_set_console(krhino_cur_task_get(), arg);
    /* set cli aos telnet server mode */
    CommandParseLine(telcmd);
 
@@ -253,17 +254,15 @@ static void TelnetServerProcess(void* arg)
    return ;
 }
 
-void telnetserver_start()
+void telnetserver_start(void *console)
 {
-   aos_task_new_ext(&aos_telnetd_task, "telnetserver", TelnetServerProcess, NULL, 81920, AOS_TELNETD_PRI);
+   aos_task_new_ext(&aos_telnetd_task, "telnetserver", TelnetServerProcess, console, 8192, AOS_TELNETD_PRI);
 }
 
 void telnetserver_stop()
 {
-  telnetserver_is_running = false;
-  if(TelnetIsConnected() == true)
-  {
-     TelnetClose();
-  }
+    telnetserver_is_running = false;
+    if (TelnetIsConnected() == true)
+        TelnetClose();
 }
 

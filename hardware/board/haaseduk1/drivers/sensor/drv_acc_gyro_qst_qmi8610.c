@@ -551,7 +551,7 @@ uint8_t FisImu_init(void)
     int32_t ret = sensor_i2c_open(1, FIS210X_SLAVE_ADDR, I2C_BUS_BIT_RATES_100K, 0);
     if (ret) {
         LOGE("SENSOR", "sensor i2c open 0x%x:0x%x failed, ret:%d\n", 0x1, FIS210X_SLAVE_ADDR, ret);
-        return;
+        return 0;
     }
 
     FisImu_read_reg(FisRegister_WhoAmI, &chip_id, 1);

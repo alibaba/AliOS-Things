@@ -1,0 +1,24 @@
+menu "ESP HTTP client"
+
+
+    config ESP_HTTP_CLIENT_ENABLE_HTTPS
+        bool "Enable https"
+        default y
+        help
+            This option will enable https protocol by linking esp-tls library and initializing SSL transport
+
+    config ESP_HTTP_CLIENT_ENABLE_BASIC_AUTH
+        bool "Enable HTTP Basic Authentication"
+        default n
+        help
+            This option will enable HTTP Basic Authentication. It is disabled by default as Basic
+            auth uses unencrypted encoding, so it introduces a vulnerability when not using TLS
+
+    config ESP_HTTP_CLIENT_ENABLE_DIGEST_AUTH
+        bool "Enable HTTP Digest Authentication"
+        default y
+        help
+            This option will enable HTTP Digest Authentication. It is enabled by default, but use of this
+            configuration is not recommended as the password can be derived from the exchange, so it introduces
+            a vulnerability when not using TLS
+endmenu

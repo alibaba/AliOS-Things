@@ -1,0 +1,37 @@
+---
+
+# This project file is for using Ceedling to run CException's self-tests. The
+# only requirement for USING CException is in the lib folder.
+
+:project:
+  :use_exceptions: FALSE
+  :use_test_preprocessor: FALSE
+  :use_auxiliary_dependencies: FALSE
+  :build_root: build
+  :test_file_prefix: Test
+  :which_ceedling: gem
+  :ceedling_version: 0.29.1
+  :default_tasks:
+    - clobber test:all
+
+:extension:
+  :executable: .out
+
+:paths:
+  :test:
+    - +:test/**
+    - -:test/support
+  :source:
+    - lib/**
+  :support:
+    - test/support
+
+:defines:
+  :test:
+    - TEST
+    - CEXCEPTION_USE_CONFIG_FILE
+  :test_preprocess:
+    - TEST
+    - CEXCEPTION_USE_CONFIG_FILE
+
+...
