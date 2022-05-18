@@ -101,6 +101,9 @@ elif [[ $macro_list =~ "NODEMCU32C3" ]]; then
 elif [[ $macro_list =~ "NODEMCU32S3" ]]; then
     TARGET_BOARD="GENERIC_S3"
     TARGET_PLATFORM="ESP32"
+elif [[ $macro_list =~ "BOARD_VEXPRESS_A9" ]]; then
+    echo "NOT SUPPORT THIS PLATFORM"
+    exit 0
 else
     TARGET_BOARD="GENERIC"
     TARGET_PLATFORM="ESP32"
