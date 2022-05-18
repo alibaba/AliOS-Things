@@ -1,0 +1,26 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "adc0": {
+      "type": "ADC",
+      "port": 0,
+      "sampling": 12000000,
+      "atten": 0,
+      "width": 3
+    },
+    "adc7": {
+      "type": "ADC",
+      "port": 7,
+      "sampling": 12000000,
+      "atten": 0,
+      "width": 3
+    },
+    "PWM2":{
+      "type":"PWM",
+      "port": 2
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

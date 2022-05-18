@@ -1,0 +1,13 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+      "TIMER0": {
+        "type": "TIMER",
+	"port": 0
+      }
+  },
+
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
