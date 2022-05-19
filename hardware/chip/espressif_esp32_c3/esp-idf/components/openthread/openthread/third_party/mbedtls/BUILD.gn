@@ -1,0 +1,219 @@
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+declare_args() {
+  # Configuration file for MbedTLS.
+  mbedtls_config_file = "mbedtls-config.h"
+
+  # Extra dependencies for MbedTLS
+  mbedtls_deps = [ "../../src/core:libopenthread_core_config" ]
+}
+
+config("mbedtls_config") {
+  include_dirs = [
+    ".",
+    "repo/include",
+    "repo/library",
+  ]
+
+  defines = [ "MBEDTLS_CONFIG_FILE=\"${mbedtls_config_file}\"" ]
+  cflags = [ "-Wno-conversion" ]
+}
+
+static_library("mbedtls") {
+  sources = [
+    "repo/include/mbedtls/aes.h",
+    "repo/include/mbedtls/aesni.h",
+    "repo/include/mbedtls/arc4.h",
+    "repo/include/mbedtls/aria.h",
+    "repo/include/mbedtls/asn1.h",
+    "repo/include/mbedtls/asn1write.h",
+    "repo/include/mbedtls/base64.h",
+    "repo/include/mbedtls/bignum.h",
+    "repo/include/mbedtls/blowfish.h",
+    "repo/include/mbedtls/bn_mul.h",
+    "repo/include/mbedtls/camellia.h",
+    "repo/include/mbedtls/ccm.h",
+    "repo/include/mbedtls/certs.h",
+    "repo/include/mbedtls/chacha20.h",
+    "repo/include/mbedtls/chachapoly.h",
+    "repo/include/mbedtls/check_config.h",
+    "repo/include/mbedtls/cipher.h",
+    "repo/include/mbedtls/cipher_internal.h",
+    "repo/include/mbedtls/cmac.h",
+    "repo/include/mbedtls/compat-1.3.h",
+    "repo/include/mbedtls/config.h",
+    "repo/include/mbedtls/config_psa.h",
+    "repo/include/mbedtls/ctr_drbg.h",
+    "repo/include/mbedtls/debug.h",
+    "repo/include/mbedtls/des.h",
+    "repo/include/mbedtls/dhm.h",
+    "repo/include/mbedtls/ecdh.h",
+    "repo/include/mbedtls/ecdsa.h",
+    "repo/include/mbedtls/ecjpake.h",
+    "repo/include/mbedtls/ecp.h",
+    "repo/include/mbedtls/ecp_internal.h",
+    "repo/include/mbedtls/entropy.h",
+    "repo/include/mbedtls/entropy_poll.h",
+    "repo/include/mbedtls/error.h",
+    "repo/include/mbedtls/gcm.h",
+    "repo/include/mbedtls/havege.h",
+    "repo/include/mbedtls/hkdf.h",
+    "repo/include/mbedtls/hmac_drbg.h",
+    "repo/include/mbedtls/md.h",
+    "repo/include/mbedtls/md2.h",
+    "repo/include/mbedtls/md4.h",
+    "repo/include/mbedtls/md5.h",
+    "repo/include/mbedtls/md_internal.h",
+    "repo/include/mbedtls/memory_buffer_alloc.h",
+    "repo/include/mbedtls/net.h",
+    "repo/include/mbedtls/net_sockets.h",
+    "repo/include/mbedtls/nist_kw.h",
+    "repo/include/mbedtls/oid.h",
+    "repo/include/mbedtls/padlock.h",
+    "repo/include/mbedtls/pem.h",
+    "repo/include/mbedtls/pk.h",
+    "repo/include/mbedtls/pk_internal.h",
+    "repo/include/mbedtls/pkcs11.h",
+    "repo/include/mbedtls/pkcs12.h",
+    "repo/include/mbedtls/pkcs5.h",
+    "repo/include/mbedtls/platform.h",
+    "repo/include/mbedtls/platform_time.h",
+    "repo/include/mbedtls/platform_util.h",
+    "repo/include/mbedtls/poly1305.h",
+    "repo/include/mbedtls/ripemd160.h",
+    "repo/include/mbedtls/rsa.h",
+    "repo/include/mbedtls/rsa_internal.h",
+    "repo/include/mbedtls/sha1.h",
+    "repo/include/mbedtls/sha256.h",
+    "repo/include/mbedtls/sha512.h",
+    "repo/include/mbedtls/ssl.h",
+    "repo/include/mbedtls/ssl_cache.h",
+    "repo/include/mbedtls/ssl_ciphersuites.h",
+    "repo/include/mbedtls/ssl_cookie.h",
+    "repo/include/mbedtls/ssl_internal.h",
+    "repo/include/mbedtls/ssl_ticket.h",
+    "repo/include/mbedtls/threading.h",
+    "repo/include/mbedtls/timing.h",
+    "repo/include/mbedtls/version.h",
+    "repo/include/mbedtls/x509.h",
+    "repo/include/mbedtls/x509_crl.h",
+    "repo/include/mbedtls/x509_crt.h",
+    "repo/include/mbedtls/x509_csr.h",
+    "repo/include/mbedtls/xtea.h",
+    "repo/library/aes.c",
+    "repo/library/aesni.c",
+    "repo/library/arc4.c",
+    "repo/library/aria.c",
+    "repo/library/asn1parse.c",
+    "repo/library/asn1write.c",
+    "repo/library/base64.c",
+    "repo/library/bignum.c",
+    "repo/library/blowfish.c",
+    "repo/library/camellia.c",
+    "repo/library/ccm.c",
+    "repo/library/certs.c",
+    "repo/library/chacha20.c",
+    "repo/library/chachapoly.c",
+    "repo/library/cipher.c",
+    "repo/library/cipher_wrap.c",
+    "repo/library/cmac.c",
+    "repo/library/ctr_drbg.c",
+    "repo/library/debug.c",
+    "repo/library/des.c",
+    "repo/library/dhm.c",
+    "repo/library/ecdh.c",
+    "repo/library/ecdsa.c",
+    "repo/library/ecjpake.c",
+    "repo/library/ecp.c",
+    "repo/library/ecp_curves.c",
+    "repo/library/entropy.c",
+    "repo/library/entropy_poll.c",
+    "repo/library/error.c",
+    "repo/library/gcm.c",
+    "repo/library/havege.c",
+    "repo/library/hkdf.c",
+    "repo/library/hmac_drbg.c",
+    "repo/library/md.c",
+    "repo/library/md2.c",
+    "repo/library/md4.c",
+    "repo/library/md5.c",
+    "repo/library/memory_buffer_alloc.c",
+    "repo/library/net_sockets.c",
+    "repo/library/nist_kw.c",
+    "repo/library/oid.c",
+    "repo/library/padlock.c",
+    "repo/library/pem.c",
+    "repo/library/pk.c",
+    "repo/library/pk_wrap.c",
+    "repo/library/pkcs11.c",
+    "repo/library/pkcs12.c",
+    "repo/library/pkcs5.c",
+    "repo/library/pkparse.c",
+    "repo/library/pkwrite.c",
+    "repo/library/platform.c",
+    "repo/library/platform_util.c",
+    "repo/library/poly1305.c",
+    "repo/library/psa_crypto.c",
+    "repo/library/psa_crypto_driver_wrappers.c",
+    "repo/library/psa_crypto_se.c",
+    "repo/library/psa_crypto_slot_management.c",
+    "repo/library/psa_crypto_storage.c",
+    "repo/library/psa_its_file.c",
+    "repo/library/ripemd160.c",
+    "repo/library/rsa.c",
+    "repo/library/rsa_internal.c",
+    "repo/library/sha1.c",
+    "repo/library/sha256.c",
+    "repo/library/sha512.c",
+    "repo/library/ssl_cache.c",
+    "repo/library/ssl_ciphersuites.c",
+    "repo/library/ssl_cli.c",
+    "repo/library/ssl_cookie.c",
+    "repo/library/ssl_msg.c",
+    "repo/library/ssl_srv.c",
+    "repo/library/ssl_ticket.c",
+    "repo/library/ssl_tls.c",
+    "repo/library/ssl_tls13_keys.c",
+    "repo/library/threading.c",
+    "repo/library/timing.c",
+    "repo/library/version.c",
+    "repo/library/version_features.c",
+    "repo/library/x509.c",
+    "repo/library/x509_create.c",
+    "repo/library/x509_crl.c",
+    "repo/library/x509_crt.c",
+    "repo/library/x509_csr.c",
+    "repo/library/x509write_crt.c",
+    "repo/library/x509write_csr.c",
+    "repo/library/xtea.c",
+  ]
+
+  public_deps = mbedtls_deps
+
+  public_configs = [ ":mbedtls_config" ]
+}

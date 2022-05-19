@@ -3,7 +3,13 @@ cmake_minimum_required(VERSION 3.12)
 # Set main target and component locations
 set(MICROPY_TARGET micropython)
 
+# Do not compile testCCompiler.c file for cmake
+SET (CMAKE_C_COMPILER_WORKS 1)
+SET (CMAKE_CXX_COMPILER_WORKS 1)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
+
+# Do not generate -arch option for macOS M1
+set(CMAKE_SYSTEM_NAME Generic)
 
 # Define the top-level project
 project(${MICROPY_TARGET})
@@ -45,6 +51,11 @@ include(${MICROPY_DIR}/py/py.cmake)
 if(NOT CMAKE_BUILD_EARLY_EXPANSION)
     include(${MICROPY_DIR}/py/usermod.cmake)
     include(${MICROPY_DIR}/extmod/extmod.cmake)
+if(MICROPY_PY_LVGL)
+    set(LVGL_DIR ${MICROPY_DIR}/lib/lv_bindings/lvgl)
+    set(LV_CONFIG_DIR ${MICROPY_DIR}/../modules/display/haas)
+    include(${MICROPY_DIR}/lib/lv_bindings/bindings.cmake)
+endif()
 endif()
 
 set(MICROPY_QSTRDEFS_PORT
@@ -143,6 +154,10 @@ if(NOT EXISTS ${MICROPY_BOARD_DIR}/mpconfigboard.cmake)
     message(FATAL_ERROR "Invalid MICROPY_BOARD specified: ${MICROPY_BOARD}")
 endif()
 
+if (NOT MICROPY_FROZEN_MANIFEST)
+    set(MICROPY_FROZEN_MANIFEST ${PROJECT_SOURCE_DIR}/boards/manifest_release.py)
+endif()
+
 # Include board config
 include(${MICROPY_BOARD_DIR}/mpconfigboard.cmake) 
 
@@ -156,10 +171,6 @@ target_compile_definitions(${MICROPY_TARGET} PUBLIC
     LFS1_NO_MALLOC LFS1_NO_DEBUG LFS1_NO_WARN LFS1_NO_ERROR LFS1_NO_ASSERT
     LFS2_NO_MALLOC LFS2_NO_DEBUG LFS2_NO_WARN LFS2_NO_ERROR LFS2_NO_ASSERT
 )
-
-if (NOT MICROPY_FROZEN_MANIFEST)
-    set(MICROPY_FROZEN_MANIFEST ${PROJECT_SOURCE_DIR}/../boards/manifest.py)
-endif()
 
 target_sources(${MICROPY_TARGET} PRIVATE
     ${MICROPY_SOURCE_PY}

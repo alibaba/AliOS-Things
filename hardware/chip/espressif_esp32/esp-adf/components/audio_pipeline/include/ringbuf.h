@@ -35,12 +35,6 @@
 extern "C" {
 #endif
 
-#define RB_OK           (ESP_OK)
-#define RB_FAIL         (ESP_FAIL)
-#define RB_DONE         (-2)
-#define RB_ABORT        (-3)
-#define RB_TIMEOUT      (-4)
-
 typedef struct ringbuf *ringbuf_handle_t;
 
 /**

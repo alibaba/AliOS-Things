@@ -32,7 +32,7 @@ static uint8_t i2c_eeprom_read_uint8_t(uint8_t deviceaddress, uint8_t eeaddress)
 
 static double get_altitude(double pressure, double seaLevelhPa)
 {
-    if (seaLevelhPa == 0) {
+    if (seaLevelhPa >= 0.0 && seaLevelhPa <= 0.0) {
         return -1;
     }
 

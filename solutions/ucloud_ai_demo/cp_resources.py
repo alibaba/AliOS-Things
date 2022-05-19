@@ -21,7 +21,7 @@ org_image_path = comp_path + "/resources/image"
 org_font_path = comp_path + "/resources/font"
 
 # new folder
-data_path = comp_path + "/../../hardware/chip/haas1000/prebuild/data"
+data_path = comp_path + "/../../hardware/chip/haas1000/prebuild/data/data"
 image_path = data_path + "/ai_demo_image"
 font_path = data_path + "/font"
 

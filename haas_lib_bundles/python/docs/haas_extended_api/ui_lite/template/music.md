@@ -39,7 +39,7 @@ Music Player started
 ```
 </br>
 
-### createPage() - 创建计时器
+### createPage() - 创建播放器面板
 
 * 函数功能：
 

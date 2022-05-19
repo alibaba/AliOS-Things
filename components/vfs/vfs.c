@@ -244,9 +244,9 @@ int32_t vfs_init(void)
     /* init current working directory */
     memset(g_current_working_directory, 0, sizeof(g_current_working_directory));
 #ifdef VFS_CONFIG_ROOTFS
-    strcpy(g_current_working_directory, "/");
+    strncpy(g_current_working_directory, "/", sizeof(g_current_working_directory) - 1);
 #else
-    strncpy(g_current_working_directory, "/default", strlen("/default") + 1);
+    strncpy(g_current_working_directory, "/default", sizeof(g_current_working_directory) - 1);
 #endif
 #endif
 

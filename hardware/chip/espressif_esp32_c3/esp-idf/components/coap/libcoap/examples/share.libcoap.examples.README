@@ -1,0 +1,9 @@
+This directory contains some example libcoap code for a client or server which
+can easily be modified as per your requirements.
+
+The provided code is the same as used to build the installed binaries
+coap-client and coap-server.
+
+Simply 'cd' into this directory and then run 'make' to build the executables.
+
+

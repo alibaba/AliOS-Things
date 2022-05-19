@@ -1,0 +1,120 @@
+menu "Power Management"
+    config PM_ENABLE
+        bool "Support for power management"
+        default n
+        help
+            If enabled, application is compiled with support for power management.
+            This option has run-time overhead (increased interrupt latency,
+            longer time to enter idle state), and it also reduces accuracy of
+            RTOS ticks and timers used for timekeeping.
+            Enable this option if application uses power management APIs.
+
+    config PM_DFS_INIT_AUTO
+        bool "Enable dynamic frequency scaling (DFS) at startup"
+        depends on PM_ENABLE
+        default n
+        help
+            If enabled, startup code configures dynamic frequency scaling.
+            Max CPU frequency is set to DEFAULT_CPU_FREQ_MHZ setting,
+            min frequency is set to XTAL frequency.
+            If disabled, DFS will not be active until the application
+            configures it using esp_pm_configure function.
+
+
+    config PM_USE_RTC_TIMER_REF
+        bool "Use RTC timer to prevent time drift (EXPERIMENTAL)"
+        depends on (PM_ENABLE && ESP_TIMER_IMPL_FRC2 && ESP_TIME_FUNCS_USE_RTC_TIMER)
+        default n
+        help
+            When APB clock frequency changes, high-resolution timer (esp_timer)
+            scale and base value need to be adjusted. Each adjustment may cause
+            small error, and over time such small errors may cause time drift.
+            If this option is enabled, RTC timer will be used as a reference to
+            compensate for the drift.
+            It is recommended that this option is only used if 32k XTAL is selected
+            as RTC clock source.
+
+    config PM_PROFILING
+        bool "Enable profiling counters for PM locks"
+        depends on PM_ENABLE
+        default n
+        help
+            If enabled, esp_pm_* functions will keep track of the amount of time
+            each of the power management locks has been held, and esp_pm_dump_locks
+            function will print this information.
+            This feature can be used to analyze which locks are preventing the chip
+            from going into a lower power state, and see what time the chip spends
+            in each power saving mode. This feature does incur some run-time
+            overhead, so should typically be disabled in production builds.
+
+    config PM_TRACE
+        bool "Enable debug tracing of PM using GPIOs"
+        depends on PM_ENABLE
+        default n
+        help
+            If enabled, some GPIOs will be used to signal events such as RTOS ticks,
+            frequency switching, entry/exit from idle state. Refer to pm_trace.c
+            file for the list of GPIOs.
+            This feature is intended to be used when analyzing/debugging behavior
+            of power management implementation, and should be kept disabled in
+            applications.
+
+    config PM_SLP_IRAM_OPT
+        bool "Put lightsleep related codes in internal RAM"
+        depends on FREERTOS_USE_TICKLESS_IDLE
+        help
+            If enabled, about 1.8KB of lightsleep related source code would be in IRAM and chip would sleep
+            longer for 760us at most each time.
+            This feature is intended to be used when lower power consumption is needed
+            while there is enough place in IRAM to place source code.
+
+    config PM_RTOS_IDLE_OPT
+        bool "Put RTOS IDLE related codes in internal RAM"
+        depends on FREERTOS_USE_TICKLESS_IDLE
+        help
+            If enabled, about 260B of RTOS_IDLE related source code would be in IRAM and chip would sleep
+            longer for 40us at most each time.
+            This feature is intended to be used when lower power consumption is needed
+            while there is enough place in IRAM to place source code.
+
+    config PM_SLP_DISABLE_GPIO
+        bool "Disable all GPIO when chip at sleep"
+        depends on FREERTOS_USE_TICKLESS_IDLE
+        help
+            This feature is intended to disable all GPIO pins at automantic sleep to get a lower power mode.
+            If enabled, chips will disable all GPIO pins at automantic sleep to reduce about 200~300 uA current.
+            If you want to specifically use some pins normally as chip wakes when chip sleeps,
+            you can call 'gpio_sleep_sel_dis' to disable this feature on those pins.
+            You can also keep this feature on and call 'gpio_sleep_set_direction' and 'gpio_sleep_set_pull_mode'
+            to have a different GPIO configuration at sleep.
+            Waring: If you want to enable this option on ESP32, you should enable `GPIO_ESP32_SUPPORT_SWITCH_SLP_PULL`
+            at first, otherwise you will not be able to switch pullup/pulldown mode.
+
+    config PM_SLP_DEFAULT_PARAMS_OPT
+        bool
+        default n
+
+    config PM_POWER_DOWN_CPU_IN_LIGHT_SLEEP
+        bool "Power down CPU in light sleep"
+        depends on IDF_TARGET_ESP32C3 || IDF_TARGET_ESP32S3
+        select PM_POWER_DOWN_TAGMEM_IN_LIGHT_SLEEP if ESP32S3_DATA_CACHE_16KB
+        default y
+        help
+            If enabled, the CPU will be powered down in light sleep. On esp32c3 soc, enabling this
+            option will consume 1.68 KB of internal RAM and will reduce sleep current consumption
+            by about 100 uA. On esp32s3 soc, enabling this option will consume 8.58 KB of internal
+            RAM and will reduce sleep current consumption by about 650 uA.
+
+    config PM_POWER_DOWN_TAGMEM_IN_LIGHT_SLEEP
+        bool "Power down I/D-cache tag memory in light sleep"
+        depends on IDF_TARGET_ESP32S3 && PM_POWER_DOWN_CPU_IN_LIGHT_SLEEP
+        default y
+        help
+            If enabled, the I/D-cache tag memory will be retained in light sleep. Depending on the the
+            cache configuration, if this option is enabled, it will consume up to 9 KB of internal RAM.
+
+    config PM_UPDATE_CCOMPARE_HLI_WORKAROUND
+        bool
+        default y if PM_ENABLE && BTDM_CTRL_HLI
+
+endmenu # "Power Management"

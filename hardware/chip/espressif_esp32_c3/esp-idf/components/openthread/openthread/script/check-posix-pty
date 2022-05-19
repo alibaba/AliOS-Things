@@ -1,0 +1,275 @@
+#!/bin/bash
+#
+#  Copyright (c) 2018, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+set -e
+set -x
+
+die()
+{
+    echo " *** ERROR: " "$*"
+    exit 1
+}
+
+at_exit()
+{
+    EXIT_CODE=$?
+
+    sudo killall expect || true
+    sudo killall ot-ctl || true
+    sudo killall ot-daemon || true
+    sudo killall ot-cli || true
+    sudo killall ot-rcp || true
+    sudo killall socat || true
+
+    exit $EXIT_CODE
+}
+
+wait_for_socat()
+{
+    if [[ "$(head -n2 "$SOCAT_OUTPUT" | wc -l | tr -d ' ')" == 2 ]]; then
+        RADIO_PTY=$(head -n1 "$SOCAT_OUTPUT" | grep -o '/dev/.\+')
+        CORE_PTY=$(head -n2 "$SOCAT_OUTPUT" | tail -n1 | grep -o '/dev/.\+')
+        return 0
+    else
+        echo 'Still waiting for socat'
+    fi
+    return 1
+}
+
+wait_for_leader()
+{
+    if grep -q leader "$OT_OUTPUT"; then
+        return 0
+    else
+        echo 'Still waiting for leader'
+    fi
+    return 1
+}
+
+timeout_run()
+{
+    local count="$1"
+    local exit_code
+    shift 1
+
+    while [[ $count != 0 && $exit_code != 0 ]]; do
+        count=$((count - 1))
+        "$@" && return 0 || exit_code=$?
+        sleep 1
+    done
+
+    return $exit_code
+}
+
+do_build()
+{
+    ./script/cmake-build simulation
+    ./script/cmake-build posix -DOT_PLATFORM_NETIF=1 -DOT_PLATFORM_UDP=1 -DOT_UDP_FORWARD=0 -DOT_POSIX_MAX_POWER_TABLE=1 -DOT_DAEMON="${OT_DAEMON}" -DOT_READLINE="${OT_READLINE}"
+}
+
+do_check()
+{
+    trap at_exit INT TERM EXIT
+
+    sudo rm -rf tmp
+
+    SOCAT_OUTPUT=/tmp/ot-socat
+    OT_OUTPUT=/tmp/ot-output
+    socat -d -d pty,raw,echo=0 pty,raw,echo=0 >/dev/null 2>$SOCAT_OUTPUT &
+    timeout_run 10 wait_for_socat
+    echo 'RADIO_PTY' "$RADIO_PTY"
+    echo 'CORE_PTY' "$CORE_PTY"
+
+    RADIO_NCP_PATH="$PWD/build/simulation/examples/apps/ncp/ot-rcp"
+
+    # shellcheck disable=SC2094
+    $RADIO_NCP_PATH 1 >"$RADIO_PTY" <"$RADIO_PTY" &
+
+    # Cover setting a valid network interface name.
+    readonly VALID_NETIF_NAME="wan$(date +%H%M%S)"
+
+    RADIO_URL="spinel+hdlc+uart://${CORE_PTY}?region=US&max-power-table=11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26"
+
+    if [[ ${OT_DAEMON} == 'on' ]]; then
+        sudo "$PWD/build/posix/src/posix/ot-daemon" -d7 -v -I "${VALID_NETIF_NAME}" "${RADIO_URL}" 2>&1 | tee "${OT_OUTPUT}" &
+        sleep 3
+        # macOS cannot explicitly set network interface name
+        NETIF_NAME=$(grep -o 'Thread interface: .\+' "${OT_OUTPUT}" | cut -d: -f2 | tr -d ' \r\n')
+        OT_CTL="$PWD/build/posix/src/posix/ot-ctl"
+        sudo "${OT_CTL}" -I "${NETIF_NAME}" panid 0xface | grep 'Done' || die 'failed to set panid with ot-ctl'
+
+        # verify supports options in OpenThread commands without separator --
+        sudo "${OT_CTL}" -I "${NETIF_NAME}" pskc -p 123456 | grep 'Done' || die 'unable to set pskc'
+
+        # verify this reset and factoryreset end immediately
+        sudo "${OT_CTL}" -I "${NETIF_NAME}" reset
+        # sleep a while for daemon ready
+        sleep 2
+        sudo "${OT_CTL}" -I "${NETIF_NAME}" factoryreset
+        # sleep a while for daemon ready
+        sleep 2
+
+        readonly OPENTHREAD_CONFIG_CLI_MAX_LINE_LENGTH=640
+        local -r kMaxStringLength="$((OPENTHREAD_CONFIG_CLI_MAX_LINE_LENGTH - 1))"
+
+        # verify success if command length doesn't exceed the limit
+        for len in $(seq 1 ${kMaxStringLength}); do
+            sudo "${OT_CTL}" -I "${NETIF_NAME}" "$(printf '1%.0s' $(seq 1 "${len}"))"
+        done
+
+        # verify failure if command length exceeds the limit
+        len=${OPENTHREAD_CONFIG_CLI_MAX_LINE_LENGTH}
+        if sudo "${OT_CTL}" -I "${NETIF_NAME}" "$(printf '1%.0s' $(seq 1 "${len}"))"; then
+            die
+        fi
+        OT_CLI_CMD="${OT_CTL} -I ${NETIF_NAME}"
+    else
+        OT_CLI="$PWD/build/posix/src/posix/ot-cli"
+        sudo "${OT_CLI}" -I "${VALID_NETIF_NAME}" -n "${RADIO_URL}"
+
+        # Cover setting a too long(max is 15 characters) network interface name.
+        # Expect exit code to be 2(OT_EXIT_INVALID_ARGUMENTS).
+        readonly INVALID_NETIF_NAME="wan0123456789123"
+        sudo "${OT_CLI}" -I "${INVALID_NETIF_NAME}" -n "${RADIO_URL}" || test $? = 2
+
+        OT_CLI_CMD="$PWD/build/posix/src/posix/ot-cli ${RADIO_URL}"
+    fi
+
+    sudo expect <<EOF | tee "${OT_OUTPUT}" &
+spawn ${OT_CLI_CMD}
+expect_after {
+    timeout { error }
+}
+send "region\r\n"
+expect "US"
+expect "Done"
+send "panid 0xface\r\n"
+expect "Done"
+send "routerselectionjitter 1\r\n"
+expect "Done"
+send "ifconfig up\r\n"
+expect "Done"
+send "thread start\r\n"
+expect "Done"
+sleep 5
+send "state\r\n"
+expect "leader"
+expect "Done"
+send "extaddr\r\n"
+expect "Done"
+send "dataset active\r\n"
+expect "Done"
+send "ipaddr\r\n"
+expect "Done"
+send "coex\r\n"
+expect "Done"
+send "coap start\r\n"
+expect "Done"
+send "coap resource TestResource\r\n"
+expect "Done"
+send "coap set TestContent\r\n"
+expect "Done"
+set timeout -1
+expect eof
+EOF
+
+    sleep 5
+
+    # wait until the node becomes leader
+    timeout_run 5 wait_for_leader
+
+    # wait coap service start
+    sleep 5
+
+    netstat -an | grep -q 5683 || die 'Application CoAP port is not available!'
+
+    extaddr=$(grep -ao -A +1 'extaddr' $OT_OUTPUT | tail -n1 | tr -d '\r\n\0')
+    echo "Extended address is: ${extaddr}"
+
+    prefix=$(grep -ao 'Mesh Local Prefix: [0-9a-f:]\+' $OT_OUTPUT | cut -d: -f2- | tr -d ' \r\n')
+    LEADER_ALOC="${prefix}ff:fe00:fc00"
+
+    # skip testing CoAP for https://github.com/openthread/openthread/issues/6363
+    [[ $OSTYPE == "linux-gnu"* ]] || return 0
+
+    if [[ ${OT_DAEMON} == 'on' ]]; then
+        sudo killall -9 expect || true
+        sudo killall -9 ot-ctl || true
+        NETIF_INDEX=$(ip link show "${NETIF_NAME}" | cut -f 1 -d ":" | head -n 1)
+        sudo PATH="$(dirname "${OT_CLI_CMD}"):${PATH}" \
+            python3 "$PWD/tests/scripts/misc/test_multicast_join.py" "${NETIF_INDEX}" "${NETIF_NAME}" \
+            || die 'multicast group join failed'
+    fi
+
+    # Retrievie test resource through application CoAP
+    coap_response=$(coap-client -B 5 -m GET "coap://[${LEADER_ALOC}]:5683/TestResource")
+    echo "CoAP response is: ${coap_response}"
+
+    # Verify CoAP response contains the test content
+    if [[ ${coap_response} == *TestContent* ]]; then
+        echo 'Success'
+    else
+        die 'Failed to access application CoAP'
+    fi
+
+    # Retrievie extended address through network diagnostic get
+    coap_response=$(echo -n '120100' | xxd -r -p | coap-client -B 5 -m POST "coap://[${LEADER_ALOC}]:61631/d/dg" -f-)
+
+    # Verify Tmf CoAP is blocked
+    if [[ -z ${coap_response} ]]; then
+        die 'Tmf is not blocked'
+    fi
+}
+
+main()
+{
+    if [[ $# == 0 ]]; then
+        do_build
+        do_check
+        return 0
+    fi
+
+    while [[ $# != 0 ]]; do
+        case $1 in
+            build)
+                do_build
+                ;;
+            check)
+                do_check
+                ;;
+            *)
+                echo "Unknown action: $1"
+                return 1
+                ;;
+        esac
+        shift
+    done
+}
+
+main "$@"

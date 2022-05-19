@@ -1,0 +1,74 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# Settings this app defines.
+syscfg.defs:
+    BLE_STRESS_TEST_ROLE:
+        description: 0 - TX device, 1 - RX device
+        value: 0
+
+    BLE_STRESS_REPEAT:
+        description: Number of times to repeat each stress test use case
+        value: 50
+
+    BLE_STRESS_UUID_BASE:
+        description: Part of the test UUID that is specific to the current
+                     device couple.
+        value: ((uint8_t[13]){0xA5, 0x4A, 0xB4, 0x44, 0xC3, 0xBF, 0xB5,
+                              0xF8, 0xF9, 0x42, 0x83, 0xA1, 0xDA})
+
+# Settings this app overrides.
+syscfg.vals:
+    # Change these settings:
+
+    # Set 0 to print all debug logs, but keep in mind that plenty of
+    # adv packets will be lost during scan tests.
+    LOG_LEVEL: 1
+
+    # The maximum number of concurrent connections. For some devices, this
+    # value will need to be reduced due to the RAM capacity.
+    BLE_MAX_CONNECTIONS: 50
+
+    # Should not change these settings:
+
+    # Enable Extended Advertising
+    BLE_EXT_ADV: 1
+
+    # Max advertising data size
+    BLE_EXT_ADV_MAX_SIZE: 1650
+
+    # Number of multi-advertising instances. Note that due
+    # to historical reasons total number of advertising
+    # instances is BLE_MULTI_ADV_INSTANCES + 1 as instance
+    # 0 is always available
+    BLE_MULTI_ADV_INSTANCES: 2
+
+    # Controller uses msys pool for storing advertising data and scan responses.
+    # Since we advertise a lot of data (~4k in total) at the same time we need
+    # to increase block count.
+    MSYS_1_BLOCK_COUNT: 50
+
+    #
+    BLE_L2CAP_COC_MAX_NUM: 2
+
+    # Enable 2M PHY
+    BLE_LL_CFG_FEAT_LE_2M_PHY: 1
+
+    # Enable CODED PHY
+    BLE_LL_CFG_FEAT_LE_CODED_PHY: 1

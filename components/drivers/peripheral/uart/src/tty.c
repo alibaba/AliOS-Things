@@ -569,11 +569,11 @@ aos_status_t aos_tty_drain(aos_tty_ref_t *ref)
         aos_status_t r;
         aos_irqsave_t flags;
 
-        aos_dev_lock(ref->dev);
+        aos_dev_lock(&tty->dev);
         flags = aos_spin_lock_irqsave(&tty->lock);
         count = tx_buf_count(tty);
         aos_spin_unlock_irqrestore(&tty->lock, flags);
-        aos_dev_unlock(ref->dev);
+        aos_dev_unlock(&tty->dev);
 
         if (count == 0) {
             ret = 0;
@@ -619,7 +619,7 @@ aos_status_t aos_tty_flush(aos_tty_ref_t *ref, int where)
     }
 
     tty = aos_container_of(ref->dev, aos_tty_t, dev);
-    aos_dev_lock(ref->dev);
+    aos_dev_lock(&tty->dev);
     flags = aos_spin_lock_irqsave(&tty->lock);
 
     if (flush_rx) {
@@ -635,29 +635,29 @@ aos_status_t aos_tty_flush(aos_tty_ref_t *ref, int where)
     }
 
     aos_spin_unlock_irqrestore(&tty->lock, flags);
-    aos_dev_unlock(ref->dev);
+    aos_dev_unlock(&tty->dev);
 
     return 0;
 }
 
 static void reset_termios(struct termios *termios)
 {
-    termios->c_iflag            = 0;
-    termios->c_oflag            = 0;
-    termios->c_cflag            = 0;
-    termios->c_lflag            = 0;
-    termios->c_cc[VINTR]        = '\3';
-    termios->c_cc[VQUIT]        = '\34';
-    termios->c_cc[VERASE]       = '\177';
-    termios->c_cc[VKILL]        = '\25';
-    termios->c_cc[VEOF]         = '\4';
-    termios->c_cc[VEOL]         = '\0';
-    termios->c_cc[VMIN]         = 0;
-    termios->c_cc[VTIME]        = 0;
-    termios->c_cc[VEOL2]        = '\0';
-    termios->c_cc[VSTART]       = '\21';
-    termios->c_cc[VSTOP]        = '\23';
-    termios->c_cc[VSUSP]        = '\32';
+    termios->c_iflag = 0;
+    termios->c_oflag = 0;
+    termios->c_cflag = 0;
+    termios->c_lflag = 0;
+    termios->c_cc[VINTR] = '\3';
+    termios->c_cc[VQUIT] = '\34';
+    termios->c_cc[VERASE] = '\177';
+    termios->c_cc[VKILL] = '\25';
+    termios->c_cc[VEOF] = '\4';
+    termios->c_cc[VEOL] = '\0';
+    termios->c_cc[VMIN] = 0;
+    termios->c_cc[VTIME] = 0;
+    termios->c_cc[VEOL2] = '\0';
+    termios->c_cc[VSTART] = '\21';
+    termios->c_cc[VSTOP] = '\23';
+    termios->c_cc[VSUSP] = '\32';
     cfmakeraw(termios);
     (void)cfsetspeed(termios, 9600);
 }
@@ -859,14 +859,14 @@ static aos_status_t devfs_tty_poll(aos_devfs_file_t *file, aos_devfs_poll_reques
     aos_status_t ret = 0;
     aos_irqsave_t flags;
 
-    aos_dev_lock(ref->dev);
-    aos_devfs_poll_add(&ref->dev->devfs_node, AOS_DEVFS_WQ_RD, req);
-    aos_devfs_poll_add(&ref->dev->devfs_node, AOS_DEVFS_WQ_WR, req);
+    aos_dev_lock(&tty->dev);
+    aos_devfs_poll_add(&tty->dev.devfs_node, AOS_DEVFS_WQ_RD, req);
+    aos_devfs_poll_add(&tty->dev.devfs_node, AOS_DEVFS_WQ_WR, req);
     flags = aos_spin_lock_irqsave(&tty->lock);
     ret |= (rx_buf_count(tty) > 0) ? POLLIN : 0;
     ret |= (tx_buf_space(tty) > 0) ? POLLOUT : 0;
     aos_spin_unlock_irqrestore(&tty->lock, flags);
-    aos_dev_unlock(ref->dev);
+    aos_dev_unlock(&tty->dev);
 
     return ret;
 }

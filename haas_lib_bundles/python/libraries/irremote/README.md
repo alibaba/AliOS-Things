@@ -23,6 +23,8 @@
 * 输出电平：TTL<br>
 
 ## 三、软件接口
+
+红外接收传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/irremote)
 <br>
 
 ### IRREMOTE(gpioObj) - 创建红外接收对象

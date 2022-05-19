@@ -22,11 +22,12 @@
 
 
 ## 准备
-ESP32开发板一套
 
-[GP2Y1014AU传感器](https://detail.tmall.com/item.htm?spm=a230r.1.14.1.5157a9aeImgM2t&id=670779174099&ns=1&abbucket=4l)一个
-
-杜邦连接线若干
+&emsp;&emsp;
+本案例需要如下硬件。
+* ESP32开发板一套
+* [GP2Y1014AU传感器](https://detail.tmall.com/item.htm?spm=a230r.1.14.1.5157a9aeImgM2t&id=670779174099&ns=1&abbucket=4l)一个
+* 杜邦连接线若干
 
 ### 硬件连线图
 &emsp;&emsp;
@@ -338,6 +339,8 @@ ESP32开发板一套
 
 ## 设备端开发
 ### 开发环境
+
+&emsp;&emsp;
 在进行下一步之前请确保ESP32开发环境已经搭建完毕。详情请参考[ESP32开发环境](../../../startup/ESP32_startup.md)的说明。
 
 ### 创建解决方案

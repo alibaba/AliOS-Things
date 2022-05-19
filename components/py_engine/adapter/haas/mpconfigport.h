@@ -50,7 +50,7 @@
 #define MICROPY_MODULE_FROZEN_MPY              (1)
 #define MICROPY_QSTR_EXTRA_POOL                mp_qstr_frozen_const_pool
 #define MICROPY_CAN_OVERRIDE_BUILTINS          (1)
-#define MICROPY_USE_INTERNAL_ERRNO             (1)
+#define MICROPY_USE_INTERNAL_ERRNO             (0)
 #define MICROPY_USE_INTERNAL_PRINTF            (0)  // HaaS use its own printf
 #define MICROPY_ENABLE_SCHEDULER               (1)
 #define MICROPY_SCHEDULER_DEPTH                (8 * 2)
@@ -60,8 +60,8 @@
 #define USE_STATFS                             MICROPY_VFS_POSIX
 
 #define MICROPY_ENABLE_GC                      (1)
-#define MICROPY_GC_HEAP_SIZE                   (1024 * 512)
-#define MICROPY_MALLOC_USES_ALLOCATED_SIZE     (1)
+#define MICROPY_GC_HEAP_SIZE                   (1024 * 768)
+#define MICROPY_MALLOC_USES_ALLOCATED_SIZE     (0)
 #define MICROPY_MEM_STATS                      (0)
 
 // control over Python builtins
@@ -219,7 +219,22 @@
 #define MICROPY_ENABLE_EXTERNAL_IMPORT   (1)
 #define MICROPY_ENABLE_DYNAMIC_TRIADIC   (0)
 
-#define MICROPY_PORT_ROOT_POINTERS       const char *readline_hist[8];
+#if MICROPY_PY_LVGL
+#ifndef MICROPY_INCLUDED_PY_MPSTATE_H
+#define MICROPY_INCLUDED_PY_MPSTATE_H
+#include "misc/lv_gc.h"
+#undef MICROPY_INCLUDED_PY_MPSTATE_H
+#else
+#include "misc/lv_gc.h"
+#endif
+#else
+#define LV_ROOTS
+#endif
+
+#define MICROPY_PORT_ROOT_POINTERS \
+    LV_ROOTS \
+    void *mp_lv_user_data; \
+    const char *readline_hist[8];
 
 // type definitions for the specific machine
 
@@ -256,14 +271,18 @@ typedef long mp_off_t;
 // We need to provide a declaration/definition of alloca()
 #include <alloca.h>
 
-#ifdef __thumb__
-#define MICROPY_MIN_USE_CORTEX_CPU (1)
-#define MICROPY_MIN_USE_STM32_MCU  (1)
-#define MICROPY_MIN_USE_XM510_MCU  (1)
-#endif
+uint32_t cpu_intrpt_save(void);
+static inline uint32_t portENTER_CRITICAL_NESTED(void)
+{
+    return cpu_intrpt_save();
+}
+#define portEXIT_CRITICAL_NESTED(state) \
+    do {                                \
+        cpu_intrpt_restore(state);      \
+    } while (0)
 
-// #define MICROPY_BEGIN_ATOMIC_SECTION() portENTER_CRITICAL_NESTED()
-// #define MICROPY_END_ATOMIC_SECTION(state) portEXIT_CRITICAL_NESTED(state)
+#define MICROPY_BEGIN_ATOMIC_SECTION()    portENTER_CRITICAL_NESTED()
+#define MICROPY_END_ATOMIC_SECTION(state) portEXIT_CRITICAL_NESTED(state)
 
 #if MICROPY_PY_USOCKET_EVENTS
 #define MICROPY_PY_USOCKET_EVENTS_HANDLER extern void usocket_events_handler(void);
@@ -306,13 +325,15 @@ extern const struct _mp_obj_module_t utime_module;
 extern const struct _mp_obj_module_t uos_module;
 extern const struct _mp_obj_module_t mp_module_usocket;
 extern const struct _mp_obj_module_t mp_module_machine;
+extern const struct _mp_obj_module_t mp_module_onewire;
 
 // clang-format off
 #define MICROPY_PORT_BUILTIN_MODULES \
     { MP_OBJ_NEW_QSTR(MP_QSTR_utime), (mp_obj_t)&utime_module }, \
     { MP_OBJ_NEW_QSTR(MP_QSTR_uos), (mp_obj_t)&uos_module }, \
     { MP_OBJ_NEW_QSTR(MP_QSTR_usocket), (mp_obj_t)&mp_module_usocket }, \
-    { MP_OBJ_NEW_QSTR(MP_QSTR_machine), (mp_obj_t)&mp_module_machine }, 
+    { MP_OBJ_NEW_QSTR(MP_QSTR_machine), (mp_obj_t)&mp_module_machine }, \
+    { MP_OBJ_NEW_QSTR(MP_QSTR__onewire), (mp_obj_t)&mp_module_onewire }, \
 // clang-format on
 
 #define MICROPY_PORT_BUILTIN_MODULE_WEAK_LINKS MICROPY_PY_UTIME_DEF_WEAK_LINKS

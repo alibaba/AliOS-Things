@@ -34,6 +34,9 @@ ADXL345是一款完整的3轴加速度测量系统，可选择的测量范围有
 
 ## 三、软件接口
 
+ADXL345加速度传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/adxl34x)
+<br>
+
 ### ADXL345(i2cObj) - 创建ADXL345驱动对象
 * 函数原型：
 > gyroDev = ADXL345(i2cObj)

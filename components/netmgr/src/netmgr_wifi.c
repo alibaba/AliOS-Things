@@ -1230,11 +1230,10 @@ static void py_app_ota_handle(void* arg)
     printf("save wifi info to kv and start ota channel\n");
     extern int save_ssid_and_password(char *ssid, char *passwd);
     save_ssid_and_password(_amp_ssid, _amp_password);
-    usleep(1000 * 1000);
-    extern int pyamp_app_upgrade(char *url);
+    extern int on_get_url(char *url);
     extern int check_channel_enable(void);
     if(check_channel_enable() == 0)
-        amp_otaput_init(pyamp_app_upgrade);
+        amp_otaput_init(on_get_url);
 }
 
 static void py_app_ota_task()
@@ -3458,7 +3457,7 @@ static void handle_netmgr_wifi_help_cmd()
     NETMGR_WIFI_LOGI("netmgr -t wifi -s\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -p\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -r\n");
-    NETMGR_WIFI_LOGI("netmgr -t wifi -w network={\\nssid=\"apple\"\\npassword=\"aos123456\"\\nchannel=\"1\"\\n}\\n");
+    NETMGR_WIFI_LOGI("netmgr -t wifi -w network={\\nssid=\"xxxxxx\"\\npassword=\"xxxxxxxx\"\\nchannel=\"1\"\\n}\\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -d\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -n 0\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -e\n");

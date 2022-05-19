@@ -211,10 +211,10 @@ def main():
     ret = connect_network()
     print('network register sta {}'.format(ret))
     
-    productKey = 'a1iJzDtH0Hy'
+    productKey = 'xxx'
     productSecret = ''
     deviceName = 'haas505_demo_sn1'
-    deviceSecret = '7e7ea7025c837fb57f73d7b3ff0d50a6'
+    deviceSecret = 'xxx'
     
     key_info = {
         'region' : 'cn-shanghai',

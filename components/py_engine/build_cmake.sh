@@ -98,6 +98,9 @@ elif [[ $macro_list =~ "M5STACKCORE2" ]]; then
 elif [[ $macro_list =~ "NODEMCU32C3" ]]; then
     TARGET_BOARD="GENERIC_C3"
     TARGET_PLATFORM="ESP32"
+elif [[ $macro_list =~ "NODEMCU32S3" ]]; then
+    TARGET_BOARD="GENERIC_S3"
+    TARGET_PLATFORM="ESP32"
 else
     TARGET_BOARD="GENERIC"
     TARGET_PLATFORM="ESP32"
@@ -175,24 +178,17 @@ if [ $TARGET_PLATFORM = "HAAS" ]; then
 
 elif [ $TARGET_PLATFORM = "ESP32" ]; then
     # ESP32 platform build
-    echo "Start build ESP32 target:${TARGET_BOARD}"
+    echo "Start build ESP32 target"
 
     # 0: remove esp libs firstly
     rm -rf ${solution_dir}/esp_sdk/lib/*
 
     # 1: prepare IDF env
-    echo "1: Prepare IDF env:${TARGET_BOARD}"
-    if [ ${TARGET_BOARD} = "GENERIC_C3" ]; then
-        ${comp_dir}/../../hardware/chip/espressif_esp32_c3/build.sh
-        . ${comp_dir}/../../hardware/chip/espressif_esp32_c3/esp-idf/export.sh
-    else
-        ${comp_dir}/../../hardware/chip/espressif_esp32/build.sh
-        . ${comp_dir}/../../hardware/chip/espressif_esp32/esp-idf/export.sh
-        export ADF_PATH=${comp_dir}/../../hardware/chip/espressif_esp32/esp-adf
-    fi
+    ${comp_dir}/../../hardware/chip/espressif_esp32/build.sh ${TARGET_BOARD}
+    . ${comp_dir}/../../hardware/chip/espressif_esp32/esp-idf/export.sh
+    export ADF_PATH=${comp_dir}/../../hardware/chip/espressif_esp32/esp-adf
 
     # 2：prepare fs for esp target
-    echo "2: Prepare fs for esp target:${TARGET_BOARD}"
     port_dir=${comp_dir}/adapter/esp32
     rm -rf ${solution_dir}/fs
     cp -rf ${port_dir}/fs  ${solution_dir}/
@@ -201,12 +197,10 @@ elif [ $TARGET_PLATFORM = "ESP32" ]; then
     fi
 
     # 3: prepare fs for esp target
-    echo "3: Prepare fs for esp target:${TARGET_BOARD}"
     cd ${port_dir}
     make BOARD=${TARGET_BOARD}
 
     # 4: copy generated static libs to solutions
-    echo "4: Copy generated static libs to solutions:${TARGET_BOARD}"
     cd build-${TARGET_BOARD}
 
     mkdir -p ${solution_dir}/esp_sdk/lib
@@ -217,8 +211,6 @@ elif [ $TARGET_PLATFORM = "ESP32" ]; then
     cp -f bootloader/bootloader.bin ${solution_dir}
     cp -f partition_table/partition-table.bin ${solution_dir}
     cp -f config/sdkconfig.h ${solution_dir}/esp_sdk/include/
-
-    echo "End build ESP32 target:${TARGET_BOARD}"
 else
     echo "No target build !!!!"
 fi

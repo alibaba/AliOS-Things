@@ -27,6 +27,9 @@ GP2Y10粉尘传感器用于检测非常细的空气漂浮颗粒物，主要用�
 
 ## 三、软件接口
 
+GP2Y10粉尘传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/gp2y10)
+<br>
+
 ### GP2Y10(adcObj,gpioObj) - 创建粉尘传感器驱动对象
 <br>
 

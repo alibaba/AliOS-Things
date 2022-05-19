@@ -14,11 +14,25 @@ M5StackCore2是开源世界中被开发者普遍使用的开发板，在M5StackC
 ```
 &emsp;&emsp;
 ### HaaS Python M5StackCore2标准固件列表
+* [HaaSPython-ESP32-8M-v2.0.0](https://hli.aliyuncs.com/o/config/HaaSPython/HaaSPython-ESP32-8M-v2.0.0.zip)
+  * 版本更新说明（2022-04-10）
+    * HaaS轻应用标准升级到2.0（AliyunIoT增加文件上传功能，Driver SPI API增加多字节连续读写，AI，UI等能力）
+    * 新增[ESP32乐鑫官方开发板](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C9562896F994200000001&dataId=800C9562896F9942)和[01Studio ESP32开发板](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C55C67883087B00000001&dataId=800C55C67883087B)支持
+    * 新增30+[传感器](https://haas.iot.aliyun.com/solution/hardware)支持
+    * 新增30+[趣味案例](https://haas.iot.aliyun.com/solution)
+    * 新增3个精美UI模板（带UI能力开发板）
+    * 新增9种AI聚合服务（带UI和AI能力开发板）
+
 * [HaaSPython-ESP32-8M-v1.0.3](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP32-8M-opentest.zip)
-  * 版本更新说明（2021-01-13)
-    * ESP32平台新增HaaS AI能力
-    * ESP32平台新增HaaS UI Lite能力
-    * ESP32平台新增Audio案例
+
+  <details>
+  <summary>版本更新说明（2022-01-13）</summary>
+
+  * ESP32平台新增HaaS AI能力
+  * ESP32平台新增HaaS UI Lite能力
+  * ESP32平台新增Audio案例
+
+  </details>
 
 ## M5StackCore2开发环境准备
 &emsp;&emsp;
@@ -59,14 +73,14 @@ VS Code安装包下载网站： https://code.visualstudio.com/
 插件第一次安装完成后，会提示安装相关工具才能激活插件，请同意安装相关工具。第一次新建或者打开python轻应用工程，也会安装轻应用开发相关工具，同样需要同意安装。
 
 <div align="center">
-<img src=../images/haas-studio-tool-install.png width=80%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-tool-install.png width=80%/>
 </div>
 
 &emsp;&emsp;
 插件安装完成后，则 VSCode 左下角的状态栏会显示"快速开始"的图标，如下图所示。
 
 <div align="center">
-<img src=../images/haas-studio-startup-page.png width=80%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-startup-page.png width=80%/>
 </div>
 
 &emsp;&emsp;
@@ -81,14 +95,14 @@ VS Code安装包下载网站： https://code.visualstudio.com/
 * 注意高级模式某些平台可能不支持，比如低版本的linux，M1系列MACOS等，如果平台不支持，会自动设置成 disable。
 
 <div align="center">
-<img src=../images/haas-studio-python-advance.png width=80%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-python-advance.png width=80%/>
 </div>
 
 &emsp;&emsp;
 python高级模式打开之后，这些按钮的功能变成如下图所示：
 
 <div align="center">
-<img src=../images/haas-studio-python-advance-enable.png width=40%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-python-advance-enable.png width=40%/>
 </div>
 
 
@@ -110,7 +124,7 @@ python高级模式打开之后，这些按钮的功能变成如下图所示：
 如果电脑在连接M5StackCore2之前和之后，没有新增串口，则需要安装M5StackCore2的串口驱动：[驱动下载链接](https://docs.m5stack.com/en/download)。
 
 <div align="center">
-<img src=../images/M5StackCore2驱动下载页_Windows.png width=70%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/M5StackCore2驱动下载页_Windows.png width=70%/>
 </div>
 
 <br>
@@ -120,13 +134,13 @@ python高级模式打开之后，这些按钮的功能变成如下图所示：
 &emsp;&emsp;
 使用MAC系统的开发者`务必`下载MACOS的驱动并`严格按照驱动压缩包中的pdf说明文档`中的安装说明进行安装（MAC下驱动加载需要手动开启加载权限）。
 <div align="center">
-<img src=../images/M5StackCore2驱动下载页_MACOS.png width=70%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/M5StackCore2驱动下载页_MACOS.png width=70%/>
 </div>
 
 > 笔者下的v1.7版本的驱动解压后说明文档名称为“CH34X_DRV_INSTALL_INSTRUCTIONS.pdf”如下图所示：
 
 <div align="center">
-<img src=../images/M5StackCore2驱动下载页_MACOS_说明文档.png width=70%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/M5StackCore2驱动下载页_MACOS_说明文档.png width=70%/>
 </div>
 
 <br>
@@ -162,7 +176,7 @@ zsh: no matches found: /dev/tty.wchusbserial*
 > 如果“串口名字”下拉框中没有正确的串口号，可以拔插M5StackCore2的USB口后，点击“刷新”按钮刷新串口列表。
 
 <div align="center">
-<img src=../images/haas-studio-firmware-burn.png width=85%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-firmware-burn.png width=85%/>
 </div>
 
 &emsp;&emsp;
@@ -249,7 +263,10 @@ Hard resetting via RTS pin...
 ### 推送脚本到设备
 
 &emsp;&emsp;
-点击HaaS-Studio的“部署运行”按钮（<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_部署运行.png width=5%/>），HaaS-Studio会将脚本推送到开发板上。
+点击HaaS-Studio的“部署运行”按钮（<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_部署运行.png width=5%/>），HaaS Studio工具上面会弹出如下的选择框，请按照如下的步骤逐步选择完成后，HaaS-Studio开始推出送固件。
+<div align="center">
+<img src=../images/1_HaaS_Studio_Python_本地推送脚本.png width=60%/>
+</div>
 
 &emsp;&emsp;
 脚本推送完成后，VS Code的命令行窗口会有如下提示：
@@ -258,20 +275,7 @@ upload success
 ```
 
 &emsp;&emsp;
-如果`推送不成功`请点击下面"推送失败的解决方案"按钮查看解决方法。
-<details>
-<summary>推送失败的解决方案</summary>
-&emsp;&emsp;
-一般情况下，推送失败是因为电脑上外接了多个USB转串口的设备导致的。此时，VS Code的命令行中会列出系统的串口列表，需要您在命令行中敲入M5StackCore2串口名称（前面“M5StackCore2串口名称确认”步骤中有说明）对应的序号之后敲回车。如下图所示：
-
-<div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_选择串口序号.png width=150%/>
-</div>
-
-&emsp;&emsp;
 如果选择了串口仍然推送失败，请联系HaaS小二解决推送问题。
-
-</details>
 
 <br>
 &emsp;&emsp;

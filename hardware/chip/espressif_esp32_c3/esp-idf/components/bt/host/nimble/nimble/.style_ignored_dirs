@@ -1,0 +1,4 @@
+# Skip those directories while doing style checks in the CI. Do not add '/' at
+# the beginning!
+
+ext/tinycrypt

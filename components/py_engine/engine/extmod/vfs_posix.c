@@ -38,12 +38,315 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
+
 typedef struct _mp_obj_vfs_posix_t {
     mp_obj_base_t base;
     vstr_t root;
     size_t root_len;
     bool readonly;
 } mp_obj_vfs_posix_t;
+
+static char g_mp_current_working_directory[256] = "/";
+
+static char *mp_getcwd(char *buf, size_t size)
+{
+    if (buf == NULL) {
+        return NULL;
+    }
+    strncpy(buf, g_mp_current_working_directory, strlen(g_mp_current_working_directory) + 1);
+    return buf;
+}
+
+static char g_mp_last_working_directory[512] = "/";
+
+static int mp_up_one_level(char *abspath)
+{
+    char *c, *last_slash;
+
+    if (strcmp(abspath, "/") == 0)
+        return -1;
+
+    c = abspath + 1;
+    last_slash = abspath;
+
+    while (*c != '\0') {
+        if ((*c == '/') && (*(c + 1) != '\0'))
+            last_slash = c;
+        c++;
+    }
+
+    *(last_slash + 1) = '\0';
+
+    return 0;
+}
+
+#define ROOT_DIR "/"
+static int mp_chdir(char *path)
+{
+    char absolute[256] = {0}, *ret, *target, cwd_backup[256] = {0};
+    struct stat s;
+
+    target = path;
+
+    if (!target) {
+        return -1;
+    }
+
+    ret = mp_getcwd(absolute, sizeof(absolute));
+    if (!ret) {
+        return -1;
+    }
+
+    strncpy(cwd_backup, absolute, sizeof(cwd_backup));
+
+    if (target[0] != '/') {
+        if (target[0] == '-') {
+            memset(absolute, 0, sizeof(absolute));
+            strncpy(absolute, g_mp_last_working_directory, sizeof(absolute));
+            absolute[sizeof(absolute) - 1] = '\0';
+            goto check_and_cd;
+        }
+
+        if (absolute[strlen(absolute) - 1] != '/') {
+            absolute[strlen(absolute)] = '/';
+        }
+
+        // exclude heading "./"
+        while (strncmp(target, "./", strlen("./")) == 0) {
+            target += strlen("./");
+            while (target[0] == '/')
+                target++;
+        }
+
+        // parse heading ".."
+        while (target && strncmp(target, "..", strlen("..")) == 0) {
+            if (mp_up_one_level(absolute) != 0) {
+                return -1;
+            }
+
+            target += strlen("..");
+            while (target[0] == '/')
+                target++;
+        }
+
+        if (target)
+            strncpy(absolute + strlen(absolute), target, \
+                            sizeof(absolute) - strlen(absolute));
+    } else {
+        strncpy(absolute, target, sizeof(absolute));
+    }
+
+check_and_cd:
+    if (stat(absolute, &s)) {
+        return -1;
+    }
+
+    if (access(absolute, F_OK) != 0) {
+        return -1;
+    }
+
+    if (!S_ISDIR(s.st_mode)) {
+        return -1;
+    }
+    memset(g_mp_current_working_directory, 0, sizeof(g_mp_current_working_directory));
+    strncpy(g_mp_current_working_directory, absolute, strlen(absolute) + 1);
+
+
+    memset(g_mp_last_working_directory,
+           0,
+           sizeof(g_mp_last_working_directory));
+
+    strncpy(g_mp_last_working_directory,
+            cwd_backup,
+            sizeof(g_mp_last_working_directory));
+
+    return 0;
+}
+
+static int mp_get_cwd_dir(char *dir, size_t len)
+{
+    char *ret;
+
+    ret = mp_getcwd(dir, len);
+    if (!ret) {
+        return -1;
+    }
+
+    return 0;
+}
+
+static char *mp_get_realpath(const char *path, char *resolved_path, unsigned int len)
+{
+    char *ret, *p = (char *)path, *r = resolved_path;
+
+    if (!path || !r || len < 1)
+        return NULL;
+
+    memset(r, 0, len);
+
+    // deal with heading char
+    if (p[0] != '/') {
+        // relative path
+        ret = mp_getcwd(r, len);
+        if (!ret)
+            return NULL;
+
+        // add tailing '/' if no
+        if (r[strlen(r) - 1] != '/') {
+            r[strlen(r)] = '/';
+        }
+
+        r += strlen(r);
+    } else {
+        // absolute path
+        r[0] = '/';
+        r++;
+    }
+
+    // iterate to exclude '.', '..'. '/'
+    while (*p != '\0') {
+        while (*p == '/')
+            p++;
+        if (*p == '\0')
+            break;
+
+        if (*p == '.') {
+            p++;
+            // end with '.'
+            if (*p == '\0')
+                break;
+
+            if (*p == '.') {
+                // '..' or '../'
+                if ((*(p + 1) != '/') && (*(p + 1) != '\0')) {
+                    printf("Invalid path %s\r\n", path);
+                    return NULL;
+                } else {
+                    // '..' case
+                    p++;
+                    // if (*p == '/') {
+                    if (mp_up_one_level(resolved_path) != 0) {
+                        printf("Failed to go up now. Invalid path %s\r\n", path);
+                        return NULL;
+                    }
+
+                    r = resolved_path + strlen(resolved_path);
+                    // }
+
+                    // end with '.'
+                    if (*p == '\0') {
+                        break;
+                    }
+                }
+            } else {
+                if (*p == '/' || *p == '\0') {
+                    p++;
+                } else {
+                    // '.xxx' might be hidden file or dir
+                    p--;
+                    goto copy_valid;
+                }
+            }
+        }
+
+        while (*p == '/')
+            p++;
+        if (*p == '\0')
+            break;
+
+        // if another round of ./.., just continue
+        if (*p == '.')
+            continue;
+
+copy_valid:
+        // path string may be found now, save to r
+        while ((*p != '/') && (*p != '\0'))
+            *r++ = *p++;
+
+        // add taling '/' if necessary
+        if (*(r - 1) != '/') {
+            *r++ = '/';
+        }
+    }
+
+    /**
+     * considering "cd ../config" for tab key case,
+     * we need set string EOF avoid out of control.
+     */
+    *r = '\0';
+
+    // exclude the tailing '/', just in case it is a file
+    if ((resolved_path[strlen(resolved_path) - 1] == '/') &&
+        (strlen(resolved_path) != 1)) {
+        resolved_path[strlen(resolved_path) - 1] = '\0';
+    }
+
+    return resolved_path;
+}
+
+static int mp_ls_predo(char *path, char *outpath, int size)
+{
+    int index;
+    bool curdir_available = true;
+    char cur[256] = {0};
+    size_t curlen = 0;
+
+    if (mp_get_cwd_dir(cur, sizeof(cur))) {
+        curdir_available = false;
+    } else {
+        curlen = strlen(cur);
+    }
+
+    char *dir = path;
+    char abspath[256] = {0};
+
+    dir = mp_get_realpath(dir, abspath, sizeof(abspath));
+    if (!dir) {
+        return -1;
+    }
+
+    if (dir[0] != '/') {
+        if (!curdir_available) {
+                return -1;
+        }
+
+            // parse heading ".."
+        while (dir && (strncmp(dir, "..", strlen(".."))) == 0) {
+            if (mp_up_one_level(cur) != 0) {
+                    return -1;
+            }
+
+            curlen = strlen(cur);
+
+            dir += strlen("..");
+            while (dir[0] == '/')
+                dir++;
+       }
+
+            // deal with '.', './', './dir/file' cases
+       if (dir && dir[0] == '.') {
+                while (*(++dir) == '/')
+                    ;
+       }
+
+       if (dir)
+            snprintf(cur + curlen, sizeof(cur) - curlen, "/%s", dir);
+       curlen = strlen(cur);
+       if (size >= curlen + 1) {
+            strncpy(outpath, cur, curlen + 1);
+       } else
+           return -1;
+   } else {
+       curlen = strlen(dir);
+       if (size >= curlen + 1) {
+            strncpy(outpath, dir, curlen + 1);
+       } else
+           return -1;
+   }
+
+   return 0;
+
+}
 
 STATIC const char *vfs_posix_get_path_str(mp_obj_vfs_posix_t *self, mp_obj_t path) {
     if (self->root_len == 0) {
@@ -141,14 +444,14 @@ STATIC mp_obj_t vfs_posix_open(mp_obj_t self_in, mp_obj_t path_in, mp_obj_t mode
 STATIC MP_DEFINE_CONST_FUN_OBJ_3(vfs_posix_open_obj, vfs_posix_open);
 
 STATIC mp_obj_t vfs_posix_chdir(mp_obj_t self_in, mp_obj_t path_in) {
-    return vfs_posix_fun1_helper(self_in, path_in, chdir);
+    return vfs_posix_fun1_helper(self_in, path_in, mp_chdir);
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_2(vfs_posix_chdir_obj, vfs_posix_chdir);
 
 STATIC mp_obj_t vfs_posix_getcwd(mp_obj_t self_in) {
     mp_obj_vfs_posix_t *self = MP_OBJ_TO_PTR(self_in);
     char buf[MICROPY_ALLOC_PATH_MAX + 1];
-    const char *ret = getcwd(buf, sizeof(buf));
+    const char *ret = mp_getcwd(buf, sizeof(buf));
     if (ret == NULL) {
         mp_raise_OSError(errno);
     }
@@ -157,7 +460,7 @@ STATIC mp_obj_t vfs_posix_getcwd(mp_obj_t self_in) {
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_1(vfs_posix_getcwd_obj, vfs_posix_getcwd);
 
-typedef struct _vfs_posix_ilistdir_it_t {
+typedef struct _vfs_posix_iistdir_it_t {
     mp_obj_base_t base;
     mp_fun_1_t iternext;
     bool is_str;
@@ -225,6 +528,7 @@ STATIC mp_obj_t vfs_posix_ilistdir_it_iternext(mp_obj_t self_in) {
 }
 
 STATIC mp_obj_t vfs_posix_ilistdir(mp_obj_t self_in, mp_obj_t path_in) {
+    static char tmp_path[512];
     mp_obj_vfs_posix_t *self = MP_OBJ_TO_PTR(self_in);
     vfs_posix_ilistdir_it_t *iter = m_new_obj(vfs_posix_ilistdir_it_t);
     iter->base.type = &mp_type_polymorph_iter;
@@ -234,9 +538,21 @@ STATIC mp_obj_t vfs_posix_ilistdir(mp_obj_t self_in, mp_obj_t path_in) {
     if (path[0] == '\0') {
         path = ".";
     }
+
     MP_THREAD_GIL_EXIT();
-    iter->dir = opendir(path);
+    if (path[0] != '/') {
+        int ret = 0;
+        memset(tmp_path, 0, sizeof(tmp_path));
+        ret = mp_ls_predo(path, tmp_path, sizeof(tmp_path));
+        if (ret < 0)
+            iter->dir = opendir(path);
+        else
+            iter->dir = opendir(tmp_path);
+    } else {
+        iter->dir = opendir(path);
+    }
     MP_THREAD_GIL_ENTER();
+
     if (iter->dir == NULL) {
         mp_raise_OSError(errno);
     }

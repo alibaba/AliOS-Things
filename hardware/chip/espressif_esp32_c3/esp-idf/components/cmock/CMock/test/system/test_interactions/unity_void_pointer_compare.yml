@@ -1,0 +1,91 @@
+---
+#The purpose of this test is to verify we handle void pointers as memory compares
+:cmock:
+  :plugins:
+  - :array
+  :treat_as_array:
+    VOID_PTR: unsigned char
+
+:systest:
+  :types: |
+    #include "unity_internals.h"
+    typedef void* VOID_PTR;
+
+  :mockable: |
+    void* ret_v_ptr(void);
+    void get_v_ptr(void* ptr);
+    void get_v_ptr_typedefed(VOID_PTR ptr);
+
+  :source:
+    :header: |
+      void function_a(void);
+
+    :code: |
+      void function_a(void) {
+        void* stuff = ret_v_ptr();
+        get_v_ptr(stuff);
+        get_v_ptr_typedefed((VOID_PTR)stuff);
+      }
+
+  :tests:
+    :common: |
+      void setUp(void) {}
+      void tearDown(void) {}
+
+    :units:
+    - :pass: TRUE
+      :should: 'handle passing working expects'
+      :code: |
+        test()
+        {
+          char* a = "Hello";
+          char* b = "Hello";
+          ret_v_ptr_ExpectAndReturn(a);
+          get_v_ptr_Expect(b);
+          get_v_ptr_typedefed_Expect((VOID_PTR)b);
+
+          function_a();
+        }
+
+    - :pass: TRUE
+      :should: 'handle passing array expects'
+      :code: |
+        test()
+        {
+          char* a = "Hello";
+          char* b = "Hello";
+          ret_v_ptr_ExpectAndReturn(a);
+          get_v_ptr_ExpectWithArray(b,5);
+          get_v_ptr_typedefed_ExpectWithArray((VOID_PTR)b,5);
+
+          function_a();
+        }
+
+    - :pass: FALSE
+      :should: 'handle failing expects'
+      :code: |
+        test()
+        {
+          char* a = "Hello";
+          char* b = "Jello";
+          ret_v_ptr_ExpectAndReturn(a);
+          get_v_ptr_Expect(b);
+          get_v_ptr_typedefed_Expect((VOID_PTR)b);
+
+          function_a();
+        }
+
+    - :pass: FALSE
+      :should: 'handle failing array expects'
+      :code: |
+        test()
+        {
+          char* a = "Hello";
+          char* b = "Hella";
+          ret_v_ptr_ExpectAndReturn(a);
+          get_v_ptr_ExpectWithArray(b,5);
+          get_v_ptr_typedefed_ExpectWithArray((VOID_PTR)b,5);
+
+          function_a();
+        }
+...

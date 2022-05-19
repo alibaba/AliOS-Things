@@ -43,7 +43,7 @@ int mp_hal_stdin_rx_chr(void)
             return c;
         }
         MICROPY_EVENT_POLL_HOOK
-        mp_stdin_sem_take(AOS_WAIT_FOREVER);  // AOS_WAIT_FOREVER
+        mp_stdin_sem_take(1);  // Do not wait forever as print from mpthread want to work
     }
 #else
     uint8_t c = 0;
@@ -145,46 +145,62 @@ mp_uint_t mp_hal_ticks_cpu(void)
 
 void mp_hal_delay_us(mp_uint_t us)
 {
-    uint64_t t0 = krhino_sys_tick_get(), t1, dt;
-    uint64_t dtick = us * RHINO_CONFIG_TICKS_PER_SECOND / 1000000L;
-    while (1) {
-        t1 = krhino_sys_tick_get();
-        dt = t1 - t0;
-        if (dt >= dtick) {
-            break;
+    const uint32_t pend_overhead = 150;
+
+    uint64_t t0 = aos_now_ms() * 1000;
+    for (;;) {
+        uint64_t dt = aos_now_ms() * 1000 - t0;
+        if (dt >= us) {
+            return;
         }
-        mp_handle_pending(false);
+        if (dt + pend_overhead < us) {
+            // we have enough time to service pending events
+            // (don't use MICROPY_EVENT_POLL_HOOK because it also yields)
+            mp_handle_pending(true);
+        }
     }
 }
 
 void mp_hal_delay_ms(mp_uint_t ms)
 {
-    uint64_t t0 = aos_now_ms(), t1, dt;
-    uint64_t dtick = ms * RHINO_CONFIG_TICKS_PER_SECOND / 1000L;
-    while (1) {
-        t1 = aos_now_ms();
+    uint64_t us = ms * 1000;
+    uint64_t dt;
+    uint64_t t0 = aos_now_ms() * 1000;
+    for (;;) {
+        mp_handle_pending(true);
+        MICROPY_PY_USOCKET_EVENTS_HANDLER
+        MP_THREAD_GIL_EXIT();
+        uint64_t t1 = aos_now_ms() * 1000;
         dt = t1 - t0;
-        if (dt >= dtick) {
+        if (dt + RHINO_CONFIG_TICKS_PER_SECOND * 1000 >= us) {
+            // doing a TaskDelay would take us beyond requested delay time
+            aos_msleep(1);
+            MP_THREAD_GIL_ENTER();
+            t1 = aos_now_ms() * 1000;
+            dt = t1 - t0;
             break;
+        } else {
+            mp_stdin_sem_take(1);
+            MP_THREAD_GIL_ENTER();
         }
-        MICROPY_EVENT_POLL_HOOK
-        aos_msleep(1);
+    }
+    if (dt < us) {
+        // do the remaining delay accurately
+        mp_hal_delay_us(us - dt);
     }
 }
 
 // Wake up the main task if it is sleeping
 void mp_hal_wake_main_task_from_isr(void)
 {
-#ifndef AOS_BOARD_HAAS700
     mp_stdin_sem_give();
-#endif
 }
 
 /*******************************************************************************/
 // GPIO
 /*******************************************************************************/
 
-gpio_config_t mphal_gpio_config_obj_t[PY_GPIO_NUM_MAX] = { 0 };
+gpio_dev_t mphal_gpio_config_obj_t[PY_GPIO_NUM_MAX] = { 0 };
 
 mp_int_t mp_hal_pin_config_set(mp_hal_pin_obj_t pin_obj, gpio_config_t cfg)
 {
@@ -198,15 +214,15 @@ mp_int_t mp_hal_pin_config_set(mp_hal_pin_obj_t pin_obj, gpio_config_t cfg)
         return ret;
     }
 
-    mphal_gpio_config_obj_t[pin_obj] = cfg;
+    mphal_gpio_config_obj_t[pin_obj] = dev;
     return ret;
 }
 
-gpio_config_t mp_hal_pin_config_get(mp_hal_pin_obj_t pin_obj)
+gpio_dev_t mp_hal_gpio_dev_get(mp_hal_pin_obj_t pin_obj)
 {
     if (pin_obj < 0 || pin_obj > PY_GPIO_NUM_MAX) {
         nlr_raise(mp_obj_new_exception_msg(&mp_type_OSError, "pin index out range"));
-        return 0;
+        return;
     }
     return mphal_gpio_config_obj_t[pin_obj];
 }
@@ -214,8 +230,7 @@ gpio_config_t mp_hal_pin_config_get(mp_hal_pin_obj_t pin_obj)
 mp_int_t mp_hal_pin_high(mp_hal_pin_obj_t pin_obj)
 {
     gpio_dev_t dev = { 0 };
-    dev.port = pin_obj;
-    dev.config = mp_hal_pin_config_get(pin_obj);
+    dev = mp_hal_gpio_dev_get(pin_obj);
 
     mp_int_t ret = aos_hal_gpio_output_high(&dev);
     if (0 != ret) {
@@ -227,8 +242,7 @@ mp_int_t mp_hal_pin_high(mp_hal_pin_obj_t pin_obj)
 mp_int_t mp_hal_pin_low(mp_hal_pin_obj_t pin_obj)
 {
     gpio_dev_t dev = { 0 };
-    dev.port = pin_obj;
-    dev.config = mp_hal_pin_config_get(pin_obj);
+    dev = mp_hal_gpio_dev_get(pin_obj);
 
     mp_int_t ret = aos_hal_gpio_output_low(&dev);
     if (0 != ret) {
@@ -240,8 +254,7 @@ mp_int_t mp_hal_pin_low(mp_hal_pin_obj_t pin_obj)
 mp_int_t mp_hal_pin_read(mp_hal_pin_obj_t pin_obj)
 {
     gpio_dev_t dev = { 0 };
-    dev.port = pin_obj;
-    dev.config = mp_hal_pin_config_get(pin_obj);
+    dev = mp_hal_gpio_dev_get(pin_obj);
 
     mp_int_t value = -1;
     mp_int_t ret = aos_hal_gpio_input_get(&dev, &value);
