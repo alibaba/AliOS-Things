@@ -441,7 +441,7 @@ int ota_get_boot_type()
 
 int ota_set_user_bootinfo(void *param)
 {
-    (void *)param;
+    (void)param;
     return ota_upgrade_link();
 }
 
