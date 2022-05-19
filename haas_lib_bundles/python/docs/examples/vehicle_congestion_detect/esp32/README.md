@@ -134,7 +134,7 @@
 1. **修改路由器名称及密码**
 
 &emsp;&emsp;
-修改fruits_recognization工程里main.py中SSID和PWD的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
+修改工程里main.py中SSID和PWD的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
 
 ```python
 # Wi-Fi SSID和Password设置
@@ -156,7 +156,7 @@ deviceName  = "Your-devicename"
 deviceSecret  = "Your-deviceSecret"
 ```
 &emsp;&emsp;
-最后点击Iot Studio工程底部的部署运行或串口，选择对应的端口编号烧录程序
+最后点击工程底部的部署运行或串口，选择对应的端口编号烧录程序
 <div align="center">
 <img src=./../../../images/vehicle_congestion_detect/车辆拥堵检测_部署运行代码.png width=70%/>
 </div>
@@ -209,7 +209,7 @@ deviceSecret  = "Your-deviceSecret"
 在网络连接成功后，屏幕上将打印出IP地址和"NTP Done"，如果迟迟不能显示“NTP Done”，请长按电源键关机同时拔掉USB线重新上电运行。
 
 &emsp;&emsp;
-推送此脚本到M5Stack之后，串口会周期性的打印如下日志，并且识别到水果后在屏幕上显示红色Vehicle Num: xx的字样。“xx”代表当前图片中车辆的数量。具体识别结果参考下图：
+推送此脚本到M5Stack之后，串口会周期性的打印如下日志，并且识别到车辆后在屏幕上显示红色Vehicle Num: xx的字样。“xx”代表当前图片中车辆的数量。具体识别结果参考下图：
 <div align="center">
 <img src=./../../../images/vehicle_congestion_detect/车辆拥堵检测_设备识别结果.png width=50%/>
 </div>

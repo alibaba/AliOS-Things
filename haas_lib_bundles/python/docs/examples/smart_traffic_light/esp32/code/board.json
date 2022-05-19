@@ -1,0 +1,20 @@
+{
+  "name": "m5stack",
+  "version": "1.0.0",
+  "io": {
+    "rgbR": {
+      "type": "PWM",
+      "port": 19
+    },
+    "rgbG": {
+      "type": "PWM",
+      "port": 27
+    },
+    "rgbB": {
+      "type": "PWM",
+      "port": 33
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
