@@ -1,0 +1,28 @@
+{
+	"name": "esp32",
+	"version": "1.0.0",
+	"io": {
+		"PAJ7620_I2C": {
+			"type": "I2C",
+			"port": 0,
+			"addrWidth": 7,
+			"freq": 100000,
+			"devAddr": 115
+		},
+		"Buzzer": {
+			"type": "GPIO",
+			"port": 13,
+			"dir": "output",
+			"pull": "pushpull"
+		},
+		"PAJ7620_IRQ": {
+			"type": "GPIO",
+			"port": 4,
+			"dir": "irq",
+			"pull": "pullup",
+			"intMode": "falling"
+		}
+	},
+	"debugLevel": "ERROR",
+	"repl": "disable"
+}
