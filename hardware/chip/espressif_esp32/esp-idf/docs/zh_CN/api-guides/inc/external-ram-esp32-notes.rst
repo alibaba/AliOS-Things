@@ -1,1 +1,0 @@
-.. include:: ../../en/api-guides/inc/external-ram-esp32-notes.rst

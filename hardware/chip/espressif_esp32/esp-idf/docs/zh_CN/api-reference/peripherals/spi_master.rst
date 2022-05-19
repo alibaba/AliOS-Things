@@ -1,1 +1,0 @@
-.. include:: ../../../en/api-reference/peripherals/spi_master.rst

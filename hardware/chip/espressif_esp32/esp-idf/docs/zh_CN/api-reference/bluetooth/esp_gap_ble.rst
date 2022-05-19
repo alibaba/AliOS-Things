@@ -1,1 +1,0 @@
-.. include:: ../../../en/api-reference/bluetooth/esp_gap_ble.rst

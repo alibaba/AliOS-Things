@@ -15,13 +15,12 @@ tag: 核心模块                                      # <可选项> 组件分�
 #   - aos: >=v7.2.0
 depends:
   - espressif_esp32: master
+  - espressif_adf: master
 
 board:
   chip_name: espressif_esp32
 
 build_config:
-  preconfig_script: yaml_copy.sh
-
   libs:
     - lvgl ? <MICROPY_PY_LVGL>
   ldflag: >

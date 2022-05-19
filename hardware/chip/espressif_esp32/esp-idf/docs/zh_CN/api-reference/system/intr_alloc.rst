@@ -1,1 +1,0 @@
-.. include:: ../../../en/api-reference/system/intr_alloc.rst
