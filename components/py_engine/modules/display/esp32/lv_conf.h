@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 
+#define LV_USE_FREETYPE     1
 /*====================
    COLOR SETTINGS
  *====================*/
