@@ -1,0 +1,34 @@
+{
+    "name": "haasedu",
+    "version": "1.0.0",
+    "io": {
+      "cht8305": {
+        "type": "I2C",
+        "port": 1,
+        "addrWidth": 7,
+        "freq": 400000,
+        "mode": "master",
+        "devAddr": 64
+        },
+        "oled_spi": {
+          "type": "SPI",
+          "port": 1,
+          "mode": "master",
+          "freq": 26000000
+        },
+        "oled_dc": {
+          "type": "GPIO",
+          "port": 28,
+          "dir": "output",
+          "pull": "pullup"
+        },
+        "oled_res": {
+          "type": "GPIO",
+          "port": 30,
+          "dir": "output",
+          "pull": "pullup"
+        }
+    },
+    "debugLevel": "ERROR",
+    "repl": "disable"
+  }
