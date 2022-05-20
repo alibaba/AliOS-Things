@@ -33,8 +33,7 @@ STATIC mp_obj_t mp_sntp_settime(size_t n_args, const mp_obj_t *args)
     tz.tz_minuteswest = -480;
     tz.tz_dsttime = 0;
     sntp_set_timezone(&tz);
-
-    return MP_OBJ_NEW_SMALL_INT(0);
+    return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mp_sntp_settime_obj, 0, 2, mp_sntp_settime);
 
