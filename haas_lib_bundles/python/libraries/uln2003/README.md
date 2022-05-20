@@ -134,28 +134,28 @@ while 1:
         "type": "GPIO",
         "port": 19,
         "dir": "output",
-        "pull": "pullup"
+        "pull": "pushpull"
       },
 
       "uln2003_a_": {
         "type": "GPIO",
         "port": 27,
         "dir": "output",
-        "pull": "pullup"
+        "pull": "pushpull"
       },
 
       "uln2003_b": {
         "type": "GPIO",
         "port": 0,
         "dir": "output",
-        "pull": "pullup"
+        "pull": "pushpull"
       },
 
       "uln2003_b_": {
         "type": "GPIO",
         "port": 2,
         "dir": "output",
-        "pull": "pullup"
+        "pull": "pushpull"
       }
     },
     "debugLevel": "ERROR",
