@@ -1,0 +1,37 @@
+name: 新功能请求
+description: File a feature request
+title: "[Feature Request]: "
+assignees:
+  - octocat
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您百忙之中填写这份新功能请求
+  - type: input
+    id: contact
+    attributes:
+      label: 联系方式
+      description: 请提供您的联系方式
+      placeholder: ex. email@example.com
+    validations:
+      required: false
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 新功能描述
+      description: 您希望我们提供什么新功能
+      placeholder: Tell us what you do you want!
+      value: "功能描述"
+    validations:
+      required: true
+  - type: dropdown
+    id: version
+    attributes:
+      label: 分支
+      description: 您希望我们在哪条分支上实现这个新功能
+      options:
+        - master (Default)
+        - rel_3.3.0 (Main)
+    validations:
+      required: true
