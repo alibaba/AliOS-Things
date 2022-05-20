@@ -20,7 +20,9 @@ def _connect_wifi():
 channel = kv.get('app_upgrade_channel')
 if channel == "disable":
     pass
-elif channel == "mqtt":
+elif channel == "bt":
+    execfile('/lib/oneMinuteOnCloud.py')
+else:
     import online_upgrade
     online_upgrade.on(_on_get_url)
     try:
@@ -28,8 +30,6 @@ elif channel == "mqtt":
         #_thread.stack_size(10 * 1024)
     except Exception as e:
         print(e)
-else:
-    execfile('/lib/oneMinuteOnCloud.py')
 
 
 

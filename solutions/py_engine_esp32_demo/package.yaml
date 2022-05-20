@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: py_engine_esp32_demo                          # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: master                                    # <必选项> 组件版本号
+version: master                                     # <必选项> 组件版本号
 description: start python engine esp32 demos        # <必选项> 建议至少20字以上
 type: solution                                      # <必选项> 组件类型，为：solution, board, chip, arch, drv_core, drv_peripheral, drv_external_device, kernel, common, sdk, document
 
@@ -21,7 +21,7 @@ depends:
   - amp_adapter: master
   - kv: master
   - littlefs: master
-  - esp_c3_32s_kit:  master
+  - m5stackcore2: master
 supported_boards:
   - nodemcu32s: master
   - m5stackcore2: master
@@ -87,7 +87,7 @@ supported_boards:
 #     toolchain_prefix: csky-abiv2-elf     # <可选项> 编译器前缀
 solution:
   cpu_id: cpu0
-  board_name: esp_c3_32s_kit
+  board_name: m5stackcore2
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -158,7 +158,6 @@ def_config:
   SYSINFO_NETWORK: WIFI/BT
   SYSINFO_DEVICE_TYPE: solo
   SYSINFO_CLOUD_TYPE: aliyun
-  MICROPY_PY_CHANNEL_ENABLE: 0
 
 ## 第六部分：安装信息
 # install:

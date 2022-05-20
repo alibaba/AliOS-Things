@@ -34,6 +34,7 @@ def_config:
   CONFIG_LFS_PAGE_NUM_PER_BLOCK: 16
   LFS_CONFIG_DEBUG: 0
   LFS_CONFIG_TRACE: 0
+  MICROPY_PY_CHANNEL_ENABLE: 1
 # CONFIG_LFS_PROG_SIZE: 1024 # the mininal programable size, usually page size for nand and any size for nor
 #  CONFIG_LFS_PAGE_NUM_PER_BLOCK: 4 # choose the right value for nand, and usually any value for nor
 #  CONFIG_LFS_BLOCK_NUMS: 1198 # the total block count for lfs parition

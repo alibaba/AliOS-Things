@@ -21,9 +21,7 @@ def _on_get_url(url):
 
 
 channel = kv.get('app_upgrade_channel')
-if channel == "disable":
-    pass
-else:
+if channel != "disable":
     import online_upgrade
     online_upgrade.on(_on_get_url)
     try:

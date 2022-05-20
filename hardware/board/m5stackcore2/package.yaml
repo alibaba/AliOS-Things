@@ -59,4 +59,5 @@ def_config:
   #  CONFIG_LFS_BLOCK_NUMS: 1198 # the total block count for lfs parition
   MICROPY_PY_UCAMERA: 1
   CONFIG_UART_CAMERA_ENABLE: 1
+  MICROPY_PY_CHANNEL_ENABLE: 1
 
