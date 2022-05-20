@@ -67,7 +67,6 @@ source_file:
   - platform/aos/haas200/amp_ota_port.c ? <BOARD_HAAS200>
   - platform/aos/haaseduk1/amp_ota_port.c ? <BOARD_HAASEDUK1>
   - platform/aos/aos_system.c ? <!ESP_PLATFORM>
-  - platform/aos/app_ota.c ? <!ESP_PLATFORM>
   - platform/aos/network/*.c ? <!ESP_PLATFORM>
   - platform/aos/peripheral/*.c     ? <!ESP_PLATFORM>
   - platform/esp_idf/*.c ? <ESP_PLATFORM>
