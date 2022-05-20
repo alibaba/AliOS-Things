@@ -25,9 +25,7 @@ def _connect_wifi(ssid, passwd):
 
 
 channel = kv.get('app_upgrade_channel')
-if channel == "disable":
-    pass
-else:
+if channel != "disable":
     ssid = kv.get('_amp_wifi_ssid')
     passwd = kv.get('_amp_wifi_passwd')
     if isinstance(ssid, str) and isinstance(passwd, str):

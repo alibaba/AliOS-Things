@@ -95,7 +95,10 @@ build_config:
     - external/libs/haas1000 ? <BOARD_HAAS100>
     - external/libs/haas1000 ? <BOARD_HAASEDUK1>
     - external/libs/rtl872xd ? <BOARD_HAAS200>
-    - external/libs/esp32 ? <ESP_PLATFORM>
+    - external/libs/esp32 ? <BOARD_NODEMCU32S>
+    - external/libs/esp32 ? <BOARD_NODEMCU32S3>
+    - external/libs/esp32 ? <BOARD_M5STACKCORE2>
+    - external/libs/espc3 ? <BOARD_NODEMCU32C3>
 
 source_file:
   # adapter
