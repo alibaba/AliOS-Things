@@ -15,11 +15,9 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    # 创建基础控件对象，设置控件尺寸和控件摆放位置
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()              # lvgl组件初始化
-    disp.init()            # 屏幕/触摸屏初始化等
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
 
@@ -64,10 +62,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()              # lvgl组件初始化
-    disp.init()            # 屏幕/触摸屏初始化等
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
 
@@ -100,10 +95,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()              # lvgl组件初始化
-    disp.init()            # 屏幕/触摸屏初始化等
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
 
@@ -137,10 +129,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()              # lvgl组件初始化
-    disp.init()            # 屏幕/触摸屏初始化等
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
 
@@ -201,10 +190,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()              # lvgl组件初始化
-    disp.init()            # 屏幕/触摸屏初始化等
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
 
@@ -256,10 +242,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()              # lvgl组件初始化
-    disp.init()            # 屏幕/触摸屏初始化等
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
 
@@ -330,10 +313,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()              # lvgl组件初始化
-    disp.init()            # 屏幕/触摸屏初始化等
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
 
@@ -400,10 +380,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()              # lvgl组件初始化
-    disp.init()            # 屏幕/触摸屏初始化等
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
 
@@ -463,10 +440,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     # copy img_cogwheel_argb.png in the RESOURCE_ROOT
     RESOURCES_ROOT = "S:/data/pyamp/"
@@ -500,10 +474,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     #
     # Show line wrap, re-color, line align and text scrolling.
@@ -543,10 +514,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     # Create an array for the points of the line
     line_points = [ {"x":5, "y":5}, 
@@ -588,10 +556,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def event_handler(e):
         code = e.get_code()
@@ -644,10 +609,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     # 
     # A default slider with a label displaying the current value
@@ -689,10 +651,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def event_handler(e):
         code = e.get_code()
@@ -741,10 +700,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def draw_part_event_cb(e):
         obj = e.get_target()
@@ -818,10 +774,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def textarea_event_handler(e, ta):
         print("Enter was pressed. The current text is: " + ta.get_text())
@@ -874,10 +827,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def event_handler(evt):
         code = evt.get_code()
@@ -928,10 +878,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     # Create a chart
     chart = lv.chart(lv.scr_act())
@@ -973,10 +920,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def draw_event_cb(e):
 
@@ -1050,10 +994,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     cw = lv.colorwheel(lv.scr_act(), True)
     cw.set_size(200, 200)
@@ -1079,10 +1020,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
     RESOURCES_ROOT = "S:/data/pyamp/"
 
     # Create a transition animation on width transformation and recolor.
@@ -1141,10 +1079,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def ta_event_cb(e,kb):
         code = e.get_code()
@@ -1194,10 +1129,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     #
     # Create LED's with different brightness and color
@@ -1239,10 +1171,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def event_handler(e):
         code = e.get_code()
@@ -1304,10 +1233,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def set_value(indic, v):
         meter.set_indicator_value(indic, v)
@@ -1382,10 +1308,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def event_cb(e):
         mbox = e.get_current_target()
@@ -1417,10 +1340,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     #
     # Create span
@@ -1492,10 +1412,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def increment_event_cb(e):
         code = e.get_code()
@@ -1548,10 +1465,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     # Create a spinner
     spinner = lv.spinner(lv.scr_act(), 1000, 60)
@@ -1578,10 +1492,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     # Create a Tab view object
     tabview = lv.tabview(lv.scr_act(), lv.DIR.TOP, 50)
@@ -1636,10 +1547,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     #
     # Create a 2x2 tile view and allow scrolling only in an "L" shape.
@@ -1701,10 +1609,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     import lvgl as lv
-    from display import LVGL as disp
-
-    lv.init()
-    disp.init()
+    import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def event_handler(e):
         code = e.get_code()

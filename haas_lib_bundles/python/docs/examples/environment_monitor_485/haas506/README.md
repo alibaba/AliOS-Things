@@ -8,7 +8,7 @@
 ## 简介
 
 &emsp;&emsp;
-实时监测温湿度、光照等环境数据，并根据这些环境数据远程控制现场的温湿度和光照环境，是农业大棚、智慧养殖、数字工厂等领域最常见的需求之一。本案例将基于HaaS506 DTU开发板自带的Modbus接口控制“建大仁科光照温湿度变送器”和“郎汉德6路继电器”， 并结合阿里云物联网平台和阿里云IoT Studio组态软件搭建云端一体应用。
+实时监测温湿度、光照等环境数据，并根据这些环境数据远程控制现场的温湿度和光照环境，是农业大棚、智慧养植、数字工厂等领域最常见的需求之一。本案例将基于HaaS506 DTU开发板自带的Modbus接口控制“建大仁科光照温湿度变送器”和“郎汉德6路继电器”， 并结合阿里云物联网平台和阿里云IoT Studio组态软件搭建云端一体应用。
 
 
 &emsp;&emsp;
@@ -111,7 +111,7 @@
 ### 为产品配置物模型
 
 &emsp;&emsp;
-点击“设备管理” -> "产品"菜单进入产品列表页，双击刚才创建的“环境数据采集及远程控制”产品 并 点击 “功能定义” 菜单，开始定义产品功能。
+点击“设备管理” -> "产品"菜单进入产品列表页，双击刚才创建的“环境数据采集及远程控制”产品 并 点击 “功能定义” 菜单，开始定义产品功能。首先下载[物模型文件](./link_platform/model.zip)。
 
 
 **1. 功能定义页面点击“编辑草稿”**
@@ -129,6 +129,9 @@
 
 
 **3. 点击“上传物模型”**
+
+&emsp;&emsp;
+选择上面下载的物模型文件进行上传。
 
 <div align="center">
 <img src=./../../../images/485环境监测/485环境监测-定义产品功能3.png width=60%>
@@ -179,7 +182,7 @@
 **1. 新建一个空白项目**
 
 &emsp;&emsp;
-打开[IoT Studio官网](https://studio.iot.aliyun.com/)，点击屏幕左侧“项目管理”菜单 -> 点击“新建项目”按钮 -> 点击“创建空白项目“，项目名称填写“传感器数据采集”
+打开[IoT Studio官网](https://studio.iot.aliyun.com/)，点击屏幕左侧“项目管理”菜单 -> 点击“新建项目”按钮 -> 点击“创建空白项目“，项目名称填写“传感器数据采集”。
 <div align="center">
 <img src=./../../../images/485环境监测/485环境监测-创建IoTStudio项目.png width=90%/>
 </div>
@@ -210,17 +213,18 @@
 
 
 **4. 可视化搭建”**
-本届中用到了”实时曲线“组件和“开关”组件。需要从左侧组件列表中依次拖动道UI面板对应位置
+&emsp;&emsp;
+本节中用到了”实时曲线“组件和“开关”组件。需要从左侧组件列表中依次拖动道UI面板对应位置
 <div align="center">
 <img src=./../../../images/485环境监测/485环境监测-可视化搭建.png width=90%/>
 </div>
 
-为“事实曲线组件”配置数据源
+为“事实曲线组件”配置数据源。
 <div align="center">
 <img src=./../../../images/485环境监测/485环境监测-设定实时曲线.png width=90%/>
 </div>
 
-为“开关组件”配置数据源，配置方式参考“实时曲线组件”的数据源配置方法
+为“开关组件”配置数据源，配置方式参考“实时曲线组件”的数据源配置方法。
 
 <br>
 
@@ -262,7 +266,7 @@
 ### 拷贝案例代码
 
 &emsp;&emsp;
-将本案例代码复制到“环境监测”工程根目录下并覆盖工程原来的同名文件。 代码详细逻辑可以参考代码中的注释。
+将[本案例代码](./code)复制到“环境监测”工程根目录下并覆盖工程原来的同名文件。 代码详细逻辑可以参考代码中的注释。
 <div align="center">
 <img src=./../../../images/485环境监测/485环境监测-代码工程.png width=100%/>
 </div>
@@ -297,7 +301,7 @@
 
 ### 设定“郎汉德6路继电器”地址
 &emsp;&emsp;
-因为“建大仁科光照温湿度变送器”和“郎汉德6路继电器”两个传感器公用一条rs485总线，所以，两个传感器需需要设定不一样的modbus地址。“建大仁科光照温湿度变送器”和“郎汉德6路继电器”两个传感器的默认地址都是1. 所以，本案例将“郎汉德6路继电器”默认工作波特率设定为2，具体需要按照下图所示设定“郎汉德6路继电器”物理地址开关
+因为“建大仁科光照温湿度变送器”和“郎汉德6路继电器”两个传感器公用一条rs485总线，所以，两个传感器需需要设定不一样的modbus地址。“建大仁科光照温湿度变送器”和“郎汉德6路继电器”两个传感器的默认地址都是1. 所以，本案例将“郎汉德6路继电器”默认工作波特率设定为2，具体需要按照下图所示设定“郎汉德6路继电器”物理地址开关。
 
 <div align="center">
 <img src=./../../../images/485环境监测/485环境监测-设定zzio606地址.png width=50%/>
@@ -308,20 +312,20 @@
 
 ### 重启设备，自动连云
 &emsp;&emsp;
-重启设备，设备自动连云
+设备重启后，系统会自动连接阿里云物联网平台。
 
 <br>
 
 ### 手机扫码实时显示传感器数据。远程控制继电器开关。
 
 &emsp;&emsp;
-再次进入iot studio 移动应用界面，点击"预览"
+再次进入iot studio 移动应用界面，点击"预览"。
 <div align="center">
 <img src=./../../../images/485环境监测/485环境监测-预览.png width=90%/>
 </div>
 
 &emsp;&emsp;
-实时显示环境数据，远程控制继电器开关，没路继电器开闭状态都有指示灯标识，开路状态亮红灯，闭路状态不亮灯
+实时显示环境数据，远程控制继电器开关，没路继电器开闭状态都有指示灯标识，开路状态亮红灯，闭路状态不亮灯。
 <div align="center">
 <img src=./../../../images/485环境监测/485环境监测-运行效果.png width=40%/>
 </div>
@@ -330,278 +334,9 @@
 
 ### 代码
 
-代码流程：
-1. 链接网络，网络链接成功以后，haas506开发版 网络状态led灯会点亮
-2. 初始化modbus总线
-3. 链接物联网平台，并注册平台消息监听器， 连接成功以后会打印“物联网平台连接成功”
-4. 周期上报温度、湿度、光照数据
-
-
-main.py
-```
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-
-import utime
-import ujson
-from aliyunIoT import Device
-import modbus as mb
-import yuanda_htb485
-import zzio606
-import network
-from driver import GPIO
-
-# wifi连网代码
-def connect_wifi(ssid, pwd):
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(True)
-    wlan.connect(ssid, pwd)
-
-# 4G.Cat1连网代码
-g_connect_status = False
-def on_4g_cb(args):
-    print("4g callback.")
-    global g_connect_status
-    pdp = args[0]
-    netwk_sta = args[1]
-    if netwk_sta == 1:
-        g_connect_status = True
-    else:
-        g_connect_status = False
-
-def connect_4g_network():
-    global on_4g_cb
-    net = network.NetWorkClient()
-    net_led = GPIO()
-    net_led.open('net_led')
-    
-    g_register_network = False
-    if net._stagecode is not None and net._stagecode == 3 and net._subcode == 1:
-        g_register_network = True
-    else:
-        g_register_network = False
-        
-    if g_register_network:
-        net.on(1,on_4g_cb)
-        net.connect({"apn":"CMNET"})
-    else:
-        print('network register failed')
-        
-    while True:
-        if g_connect_status==False:
-            net_led.write(0)
-        if g_connect_status:
-            print('network register successed')
-            #连上网之后，点亮cloud_led
-            net_led.write(1)
-            break
-        utime.sleep_ms(20)
-    return 0
-
-# 物联网平台全局变量
-productKey = " "
-deviceName = " "
-deviceName = " "
-device = None
-zzio606Obj = None
-switchList = ["switch0", "switch1", "switch2", "switch3", "switch4", "switch5"]
-
-# 物联网平台连接成功的回调函数
-def on_connect(data):
-    print("物联网平台连接成功")
-
-# 处理物联网平台下行指令
-def on_props(request):
-    global alarm_on, device, zzio606Obj, switchList
-    
-    payload = ujson.loads(request['params'])    
-    for i in range(0, len(switchList)):
-        if switchList[i] in payload.keys():
-            print(switchList[i])
-            value = payload[switchList[i]]
-            if (value):
-                zzio606Obj.openChannel(i)
-            else:
-                zzio606Obj.closeChannel(i)
-                
-            prop = ujson.dumps({
-                switchList[i]: value,
-            })
-            print(prop)
-            upload_data = {'params': prop}
-            device.postProps(upload_data)
-
-# 连接物联网平台
-def connect_lk(productKey, deviceName, deviceSecret):
-    global device
-    key_info = {
-        'region': 'cn-shanghai',
-        'productKey': productKey,
-        'deviceName': deviceName,
-        'deviceSecret': deviceSecret,
-        'keepaliveSec': 60
-    }
-    device = Device()
-    device.on(Device.ON_CONNECT, on_connect)
-    device.on(Device.ON_PROPS, on_props)
-    device.connect(key_info)
-
-# 上传htb数据
-def upload_htb_data():
-    global device, zzio606Obj
-
-    htb485Obj = yuanda_htb485.HTB485(mb, 1)
-    zzio606Obj = zzio606.ZZIO606(mb, 3)
-
-    while True:
-        if htb485Obj is None:
-            break      
-        htb = htb485Obj.getHTB()
-        # "humidity"/"temperature"/"brightness"必须和物联网平台的属性一致
-        upload_data = {'params': ujson.dumps({
-            'humidity': htb[0],
-            'temperature': htb[1],
-            "brightness":htb[3]
-        })
-        }
-        # 上传温度和湿度信息到物联网平台
-        device.postProps(upload_data)
-        utime.sleep(2)
-        
-    mb.deinit()
-
-if __name__ == '__main__':
-    # 链接wifi
-    # connect_wifi('xxx', 'xxxxx')
-    # 链接4g网络
-    connect_4g_network()
-    # 初始化modbus总线
-    mb.init('modbus_485_4800')
-    utime.sleep(2)
-    # 链接物联网平台
-    connect_lk(productKey, deviceName, deviceSecret)
-    utime.sleep(2)
-    # 定时上报传感器数据
-    upload_htb_data()
-
-```
-board.json
-```
-{
-  "name": "haas506",
-  "version": "1.0.0",
-  "io": {
-      "modbus_485_4800": {
-          "type": "MODBUS",
-          "mode": 0,
-          "port": 2,
-          "baudrate": 4800,
-          "priority": 0,
-          "timeout": 200
-      },
-      "modbus_485_9600": {
-        "type": "MODBUS",
-        "mode": 0,
-        "port": 2,
-        "baudrate": 9600,
-        "priority": 0,
-        "timeout": 200
-      },
-      "cloud_led": {
-        "type": "GPIO",
-        "port": 9,
-        "dir": "output",
-        "pull": "pulldown"
-      },
-      "net_led": {
-        "type": "GPIO",
-        "port": 7,
-        "dir": "output",
-        "pull": "pulldown"
-      }
-  },
-  "debugLevel": "ERROR",
-  "repl": "disable"
-}
-
-```
-yuanda_htb485.py
-```
-import ustruct
-
-class HTB485(object):
-    
-    def __init__(self, mbObj, devAddr):
-        self.mbObj = mbObj
-        self.devAddr = devAddr
-    
-    def getHumidity(self):
-        if self.mbObj is None:
-            raise ValueError("invalid modbus object.")
-        value = bytearray(4)
-        ret = self.mbObj.readHoldingRegisters(self.devAddr, 0, 2, value, 200)
-        if ret[0] < 0:
-            raise ValueError("readHoldingRegisters failed. errno:", ret[0])
-        
-        humidity = ustruct.unpack('hh',value)
-        return humidity[0]
-    
-    def getTemperature(self):
-        if self.mbObj is None:
-            raise ValueError("invalid modbus object.")
-        value = bytearray(4)
-        ret = self.mbObj.readHoldingRegisters(self.devAddr, 0, 2, value, 200)
-        if ret[0] < 0:
-            raise ValueError("readHoldingRegisters failed. errno:", ret[0])
-        temperature = ustruct.unpack('hh',value)
-        return temperature[1]
-    
-    def getBrightness(self):
-        if self.mbObj is None:
-            raise ValueError("invalid modbus object.")
-        value = bytearray(4)
-        ret = self.mbObj.readHoldingRegisters(self.devAddr, 2, 2, value, 200)
-        if ret[0] < 0:
-            raise ValueError("readHoldingRegisters failed. errno:", ret[0])
-        brightness = ustruct.unpack('hh',value)
-        return brightness[1]
-    
-    def getHTB(self):
-        if self.mbObj is None:
-            raise ValueError("invalid modbus object.")
-        value = bytearray(10)
-        ret = self.mbObj.readHoldingRegisters(self.devAddr, 0, 5, value, 200)
-        if ret[0] < 0:
-            raise ValueError("readHoldingRegisters failed. errno:", ret[0])
-        htb = ustruct.unpack('hhhhh',value)
-        return htb
-```
-zzio606.py
-```
-class ZZIO606(object):
-    
-    def __init__(self, mbObj, devAddr):
-        self.mbObj = mbObj
-        self.devAddr = devAddr
-
-    def openChannel(self, chid):
-        if self.mbObj is None:
-            raise ValueError("invalid modbus object.")
-        ret = self.mbObj.writeCoil(self.devAddr, chid, 0xff00, 200)
-        return ret[0]
-
-    def closeChannel(self, chid):
-        if self.mbObj is None:
-            raise ValueError("invalid modbus object.")
-        ret = self.mbObj.writeCoil(self.devAddr, chid, 0, 200)
-        return ret[0]
-    
-    def getChannelStatus(self):
-        if self.mbObj is None:
-            raise ValueError("invalid modbus object.")
-        status = bytearray(1)
-        ret = self.mbObj.readCoils(self.devAddr, 0, 6, status, 200)
-        if ret[0] < 0:
-            raise ValueError("modbus readCoils failed, errno:", ret[0])
-        return status
-```
+&emsp;&emsp;
+本案例的主要代码流程如下，详细流程请参考代码中的注释。
+1. 连接网络，网络连接成功以后，haas506开发版网络状态led灯会点亮。
+2. 初始化modbus总线。
+3. 连接物联网平台，并注册平台消息监听器， 连接成功以后会打印“物联网平台连接成功”。
+4. 周期上报温度、湿度、光照数据。

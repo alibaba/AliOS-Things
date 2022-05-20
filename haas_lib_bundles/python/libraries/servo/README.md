@@ -24,6 +24,8 @@
 * 线长：25cm<br>
 
 ## 三、软件接口
+
+舵机(Servo)控制器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/servo)
 <br>
 
 ### SERVO(pwmObj) - 创建舵机驱动对象

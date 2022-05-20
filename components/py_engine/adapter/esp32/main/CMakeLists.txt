@@ -63,6 +63,7 @@ set(MICROPY_SOURCE_PORT
     ${PROJECT_DIR}/machine_pin.c
     ${PROJECT_DIR}/machine_touchpad.c
     ${PROJECT_DIR}/machine_adc.c
+    ${PROJECT_DIR}/machine_adcblock.c
     ${PROJECT_DIR}/machine_dac.c
     ${PROJECT_DIR}/machine_i2c.c
     ${PROJECT_DIR}/machine_i2s.c
@@ -105,6 +106,7 @@ set(IDF_COMPONENTS
     bootloader_support
     bt
     driver
+    esp_adc_cal
     esp_common
     esp_eth
     esp_event
@@ -133,16 +135,16 @@ set(IDF_COMPONENTS
     xtensa
 )
 
-if(IDF_VERSION_MINOR GREATER_EQUAL 1)
+if(IDF_VERSION_MINOR GREATER_EQUAL 1 OR IDF_VERSION_MAJOR GREATER_EQUAL 5)
     list(APPEND IDF_COMPONENTS esp_netif)
 endif()
 
-if(IDF_VERSION_MINOR GREATER_EQUAL 2)
+if(IDF_VERSION_MINOR GREATER_EQUAL 2 OR IDF_VERSION_MAJOR GREATER_EQUAL 5)
     list(APPEND IDF_COMPONENTS esp_system)
     list(APPEND IDF_COMPONENTS esp_timer)
 endif()
 
-if(IDF_VERSION_MINOR GREATER_EQUAL 3)
+if(IDF_VERSION_MINOR GREATER_EQUAL 3 OR IDF_VERSION_MAJOR GREATER_EQUAL 5)
     list(APPEND IDF_COMPONENTS esp_hw_support)
     list(APPEND IDF_COMPONENTS esp_pm)
     list(APPEND IDF_COMPONENTS hal)

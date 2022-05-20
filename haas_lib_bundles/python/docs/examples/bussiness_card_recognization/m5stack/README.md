@@ -4,7 +4,7 @@
 
 ## 背景知识
 &emsp;&emsp;
-名片识别也是OCR识别领域中的一种，通过深度学习训练出能够识别名片的模型，有的系统使用边缘设备进行识别，有的使用云端进行识别。本章中使用HaaS云端积木中名片识别功能进行识别，在识别到正常名片后显示在屏幕上。
+名片识别是OCR识别领域中的一种，通过深度学习训练出能够识别名片的模型，有的系统使用边缘设备进行识别，有的使用云端进行识别。本章中使用HaaS云端积木中名片识别功能进行识别，在识别到正常名片后显示在屏幕上。
 
 <br>
 
@@ -14,7 +14,8 @@
 2. M5Stack Unit CAM摄像头    一个
 3. 连接线                    一根
 
-涉及到的硬件购买链接如下，仅供参考，不负责商家发货的品质保障等问题！
+&emsp;&emsp;
+本案例涉及到的硬件购买链接如下，仅供参考，不负责商家发货的品质保障等问题！
 
 | 名称 | 数量 | 参考链接 |
 | --- | --- | --- |
@@ -31,6 +32,7 @@
 <br>
 
 ## 云端平台功能开通
+&emsp;&emsp;
 在本案例中涉及到云端平台功能都聚合在HaaS云端积木中，所以无需单独使用 **对象存储OSS** 和 **视觉智能开发平台**。
 
 &emsp;&emsp;
@@ -98,7 +100,7 @@
 
 ### 开发环境
 &emsp;&emsp;
-在进行下一步之前请确保ESP32开发环境已经搭建完毕。详情请参考[esp32开发环境](../../../startup/ESP32_startup.md)的说明。
+在进行下一步之前请确保M5StackCore2开发环境已经搭建完毕。详情请参考[M5StackCore2快速开始](../../../startup/M5StackCore2_startup.md)的说明。
 <br>
 
 ### 创建解决方案
@@ -107,7 +109,7 @@
 如下图所示，打开VS Code之后在新建一个基于helloworld的python工程，设定好工程名称（“bussiness_card_recognization”）及工作区路径之后，硬件类型选择m5stackcore2，点击立即创建，创建一个Python轻应用的解决方案。(将下图的项目名字改为“bussiness_card_recognization”)
 
 <div align="center">
-<img src=./../../../images/3_2_车牌识别_工程创建.png width=80%/>
+<img src=./../../../images/名片识别/名片识别_VSCode_Project.png width=80%/>
 </div>
 
 
@@ -150,10 +152,6 @@ deviceSecret  = "Your-deviceSecret"
 &emsp;&emsp;
 推送此脚本到M5Stack之后，串口会周期性的打印如下日志，日志中有识别到的详细信息，并且在屏幕上显示红色name，num和email的字样, 未识别到的信息会默认为unknown， 由于目前还不支持中文显示，所以name显示为空。
 
-<div align="center">
-<img src=./../../../images/名片识别/名片识别结果显示.png width=60%/>
-</div>
-
 ```log
 Wi-Fi is connected
 IP: 192.168.3.25
@@ -172,3 +170,7 @@ phoneNumbers :
 email_list:
 ['wwang128@126.com']
 ```
+
+<div align="center">
+<img src=./../../../images/名片识别/名片识别结果显示.png width=60%/>
+</div>

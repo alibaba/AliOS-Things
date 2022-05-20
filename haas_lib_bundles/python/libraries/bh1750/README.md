@@ -22,6 +22,10 @@ BH1750 是罗姆（ROHM）半导体集团出品的数字光强传感器，也称
 * WSOF6I 封装 2.6mm * 1.6mm
 
 ## 三、软件接口
+
+BH1750数字光强传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/bh1750)
+<br>
+
 注：获取值单位为勒克斯 （lux，法定符号lx）是照度（luminance）的单位。
 
 ### BH1750(i2cObj) - 创建BH1750驱动对象

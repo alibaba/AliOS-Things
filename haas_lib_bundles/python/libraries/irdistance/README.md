@@ -26,6 +26,8 @@
 * 电路板尺寸：3.2cm*1.4cm<br>
 
 ## 三、软件接口
+
+红外避障传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/irdistance)
 <br>
 
 ### IRDISTANCE(gpioObj) - 创建红外避障传感器对象

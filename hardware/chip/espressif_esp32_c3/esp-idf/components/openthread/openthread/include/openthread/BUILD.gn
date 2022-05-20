@@ -1,0 +1,135 @@
+#  Copyright (c) 2020, The OpenThread Authors.
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the
+#     names of its contributors may be used to endorse or promote products
+#     derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+import("../../etc/gn/openthread.gni")
+
+copy("copy_openthread_config_generic") {
+  sources = [ "../../etc/cmake/openthread-config-generic.h.in" ]
+  outputs = [ "${root_gen_dir}/include/{{source_name_part}}" ]
+}
+
+config("openthread_config_generic_config") {
+  include_dirs = [ "${root_gen_dir}/include" ]
+}
+
+source_set("openthread_config_generic") {
+  sources = [ "${root_gen_dir}/include/openthread-config-generic.h" ]
+  deps = [ ":copy_openthread_config_generic" ]
+  public_configs = [ ":openthread_config_generic_config" ]
+}
+
+source_set("openthread_config") {
+  public = [ "config.h" ]
+
+  if (openthread_config_file == "") {
+    public_deps = [ ":openthread_config_generic" ]
+  } else {
+    public_deps = openthread_config_deps
+  }
+
+  public_configs = [ "../..:openthread_config" ]
+}
+
+source_set("openthread") {
+  public = [
+    "backbone_router.h",
+    "backbone_router_ftd.h",
+    "border_agent.h",
+    "border_router.h",
+    "channel_manager.h",
+    "channel_monitor.h",
+    "child_supervision.h",
+    "cli.h",
+    "coap.h",
+    "coap_secure.h",
+    "commissioner.h",
+    "config.h",
+    "crypto.h",
+    "dataset.h",
+    "dataset_ftd.h",
+    "dataset_updater.h",
+    "diag.h",
+    "dns.h",
+    "dns_client.h",
+    "dnssd_server.h",
+    "entropy.h",
+    "error.h",
+    "heap.h",
+    "history_tracker.h",
+    "icmp6.h",
+    "instance.h",
+    "ip6.h",
+    "jam_detection.h",
+    "joiner.h",
+    "link.h",
+    "link_metrics.h",
+    "link_raw.h",
+    "logging.h",
+    "message.h",
+    "multi_radio.h",
+    "ncp.h",
+    "netdata.h",
+    "netdata_publisher.h",
+    "netdiag.h",
+    "network_time.h",
+    "ping_sender.h",
+    "platform/alarm-micro.h",
+    "platform/alarm-milli.h",
+    "platform/crypto.h",
+    "platform/debug_uart.h",
+    "platform/diag.h",
+    "platform/entropy.h",
+    "platform/flash.h",
+    "platform/infra_if.h",
+    "platform/logging.h",
+    "platform/memory.h",
+    "platform/messagepool.h",
+    "platform/misc.h",
+    "platform/otns.h",
+    "platform/radio.h",
+    "platform/settings.h",
+    "platform/spi-slave.h",
+    "platform/time.h",
+    "platform/toolchain.h",
+    "platform/trel-udp6.h",
+    "platform/udp.h",
+    "random_crypto.h",
+    "random_noncrypto.h",
+    "server.h",
+    "sntp.h",
+    "srp_client.h",
+    "srp_client_buffers.h",
+    "srp_server.h",
+    "tasklet.h",
+    "tcp.h",
+    "thread.h",
+    "thread_ftd.h",
+    "udp.h",
+  ]
+
+  public_deps = [ ":openthread_config" ]
+}

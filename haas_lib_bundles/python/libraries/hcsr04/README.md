@@ -34,7 +34,10 @@ HC-SR04超声波传感器使用声纳来确定物体的距离，其工作原理�
 * 尺寸：45mm x 20mm x 15mm<br>
 
 ## 三、软件接口
+
+超声波测距传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/hcsr04)
 <br>
+
 
 ### HCSR04(trigObj,echoObj) - 创建超声波传感器对象
 <br>

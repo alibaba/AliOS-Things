@@ -1,0 +1,90 @@
+############################################################################
+#
+# SoftHSMv2 dual versions
+#
+# Works with CentOS 7
+#
+# The opensc package needs to be installed.
+#
+############################################################################
+#
+# Install a software HSM module for doing the PKCS11 testing of libcoap.
+# Real hardware can be used if you have the appropriate library module.
+#
+# It is assumed that the opensc package is installed.
+#
+# When installing SoftHSMv2 from your system's package manager, check that the
+# OpenSSL version is at least 1.1.0.  If not, then you will need to dual
+# install SoftHSMv2 as below; otherwise you can use the existing SoftHSMv2.
+#
+# SoftHSMv2 is built using OpenSSL, but GnuTLS can use the PKCS11 interface.
+# Note that if the default OpenSSL version is less than 1.1.0, you will need
+# to install a dual stack version of OpenSSL as per HOWTO.dual.openssl.
+#
+# Creates module /usr/local/lib/softhsm/libsofthsm2.so
+#
+
+# Add line below to /etc/security/limits.conf to support memory locking
+
+*               -        memlock         unlimited
+
+# Get the latest SoftHSM
+git clone https://github.com/opendnssec/SoftHSMv2.git
+
+# Build code
+cd SoftHSMv2/
+sh autogen.sh
+PKG_CONFIG_PATH=/opt/openssl/lib/pkgconfig ./configure --enable-silent-rules \
+  --with-crypto-backend=openssl --disable-gost LDFLAGS=-L/opt/openssl/lib \
+  CPPFLAGS=-I/opt/openssl/include --with-openssl=/opt/openssl
+make
+# You may need to comment out constexpr lines (fixes for gcc10) in
+#  src/lib/crypto/PublicKey.h src/lib/crypto/PrivateKey.h if you get
+# compile errors.
+sudo make install
+cd ..
+
+# Make sure p11-kit softhsm modules have the correct module: fully qualified
+# path where the entry is of the form (in particular for GnuTLS) :-
+# /usr/share/p11-kit/modules/softhsm*
+#
+#  module: /usr/local/lib/softhsm/libsofthsm2.so
+
+# The user you are running this as needs to be in the group defined for
+# /var/lib/softhsm/tokens/.  E.g.
+#  $ sudo ls -ld  /var/lib/softhsm/tokens/
+#  drwxrws--- 3 root softhsm 4096 May  3 09:52 /var/lib/softhsm/tokens/
+# which is softhsm in this case (It could be ods). To verify if you are in
+# the correct group
+#  $ id
+# To add user to this group
+#  $ sudo usermod -a -G softhsm <user>
+# and log out and back in again.
+#
+
+############################################################################
+#
+# libp11 (needed for OpenSSL as it provides the PKCS11 engine)
+#
+############################################################################
+#
+# Install a pkcs11 library for OpenSSL to use as an engine.
+# [GnuTLS has this built in]
+#
+
+# Get the latest libp11
+git clone https://github.com/OpenSC/libp11.git
+
+# Build code
+cd libp11
+./bootstrap
+PKG_CONFIG_PATH=/opt/openssl/lib/pkgconfig ./configure \
+  --with-pkcs11-module=/usr/local/lib/softhsm/libsofthsm2.so
+make
+sudo make install
+cd ..
+
+# Verify that pkcs11 is available
+
+/opt/openssl/bin/openssl engine pkcs11 -t
+

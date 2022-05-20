@@ -34,6 +34,9 @@
 
 ## 三、软件接口
 
+紫外线传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/uv)
+<br>
+
 ### UV(adcObj) - 创建UV传感器驱动对象
 * 函数原型：
 > gyroDev = UV(adcObj)

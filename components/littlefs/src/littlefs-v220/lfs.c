@@ -541,7 +541,7 @@ static lfs_stag_t lfs_dir_getslice(lfs_t *lfs, const lfs_mdir_t *dir,
             lfs_tag_id(gmask) != 0 &&
             lfs_tag_id(lfs->gdisk.tag) <= lfs_tag_id(gtag)) {
         // synthetic moves
-        gdiff -= LFS_MKTAG(0, 1, 0);
+        gdiff -= (lfs_stag_t)LFS_MKTAG(0, 1, 0);
     }
 
     // iterate over dir block backwards (for faster lookups)
@@ -567,7 +567,7 @@ static lfs_stag_t lfs_dir_getslice(lfs_t *lfs, const lfs_mdir_t *dir,
             }
 
             // move around splices
-            gdiff += LFS_MKTAG(0, lfs_tag_splice(tag), 0);
+            gdiff += (lfs_stag_t)LFS_MKTAG(0, lfs_tag_splice(tag), 0);
         }
 
         if ((gmask & tag) == (gmask & (gtag - gdiff))) {
@@ -585,7 +585,7 @@ static lfs_stag_t lfs_dir_getslice(lfs_t *lfs, const lfs_mdir_t *dir,
 
             memset((uint8_t*)gbuffer + diff, 0, gsize - diff);
 
-            return tag + gdiff;
+            return (lfs_stag_t)tag + gdiff;
         }
     }
 
@@ -1047,7 +1047,8 @@ static int lfs_dir_getinfo(lfs_t *lfs, lfs_mdir_t *dir,
         uint16_t id, struct lfs_info *info) {
     if (id == 0x3ff) {
         // special case for root
-        strcpy(info->name, "/");
+        strncpy(info->name, "/", sizeof(info->name) - 1);
+        info->name[sizeof(info->name) - 1] = '\0';
         info->type = LFS_TYPE_DIR;
         return 0;
     }
@@ -2104,13 +2105,15 @@ int lfs_dir_read(lfs_t *lfs, lfs_dir_t *dir, struct lfs_info *info) {
     // special offset for '.' and '..'
     if (dir->pos == 0) {
         info->type = LFS_TYPE_DIR;
-        strcpy(info->name, ".");
+        strncpy(info->name, ".", sizeof(info->name) - 1);
+        info->name[sizeof(info->name) - 1] = '\0';
         dir->pos += 1;
         LFS_TRACE("lfs_dir_read -> %d", true);
         return true;
     } else if (dir->pos == 1) {
         info->type = LFS_TYPE_DIR;
-        strcpy(info->name, "..");
+        strncpy(info->name, "..", sizeof(info->name) - 1);
+        info->name[sizeof(info->name) - 1] = '\0';
         dir->pos += 1;
         LFS_TRACE("lfs_dir_read -> %d", true);
         return true;

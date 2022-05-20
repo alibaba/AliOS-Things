@@ -203,10 +203,13 @@ static void sound_wav_init(void)
     pthread_attr_init(&attr);
     pthread_attr_setstacksize(&attr, AUDIO_PLAYER_HIGH_STACKSIZE);
     sched.sched_priority = AUDIO_PLAYER_DEFAULT_PRIORITY;
+    sched.slice = 0;
     pthread_attr_setschedparam(&attr, &sched);
 
     pthread_create(&g_play_thread, &attr, sound_wav_thread, NULL);
-    pthread_setname_np(g_play_thread, "wav_player_thread");
+    if (g_play_thread) {
+        pthread_setname_np(g_play_thread, "wav_player_thread");
+    }
 
     pthread_attr_destroy(&attr);
     bCreateAudioThreadFlag = true;

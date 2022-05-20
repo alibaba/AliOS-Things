@@ -134,7 +134,7 @@ def_config:                              # 组件的可配置项
     AMP_HW_ADDON_RTC: 0
     AMP_HW_ADDON_UART: 1
     AMP_HW_ADDON_LCD: 0
-    AMP_HW_ADDON_WDG: 0
+    AMP_HW_ADDON_WDG: 1
     AMP_NET_ADDON_UDP: 0
     AMP_NET_ADDON_TCP: 1
     AMP_NET_ADDON_MQTT: 1
@@ -155,6 +155,13 @@ def_config:                              # 组件的可配置项
     AMP_ADVANCED_ADDON_BLECFGNET: 1
     AMP_ADVANCED_ADDON_OSS: 1
     CONFIG_A7_DSP_ENABLE: 1
+    SYSINFO_PARTNER: AliOS Things Team
+    SYSINFO_APP_NET: MQTT/ HTTPS
+    SYSINFO_PROJECT: HaaS Inside
+    SYSINFO_FRAMEWORK: HaaS JS
+    SYSINFO_NETWORK: WIFI/ BT
+    SYSINFO_DEVICE_TYPE: solo
+    SYSINFO_CLOUD_TYPE: aliyun
 #   CONFIG_DEBUG: y
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y

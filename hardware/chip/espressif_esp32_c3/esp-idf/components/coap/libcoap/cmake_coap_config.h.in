@@ -1,0 +1,166 @@
+/*
+ * cmake_coap_config.h -- cmake configuration for libcoap
+ *
+ * Copyright (C) 2020 Carlos Gomes Martinho <carlos.gomes_martinho@siemens.com>
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ *
+ * This file is part of the CoAP library libcoap. Please see README for terms
+ * of use.
+ */
+
+#ifndef COAP_CONFIG_H_
+#define COAP_CONFIG_H_
+
+/* Define to 1 if you have <ws2tcpip.h> header file. */
+#cmakedefine HAVE_WS2TCPIP_H "@HAVE_WS2TCPIP_H@"
+
+/* Define if the system has small stack size */
+#cmakedefine COAP_CONSTRAINED_STACK "@COAP_CONSTRAINED_STACK@"
+
+/* Define to 1 if you have <winsock2.h> header file. */
+#cmakedefine HAVE_WINSOCK2_H "@HAVE_WINSOCK2_H@"
+
+/* Define if the system has epoll support */
+#cmakedefine COAP_EPOLL_SUPPORT "@COAP_EPOLL_SUPPORT@"
+
+/* Define to 1 if you have the <arpa/inet.h> header file. */
+#cmakedefine HAVE_ARPA_INET_H "@HAVE_ARPA_INET_H@"
+
+/* Define to 1 if you have the <assert.h> header file. */
+#cmakedefine HAVE_ASSERT_H "@HAVE_ASSERT_H@"
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#cmakedefine HAVE_DLFCN_H "@HAVE_DLFCN_H@"
+
+/* Define to 1 if you have the `getaddrinfo' function. */
+#cmakedefine HAVE_GETADDRINFO "@HAVE_GETADDRINFO@"
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#cmakedefine HAVE_INTTYPES_H "@HAVE_INTTYPES_H@"
+
+/* Define if the system has openssl */
+#cmakedefine HAVE_OPENSSL "@HAVE_OPENSSL@"
+
+/* Define if the system has libgnutls28 */
+#cmakedefine HAVE_LIBGNUTLS "@HAVE_LIBGNUTLS@"
+
+/* Define if the system has libtinydtls */
+#cmakedefine HAVE_LIBTINYDTLS "@HAVE_LIBTINYDTLS@"
+
+/* Define if the system has libmbedtls */
+#cmakedefine HAVE_MBEDTLS "@HAVE_MBEDTLS@"
+
+/* Define to 1 to build without TCP support. */
+#cmakedefine01 COAP_DISABLE_TCP
+
+/* Define to 1 if you have the <limits.h> header file. */
+#cmakedefine HAVE_LIMITS_H "@HAVE_LIMITS_H@"
+
+/* Define to 1 if you have the `malloc' function. */
+#cmakedefine HAVE_MALLOC "@HAVE_MALLOC@"
+
+/* Define to 1 if you have the <memory.h> header file. */
+#cmakedefine HAVE_MEMORY_H "@HAVE_MEMORY_H@"
+
+/* Define to 1 if you have the `memset' function. */
+#cmakedefine HAVE_MEMSET "@HAVE_MEMSET@"
+
+/* Define to 1 if you have the `if_nametoindex' function. */
+#cmakedefine HAVE_IF_NAMETOINDEX "@HAVE_IF_NAMETOINDEX@"
+
+/* Define to 1 if you have the <netdb.h> header file. */
+#cmakedefine HAVE_NETDB_H "@HAVE_NETDB_H@"
+
+/* Define to 1 if you have the <net/if.h> header file. */
+#cmakedefine HAVE_NET_IF_H "@HAVE_NET_IF_H@"
+
+/* Define to 1 if you have the <netinet/in.h> header file. */
+#cmakedefine HAVE_NETINET_IN_H "@HAVE_NETINET_IN_H@"
+
+/* Define to 1 if you have the <pthread.h> header file. */
+#cmakedefine HAVE_PTHREAD_H "@HAVE_PTHREAD_H@"
+
+/* Define to 1 if you have the `pthread_mutex_lock' function. */
+#cmakedefine HAVE_PTHREAD_MUTEX_LOCK "@HAVE_PTHREAD_MUTEX_LOCK@"
+
+/* Define to 1 if you have the `select' function. */
+#cmakedefine HAVE_SELECT "@HAVE_SELECT@"
+
+/* Define to 1 if you have the `socket' function. */
+#cmakedefine HAVE_SOCKET "@HAVE_SOCKET@"
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#cmakedefine HAVE_STDINT_H "@HAVE_STDINT_H@"
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#cmakedefine HAVE_STDLIB_H "@HAVE_STDLIB_H@"
+
+/* Define to 1 if you have the `strcasecmp' function. */
+#cmakedefine HAVE_STRCASECMP "@HAVE_STRCASECMP@"
+
+/* Define to 1 if you have the <strings.h> header file. */
+#cmakedefine HAVE_STRINGS_H "@HAVE_STRINGS_H@"
+
+/* Define to 1 if you have the <string.h> header file. */
+#cmakedefine HAVE_STRING_H "@HAVE_STRING_H@"
+
+/* Define to 1 if you have the `strnlen' function. */
+#cmakedefine HAVE_STRNLEN "@HAVE_STRNLEN@"
+
+/* Define to 1 if you have the `strrchr' function. */
+#cmakedefine HAVE_STRRCHR "@HAVE_STRRCHR@"
+
+/* Define to 1 if the system has the type `struct cmsghdr'. */
+#cmakedefine HAVE_STRUCT_CMSGHDR "@HAVE_STRUCT_CMSGHDR@"
+
+/* Define to 1 if you have the <syslog.h> header file. */
+#cmakedefine HAVE_SYSLOG_H "@HAVE_SYSLOG_H@"
+
+/* Define to 1 if you have the <sys/ioctl.h> header file. */
+#cmakedefine HAVE_SYS_IOCTL_H "@HAVE_SYS_IOCTL_H@"
+
+/* Define to 1 if you have the <sys/socket.h> header file. */
+#cmakedefine HAVE_SYS_SOCKET_H "@HAVE_SYS_SOCKET_H@"
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#cmakedefine HAVE_SYS_STAT_H "@HAVE_SYS_STAT_H@"
+
+/* Define to 1 if you have the <sys/time.h> header file. */
+#cmakedefine HAVE_SYS_TIME_H "@HAVE_SYS_TIME_H@"
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#cmakedefine HAVE_SYS_TYPES_H "@HAVE_SYS_TYPES_H@"
+
+/* Define to 1 if you have the <sys/unistd.h> header file. */
+#cmakedefine HAVE_SYS_UNISTD_H "@HAVE_SYS_UNISTD_H@"
+
+/* Define to 1 if you have the <time.h> header file. */
+#cmakedefine HAVE_TIME_H "@HAVE_TIME_H@"
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#cmakedefine HAVE_UNISTD_H "@HAVE_UNISTD_H@"
+
+/* Define to the address where bug reports for this package should be sent. */
+#cmakedefine PACKAGE_BUGREPORT "@PACKAGE_BUGREPORT@"
+
+/* Define to the full name of this package. */
+#cmakedefine PACKAGE_NAME "@PACKAGE_NAME@"
+
+/* Define to the full name and version of this package. */
+#cmakedefine PACKAGE_STRING "@PACKAGE_STRING@"
+
+/* Define to the one symbol short name of this package. */
+#cmakedefine PACKAGE_TARNAME "@PACKAGE_TARNAME@"
+
+/* Define to the home page for this package. */
+#cmakedefine PACKAGE_URL "@PACKAGE_URL@"
+
+/* Define to the version of this package. */
+#cmakedefine PACKAGE_VERSION "@PACKAGE_VERSION@"
+
+#if defined(_MSC_VER) && (_MSC_VER < 1900) && !defined(snprintf)
+#define snprintf _snprintf
+#endif
+
+#endif /* COAP_CONFIG_H_ */

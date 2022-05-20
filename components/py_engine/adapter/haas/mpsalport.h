@@ -7,12 +7,13 @@
 #include "py/obj.h"
 #include "ulog/ulog.h"
 
-#define MP_SAL_THREAD_MIN_STACK_SIZE     (1024 + 256)
+#define MP_SAL_THREAD_MIN_STACK_SIZE     (1024 * 4)
 #define MP_SAL_THREAD_DEFAULT_STACK_SIZE (MP_THREAD_MIN_STACK_SIZE + 1024)
-#define MP_SAL_THREAD_PRIORITY           (AOS_DEFAULT_APP_PRI)
+#define MP_SAL_THREAD_PRIORITY           (AOS_DEFAULT_APP_PRI - 1)
 
 #define mp_sal_mutex_obj_t               aos_mutex_t
 #define mp_sal_sem_obj_t                 aos_sem_t
+#define mp_task_t                        aos_task_t
 
 mp_uint_t mp_sal_get_stack_size();
 void *mp_sal_get_stack_addr();

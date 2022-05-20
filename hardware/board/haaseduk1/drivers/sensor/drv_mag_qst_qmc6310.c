@@ -62,9 +62,8 @@ int qmc6310_write_reg(uint8_t addr, uint8_t data)
     return qst_sw_writereg(mag_addr, addr, data);
 #else
     uint8_t write_buffer[2] = {addr, data};
-    qmc6310_i2c_master_send(write_buffer, 2, 1000);
+    return qmc6310_i2c_master_send(write_buffer, 2, 1000);
 #endif
-
 }
 
 static void qmc6310_set_layout(int layout)
@@ -180,6 +179,8 @@ uint8_t qmc6310_read_mag_xyz(float *data)
     while (!(rdy & 0x01) && (t1 < 5)) {
         rdy = QMC6310_STATUS_REG;
         res = qmc6310_read_block(QMC6310_STATUS_REG, &rdy, 1);
+        if (res == 0)
+            return 0;
         t1++;
     }
 
@@ -230,6 +231,8 @@ int qmc6310_readHeading()
     while (!(rdy & 0x01) && (t1 < 5)) {
         rdy = QMC6310_STATUS_REG;
         res = qmc6310_read_block(QMC6310_STATUS_REG, &rdy, 1);
+        if (res == 0)
+            return 0;
         t1++;
     }
 
@@ -337,7 +340,7 @@ int qmc6310_init(void)
     int32_t ret = sensor_i2c_open(1, mag_addr, I2C_BUS_BIT_RATES_100K, 0);
     if (ret) {
         LOGE("SENSOR", "sensor i2c open failed, ret:%d\n", ret);
-        return;
+        return 0;
     }
 
     ret = qmc6310_get_chipid();

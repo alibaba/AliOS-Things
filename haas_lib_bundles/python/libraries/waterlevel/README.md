@@ -28,6 +28,9 @@
 
 ## 三、软件接口
 
+水位监测传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/waterlevel)
+<br>
+
 ### WATER4LEVEL(adcObj) - 创建水位监测传感器驱动对象
 <br>
 

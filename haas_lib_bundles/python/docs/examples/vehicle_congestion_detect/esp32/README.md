@@ -1,6 +1,6 @@
 # 车辆拥堵检测
 &emsp;&emsp;
-本案例导学步骤
+本案例导学步骤如下图所示。
 <div align="center">
 <img src=./../../../images/vehicle_congestion_detect/车辆拥堵检测_案例步骤.png width=80%/>
 </div>
@@ -33,6 +33,7 @@
 <br>
 
 ## 阿里云IoT物联网平台创建产品、设备
+&emsp;&emsp;
 在本案例中涉及到云端平台功能都聚合在HaaS云端积木中，所以无需单独使用**对象存储OSS**和**视觉智能开发平台**。
 
 ## 注册阿里云账号
@@ -112,7 +113,7 @@
 
 ### 开发环境准备
 &emsp;&emsp;
-在进行下一步之前请确保M5StackCore2中已经烧录了HaaS Python固件并且其开发环境已经搭建完毕。详情请参考[M5stackCore2开发环境](../../../startup/M5StackCore2_startup.md)的说明。
+在进行下一步之前请确保M5StackCore2开发环境已经搭建完毕。详情请参考[M5StackCore2快速开始](../../../startup/M5StackCore2_startup.md)的说明。
 <br>
 
 ### 创建解决方案
@@ -133,7 +134,7 @@
 1. **修改路由器名称及密码**
 
 &emsp;&emsp;
-修改fruits_recognization工程里main.py中SSID和PWD的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
+修改工程里main.py中SSID和PWD的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
 
 ```python
 # Wi-Fi SSID和Password设置
@@ -155,7 +156,7 @@ deviceName  = "Your-devicename"
 deviceSecret  = "Your-deviceSecret"
 ```
 &emsp;&emsp;
-最后点击Iot Studio工程底部的部署运行或串口，选择对应的端口编号烧录程序
+最后点击工程底部的部署运行或串口，选择对应的端口编号烧录程序
 <div align="center">
 <img src=./../../../images/vehicle_congestion_detect/车辆拥堵检测_部署运行代码.png width=70%/>
 </div>
@@ -208,7 +209,7 @@ deviceSecret  = "Your-deviceSecret"
 在网络连接成功后，屏幕上将打印出IP地址和"NTP Done"，如果迟迟不能显示“NTP Done”，请长按电源键关机同时拔掉USB线重新上电运行。
 
 &emsp;&emsp;
-推送此脚本到M5Stack之后，串口会周期性的打印如下日志，并且识别到水果后在屏幕上显示红色Vehicle Num: xx的字样。“xx”代表当前图片中车辆的数量。具体识别结果参考下图：
+推送此脚本到M5Stack之后，串口会周期性的打印如下日志，并且识别到车辆后在屏幕上显示红色Vehicle Num: xx的字样。“xx”代表当前图片中车辆的数量。具体识别结果参考下图：
 <div align="center">
 <img src=./../../../images/vehicle_congestion_detect/车辆拥堵检测_设备识别结果.png width=50%/>
 </div>

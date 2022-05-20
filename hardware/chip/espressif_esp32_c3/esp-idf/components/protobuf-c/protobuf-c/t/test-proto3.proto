@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package foo;
+
+message Person {
+  string name = 1;
+  int32 id = 2;
+  string email = 3;
+
+  enum PhoneType {
+    MOBILE = 0;
+    HOME = 1;
+    WORK = 2;
+  }
+
+  message PhoneNumber {
+    message Comment {
+      string comment = 1;
+    }
+
+    string number = 1;
+    PhoneType type = 2;
+    Comment comment = 3;
+  }
+
+  repeated PhoneNumber phone = 4;
+}
+
+message LookupResult
+{
+  Person person = 1;
+}
+
+message Name {
+  string name = 1;
+};
+
+service DirLookup {
+  rpc ByName (Name) returns (LookupResult);
+}

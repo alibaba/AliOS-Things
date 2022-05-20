@@ -67,7 +67,7 @@ class UV(object):
         i = 0
         for i in range(30):
             value = self.adcObj.readVoltage()
-            total = value
+            total += value
             # print(value)
         V = total / 30
         UVLevel=(V - 132.7)/94.3

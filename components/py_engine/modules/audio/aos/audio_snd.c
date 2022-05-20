@@ -9,9 +9,10 @@
 #include "py/runtime.h"
 #include "ulog/ulog.h"
 
-#define LOG_TAG "uvoice_snd"
-
+extern int audio_install_codec_driver();
 static bool is_uvoice_inited = false;
+
+#define LOG_TAG "uvoice_snd"
 
 bool get_uvoice_state()
 {
@@ -34,7 +35,11 @@ STATIC mp_obj_t uvoice_snd_new(const mp_obj_type_t *type, size_t n_args, size_t 
 
 STATIC mp_obj_t a2sa_uvoice_snd_init(void)
 {
-    extern int audio_install_codec_driver();
+    if (is_uvoice_inited == true) {
+        LOGI(LOG_TAG, "snd card already inited");
+        return MP_OBJ_NEW_SMALL_INT(0);
+    }
+
     mp_int_t ret = audio_install_codec_driver();
     if (ret != 0) {
         LOGE(LOG_TAG, "Failed to install codec driver, ret=%d", ret);
@@ -89,4 +94,4 @@ const mp_obj_type_t uvoice_snd_type = {
     .locals_dict = (mp_obj_dict_t *)&uvoice_module_snd_globals,
 };
 
-#endif // MICROPY_PY_AUDIO
+#endif  // MICROPY_PY_AUDIO

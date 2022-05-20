@@ -35,6 +35,15 @@ void       soc_hw_timer_init(void);
 hr_timer_t soc_hr_hw_cnt_get(void);
 
 /**
+ * Get the high resolution hardware clock's frequency
+ *
+ * @param[in] NULL
+ *
+ * @return
+ */
+uint64_t soc_hr_hw_freq_get(void);
+
+/**
  * Get the low resolution hardware timer.
  *
  * @param[in]   NULL
@@ -43,9 +52,11 @@ hr_timer_t soc_hr_hw_cnt_get(void);
  */
 lr_timer_t soc_lr_hw_cnt_get(void);
 #define HR_COUNT_GET() soc_hr_hw_cnt_get()
+#define HR_FREQ_GET() soc_hr_hw_freq_get()
 #define LR_COUNT_GET() soc_lr_hw_cnt_get()
 #else
 #define HR_COUNT_GET() ((hr_timer_t)0u)
+#define HR_FREQ_GET() ((hr_timer_t)0u)
 #define LR_COUNT_GET() ((lr_timer_t)0u)
 #endif /* RHINO_CONFIG_HW_COUNT */
 

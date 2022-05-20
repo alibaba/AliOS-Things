@@ -24,6 +24,9 @@ LED-8 * 32点阵屏显示板由 4 块单色 8x8 共阴红色点阵单元组成�
 
 ## 三、软件接口
 
+GC7219点阵屏HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/gc7219)
+<br>
+
 ### GC7219(DIN, CS) - 创建 GC7219 驱动对象
 * 函数原型：
 > drv = GC7219(DIN ,CS)

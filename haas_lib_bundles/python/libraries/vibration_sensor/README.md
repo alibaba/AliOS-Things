@@ -27,6 +27,9 @@
 
 ## 三、软件接口
 
+震动传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/vibration_sensor)
+<br>
+
 ### VibrationSensor - 创建震动传感器对象
 
 * 函数原型

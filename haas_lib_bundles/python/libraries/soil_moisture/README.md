@@ -24,6 +24,9 @@
 
 ## 三、软件接口
 
+土壤湿度传感器HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/soil_moisture)
+<br>
+
 ### SoilMoisture(DO) - 创建 SoilMoisture 驱动对象
 * 函数原型：
 > drv = SoilMoisture(DO)

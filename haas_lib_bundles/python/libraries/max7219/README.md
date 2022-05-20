@@ -25,6 +25,9 @@ MAX7219是MAXIM出品的专门驱动7-段数码管、点阵屏的一款芯片，
 
 ## 三、软件接口
 
+MAX7219数码管点阵屏HaaS Python驱动：[下载地址](https://github.com/alibaba/AliOS-Things/tree/master/haas_lib_bundles/python/libraries/max7219)
+<br>
+
 ### MAX7219(clk, cs, din) - 创建MAX7219驱动对象
 * 函数原型:
 > displayDev = MAX7219(clk, cs, din)

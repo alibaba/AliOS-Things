@@ -13,7 +13,7 @@ print(comp_path)
 org_image_path = comp_path + "/example/image"
 
 # new folder
-data_path = comp_path + "/../../hardware/chip/haas1000/prebuild/data"
+data_path = comp_path + "/../../hardware/chip/haas1000/prebuild/data/data"
 image_path = data_path + "/ucloud_ai_image"
 
 # delete prebuild/data resources

@@ -89,7 +89,7 @@ void sd_file_read(unsigned char * buf,int read_size)
 
 extern Url g_ags_url;
 std::string g_url;
-char *oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *bucketName, char * localfilepath)
+char *oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *bucketName, char *localfilepath)
 {
     /* 初始化OSS账号信息 */
     std::string AccessKeyId;
@@ -194,6 +194,7 @@ char *oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *
 
     /* 上传文件 */
     auto fileSize = getFileSize(localfilepath);
+
 #if OSS_DEBUG
     std::cout << "objectfile_path:" << ObjectName <<std::endl;
     std::cout << "localfile_path:" << localfilepath <<std::endl;
@@ -225,7 +226,7 @@ char *oss_upload_local_file(char *keyId, char *keySecret, char *endPoint, char *
 #endif
 }
 
-char *oss_upload_file(char *keyId, char *keySecret, char *endPoint, char *bucketName, char *objectName, char * localfilepath)
+char *oss_upload_file(char *keyId, char *keySecret, char *endPoint, char *bucketName, char *localfilepath, char *objectName)
 {
     /* 初始化OSS账号信息 */
     std::string AccessKeyId;
