@@ -68,19 +68,19 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
     mp_uart_obj_t *driver_obj = (mp_uart_obj_t *)self;
     if (driver_obj == NULL) {
         LOGE(LOG_TAG, "driver_obj is NULL\n");
-        return mp_const_none;
+        return MP_OBJ_NEW_SMALL_INT(-MP_EINVAL);
     }
 
     const char *id = mp_obj_str_get_str(args[1]);
     if (id == NULL) {
         LOGE(LOG_TAG, "%s:illegal par id =%s;\n", __func__, id);
-        return mp_const_none;
+        return MP_OBJ_NEW_SMALL_INT(-MP_EINVAL);
     }
 
     ret = py_board_mgr_init();
     if (ret != 0) {
         LOGE(LOG_TAG, "%s:py_board_mgr_init failed\n", __func__);
-        return mp_const_none;
+        return MP_OBJ_NEW_SMALL_INT(-MP_ENOENT);
     }
 
     ret = py_board_attach_item(MODULE_UART, id, &(driver_obj->uart_handle));
@@ -91,6 +91,7 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
 
     uart_dev_t *uart_device = py_board_get_node_by_handle(MODULE_UART, &(driver_obj->uart_handle));
     if (NULL == uart_device) {
+        ret = -MP_ENOENT;
         LOGE(LOG_TAG, "%s: py_board_get_node_by_handle failed;\n", __func__);
         goto out;
     }
