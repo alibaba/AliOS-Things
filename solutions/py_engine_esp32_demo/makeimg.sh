@@ -47,7 +47,7 @@ fi
 
 # 2、export idf env for image making
 basedir=$(cd $(dirname ${BASH_SOURCE[0]}); pwd )
-source $basedir/../../hardware/chip/espressif_esp32/esp-idf/export.sh
+source $basedir/../../hardware/chip/espressif_idf/esp-idf/export.sh
 
 # 3、make image
 if [ $TARGET_PLATFORM = "ESP32" ]; then

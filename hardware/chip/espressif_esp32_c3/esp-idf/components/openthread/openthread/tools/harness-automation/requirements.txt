@@ -1,3 +1,0 @@
-pyserial
-selenium
-pysnmp

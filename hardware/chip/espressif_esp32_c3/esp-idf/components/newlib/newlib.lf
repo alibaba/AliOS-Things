@@ -1,7 +1,0 @@
-[mapping:newlib]
-archive: libnewlib.a
-entries:
-  heap (noflash)
-  abort (noflash)
-  assert (noflash)
-  stdatomic (noflash)
