@@ -366,7 +366,7 @@ static int ramfs_entry_dir_new(const char *path)
 static ramfs_entry_t *ramfs_entry_new(const char *fn)
 {
     ramfs_entry_t *new_entry = NULL;
-
+    size_t fn_len;
     int ret = -1;
 
     /* create dir involved in path, if path is "/ramfs/f1/f2/file1", then
@@ -381,8 +381,10 @@ static ramfs_entry_t *ramfs_entry_new(const char *fn)
         return NULL;
     }
 
-    new_entry->fn = ramfs_mm_alloc(strlen(fn) + 1);
-    strcpy(new_entry->fn, fn);
+    fn_len = strlen(fn);
+    new_entry->fn = ramfs_mm_alloc(fn_len + 1);
+    strncpy(new_entry->fn, fn, fn_len);
+    new_entry->fn[fn_len] = '\0';
 
     new_entry->data       = NULL;
     new_entry->size       = 0;
