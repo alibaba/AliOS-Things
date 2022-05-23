@@ -1,0 +1,20 @@
+{
+  "name": "haasedu",
+  "version": "1.0.0",
+  "io": {
+    "relay":{
+      "type": "GPIO",
+      "port": 2,
+      "dir": "output",
+      "pull": "pulldown"
+    },
+    "humidify": {
+      "type": "GPIO",
+      "port": 0,
+      "dir": "input",
+      "pull": "pullup"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
