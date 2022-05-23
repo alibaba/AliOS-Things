@@ -1,1 +1,0 @@
-.. include:: ../../../en/api-reference/system/ipc.rst

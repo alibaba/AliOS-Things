@@ -135,8 +135,13 @@ int32_t aos_hal_adc_init(adc_dev_t *adc)
         if (adc->config.adc_width >= 0 && adc->config.adc_width <= 3) {
             adc1_config_width(adc->config.adc_width);
         } else {
+        #if CONFIG_IDF_TARGET_ESP32S2
+            adc->config.adc_width = ADC_WIDTH_BIT_13;
+            adc1_config_width(ADC_WIDTH_BIT_13);
+        #else
             adc->config.adc_width = ADC_WIDTH_BIT_12;
             adc1_config_width(ADC_WIDTH_BIT_12);
+        #endif
         }
         adc_bit_width = adc->config.adc_width;
         initialized = 1;

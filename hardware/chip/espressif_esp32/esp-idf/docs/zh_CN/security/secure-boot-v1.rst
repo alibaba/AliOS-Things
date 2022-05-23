@@ -1,1 +1,0 @@
-.. include:: ../../en/security/secure-boot-v1.rst

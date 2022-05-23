@@ -1,2 +1,0 @@
-examples/get-started/hello_world
-examples/bluetooth/blufi

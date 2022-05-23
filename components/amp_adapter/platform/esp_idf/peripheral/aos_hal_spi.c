@@ -1,9 +1,24 @@
-#include <stdlib.h>
-#include <errno.h>
+#include <aos_hal_spi_internal.h>
 #include <driver/spi_common.h>
 #include <driver/spi_master.h>
-#include <aos_hal_spi_internal.h>
+#include <errno.h>
+#include <stdlib.h>
+
 #include "esp_log.h"
+
+#define TAG          "SPI"
+
+#if defined CONFIG_IDF_TARGET_ESP32C3
+#define PIN_NUM_MISO 2
+#define PIN_NUM_MOSI 7
+#define PIN_NUM_CLK  6
+#define PIN_NUM_CS   10
+#elif CONFIG_IDF_TARGET_ESP32S3
+#define PIN_NUM_MISO 13
+#define PIN_NUM_MOSI 11
+#define PIN_NUM_CLK  12
+#define PIN_NUM_CS   10
+#endif
 
 typedef struct {
     spi_device_handle_t dev_handle;
@@ -37,6 +52,16 @@ int32_t aos_hal_spi_init(aos_hal_spi_dev_t *spi)
         return -EINVAL;
 
     switch (spi->port) {
+    case 2:
+#if defined CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32S3
+        host_id = SPI2_HOST;
+        bus_config.mosi_io_num = PIN_NUM_MOSI;
+        bus_config.sclk_io_num = PIN_NUM_CLK;
+        bus_config.miso_io_num = PIN_NUM_MISO;
+        dev_config.spics_io_num = PIN_NUM_CS;
+#endif
+        break;
+
     case 3:
         host_id = SPI3_HOST;
         bus_config.mosi_io_num = 23;
@@ -143,6 +168,11 @@ int32_t aos_hal_spi_finalize(aos_hal_spi_dev_t *spi)
         return -EINVAL;
 
     switch (spi->port) {
+    case 2:
+#if defined CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32S3
+        host_id = SPI2_HOST;
+#endif
+        break;
     case 3:
         host_id = SPI3_HOST;
         break;
@@ -160,16 +190,7 @@ int32_t aos_hal_spi_finalize(aos_hal_spi_dev_t *spi)
 
 int32_t aos_hal_spi_send(aos_hal_spi_dev_t *spi, const uint8_t *data, uint32_t size, uint32_t timeout)
 {
-    spi_transaction_t trans_desc = {
-        .flags = 0,
-        .cmd = 0,
-        .addr = 0,
-        .rxlength = 0,
-        .user = NULL,
-        .tx_data = { 0, 0, 0, 0, },
-        .rx_buffer = NULL,
-        .rx_data = { 0, 0, 0, 0, },
-    };
+    spi_transaction_t trans_desc = { 0 };
 
     if (!spi || !spi->priv || !data || size == 0)
         return -EINVAL;
@@ -185,16 +206,7 @@ int32_t aos_hal_spi_send(aos_hal_spi_dev_t *spi, const uint8_t *data, uint32_t s
 
 int32_t aos_hal_spi_recv(aos_hal_spi_dev_t *spi, uint8_t *data, uint32_t size, uint32_t timeout)
 {
-    spi_transaction_t trans_desc = {
-        .flags = 0,
-        .cmd = 0,
-        .addr = 0,
-        .length = 0,
-        .user = NULL,
-        .tx_buffer = NULL,
-        .tx_data = { 0, 0, 0, 0, },
-        .rx_data = { 0, 0, 0, 0, },
-    };
+    spi_transaction_t trans_desc = { 0 };
 
     if (!spi || !spi->priv || !data || size == 0)
         return -EINVAL;
@@ -211,26 +223,21 @@ int32_t aos_hal_spi_recv(aos_hal_spi_dev_t *spi, uint8_t *data, uint32_t size, u
 int32_t aos_hal_spi_sends_recvs(aos_hal_spi_dev_t *spi, uint8_t *tx_data, uint32_t tx_size, uint8_t *rx_data,
                                 uint32_t rx_size, uint32_t timeout)
 {
-    spi_transaction_t trans_desc = {
-        .flags = 0,
-        .cmd = 0,
-        .addr = 0,
-        .user = NULL,
-        .tx_data = { 0, 0, 0, 0, },
-        .rx_data = { 0, 0, 0, 0, },
-    };
-
     if (!spi || !spi->priv || !tx_data || rx_size == 0 || !rx_data || rx_size == 0) {
         return -EINVAL;
     }
+
+    spi_transaction_t trans_desc = { 0 };
 
     trans_desc.length = tx_size * 8;
     trans_desc.tx_buffer = tx_data;
     trans_desc.rxlength = rx_size * 8;
     trans_desc.rx_buffer = rx_data;
 
-    if (spi_device_transmit(((spi_pdata_t *)spi->priv)->dev_handle, &trans_desc) != ESP_OK)
-        return -EIO;
+    esp_err_t ret = spi_device_transmit(((spi_pdata_t *)spi->priv)->dev_handle, &trans_desc);
+    if (ret != ESP_OK) {
+        return -ret;
+    }
 
     return 0;
 }
