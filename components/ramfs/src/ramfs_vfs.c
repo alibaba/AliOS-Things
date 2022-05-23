@@ -330,13 +330,9 @@ static vfs_dirent_t *ramfs_vfs_readdir(vfs_file_t *fp, vfs_dir_t *dir)
     int32_t          res = -1;
 
     dp = fp->f_arg;
-
-    if (dp->vfs_dirent.d_name != NULL) {
-        res = ramfs_readdir(&(dp->ramfs_dir), dp->vfs_dirent.d_name);
-
-        if (res == 0) {
-            ret = &dp->vfs_dirent;
-        }
+    res = ramfs_readdir(&(dp->ramfs_dir), dp->vfs_dirent.d_name);
+    if (res == 0) {
+        ret = &dp->vfs_dirent;
     }
 
     return ret;
