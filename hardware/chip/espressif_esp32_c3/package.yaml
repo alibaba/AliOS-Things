@@ -1,7 +1,7 @@
 ## 第一部分： 基础信息
 name: espressif_esp32_c3                            # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
 version: master                                    # <必选项> 组件版本号
-description: driver & sdk for mcu esp32             # <必选项> 建议至少20字以上
+description: driver & sdk for mcu esp32-c3             # <必选项> 建议至少20字以上
 type: chip                                          # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
 tag: 核心模块                                        # <可选项> 组件分类，缺省值： ''
@@ -73,93 +73,93 @@ build_config:
         -lstdc++ -lgcc -lgcov -lc -lm -z muldefs
 
   include:
-    - esp-idf/components/newlib/platform_include
-    - esp-idf/components/freertos/include
-    - esp-idf/components/freertos/include/esp_additions/freertos
-    - esp-idf/components/freertos/port/riscv/include
-    - esp-idf/components/freertos/include/esp_additions
-    - esp-idf/components/esp_hw_support/include
-    - esp-idf/components/esp_hw_support/include/soc
-    - esp-idf/components/esp_hw_support/include/soc/esp32c3
-    - esp-idf/components/esp_hw_support/port/esp32c3
-    - esp-idf/components/esp_hw_support/port/esp32c3/private_include
-    - esp-idf/components/heap/include
-    - esp-idf/components/log/include
-    - esp-idf/components/lwip/include/apps
-    - esp-idf/components/lwip/include/apps/sntp
-    - esp-idf/components/lwip/lwip/src/include
-    - esp-idf/components/lwip/port/esp32/include
-    - esp-idf/components/lwip/port/esp32/include/arch
-    - esp-idf/components/soc/include
-    - esp-idf/components/soc/esp32c3
-    - esp-idf/components/soc/esp32c3/include
-    - esp-idf/components/hal/esp32c3/include
-    - esp-idf/components/hal/include
-    - esp-idf/components/hal/platform_port/include
-    - esp-idf/components/esp_rom/include
-    - esp-idf/components/esp_rom/include/esp32c3
-    - esp-idf/components/esp_rom/esp32c3
-    - esp-idf/components/esp_common/include
-    - esp-idf/components/esp_system/include
-    - esp-idf/components/esp_system/port/soc
-    - esp-idf/components/esp_system/port/include/riscv
-    - esp-idf/components/esp_system/port/public_compat
-    - esp-idf/components/riscv/include
-    - esp-idf/components/driver/include
-    - esp-idf/components/driver/esp32c3/include
-    - esp-idf/components/esp_pm/include
-    - esp-idf/components/esp_ringbuf/include
-    - esp-idf/components/efuse/include
-    - esp-idf/components/efuse/esp32c3/include
-    - esp-idf/components/vfs/include
-    - esp-idf/components/esp_wifi/include
-    - esp-idf/components/esp_event/include
-    - esp-idf/components/esp_netif/include
-    - esp-idf/components/esp_eth/include
-    - esp-idf/components/tcpip_adapter/include
-    - esp-idf/components/esp_phy/include
-    - esp-idf/components/esp_phy/esp32c3/include
-    - esp-idf/components/esp_ipc/include
-    - esp-idf/components/app_trace/include
-    - esp-idf/components/esp_timer/include
-    - esp-idf/components/app_update/include
-    - esp-idf/components/spi_flash/include
-    - esp-idf/components/bootloader_support/include
-    - esp-idf/components/bt/common/osi/include
-    - esp-idf/components/bt/include/esp32c3/include
-    - esp-idf/components/bt/common/api/include/api
-    - esp-idf/components/bt/common/btc/profile/esp/blufi/include
-    - esp-idf/components/bt/common/btc/profile/esp/include
-    - esp-idf/components/bt/host/nimble/nimble/porting/nimble/include
-    - esp-idf/components/bt/host/nimble/port/include
-    - esp-idf/components/bt/host/nimble/nimble/nimble/include
-    - esp-idf/components/bt/host/nimble/nimble/nimble/host/include
-    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/ans/include
-    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/bas/include
-    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/dis/include
-    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/gap/include
-    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/gatt/include
-    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/ias/include
-    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/ipss/include
-    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/lls/include
-    - esp-idf/components/bt/host/nimble/nimble/nimble/host/services/tps/include
-    - esp-idf/components/bt/host/nimble/nimble/nimble/host/util/include
-    - esp-idf/components/bt/host/nimble/nimble/nimble/host/store/ram/include
-    - esp-idf/components/bt/host/nimble/nimble/nimble/host/store/config/include
-    - esp-idf/components/bt/host/nimble/nimble/porting/npl/freertos/include
-    - esp-idf/components/bt/host/nimble/esp-hci/include
-    - esp-idf/components/nvs_flash/include
-    - esp-idf/components/mbedtls/port/include
-    - esp-idf/components/mbedtls/mbedtls/include
-    - esp-idf/components/mbedtls/esp_crt_bundle/include
-    - esp-idf/components/mdns/include
-    - esp-idf/components/console
-    - esp-idf/components/sdmmc/include
-    - esp-idf/components/fatfs/vfs
-    - esp-idf/components/fatfs/src
-    - esp-idf/components/wear_levelling/include
-    - esp-idf/components/json/cJSON
-    - esp-idf/components/soc/esp32s3/include
+    - ../espressif_idf/esp-idf/components/newlib/platform_include
+    - ../espressif_idf/esp-idf/components/freertos/include
+    - ../espressif_idf/esp-idf/components/freertos/include/esp_additions/freertos
+    - ../espressif_idf/esp-idf/components/freertos/port/riscv/include
+    - ../espressif_idf/esp-idf/components/freertos/include/esp_additions
+    - ../espressif_idf/esp-idf/components/esp_hw_support/include
+    - ../espressif_idf/esp-idf/components/esp_hw_support/include/soc
+    - ../espressif_idf/esp-idf/components/esp_hw_support/include/soc/esp32c3
+    - ../espressif_idf/esp-idf/components/esp_hw_support/port/esp32c3
+    - ../espressif_idf/esp-idf/components/esp_hw_support/port/esp32c3/private_include
+    - ../espressif_idf/esp-idf/components/heap/include
+    - ../espressif_idf/esp-idf/components/log/include
+    - ../espressif_idf/esp-idf/components/lwip/include/apps
+    - ../espressif_idf/esp-idf/components/lwip/include/apps/sntp
+    - ../espressif_idf/esp-idf/components/lwip/lwip/src/include
+    - ../espressif_idf/esp-idf/components/lwip/port/esp32/include
+    - ../espressif_idf/esp-idf/components/lwip/port/esp32/include/arch
+    - ../espressif_idf/esp-idf/components/soc/include
+    - ../espressif_idf/esp-idf/components/soc/esp32c3
+    - ../espressif_idf/esp-idf/components/soc/esp32c3/include
+    - ../espressif_idf/esp-idf/components/hal/esp32c3/include
+    - ../espressif_idf/esp-idf/components/hal/include
+    - ../espressif_idf/esp-idf/components/hal/platform_port/include
+    - ../espressif_idf/esp-idf/components/esp_rom/include
+    - ../espressif_idf/esp-idf/components/esp_rom/include/esp32c3
+    - ../espressif_idf/esp-idf/components/esp_rom/esp32c3
+    - ../espressif_idf/esp-idf/components/esp_common/include
+    - ../espressif_idf/esp-idf/components/esp_system/include
+    - ../espressif_idf/esp-idf/components/esp_system/port/soc
+    - ../espressif_idf/esp-idf/components/esp_system/port/include/riscv
+    - ../espressif_idf/esp-idf/components/esp_system/port/public_compat
+    - ../espressif_idf/esp-idf/components/riscv/include
+    - ../espressif_idf/esp-idf/components/driver/include
+    - ../espressif_idf/esp-idf/components/driver/esp32c3/include
+    - ../espressif_idf/esp-idf/components/esp_pm/include
+    - ../espressif_idf/esp-idf/components/esp_ringbuf/include
+    - ../espressif_idf/esp-idf/components/efuse/include
+    - ../espressif_idf/esp-idf/components/efuse/esp32c3/include
+    - ../espressif_idf/esp-idf/components/vfs/include
+    - ../espressif_idf/esp-idf/components/esp_wifi/include
+    - ../espressif_idf/esp-idf/components/esp_event/include
+    - ../espressif_idf/esp-idf/components/esp_netif/include
+    - ../espressif_idf/esp-idf/components/esp_eth/include
+    - ../espressif_idf/esp-idf/components/tcpip_adapter/include
+    - ../espressif_idf/esp-idf/components/esp_phy/include
+    - ../espressif_idf/esp-idf/components/esp_phy/esp32c3/include
+    - ../espressif_idf/esp-idf/components/esp_ipc/include
+    - ../espressif_idf/esp-idf/components/app_trace/include
+    - ../espressif_idf/esp-idf/components/esp_timer/include
+    - ../espressif_idf/esp-idf/components/app_update/include
+    - ../espressif_idf/esp-idf/components/spi_flash/include
+    - ../espressif_idf/esp-idf/components/bootloader_support/include
+    - ../espressif_idf/esp-idf/components/bt/common/osi/include
+    - ../espressif_idf/esp-idf/components/bt/include/esp32c3/include
+    - ../espressif_idf/esp-idf/components/bt/common/api/include/api
+    - ../espressif_idf/esp-idf/components/bt/common/btc/profile/esp/blufi/include
+    - ../espressif_idf/esp-idf/components/bt/common/btc/profile/esp/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/porting/nimble/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/port/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/nimble/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/nimble/host/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/ans/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/bas/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/dis/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/gap/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/gatt/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/ias/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/ipss/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/lls/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/nimble/host/services/tps/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/nimble/host/util/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/nimble/host/store/ram/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/nimble/host/store/config/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/porting/npl/freertos/include
+    - ../espressif_idf/esp-idf/components/bt/host/nimble/esp-hci/include
+    - ../espressif_idf/esp-idf/components/nvs_flash/include
+    - ../espressif_idf/esp-idf/components/mbedtls/port/include
+    - ../espressif_idf/esp-idf/components/mbedtls/mbedtls/include
+    - ../espressif_idf/esp-idf/components/mbedtls/esp_crt_bundle/include
+    - ../espressif_idf/esp-idf/components/mdns/include
+    - ../espressif_idf/esp-idf/components/console
+    - ../espressif_idf/esp-idf/components/sdmmc/include
+    - ../espressif_idf/esp-idf/components/fatfs/vfs
+    - ../espressif_idf/esp-idf/components/fatfs/src
+    - ../espressif_idf/esp-idf/components/wear_levelling/include
+    - ../espressif_idf/esp-idf/components/json/cJSON
+    - ../espressif_idf/esp-idf/components/soc/esp32s3/include
 
   libs:
     - esp_ringbuf
@@ -248,11 +248,11 @@ build_config:
     - phy
 
   libpath:
-    - esp-idf/components/bt/controller/lib_esp32c3_family/esp32c3
-    - esp-idf/components/esp_phy/lib/esp32c3
-    - esp-idf/components/esp_wifi/lib/esp32c3
-    - esp-idf/components/soc/esp32c3/ld
-    - esp-idf/components/esp_rom/esp32c3/ld
+    - ../espressif_idf/esp-idf/components/bt/controller/lib_esp32c3_family/esp32c3
+    - ../espressif_idf/esp-idf/components/esp_phy/lib/esp32c3
+    - ../espressif_idf/esp-idf/components/esp_wifi/lib/esp32c3
+    - ../espressif_idf/esp-idf/components/soc/esp32c3/ld
+    - ../espressif_idf/esp-idf/components/esp_rom/esp32c3/ld
 
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项
@@ -269,8 +269,7 @@ hw_info:
   cpu_name: ESP32-C3
   toolchain_prefix: riscv32-esp-elf
   vendor_name: espressif
-  ld_script: _esp32_c3_alios.lds
-  flash_program: release/aos_burn_tool/flash_program.py
+  ld_script: espressif_esp32_c3.lds
 
 ## 第六部分：安装信息
 # install:

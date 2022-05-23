@@ -2,13 +2,14 @@
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
+#include "aos_hal_pwm.h"
+
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <sys/ioctl.h>
+#include <unistd.h>
 
-#include "aos_hal_pwm.h"
 #include "driver/ledc.h"
 
 bool pwm_inited = false;
@@ -17,14 +18,17 @@ int chan_gpio[LEDC_CHANNEL_MAX];
 // Params for PW operation
 // 5khz
 #define PWFREQ (5000)
+
 // High speed mode
-#if CONFIG_IDF_TARGET_ESP32
+#if SOC_LEDC_SUPPORT_HS_MODE
 #define PWMODE (LEDC_HIGH_SPEED_MODE)
 #else
 #define PWMODE (LEDC_LOW_SPEED_MODE)
 #endif
-// 10-bit resolution (compatible with esp8266 PWM)
-#define PWRES (LEDC_TIMER_10_BIT)
+
+// 13-bit resolution
+#define PWRES   (LEDC_TIMER_13_BIT)
+
 // Timer 1
 #define PWTIMER (LEDC_TIMER_1)
 
@@ -32,7 +36,8 @@ ledc_timer_config_t timer_cfg = {
     .duty_resolution = PWRES,
     .freq_hz = PWFREQ,
     .speed_mode = PWMODE,
-    .timer_num = PWTIMER
+    .timer_num = PWTIMER,
+    .clk_cfg = LEDC_USE_APB_CLK
 };
 
 int32_t aos_hal_pwm_init(aos_hal_pwm_dev_t *pwm)
@@ -177,6 +182,3 @@ int32_t aos_hal_pwm_finalize(aos_hal_pwm_dev_t *pwm)
     }
     return ret;
 }
-
-
-
