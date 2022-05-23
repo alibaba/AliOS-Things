@@ -36,6 +36,7 @@ depends:
   - st7789: "master ? <MICROPY_PY_LVGL, HAAS_PLATFORM>"
   - ft6336: "master ? <MICROPY_PY_LVGL, HAAS_PLATFORM>"
   - m5driver: "master ? <MICROPY_PY_LVGL, ESP_PLATFORM>"
+  - freetype: "master ? <MICROPY_PY_LVGL>"
 
 build_config:
   prebuild_script: build_cmake.sh

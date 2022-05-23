@@ -16,6 +16,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 
     ```python
     # 创建基础控件对象，设置控件尺寸和控件摆放位置
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
@@ -60,6 +61,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
@@ -92,6 +94,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
@@ -125,6 +128,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
@@ -185,6 +189,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
@@ -236,6 +241,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
@@ -306,6 +312,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
@@ -372,6 +379,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     scr = lv.scr_act()
@@ -431,6 +439,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     # copy img_cogwheel_argb.png in the RESOURCE_ROOT
@@ -464,6 +473,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     #
@@ -503,6 +513,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     # Create an array for the points of the line
@@ -544,6 +555,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def event_handler(e):
@@ -596,6 +608,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     # 
@@ -637,6 +650,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def event_handler(e):
@@ -685,6 +699,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def draw_part_event_cb(e):
@@ -758,6 +773,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def textarea_event_handler(e, ta):
@@ -810,6 +826,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def event_handler(evt):
@@ -860,6 +877,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     # Create a chart
@@ -901,6 +919,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def draw_event_cb(e):
@@ -974,6 +993,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     cw = lv.colorwheel(lv.scr_act(), True)
@@ -999,6 +1019,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
     RESOURCES_ROOT = "S:/data/pyamp/"
 
@@ -1057,6 +1078,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def ta_event_cb(e,kb):
@@ -1106,6 +1128,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     #
@@ -1147,6 +1170,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def event_handler(e):
@@ -1208,6 +1232,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def set_value(indic, v):
@@ -1282,6 +1307,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def event_cb(e):
@@ -1313,6 +1339,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     #
@@ -1384,6 +1411,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def increment_event_cb(e):
@@ -1436,6 +1464,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     # Create a spinner
@@ -1462,6 +1491,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     # Create a Tab view object
@@ -1516,6 +1546,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     #
@@ -1577,6 +1608,7 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
     <summary> 查看代码</summary>
 
     ```python
+    import lvgl as lv
     import display_driver  # 导入display_driver库，初始化display和lvgl
 
     def event_handler(e):
