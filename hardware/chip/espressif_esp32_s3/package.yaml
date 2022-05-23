@@ -1,16 +1,16 @@
 ## 第一部分： 基础信息
-name: espressif_esp32                                     # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: master                                    # <必选项> 组件版本号
-description: driver & sdk for mcu esp32          # <必选项> 建议至少20字以上
-type: chip                                          # <必选项> 组件类型，为：solution, chip, board, common, sdk
+name: espressif_esp32_s3                        # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: master                                # <必选项> 组件版本号
+description: driver & sdk for mcu esp32-s3      # <必选项> 建议至少20字以上
+type: chip                                      # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
-tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
-keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+tag: 核心模块                                    # <可选项> 组件分类，缺省值： ''
+keywords:                                       # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
   - base
-license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+license: Apache license v2.0                    # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
 
-#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
-#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# 指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+# 未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
 # depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
   # - libc_stub: master
 #   - aos: >=v7.2.0
@@ -36,29 +36,44 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 build_config:
   # prebuild_script:
   cflag: >
-        -mlongcalls -Wno-frame-address -Wno-clobbered -Wno-deprecated-declarations -Wno-missing-field-initializers
-        -fno-tree-switch-conversion -fno-jump-tables -DKERNEL=FREERTOS
+    -mlongcalls -Wno-frame-address -Wno-clobbered -Wno-deprecated-declarations -Wno-missing-field-initializers
+    -fno-tree-switch-conversion -fno-jump-tables -DKERNEL=FREERTOS
+
   cxxflag: >
-        -mlongcalls -Wno-frame-address -Wno-clobbered -Wno-deprecated-declarations -Wno-missing-field-initializers
-        -std=gnu++11 -fno-exceptions -fno-rtti -fno-tree-switch-conversion -fno-jump-tables -fpermissive -DKERNEL=FREERTOS
+    -mlongcalls -Wno-frame-address -Wno-clobbered -Wno-deprecated-declarations -Wno-missing-field-initializers
+    -std=gnu++11 -fno-exceptions -fno-rtti -fno-tree-switch-conversion -fno-jump-tables -fpermissive -DKERNEL=FREERTOS
+
   ldflag: >
-        -mlongcalls -Wno-frame-address -z muldefs -fno-rtti -lm -lgcc -lstdc++ -lgcov -lc -fno-lto
-        -mfix-esp32-psram-cache-issue  -mfix-esp32-psram-cache-strategy=memw
-        -uesp_app_desc -uvfs_include_syscalls_impl -upthread_include_pthread_impl
-        -upthread_include_pthread_cond_impl  -upthread_include_pthread_local_storage_impl -uapp_main
-        -ucall_user_start_cpu0 -uld_include_panic_highint_hdl -unewlib_include_locks_impl
-        -unewlib_include_heap_impl -unewlib_include_syscalls_impl  -unewlib_include_pthread_impl
-        -u__cxa_guard_dummy -u__cxx_fatal_exception
-        -Wl,--cref -Wl,--Map="aos.map" -Wl,--wrap=vPortCleanUpTCB -Wl,--gc-sections -Wl,--undefined=uxTopUsedPriority
-        -Tesp32.rom.newlib-time.ld -Tesp32.rom.ld  -Tesp32.rom.libgcc.ld  -Tesp32.rom.newlib-data.ld
-        -Tesp32.rom.syscalls.ld -Tesp32.rom.newlib-funcs.ld -Tesp32_out.ld  -Tesp32.project.ld -Tesp32.extram.bss.ld
-        -Tesp32.peripherals.ld -z muldefs
+    -mlongcalls -z muldefs -Wl,--gc-sections  -fno-rtti  -fno-lto
+    -mfix-esp32-psram-cache-issue  -mfix-esp32-psram-cache-strategy=memw
+    -uesp_app_desc  -Wl,--wrap=vPortCleanUpTCB  -upthread_include_pthread_impl  -upthread_include_pthread_cond_impl
+    -upthread_include_pthread_local_storage_impl  -upthread_include_pthread_rwlock_impl
+    -uld_include_highint_hdl  -ustart_app  -ustart_app_other_cores  -u__ubsan_include
+    -Wl,--wrap=longjmp  -uvfs_include_syscalls_impl  -Wl,--undefined=uxTopUsedPriority -uapp_main -lm
+    -unewlib_include_heap_impl -unewlib_include_syscalls_impl -unewlib_include_pthread_impl -unewlib_include_assert_impl
+    -Wl,--wrap=_Unwind_SetEnableExceptionFdeSorting  -Wl,--wrap=__register_frame_info_bases
+    -Wl,--wrap=__register_frame_info  -Wl,--wrap=__register_frame  -Wl,--wrap=__register_frame_info_table_bases
+    -Wl,--wrap=__register_frame_info_table  -Wl,--wrap=__register_frame_table  -Wl,--wrap=__deregister_frame_info_bases
+    -Wl,--wrap=__deregister_frame_info  -Wl,--wrap=_Unwind_Find_FDE  -Wl,--wrap=_Unwind_GetGR
+    -Wl,--wrap=_Unwind_GetCFA  -Wl,--wrap=_Unwind_GetIP  -Wl,--wrap=_Unwind_GetIPInfo
+    -Wl,--wrap=_Unwind_GetRegionStart  -Wl,--wrap=_Unwind_GetDataRelBase  -Wl,--wrap=_Unwind_GetTextRelBase
+    -Wl,--wrap=_Unwind_SetIP  -Wl,--wrap=_Unwind_SetGR  -Wl,--wrap=_Unwind_GetLanguageSpecificData
+    -Wl,--wrap=_Unwind_FindEnclosingFunction  -Wl,--wrap=_Unwind_Resume  -Wl,--wrap=_Unwind_RaiseException
+    -Wl,--wrap=_Unwind_DeleteException  -Wl,--wrap=_Unwind_ForcedUnwind  -Wl,--wrap=_Unwind_Resume_or_Rethrow
+    -Wl,--wrap=_Unwind_Backtrace  -Wl,--wrap=__cxa_call_unexpected  -Wl,--wrap=__gxx_personality_v0
+    -u__cxa_guard_dummy  -lstdc++  -lgcc -u__cxx_fatal_exception -lgcov -lc
+    -Tesp32s3.rom.api.ld -Tesp32s3.rom.ld  -Tesp32s3.rom.libgcc.ld  -Tesp32s3.rom.newlib.ld
+    -Tesp32s3.rom.version.ld -Tesp32s3.peripherals.ld -Tmemory.ld -Tsections.ld -z muldefs
 
   include:
     - ../espressif_idf/esp-idf/components/esp_ringbuf/include
     - ../espressif_idf/esp-idf/components/newlib/platform_include
     - ../espressif_idf/esp-idf/components/freertos/include
     - ../espressif_idf/esp-idf/components/freertos/xtensa/include
+    - ../espressif_idf/esp-idf/components/freertos/port/xtensa/include
+    - ../espressif_idf/esp-idf/components/esp_hw_support/include
+    - ../espressif_idf/esp-idf/components/hal/include
+    - ../espressif_idf/esp-idf/components/hal/esp32s3/include
     - ../espressif_idf/esp-idf/components/heap/include
     - ../espressif_idf/esp-idf/components/log/include
     - ../espressif_idf/esp-idf/components/lwip/include/apps
@@ -67,15 +82,17 @@ build_config:
     - ../espressif_idf/esp-idf/components/lwip/port/esp32/include
     - ../espressif_idf/esp-idf/components/lwip/port/esp32/include/arch
     - ../espressif_idf/esp-idf/components/soc/include
-    - ../espressif_idf/esp-idf/components/soc/soc/esp32/include
-    - ../espressif_idf/esp-idf/components/soc/src/esp32/include
     - ../espressif_idf/esp-idf/components/soc/soc/include
+    - ../espressif_idf/esp-idf/components/soc/soc/esp32s3/include
+    - ../espressif_idf/esp-idf/components/soc/esp32s3/include
+    - ../espressif_idf/esp-idf/components/soc/src/esp32s3/include
     - ../espressif_idf/esp-idf/components/esp_rom/include
     - ../espressif_idf/esp-idf/components/esp_rom/include/esp32
     - ../espressif_idf/esp-idf/components/esp_rom/esp32
     - ../espressif_idf/esp-idf/components/esp_common/include
     - ../espressif_idf/esp-idf/components/esp_system/include
     - ../espressif_idf/esp-idf/components/esp32/include
+    - ../espressif_idf/esp-idf/components/esp32s3/include
     - ../espressif_idf/esp-idf/components/xtensa/include
     - ../espressif_idf/esp-idf/components/xtensa/esp32/include
     - ../espressif_idf/esp-idf/components/driver/include
@@ -105,6 +122,7 @@ build_config:
     - ../espressif_idf/esp-idf/components/espcoredump/include
     - ../espressif_idf/esp-idf/components/wpa_supplicant/include
     - ../espressif_idf/esp-idf/components/wpa_supplicant/port/include
+    - ../espressif_idf/esp-idf/components/wpa_supplicant/include/esp_supplicant
     - ../espressif_idf/esp-idf/components/asio/asio/asio/include
     - ../espressif_idf/esp-idf/components/asio/port/include
     - ../espressif_idf/esp-idf/components/bt/host/nimble/nimble/porting/nimble/include
@@ -168,6 +186,10 @@ build_config:
     - ../espressif_idf/esp-idf/components/spiffs/include
     - ../espressif_idf/esp-idf/components/ulp/include
     - ../espressif_idf/esp-idf/components/wifi_provisioning/include
+    - ../espressif_idf/esp-idf/components/freertos/include/esp_additions/freertos
+    - ../espressif_idf/esp-idf/components/freertos/include/esp_additions
+    - ../espressif_idf/esp-idf/components/esp_hw_support/include/soc
+    - ../espressif_idf/esp-idf/components/hal/platform_port/include
 
   libs:
     - main
@@ -183,6 +205,9 @@ build_config:
     - cxx
     - esp_hid
     - esp_wifi
+    - esp_pm
+    - esp_rom
+    - esp_hw_support
     - liblibsodium
     - newlib
     - soc
@@ -210,7 +235,6 @@ build_config:
     - freemodbus
     - openssl
     - tcpip_adapter
-    - bt
     - esp_common
     - esp_serial_slave_link
     - freertos
@@ -246,19 +270,22 @@ build_config:
     - pp
     - smartconfig
     - phy
-    - rtc
-    - btdm_app
-    - esp32
-    - soc_esp32
     - hal
+    - xt_hal
+    - bt
+    - btdm_app
+    - btbb
+    - esp_phy
 
   libpath:
-    - ../espressif_idf/esp-idf/components/esp_rom/esp32/ld
-    - ../espressif_idf/esp-idf/components/esp32/ld
-    - ../espressif_idf/esp-idf/components/esp_wifi/lib/esp32
-    - ../espressif_idf/esp-idf/components/bt/controller/lib
-    - ../espressif_idf/esp-idf/components/xtensa/esp32
-
+    - ../espressif_idf/esp-idf/components/esp_rom/esp32s3/ld
+    - ../espressif_idf/esp-idf/components/esp32s3/ld
+    - ../espressif_idf/esp-idf/components/esp_wifi/lib/esp32s3
+    - ../espressif_idf/esp-idf/components/xtensa/esp32s3
+    - ../espressif_idf/esp-idf/components/esp_system/ld/esp32s3
+    - ../espressif_idf/esp-idf/components/esp_phy/lib/esp32s3
+    - ../espressif_idf/esp-idf/components/soc/esp32s3/ld
+    - ../espressif_idf/esp-idf/components/bt/controller/lib_esp32c3_family/esp32s3
 
 ## 第五部分：配置信息
 def_config:                              # 组件的可配置项
@@ -273,9 +300,9 @@ def_config:                              # 组件的可配置项
 hw_info:
   arch_name: xtensa
   cpu_name: esp32
-  toolchain_prefix: xtensa-esp32-elf
+  toolchain_prefix: xtensa-esp32s3-elf
   vendor_name: espressif
-  ld_script: espressif_esp32.lds
+  ld_script: espressif_esp32_s3.lds
 
 ## 第六部分：安装信息
 # install:

@@ -1,6 +1,11 @@
-#include <errno.h>
-#include <driver/i2c.h>
 #include <aos_hal_i2c_internal.h>
+#include <driver/i2c.h>
+#include <errno.h>
+
+#include "esp_log.h"
+#include "hal/i2c_ll.h"
+
+#define TAG "i2c"
 
 int32_t aos_hal_i2c_init(aos_hal_i2c_dev_t *i2c)
 {
@@ -16,12 +21,22 @@ int32_t aos_hal_i2c_init(aos_hal_i2c_dev_t *i2c)
 
     switch (i2c->port) {
     case 0:
+#ifdef CONFIG_IDF_TARGET_ESP32
         config.sda_io_num = 21;
         config.scl_io_num = 22;
+#elif CONFIG_IDF_TARGET_ESP32C3
+        config.scl_io_num = 4;
+        config.sda_io_num = 5;
+#elif CONFIG_IDF_TARGET_ESP32S3
+        config.scl_io_num = 2;
+        config.sda_io_num = 1;
+#endif
         break;
     case 1:
+#ifdef CONFIG_IDF_TARGET_ESP32
         config.sda_io_num = 32;
         config.scl_io_num = 33;
+#endif
         break;
     default:
         return -EINVAL;
@@ -52,8 +67,13 @@ int32_t aos_hal_i2c_init(aos_hal_i2c_dev_t *i2c)
     if (i2c_param_config(i2c->port, &config) != ESP_OK)
         return -EINVAL;
 
+#if defined CONFIG_IDF_TARGET_ESP32
     if (i2c_set_timeout(i2c->port, I2C_APB_CLK_FREQ / 1000000 * 10000) != ESP_OK)
         return -EINVAL;
+#elif defined CONFIG_IDF_TARGET_ESP32C3
+    if (i2c_set_timeout(i2c->port, I2C_LL_MAX_TIMEOUT) != ESP_OK)
+        return -EINVAL;
+#endif
 
     if (i2c_driver_install(i2c->port, config.mode, 0, 0, 0) != ESP_OK)
         return -EINVAL;
@@ -186,14 +206,14 @@ static int i2c_hw_transfer(aos_hal_i2c_dev_t *i2c, uint16_t addr, size_t n, hw_i
 
 static int mp_machine_i2c_readfrom(aos_hal_i2c_dev_t *i2c, uint16_t addr, uint8_t *dest, size_t len, bool stop)
 {
-    hw_i2c_buf_t buf = {.len = len, .buf = dest};
+    hw_i2c_buf_t buf = { .len = len, .buf = dest };
     unsigned int flags = I2C_MASTER_READ;
     return i2c_hw_transfer(i2c, addr, 1, &buf, flags, stop);
 }
 
 static int mp_machine_i2c_writeto(aos_hal_i2c_dev_t *i2c, uint16_t addr, const uint8_t *src, size_t len, bool stop)
 {
-    hw_i2c_buf_t buf = {.len = len, .buf = src};
+    hw_i2c_buf_t buf = { .len = len, .buf = src };
     return i2c_hw_transfer(i2c, addr, 1, &buf, 0, stop);
 }
 
@@ -226,8 +246,8 @@ int32_t aos_hal_i2c_mem_write(aos_hal_i2c_dev_t *i2c, uint16_t dev_addr, uint16_
 
     // Create partial write buffers
     hw_i2c_buf_t bufs[2] = {
-        {.len = memaddr_len, .buf = memaddr_buf},
-        {.len = size, .buf = (uint8_t *)data},
+        { .len = memaddr_len, .buf = memaddr_buf },
+        { .len = size, .buf = (uint8_t *)data },
     };
     return i2c_hw_transfer(i2c, dev_addr, 2, bufs, 0, true);
 }

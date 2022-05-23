@@ -1,1 +1,0 @@
-.. include:: ../../../en/api-reference/system/esp_function_with_shared_stack.rst

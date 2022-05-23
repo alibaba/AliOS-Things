@@ -19,9 +19,6 @@ depends:
 board:
   chip_name: espressif_esp32
 
-build_config:
-  preconfig_script: yaml_copy.sh
-
 def_config:
   BOARD_NODEMCU32S: 1
   SYSINFO_MCU: "ESP32"

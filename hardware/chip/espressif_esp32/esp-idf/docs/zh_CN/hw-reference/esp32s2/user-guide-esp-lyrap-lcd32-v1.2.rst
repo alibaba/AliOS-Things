@@ -1,1 +1,0 @@
-.. include:: ../../../en/hw-reference/esp32s2/user-guide-esp-lyrap-lcd32-v1.2.rst

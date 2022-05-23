@@ -1,1 +1,0 @@
-../../coap_config.h.lwip

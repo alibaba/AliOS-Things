@@ -1,0 +1,149 @@
+## 第一部分： 基础信息
+name: espressif_adf                                     # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: master                                    # <必选项> 组件版本号
+description: driver & sdk for mcu esp32          # <必选项> 建议至少20字以上
+type: common                                          # <必选项> 组件类型，为： solution, chip, board, common, sdk
+
+tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - base
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+  # - libc_stub: master
+#   - aos: >=v7.2.0
+
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  cflag: >
+        -mlongcalls -Wno-frame-address -Wno-clobbered -Wno-deprecated-declarations -Wno-missing-field-initializers
+        -fno-tree-switch-conversion -fno-jump-tables -DKERNEL=FREERTOS
+  cxxflag: >
+        -mlongcalls -Wno-frame-address -Wno-clobbered -Wno-deprecated-declarations -Wno-missing-field-initializers
+        -std=gnu++11 -fno-exceptions -fno-rtti -fno-tree-switch-conversion -fno-jump-tables -fpermissive -DKERNEL=FREERTOS
+  # ldflag: >
+  #       -mlongcalls -Wno-frame-address -z muldefs -fno-rtti -lm -lgcc -lstdc++ -lgcov -lc -fno-lto
+  #       -mfix-esp32-psram-cache-issue  -mfix-esp32-psram-cache-strategy=memw
+  #       -uesp_app_desc -uvfs_include_syscalls_impl -upthread_include_pthread_impl
+  #       -upthread_include_pthread_cond_impl  -upthread_include_pthread_local_storage_impl -uapp_main
+  #       -ucall_user_start_cpu0 -uld_include_panic_highint_hdl -unewlib_include_locks_impl
+  #       -unewlib_include_heap_impl -unewlib_include_syscalls_impl  -unewlib_include_pthread_impl
+  #       -u__cxa_guard_dummy -u__cxx_fatal_exception
+  #       -Wl,--cref -Wl,--Map="aos.map" -Wl,--wrap=vPortCleanUpTCB -Wl,--gc-sections -Wl,--undefined=uxTopUsedPriority
+  #       -Tesp32.rom.newlib-time.ld -Tesp32.rom.ld  -Tesp32.rom.libgcc.ld  -Tesp32.rom.newlib-data.ld
+  #       -Tesp32.rom.syscalls.ld -Tesp32.rom.newlib-funcs.ld -Tesp32_out.ld  -Tesp32.project.ld -Tesp32.extram.bss.ld
+  #       -Tesp32.peripherals.ld -z muldefs
+
+  include:
+    - esp-adf/components/adf_utils/include
+    - esp-adf/components/audio_hal/include
+    - esp-adf/components/audio_pipeline/include
+    - esp-adf/components/audio_sal/include
+    - esp-adf/components/audio_stream/include
+    - esp-adf/components/battery_service/include
+    - esp-adf/components/bluetooth_service/include
+    - esp-adf/components/esp_peripherals/include
+    - esp-adf/components/esp-adf-libs/audio_misc/include
+    - esp-adf/components/esp-adf-libs/esp_audio/include
+    - esp-adf/components/esp-adf-libs/esp_codec/include/codec
+    - esp-adf/components/esp-adf-libs/esp_codec/include/processing
+    - esp-adf/components/esp-adf-libs/esp_sip/include
+    - esp-adf/components/esp-adf-libs/esp_ssdp/include
+    - esp-adf/components/esp-adf-libs/esp_upnp/include
+    - esp-adf/components/esp-adf-libs/mrm_client/include
+    - esp-adf/components/esp-adf-libs/recorder_engine/include
+    - esp-adf/components/audio_board/include
+    - esp-adf/components/audio_board/m5stack_core2
+    - esp-adf/components/esp_peripherals/include
+    - esp-adf/components/esp-sr/acoustic_algorithm/include
+    - esp-adf/components/esp-sr/lib/include
+    - esp-adf/components/esp-sr/esp-tts/esp_tts_chinese/include
+    - esp-adf/components/tone_partition/include
+    - esp-adf/components/esp_peripherals/include
+    - esp-adf/components/esp_peripherals/lib/adc_button
+    - esp-adf/components/esp_peripherals/lib/button
+    - esp-adf/components/esp_peripherals/lib/aw2013
+    - esp-adf/components/esp_peripherals/lib/gpio_isr
+    - esp-adf/components/esp_peripherals/lib/IS31FL3216
+    - esp-adf/components/esp_peripherals/lib/sdcard
+    - esp-adf/components/esp_peripherals/lib/blufi
+    - esp-adf/components/esp_peripherals/lib/touch
+    - esp-adf/components/display_service/include
+    - esp-adf/components/esp_dispatcher/include
+    - esp-adf/components/display_service/led_indicator/include
+    - esp-idf/components/wpa_supplicant/include/esp_supplicant
+    - esp-adf/components/esp_peripherals/driver/i2c_bus
+    - esp-adf/components/audio_hal/driver/include
+
+  libs:
+    - esp_processing
+    - esp_audio
+    - esp_codec
+
+  libpath:
+    - esp-adf/components/esp-adf-libs/esp_audio/lib/esp32
+    - esp-adf/components/esp-adf-libs/esp_codec/lib/esp32
+
+source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+  - esp-adf/components/audio_sal/*.c
+  - esp-adf/components/audio_pipeline/*.c
+  - esp-adf/components/audio_stream/*.c
+  - esp-adf/components/esp-adf-libs/esp_codec/*.c
+  - esp-adf/components/audio_board/m5stack_core2/*.c
+  - esp-adf/components/audio_hal/*.c
+  - esp-adf/components/esp_dispatcher/*.c
+  - esp-adf/components/audio_hal/driver/ns4168/*.c
+
+## 第五部分：配置信息
+# def_config:                              # 组件的可配置项
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+# install:
+#   - dest: "include"
+#     source:
+#       - hal/2ndboot/*.h
+#       - aos/*.h
+#       - aos/arch/*.h
+#       - drivers/platform/hal/*.h
+#       - drivers/platform/cmsis/inc/*.h
+#       - drivers/rtos/rhino/cmsis/*.h
+#       - drivers/utils/hwtimer_list/*.h
+#       - drivers/platform/hal/haas1000/*.h
+#       - drivers/services/wifi_app/alsa_adapter/*.h
+#   - dest: "lib"
+#     source:
+#       - drivers/libmcuhaas1000.a ? <!CONFIG_A7_DSP_ENABLE>
+#       - drivers/libmcuhaas1000_a7.a ? <CONFIG_A7_DSP_ENABLE>
+
+
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"

@@ -1,4 +1,0 @@
-[mapping:soc]
-archive: libsoc.a
-entries:
-    lldesc (noflash)

@@ -1,1 +1,0 @@
-.. include:: ../../../en/hw-reference/esp32s2/user-guide-esp-lyrap-cam-v1.1.rst

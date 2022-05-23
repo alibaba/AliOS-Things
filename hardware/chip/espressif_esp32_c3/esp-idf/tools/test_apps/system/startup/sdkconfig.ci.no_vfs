@@ -1,2 +1,0 @@
-# Disable VFS support
-CONFIG_VFS_SUPPORT_IO=n

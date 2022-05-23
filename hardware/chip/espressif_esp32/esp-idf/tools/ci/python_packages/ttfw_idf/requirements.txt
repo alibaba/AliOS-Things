@@ -1,3 +1,0 @@
--r ../tiny_test_fw/requirements.txt
-pexpect
-python-gitlab

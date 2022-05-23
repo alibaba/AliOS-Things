@@ -184,9 +184,9 @@ elif [ $TARGET_PLATFORM = "ESP32" ]; then
     rm -rf ${solution_dir}/esp_sdk/lib/*
 
     # 1: prepare IDF env
-    ${comp_dir}/../../hardware/chip/espressif_esp32/build.sh ${TARGET_BOARD}
-    . ${comp_dir}/../../hardware/chip/espressif_esp32/esp-idf/export.sh
-    export ADF_PATH=${comp_dir}/../../hardware/chip/espressif_esp32/esp-adf
+    ${comp_dir}/../../hardware/chip/espressif_idf/build.sh ${TARGET_BOARD}
+    . ${comp_dir}/../../hardware/chip/espressif_idf/esp-idf/export.sh
+    export ADF_PATH=${comp_dir}/../../hardware/chip/espressif_adf/esp-adf
 
     # 2：prepare fs for esp target
     port_dir=${comp_dir}/adapter/esp32

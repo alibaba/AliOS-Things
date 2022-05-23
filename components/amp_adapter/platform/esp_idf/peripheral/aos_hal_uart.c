@@ -4,7 +4,15 @@
 #include "esp_log.h"
 #include <soc/uart_caps.h>
 
-int32_t aos_hal_uart_init(aos_hal_uart_dev_t *uart)
+#if defined CONFIG_IDF_TARGET_ESP32C3
+#define GPIO_UART_TXD_OUT  (9)
+#define GPIO_UART_RXD_IN   (3)
+#elif defined CONFIG_IDF_TARGET_ESP32S3
+#define GPIO_UART_TXD_OUT  (41)
+#define GPIO_UART_RXD_IN   (42)
+#endif
+
+int32_t  aos_hal_uart_init(aos_hal_uart_dev_t *uart)
 {
     uart_config_t config = {
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
@@ -23,8 +31,13 @@ int32_t aos_hal_uart_init(aos_hal_uart_dev_t *uart)
         rx_io_num = 3;
         break;
     case 1:
+#if defined CONFIG_IDF_TARGET_ESP32
         tx_io_num = 10;
         rx_io_num = 9;
+#elif defined CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32S3
+        tx_io_num = GPIO_UART_TXD_OUT;
+        rx_io_num = GPIO_UART_RXD_IN;
+#endif
         break;
 #if SOC_UART_NUM > 2
     case 2:
@@ -202,5 +215,5 @@ int32_t aos_hal_uart_callback(aos_hal_uart_dev_t *uart, void (*cb)(int, void *, 
     uart->userdata = userdata;
     uart_dev_table[uart->port] = uart;
     uart_set_select_notif_callback(uart->port, select_notif_callback_isr);
-    return -ENOTSUP;
+    return 0;
 }

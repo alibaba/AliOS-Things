@@ -1,1 +1,0 @@
-.. include:: ../../../en/api-reference/peripherals/sdmmc_host.rst

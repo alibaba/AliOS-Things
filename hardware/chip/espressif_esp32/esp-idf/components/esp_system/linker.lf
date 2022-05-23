@@ -1,6 +1,0 @@
-[mapping:esp_system]
-archive: libesp_system.a
-entries:
-    panic (noflash)
-    panic_handler (noflash)
-    system_api:esp_system_abort (noflash)

@@ -1,1 +1,0 @@
-.. include:: ../../en/contribute/contributor-agreement.rst
