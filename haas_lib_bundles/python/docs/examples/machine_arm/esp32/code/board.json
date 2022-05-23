@@ -1,0 +1,16 @@
+{
+  "name": "haasedu",
+  "version": "1.0.0",
+  "io": {
+    "pca9685": {
+      "type": "I2C",
+      "port": 0,
+      "addrWidth": 7,
+      "freq": 1000000,
+      "mode": "master",
+      "devAddr": 64
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
