@@ -1,5 +1,5 @@
 name: 缺陷上报
-description: File a bug report
+description: 请描述您发现的缺陷内容
 title: "[Bug Report]: "
 labels: ["bug"]
 assignees:
