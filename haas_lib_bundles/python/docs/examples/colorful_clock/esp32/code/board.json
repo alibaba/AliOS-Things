@@ -1,0 +1,14 @@
+{
+  "name": "haasedu",
+  "version": "1.0.0",
+  "io": {
+    "ws2812":{
+      "type": "GPIO",
+      "port": 0,
+      "dir": "output",
+      "pull": "pulldown"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
