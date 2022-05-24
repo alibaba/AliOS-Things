@@ -57,6 +57,7 @@ def ble_irq(event, data):
         if(_ble_msg.count('{') == _ble_msg.count('}')):
             try:
                 cmdd = json.loads(_ble_msg)
+                cmpp = json.loads(cmdd["param"])
             except Exception as e:
                 pass
             else:
@@ -65,10 +66,10 @@ def ble_irq(event, data):
                     if(_wlan.isconnected()):
                         _wlan.disconnect()
 
-                    _wlan.connect(cmdd['param']['ssid'], cmdd['param']['pswd'])
+                    _wlan.connect(cmpp['ssid'], cmpp['pswd'])
                     timeout = 5
-                    if('timeout' in cmdd['param'].keys()):
-                        timeout = int(cmdd['param']['timeout'])
+                    if('timeout' in cmpp.keys()):
+                        timeout = int(cmpp['timeout'])
                     while(True):
                         status = _wlan.status()
                         if(status == network.STAT_WRONG_PASSWORD):
