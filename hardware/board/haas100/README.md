@@ -1,0 +1,1 @@
+hardware/board/haas100
