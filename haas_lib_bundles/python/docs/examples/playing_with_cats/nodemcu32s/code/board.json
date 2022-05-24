@@ -1,0 +1,38 @@
+{
+    "name": "nodemcu32s",
+    "version": "1.0.0",
+    "io": {
+        "uln2003_a": {
+            "type": "GPIO",
+            "port": 27,
+            "dir": "output",
+            "pull": "pushpull"
+        },
+        "uln2003_a_": {
+            "type": "GPIO",
+            "port": 26,
+            "dir": "output",
+            "pull": "pushpull"
+        },
+        "uln2003_b": {
+            "type": "GPIO",
+            "port": 25,
+            "dir": "output",
+            "pull": "pushpull"
+        },
+        "uln2003_b_": {
+            "type": "GPIO",
+            "port": 33,
+            "dir": "output",
+            "pull": "pushpull"
+        },
+        "relay": {
+            "type": "GPIO",
+            "port": 14,
+            "dir": "output",
+            "pull": "pushpull"
+        }
+    },
+    "debugLevel": "ERROR",
+    "repl": "disable"
+}
