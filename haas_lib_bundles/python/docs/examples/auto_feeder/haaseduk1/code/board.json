@@ -1,0 +1,44 @@
+{
+    "name": "haasedu",
+    "version": "1.0.0",
+    "io": {
+      "hx711_clk": {
+        "type": "GPIO",
+        "port": 2,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "hx711_data": {
+        "type": "GPIO",
+        "port": 3,
+        "dir": "input",
+        "pull": "pullup"
+      },
+      "uln2003_a": {
+        "type": "GPIO",
+        "port": 4,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "uln2003_a_": {
+        "type": "GPIO",
+        "port": 5,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "uln2003_b": {
+        "type": "GPIO",
+        "port": 6,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "uln2003_b_": {
+        "type": "GPIO",
+        "port": 7,
+        "dir": "output",
+        "pull": "pullup"
+      }
+    },
+    "debugLevel": "ERROR",
+    "repl": "disable"
+}
