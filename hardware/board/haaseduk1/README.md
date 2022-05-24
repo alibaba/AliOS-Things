@@ -1,0 +1,1 @@
+hardware/board/haaseduk1

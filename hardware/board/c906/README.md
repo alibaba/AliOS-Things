@@ -1,0 +1,1 @@
+hardware/board/c906
