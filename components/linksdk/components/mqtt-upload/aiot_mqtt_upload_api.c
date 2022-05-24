@@ -1445,7 +1445,7 @@ exit:
 
 aiot_mqtt_upload_result_t aiot_mqtt_upload_process(void *handle) {
     mqtt_upload_handle_t *up_handle = (mqtt_upload_handle_t *)handle;
-    uint16_t file_name_len = 0;
+    uint16_t file_name_len = 0, upload_id_len = 0;
     uint64_t now = 0;
     static aiot_mqtt_upload_result_t result = {
         .status = STATE_MQTT_UPLOAD_NONE,
@@ -1467,11 +1467,14 @@ aiot_mqtt_upload_result_t aiot_mqtt_upload_process(void *handle) {
         result.status = up_task->status;
         file_name_len = strlen(up_task->file_name) > MQTT_UPLOAD_DEFAULT_FILENAME_LEN ?
                 MQTT_UPLOAD_DEFAULT_FILENAME_LEN : strlen(up_task->file_name);
+        upload_id_len = strlen(up_task->upload_id) > MQTT_UPLOAD_DEFAULT_UPLOAD_SIZE ?
+                MQTT_UPLOAD_DEFAULT_UPLOAD_SIZE : strlen(up_task->upload_id);
+
         memset(result.file_name, 0, MQTT_UPLOAD_DEFAULT_FILENAME_LEN);
-        memset(result.uploadid, 0, sizeof(result.uploadid));
+        memset(result.uploadid, 0, MQTT_UPLOAD_DEFAULT_UPLOAD_SIZE);
 
         memcpy(result.file_name, up_task->file_name, file_name_len);
-        memcpy(result.uploadid, up_task->upload_id, strlen(up_task->upload_id));
+        memcpy(result.uploadid, up_task->upload_id, upload_id_len);
         switch (up_task->status)
         {
             case STATE_MQTT_UPLOAD_NONE:
