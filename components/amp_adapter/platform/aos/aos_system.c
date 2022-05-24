@@ -81,52 +81,10 @@ const char *aos_get_platform_type(void)
     return _SYSINFO_DEVICE_NAME;
 }
 
-int aos_get_ip(char *ip)
-{
-#ifndef AOS_BOARD_HAAS700
-    netmgr_hdl_t hdl;
-    netmgr_ifconfig_info_t info = {0};
-
-    hdl = netmgr_get_dev("/dev/wifi0");
-    if(hdl < 0) {
-        return -1;
-    }
-
-    if(netmgr_get_ifconfig(hdl, &info) < 0) {
-        return -1;
-    }
-
-    if (0 == strcmp(info.ip_addr, "0.0.0.0")) {
-        return -1;
-    }
-    return 0;
-#else
-    return -1;
-#endif
-}
-
-int aos_get_mac_addr(unsigned char mac[8])
-{
-    // TODO: ?
-    return 0;
-}
-
 
 int aos_network_status_registercb(void (*cb)(int status, void *), void *arg)
 {
     return aos_wifi_set_msg_cb(cb);
-}
-
-int aos_get_network_status(void)
-{
-#ifndef AOS_BOARD_HAAS700
-    int ret = 0;
-    ret = aos_wifi_get_state();
-
-    return (ret == CONN_STATE_NETWORK_CONNECTED);
-#else
-    return 0;
-#endif
 }
 
 /**
