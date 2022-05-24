@@ -1,0 +1,17 @@
+{
+    "name": "nodemcu32s",
+    "version": "1.0.0",
+    "io": {
+        "mb1": {
+            "type": "MODBUS",
+            "mode": 0,
+            "port": 2,
+            "baudrate": 9600,
+            "priority": 0,
+            "timeout": 200,
+            "parity": 2
+        }
+    },
+    "debugLevel": "ERROR",
+    "repl": "disable"
+}
