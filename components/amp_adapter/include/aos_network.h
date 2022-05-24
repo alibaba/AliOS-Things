@@ -2,13 +2,57 @@
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
+#ifndef AOS_NETWORK_H
+#define AOS_NETWORK_H
+
+#include <stdbool.h>
 #ifndef _AOS_NETWORK_H_
 #define _AOS_NETWORK_H_
 #define SCANNED_WIFI_COUNT_MAX 32
 #define SCANNED_LOCATOR_COUNT_MAX 32
+typedef enum {
+    AOS_ERR_WIFI_BASE = 0x3000,         /*!< WiFi ERR NUM BASE */
+    AOS_ERR_WIFI_NOT_INIT,              /*!< WiFi driver was not installed by esp_wifi_init */
+    AOS_ERR_WIFI_NOT_STARTED,           /*!< WiFi driver was not started by esp_wifi_start */
+    AOS_ERR_WIFI_NOT_STOPPED,           /*!< WiFi driver was not stopped by esp_wifi_stop */
+    AOS_ERR_WIFI_IF,                    /*!< WiFi interface error */
+    AOS_ERR_WIFI_MODE,                  /*!< WiFi mode error */
+    AOS_ERR_WIFI_STATE,                 /*!< WiFi internal state error */
+    AOS_ERR_WIFI_CONN,                  /*!< WiFi internal control block of station or soft-AP error */
+    AOS_ERR_WIFI_NVS,                   /*!< WiFi internal NVS module error */
+    AOS_ERR_WIFI_MAC,                   /*!< MAC address is invalid */
+    AOS_ERR_WIFI_SSID,                  /*!< SSID is invalid */
+    AOS_ERR_WIFI_PASSWORD,              /*!< Password is invalid */
+    AOS_ERR_WIFI_TIMEOUT,               /*!< Timeout error */
+    AOS_ERR_WIFI_WAKE_FAIL,             /*!< WiFi is in sleep state(RF closed) and wakeup fail */
+    AOS_ERR_WIFI_WOULD_BLOCK,           /*!< The caller would block */
+    AOS_ERR_WIFI_NOT_CONNECT,           /*!< Station still in disconnect status */
+    AOS_ERR_WIFI_POST,                  /*!< Failed to post the event to WiFi task */
+    AOS_ERR_WIFI_INIT_STATE,            /*!< Invalod WiFi state when init/deinit is called */
+    AOS_ERR_WIFI_STOP_STATE,            /*!< Returned when WiFi is stopping */
+    AOS_ERR_WIFI_NOT_ASSOC,             /*!< The WiFi connection is not associated */
+    AOS_ERR_WIFI_TX_DISALLOW,           /*!< The WiFi TX is disallowed */
+    AOS_ERR_TCPIP_ADAPTER_INVALID_PARAMS,
+    AOS_ERR_TCPIP_ADAPTER_IF_NOT_READY,
+    AOS_ERR_TCPIP_ADAPTER_DHCPC_START_FAILED,
+    AOS_ERR_TCPIP_ADAPTER_NO_MEM
+} AOS_NETWORK_ERR_E;
+
+typedef enum {
+    AOS_NET_NOINIT = 0,
+    AOS_NET_STA_STARTED,
+    AOS_NET_STA_GOT_IP,
+    AOS_NET_STA_LOST_IP,
+    AOS_NET_STA_DISCONNECTED,
+    AOS_NET_STA_CONNECTED,
+    AOS_NET_STA_STOPED,
+    AOS_NET_STATE_UNKNOWN
+} AOS_NETWORK_STATE_E;
 
 typedef enum {
     AOS_NETWORK_WIFI,
+    AOS_NETWORK_WIFI_STA,
+    AOS_NETWORK_WIFI_AP,
     AOS_NETWORK_CELLULAR,
     AOS_NETWORK_ETHERNET,
     AOS_NETWORK_UNKNOW,
@@ -34,6 +78,14 @@ typedef enum {
     AOS_NETWORK_SHAREMODE_AUTHTYPE_PAPCHAP,
     AOS_NETWORK_SHAREMODE_AUTHTYPE_INVALID
 } AOS_NETWORK_SHAREMODE_AUTHTYPE_E;
+
+typedef struct {
+    void (*cb)(int status, void *);
+    int wifi_state;
+    int wifi_mode;
+    bool is_initialized;
+    bool is_started;
+} aos_wifi_manager_t;
 
 typedef struct aos_sim_info {
     char imsi[32];
@@ -61,6 +113,19 @@ typedef struct aos_wifi_info {
     int rssi;
 } aos_wifi_info_t;
 
+
+/** @brief  network ifconfig type */
+#define IPADDR_STR_LEN 16
+typedef struct aos_ifconfig_info {
+   bool dhcp_en;                         /**< dhcp is enabled */
+   char ip_addr[IPADDR_STR_LEN];         /**< ip address */
+   char mask[IPADDR_STR_LEN];            /**< ip address mask */
+   char gw[IPADDR_STR_LEN];              /**< gateway ip address */
+   char dns_server[IPADDR_STR_LEN];      /**< dns server address */
+   char mac[IPADDR_STR_LEN + 2];         /**< mac address */
+   int  rssi;                            /**< rssi */
+} aos_ifconfig_info_t;
+
 typedef struct aos_scanned_wifi_info {
     int num;
     aos_wifi_info_t wifi_info[SCANNED_WIFI_COUNT_MAX];
@@ -76,41 +141,25 @@ typedef struct aos_sharemode_info {
     AOS_NETWORK_SHAREMODE_E share_mode;
 } aos_sharemode_info_t;
 
-/**
- * @brief       file close
- *
- * @param[out]  ip: ip pointer
- *
- * @return      0: success, -1: failed
- */
-int aos_wifi_init();
+int aos_wifi_init(aos_wifi_manager_t *wifi_manager);
 
-/**
- * @brief       file close
- *
- * @param[out]  ip: ip pointer
- *
- * @return      0: success, -1: failed
- */
+int aos_wifi_start(aos_wifi_manager_t *wifi_manager);
+
 int aos_wifi_connect(const char *ssid, const char *passwd);
 
-/**
- * @brief       file close
- *
- * @param[out]  ip: ip pointer
- *
- * @return      0: success, -1: failed
- */
+int aos_wifi_stop(aos_wifi_manager_t *wifi_manager);
+
 int aos_wifi_disconnect();
 
-/**
- * @brief       file close
- *
- * @param[out]  ip: ip pointer
- *
- * @return      0: success, -1: failed
- */
-int aos_get_wifi_info(aos_wifi_info_t *wifi_info);
+int aos_wifi_get_info(aos_wifi_info_t *wifi_info);
+
+int aos_wifi_get_state();
+
+int aos_wifi_deinit(aos_wifi_manager_t *wifi_manager);
+
+int aos_net_set_ifconfig(aos_ifconfig_info_t *info);
+
+int aos_net_get_ifconfig(aos_ifconfig_info_t *info);
 
 /**
  * @brief       file close
@@ -198,3 +247,4 @@ int aos_location_scaned_wifi_info(aos_scanned_wifi_info_t *scaned_wifi);
 
 #endif /* _AOS_NETWORK_H_ */
 
+#endif

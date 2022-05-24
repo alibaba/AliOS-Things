@@ -76,33 +76,6 @@ const char *aos_get_device_name(void);
  */
 int aos_system_sleep(void);
 
-/**
- * @brief   get RTOS default priority
- *
- * @return  default priority
- */
-int aos_get_wireless_info(struct _amp_wireless_info_t *info);
-
-/**
- * @brief   get RTOS default priority
- *
- * @return  default priority
- */
-int aos_get_network_status(void);
-
-/**
- * @brief   get RTOS default priority
- *
- * @return  default priority
- */
-int aos_get_ip(char *ip);
-
-/**
- * @brief   get RTOS default priority
- *
- * @return  default priority
- */
-int aos_get_mac_addr(unsigned char mac[6]);
 
 /**
  * @brief   get RTOS default priority

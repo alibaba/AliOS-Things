@@ -117,6 +117,7 @@ set(MICROPY_SOURCE_PORT
     ${PROJECT_SOURCE_DIR}/mpstdinport.c
     ${PROJECT_SOURCE_DIR}/mpthreadport.c
     ${PROJECT_SOURCE_DIR}/utility.c
+    ${PROJECT_SOURCE_DIR}/modnetwork.c
 )
 
 set(MICROPY_SOURCE_QSTR
