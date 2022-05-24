@@ -260,6 +260,7 @@ bool pyamp_boot_cli_receive_path()
             break;
         }
     }
+    aos_free(buffer);
 
     return YMODEM_PATH_TRANSFER_OK;
 }
@@ -308,6 +309,7 @@ bool pyamp_boot_cli_in()
     unsigned int buf_len = 0;
     unsigned int value = 0;
     unsigned char *buffer = NULL;
+    int retryCnt = 0;
     int ret = 0;
 
     buf_len = 32;
@@ -322,19 +324,23 @@ bool pyamp_boot_cli_in()
                 pyamp_boot_uart_send_str("received save sdcard\t\n");
                 pyamp_save_path_defult_set(PYAMP_SAVE_PATH_DEFULT_SDCARD);
                 break;
-            }
-            ret = strcmp(buffer, g_pyamp_boot_sync);
-            if (ret == 0) {
+            } else {
                 pyamp_boot_uart_send_str("received save local\t\n");
                 pyamp_save_path_defult_set(PYAMP_SAVE_PATH_DEFULT_DATA);
                 break;
             }
         } else {
             pyamp_boot_uart_send_str("received NULL\t\n");
-            pyamp_save_path_defult_set(PYAMP_SAVE_PATH_DEFULT_DATA);
+            retryCnt++;
+            if (retryCnt >= 3) {
+                retryCnt = 0;
+                pyamp_save_path_defult_set(PYAMP_SAVE_PATH_DEFULT_DATA);
+                break;
+            }
         }
     }
 
+    aos_free(buffer);
     pyamp_boot_uart_send_str("amp shakehand success\n");
 
     return true;
