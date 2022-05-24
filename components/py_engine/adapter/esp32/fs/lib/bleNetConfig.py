@@ -68,6 +68,8 @@ def ble_irq(event, data):
 
                     _wlan.connect(cmdd['param']['ssid'], cmdd['param']['pswd'])
                     timeout = 5
+                     # if('timeout' in cmdd['param'].keys()):
+                    #  timeout = int(cmdd['param']['timeout'])
                     if('timeout' in cmtt.keys()):
                         timeout = int(cmtt['timeout'])
                     while(True):
