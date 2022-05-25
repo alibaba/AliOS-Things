@@ -2,7 +2,7 @@
 
 ## 简介
 &emsp;&emsp;
-机器人和人工智能是目前很热门的两个学科，未来也是被很看好的行业之一，而机械臂就是通往机器人和人工智能的基础。本机械臂是入门级的自由度金属机械手臂，主要包括舵机驱动板、金属机械手臂支架和四个金属齿轮舵机，你备好树莓派，再带上我，便可轻松用手机通过蓝牙或WiFi联网控制我。同时结合HaaS开发框架，就可以通过远程控制机械臂的一些基础动作啦。
+机器人和人工智能是目前很热门的两个学科，未来也是被很看好的行业之一，而机械臂就是通往机器人和人工智能的基础。本机械臂是入门级的自由度金属机械手臂，主要包括舵机驱动板、金属机械手臂支架和四个金属齿轮舵机，同时结合HaaS开发框架，就可以通过远程控制机械臂的一些基础动作啦。
 
 &emsp;&emsp;
 本课程就手把手教开发者如何自制一台远程控制机械臂。
@@ -13,13 +13,13 @@
 ## 准备
 &emsp;&emsp;
 本案例打造需要如下硬件：
-* ESP32一台
-* Servo舵机四个
-* PCA9685多路PWM传感器一个
-* 机械臂一套
-* 杜邦线若干
-* 外部6-12V直流电源
-* Micro-USB数据线一条
+* [NodeMCU-32S](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C0A5C37AADCDB00000001&dataId=800C0A5C37AADCDB)一台<br>
+* [Servo舵机](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C5A3F64C2F88300000001&dataId=800C5A3F64C2F883)四个<br>
+* [PCA9685多路PWM传感器](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C882BBA684B1500000001&dataId=800C882BBA684B15&s=)一个<br>
+* 机械臂一套<br>
+* 杜邦线若干<br>
+* 外部6-12V直流电源<br>
+* Micro-USB数据线一条<br>
 
 ### 硬件连线图
 &emsp;&emsp;
@@ -66,7 +66,7 @@
 &emsp;&emsp;
 在新建产品设定页面按照下图所示，设定“产品名称”，选择所属的“自定义品类”（如果创建的产品品类为标准品类，可以选择标准品类），节点类型选择“直连设备”，联网方式选择“Wi-Fi”，数据格式选择“ICA标准数据格式”，检验类型和认证方式选择默认设定即可。还可以根据开发者自己的需求在“产品描述”页面添加针对此产品的描述。
 <div align="center">
-<img src=./../../../images/machine_arm_新建产品页面.png width=80%/>
+<img src=./../../../images/machine_arm_新建产品页面.png width=40%/>
 </div>
 
 &emsp;&emsp;
@@ -363,11 +363,11 @@ ssd1306 inited!
 物联网设备的系统启动成功并连接到物联网平台之后，物联网平台上对应的设备状态会从”未激活状态“变为”上线“，在物模型数据标签页上会显示设备上报到物联网平台的属性值。
 
 <div align="center">
-<img src=./../../../images/设置机械臂设备属性.png width=80%/>
+<img src=./../../../images/设置机械臂设备属性.png width=50%/>
 </div>
 
 <div align="center">
-<img src=./../../../images/查看机械臂设备状态及属性.png width=80%/>
+<img src=./../../../images/查看机械臂设备状态及属性.png width=50%/>
 </div>
 
 ## 物联网应用开发
@@ -439,7 +439,7 @@ Web应用创建成功后会进入到应用界面设计页面。
 
 #### **关联产品和设备**
 &emsp;&emsp;
-此时回到”茶花养植系统“项目的主页，对产品和设备进行关联，如下图所示：
+此时回到”控制机械臂“项目的主页，对产品和设备进行关联，如下图所示：
 <div align="center">
 <img src=./../../../images/machine_arm_关联产品和设备.png width=80%/>
 </div>
@@ -489,6 +489,13 @@ Web应用创建成功后会进入到应用界面设计页面。
 <div align="center">
 <img src=./../../../images/machine_arm_front_配置数据源_属性配置.png width=80%/>
 </div>
+
+> 其他的“向后”、“向左”、“向右”、“抓取”、“松开”与向前的配置一致，只需要修改相应的目标值。
+* 向后：4<br>
+* 向左：1<br>
+* 向右：2<br>
+* 抓取：5<br>
+* 松开：6
 
 <br>
 
