@@ -13,12 +13,12 @@
 ## 准备
 &emsp;&emsp;
 本案例打造需要如下硬件：
-* ESP32一台
-* 土壤湿度检测传感器模块一个
-* 继电器relay控制模块一个
-* mini小水泵一台
-* 杜邦线若干
-* Micro-USB数据线一条
+* [NodeMCU-32S](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C0A5C37AADCDB00000001&dataId=800C0A5C37AADCDB)一台<br>
+* [土壤湿度检测传感器模块](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800CCF5AD5CBBCEA00000001&dataId=800CCF5AD5CBBCEA&s=)一个<br>
+* [继电器relay控制模块](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800CF588B273F26100000001&dataId=800CF588B273F261&s=)一个<br>
+* mini小水泵一台<br>
+* 杜邦线若干<br>
+* Micro-USB数据线一条<br>
 
 ### 硬件连线图
 &emsp;&emsp;
@@ -65,7 +65,7 @@
 &emsp;&emsp;
 在新建产品设定页面按照下图所示，设定“产品名称”，选择所属的“自定义品类”（如果创建的产品品类为标准品类，可以选择标准品类），节点类型选择“直连设备”，联网方式选择“Wi-Fi”，数据格式选择“ICA标准数据格式”，检验类型和认证方式选择默认设定即可。还可以根据开发者自己的需求在“产品描述”页面添加针对此产品的描述。
 <div align="center">
-<img src=./../../../images/auto_water_新建产品页面.png width=80%/>
+<img src=./../../../images/auto_water_新建产品页面.png width=40%/>
 </div>
 
 &emsp;&emsp;
@@ -82,7 +82,7 @@
 点击上图中的“查看”按钮，即可看到产品信息，Topic列表，功能定义，数据解析等跟产品相关功能的设定。点开“功能定义”标签页，可以看到设备物模型定义，点击“添加自定义功能”，其中功能名称、标识符、数据类型和定义如下所示。
 
 <div align="center">
-<img src=./../../../images/auto_water_产品详情页面.png width=80%/>
+<img src=./../../../images/auto_water_产品详情页面.png width=50%/>
 </div>
 
 &emsp;&emsp;
