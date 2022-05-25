@@ -13,10 +13,10 @@
 ## 准备
 &emsp;&emsp;
 本案例打造需要如下硬件：
-* ESP32一台
-* WS2812
-* 杜邦线若干
-* Micro-USB数据线一条
+* [NodeMCU-32S](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C0A5C37AADCDB00000001&dataId=800C0A5C37AADCDB)一台<br>
+* [WS2812]()<br>
+* 杜邦线若干<br>
+* Micro-USB数据线一条<br>
 
 ### 硬件连线图
 &emsp;&emsp;
@@ -29,7 +29,7 @@
 <br>
 
 &emsp;&emsp;
-根据ESP32的硬件连线图，可以得知WS2812OLED彩灯模块环可以通过I/O控制其RGB状态。
+根据ESP32的硬件连线图，可以得知WS2812 RGB灯模块环可以通过I/O控制其RGB状态。
 
 <br>
 
@@ -63,7 +63,7 @@
 &emsp;&emsp;
 在新建产品设定页面按照下图所示，设定“产品名称”，选择所属的“自定义品类”（如果创建的产品品类为标准品类，可以选择标准品类），节点类型选择“直连设备”，联网方式选择“Wi-Fi”，数据格式选择“ICA标准数据格式”，检验类型和认证方式选择默认设定即可。还可以根据开发者自己的需求在“产品描述”页面添加针对此产品的描述。
 <div align="center">
-<img src=./../../../images/colorful_clock_新建产品页面.png width=80%/>
+<img src=./../../../images/colorful_clock_新建产品页面.png width=40%/>
 </div>
 
 &emsp;&emsp;
