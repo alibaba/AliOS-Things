@@ -11,7 +11,7 @@ extern "C" {
 
 #define DEBUG_PANIC_HEADER_MAGIC 0xdeba5a5aa5a5abed
 #define DEBUG_PANIC_LOG_MAGIC    0xdeba5a5aa5a5abed
-#define DEFAULT_REBOOT_REASON    UND_STATIS_DEV_REPOWER_REASON
+#define DEFAULT_REBOOT_REASON    0x01
 
 #define RUNTIME_COUNT 20
 
