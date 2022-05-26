@@ -77,6 +77,10 @@
 #include "extmod/modbluetooth.h"
 #endif
 
+#include "extmod/vfs.h"
+#if MICROPY_VFS_POSIX
+#include "extmod/vfs_posix.h"
+#endif
 #if AOS_COMP_KV
 #include "aos/kv.h"
 #endif
@@ -97,11 +101,11 @@ int vprintf_null(const char *format, va_list ap)
     // do nothing: this is used as a log target during raw repl mode
     return 0;
 }
-#include "extmod/vfs.h"
-#include "extmod/vfs_posix.h"
+
 // Try to mount the data on "/data" and chdir to it for the boot-up directory.
 static int32_t mount_fs(char *mount_point_str)
 {
+#if MICROPY_VFS_POSIX
     mp_obj_t mount_point = mp_obj_new_str(mount_point_str, strlen(mount_point_str));
     mp_obj_t bdev = mp_type_vfs_posix.make_new(&mp_type_vfs_posix, 0, 0, NULL);
     int32_t ret = mp_vfs_mount_and_chdir_protected(bdev, mount_point);
@@ -109,8 +113,12 @@ static int32_t mount_fs(char *mount_point_str)
         printf("mount_fs failed with mount_point: %s\n", mount_point_str);
         return -1;
     }
+#else
+    (void)mount_point_str;
+#endif
     return 0;
 }
+
 
 static char *is_mainpy_exist()
 {
@@ -288,18 +296,6 @@ soft_reset_exit:
     goto soft_reset;
 }
 
-void mount_fat(void)
-{
-    int ret;
-
-    static wl_handle_t s_test_wl_handle;
-    esp_vfs_fat_mount_config_t mount_config = { .format_if_mount_failed = true, .max_files = 5 };
-    ret = esp_vfs_fat_spiflash_mount("", NULL, &mount_config, &s_test_wl_handle);
-    if (ret != 0) {
-        printf("%s mount fail\r\n", __func__);
-        return;
-    }
-}
 
 static void queue_handler_task(void *p)
 {
