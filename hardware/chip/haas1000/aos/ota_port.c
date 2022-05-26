@@ -243,7 +243,7 @@ void ota_set_zoneAB_bootinfo_to_default(void)
 
 enum bootinfo_zone ota_get_valid_bootinfo_zone(void)
 {
-    enum bootinfo_zone ret = OTA_BOOTINFO_ZONEA;
+    int ret = OTA_BOOTINFO_ZONEA;
 
     //get boot info to choose linkA or linkB.
     ret = ota_check_bootinfo(OTA_BOOTINFO_ZONEA);
