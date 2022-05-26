@@ -77,8 +77,9 @@ def_config:
   DEBUG_LASTWORD_RAM_ADDR: 0
   DEBUG_LASTWORD_REGION_LEN: 0x4000
   DEBUG_LOG_DIR_NAME: "/data/crash_reports"
-  DEBUG_CONFIG_LOG_FILE_NAME: "/data/crash_reports/crash_report"
-  DEBUG_CONFIG_LOG_FILE_INDEX: "/data/crash_reports/log_file_index"
+  DEBUG_LOG_FILE_NAME: "/data/crash_reports/crash_report"
+  DEBUG_LOG_FILE_INDEX_NAME: "/data/crash_reports/log_file_index"
+  CONFIG_VFS_LSOPEN: 0
 
   # ulog flush
   DEBUG_ULOG_FLUSH: 0
