@@ -38,6 +38,8 @@ set(MICROPY_SOURCE_LIB
     ${MICROPY_DIR}/lib/littlefs/lfs2.c
     ${MICROPY_DIR}/lib/littlefs/lfs2_util.c
     ${MICROPY_DIR}/lib/mbedtls_errors/mp_mbedtls_errors.c
+    ${MICROPY_DIR}/lib/oofatfs/ff.c
+    ${MICROPY_DIR}/lib/oofatfs/ffunicode.c
 )
 if(IDF_TARGET STREQUAL "esp32c3")
     list(APPEND MICROPY_SOURCE_LIB ${MICROPY_DIR}/shared/runtime/gchelper_generic.c)
@@ -115,7 +117,7 @@ set(IDF_COMPONENTS
     esp_rom
     esp-tls
     esp_wifi
-    fatfs
+#fatfs
     freertos
     heap
     log

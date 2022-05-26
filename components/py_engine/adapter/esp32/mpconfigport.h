@@ -64,6 +64,8 @@
 #define MICROPY_SCHEDULER_DEPTH             (8 * 2)
 #define MICROPY_VFS                         (1)
 #define MICROPY_VFS_POSIX                   (1)
+#define MICROPY_VFS_FAT                     (1)
+#define MICROPY_FATFS_NORTC                 (1)
 
 // control over Python builtins
 #define MICROPY_PY_FUNCTION_ATTRS           (1)

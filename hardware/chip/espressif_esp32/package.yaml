@@ -196,7 +196,7 @@ build_config:
     - spiffs
     - wpa_supplicant
     - asio
-    - fatfs
+#    - fatfs
     - efuse
     - esp_http_server
     - esp_ringbuf
