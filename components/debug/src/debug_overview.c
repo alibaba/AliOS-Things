@@ -101,7 +101,8 @@ static void debug_task_show(int (*print_func)(const char *fmt, ...), ktask_t *ta
     const name_t *task_name;
 
     char s_task_overview[] = "                              0x         0x      "
-                             "   0x        (0x        )\r\n";
+                             "   0x        (0x        )                        "
+                             "           \r\n";
 
     if (krhino_task_stack_min_free(task, &free_size) != RHINO_SUCCESS) {
         free_size = 0;
@@ -144,8 +145,8 @@ static void debug_task_show(int (*print_func)(const char *fmt, ...), ktask_t *ta
     (void)cpu_idx;
 #if (RHINO_CONFIG_CPU_NUM > 1)
     s_task_overview[cpu_idx] = (uint8_t)('0' + task->cpu_binded);
-    s_task_overview[cpu_idx + 10] = (uint8_t)('0' + task->cpu_num);
-    s_task_overview[cpu_idx + 20] = (uint8_t)('0' + task->cur_exc);
+    s_task_overview[cpu_idx + 12] = (uint8_t)('0' + task->cpu_num);
+    s_task_overview[cpu_idx + 23] = (uint8_t)('0' + task->cur_exc);
 #endif
 
     /* print */
