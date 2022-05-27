@@ -40,6 +40,8 @@ depends:
 build_config:
   include:
     - include
+
+  internal_include:
     - ./lib
     - ./src
   define:                               # <可选项> 宏定义, 增加编译器的-D 选项,如：
