@@ -9,6 +9,7 @@
 #include "py/stackctrl.h"
 #include "aos_log.h"
 #include "utility.h"
+#include "aos/kernel.h"
 
 #define LOG_TAG   "mod_network"
 
@@ -21,58 +22,6 @@ STATIC const aos_wifi_if_obj_t aos_wifi_sta_obj = {{&aos_wifi_if_type}, AOS_NETW
 STATIC const aos_wifi_if_obj_t aos_wifi_ap_obj = {{&aos_wifi_if_type}, AOS_NETWORK_WIFI_AP};
 STATIC aos_wifi_manager_t *wifi_manager = NULL;
 static mp_obj_t on_wifi_event_cb = mp_const_none;
-
-STATIC void _network_exceptions(AOS_NETWORK_ERR_E e)
-{
-    switch (e) {
-    case AOS_ERR_WIFI_NOT_INIT:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Not Initialized"));
-    case AOS_ERR_WIFI_NOT_STARTED:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Not Started"));
-    case AOS_ERR_WIFI_NOT_STOPPED:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Not Stopped"));
-    case AOS_ERR_WIFI_IF:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Invalid Interface"));
-    case AOS_ERR_WIFI_MODE:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Invalid Mode"));
-    case AOS_ERR_WIFI_STATE:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Internal State Error"));
-    case AOS_ERR_WIFI_CONN:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Internal Error"));
-    case AOS_ERR_WIFI_NVS:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Internal NVS Error"));
-    case AOS_ERR_WIFI_MAC:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Invalid MAC Address"));
-    case AOS_ERR_WIFI_SSID:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi SSID Invalid"));
-    case AOS_ERR_WIFI_PASSWORD:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Invalid Password"));
-    case AOS_ERR_WIFI_TIMEOUT:
-        mp_raise_OSError(MP_ETIMEDOUT);
-    case AOS_ERR_WIFI_WAKE_FAIL:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Wakeup Failure"));
-    case AOS_ERR_WIFI_WOULD_BLOCK:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Would Block"));
-    case AOS_ERR_WIFI_NOT_CONNECT:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Wifi Not Connected"));
-    case AOS_ERR_TCPIP_ADAPTER_INVALID_PARAMS:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("TCP/IP Invalid Parameters"));
-    case AOS_ERR_TCPIP_ADAPTER_IF_NOT_READY:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("TCP/IP IF Not Ready"));
-    case AOS_ERR_TCPIP_ADAPTER_DHCPC_START_FAILED:
-        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("TCP/IP DHCP Client Start Failed"));
-    case AOS_ERR_TCPIP_ADAPTER_NO_MEM:
-        mp_raise_OSError(MP_ENOMEM);
-    default:
-        mp_raise_msg_varg(&mp_type_RuntimeError, MP_ERROR_TEXT("Wifi Unknown Error 0x%04x"), e);
-    }
-}
-static inline void network_exceptions(AOS_NETWORK_ERR_E e)
-{
-    if (e != 0) {
-        _network_exceptions(e);
-    }
-}
 
 static void wifi_event_cb(uint32_t event_id, void *context)
 {
@@ -94,9 +43,9 @@ STATIC mp_obj_t wifi_active(mp_obj_t self_in, mp_obj_t active)
     }
 
     if (mp_obj_is_true(active)) {
-        network_exceptions(aos_wifi_start(wifi_manager));
+        aos_wifi_start(wifi_manager);
     } else {
-        network_exceptions(aos_wifi_stop(wifi_manager));
+        aos_wifi_stop(wifi_manager);
     }
     return mp_const_none;
 }
@@ -107,16 +56,22 @@ STATIC mp_obj_t wifi_connect(mp_obj_t self_in, mp_obj_t ssid_in, mp_obj_t pwd_in
     const char *_ssid = mp_obj_str_get_str(ssid_in);
     const char *_pwd = mp_obj_str_get_str(pwd_in);
 
-    if (!wifi_manager) {
-        wifi_init(self_in);
-        network_exceptions(aos_wifi_start(wifi_manager));
+    if (!wifi_manager->wifi_state == AOS_NET_STA_CONNECTED) {
+        return mp_const_none;
     }
-    if (!wifi_manager->is_started) {
-        network_exceptions(aos_wifi_start(wifi_manager));
+    if (!wifi_manager) {
+        wifi_init();
+    }
+
+    pthread_mutex_lock(&wifi_manager->network_mutex);
+    if (!wifi_manager->wifi_state == AOS_NET_STA_CONNECTED) {
+        pthread_mutex_unlock(&wifi_manager->network_mutex);
+        return mp_const_none;
     }
 
     MP_THREAD_GIL_EXIT();
-    network_exceptions(aos_wifi_connect(_ssid, _pwd));
+    aos_wifi_connect(_ssid, _pwd);
+    pthread_mutex_unlock(&wifi_manager->network_mutex);
     MP_THREAD_GIL_ENTER();
     return mp_const_none;
 }
@@ -124,7 +79,11 @@ MP_DEFINE_CONST_FUN_OBJ_3(aos_wifi_connect_obj, wifi_connect);
 
 STATIC mp_obj_t wifi_disconnect(mp_obj_t self_in)
 {
-    network_exceptions(aos_wifi_disconnect());
+    if (wifi_manager != NULL) {
+        pthread_mutex_lock(&wifi_manager->network_mutex);
+        aos_wifi_disconnect();
+        pthread_mutex_unlock(&wifi_manager->network_mutex);
+    }
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_1(aos_wifi_disconnect_obj, wifi_disconnect);
@@ -141,7 +100,7 @@ MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(aos_wifi_get_status_obj, 1, 2, wifi_get_stat
 
 STATIC mp_obj_t wifi_is_connected(mp_obj_t self_in)
 {
-    if (wifi_manager->wifi_state == AOS_NET_STA_GOT_IP)
+    if (wifi_manager->wifi_state == AOS_NET_STA_GOT_IP || wifi_manager->wifi_state == AOS_NET_STA_CONNECTED)
         return mp_obj_new_bool(true);
     return mp_obj_new_bool(false);
 }
@@ -160,7 +119,7 @@ STATIC mp_obj_t wifi_get_info(mp_obj_t self_in)
     aos_wifi_info_t wifi_info = { 0 };
     mp_int_t ret = aos_wifi_get_info(&wifi_info);
     if (ret < 0) {
-        AOS_LOGI(LOG_TAG, "Failed to get wifi info\n");
+        AOS_LOGE(LOG_TAG, "Failed to get wifi info\r\n");
         return mp_const_none;
     }
     mp_obj_t dict = mp_obj_new_dict(4);
@@ -176,11 +135,10 @@ static int netutils_format_ipv4_addr(uint8_t *in_ip, char* out_ip)
 {
     mp_uint_t ip_len;
     if (sizeof(in_ip) < 4) {
-        AOS_LOGE("network", "invalid ip format.");
+        AOS_LOGE("network", "invalid ip format\r\n");
         return -1;
     }
     ip_len = snprintf(out_ip, 16, "%u.%u.%u.%u", in_ip[3], in_ip[2], in_ip[1], in_ip[0]);
-    AOS_LOGE("network", out_ip);
     return ip_len;
 }
 #ifndef NETUTILS_IPV4ADDR_BUFSIZE
@@ -273,25 +231,30 @@ const mp_obj_type_t aos_wifi_if_type = {
 STATIC mp_obj_t get_wifi(size_t n_args, const mp_obj_t *args)
 {
     int idx = (n_args > 0) ? mp_obj_get_int(args[0]) : AOS_NETWORK_WIFI_STA;
-    if (idx == AOS_NETWORK_WIFI_STA) {
-        if (!wifi_manager) {
-            wifi_manager = calloc(sizeof(aos_wifi_manager_t), 1);
-            if (!wifi_manager) {
-                network_exceptions(MP_ENOMEM);
-            }
-            wifi_manager->cb = wifi_event_cb;
-            wifi_manager->wifi_state = AOS_NET_NOINIT;
-            wifi_manager->wifi_mode = AOS_NETWORK_WIFI_STA;
-            wifi_manager->is_initialized = false;
-            wifi_manager->is_started = false;
-        }
-        network_exceptions(aos_wifi_init(wifi_manager));
-        return MP_OBJ_FROM_PTR(&aos_wifi_sta_obj);
+    if (idx == AOS_NETWORK_WIFI_STA) {	
+		if (!wifi_manager) {
+	        wifi_manager = calloc(sizeof(aos_wifi_manager_t), 1);
+	        if (!wifi_manager) {
+	            return MP_ROM_INT(-MP_ENOMEM);
+	        }
+	        wifi_manager->cb = wifi_event_cb;
+	        wifi_manager->wifi_state = AOS_NET_NOINIT;
+	        wifi_manager->wifi_mode = AOS_NETWORK_WIFI_STA;
+	        wifi_manager->is_initialized = false;
+	        wifi_manager->is_started = false;
+	        pthread_mutex_init(&wifi_manager->network_mutex, NULL);
+	    }
+	    pthread_mutex_lock(&wifi_manager->network_mutex);
+	    aos_wifi_init(wifi_manager);
+	    pthread_mutex_unlock(&wifi_manager->network_mutex);
+		return MP_OBJ_FROM_PTR(&aos_wifi_sta_obj);
+		
     } else if (idx == AOS_NETWORK_WIFI_AP) {
         return MP_OBJ_FROM_PTR(&aos_wifi_ap_obj);
     } else {
         mp_raise_ValueError(MP_ERROR_TEXT("invalid WLAN interface identifier"));
     }
+	
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(aos_get_wifi_obj, 0, 1, get_wifi);
 
