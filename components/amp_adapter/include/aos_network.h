@@ -6,6 +6,7 @@
 #define AOS_NETWORK_H
 
 #include <stdbool.h>
+#include "aos/kernel.h"
 #ifndef _AOS_NETWORK_H_
 #define _AOS_NETWORK_H_
 #define SCANNED_WIFI_COUNT_MAX 32
@@ -85,6 +86,7 @@ typedef struct {
     int wifi_mode;
     bool is_initialized;
     bool is_started;
+    pthread_mutex_t network_mutex;
 } aos_wifi_manager_t;
 
 typedef struct aos_sim_info {
