@@ -100,7 +100,7 @@ static void wifi_event_cb(uint32_t event_id, const void *param, void *ctx)
         break;
 
     case EVENT_NETMGR_GOT_IP:
-        wifi_state = AOS_NET_STA_GOT_IP;
+        wifi_state = AOS_NET_STA_CONNECTED;
         break;
 
     case EVENT_NETMGR_WIFI_CONN_TIMEOUT:
@@ -126,24 +126,24 @@ int aos_wifi_init(aos_wifi_manager_t *wifi_manager)
     int ret = 0;
     netmgr_hdl_t hdl = netmgr_get_dev(WIFI_DEV_PATH);
     if (hdl >= 0) {
-        LOGE(LOG_TAG, "wifi already init by other task");
+        LOGE(LOG_TAG, "wifi already init by other task\r\n");
     } else {
         LOGE(LOG_TAG, "aos_wifi_init start");
         ret = event_service_init(NULL);
         if (ret != 0) {
-            LOGE(LOG_TAG, "event_service_init failed");
+            LOGE(LOG_TAG, "event_service_init failed\r\n");
             return ret;
         }
         ret = netmgr_service_init(NULL);
         if (ret != 0) {
-            LOGE(LOG_TAG, "netmgr_service_init failed");
+            LOGE(LOG_TAG, "netmgr_service_init failed\r\n");
             return ret;
         }
 
         netmgr_set_auto_reconnect(NULL, false);
-        ret = netmgr_wifi_set_auto_save_ap(false);
+        ret = netmgr_wifi_set_auto_save_ap(true);
         if (ret != 0) {
-            LOGE(LOG_TAG, "netmgr_wifi_set_auto_save_ap failed");
+            LOGE(LOG_TAG, "netmgr_wifi_set_auto_save_ap failed\r\n");
             return ret;
         }
     }
@@ -162,6 +162,7 @@ int aos_wifi_deinit(aos_wifi_manager_t *wifi_manager)
 
 int aos_wifi_start(aos_wifi_manager_t *wifi_manager)
 {
+    wifi_manager->is_started = true;
     return 0;
 }
 
@@ -173,7 +174,7 @@ int aos_wifi_stop(aos_wifi_manager_t *wifi_manager)
 int aos_net_set_ifconfig(aos_ifconfig_info_t *info)
 {
     netmgr_hdl_t hdl;
-    printf("dev %s open failed\n", __func__);
+    printf("dev %s open failed\r\n", __func__);
     hdl = netmgr_get_dev(WIFI_DEV_PATH);
     if (hdl == -1) {
         return -1;
@@ -223,7 +224,7 @@ int aos_wifi_connect(const char *ssid, const char *passwd)
     netmgr_connect_params_t params;
     hdl = netmgr_get_dev(WIFI_DEV_PATH);
     if (hdl < 0) {
-        LOGE(LOG_TAG, "netmgr_get_dev failed");
+        LOGE(LOG_TAG, "netmgr_get_dev failed\r\n");
         return -1;
     }
 
@@ -235,7 +236,7 @@ int aos_wifi_connect(const char *ssid, const char *passwd)
 
     ret = netmgr_connect(hdl, &params);
     if (ret != 0) {
-        LOGE(LOG_TAG, "netmgr_connect failed. %d\n", ret);
+        LOGE(LOG_TAG, "netmgr_connect failed. %d\r\n", ret);
         return ret;
     }
 
