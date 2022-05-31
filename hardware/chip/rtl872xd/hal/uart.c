@@ -31,7 +31,7 @@ static uart_buffer uart_rxbuffer[5];
 
 /*the pin used for uart, you can change the pin as pinmux table, 0 means not use*/
 static uart_s uart_obj[5] = { { 2, PA_7, PA_8, 0, 0 },           // log uart
-                              { 0, PA_18, PA_19, PA_17, PA_18 }, // km4 uart
+                              { 0, PA_18, PA_19, PA_16, PA_17 }, // km4 uart
                               { 1, PA_2, PA_4, PA_0, PB_31 },    // bt uart
                               { 3, PA_12, PA_13, PA_14, PA_15 }, // km0 uart
                               { 3, PB_1, PB_2, 0, 0 } };
@@ -283,24 +283,13 @@ int32_t hal_uart_init(uart_dev_t *uart)
  */
 int32_t hal_uart_send(uart_dev_t *uart, const void *data, uint32_t size, uint32_t timeout)
 {
-    if (uart->port != 0) {
-        u8 num = uart_obj[uart->port].id;
-        UART_TypeDef *uart_dev;
-        uart_dev = UART_DEV_TABLE[num].UARTx;
+    u8 num = uart_obj[uart->port].id;
+    UART_TypeDef *uart_dev;
+    uart_dev = UART_DEV_TABLE[num].UARTx;
 
-        UART_SendDataTO(uart_dev, (uint8_t *)data, size, 1000);
+    UART_SendDataTO(uart_dev, (uint8_t *)data, size, 1000);
 
-        return 0;
-    } else {
-        int i;
-        char *cdata = (char *)data;
-
-        for (i = 0; i < size; i++) {
-            DiagPutChar(*cdata++);
-        }
-
-        return 0;
-    }
+    return 0;
 }
 
 /**
