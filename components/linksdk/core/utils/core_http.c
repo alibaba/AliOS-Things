@@ -447,10 +447,6 @@ static int32_t _core_http_recv_header(core_http_handle_t *http_handle, uint32_t 
         if (timenow_ms > http_handle->sysdep->core_sysdep_time()) {
             timenow_ms = http_handle->sysdep->core_sysdep_time();
         }
-        if (http_handle->sysdep->core_sysdep_time() - timenow_ms >= http_handle->recv_timeout_ms) {
-            res =  STATE_HTTP_HEADER_INVALID;
-            break;
-        }
         if (idx + 2 > line_max_len) {
             res = STATE_HTTP_HEADER_BUFFER_TOO_SHORT;
             break;
