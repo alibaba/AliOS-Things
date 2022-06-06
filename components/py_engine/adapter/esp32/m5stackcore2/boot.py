@@ -1,5 +1,6 @@
 import axp192
 import kv
+import uos
 
 try:
     # for m5stack-core2 only
@@ -23,6 +24,10 @@ def _connect_wifi(ssid, passwd):
         sta_if.scan()
         sta_if.connect(ssid, passwd)
 
+
+bt_disabled = kv.get('disable_bt')
+if bt_disabled != "no":
+    uos.plussys_mm()
 
 channel = kv.get('app_upgrade_channel')
 if channel != "disable":

@@ -306,7 +306,7 @@ void aos_mm_show_info(void)
     }
 
     printf("\r\n[internal]\r\n");
-    heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
+    heap_caps_print_heap_info(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
 #if CONFIG_SPIRAM_USE_MALLOC
     printf("\r\n[spiram]\r\n");
     heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);

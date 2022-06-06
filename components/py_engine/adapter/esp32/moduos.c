@@ -152,6 +152,17 @@ STATIC mp_obj_t mod_os_dumpsys_mm(void)
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(mod_os_dumpsys_mm_obj, mod_os_dumpsys_mm);
 
+
+STATIC mp_obj_t mod_os_plussys_mm(void)
+{
+#if CONFIG_BT_ENABLED
+    #include "esp_bt.h"
+    esp_bt_mem_release(ESP_BT_MODE_BTDM);
+#endif
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(mod_os_plussys_mm_obj, mod_os_plussys_mm);
+
 #include "esp_heap_caps.h"
 STATIC mp_obj_t os_heap(void)
 {
@@ -205,6 +216,7 @@ STATIC const mp_rom_map_elem_t os_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_heap), MP_ROM_PTR(&os_heap_obj) },
     { MP_ROM_QSTR(MP_QSTR_tasklist), MP_ROM_PTR(&mod_os_tasklist_obj) },
     { MP_ROM_QSTR(MP_QSTR_dumpsys_mm), MP_ROM_PTR(&mod_os_dumpsys_mm_obj) },
+    { MP_ROM_QSTR(MP_QSTR_plussys_mm), MP_ROM_PTR(&mod_os_plussys_mm_obj) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(os_module_globals, os_module_globals_table);

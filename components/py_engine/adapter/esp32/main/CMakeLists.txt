@@ -217,6 +217,7 @@ target_compile_options(${MICROPY_TARGET} PUBLIC
     -Wno-unused-const-variable
     -Wno-format-truncation
     -Wno-pointer-sign
+    -Wno-unused-local-typedefs
 )
 
 # Add additional extmod and usermod components.
