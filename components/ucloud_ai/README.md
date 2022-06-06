@@ -218,7 +218,7 @@ ucloud_ai -m 1  # 人物动漫化
 
 > CLI关键日志：
 ```shell
-image url:http://vibktprfx-prod-prod-aic-gd-cn-shanghai.oss-cn-shanghai.aliyuncs.com/person-image-cartoonizer/5BE7565D-59CE-43EE-8169-09ED2821CE21_b301_20210331-093707.jpg?Expires=1617185228&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=8zhYdqxKgz9eDz970l1BXmpPAiQ%3D
+image url:http://vibktprfx-prod-prod-aic-gd-cn-shanghai.oss-cn-shanghai.aliyuncs.com/person-image-cartoonizer/5BE7565D-59CE-43EE-8169-09ED2821CE21_b301_20210331-093707.jpg?Expires=1617185228&OSSAccessKeyId=XXXX&Signature=8zhYdqxKgz9eDz970l1BXmpPAiQ%3D
 ```
 
 **CLI命令行输入：**
@@ -303,7 +303,7 @@ ucloud_ai -m 5  # 通用分割
 
 > CLI关键日志：
 ```shell
-0image url: http://viapi-cn-shanghai-dha-segmenter.oss-cn-shanghai.aliyuncs.com/upload/result_HeadSegmenter/2021-3-31/invi_HeadSegmenter_016171837626454285967296_L925gE.png?Expires=1617185562&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=bvMITW5gJQPlHBiP3Aa%2BO6fCdvQ%3D
+0image url: http://viapi-cn-shanghai-dha-segmenter.oss-cn-shanghai.aliyuncs.com/upload/result_HeadSegmenter/2021-3-31/invi_HeadSegmenter_016171837626454285967296_L925gE.png?Expires=1617185562&OSSAccessKeyId=XXXX&Signature=bvMITW5gJQPlHBiP3Aa%2BO6fCdvQ%3D
 0width: 160
 0height: 209
 0x: 153
@@ -317,7 +317,7 @@ ucloud_ai -m 6  # 面部分割
 
 > CLI关键日志：
 ```shell
-image url: http://viapi-cn-shanghai-dha-segmenter.oss-cn-shanghai.aliyuncs.com/upload/result_humansegmenter/2021-3-31/invi_humansegmenter_016171860047301086642_0V057V.jpg?Expires=1617187804&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=TiqmpoQqCon9KHPXEF8W6sf2vuY%3D
+image url: http://viapi-cn-shanghai-dha-segmenter.oss-cn-shanghai.aliyuncs.com/upload/result_humansegmenter/2021-3-31/invi_humansegmenter_016171860047301086642_0V057V.jpg?Expires=1617187804&OSSAccessKeyId=XXXX&Signature=TiqmpoQqCon9KHPXEF8W6sf2vuY%3D
 ```
 
 **CLI命令行输入：**
@@ -474,7 +474,7 @@ ucloud_ai -m 13  # 图像人体擦除
 
 > CLI关键日志：
 ```shell
-imageUrl: http://algo-app-isr-lab-cn-shanghai-prod.oss-cn-shanghai.aliyuncs.com/remove-person/2021-03-31_10%3A20%3A46.011134_person_org.jpg?Expires=1617187846&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=OwLEg5pWNVDwXrvAbGsUU7q5Dbs%3D
+imageUrl: http://algo-app-isr-lab-cn-shanghai-prod.oss-cn-shanghai.aliyuncs.com/remove-person/2021-03-31_10%3A20%3A46.011134_person_org.jpg?Expires=1617187846&OSSAccessKeyId=XXXX&Signature=OwLEg5pWNVDwXrvAbGsUU7q5Dbs%3D
 ```
 
 **CLI命令行输入：**
@@ -490,7 +490,7 @@ ucloud_ai -m 15  # 智能对话
 > CLI关键日志：
 ```shell
 outMajorURL:
-outImageURL: http://viapi-cn-shanghai-dha-filter.oss-cn-shanghai.aliyuncs.com/upload/result_/2021-3-31/invi__016171860565631021659_XIqH26.jpg?Expires=1617187856&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=tqJqHHoPSvga6LyET31TZsvOXFs%3D
+outImageURL: http://viapi-cn-shanghai-dha-filter.oss-cn-shanghai.aliyuncs.com/upload/result_/2021-3-31/invi__016171860565631021659_XIqH26.jpg?Expires=1617187856&OSSAccessKeyId=XXXX&Signature=tqJqHHoPSvga6LyET31TZsvOXFs%3D
 ```
 
 # 注意事项
