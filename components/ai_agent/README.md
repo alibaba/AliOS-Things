@@ -192,7 +192,7 @@ aiagent -e ucloud-ai -m 1  # 人物动漫化
 > CLI关键日志：
 ```sh
 Generate human anime style result:
-url: http://vibktprfx-prod-prod-aic-gd-cn-shanghai.oss-cn-shanghai.aliyuncs.com/person-image-cartoonizer/4F10FBB8-19DC-476B-A51D-458CD180A24F_07f2_20210331-142711.jpg?Expires=1617202631&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=YCLva1stK27Cn657nMeYhgFt7h4%3D
+url: http://vibktprfx-prod-prod-aic-gd-cn-shanghai.oss-cn-shanghai.aliyuncs.com/person-image-cartoonizer/4F10FBB8-19DC-476B-A51D-458CD180A24F_07f2_20210331-142711.jpg?Expires=1617202631&OSSAccessKeyId=XXXX&Signature=YCLva1stK27Cn657nMeYhgFt7h4%3D
 ```
 
 **CLI命令行输入：**
@@ -246,7 +246,7 @@ aiagent -e ucloud-ai -m 5  # 通用分割
 > CLI关键日志：
 ```sh
 Segment common image result:
-url: http://viapi-cn-shanghai-dha-segmenter.oss-cn-shanghai.aliyuncs.com/upload/result_humansegmenter/2021-3-31/invi_humansegmenter_016172056326493133388_avpTpm.jpg?Expires=1617207432&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=WREOAoBUIvpLSyygGxKPfi82HfI%3D
+url: http://viapi-cn-shanghai-dha-segmenter.oss-cn-shanghai.aliyuncs.com/upload/result_humansegmenter/2021-3-31/invi_humansegmenter_016172056326493133388_avpTpm.jpg?Expires=1617207432&OSSAccessKeyId=XXXX&Signature=WREOAoBUIvpLSyygGxKPfi82HfI%3D
 ```
 
 **CLI命令行输入：**
@@ -257,7 +257,7 @@ aiagent -e ucloud-ai -m 6  # 面部分割
 > CLI关键日志：
 ```sh
 Segment face result:
-image url: http://viapi-cn-shanghai-dha-segmenter.oss-cn-shanghai.aliyuncs.com/upload/result_HeadSegmenter/2021-3-31/invi_HeadSegmenter_016172056422754285967296_yRhj6C.png?Expires=1617207442&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=wR7GUxqrrwRF9u3mCJ%2BNDhAPCzk%3D
+image url: http://viapi-cn-shanghai-dha-segmenter.oss-cn-shanghai.aliyuncs.com/upload/result_HeadSegmenter/2021-3-31/invi_HeadSegmenter_016172056422754285967296_yRhj6C.png?Expires=1617207442&OSSAccessKeyId=XXXX&Signature=wR7GUxqrrwRF9u3mCJ%2BNDhAPCzk%3D
 location at x: 153, y: 66, w: 160, h: 209
 ```
 
@@ -382,7 +382,7 @@ aiagent -e ucloud-ai -m 13  # 图像人体擦除
 > CLI关键日志：
 ```sh
 Erase person result:
-url: http://algo-app-isr-lab-cn-shanghai-prod.oss-cn-shanghai.aliyuncs.com/remove-person/2021-03-31_15%3A34%3A17.959810_person_org.jpg?Expires=1617206658&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=jFwwnSYOw2fXev1%2Fm5az4JBa%2B5Q%3D
+url: http://algo-app-isr-lab-cn-shanghai-prod.oss-cn-shanghai.aliyuncs.com/remove-person/2021-03-31_15%3A34%3A17.959810_person_org.jpg?Expires=1617206658&OSSAccessKeyId=XXXX&Signature=jFwwnSYOw2fXev1%2Fm5az4JBa%2B5Q%3D
 ```
 
 **CLI命令行输入：**
@@ -393,7 +393,7 @@ aiagent -e ucloud-ai -m 14  # 风格迁移
 > CLI关键日志：
 ```sh
 Extend image style result:
-out image url: http://viapi-cn-shanghai-dha-filter.oss-cn-shanghai.aliyuncs.com/upload/result_/2021-3-31/invi__016172056608421021961_1mdK2W.jpg?Expires=1617207460&OSSAccessKeyId=LTAI4FoLmvQ9urWXgSRpDvh1&Signature=3t8Q%2BwTAo6Lib9utaoMrWUJX6Iw%3D
+out image url: http://viapi-cn-shanghai-dha-filter.oss-cn-shanghai.aliyuncs.com/upload/result_/2021-3-31/invi__016172056608421021961_1mdK2W.jpg?Expires=1617207460&OSSAccessKeyId=XXXX&Signature=3t8Q%2BwTAo6Lib9utaoMrWUJX6Iw%3D
 ```
 
 # 注意事项
