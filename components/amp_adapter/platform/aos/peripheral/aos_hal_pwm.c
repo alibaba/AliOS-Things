@@ -10,81 +10,58 @@
 #include <aos/errno.h>
 #include "aos_hal_pwm.h"
 #ifndef AOS_BOARD_HAAS700
-#include <vfsdev/pwm_dev.h>
+#include <aos/pwm.h>
 #endif
+
+#define NS_PER_SEC (1000000000UL)
+#define DIV_ROUND_CLOSEST(x, divisor)(          \
+{                                               \
+    typeof(x) __x = x;                          \
+    typeof(divisor) __d = divisor;              \
+    (((typeof(x))-1) > 0 ||                     \
+     ((typeof(divisor))-1) > 0 ||               \
+     (((__x) > 0) == ((__d) > 0))) ?            \
+        (((__x) + ((__d) / 2)) / (__d)) :       \
+        (((__x) - ((__d) / 2)) / (__d));        \
+}                                               \
+)
 
 int32_t aos_hal_pwm_init(pwm_dev_t *pwm)
 {
 #ifndef AOS_BOARD_HAAS700
-    uint32_t flags = 0;
-    int32_t ret = 0;
-    int32_t *p_fd = NULL;
-    char name[16] = {0};
+    int ret = 0;
+    aos_pwm_ref_t *ref = NULL;
+    aos_pwm_attr_t attr;
 
-    if (!pwm || pwm->priv)
-        return -EINVAL;
-
-    p_fd = (int32_t *)malloc(sizeof(int32_t));
-    if (!p_fd)
+    ref = (aos_pwm_ref_t *)malloc(sizeof(aos_pwm_ref_t));
+    if (ref == NULL) {
         return -ENOMEM;
-    *p_fd = -1;
-
-    snprintf(name, sizeof(name), "/dev/pwm%d", pwm->port);
-
-    *p_fd = open(name, 0);
-
-    if (*p_fd < 0) {
-        printf ("open %s failed, fd:%d\r\n", name, *p_fd);
-        ret = -EIO;
-	    goto out;
     }
-
-    ret = ioctl(*p_fd, IOC_PWM_FREQ, (unsigned long)pwm->config.freq);
-    if (ret) {
-        printf ("set freq to %d on %s failed, ret:%d\r\n", pwm->config.freq, name, ret);
+    memset(&attr, 0, sizeof(aos_pwm_attr_t));
+    ret = aos_pwm_get(ref, pwm->port);
+    if (ret < 0) {
         goto out;
     }
 
-    ret = ioctl(*p_fd, IOC_PWM_DUTY_CYCLE, (unsigned long)&pwm->config.duty_cycle);
+    attr.period = pwm->config.freq > 0 ? DIV_ROUND_CLOSEST(NS_PER_SEC, pwm->config.freq) : 0;
+    attr.duty_cycle = pwm->config.duty_cycle > 0 ? (attr.period * pwm->config.duty_cycle) / 100 : 0;
+    attr.enabled = 1;
+    attr.polarity = 0;
+
+    ret = aos_pwm_set_attr(ref, &attr);
     if (ret) {
-        printf ("set duty cycle to %d on %s failed, ret:%d\r\n", pwm->config.duty_cycle, name, ret);
         goto out;
     }
 
 out:
     if (!ret) {
-        pwm->priv = p_fd;
+        pwm->priv = ref;
     } else {
-        if (*p_fd >= 0)
-            close(*p_fd);
-        free(p_fd);
-        p_fd = NULL;
+        if (ref != NULL)
+            aos_pwm_put(ref);
+        free(ref);
+        ref = NULL;
     }
-    return ret;
-#else
-    return -1;
-#endif
-}
-
-int32_t aos_hal_pwm_start(pwm_dev_t *pwm)
-{
-#ifndef AOS_BOARD_HAAS700
-    int32_t *p_fd = NULL;
-    int32_t ret = -1;
-
-    if (!pwm)
-        return -EINVAL;
-
-    p_fd = (int32_t *)pwm->priv;
-
-    if (!p_fd || *p_fd < 0)
-        return -EIO;
-
-    ret = ioctl(*p_fd, IOC_PWM_ON, NULL);
-    if (ret) {
-        printf ("pwm%d start failed, ret:%d\r\n", pwm->port, ret);
-    }
-
     return ret;
 #else
     return -1;
@@ -94,23 +71,31 @@ int32_t aos_hal_pwm_start(pwm_dev_t *pwm)
 int32_t aos_hal_pwm_stop(pwm_dev_t *pwm)
 {
 #ifndef AOS_BOARD_HAAS700
-    int32_t *p_fd = NULL;
-    int32_t ret = -1;
+    int ret = 0;
+    aos_pwm_ref_t *ref = NULL;
+    aos_pwm_attr_t attr;
 
     if (!pwm)
         return -EINVAL;
 
-    p_fd = (int32_t *)pwm->priv;
+    ref = (aos_pwm_ref_t *)pwm->priv;
 
-    if (!p_fd || *p_fd < 0)
+    if (!ref)
         return -EIO;
 
-    ret = ioctl(*p_fd, IOC_PWM_OFF, NULL);
-    if (ret) {
-        printf ("pwm%d start failed, ret:%d\r\n", pwm->port, ret);
-    }
-
+    attr.enabled = 0;
+    ret = aos_pwm_set_attr(ref, &attr);
     return ret;
+#else
+    return -1;
+#endif
+}
+
+
+int32_t aos_hal_pwm_start(aos_hal_pwm_dev_t *pwm)
+{
+#ifndef AOS_BOARD_HAAS700
+    return 0;
 #else
     return -1;
 #endif
@@ -119,28 +104,22 @@ int32_t aos_hal_pwm_stop(pwm_dev_t *pwm)
 int32_t aos_hal_pwm_para_chg(pwm_dev_t *pwm, pwm_config_t para)
 {
 #ifndef AOS_BOARD_HAAS700
-    int32_t *p_fd = NULL;
-    int32_t ret = -1;
-
+    int ret = 0;
+    aos_pwm_ref_t *ref = NULL;
+    aos_pwm_attr_t attr;
     if (!pwm)
         return -EINVAL;
 
-    p_fd = (int32_t *)pwm->priv;
+    ref = (aos_pwm_ref_t *)pwm->priv;
 
-    if (!p_fd || *p_fd < 0)
+    if (!ref)
         return -EIO;
 
-    ret = ioctl(*p_fd, IOC_PWM_FREQ, (unsigned long)para.freq);
-    if (ret) {
-        printf ("set freq to %d on pwm%d failed, ret:%d\r\n", para.freq, pwm->port, ret);
-    }
-
-    float duty = para.duty_cycle / 100.0;
-    ret = ioctl(*p_fd, IOC_PWM_DUTY_CYCLE, (unsigned long)&duty);
-    if (ret) {
-        printf("set duty cycle to %d on pwm%d failed, ret:%d\r\n", duty, pwm->port, ret);
-    }
-
+    attr.period = para.freq > 0 ? DIV_ROUND_CLOSEST(NS_PER_SEC, para.freq) : 0;
+    attr.duty_cycle = para.duty_cycle > 0 ? (attr.period * para.duty_cycle) / 100 : 0;
+    attr.enabled = 1;
+    attr.polarity = 0;
+    ret = aos_pwm_set_attr(ref, &attr);
     return ret;
 #else
     return -1;
@@ -150,28 +129,26 @@ int32_t aos_hal_pwm_para_chg(pwm_dev_t *pwm, pwm_config_t para)
 int32_t aos_hal_pwm_finalize(pwm_dev_t *pwm)
 {
 #ifndef AOS_BOARD_HAAS700
-    int32_t ret = 0;
-    int32_t port = 0;
-    int32_t *p_fd = NULL;
-
-    if (!pwm || !pwm->priv)
+    int ret;
+    aos_pwm_ref_t *ref = NULL;
+    aos_pwm_attr_t attr;
+    if (!pwm)
         return -EINVAL;
 
-    p_fd = (int32_t *)pwm->priv;
+    ref = (aos_pwm_ref_t *)pwm->priv;
 
-    if (*p_fd < 0)
+    if (!ref)
         return -EIO;
 
-    if (*p_fd >= 0)
-        close(*p_fd);
-    else
-        ret = -EALREADY;
-
-    pwm->priv = NULL;
-
-    *p_fd = -1;
-    free(p_fd);
-
+    attr.enabled = 0;
+    ret = aos_pwm_set_attr(ref, &attr);
+    if (ret) {
+        goto out;
+    }
+    aos_pwm_put(ref);
+    free(ref);
+    return 0;
+out:
     return ret;
 #else
     return -1;
