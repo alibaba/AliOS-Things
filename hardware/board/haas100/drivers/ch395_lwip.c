@@ -15,6 +15,7 @@
 #include "uservice/uservice.h"
 #include "uservice/eventid.h"
 #include "ulog/ulog.h"
+#include <netmgr_ethernet.h>
 
 #include "ch395_spi.h"
 #include "ch395_cmd.h"
@@ -43,7 +44,10 @@ static tcpip_ip_info_t eth_ip_info = {0};
 static aos_task_t gst_ch395_lwip_int_task = {0};
 static aos_task_t gst_ch395_input_task = {0};
 static aos_sem_t gst_ch395_recv_sem = {0};
-static st_ch395_info_t gst_lwipch395info = {0};
+static st_ch395_info_t gst_lwipch395info = { .phystate = PHY_DISCONN, };
+static aos_mutex_t eth_mutex;
+static int fake_recv_count = 0;
+static bool bypass_fake_linkup = false;
 
 static void ch395_lwip_inter_proc(void);
 static int ch395_eth_sock_macraw(void);
@@ -95,7 +99,9 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
     }
     /*for 4-byte alignment， 14 bytes ethernet header will cost 16 bytes;
       so just we jump over the first two bytes */
+    (void)aos_mutex_lock(&eth_mutex, AOS_WAIT_FOREVER);
     ret = ch395_socket_data_send(0, datalen, data);
+    (void)aos_mutex_unlock(&eth_mutex);
     aos_free(data);
     if (ret) {
         printf("ch395 lwip low level output len %d fail", datalen);
@@ -154,6 +160,53 @@ static struct pbuf *low_level_input(struct netif *netif, uint8_t *data, uint32_t
     return p;
 }
 
+extern void ch395_device_dereset(void);
+
+static int reset_ch395(void)
+{
+    int ret;
+
+    printf("CH395 resetting...\r\n");
+
+    ch395_device_dereset();
+    /*
+    ret = ch395_chip_reset();
+    if (ret) {
+        printf("eth reset fail %d\r\n", ret);
+        return -1;
+    }
+    */
+
+    aos_msleep(100);
+
+    ret = ch395_set_func_param(SOCK_CTRL_FLAG_SOCKET_CLOSE);
+    if (ret) {
+        printf("eth init fail : ch395 set func param fail %d\r\n", ret);
+        return -1;
+    }
+
+    ret = ch395_dev_init();
+    if (ret) {
+        printf("eth init fail : ch395 init fail %d\r\n", ret);
+        return -1;
+    }
+
+    ret = ch395_eth_sock_macraw();
+    if (ret) {
+        printf("eth fail to set socket 0 macraw mode %d\r\n", ret);
+        return -1;
+    }
+
+    ret = ch395_ping_enable(1);
+    if (ret) {
+        printf("eth init fail : ch395 ping enable fail %d\r\n", ret);
+    }
+
+    printf("CH395 reset done...\r\n");
+
+    return 0;
+}
+
 static void ethernetif_input(void const *argument)
 {
     struct pbuf *p;
@@ -177,20 +230,47 @@ static void ethernetif_input(void const *argument)
             continue;
         }
 
+        (void)aos_mutex_lock(&eth_mutex, AOS_WAIT_FOREVER);
         ret = ch395_socket_recv_data_len(sock, &recv_len);
+        (void)aos_mutex_unlock(&eth_mutex);
         if (ret) {
             LOGE(TAG, "Fail to get sock %d recv length", sock);
             continue;
         }
 
-        if (recv_len == 0) {
-            LOGE(TAG, "sock %d no data need to recv ", sock);
+        if (recv_len == 0 || recv_len > CH395_MAX_DATA_SIZE) {
+            sem_count_t sem_count;
+
+            if (recv_len == 0) {
+                fake_recv_count += 1;
+                LOGE(TAG, "sock %d no data need to recv", sock);
+            } else {
+                fake_recv_count += 4;
+                LOGE(TAG, "sock %d frame over sized", sock);
+            }
+
+            (void)krhino_sem_count_get((ksem_t *)gst_ch395_recv_sem, &sem_count);
+            (void)krhino_sem_count_set((ksem_t *)gst_ch395_recv_sem, 0);
+            printf("ch395 recv sem count %lu\r\n", (unsigned long)sem_count);
+
+            if (fake_recv_count >= 4) {
+                (void)aos_mutex_lock(&eth_mutex, AOS_WAIT_FOREVER);
+                // gst_lwipch395info.phystate = PHY_DISCONN;
+                // event_publish(EVENT_ETHERNET_LINK_DOWN, NULL);
+                bypass_fake_linkup = true;
+                (void)reset_ch395();
+                (void)aos_mutex_unlock(&eth_mutex);
+                fake_recv_count = 0;
+            }
+
             continue;
         }
 
+        fake_recv_count = 0;
         memset(precv_data, 0, CH395_MAX_DATA_SIZE);
-
+        (void)aos_mutex_lock(&eth_mutex, AOS_WAIT_FOREVER);
         ret = ch395_socket_recv_data(sock, recv_len, precv_data);
+        (void)aos_mutex_unlock(&eth_mutex);
         if (ret) {
             LOGE(TAG, "sock %d recv data fail len %d", sock, recv_len);
             continue;
@@ -420,7 +500,9 @@ static void ch395_lwip_sock_interrupt_proc(uint8_t sockindex)
     int32_t ret = 0;
 
     /* get sock interrupt status */
+    (void)aos_mutex_lock(&eth_mutex, AOS_WAIT_FOREVER);
     ret = ch395_get_sock_int_status(sockindex, &sock_int_socket);
+    (void)aos_mutex_unlock(&eth_mutex);
     /* send done proc */
     if (sock_int_socket & SINT_STAT_SENBUF_FREE) {
         // LOGI(TAG, "sock %d send data done ", sockindex);
@@ -472,7 +554,9 @@ static void ch395_lwip_inter_proc(void)
         aos_msleep(5);
 
         ch395_int_status = 0;
+        (void)aos_mutex_lock(&eth_mutex, AOS_WAIT_FOREVER);
         ret = ch395_get_global_all_int_status(&ch395_int_status);
+        (void)aos_mutex_unlock(&eth_mutex);
 
         if (ch395_int_status & GINT_STAT_UNREACH) {
             /* nothing to do for now*/
@@ -485,25 +569,47 @@ static void ch395_lwip_inter_proc(void)
 
         if (ch395_int_status & GINT_STAT_PHY_CHANGE) {
             /*get phy status*/
+            (void)aos_mutex_lock(&eth_mutex, AOS_WAIT_FOREVER);
             ret = ch395_get_phy_status(&phy_status);
             if (ret != 0) {
                 LOGE(TAG, "Fail to get phy status");
-                continue;
-            }
-            gst_lwipch395info.phystate = phy_status;
-            if (phy_status == PHY_DISCONN) {
-                LOGI(TAG, "eth link down");
-                event_publish(EVENT_ETHERNET_LINK_DOWN, NULL);
+            } else if (phy_status == PHY_DISCONN) {
+                bypass_fake_linkup = false;
+                if (gst_lwipch395info.phystate != PHY_DISCONN) {
+                    LOGI(TAG, "eth link down");
+                    gst_lwipch395info.phystate = phy_status;
+                    event_publish(EVENT_ETHERNET_LINK_DOWN, NULL);
+                } else {
+                    LOGE(TAG, "eth fake link down");
+                }
             } else {
-                /*start up to dhcp*/
-                LOGI(TAG, "eth link up");
-                event_publish(EVENT_ETHERNET_LINK_UP, &eth_lwip_netif);
+                if (gst_lwipch395info.phystate == PHY_DISCONN) {
+                    /*start up to dhcp*/
+                    LOGI(TAG, "eth link up");
+                    gst_lwipch395info.phystate = phy_status;
+                    event_publish(EVENT_ETHERNET_LINK_UP, &eth_lwip_netif);
+                } else {
+                    if (bypass_fake_linkup) {
+                        bypass_fake_linkup = false;
+                    } else {
+                        LOGE(TAG, "eth fake link up");
+                        // gst_lwipch395info.phystate = PHY_DISCONN;
+                        // event_publish(EVENT_ETHERNET_LINK_DOWN, NULL);
+                        bypass_fake_linkup = true;
+                        (void)reset_ch395();
+                        (void)aos_mutex_unlock(&eth_mutex);
+                        continue;
+                    }
+                }
             }
+            (void)aos_mutex_unlock(&eth_mutex);
         }
 
         /* dhcp/pppoe interrup proc */
         if (ch395_int_status & GINT_STAT_DHCP) {
+            (void)aos_mutex_lock(&eth_mutex, AOS_WAIT_FOREVER);
             ret = ch395_dhcp_get_status(&dhcp_status);
+            (void)aos_mutex_unlock(&eth_mutex);
             if (ret) {
                 LOGE(TAG, "Fail to dhcp result");
                 continue;
@@ -513,7 +619,9 @@ static void ch395_lwip_inter_proc(void)
                 /*try to get ip interface */
                 do {
                     memset(&gst_lwipch395info.ip_info, 0, sizeof(gst_lwipch395info.ip_info));
+                    (void)aos_mutex_lock(&eth_mutex, AOS_WAIT_FOREVER);
                     ret = ch395_get_ip_interface(&gst_lwipch395info.ip_info);
+                    (void)aos_mutex_unlock(&eth_mutex);
                     if (ret) {
                         LOGE(TAG, "Fail to get eth interface ip info");
                         continue;
@@ -548,12 +656,30 @@ static void ch395_lwip_inter_proc(void)
     }
 }
 
+void eth_ch395_reset(void)
+{
+    (void)aos_mutex_lock(&eth_mutex, AOS_WAIT_FOREVER);
+    if (netmgr_eth_get_stat() == CONN_STATE_NETWORK_CONNECTED) {
+        gst_lwipch395info.phystate = PHY_DISCONN;
+        event_publish(EVENT_ETHERNET_LINK_DOWN, NULL);
+        bypass_fake_linkup = false;
+        (void)reset_ch395();
+    }
+    (void)aos_mutex_unlock(&eth_mutex);
+}
+
 int eth_lwip_tcpip_init(void)
 {
     int ret = 0;
     unsigned char chip_ver = 0;
     unsigned char soft_ver = 0;
     spi_dev_t eth_spi_dev = {0};
+
+    ret = aos_mutex_new(&eth_mutex);
+    if (ret) {
+        printf("eth_mutex init fail %d\r\n", ret);
+        return -1;
+    }
 
     eth_spi_dev.port = 0;
     eth_spi_dev.config.data_size = SPI_DATA_SIZE_8BIT;
@@ -580,13 +706,13 @@ int eth_lwip_tcpip_init(void)
 
     ret = ch395_set_func_param(SOCK_CTRL_FLAG_SOCKET_CLOSE);
     if (ret) {
-        printf("eht init fail : ch395 set func param fail %d\r\n", ret);
+        printf("eth init fail : ch395 set func param fail %d\r\n", ret);
         return -1;
     }
 
     ret = ch395_dev_init();
     if (ret) {
-        printf("eht init fail : ch395 init fail %d\r\n", ret);
+        printf("eth init fail : ch395 init fail %d\r\n", ret);
         return -1;
     }
 
@@ -598,7 +724,7 @@ int eth_lwip_tcpip_init(void)
 
     ret = ch395_ping_enable(1);
     if (ret) {
-        printf("eht init fail : ch395 ping enable fail %d\r\n", ret);
+        printf("eth init fail : ch395 ping enable fail %d\r\n", ret);
     }
 
     tcpip_init_done(NULL);
