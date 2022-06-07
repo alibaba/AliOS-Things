@@ -38,7 +38,8 @@ uart = UART()
 board.json中的UART类型设备属性配置项说明如下：
 
 |属性字段|数据类型|属性值|必选项？|字段说明|
-|-----|:---:|----|:---:|----|
+|-----|---|----|---|----|
+|type|string|"UART”|是|端口分类|
 |port|int|2|是|配置端口值，这里跟芯片 datasheet上 的端口对应。目前nodemcu32s只支持2号UART。|
 |dataWidth|int|5、6、7、8|否|串口数据宽度值，默认为 8(bits)|
 |baudRate|int|9600、115200 等|否|串口波特率，默认为 115200|
@@ -184,6 +185,26 @@ uart.close()
 * 示例代码：
 
 ```python
+{
+    "name": "esp32",
+    "version": "1.0.0",
+    "io": {
+      "serial2": {
+        "type": "UART",
+        "port": 2,
+        "dataWidth": 8,
+        "baudRate": 9600,
+        "stopBits": 1,
+        "flowControl": "disable",
+        "parity": "none"
+      }
+    },
+    "debugLevel": "ERROR",
+    "repl": "disable"
+}
+```
+
+```python
 from driver import UART
 
 def cb(data):
@@ -193,6 +214,6 @@ uart = UART()
 ret = uart.open("serial2")
 uart.on(cb)
 buf = bytearray([0x01,0x02,0x03,0x04])
-uart.write(bytearray)
+uart.write(buf)
 uart.close()
 ```
