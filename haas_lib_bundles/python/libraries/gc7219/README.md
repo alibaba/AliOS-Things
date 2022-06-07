@@ -182,5 +182,5 @@ MCU 与从设备传输数据时，首先将 CS 片选信号置为低电平，随
 </div>
 
 ## 参考文献及购买链接
-[1] [GC7219 Datasheet](https://atta.szlcsc.com/upload/public/pdf/source/20200327/C504557_773C51D90432D221689245F7F10C230D.pdf?Expires=4070880000&OSSAccessKeyId=LTAIJDIkh7KmGS1H&Signature=FFk7RE5Bh9SEuWpkAWSUKrli3hg%3D&response-content-disposition=attachment%3Bfilename%3DC504557_GC7219CWG_2020-03-27.PDF)<br>
+[1] [GC7219 Datasheet](http://www.gcore.com.cn/static/upload/file/20210422/1619083553753525.pdf)<br>
 [2] [购买链接](https://detail.tmall.com/item.htm?id=560277354488)
