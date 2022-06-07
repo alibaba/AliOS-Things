@@ -135,12 +135,12 @@ print(ret)
 
 * 参数说明：
 设置的参数为字典类型，字典包含 freq 和 duty 两个值。
-如： {'freq':2000, 'duty': 0 }
+如： {'freq':2000, 'duty': 40 }
 
 |属性字段|数据类型|属性值|必选项？|字段说明|
 |-----|:---:|----|:---:|----|
 |freq|Number|1|是|PWM信号频率配置，这里跟芯片 datasheet上的说明对应|
-|duty|Number|1|是|PWM占空比配置，这里按照百分数计算，设置50即为占空比50%|
+|duty|Number|1|是|PWM占空比配置，这里按照百分数计算，设置40即为占空比40%|
 
 
 * 返回值：  
@@ -156,7 +156,7 @@ from driver import PWM
 pwmObj = PWM()
 ret = pwmObj.open("buzzer")
 
-data_r = {'freq':2000, 'duty': 100 }
+data_r = {'freq':2000, 'duty': 50 }
 ret = pwmObj.setOption(data_r)
 
 print(ret)
@@ -206,7 +206,7 @@ pwmObj.close()
 * 输出：
 
 ```
-{'duty': 100, 'freq': 1000}
+{'duty': 50, 'freq': 1000}
 ```
 
 ## 使用实例
@@ -225,7 +225,7 @@ def buzzeStartRing():
     global buzzer
 
     # assumes buzzer rings when freq is between 200~9000
-    param = {'freq':2000, 'duty': 3 }
+    param = {'freq':2000, 'duty': 50 }
     buzzer.setOption(param)
 
 # stop buzzer ring
@@ -233,7 +233,7 @@ def buzzeStopRing():
     global buzzer
 
     # assumes buzzer rings when freq is between 200 and 9000, so set PWM's frequence to 100 will stop buzzer ring
-    param = {'freq':100, 'duty': 3 }
+    param = {'freq':100, 'duty': 50 }
     buzzer.setOption(param)
 
 # main entry
