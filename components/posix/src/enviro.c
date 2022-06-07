@@ -7,6 +7,10 @@
 #include <enviro.h>
 #include <aos/kernel.h>
 
+/* Define POSIX_ENV as 1 to enable env apis here when there is no env apis in libc.
+ * Note: Newlib libc already implements env apis, tzset depends on them.
+ */
+#if (POSIX_ENV > 0)
 pthread_mutex_t g_enviro_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_environ_t *g_penviron = NULL;
 
@@ -324,6 +328,7 @@ int clearenv(void)
 
     return 0;
 }
+#endif /*(POSIX_ENV > 0) */
 
 int uname(struct utsname *name)
 {

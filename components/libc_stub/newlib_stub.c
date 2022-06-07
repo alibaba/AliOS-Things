@@ -335,25 +335,6 @@ int _gettimeofday_r(struct _reent *ptr, struct timeval *tv, void *__tzp)
     return 0;
 }
 
-long timezone = 0; /* global variable */
-
-struct tm* localtime_r(const time_t* t, struct tm* r)
-{
-    time_t time_tmp;
-    time_tmp = *t + timezone;
-    return gmtime_r(&time_tmp, r);
-}
-
-struct tm* localtime(const time_t* t)
-{
-    struct tm* timeinfo;
-    static struct tm tm_tmp;
-
-    timeinfo = localtime_r(t, &tm_tmp);
-
-    return timeinfo;
-}
-
 void *_malloc_r(struct _reent *ptr, size_t size)
 {
     void *mem;
