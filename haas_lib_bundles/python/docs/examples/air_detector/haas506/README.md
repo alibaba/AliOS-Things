@@ -1,9 +1,9 @@
 # 气体检测系统
-## 1.简介
+## 1、简介
 &emsp;&emsp;
 本案例将向大家介绍如何使用Python语言在HaaS 506上实现读取传感信息，上报到阿里云物联网平台，并实现云端下发控制继电器。
 
-## 2.准备
+### 1.1、准备
 + 硬件环境
 <br>
 (1)	haas506开发板 Usb转uart模块，Hy转杜邦线4pin 6pin线材，购买链接：
@@ -32,7 +32,7 @@ https://blog.csdn.net/HaaSTech/article/details/119379840
 (6)	Haas506 Python api手册，查看链接：
 https://g.alicdn.com/HaaSAI/PythonDoc/library/index.html
 
-## 3.涉及知识点
+### 1.2、涉及知识点
 &emsp;&emsp;（1）uart通讯原理
 <br>
 &emsp;&emsp;&emsp;&emsp;串口全称叫做串行接口，通常也叫做 COM 接口，串行接口指的是数据一个一个的顺序传输，通信线路简单。使用两条线即可实现双向通信，一条用于发送，一条用于接收。串口通信距离远，但是速度相对会低，串口是一种很常用的工业接口。
@@ -46,7 +46,7 @@ https://g.alicdn.com/HaaSAI/PythonDoc/library/index.html
 &emsp;&emsp;&emsp;&emsp;阿里云物联网平台为设备提供安全可靠的连接通信能力，向下连接海量设备支撑设备数据采集上云；向上提供云端API，服务端通过调用云端API将指令下发至设备端，实现远程控制。
 <br>
 
-## 4.代码流程图
+### 1.3、代码流程图
 &emsp;&emsp;
 <div align="center">
 <img src=./../../../images/haas506案例图片/haas506_gas_1.jpg width=80%/>
@@ -55,7 +55,7 @@ https://g.alicdn.com/HaaSAI/PythonDoc/library/index.html
 
 
 
-## 5.接线方式
+### 1.4、接线方式
 &emsp;&emsp;（1）空气传感器连接4pin HY线材对接HaaS506 开发板TTL接口(J8)。
 注意事项：空气传感器接收接HaaS506开发板发送(TX),空气传感器发送接HaaS506开发板接收(RX),空气传感器地接HaaS506开发板GND，空气传感器VCC接HaaS506	开发板3.3V
 <br>
@@ -63,7 +63,7 @@ https://g.alicdn.com/HaaSAI/PythonDoc/library/index.html
  注意事项：继电器VCC接Haas506开发板3.3V，继电器Gnd接HaaS506开发板GND,继电器In1接HaaS506开发板MOSI。HaaS506开发板CS接HaaS506开发板GND。
 <br>
 
-## 6.使用
+### 1.5、使用
 + 阿里云物联网产品创建
 
 &emsp;&emsp;&emsp;&emsp;请参见如下文档：
@@ -285,7 +285,7 @@ https://g.alicdn.com/HaaSAI/PythonDoc/library/index.html
 
 
 
-## 7.测试
+### 1.6、测试
 + 准备硬件：
 
 &emsp;&emsp;（1）请参考上述准备 硬件环境。

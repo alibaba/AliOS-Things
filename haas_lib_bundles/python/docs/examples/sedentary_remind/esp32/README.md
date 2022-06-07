@@ -5,7 +5,9 @@
 <img src=./../../../images/3_久坐提醒_步骤概述.png width=70%/>
 </div>
 
-## 简介
+## 1、简介
+
+### 1.1、背景
 &emsp;&emsp;
 身边很多从事办公室的白领，经常会听他们说：腰椎不行了，有点难受，要不就颈椎也不舒服，这些常见的现象不可忽视，它会对人们后面的生活产生很多负面的影响，所以我们想到能不能有这么一个设备，它会定期提醒人们不要坐太久。其实久坐提醒不是一个新鲜事，市面上也有许许多多关于久坐提醒的工具神器，但是，今天我们HaaS团队就手把手教长期在办公室久坐着的你亲手打造一款属于自己的久坐提醒设备，当你长时间在工位上坐着，它会通过钉钉提醒你，让你一段时间去活动一下筋骨，走动走动，这样让我们上班的同时身体也变得更健康。
 
@@ -14,18 +16,30 @@
 1. 漏提醒：当没在红外区域内检测到动（休息睡觉等），就不会触发提醒动作，这个会出现漏提醒
 2. 多提醒：当离开红外区域时间太短（小于设置窗口时间），检测不到人员离开（比如上厕所时间小于设置窗口时间），这个时候不会认为你有运动，到时间还是会提醒你，就会给人感觉多提醒了
 
-## 准备
+### 1.2、准备
 &emsp;&emsp;
 本案例只需要如下硬件：
-* ESP32一台
-* IR人体红外传感器一个
-* SSD1306显示屏一个
-* 杜邦线若干
-* Micro-USB数据线一条
 
-### 硬件连线图
+- ESP32开发板（[ESP32乐鑫开发板](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C9562896F994200000001&dataId=800C9562896F9942)、[NodeMCU-32S](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C0A5C37AADCDB00000001&dataId=800C0A5C37AADCDB)或[pyWiFi-ESP32](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C55C67883087B00000001&dataId=800C55C67883087B)）一台
+- IR人体红外传感器一个
+- SSD1306显示屏一个
+- 杜邦线若干
+- Micro-USB数据线一条
+
 &emsp;&emsp;
-硬件连线图如下图所示：
+ESP32各开发板和外围传感器硬件接线请参考下表。
+
+| 硬件 | IR人体红外传感器 | SSD1306 | 乐鑫<br />ESP32开发板 | 安信可<br />NODEMCU-32S开发板 | 01Studio<br />pyWiFi-ESP32开发板 |
+| --- | --- | --- | --- | --- | --- |
+| 端口标识 | GND | GND | GND | GND | GND |
+|  | VCC | VCC | 3V3 | 3V3 | 3V3 |
+|  | OUT | - | P32 | P32 | P32 |
+|  | - | SCL | P22 | P22 | P22 |
+|  | - | SDA | P21 | P21 | P21 |
+| 硬件说明 |  |  | [快速开始](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup)<br />[详细端口定义](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup?id=%E4%B9%90%E9%91%AB-esp32_devkitc) | [快速开始](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup)<br />[详细端口定义](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup?id=%e5%ae%89%e4%bf%a1%e5%8f%af-nodemcu-32) | [快速开始](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup)<br />[详细端口定义](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup?id=_01studio-pywifi-esp32) |
+
+&emsp;&emsp;
+下图是以NODEMCU-32S开发板为例的接线图。
 
 <div align="center">
 <img src=./../../../images/1_ESP32_sedentary_remind_节点图.png width=80%/>
@@ -38,8 +52,7 @@
 
 <br>
 
-## 物联网平台开发
-### 开通公共实例
+## 2、物联网平台开发
 &emsp;&emsp;
 对于第一次使用物联网平台的读者，需要开通实例以使用物联网平台的功能。这里可以使用免费的公共实例进行开发。
 
@@ -59,7 +72,7 @@
 
 <br>
 
-### 创建云端产品
+### 2.1、创建云端产品
 &emsp;&emsp;
 点击上图中的“公共实例”，即可进入[控制台](https://iot.console.aliyun.com/lk/summary/new)进行产品创建。然后，点击创建产品按钮，如下图所示。
 
@@ -84,7 +97,7 @@
 
 <br>
 
-### 创建产品属性（物模型）
+### 2.3、创建产品属性（物模型）
 &emsp;&emsp;
 点击上图中的“查看”按钮，即可看到产品信息，Topic列表，功能定义，数据解析等跟产品相关功能的设定。点开“功能定义”标签页，可以看到设备物模型定义，点击“添加自定义功能”，其中功能名称、标识符、数据类型和定义如下所示。
 
@@ -100,7 +113,7 @@
 
 <br>
 
-### 创建云端设备（获取三元组）
+### 2.3、创建云端设备（获取三元组）
 &emsp;&emsp;
 在产品列表页面中，点击“管理设备”，就会进到设备管理页面。
 
@@ -137,7 +150,7 @@
 
 <br>
 
-##### **获取设备三元组**
+**获取设备三元组**
 &emsp;&emsp;
 如上图所示，点击“查看”按钮，就可以看到设备的三元组信息，三元组是物联网设备端和物联网云端设备相关联的唯一标识符，在设备端连接云端的时候会使用三元组信息和云端进行鉴权，鉴权通过之后云端会认为设备已激活并上线。
 
@@ -147,7 +160,7 @@
 
 <br>
 
-#### **查看设备属性信息**
+**查看设备属性信息**
 &emsp;&emsp;
 设备详情信息页中的“物模型数据”标签页中可以看到设备的所有属性信息、设备时间上报情况及设备服务调用情况，如下图所示。待物联网设备按照设备属性对应的标识符上报设备属性的时候，本图片中的”提醒休息“等属性值就会显示设备最新的属性信息。
 <div align="center">
@@ -161,27 +174,24 @@
 &emsp;&emsp;
 至此，久坐提醒器云端的产品、设备以及物模型就全部创建完成了，三元组信息也拿到，接下去开始进行设备端的开发
 
-## 设备端开发
+## 3、设备端开发
 
-### 开发环境
+### 3.1、开发环境
 
 &emsp;&emsp;
 在进行下一步之前请确保ESP32开发环境已经搭建完毕。详情请参考[esp32开发环境](../../../startup/ESP32_startup.md)的说明。
 
-## 创建解决方案
-
+### 3.2、创建解决方案
 &emsp;&emsp;
-点击下图中的"快速开始"按键(<img src=./../../../images/1_HaaS_Studio_创建工程按钮.png width=8%/>)会弹出HaaS Studio的欢迎页面，请点击“创建项目”按钮。
-
-&emsp;&emsp;
-在随后弹框中，设定好项目名称（“sedentary_remind”）及工作区路径之后，硬件类型选择ESP32，点击“立即创建”，创建一个Python轻应用的解决方案。
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“久坐提醒系统”案例点击“立即创建”即可。
 
 <div align="center">
-<img src=./../../../images/1_创建_sr_工程_ESP32.png width=40%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
+<br>
 
 &emsp;&emsp;
-将[脚本目录](./code)中的所有文件复制后覆盖sedentary_remind工程目录下的原有文件。其中main.py脚本的内容如下图所示：
+其中main.py脚本的内容如下图所示：
 ```python
 #########
 from aliyunIoT import Device     # iot组件是连接阿里云物联网平台的组件
@@ -245,7 +255,7 @@ if __name__ == '__main__' :
 
 1. **修改路由器名称及密码**
 &emsp;&emsp;
-修改sedentary_remind工程里main.py中wifiSsid和wifiPassword的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在""符号中间）。
+修改main.py中wifiSsid和wifiPassword的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在""符号中间）。
 
 ```python
 # Wi-Fi SSID和Password设置
@@ -259,7 +269,7 @@ wifiPassword = "请填写您的路由器密码"
 2. **修改设备端三元组**
 
 &emsp;&emsp;
-修改sedentary_remind工程里main.py中productKey、deviceName和deviceSecret的值为读者创建的物联网设备的三元组信息，如下图所示：
+修改main.py中productKey、deviceName和deviceSecret的值为读者创建的物联网设备的三元组信息，如下图所示：
 ```python
 # 三元组信息
 productKey = "产品密钥"
@@ -267,10 +277,10 @@ deviceName = "设备名称"
 deviceSecret = "设备密钥"
 ```
 
-1. **修改设备端上报提醒休息信息标识符**
+3. **修改设备端上报提醒休息信息标识符**
 
 &emsp;&emsp;
-sedentary_remind工程里main.py中下面的代码实现的是上传提醒休息到云端的功能。其中call_rst消息提醒上报时所用的标识符。
+main.py中下面的代码实现的是上传提醒休息到云端的功能。其中call_rst消息提醒上报时所用的标识符。
 ```python
 # 上传休息提醒状态到物联网平台
 def report_event(data):
@@ -335,7 +345,9 @@ def irq_handler(data):
 
 <br>
 
-## 运行结果
+## 4、运行结果
+
+### 4.1、设备端运行
 &emsp;&emsp;
 推送此脚本到ESP32之后，运行此脚本，ESP32串口会周期性的打印如下日志。其中：
 * “物联网平台连接成功” 代表成功连接到物联网平台
@@ -375,7 +387,7 @@ you need has rest,because you work too long
 report rest
 ```
 
-### 物联网平台端设备信息查看
+### 4.2、物联网平台端设备信息查看
 
 &emsp;&emsp;
 物联网设备的系统启动成功并连接到物联网平台之后，物联网平台上对应的设备状态会从”未激活状态“变为”上线“，在物模型数据标签页上会显示设备上报到物联网平台的属性值。
@@ -387,9 +399,9 @@ report rest
 &emsp;&emsp;
 此时如果有久坐提醒的信息和人员离开的信息都会上报，物联网平台的物模型数据会更新为设备上报的最新的属性值。
 
-## 钉钉消息提醒
+## 5、钉钉消息提醒
 
-### 添加钉钉机器人
+### 5.1、添加钉钉机器人
 
 &emsp;&emsp;
 在钉钉上创建一个群组并进入群设置->智能群助手->添加机器人->自定义。首先选择“智能群助手”：
@@ -415,7 +427,7 @@ report rest
 <img src=./../../../images/1_dd_机器人hook获取.png width=100%/>
 </div>
 
-### IoT Studio设置
+### 5.2、IoT Studio设置
 
 &emsp;&emsp;
 首先从物联网平台的功能页面，点击相关产品，进入IoT Studio产品页，开通服务后（首次访问）选择应用开发->业务服务->新建一个测试用的业务服务
@@ -477,7 +489,7 @@ report rest
 <img src=./../../../images/1_dd_studio_关联添加2.png width=100%/>
 </div>
 
-### 钉钉机器人配置
+### 5.3、钉钉机器人配置
 &emsp;&emsp;
 点击钉钉机器人节点，并将你的钉钉机器人webhook地址填入其中，其余选项按下图中配置即可，注意之前配置机器人的关键词为“设备”，因为这里的通知消息里带有“设备”两字。
 

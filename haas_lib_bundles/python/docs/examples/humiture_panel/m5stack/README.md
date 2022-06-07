@@ -1,45 +1,38 @@
-# 家居温湿度面板
+# 温湿度面板
 &emsp;&emsp;
 随着这几年智能家居行业的快速发展，家庭用的智能面板越来越普及。智能面板不仅可以用来显示时间、家用电器的状态、回家/离家模式选择还可以用来调节空调温度、加湿器状态等等信息，给人们的生活带来了很多便利。本文则是以最常用的智能温湿度面板为例，介绍如何使用快速打造一个UI面板。
 
-## 简介
+## 1、简介
 &emsp;&emsp;
 本文将基于HaaS UI Lite开发框架使用Python语言进行家居温湿度面板的打造。
 
-## 准备
 &emsp;&emsp;
 本案例打造需要使用到如下硬件：
 * [M5StackCore2开发板](../../../startup/M5StackCore2_startup.md)      一台
 * [SHT3X温湿度传感器](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800CD7F0F2F57FF800000002&dataId=800CD7F0F2F57FF8)   一个
 
-### 硬件连线图
 &emsp;&emsp;
 将SHT3X和M5StackCore2通过I2C接口连接起来，硬件连线图如下图所示。
 <div align="center">
 <img src=./../../../images/humiture_panel_硬件连线图_m5stack.png width=40%/>
 </div>
 
-## 设备端开发
+## 2、设备端开发
 
-### 开发环境
+### 2.1、开发环境
 &emsp;&emsp;
 在进行下一步之前请确保M5StackCore2开发环境已经搭建完毕，详情请参考[M5StackCore2快速开始](../../../startup/M5StackCore2_startup.md)中的说明。
 
-### 创建解决方案
-&emsp;&emsp;
-如下图所示，打开VS Code之后在新建一个基于helloworld的python工程，设定好工程名称（“humiture_panel”）及工作区路径之后，**硬件类型**选择m5stackcore2，点击**立即创建**，创建一个Python轻应用的解决方案。
-
-<div align="center">
-<img src=./../../../images/humiture_panel_创建工程_m5stack.png width=40%/>
-</div>
+### 2.2、创建解决方案
 
 &emsp;&emsp;
-将[本案例脚本](./code/)的代码全部复制后，覆盖“humiture_panel”工程根目录下的所有文件，main.py文件如下图所示：
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“温湿度面板”案例点击“立即创建”即可。
 <div align="center">
-<img src=./../../../images/humiture_panel_main界面.png width=80%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
+<br>
 
-## 运行效果
+## 3、运行效果
 &emsp;&emsp;
 将humiture_panel工程推送到M5StackCore2开发板之后，脚本会自动运行。屏幕上面显示如下信息：
 
@@ -69,11 +62,11 @@ temperature: 21.38539
 humidity: 33.12886
 ```
 
-## HaaS UI Lite 温湿度面板模板说明
+## 4、HaaS UI Lite 温湿度面板模板说明
 &emsp;&emsp;
 本案例中使用到了HaaS UI Lite封装的**温湿度面板**类型的**模板**。此模板的代码实现请参考humiturePanel.py的实现。基于此模板可以很方便的将温湿度信息显示在面板上。下面是对模板元素及面板库API的说明。
 
-### 温湿度面板元素
+### 4.1、温湿度面板元素
 &emsp;&emsp;
 如下图所示，此温湿度面板一共有8个元素，编号为1-4的元素是温度显示的组成部分，编号为5-8的元素为相对湿度显示的组成部分。
 <div align="center">
@@ -93,9 +86,9 @@ humidity: 33.12886
 |7|相对湿度单位图标|同“元素6”|%为符浩|
 |8|相对湿度英文字串|同“元素5”|静态文字|
 
-### 温湿度面板模板API说明
+### 4.2、温湿度面板模板API说明
 
-#### HumiturePanel() - 创建温湿度面板对象
+#### 4.2.1、HumiturePanel() - 创建温湿度面板对象
 <br>
 
 * 函数原型
@@ -122,7 +115,7 @@ create humiture panel
 ```
 </br>
 
-#### showTemperature(temperature) - 更新温度值到面板上
+#### 4.2.2、showTemperature(temperature) - 更新温度值到面板上
 
 * 函数功能：
 
@@ -160,7 +153,7 @@ create humiture panel
 update temperature value done
 ```
 
-#### showHumidity(humidity) - 更新相对湿度值到面板上
+#### 4.2.3、showHumidity(humidity) - 更新相对湿度值到面板上
 
 * 函数功能：
 
@@ -198,7 +191,7 @@ create humiture panel
 update humidity value done
 ```
 
-#### showHumiture(tempearture, humidity) - 同时更新温度和相对湿度值到面板上
+#### 4.2.4、showHumiture(tempearture, humidity) - 同时更新温度和相对湿度值到面板上
 
 * 函数功能：
 

@@ -6,7 +6,7 @@
 </div>
 <br>
 
-## 简介
+## 1、简介
 &emsp;&emsp;
 手势识别是物联网智能感知领域里的一项重要技术，通过检测手势动作，可以将之映射成不同的指令，用于智能家居场景的各种控制，实现智能交互。本案例通过识别敲击（Tap）的手势动作，并将手势动作上报至云端，管理者可实时查看手势动作的识别记录。
 
@@ -15,22 +15,21 @@
 
 <br>
 
-## 背景知识
+## 1.1、背景知识
 
 &emsp;&emsp;
 当前，越来越多的电子设备开始支持手势识别功能，手势识别旨在识别人类的物理运动或“手势”，以实现智能交互。例如，在电子设备前以特定的模式挥手可以让它执行特定的功能。通过手势识别，与物联网相结合，可以实现对设备的控制，创造智能生活场景。手势识别也打开了智能交互的新大门，用户可以定义自己的手势交互，用手指触控未来。
 
 <br>
 
-## 准备
+### 1.2、准备
 
-1. [M5StackCore2 开发板一套（内置 MPU6886 传感器）](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C84FAF561DF6A00000001&dataId=800C84FAF561DF6A)
+本案例需要[M5StackCore2 开发板一套（内置 MPU6886 传感器）](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C84FAF561DF6A00000001&dataId=800C84FAF561DF6A)。
 
 <br>
 
-## 物联网平台开发
+## 2、物联网平台开发
 
-### 开通公共实例
 
 &emsp;&emsp;
 对于第一次使用物联网平台的读者，需要开通实例以使用物联网平台的功能。这里可以使用免费的公共实例进行开发。
@@ -50,7 +49,7 @@
 
 <br>
 
-### 创建产品（设备模型）
+### 2.1、创建产品（设备模型）
 
 &emsp;&emsp;
 进入[公共实例控制台](https://iot.console.aliyun.com/lk/summary/new)，点击“创建产品”按钮，即可进入[新建产品页面](https://iot.console.aliyun.com/product)。
@@ -77,7 +76,7 @@
 点击“前往定义物模型”。
 <br>
 
-### 定义产品功能（物模型）
+### 2.2、定义产品功能（物模型）
 
 &emsp;&emsp;
 点击功能定义，再点击编辑草稿。
@@ -103,7 +102,7 @@
 &emsp;&emsp;
 产品及其物模型创建完成后就可以创建这个产品的设备了。
 
-### 创建设备及获取三元组
+### 2.3、创建设备及获取三元组
 
 &emsp;&emsp;
 点击左侧栏中“设备“，在筛选框中选择要添加设备的产品，点击“添加设备”。这里这里我们命名为“**test_device**”，开发者也可以根据自己的喜好来命名。
@@ -131,73 +130,27 @@
 ![敲击手势检测系统_物联网平台开发_设备证书.png](./../../../images/敲击手势检测系统_物联网平台开发_设备证书.png)
 <br>
 
-## 设备端开发
+## 3、设备端开发
 
-### 开发环境
+### 3.1、开发环境
 
 &emsp;&emsp;
 在进行下一步之前请确保 M5StackCore2 开发环境已经搭建完毕。详情请参考[M5StackCore2 开发环境](../../../startup/M5StackCore2_startup.md)的说明。
 <br>
 
-### 创建解决方案
-
+### 3.2、创建解决方案
 &emsp;&emsp;
-如下图所示，打开 VS Code 之后在新建一个基于 helloworld 的 python 工程，设定好工程名称（“tap_detection”）及工作区路径之后，硬件类型选择 m5stackcore2，点击立即创建，创建一个 Python 轻应用的解决方案。
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“敲击手势检测”案例点击“立即创建”即可。
 
 <div align="center">
-<img src=./../../../images/敲击手势检测系统_工程创建.png width=80%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
-
-&emsp;&emsp;
-将[敲击手势检测系统代码](./code/)文件下的所有脚本进行复制到“tap_detection”工程根目录中，其中比较核心的部分是[motion模块](../../haas_extended_api/../../haas_extended_api/motion.md)。main.py代码如下所示：
-
-```python
-def get_data():
-    acc = mpu6886Dev.acceleration
-    gyro = mpu6886Dev.gyro
-    # print(acc)
-    # print(gyro)
-    return acc, gyro                    # 返回读取到的加速度、角速度值
-
-def tap_detected():
-    upload_data = {'params': ujson.dumps({
-            'tap_count': motionObj.detectAction.tap_detect_count,
-        })
-    }
-    # 上传状态到物联网平台
-    if (iot_connected):
-        device.postProps(upload_data)
-
-if __name__ == '__main__':
-    # 网络初始化
-    wlan = network.WLAN(network.STA_IF)    #创建WLAN对象
-    get_wifi_status()
-    connect_lp(productKey, deviceName, deviceSecret)
-
-    # 硬件初始化
-    i2cObj = I2C()
-    i2cObj.open("mpu6886")                 # 按照board.json中名为"mpu6886"的设备节点的配置参数（主设备I2C端口号，从设备地址，总线频率等）初始化I2C类型设备对象
-    print("mpu6886 inited!")
-    mpu6886Dev = mpu6886.MPU6886(i2cObj)   # 初始化MPU6886传感器
-
-    # 获取跌倒检测的motion实例
-    motionObj = motion.Motion("double_tap", get_data, tap_detected)
-
-    # 使能action检测，并以Dictionary格式传入灵敏度参数
-    sensitivity = { "ACCELERATION_UP_THREADHOLD" : 30 }
-    motionObj.enable(sensitivity)
-
-    # 关闭action检测，可再次使能，支持传入新的灵敏度
-    # motionObj.disable()
-
-    # i2cObj.close()                                      # 关闭I2C设备对象
-    # del mpu6886Dev
-```
+<br>
 
 1. **修改路由器名称及密码**
 
 &emsp;&emsp;
-修改 tap_detection 工程里main.py中 SSID 和 PWD 的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
+修改main.py中 SSID 和 PWD 的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
 
 ```python
 # Wi-Fi SSID和Password设置
@@ -223,7 +176,7 @@ deviceSecret  = "Your-deviceSecret"
 3. **设置手势动作检测参数**
 
 &emsp;&emsp;
-在 tap_detection 工程的main.py里，通过 Motion() 构造函数的第一个参数可以设定是"single_tap"（单击手势）还是"double_tap"（双击手势）。调用 enable(sensitivity) 函数可以设置手势动作检测参数，如果不传参数，则 enable() 函数将使用默认参数。
+在main.py里，通过 Motion() 构造函数的第一个参数可以设定是"single_tap"（单击手势）还是"double_tap"（双击手势）。调用 enable(sensitivity) 函数可以设置手势动作检测参数，如果不传参数，则 enable() 函数将使用默认参数。
 
 ```python
 # 设置手势检测的参数
@@ -251,8 +204,9 @@ def detect_action(self):
         utime.sleep_us(10)
 ```
 
-## 运行程序
+## 4、运行程序
 
+### 4.1、设备端
 1. **推送脚本**
 
 &emsp;&emsp;
@@ -291,7 +245,7 @@ def detect_action(self):
 
 <br>
 
-## 云端查看
+## 4.2、云端查看
 
 &emsp;&emsp;
 进入阿里云官网，用阿里云账号[登录物联网平台](https://iot.console.aliyun.com/devices/)查看状态

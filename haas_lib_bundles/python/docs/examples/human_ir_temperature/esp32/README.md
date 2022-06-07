@@ -5,7 +5,9 @@
 <img src=./../../../images/3_人体红外测温系统_步骤概述.png width=70%/>
 </div>
 
-## 简介
+## 1、简介
+
+### 1.1、背景
 &emsp;&emsp;
 2020年1月全球新冠疫情发生并开始传播，但是2年时间已经都过去了，疫情还是不断反复无常，丝毫没有减退的迹象，并且越演愈烈。马上又一个春节来临，春节对于中国人来说是一个亲友团聚的日子，亲友团聚意味着大家要从五湖四海赶到一块进行相聚，对于现在的疫情现状，相聚意味着有传播的风险。基于这个背景，我们HaaS团队打造了这一套人体红外测温系统的学习系统，你只要按照下面一步一步操作，就可以打造出属于自己的一套防疫测温系统，当亲友来访时，只要对手腕测一下温度，就知道有没有发烧发热了。
 
@@ -20,19 +22,31 @@
 1. 手背温度：33~35度
 2. 测量距离：小于1m
 
-## 准备
+### 1.2、准备
 &emsp;&emsp;
 本案例打造需要如下硬件：
-* ESP32一台
-* MLX90614人体红外温度传感器一个
-* SSD1306显示屏一个
-* 蜂鸣器一个
-* 杜邦线若干
-* Micro-USB数据线一条
 
-### 硬件连线图
+- ESP32开发板（[ESP32乐鑫开发板](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C9562896F994200000001&dataId=800C9562896F9942)、[NodeMCU-32S](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C0A5C37AADCDB00000001&dataId=800C0A5C37AADCDB)或[pyWiFi-ESP32](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C55C67883087B00000001&dataId=800C55C67883087B)）一台
+- MLX90614人体红外温度传感器一个
+- SSD1306显示屏一个
+- 蜂鸣器一个
+- 杜邦线若干
+- Micro-USB数据线一条
+
 &emsp;&emsp;
-硬件连线图如下图所示：
+ESP32各开发板和外围传感器硬件接线请参考下表。
+
+| 硬件 | MLX90614 | SSD1306 | 蜂鸣器 | 乐鑫<br />ESP32开发板 | 安信可<br />NODEMCU-32S开发板 | 01Studio<br />pyWiFi-ESP32开发板 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 端口标识 | GND | GND | GND | GND | GND | GND |
+|  | VCC | VCC | VCC | 3V3 | 3V3 | 3V3 |
+|  | SCL | SCL | - | P22 | P22 | P22 |
+|  | SDA | SDA | - | P21 | P21 | P21 |
+|  | - | - | I/O | P25 | P25 | P25 |
+| 硬件说明 |  |  |  | [快速开始](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup)<br />[详细端口定义](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup?id=%E4%B9%90%E9%91%AB-esp32_devkitc) | [快速开始](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup)<br />[详细端口定义](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup?id=%e5%ae%89%e4%bf%a1%e5%8f%af-nodemcu-32) | [快速开始](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup)<br />[详细端口定义](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup?id=_01studio-pywifi-esp32) |
+
+&emsp;&emsp;
+下图是以NODEMCU-32S开发板为例的接线图。
 
 <div align="center">
 <img src=./../../../images/1_ESP32_huma_ir_temp_节点图.png width=80%/>
@@ -45,8 +59,7 @@
 
 <br>
 
-## 物联网平台开发
-### 开通公共实例
+## 2、物联网平台开发
 &emsp;&emsp;
 对于第一次使用物联网平台的读者，需要开通实例以使用物联网平台的功能。这里可以使用免费的公共实例进行开发。
 
@@ -65,7 +78,7 @@
 
 <br>
 
-### 创建云端产品
+### 2.1、创建云端产品
 &emsp;&emsp;
 点击上图中的“公共实例”，即可进入[控制台](https://iot.console.aliyun.com/lk/summary/new)进行产品创建。然后，点击创建产品按钮，如下图所示。
 
@@ -89,7 +102,7 @@
 
 <br>
 
-### 创建产品属性（物模型）
+### 2.2、创建产品属性（物模型）
 &emsp;&emsp;
 点击上图中的“查看”按钮，即可看到产品信息，Topic列表，功能定义，数据解析等跟产品相关功能的设定。点开“功能定义”标签页，可以看到设备物模型定义，点击“添加自定义功能”，其中功能名称、标识符、数据类型和定义如下所示。
 
@@ -105,7 +118,7 @@
 
 <br>
 
-### 创建云端设备（获取三元组）
+### 2.3、创建云端设备（获取三元组）
 &emsp;&emsp;
 在产品列表页面中，点击“管理设备”，就会进到设备管理页面。
 
@@ -142,7 +155,7 @@
 
 <br>
 
-##### **获取设备三元组**
+**获取设备三元组**
 &emsp;&emsp;
 如上图所示，点击“查看”按钮，就可以看到设备的三元组信息，三元组是物联网设备端和物联网云端设备相关联的唯一标识符，在设备端连接云端的时候会使用三元组信息和云端进行鉴权，鉴权通过之后云端会认为设备已激活并上线。
 
@@ -152,7 +165,7 @@
 
 <br>
 
-#### **查看设备属性信息**
+**查看设备属性信息**
 &emsp;&emsp;
 设备详情信息页中的“物模型数据”标签页中可以看到设备的所有属性信息、设备时间上报情况及设备服务调用情况，如下图所示。待物联网设备按照设备属性对应的标识符上报设备属性的时候，本图片中的“人体温度“等属性值就会显示设备最新的属性信息。
 <div align="center">
@@ -163,116 +176,21 @@
 
 > 创建产品和设备的过程是按照面向对象的思想进行设计的，其中创建产品可以看成是新建一个类，其中的物模型则是类的对象，创建设备则是进行类的实例化。
 
-## 设备端开发
+## 3、设备端开发
 
-### 开发环境
+### 3.1、开发环境
 
 &emsp;&emsp;
 在进行下一步之前请确保ESP32开发环境已经搭建完毕。详情请参考[esp32开发环境](../../../startup/ESP32_startup.md)的说明。
 
-## 创建解决方案
+### 3.2、创建解决方案
 
 &emsp;&emsp;
-点击下图中的"快速开始"按键(<img src=./../../../images/1_HaaS_Studio_创建工程按钮.png width=8%/>)会弹出HaaS Studio的欢迎页面，请点击“创建项目”按钮。
-
-&emsp;&emsp;
-在随后弹框中，设定好项目名称（“ir_temperature”）及工作区路径之后，硬件类型选择ESP32，点击“立即创建”，创建一个Python轻应用的解决方案。
-
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“人体红外测温系统”案例点击“立即创建”即可。
 <div align="center">
-<img src=./../../../images/1_创建ir_temperature工程_ESP32.png width=80%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
-
-&emsp;&emsp;
-将[脚本目录](./code)中的所有文件复制后覆盖ir_temperature工程目录下的原有文件。其中main.py脚本的内容如下图所示：
-```python
-#########
-#########
-from aliyunIoT import Device     # iot组件是连接阿里云物联网平台的组件
-import network                   # Wi-Fi功能所在库
-import ujson
-##################
-
-from driver import I2C,PWM,TIMER
-import utime
-from ssd1306 import SSD1306_I2C
-import buzzer
-import mlx90614
-import time
-
-INVALUDE_TEMP = 1037 # 失效测量值
-LOWER_LEVEL = 30 # 最小有效测温阈值 【30 60】
-HIGH_LEVEL = 60 # 最大有效测温阈值
-ABNORMAL_TEMP = 35 # 异常温度设定阈值  【30 ... 60】
-
-E_CAL_TEMP_INVALID = 1
-E_CAL_TEMP_FINISH = 2
-E_CAL_TEMP_HIGH = 3
-E_CAL_TEMPING = 4
-E_CAL_TEMP_START = 5
-
-timer_interval_100ms = 100 #ms
-cal_temp_timer = 100  #15s = (150*timer_interval_100ms)
-high_timer = 50  #10s = (100*timer_interval_100ms)
-TEMP_CAL_TIMER = (cal_temp_timer) #有效测量时间
-TEMP_CAL_TIMER_HIGH = (high_timer) #异常温度，有效测量时间
-
-timer_interval_1000ms = 1000
-stay_long = 5  # 5s (5*timer_interval_1000ms)
-DISPLAY_STAY_LONG = (stay_long) # 测量出有效温度后 屏幕持续显示时间
-
-mlx90614Dev = 0
-oled = 0
-object_temp = 0.00
-ambient_temp = 0.00
-
-cal_hightemp_cnt = 0
-cal_temp_cnt = 0
-last_temp = 0
-valid_temp = 0
-blink = 0
-display_time_cnt = 0
-event_display = 0
-start_cal_temp = 1
-time_is_start = 0
-displaytime_flag = 0
-
-obj_buzzer = 0
-pwmObj = 0
-
-temptimerObj = 0
-oledtimerObj = 0
-displaytimerObj = 0
-
-#########
-# 物联网平台连接标志位
-iot_connected = False
-wlan = None
-
-# 三元组信息
-productKey = "产品密钥" #需要填入物联网云平台申请到的productKey信息
-deviceName = "设备名称" #需要填入物联网云平台申请到的deviceName信息
-deviceSecret = "设备密钥" #需要填入物联网云平台申请到的deviceSecret信息
-
-# 物联网设备实例
-device = None
-
-# Wi-Fi SSID和Password设置
-wifiSsid = "请填写您的路由器名称"
-wifiPassword = "请填写您的路由器密码"
-
-...
-
-if __name__ == '__main__' :
-    mlx9061_init()
-    oled_init()
-    ##########
-    wlan = network.WLAN(network.STA_IF)   #创建WLAN对象
-    get_wifi_status()
-    connect_lk(productKey, deviceName, deviceSecret)
-    ##########
-    buzzer_init()
-    timer_init()
-```
+<br>
 
 &emsp;&emsp;
 然后对main.py里边的内容后需要完成以下三处代码修改。
@@ -280,7 +198,7 @@ if __name__ == '__main__' :
 
 1. **修改路由器名称及密码**
 &emsp;&emsp;
-修改ir_temperature工程里main.py中wifiSsid和wifiPassword的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在""符号中间）。
+修改main.py中wifiSsid和wifiPassword的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在""符号中间）。
 
 ```python
 # Wi-Fi SSID和Password设置
@@ -294,7 +212,7 @@ wifiPassword = "请填写您的路由器密码"
 2. **修改设备端三元组**
 
 &emsp;&emsp;
-修改ir_temperature工程里main.py中productKey、deviceName和deviceSecret的值为读者创建的物联网设备的三元组信息，如下图所示：
+修改main.py中productKey、deviceName和deviceSecret的值为读者创建的物联网设备的三元组信息，如下图所示：
 ```python
 # 三元组信息
 productKey = "产品密钥"
@@ -305,7 +223,7 @@ deviceSecret = "设备密钥"
 3. **修改设备端上报温湿度信息所用标识符**
 
 &emsp;&emsp;
-humiture工程里main.py中下面的代码实现的是上传温湿度值到云端的功能。其中object_temp人体异常温度上报时所用的标识符。
+main.py中下面的代码实现的是上传温湿度值到云端的功能。其中object_temp人体异常温度上报时所用的标识符。
 ```python
 # 上传测到的人体异常温度信息到物联网平台
 def report_event():
@@ -377,7 +295,7 @@ def is_abnormal(obj_temp):
 
 <br>
 
-## 运行结果
+## 3、运行结果
 &emsp;&emsp;
 推送此脚本到ESP32之后，运行此脚本，ESP32串口会周期性的打印如下日志。其中：
 * “物联网平台连接成功” 代表成功连接到物联网平台
@@ -424,7 +342,7 @@ finish
 
 ```
 
-### 物联网平台端设备信息查看
+### 3.2、物联网平台端设备信息查看
 
 &emsp;&emsp;
 物联网设备的系统启动成功并连接到物联网平台之后，物联网平台上对应的设备状态会从”未激活状态“变为”上线“，在物模型数据标签页上会显示设备上报到物联网平台的属性值。
@@ -436,9 +354,9 @@ finish
 &emsp;&emsp;
 此时如果设备端测到异常体温，物联网平台的物模型数据会更新为设备上报的最新的属性值。
 
-## 钉钉消息提醒
+## 4、钉钉消息提醒
 
-### 添加钉钉机器人
+### 4.1、添加钉钉机器人
 
 &emsp;&emsp;
 在钉钉上创建一个群组并进入群设置->智能群助手->添加机器人->自定义。首先选择“智能群助手”：
@@ -464,7 +382,7 @@ finish
 <img src=./../../../images/1_dd_机器人hook获取.png width=100%/>
 </div>
 
-### IoT Studio设置
+### 4.2、IoT Studio设置
 
 &emsp;&emsp;
 首先从物联网平台的功能页面，点击相关产品，进入IoT Studio产品页，开通服务后（首次访问）选择应用开发->业务服务->新建一个测试用的业务服务
@@ -526,7 +444,7 @@ finish
 <img src=./../../../images/1_dd_studio_关联添加2.png width=100%/>
 </div>
 
-### 钉钉机器人配置
+### 4.3、钉钉机器人配置
 &emsp;&emsp;
 点击钉钉机器人节点，并将你的钉钉机器人webhook地址填入其中，其余选项按下图中配置即可，注意之前配置机器人的关键词为“设备”，因为这里的通知消息里带有“设备”两字。
 
