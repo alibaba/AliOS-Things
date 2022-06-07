@@ -18,7 +18,7 @@ HaaS EDU K1开发板硬件有两个版本，两个版本内置的的外围传感
 本文主要说明如何用判断HaaS EDU K1的硬件版本和固件版本。
 
 ## 二、判断方法
-请参考[HaaS EDU K1快速开始](https://haas.iot.aliyun.com/haasapi/index.html/#/Python/docs/zh-CN/startup/HaaS_EDU_K1_startup)中的说明进行开发环境的搭建并创建一个helloworld工程，然后下载[此目录](./)中的所有文件后，覆盖到helloworld工程目录中的所有文件。
+请参考[HaaS EDU K1快速开始](https://haas.iot.aliyun.com/haasapi/index.html/#/Python/docs/zh-CN/startup/HaaS_EDU_K1_startup)中的说明进行开发环境的搭建并创建一个helloworld工程，然后下载[代码](https://hli.aliyuncs.com/o/config/HaaS_Python/haaseduk1_version_check.zip)解压缩，将文件覆盖到helloworld工程目录中的所有文件。
 
 将此工程推送到HaaS EDU K1开发板上，系统启动后OLED屏幕上会显示HaaS EDU K1的硬件版本和固件的版本号。
 * “K1 HW -”后面跟着的是硬件版本号，v1.0或者是v1.1
