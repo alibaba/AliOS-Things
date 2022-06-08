@@ -9,6 +9,6 @@ freeze(
         "driver/spi.py",
         "driver/timer.py",
         "driver/uart.py",
-        "driver/wdt.py",
+        "driver/wdt.py"
     ),
 )
