@@ -1,0 +1,17 @@
+ports/esp32/build-*/*
+ports/haas/build-*/*
+ports/rp2/build-*/*
+ports/stm32/build-*/*
+
+py/__pycache__/*
+
+mpy-cross/build/*
+mpy-cross/mpy-cross.map
+
+build/*
+.DS_Store
+
+lib/lv_bindings/pycparser/pycparser/__pycache__
+lib/lv_bindings/pycparser/pycparser/ply/__pycache__
+
+.vscode/*

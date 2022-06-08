@@ -1,0 +1,47 @@
+{
+  "additional_commands": {
+    "add_custom_command": {
+      "kwargs": {
+        "ARGS": "*",
+        "COMMAND": 1,
+        "OUTPUT": 1,
+        "WORKING_DIRECTORY": 1
+      }
+    },
+    "configure_package_config_file": {
+      "kwargs": {
+        "INSTALL_DESTINATION": 1
+      }
+    },
+    "include_directories": {
+      "kwargs": {
+        "SYSTEM": 0
+      }
+    },
+    "list": {
+      "kwargs": {
+        "APPEND": 1,
+        "OUTPUT_VARIABLE": 1,
+        "PREPEND": 1,
+        "TRANSFORM": 1
+      }
+    },
+    "set_target_properties": {
+      "kwargs": {
+        "EXCLUDE_FROM_ALL": 1,
+        "EXCLUDE_FROM_DEFAULT_BUILD": 1,
+        "PROPERTIES": 0
+      }
+    },
+    "string": {
+      "kwargs": {
+        "APPEND": 1,
+        "CONCAT": 1
+      }
+    }
+  },
+  "keyword_case": "upper",
+  "line_width": 99,
+  "max_subargs_per_line": 6
+}
+
