@@ -2,44 +2,46 @@
 &emsp;&emsp;
 通过UI界面和用户交互已经成为各种设备的首选，界面上不但可以展示各种信息，并且用户根据屏幕上提示进行点击就能进行各种操作。倒计时计数器是我们在日常生活中常用的功能，在锻炼身体、烹饪、比赛等场景经常可以看到。本例便是基于HaaS UI Lite开发一个倒计时器案例。
 
-## 简介
+## 1、简介
 &emsp;&emsp;
 本文将基于HaaS UI Lite开发框架使用Python语言进行倒计时计数器的打造。
 
-## 准备
+### 1.1、准备
 &emsp;&emsp;
 本案例打造需要使用到如下硬件：
 * [M5StackCore2开发板](../../../startup/M5StackCore2_startup.md)      一台
 
-## 设备端开发
+## 2、设备端开发
 
-### 开发环境
+### 2.1、开发环境
 &emsp;&emsp;
 在进行下一步之前请确保M5StackCore2开发环境已经搭建完毕，详情请参考[M5StackCore2快速开始](../../../startup/M5StackCore2_startup.md)中的说明。
 
-### 创建解决方案
+### 2.2、创建解决方案
+
 &emsp;&emsp;
-如下图所示，打开VS Code之后在新建一个基于helloworld的python工程，设定好工程名称（“count_down”）及工作区路径之后，**硬件类型**选择m5stackcore2，点击**立即创建**，创建一个Python轻应用的解决方案。
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“倒计时计数器”案例点击“立即创建”即可。
 
 <div align="center">
-<img src=./../../../images/count_down_创建工程_m5stack.png width=50%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
+<br>
 
 &emsp;&emsp;
-将[本案例脚本](./code/)的代码全部复制后，覆盖“count_down”工程根目录下的所有文件，main.py文件如下图所示：
+main.py文件如下图所示：
 <div align="center">
 <img src=./../../../images/count_down_main界面.png width=100%/>
 </div>
 
-## 运行效果
+### 2.3、运行效果
 &emsp;&emsp;
-将count_down工程推送到M5StackCore2开发板之后，脚本会自动运行。屏幕上面显示如下信息：
+将工程推送到M5StackCore2开发板之后，脚本会自动运行。屏幕上面显示如下信息：
 
 <div align="center">
 <img src=./../../../images/count_down_show.png width=25%/>
 </div>
 
-## HaaS UI Lite 倒计时计数器模板说明
+## 3、HaaS UI Lite 倒计时计数器模板说明
 &emsp;&emsp;
 本案例中使用到了HaaS UI Lite封装的**倒计时计数器**类型的**模板**。基于此模板可以很方便的将倒计时信息显示在面板上。
 

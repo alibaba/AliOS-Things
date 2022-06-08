@@ -4,15 +4,15 @@
 下图是本案例除硬件连线外的 3 步导学，每个步骤中实现的功能请参考图中的说明。
 
 <div align="center">
-<img src=./../../../images/雷达避障系统/步骤概述.jpg width=35%/>
+<img src=./../../../images/雷达避障系统/步骤概述.jpg width=100%/>
 </div>
 
-## 简介
+## 1、简介
 
 &emsp;&emsp;
 近年来，随着智能汽车、智能机器人的发展，雷达避障技术得到了较快的发展。避障雷达是防撞设备的辅助装置，可以根据需要对避障距离和避障范围进行调整。避障雷达通常安装在物体可移动方向的前部位置，用于探测物体移动方向前方障碍物横截面与自身的距离，由此来判断是否让物体减速或停止移动，从而避免发生碰撞。
 
-### 背景知识
+### 1.1、背景知识
 
 &emsp;&emsp;
 本系统的核心在于使用超声波传感器测量与障碍物之间的距离，当距离小于阈值时，发出报警声，并上报物联网平台，提示采取相应措施，以避免发生碰撞。原理图如下所示：
@@ -21,7 +21,7 @@
 <img src=./../../../images/雷达避障系统/原理图.jpg width=35%/>
 </div>
 
-## 准备
+### 1.2、准备
 
 &emsp;&emsp;
 本案例需要使用如下硬件：
@@ -31,7 +31,6 @@
 * 杜邦线若干
 * Micro-USB数据线一条
 
-### 硬件连线图
 &emsp;&emsp;
 board.json配置如下，其中buzzer为蜂鸣器的IO配置，trig和echo是HC-SR04超声波测距传感器的IO配置：
 ```json
@@ -70,9 +69,8 @@ board.json配置如下，其中buzzer为蜂鸣器的IO配置，trig和echo是HC-
 </div>
 <br>
 
-## 物联网平台开发
+## 2、物联网平台开发
 
-### 开通公共实例
 
 &emsp;&emsp;
 对于第一次使用物联网平台的读者，需要开通实例以使用物联网平台的功能。这里可以使用免费的公共实例进行开发。
@@ -92,7 +90,7 @@ board.json配置如下，其中buzzer为蜂鸣器的IO配置，trig和echo是HC-
 2. 创建产品属性（物模型）
 3. 创建云端设备（获取三元组）
 
-### 创建云端产品
+### 2.1、创建云端产品
 
 &emsp;&emsp;
 点击上图中的“公共实例”，即可进入[控制台](https://iot.console.aliyun.com/lk/summary/new)进行产品创建。然后，点击 **`创建产品`** 按钮，如下图所示。
@@ -118,7 +116,7 @@ board.json配置如下，其中buzzer为蜂鸣器的IO配置，trig和echo是HC-
 
 <br>
 
-### 创建产品属性（物模型）
+### 2.2、创建产品属性（物模型）
 &emsp;&emsp;
 在“产品”页面，点击刚才创建的“雷达避障系统”产品右边的查看按钮，然后点击 “功能定义” 菜单，开始定义产品功能。首先下载[物模型文件](./link_platform/model.zip)。
 <div align="center">
@@ -147,7 +145,7 @@ board.json配置如下，其中buzzer为蜂鸣器的IO配置，trig和echo是HC-
 
 <br>
 
-### 为产品创建云端设备
+### 2.4、为产品创建云端设备
 &emsp;&emsp;
 在产品列表页面中，点击”雷达避障系统“对应的“管理设备”按钮，进入设备管理页面。
 
@@ -177,221 +175,18 @@ board.json配置如下，其中buzzer为蜂鸣器的IO配置，trig和echo是HC-
 </div>
 <br>
 
-## 超声波测距开发
-&emsp;&emsp;
-HC-SR04超声波传感器使用声纳来确定物体的距离，其工作原理类似于蝙蝠。测量范围从2厘米到450厘米，HC-SR04超声波传感器上配有超声波发射器和接收器两个模块。
-
-<br>
-
-&emsp;&emsp;
-超声波测距传感器是数字接口类型，其基本工作过程如下:
-* 发射器（触发引脚-Trig），发送信号 一段高频声音<br>
-* 当信号遇到一个物体时，它会被反射<br>
-* 然后发射器（回声引脚-Echo）接收该信号<br>
-
-<div align="center">
-<img src=./../../../images/雷达避障系统/ext_超声波测距_定义尺寸.png  width=20%/>
-</div>
-
-<br>
-
-&emsp;&emsp;
-引脚定义
-* VCC：DC-5V<br>
-* Trig：触发(输入)<br>
-* Echo：回声(输出)<br>
-* GND：地
-
-<br>
-
-### HCSR04(trigObj,echoObj) - 创建超声波传感器对象
-<br>
-
-* 函数原型
-
-> hcsr04Obj = HCSR04(trigObj,echoObj)
-
-* 参数说明
-
-|  参数   | 类型  | 必选参数？ | 说明                                                                  |
-| :-----: | :---: | :--------: | :-------------------------------------------------------------------- |
-| trigObj | GPIO  |     是     | GPIO配置输出，触发引脚，调用此函数前需确保trigObj对象已经处于open状态 |
-| echoObj | GPIO  |     是     | GPIO配置输入，测量引脚，调用此函数前需确保echoObj对象已经处于open状态 |
-
-* 返回值
-
-> HCSR04对象成功，返回HCSR04对象；HCSR04对象创建失败，抛出Exception
-
-* 示例代码
-```python
-import hcsr04
-from driver import GPIO
-
-print("Testing HCSR04 ...")
-echoDev = GPIO()
-echoDev.open("echo")
-
-trigDev = GPIO()
-trigDev.open("trig")
-
-hcsr04Dev = hcsr04.HCSR04(trigDev,echoDev)
-```
-
-* 输出
-```python
-Testing HCSR04 ...
-```
-</br>
-
-### measureDistance() - 获取超声波测量的距离
-<br>
-
-* 函数功能：
-
-> 获取超声波测量的距离
-
-* 函数原型：
-
-> HCSR04.measureDistance()
-
-* 参数说明：
-> 无
-
-* 返回值：
-> 返回值为cm单位的距离值
-
-* 示例：
-
-```python
-import hcsr04
-from driver import GPIO
-import utime
-
-print("Testing HCSR04 ...")
-echoDev = GPIO()
-echoDev.open("echo")
-
-trigDev = GPIO()
-trigDev.open("trig")
-
-hcsr04Dev = hcsr04.HCSR04(trigDev,echoDev)
-while True:             # 无限循环
-    distance = disDev.measureDistance()
-    print(str(distance)+' CM')
-    utime.sleep(1)      # 打印完之后休眠1秒
-```
-
-* 输出
-```python
-Testing HCSR04 ...
-34 CM
-492 CM
-```
-
-</br>
-
-## 蜂鸣器报警开发
-&emsp;&emsp;
-蜂鸣器是一种一体化结构的电子讯响器，采用直流电压供电，广泛应用于计算机、打印机、复印机、报警器、电子玩具、汽车电子设备、电话机、定时器等电子产品中作发声器件。蜂鸣器主要分为压电式蜂鸣器和电磁式蜂鸣器两种类型。此有源蜂鸣器模块采用压电式，高电平触发原理，即当I/O口输入高电平时，蜂鸣器发声，具体外观接口如下图：
-
-<div align="center">
-<img src=./../../../images/雷达避障系统/ext_蜂鸣器_外观图.jpg  width=20%/>
-</div>
-
-<br>
-
-### GPIO() - 创建蜂鸣器GPIO对象
-<br>
-
-* 函数原型
-
-> GPIO.GPIO()
-
-* 参数说明
-
-> 无
-
-* 返回值
-
-> GPIO对象创建成功，返回GPIO对象；GPIO对象创建失败，抛出ENOMEN异常。
-
-* 示例代码
-```python
-from driver import GPIO
-buzzerdev = GPIO()
-```
-
-</br>
-
-### open() - 打开蜂鸣器GPIO设备
-<br>
-
-* 函数功能
-
-> 打开GPIO设备节点，并根据节点的配置信息初始化GPIO。
-
-* 函数原型：
-
-> GPIO.open(nodeName)
-
-* 参数说明
-
-| 属性 | 类型   | 必填 | 描述                                           |
-| ---- | ------ | ---- | ---------------------------------------------- |
-| node | String | 是   | 待操作的GPIO设备节点，定义在board.json文件中。 |
-
-* 示例代码
-```python
-from driver import GPIO
-buzzerdev = GPIO()
-buzzerdev.open('buzzer')
-print("buzzer inited!")
-```
-
-### write() - 打开/关闭蜂鸣器报警
-</br>
-
-* 函数原型：  
-> GPIO.write(value)
-
-* 参数说明
-
-| 属性  | 类型 | 必填 | 描述                                 |
-| ----- | ---- | ---- | ------------------------------------ |
-| value | int  | 是   | GPIO输出电平，0为低电平，1为高电平。 |
-
-* 返回值：  
-成功：0；失败：故障码。
-
-* 示例代码：
-
-```python
-from driver import GPIO
-import utime
-
-buzzerdev = GPIO()
-buzzerdev.open('buzzer')
-
-buzzerdev.write(1) # 打开蜂鸣器报警
-utime.sleep(3)     # 休眠3秒
-buzzerdev.write(0) # 关闭蜂鸣器报警
-```
-
-## 工程创建与推送
-### 开发环境
+## 3、设备端开发
+### 3.1、开发环境
 在进行下一步之前请确保ESP32开发环境已经搭建完毕。详情请参考[esp32开发环境](../../../startup/ESP32_startup.md)的说明。
 
-### 创建解决方案
-&emsp;&emsp;
-如下图所示，打开VS Code之后在新建一个基于hellworld的python工程，设定好工程名称（``obstacle_avoidance``）及工作区路径之后，硬件类型选择ESP32，点击立即创建，创建一个Python轻应用的解决方案。
+### 3.2、创建解决方案
 
+&emsp;&emsp;
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“雷达避障系统”案例点击“立即创建”即可。
 <div align="center">
-<img src=./../../../images/雷达避障系统/创建工程.png width=40%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
-
-### 案例代码
-&emsp;&emsp;
-将[雷达避障系统](./code/)文件下所有脚本代码复制后，覆盖刚创建的``obstacle_avoidance``工程根目录下的文件。
+<br>
 
 1. **修改路由器名称及密码**
 
@@ -456,7 +251,7 @@ if __name__ == '__main__':
     obstacle_detector()
 ```
 
-## 推送脚本
+### 3.3、推送脚本
 **推送步骤**
 
 &emsp;&emsp;
@@ -488,9 +283,9 @@ upload process...100%
 === upload progress end ===
 ```
 
-## 运行结果
+## 4、运行结果
 
-### 本地查看
+### 4.1、本地查看
 
 &emsp;&emsp;
 推送此脚本到ESP32之后并运行，将遮挡物放在HC-SR04超声波发射接口前并逐步向发射头挪进，以模拟靠近障碍物的情况，当离障碍物的距离小于安全距离（安全距离可通过main.py中的ALARM_DISTANCE进行设置）时，会上报距离至物联网平台，同时蜂鸣器会发出警报声。串口会周期性的打印如下日志：
@@ -529,7 +324,7 @@ distance =  5.151
 
 <br>
 
-## 云端查看
+### 4.2、云端查看
 
 &emsp;&emsp;
 进入阿里云官网，用阿里云账号[登录物联网平台](https://iot.console.aliyun.com/devices/)查看设备物模型数据。

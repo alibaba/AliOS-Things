@@ -5,13 +5,13 @@
 <img src=./../../../images/4_fire_detector_步骤概述.jpg width=60%/>
 </div>
 
-## 简介
+## 1、简介
 
 &emsp;&emsp;
 自从第一次工业革命开始到现代，化石燃料一直是很重要的能源之一，而煤在化石燃料中占比较高。煤转化成能量需要燃烧，不管是第一次工业革命的内燃机还是现在仍然占比很高的火力发电，都需要大量的烧煤。现代的火力发电系统会持续对炉膛中煤的燃烧情况进行监控，防止出现燃煤熄灭的情况。
 本场景就是针对这个场景对火焰进行实时的监控，如果出现火焰熄灭的情况，则进行灯光报警。
 
-### 背景知识
+### 1.1、背景知识
 
 &emsp;&emsp;
 火力发电系统中所用的火焰监控的核心在于如何精准的检测炉膛中的火焰强度，目前市场上已经有很多的传感器可以对火焰强度进行测量。
@@ -22,22 +22,33 @@
 </div>
 <br>
 
-## 准备
+### 1.2、准备
 
 &emsp;&emsp;
 硬件器材：
-1. ESP32开发一套
-2. 火焰传感器一个
-3. 连接线若干
+
+1. ESP32开发板（[ESP32乐鑫开发板](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C9562896F994200000001&dataId=800C9562896F9942)、[NodeMCU-32S](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C0A5C37AADCDB00000001&dataId=800C0A5C37AADCDB)或[pyWiFi-ESP32](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C55C67883087B00000001&dataId=800C55C67883087B)）一台
+1. [火焰传感器](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C65AE63D505D100000002&dataId=800C65AE63D505D1)        一个
+1. 连接线若干
 
 &emsp;&emsp;
-硬件连线图如下图所示：
+ESP32各开发板和火焰传感器硬件接线请参考下表。
+
+| 硬件 | 火焰传感器 | 乐鑫<br />ESP32开发板 | 安信可<br />NODEMCU-32S开发板 | 01Studio<br />pyWiFi-ESP32开发板 |
+| --- | --- | --- | --- | --- |
+| 端口标识 | GND | GND | GND | GND |
+|  | VCC | 3V3 | 3V3 | 3V3 |
+|  | AO | VP | SVP | 36 |
+| 硬件说明 | [硬件积木说明](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C65AE63D505D100000002&dataId=800C65AE63D505D1) | [快速开始](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup)<br />[详细端口定义](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup?id=%E4%B9%90%E9%91%AB-esp32_devkitc) | [快速开始](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup)<br />[详细端口定义](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup?id=%e5%ae%89%e4%bf%a1%e5%8f%af-nodemcu-32) | [快速开始](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup)<br />[详细端口定义](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup?id=_01studio-pywifi-esp32) |
+
+&emsp;&emsp;
+下图是以NODEMCU-32S开发板为例的接线图。
 <div align="center">
 <img src=./../../../images/4_ESP32_火焰传感器连线图.jpg width=90%/>
 </div>
 <br>
 
-## 一分钟上云体验
+### 1.3、一分钟上云体验
 - 打开“支付宝”扫描下图二维码
 
 <div align="center">
@@ -51,8 +62,7 @@
 
 <br>
 
-## 物联网平台开发
-### 开通公共实例
+## 2、物联网平台开发
 &emsp;&emsp;
 对于第一次使用物联网平台的读者，需要开通实例以使用物联网平台的功能。这里可以使用免费的公共实例进行开发。
 
@@ -72,7 +82,7 @@
 
 <br>
 
-### 创建云端产品
+### 2.1、创建云端产品
 &emsp;&emsp;
 点击上图中的“公共实例”，即可进入[控制台](https://iot.console.aliyun.com/lk/summary/new)进行产品创建。然后，创建云端产品的网址：https://iot.console.aliyun.com/product
 
@@ -101,7 +111,7 @@
 
 <br>
 
-### 创建产品属性（物模型）
+### 2.2、创建产品属性（物模型）
 &emsp;&emsp;
 点击上图中的“查看”按钮，即可看到产品信息，Topic列表，功能定义，数据解析等跟产品相关功能的设定。点开“功能定义”标签页，可以看到设备物模型定义。
 
@@ -134,7 +144,7 @@
 
 <br>
 
-### 创建云端设备（获取三元组）
+### 2.3、创建云端设备（获取三元组）
 &emsp;&emsp;
 在产品列表页面中，点击”火焰检测系统“后的“管理设备”，就会进到设备管理页面。
 
@@ -171,7 +181,7 @@
 
 <br>
 
-### **获取设备三元组**
+#### 2.4.1、**获取设备三元组**
 &emsp;&emsp;
 如上图所示，点击“查看”按钮，就可以看到设备的三元组信息，三元组是物联网设备端和物联网云端设备相关联的唯一标识符，在设备端连接云端的时候会使用三元组信息和云端进行鉴权，鉴权通过之后云端会认为设备已激活并上线。
 
@@ -181,7 +191,7 @@
 
 <br>
 
-### **查看设备属性信息**
+#### 2.4.2、**查看设备属性信息**
 &emsp;&emsp;
 设备详情信息页中的“物模型数据”标签页中可以看到设备的所有属性信息、设备时间上报情况及设备服务调用情况，如下图所示。待物联网设备按照设备属性对应的标识符上报设备属性的时候，本图片中的“火焰检测电压“，”报警状态“等属性值就会显示设备最新的属性信息。
 <div align="center">
@@ -194,35 +204,27 @@
 
 <br>
 
-## 设备端开发
+## 3、设备端开发
 
-### 开发环境
+### 3.1、开发环境
 &emsp;&emsp;
 在进行下一步之前请确保ESP32开发环境已经搭建完毕。详情请参考[esp32开发环境](../../../startup/ESP32_startup.md)的说明。
 <br>
 
-### 创建解决方案
+### 3.2、创建解决方案
 
 &emsp;&emsp;
-如下图所示，打开VS Code之后在新建一个基于helloworld的python工程，设定好工程名称（“fire_detector”）及工作区路径之后，硬件类型选择ESP32，点击立即创建，创建一个Python轻应用的解决方案。
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“火焰检测系统”案例点击“立即创建”即可。
 
 <div align="center">
-<img src=./../../../images/4_创建fire_detector工程_esp32.jpg width=40%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
-
-&emsp;&emsp;
-将[本案例](./code/)脚本的代码全部复制后，覆盖“fire_detector”工程根目录下，main.py文件如下图所示：
-<div align="center">
-<img src=./../../../images/4_1_3_fire_detector工程_esp32.jpg width=80%/>
-</div>
-
-> Python脚本的详细说明请参考脚本内嵌的文字注释
-
+<br>
 
 1. **修改路由器名称及密码**
 
 &emsp;&emsp;
-修改fire_detector工程里main.py中wifiSsid和wifiPassword的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在""符号中间）。
+修改工程里main.py中wifiSsid和wifiPassword的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在""符号中间）。
 
 ```python
 # Wi-Fi SSID和Password设置
@@ -270,8 +272,8 @@ while True:
 ```
 <br>
 
-## 运行结果
-### 本地查看
+## 4、运行结果
+### 4.1、本地查看
 &emsp;&emsp;
 Python脚本推送到ESP32之后 ，会自动运行，运行过程中日志如下。其中：
 
@@ -314,7 +316,7 @@ The fire status Voltage  1100
 <br>
 
 
-## 物联网平台端设备信息查看
+### 4.2、物联网平台端设备信息查看
 
 &emsp;&emsp;
 物联网设备的系统启动成功并连接到物联网平台之后，物联网平台上对应的设备状态会从”未激活状态“变为”上线“，在物模型数据标签页上会显示设备上报到物联网平台的属性值。
@@ -328,7 +330,7 @@ The fire status Voltage  1100
 
 <br>
 
-## 物联网平台控制报警灯状态
+### 4.3、物联网平台控制报警灯状态
 &emsp;&emsp;
 物联网设备上线之后，可以通过”监控运维“中的"在线调试"功能进行调试，详细操作步骤见下图：
 <div align="center">
@@ -348,9 +350,9 @@ The fire status Voltage  1100
 
 <br>
 
-## 物联网应用开发
+## 5、物联网应用开发
 
-### 火焰亮度监控系统
+### 5.1、火焰亮度监控系统
 &emsp;&emsp;
 下图是一个典型的物联网应用程序开发的流程图，接下来本节就按照这个流程介绍如何完成火焰监控系统web端应用程序的开发。
 
@@ -360,7 +362,7 @@ The fire status Voltage  1100
 
 <br>
 
-### **新建“普通项目”**
+### 5.2、**新建“普通项目”**
 &emsp;&emsp;
 打开[IoT Studio官网](https://studio.iot.aliyun.com/)，在项目管理中创建一个空白项目，如下图所示，将此项目命名为“火焰监控报警系统”。
 <div align="center">
@@ -369,7 +371,7 @@ The fire status Voltage  1100
 
 <br>
 
-### **新建“web应用”**
+### 5.3、**新建“web应用”**
 &emsp;&emsp;
 新建“普通项目”之后，在新项目的首页新建一个web应用，命名为“火焰实时监控”。
 <div align="center">
@@ -389,7 +391,7 @@ web应用创建成功后会进入到应用界面设计页面。
 
 <br>
 
-### **页面设计**
+### 5.4、**页面设计**
 &emsp;&emsp;
 这里我们用到3个组件:
 * 实时曲线
@@ -407,7 +409,7 @@ web应用创建成功后会进入到应用界面设计页面。
 
 <br>
 
-### **关联产品和设备**
+### 5.5、**关联产品和设备**
 &emsp;&emsp;
 此时回到”火焰监控系统“项目的主页，对产品和设备进行关联，如下图所示：
 <div align="center">
@@ -426,7 +428,7 @@ web应用创建成功后会进入到应用界面设计页面。
 
 <br>
 
-### **关联数据源**
+### 5.6、**关联数据源**
 &emsp;&emsp;
 关联数据源分为如下3个步骤，每个步骤的截图如下：
 * 关联产品
@@ -485,7 +487,7 @@ web应用创建成功后会进入到应用界面设计页面。
 
 <br>
 
-### **业务逻辑开发**
+### 5.7、**业务逻辑开发**
 &emsp;&emsp;
 业务逻辑的主要目的是为了让用户设定物联网设备端的行为逻辑，常规物联网系统都是在设备端固化行为逻辑，出厂之后如果需要修改设备的行为，则需要进行OTA升级。本节课程则向读者介绍如何通过IoT Studio完成业务逻辑的开发。
 
@@ -563,7 +565,7 @@ web应用创建成功后会进入到应用界面设计页面。
 
 <br>
 
-### **预览和发布上线**
+### 5.8、**预览和发布上线**
 
 &emsp;&emsp;
 业务逻辑设定完毕之后，可以在“火焰监控报警系统”页面编辑页面点击“预览”按钮进行预览，如下图所示。
@@ -585,6 +587,6 @@ web应用创建成功后会进入到应用界面设计页面。
 <br>
 
 &emsp;&emsp;
-这样整个火焰检测系统的趣味案例就完成了。如果想要看整个案例更详细的操作步骤，请参考“[火焰检测系统详解](https://gitee.com/haasedu/haasedu/blob/release_2.0/4-%E6%99%BA%E6%85%A7%E5%B7%A5%E4%B8%9A/%E5%9C%BA%E6%99%AF1-%E7%81%AB%E7%84%B0%E7%9B%91%E6%8E%A7%E6%8A%A5%E8%AD%A6%E7%B3%BB%E7%BB%9F/README.md)”中的说明。
+这样整个火焰检测系统的创意案例就完成了。如果想要看整个案例更详细的操作步骤，请参考“[火焰检测系统详解](https://gitee.com/haasedu/haasedu/blob/release_2.0/4-%E6%99%BA%E6%85%A7%E5%B7%A5%E4%B8%9A/%E5%9C%BA%E6%99%AF1-%E7%81%AB%E7%84%B0%E7%9B%91%E6%8E%A7%E6%8A%A5%E8%AD%A6%E7%B3%BB%E7%BB%9F/README.md)”中的说明。
 
 <br>

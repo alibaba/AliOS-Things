@@ -5,24 +5,26 @@
 <img src=./../../../images/temp_humidity_speaker/3部导学.png width=60%/>
 </div>
 
-## 简介
+## 1、简介
 
-HaaSEDUK1是阿里云IoT事业部HaaS团队打造的一款物联网教育开发板，其K1C版本内置了CHT8305温湿度传感器，和OLED屏幕，并可以外接喇叭。 本案例利用这些能力，循环检测当前温湿度，显示到屏幕上，并能语音播报，同时上报到阿里云物联网云平台，记录数据以做进一步分析。
+### 1.1、背景
+&emsp;&emsp;
+HaaS EDU K1是阿里云IoT事业部HaaS团队打造的一款物联网教育开发板，其K1C版本内置了CHT8305温湿度传感器，和OLED屏幕，并可以外接喇叭。 本案例利用这些能力，循环检测当前温湿度，显示到屏幕上，并能语音播报，同时上报到阿里云物联网云平台，记录数据以做进一步分析。
 
-## 准备
+### 1.2、准备
 
-1. haaseduk1开发板          一套
+1. HaaS EDU K1开发板          一套
 2. 喇叭   一个
 
-### 硬件连线图
+&emsp;&emsp;
+硬件连线图如下所示：
 <div align="center">
 <img src=./../../../images/Audio_3_2_HaaS_EDU_K1_硬件连线.png width=60%/>
 </div>
 <br>
 
-## 物联网平台开发
+## 2、物联网平台开发
 
-### 开通公共实例
 &emsp;&emsp;
 对于第一次使用物联网平台的读者，需要开通实例以使用物联网平台的功能。这里可以使用免费的公共实例进行开发。
 
@@ -42,7 +44,7 @@ HaaSEDUK1是阿里云IoT事业部HaaS团队打造的一款物联网教育开发�
 
 <br>
 
-### 创建云端产品
+### 2.1、创建云端产品
 &emsp;&emsp;
 点击上图中的“公共实例”，即可进入[控制台](https://iot.console.aliyun.com/lk/summary/new)进行产品创建。然后，点击创建产品按钮，如下图所示。
 
@@ -66,7 +68,7 @@ HaaSEDUK1是阿里云IoT事业部HaaS团队打造的一款物联网教育开发�
 
 <br>
 
-### 创建产品属性（物模型）
+### 2.3、创建产品属性（物模型）
 &emsp;&emsp;
 点击上图中的“查看”按钮，即可看到产品信息，Topic列表，功能定义，数据解析等跟产品相关功能的设定。点开“功能定义”标签页，可以看到设备物模型定义。
 
@@ -94,7 +96,7 @@ HaaSEDUK1是阿里云IoT事业部HaaS团队打造的一款物联网教育开发�
 
 <br>
 
-### 创建云端设备（获取三元组）
+### 2.3、创建云端设备（获取三元组）
 &emsp;&emsp;
 在产品列表页面中，点击”温湿度检测“后的“管理设备”，就会进到设备管理页面。
 
@@ -126,7 +128,7 @@ HaaSEDUK1是阿里云IoT事业部HaaS团队打造的一款物联网教育开发�
 
 <br>
 
-### **获取设备三元组**
+**获取设备三元组**
 &emsp;&emsp;
 如上图所示，点击deviceSecret后面的“查看”按钮，就可以看到设备的三元组信息，三元组是物联网设备端和物联网云端设备相关联的唯一标识符，在设备端连接云端的时候会使用三元组信息和云端进行鉴权，鉴权通过之后云端会认为设备已激活并上线。
 
@@ -139,27 +141,21 @@ HaaSEDUK1是阿里云IoT事业部HaaS团队打造的一款物联网教育开发�
 > 创建产品和设备的过程是按照面向对象的思想进行设计的，其中创建产品可以看成是新建一个类，其中的物模型则是类的对象，创建设备则是进行类的实例化。
 <br>
 
-## 设备端开发
+## 3、设备端开发
 
-### 开发环境
+### 3.1、开发环境
 &emsp;&emsp;
 在进行下一步之前请确保haaseduk1开发环境已经搭建完毕。详情请参考[haaseduk1快速开始](../../../startup/HaaS_EDU_K1_startup.md)的说明。
 <br>
 
-### 创建解决方案
-
+### 3.2、创建解决方案
 &emsp;&emsp;
-如下图所示，打开VS Code之后在新建一个基于helloworld的python工程，设定好工程名称（“temp_humidity_speaker”）及工作区路径之后，硬件类型选择haaseduk1，点击立即创建，创建一个Python轻应用的解决方案。
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“本地语音播报温湿度系统”案例点击“立即创建”即可。
 
 <div align="center">
-<img src=./../../../images/temp_humidity_speaker/设备端-project-create.png width=40%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
-
-&emsp;&emsp;
-将[温湿度播报系统代码](./code/)文件夹下的所有脚本进行复制到“temp_humidity_speaker”工程根目录中。如下图代码区所示：
-<div align="center">
-<img src=./../../../images/temp_humidity_speaker/设备端-project.png width=80%/>
-</div>
+<br>
 
 > Python脚本的详细说明请参考脚本内嵌的文字注释
 
@@ -167,7 +163,7 @@ HaaSEDUK1是阿里云IoT事业部HaaS团队打造的一款物联网教育开发�
 1. **修改路由器名称及密码**
 
 &emsp;&emsp;
-修改temp_humidity_speaker工程里main.py中wifi_ssid和wifi_password的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在""符号中间）。
+修改main.py中wifi_ssid和wifi_password的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在""符号中间）。
 
 ```python
 # Wi-Fi SSID和Password设置
@@ -181,7 +177,7 @@ wifi_password = "请输入您的路由器密码"
 2. **修改设备端三元组**
 
 &emsp;&emsp;
-修改temp_humidity_speaker工程里main.py中productKey、deviceName和deviceSecret的值为读者创建的物联网设备的三元组信息，如下图所示：
+修改main.py中productKey、deviceName和deviceSecret的值为读者创建的物联网设备的三元组信息，如下图所示：
 
 <div align="center">
 <img src=./../../../images/temp_humidity_speaker/device_tripe.png width=80%/>
@@ -216,7 +212,7 @@ def play_display_temperature_humidity(cht8305Dev):
 4. **修改设备端上报数据所用标识符**
 
 &emsp;&emsp;
-temp_humidity_speaker工程里main.py中下面的代码实现的是上报温湿度到云平台, 确保属性的标识符与云平台上产品的属性标识符一致。
+main.py中下面的代码实现的是上报温湿度到云平台, 确保属性的标识符与云平台上产品的属性标识符一致。
 ```python
 def post_data_to_cloud(device, temphumidity):
     # 上报温湿度到云平台
@@ -233,8 +229,8 @@ def post_data_to_cloud(device, temphumidity):
 
 <br>
 
-## 运行结果
-### 本地查看
+## 4、运行结果
+### 4.1、设备端
 
 &emsp;&emsp;
 推送此脚本到haaseduk1之后，串口会周期性的打印如下日志。
@@ -263,7 +259,7 @@ haaseduk1屏幕显示
 **注意：温湿度传感器CHT8305是内置在HaaS EDU K1内部的，所以测量的温湿度是板子内部的温湿度，并不是环境中的温湿度。这是由于HaaS EDU K1是以物联网开发教育为目的，实际生产环境中，需要采用一定的硬件结构设计，保证温湿度传感器暴露在外部环境中，并通过实际测试进行软件校准。**
 <br>
 
-### 物联网平台端设备信息查看
+### 4.2、物联网平台端设备信息查看
 
 &emsp;&emsp;
 物联网设备的系统启动成功并连接到物联网平台之后，物联网平台上对应的设备状态会从”未激活状态“变为”上线“，在物模型数据标签页上会显示设备上报到物联网平台的属性值。由于云平台与本地python代码显示浮点数的方式稍有不同，故其显示的小数点第2位不同，读者可以忽略。

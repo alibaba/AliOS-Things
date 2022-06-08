@@ -5,12 +5,12 @@
 <img src=./../../../images/vehicle_congestion_detect/车辆拥堵检测_案例步骤.png width=80%/>
 </div>
 
-## 简介
-### 背景
+## 1、简介
+### 1.1、背景
 &emsp;&emsp;
 交通拥堵一直是全世界大中小城市面临的一大难题，目前交通路口一般是通过安装很多摄像头拍摄路口状况，再通过识别算法判断是否发生交通阻塞。本案例是通过使用HaaS Python对摄像头图像进行采集，调用HaaS云端积木能力对图片中的车辆进行识别，根据识别出的车辆数量判断是否发生拥堵并借助IoT Studio搭建手机端监控显示。
 
-### 准备
+### 1.2、准备
 
 1. M5Stack Core2开发板       一套
 2. M5Stack Unit CAM摄像头    一个
@@ -32,16 +32,16 @@
 </div>
 <br>
 
-## 阿里云IoT物联网平台创建产品、设备
+## 2、阿里云IoT物联网平台创建产品、设备
 &emsp;&emsp;
 在本案例中涉及到云端平台功能都聚合在HaaS云端积木中，所以无需单独使用**对象存储OSS**和**视觉智能开发平台**。
 
-## 注册阿里云账号
+### 2.1、注册阿里云账号
 &emsp;&emsp;
 进入阿里云官网，[注册阿里云账号](https://account.aliyun.com/login/login.htm) 。注册完成后登录官网。如果您已经有阿里云账号，直接登录即可。
 <br>
 
-## 创建产品、设备
+### 2.1、创建产品、设备
 &emsp;&emsp;
 进入[阿里云IoT控制台](http://iot.console.aliyun.com/)，创建产品和设备。
 <div align="center">
@@ -67,7 +67,7 @@
 &emsp;&emsp;
 创建完产品、设备后进入HaaS云端积木平台绑定刚创建的产品。
 
-## 开通HaaS增值服务
+### 3、开通HaaS增值服务
 
 1. **登录HaaS官网**
 
@@ -109,25 +109,22 @@
 </div>
 <br>
 
-## 设备端开发
+## 4、设备端开发
 
-### 开发环境准备
+### 4.1、开发环境准备
 &emsp;&emsp;
 在进行下一步之前请确保M5StackCore2开发环境已经搭建完毕。详情请参考[M5StackCore2快速开始](../../../startup/M5StackCore2_startup.md)的说明。
 <br>
 
-### 创建解决方案
-
+### 4.2、创建解决方案
 &emsp;&emsp;
-如下图所示，打开VS Code之后在新建一个基于helloworld的python工程，设定好工程名称（“vehicle_congestion_detect”）及工作区路径之后，硬件类型选择m5stackcore2，点击”立即创建“，创建一个Python轻应用的解决方案。
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“车辆拥堵检测”案例点击“立即创建”即可。
 
 <div align="center">
-<img src=./../../../images/vehicle_congestion_detect/车辆拥堵检测_HaaSStudio_创建工程.png width=30%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
+<br>
 
-
-&emsp;&emsp;
-将[车辆拥堵检测代码](./code/)文件下的所有脚本进行复制到“vehicle_congestion_detect”工程根目录中，然后进行如下设定完成设备端代码的开发。
 > Python脚本的详细说明请参考脚本内嵌的文字注释
 
 
@@ -161,7 +158,7 @@ deviceSecret  = "Your-deviceSecret"
 <img src=./../../../images/vehicle_congestion_detect/车辆拥堵检测_部署运行代码.png width=70%/>
 </div>
 
-## IoT Studio 移动应用搭建
+## 5、IoT Studio 移动应用搭建
 &emsp;&emsp;
 如果只想在设备上看到识别结果，可以跳过此步骤。该步骤是为了让检测结果发送到云端并在手机侧展示。
 
@@ -202,8 +199,8 @@ deviceSecret  = "Your-deviceSecret"
 </div>
 
 
-## 运行结果
-### 设备本地查看
+## 6、运行结果
+### 6.1、设备本地查看
 
 &emsp;&emsp;
 在网络连接成功后，屏幕上将打印出IP地址和"NTP Done"，如果迟迟不能显示“NTP Done”，请长按电源键关机同时拔掉USB线重新上电运行。
@@ -253,7 +250,7 @@ do not detect!
 get response time : 549
 ```
 
-### PC和手机端效果
+### 6.2、PC和手机端效果
 <div align="center">
 <img src=./../../../images/vehicle_congestion_detect/车辆拥堵检测_IOTStudio_PC预览.png width=80%/>
 </div>

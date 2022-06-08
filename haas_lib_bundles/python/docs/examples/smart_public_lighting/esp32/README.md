@@ -5,30 +5,43 @@
 <img src=./../../../images/4_智慧路灯_步骤概述.jpg width=60%/>
 </div>
 
-## 简介
+## 1、简介
 
 &emsp;&emsp;
 随着城市化不断扩大，城市的灯光秀越来越多，让我们居住的城市生活变得五彩缤纷，灯火辉煌，让城市显得越来越繁华。但是，我们也会经常发现有些路边的灯，在天很黑了不会自动打开，或者到清晨，天很亮了，马路边的灯也不会自动熄灭，只会在固定时间统一开关控制，这样既不人性化也不环保。于是现在很多地方的路灯会根据周围环境亮度自动开启或关闭路边灯光，那这样的路灯就非常人性化，同时也非常环保，这才是真正的城市智慧路灯。
 
-### 背景知识
+### 1.1、背景知识
 
 &emsp;&emsp;
 本章课程打造的智慧路灯控制系统是当检测到周围环境亮度变暗的时候，系统会自动打开灯，当周围环境亮度变亮的时候，系统就会自动关闭灯。本智慧路灯控制系统默认设置一个亮度阈值，当亮度值超过阈值，关灯，当亮度值低于阈值，开灯，当然，这个阈值可以根据每个人对光的亮度感觉不同而调整。
 
-## 准备
+### 1.2、准备
 &emsp;&emsp;
 硬件器材：
-1. ESP32开发一套
-2. 光敏电阻传感器一个
-3. 连接线若干
 
-硬件连线图如下图所示：
+   - ESP32开发板（[ESP32乐鑫开发板](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C9562896F994200000001&dataId=800C9562896F9942)、[NodeMCU-32S](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C0A5C37AADCDB00000001&dataId=800C0A5C37AADCDB)或[pyWiFi-ESP32](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C55C67883087B00000001&dataId=800C55C67883087B)）一台
+   - 光敏电阻传感器一个
+   - 连接线若干
+
+&emsp;&emsp;
+ESP32各开发板和人体热释电红外传感器硬件接线请参考下表。
+
+| 硬件 | 光敏电阻传感器 | 乐鑫<br />ESP32开发板 | 安信可<br />NODEMCU-32S开发板 | 01Studio<br />pyWiFi-ESP32开发板 |
+| --- | --- | --- | --- | --- |
+| 端口标识 | - | GND | GND | GND |
+|  | + | 3V3 | 3V3 | 3V3 |
+|  | AO | VP | SVP | 36 |
+| 硬件说明 | [硬件积木说明](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C57784852F32C00000002&dataId=800C57784852F32C) | [快速开始](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup)<br />[详细端口定义](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup?id=%E4%B9%90%E9%91%AB-esp32_devkitc) | [快速开始](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup)<br />[详细端口定义](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup?id=%e5%ae%89%e4%bf%a1%e5%8f%af-nodemcu-32) | [快速开始](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup)<br />[详细端口定义](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/ESP32_startup?id=_01studio-pywifi-esp32) |
+
+&emsp;&emsp;
+下图是以NODEMCU-32S开发板为例的接线图。
+
 <div align="center">
 <img src=./../../../images/4_ESP32_热敏电阻传感器连线图.jpg width=85%/>
 </div>
 <br>
 
-## 一分钟上云体验
+### 1.3、一分钟上云体验
 
 - 打开“支付宝”扫描下图二维码
 
@@ -41,9 +54,8 @@
 <img src=../../../images/1_一分钟上云_step2.png width=80%/>
 </div>
 
-## 物联网平台开发
+## 2、物联网平台开发
 
-### 开通公共实例
 &emsp;&emsp;
 对于第一次使用物联网平台的读者，需要开通实例以使用物联网平台的功能。这里可以使用免费的公共实例进行开发。
 
@@ -55,7 +67,7 @@
  width=100%/>
 </div>
 
-### 云端创建产品
+### 2.2、云端创建产品
 1. **创建产品**
 
 &emsp;&emsp;
@@ -174,35 +186,29 @@
  width=70%/>
 </div>
 
-## 设备端开发
+## 3、设备端开发
 
-### 开发环境
+### 3.1、开发环境
 
 &emsp;&emsp;
 在进行下一步之前请确保ESP32开发环境已经搭建完毕。详情请参考[esp32开发环境](../../../startup/ESP32_startup.md)的说明。
 <br>
 
-### 创建解决方案
-
+### 3.2、创建解决方案
 &emsp;&emsp;
-如下图所示，打开VS Code之后在新建一个基于helloworld的python工程，设定好工程名称（“light_smart”）及工作区路径之后，硬件类型选择ESP32，点击立即创建，创建一个Python轻应用的解决方案。
-<div align="center">
-<img src=./../../../images/5_1_创建智慧路灯工程_esp32.jpg width=50%/>
-</div>
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“智能路灯系统”案例点击“立即创建”即可。
 
-&emsp;&emsp;
-将[智慧路灯系统](./code/)脚本的代码复制后覆盖到刚刚创建的工程根目录下，main.py里边的内容如下图所示：
 <div align="center">
-<img src=./../../../images/5_3_智慧路灯工程_esp32.jpg
- width=80%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
+<br>
 
 > Python脚本的详细说明请参考脚本内嵌的文字注释
 
 1. **修改路由器名称及密码**
 
 &emsp;&emsp;
-修改light_smart工程里main.py中wifiSsid和wifiPassword的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在""符号中间）。
+修改main.py中wifiSsid和wifiPassword的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在""符号中间）。
 
 ```python
 # wifi连接的的ssid和pwd定义
@@ -216,7 +222,7 @@ wifiPassword = "请填写您的路由器密码"
 2. **修改设备端三元组**
 
 &emsp;&emsp;
-修改fq_time工程里main.py中productKey、deviceName和deviceSecret的值为上面物联网平台创建的物联网设备的三元组信息，复制即可：
+修改main.py中productKey、deviceName和deviceSecret的值为上面物联网平台创建的物联网设备的三元组信息，复制即可：
 
 <div align="center">
 <img src=./../../../images/2_3_设备证书.jpg
@@ -233,7 +239,7 @@ deviceSecret   = "设备密钥"
 3. **修改设备端上报光强度和下发开关标识符**
 
 &emsp;&emsp;
-light_smart工程里main.py中下面的代码实现的是上传光强度值到云端的功能，以及云端下发对应的开关命令。其中Brightness便是光强度值上报时所用的标识符，onoff为云端下发的开关标识符。
+main.py中下面的代码实现的是上传光强度值到云端的功能，以及云端下发对应的开关命令。其中Brightness便是光强度值上报时所用的标识符，onoff为云端下发的开关标识符。
 
 ```python
 def report_light_data(l_data):
@@ -313,8 +319,7 @@ def on_props(request):
 
 <br>
 
-## 运行结果
-### 本地查看
+## 4、运行结果
 &emsp;&emsp;
 推送此脚本到ESP32之后，设备上打印光强度值，同时将相关的光强度值上传到云端，并且当光强度大于1000，打开ESP32开发板上的LED灯；当光强度小于1000，关闭ESP32开发板上的LED灯，如下日志所示：
 ```log

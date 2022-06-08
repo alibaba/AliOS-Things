@@ -8,9 +8,9 @@
 <img src=./../../../images/smart_trashbin/步骤指引.png width=80%/>
 </div>
 
+## 1、简介
 
-
-## 背景知识
+### 1.1、背景知识
 
 &emsp;&emsp;
 红外避障传感器：利用物体的反射性质，在一定范围内，如果没有障碍物，发射出去的红外线，距离越远越弱，如果有障碍物，红外线遇到障碍物就会被反射，传感器接收头接收到这一信号，就可以确定正前方有物体。
@@ -21,7 +21,6 @@ HaaS增值服务：集多种人工智能算法为一体的云端服务，通过�
 &emsp;&emsp;
 垃圾分类目前分为可回收垃圾、有害垃圾、厨余垃圾(湿垃圾)、其他垃圾(干垃圾)。
 
-## 场景功能拆解
 &emsp;&emsp;
 实验整体步骤如下：
 1. 连接硬件
@@ -29,7 +28,7 @@ HaaS增值服务：集多种人工智能算法为一体的云端服务，通过�
 3. 设备端开发
 4. 设备运行
 
-## 准备
+### 1.2、准备
 
 1. [M5Stack Core2开发板](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C84FAF561DF6A00000001&dataId=800C84FAF561DF6A) 一套
 2. M5Stack Unit CAM摄像头 一个
@@ -59,20 +58,20 @@ HaaS增值服务：集多种人工智能算法为一体的云端服务，通过�
 
 <br>
 
-## 云端平台功能开通
+## 2、云端平台功能
 在本案例中涉及到云端平台功能都聚合在HaaS云端积木中，所以无需单独使用 **对象存储OSS** 和 **视觉智能开发平台**。因此，整个云端步骤分为下面两步。
 ```python
 1. 注册阿里云账号并登录；
 2. 登录HaaS云端积木控制台创建设备；
 ```
 
-## 注册阿里云账号
+### 2.1、注册阿里云账号
 &emsp;&emsp;
 进入阿里云官网，如已有阿里云账号可跳过这步，[注册阿里云账号](https://account.aliyun.com/login/login.htm) 。
 
 <br>
 
-## HaaS云端积木平台创建设备
+### 2.2、HaaS云端积木平台创建设备
 
 1. **登录HaaS云端积木平台**
 
@@ -114,25 +113,24 @@ HaaS增值服务：集多种人工智能算法为一体的云端服务，通过�
 &emsp;&emsp;
 请复制该处的三元组信息，后面设备端开发需要使用。
 
-## 设备端开发
+## 3、设备端开发
 
-1. **开发环境**
+### 3.1、开发环境
 
 &emsp;&emsp;
 在进行下一步之前请确保M5StackCore2开发环境已经搭建完毕。详情请参考[M5StackCore2快速开始](../../../startup/M5StackCore2_startup.md)的说明。
 <br>
 
-2. **创建解决方案**
-
+### 3.2、创建解决方案
 &emsp;&emsp;
-如下图所示，打开VSCode之后在新建一个基于helloworld的python工程，设定好工程名称（“smart_trashbin”）及工作区路径之后，硬件类型选择M5Stack Core2，点击立即创建，创建一个Python轻应用的解决方案。
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“智能垃圾桶”案例点击“立即创建”即可。
 
 <div align="center">
-<img src=./../../../images/classifying_rubbish/垃圾分类识别_创建工程.png width=80%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
+<br>
 
-
-1. **代码准备**
+### 3.3、代码准备
 
 &emsp;&emsp;
 将[智能垃圾桶代码](./code/)目录下的所有脚本进行复制到“smart_trashbin”工程根目录中，然后进行如下设定完成设备端代码的开发。
@@ -140,10 +138,10 @@ HaaS增值服务：集多种人工智能算法为一体的云端服务，通过�
 > Python脚本的详细说明请参考脚本内嵌的文字注释
 
 
-3.1. **修改路由器名称及密码**
+1、**修改路由器名称及密码**
 
 &emsp;&emsp;
-修改smart_trashbin工程里main.py中SSID和PWD的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
+修改main.py中SSID和PWD的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
 
 ```python
 # Wi-Fi SSID和Password设置
@@ -154,7 +152,7 @@ PWD='Your-AP-Password'
 &emsp;&emsp;
 修改完成之后connect_wifi函数就会连接读者自己设定的路由器。
 
-3.2. **修改设备的三元组信息**
+2、**修改设备的三元组信息**
 
 &emsp;&emsp;
 请参考“获取设备的三元组步骤”，把获取的三元组信息，填入main.py中：
@@ -165,7 +163,7 @@ deviceName  = "Your-devicename"
 deviceSecret  = "Your-deviceSecret"
 ```
 
-3.3. **运行结果**
+## 4、运行结果
 
 &emsp;&emsp;
 推送此脚本到M5Stack Core2之后，网络连接成功后，屏幕上将打印出IP地址和"NTP Done"，如果迟迟不能显示“NTP Done”，请长按电源键关机同时拔掉USB线重新上电运行。
