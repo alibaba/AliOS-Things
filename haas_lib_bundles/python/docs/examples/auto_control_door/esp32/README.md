@@ -5,12 +5,12 @@
 <img src=./../../../images/auto_control_door/自动感应门-导览.png width=80%/>
 </div>
 
-## 简介
-### 背景
+## 1、简介
+### 1.1、背景
 &emsp;&emsp;
 目前很多写字楼、酒店等入口都采用自动感应的方式开门、关门，当有人靠近时，门就会自动打开，远离时会自动关门；有时候也需要将自动门设置常开状态，比如需要多次进出大门搬卸货物的时候，不需要让门关闭；或者夜晚、放假时，需要将自动门设置常闭状态，不允许任何人进入，除非人为设置解锁为正常状态。本案例采用ESP32开发板结合红外感应、舵机以及阿里云物联网平台，只需4步，就可以搭建简单的应用场景来模拟自动感应门的功能。
 
-### 准备
+### 1.2、准备
 
 1. ESP32开发板         一套
 2. SG90舵机           一个
@@ -34,14 +34,14 @@
 </div>
 <br>
 
-## 云端开发
+## 2、云端开发
 
-### 注册阿里云账号
+### 2.1、注册阿里云账号
 &emsp;&emsp;
 进入阿里云官网，[注册阿里云账号](https://account.aliyun.com/login/login.htm) 。注册完成后登录官网。如果您已经有阿里云账号，直接登录即可。
 <br>
 
-### 创建产品、设备
+### 2.1、创建产品、设备
 &emsp;&emsp;
 进入[阿里云IoT控制台](http://iot.console.aliyun.com/)，进入公共实例，创建产品和设备。
 <div align="center">
@@ -86,7 +86,7 @@
 <img src=./../../../images/auto_control_door/自动感应门禁_物联网平台开发_快速导入.png width=100%/>
 </div>
 
-### IoT Stuido创建移动应用
+## 3、IoT Stuido创建移动应用
 &emsp;&emsp;
 进到IoT Studio控制台[首页](https://studio.iot.aliyun.com/)，选择项目管理，新建空白项目，比如这里创建的项目名称为“自动门禁管控”。
 <div align="center">
@@ -180,32 +180,27 @@
 </div>
 
 
-## 设备端开发
+## 4、设备端开发
 
-### 开发环境准备
+### 4.1、开发环境准备
 &emsp;&emsp;
 在进行下一步之前请确保ESP32中已经烧录了HaaS Python固件并且其开发环境已经搭建完毕。详情请参考[ESP32开发环境](../../../startup/ESP32_startup.md)的说明。
 <br>
 
-### 创建解决方案
+### 4.2、创建解决方案
 
 &emsp;&emsp;
-如下图所示，打开VS Code之后在新建一个基于helloworld的python工程，设定好工程名称（“auto_control_door”）及工作区路径之后，硬件类型选择"nodemcu32s"，点击”立即创建“，创建一个Python轻应用的解决方案。
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“自动感应门”案例点击“立即创建”即可。
 
 <div align="center">
-<img src=./../../../images/auto_control_door/自动感应门_HaaSStudio_创建工程.png width=100%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
-
-
-&emsp;&emsp;
-将[自动感应门管控代码](./code/)文件下的所有脚本进行复制到“auto_control_door”工程根目录中，然后进行如下设定完成设备端代码的开发。
-> Python脚本的详细说明请参考脚本内嵌的文字注释
-
+<br>
 
 1. **修改路由器名称及密码**
 
 &emsp;&emsp;
-修改auto_control_door工程里main.py中SSID和PWD的值为开发者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
+修改工程里main.py中SSID和PWD的值为开发者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
 
 ```python
 # Wi-Fi SSID和Password设置
@@ -271,8 +266,8 @@ door_status set value : 1
 object detected, count = 7
 ```
 
-## 端云连调
-### 云端查看设备上报结果
+## 5、端云连调
+### 5.1、云端查看设备上报结果
 &emsp;&emsp; 
 此时如果用物体遮挡红外感应器，舵机则会立即转动90度，隔5秒后会自动再转回原位置。同时可以看到云端实时曲线展示截止当前累计人员流量曲线图。
 <div align="center">
@@ -295,6 +290,6 @@ object detected, count = 27
 <img src=./../../../images/auto_control_door/自动感应门_手机端效果.png width=60%/>
 </div>
 
-## 后记
+## 6、后记
 &emsp;&emsp;
 笔者这里实现了软件和硬件的开发，实际产品还需要结构设计，读者完成此案例之后可以尝试设计此自动开门系统的结构设计（可以用3D打印或亚克力外壳裁剪拼接）。

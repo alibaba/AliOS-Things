@@ -6,13 +6,13 @@
 <img src=./../../../images/sound_led/声控灯_步骤简介.png width=90%/>
 </div>
 
-## 简介
+## 1、简介
 &emsp;&emsp;
 本案例介绍的声控灯是通过声音控制开灯一个解决方案，具备使用简单、开发成本低、节能环保等特点。本案例为了更好玩使用了RGB LED，每次开灯颜色都会变化，并把灯开关的状态上报至云端，云端可以实时查看灯的状态。
 
 <br>
 
-### 背景知识
+### 1.1、背景知识
 
 &emsp;&emsp;
 声音传感器是充当收音的作用，用来接收声波，使话筒内的驻极体薄膜震动导致电容的变化，产生0-5V的微小电压，经过A/D转换被数据采集器接收。
@@ -21,7 +21,7 @@
 RGB LED是红绿蓝三色混光而成，在光的混色上，具备更多元的特性。
 <br>
 
-## 准备
+## 1.2、准备
 1. ESP32开发板一套<br>
 2. 声音传感器一个<br>
 3. RGB LED一个<br>
@@ -38,8 +38,6 @@ RGB LED是红绿蓝三色混光而成，在光的混色上，具备更多元的�
 | 声音传感器 | 1个 | [声音传感器一个](https://detail.tmall.com/item.htm?spm=a1z10.5-b-s.w4011-16538328951.434.53cd410bJVsY2E&id=520364372142&rn=27fcce6fba3a11a94b9607b415ef397e&abbucket=7) |
 | 母对母杜邦线 | 7根 | [母对母杜邦线](https://detail.tmall.com/item.htm?id=14466195609&ali_refid=a3_430582_1006:1104520036:N:MsF9mE9KLTC2IibWJh+K1A==:21c5b519e28c4b0cd17ec4383141281f&ali_trackid=1_21c5b519e28c4b0cd17ec4383141281f&spm=a230r.1.14.1&skuId=3108214440213) 请选用10cm长即可 |
 
-### 硬件连线图
-
 &emsp;&emsp;
 硬件连线图如下图所示：
 <div align="center">
@@ -47,9 +45,8 @@ RGB LED是红绿蓝三色混光而成，在光的混色上，具备更多元的�
 </div>
 <br>
 
-## 物联网平台开发
+## 2、物联网平台开发
 
-### 开通公共实例
 
 &emsp;&emsp;
 对于第一次使用物联网平台的读者，需要开通实例以使用物联网平台的功能。这里可以使用免费的公共实例进行开发。
@@ -69,7 +66,7 @@ RGB LED是红绿蓝三色混光而成，在光的混色上，具备更多元的�
 <br>
 
 
-### 创建云端产品
+### 2.1、创建云端产品
 &emsp;&emsp;
 点击上图中的“公共实例”，即可进入[控制台](https://iot.console.aliyun.com/lk/summary/new)进行产品创建。然后，点击创建产品按钮，如下图所示。
 
@@ -84,7 +81,7 @@ RGB LED是红绿蓝三色混光而成，在光的混色上，具备更多元的�
 <img src=./../../../images/sound_led/声控灯_物联网平台开发_完成创建产品.png width=90%/>
 </div>
 
-### 创建产品属性（物模型）
+### 2.3、创建产品属性（物模型）
 
 &emsp;&emsp;
 点击前往定义物模型后，调整至下面页面，如下图所示。
@@ -105,7 +102,7 @@ RGB LED是红绿蓝三色混光而成，在光的混色上，具备更多元的�
 </div>
 <br>
 
-### 创建云端设备（获取三元组）
+### 2.3、创建云端设备（获取三元组）
 
 &emsp;&emsp;
 在产品列表页面中，点击“管理设备”，就会进到设备管理页面。
@@ -124,7 +121,7 @@ RGB LED是红绿蓝三色混光而成，在光的混色上，具备更多元的�
 </div>
 <br>
 
-##### **获取设备三元组**
+**获取设备三元组**
 
 &emsp;&emsp;
 如下图所示，在设备列表中点击“查看”按钮，就可以看到设备的三元组信息。
@@ -139,35 +136,28 @@ RGB LED是红绿蓝三色混光而成，在光的混色上，具备更多元的�
 </div>
 <br>
 
-## 设备端开发
+## 3、设备端开发
 
-### 开发环境
+### 3.1、开发环境
 &emsp;&emsp;
 在进行下一步之前请确保ESP32开发环境已经搭建完毕。详情请参考[ESP32开发环境](../../../startup/ESP32_startup.md)的说明。
 <br>
 
-### 创建解决方案
-
+### 3.2、创建解决方案
 &emsp;&emsp;
-如下图所示，打开VS Code之后在新建一个基于helloworld的python工程，设定好工程名称（“sound_led”）及工作区路径之后，硬件类型选择nodemcu32s，点击立即创建，创建一个Python轻应用的解决方案。
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“本地语音播报温湿度系统”案例点击“立即创建”即可。
 
 <div align="center">
-<img src=./../../../images/sound_led/声控灯_创建工程.png width=80%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
-
-&emsp;&emsp;
-将[声控灯代码](./code/)文件中的所有脚本进行复制到“sound_led”工程根目录中，然后进行如下设定完成设备端代码的开发。
-
-<div align="center">
-<img src=./../../../images/sound_led/声控灯_代码介绍.png width=90%/>
-</div>
+<br>
 
 > Python脚本的详细说明请参考脚本内嵌的文字注释
 
 1. **修改路由器名称及密码**
 
 &emsp;&emsp;
-修改sound_led工程里main.py中SSID和PWD的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
+修改main.py中SSID和PWD的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
 
 ```python
 # Wi-Fi SSID和Password设置
@@ -192,7 +182,7 @@ deviceSecret  = "Your-deviceSecret"
 3. **修改LED灯颜色**
 
 &emsp;&emsp;
-在sound_led工程里main.py，set_color_reference函数里，修改gLedColor值即可达到修改灯颜色目标。
+在main.py中set_color_reference函数里，修改gLedColor值即可达到修改灯颜色目标。
 
 ```python
 # RGD灯颜色设置
@@ -202,12 +192,10 @@ gLedColor = 0xff0000
 4. **调整开灯的声音阈值**
 
 &emsp;&emsp;
-在sound_led工程里main.py，sound_thread()函数里，修改gDecibelValue值即可达到调整开灯灵敏度，代码里的值是根据工作环境定义的经验值，开发者可根据自身情况定制修改。
-
-5. **调整开灯的时长**
+在main.py中sound_thread()函数里，修改gDecibelValue值即可达到调整开灯灵敏度，代码里的值是根据工作环境定义的经验值，开发者可根据自身情况定制修改。
 
 &emsp;&emsp;
-在sound_led工程里main.py，sound_thread()函数里，修改led_open()函数下面的utime.sleep_ms(6000)来控制每次亮灯时间(1000代表1秒钟)。
+在main.py中sound_thread()函数里，修改led_open()函数下面的utime.sleep_ms(6000)来控制每次亮灯时间(1000代表1秒钟)。
 
 ```python
 # 声音采集线程
@@ -235,10 +223,11 @@ def sound_thread():
 ```
 
 
-## 运行程序
+## 4、运行程序
 
+### 4.1、设备端
 &emsp;&emsp;
-推送此脚本到设备之后，串口会周期性的打印日志，设备上通过串口打印的信息如下图所示。
+推送此工程到设备之后，串口会周期性的打印日志，设备上通过串口打印的信息如下图所示。
 ```
 Wi-Fi is connecting...
 Wi-Fi is connected
@@ -258,7 +247,7 @@ link platform connected
 ```
 <br>
 
-## 云端查看
+## 4.2、云端查看
 进入阿里云官网，用阿里云账号[登录物联网平台](https://iot.console.aliyun.com/devices/)查看状态
 
 <div align="center">

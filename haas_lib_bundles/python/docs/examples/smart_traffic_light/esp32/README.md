@@ -5,11 +5,12 @@
 <img src=./../../../images/smart_traffic_light/智能红绿灯_案例步骤.png width=80%/>
 </div>
 
-## 简介
-### 背景
+## 1、简介
+### 1.1、背景
 &emsp;&emsp;
 红绿灯是交通路口用来指挥车辆、行人的信号灯，如果能根据车流量自动调整交通红绿灯的时长，可以缓解交通压力、提高每个路口的通行效率。本案例是结合之前提供的“车辆拥堵检测案例”的方案识别是否发生了车辆拥堵，再结合RGB传感器，控制红灯及绿灯的时长周期，最后使用IoT Studio搭建手机端远程控制的方式实现简易的智能红绿灯方案。
-### 设计方案
+
+### 1.2、设计方案
 &emsp;&emsp;
 通过摄像头拍摄红绿灯路口的车辆，发送云端进行识别，如果连续几次拍照识别的车辆数量大于设定的阈值“warningVehicleNum”，则调整下次红绿灯的时长。具体方案和参数设置如下：
 
@@ -26,7 +27,7 @@
 4、如果云端有强制设置红绿灯时间周期或者强制恢复本地默认周期,则以云端为准
 要求红灯最低只能减到30秒,绿灯最多60秒,其中一个达到限制点后,不再继续调整
 
-### 准备
+### 1.3、准备
 
 1. M5Stack Core2开发板       一套
 2. M5Stack Unit CAM摄像头    一个
@@ -56,16 +57,16 @@
 RGB传感器使用请参考[链接](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800CDF6C7F03209E00000001&dataId=800CDF6C7F03209E&s=)
 <br>
 
-## 阿里云IoT物联网平台创建产品、设备
+## 2、阿里云IoT物联网平台创建产品、设备
 &emsp;&emsp;
 在本案例中涉及到云端AI识别功能都聚合在HaaS云端积木中，所以无需单独使用**对象存储OSS**和**视觉智能开发平台**。
 
-## 注册阿里云账号
+### 2.1、注册阿里云账号
 &emsp;&emsp;
 进入阿里云官网，[注册阿里云账号](https://account.aliyun.com/login/login.htm) 。注册完成后登录官网。如果您已经有阿里云账号，直接登录即可。
 <br>
 
-## 创建产品、设备
+### 2.1、创建产品、设备
 &emsp;&emsp;
 进入[阿里云IoT控制台](http://iot.console.aliyun.com/)，创建产品和设备。
 <div align="center">
@@ -91,7 +92,7 @@ RGB传感器使用请参考[链接](https://haas.iot.aliyun.com/solution/detail/
 &emsp;&emsp;
 创建完产品、设备后进入HaaS云端积木平台绑定刚创建的产品。
 
-## 开通HaaS增值服务
+### 2.3、开通HaaS增值服务
 
 1. **登录HaaS官网**
 
@@ -130,25 +131,22 @@ RGB传感器使用请参考[链接](https://haas.iot.aliyun.com/solution/detail/
 </div>
 <br>
 
-## 设备端开发
+## 3、设备端开发
 
-### 开发环境准备
+### 3.1、开发环境准备
 &emsp;&emsp;
 在进行下一步之前请确保M5StackCore2开发环境已经搭建完毕。详情请参考[M5StackCore2快速开始](../../../startup/M5StackCore2_startup.md)的说明。
 <br>
 
-### 创建解决方案
-
+### 3.2、创建解决方案
 &emsp;&emsp;
-如下图所示，打开VS Code之后新建一个基于helloworld的python工程，设定好工程名称（“smart_traffic_light”）及工作区路径之后，硬件类型选择m5stackcore2，点击”立即创建“，创建一个Python轻应用的解决方案。
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“智能红绿灯”案例点击“立即创建”即可。
 
 <div align="center">
-<img src=./../../../images/smart_traffic_light/智能红绿灯_HaaSStudio_创建工程.png width=30%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
+<br>
 
-
-&emsp;&emsp;
-将[代码](./code/)的所有脚本进行复制到“smart_traffic_light”工程根目录中，然后进行如下设定完成设备端代码的开发。
 > Python脚本的详细说明请参考脚本内嵌的文字注释
 
 
@@ -179,7 +177,7 @@ deviceSecret  = "Your-deviceSecret"
 &emsp;&emsp;
 最后点击工程底部的部署运行或串口，选择对应的端口编号烧录程序
 
-## IoT Studio 移动应用搭建
+## 4、IoT Studio 移动应用搭建
 &emsp;&emsp;
 如果不需要通过手机端控制红绿灯时长，可以跳过此步骤。
 
@@ -260,8 +258,8 @@ deviceSecret  = "Your-deviceSecret"
 </div>
 
 
-## 运行结果
-### 设备本地查看
+## 5、运行结果
+### 5.1、设备本地查看
 
 &emsp;&emsp;
 在网络连接成功后，屏幕上将打印出IP地址和"NTP Done"，如果迟迟不能显示“NTP Done”，请长按电源键关机同时拔掉USB线重新上电运行。
@@ -342,7 +340,7 @@ curGNumber: 0 setting_from_server: False setting_resume_default: 0
 rgb_current_period after change: [50, 3, 40]
 ```
 
-### 手机端效果
+### 5.2、手机端效果
 <div align="center">
 <img src=./../../../images/smart_traffic_light/智能红绿灯_IOTStudio_手机预览.png width=50%/>
 </div>

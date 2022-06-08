@@ -2,13 +2,14 @@
 &emsp;&emsp;
 车牌识别系统已经融入到大众的生活中，现在的停车场大都支持车牌识别进出停车场。
 
-## 背景知识
+## 1、简介
+### 1.1、背景知识
 &emsp;&emsp;
 车牌识别是OCR识别领域中的一种，通过深度学习训练出能够识别各种车牌的模型，有的系统使用边缘设备进行识别，有的使用云端进行识别。本章中使用HaaS云端积木中车牌识别功能进行识别，在识别到车牌后显示车牌号码。
 
 <br>
 
-## 准备
+### 1.2、准备
 
 1. M5Stack Core2开发板       一套
 2. M5Stack Unit CAM摄像头    一个
@@ -30,7 +31,7 @@
 </div>
 <br>
 
-## 云端平台功能开通
+## 2、云端平台功能开通
 在本案例中涉及到云端平台功能都聚合在HaaS云端积木中，所以无需单独使用 **对象存储OSS** 和 **视觉智能开发平台**。
 
 &emsp;&emsp;
@@ -39,13 +40,13 @@
 2. 在HaaS官网中的云端积木控制台创建设备；
 3. 推送脚本到M5Stack Core2并运行车牌识别；
 
-## 注册阿里云账号
+### 2.1、注册阿里云账号
 &emsp;&emsp;
 进入阿里云官网，[注册阿里云账号](https://account.aliyun.com/login/login.htm) 。
 
 <br>
 
-## HaaS云端积木平台
+### 2.2、HaaS云端积木平台
 
 1. **登录HaaS官网**
 
@@ -94,32 +95,31 @@
 </div>
 <br>
 
-## 设备端开发
+## 3、设备端开发
 
-### 开发环境
+### 3.1、开发环境
 &emsp;&emsp;
 在进行下一步之前请确保M5StackCore2开发环境已经搭建完毕。详情请参考[M5StackCore2快速开始](../../../startup/M5StackCore2_startup.md)的说明。
 <br>
 
-### 创建解决方案
+### 3.2、创建解决方案
 
 &emsp;&emsp;
-如下图所示，打开VS Code之后在新建一个基于helloworld的python工程，设定好工程名称（“license_plate_recognization”）及工作区路径之后，硬件类型选择m5stackcore2，点击立即创建，创建一个Python轻应用的解决方案。
-
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“车牌识别系统”案例点击“立即创建”即可。
 <div align="center">
-<img src=./../../../images/3_2_车牌识别_工程创建.png width=80%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
+<br>
 
-
-&emsp;&emsp;
-将[车牌识别代码](./code/)文件下的所有脚本进行复制到“license_plate_recognization”工程根目录中，然后进行如下设定完成设备端代码的开发。
 > Python脚本的详细说明请参考脚本内嵌的文字注释
 
+&emsp;&emsp;
+然后进行如下设定完成设备端代码的开发。
 
 1. **修改路由器名称及密码**
 
 &emsp;&emsp;
-修改license_plate_recognization工程里main.py中SSID和PWD的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
+修改main.py中SSID和PWD的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
 
 ```python
 # Wi-Fi SSID和Password设置
@@ -141,8 +141,8 @@ deviceName  = "Your-devicename"
 deviceSecret  = "Your-deviceSecret"
 ```
 
-## 运行结果
-### 本地查看
+## 4、运行结果
+### 4.1、本地查看
 
 &emsp;&emsp;
 在网络连接成功后，屏幕上将打印出IP地址和"NTP Done"，如果迟迟不能显示“NTP Done”，请长按电源键关机同时拔掉USB线重新上电运行。

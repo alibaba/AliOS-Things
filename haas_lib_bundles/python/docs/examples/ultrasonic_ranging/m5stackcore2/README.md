@@ -2,12 +2,15 @@
 
 本案例通过一个超声测距传感器测量距离，测量值显示在液晶屏幕上，同时上送到云端。本案例是手持式超声测距仪的原型。
 
-## 背景知识
+## 简介
+## 1.1、背景知识
 
 由于超声波指向性强，能量消耗缓慢，在介质中传播的距离较远，因而超声波经常用于距离的测量，如测距仪和物位测量仪等都可以通过超声波来实现。利用超声波检测往往比较迅速、方便、计算简单、易于做到实时控制，并且在测量精度方面能达到工业实用的要求，因此在移动机器人研制上也得到了广泛的应用。
 <br>
 
-## 准备
+### 1.2、准备
+
+本案例需要准备如下硬件：
 1. M5Stack Core2开发板一套<br>
 2. URM37超声测距传感器一个<br>
 3. 母对母杜邦连接线若干<br>
@@ -22,17 +25,13 @@
 | URM37超声测距传感器 | 1 | [URM37超声测距传感器](https://wiki.dfrobot.com.cn/_SKU_SEN0001_URM37V5.0%E8%B6%85%E5%A3%B0%E6%B3%A2%E6%B5%8B%E8%B7%9D%E4%BC%A0%E6%84%9F%E5%99%A8) |
 | 母对母杜邦线 | 4 | [母对母杜邦线](https://detail.tmall.com/item.htm?id=14466195609&ali_refid=a3_430582_1006:1104520036:N:MsF9mE9KLTC2IibWJh+K1A==:21c5b519e28c4b0cd17ec4383141281f&ali_trackid=1_21c5b519e28c4b0cd17ec4383141281f&spm=a230r.1.14.1&skuId=3108214440213) 请选用10cm长即可 |
 
-### 硬件连线图
-
 硬件连线图如下图所示：
 <div align="center">
 <img src=./../../../images/ultrasonic_ranging/hardware_connection.png width=100%/>
 </div>
 <br>
 
-## 物联网平台开发
-
-### 开通公共实例
+## 2、物联网平台开发
 
 对于第一次使用物联网平台的读者，需要开通实例以使用物联网平台的功能。这里可以使用免费的公共实例进行开发。
 
@@ -49,7 +48,7 @@
 
 <br>
 
-### 创建云端产品
+### 2.1、创建云端产品
 
 点击上图中的“公共实例”，即可进入[控制台](https://iot.console.aliyun.com/lk/summary/new)进行产品创建。然后，点击创建产品按钮，如下图所示。
 
@@ -63,7 +62,7 @@
 <img src=./../../../images/ultrasonic_ranging/create_1.png width=100%/>
 </div>
 
-### 创建产品属性（物模型）
+### 2.3、创建产品属性（物模型）
 
 按照如下步骤定义物模型。完成后点击“发布上线”。
 <div align="center">
@@ -78,7 +77,7 @@
 <img src=./../../../images/ultrasonic_ranging/product_2.png width=75%/>
 </div>
 
-### 创建云端设备（获取三元组）
+### 2.3、创建云端设备（获取三元组）
 
 按照如下步骤添加设备。
 <div align="center">
@@ -89,7 +88,7 @@
 <img src=./../../../images/ultrasonic_ranging/device_1.png width=75%/>
 </div>
 
-##### **获取设备三元组**
+**获取设备三元组**
 
 如下图所示，在设备列表中点击“查看”按钮，就可以看到设备的三元组信息。
 
@@ -101,32 +100,25 @@
 </div>
 <br>
 
-## 设备端开发
+## 3、设备端开发
 
-### 开发环境
+### 3.1、开发环境
 
 在进行下一步之前请确保M5StackCore2开发环境已经搭建完毕。详情请参考[M5StackCore2快速开始](../../../startup/M5StackCore2_startup.md)的说明。
 <br>
 
-### 创建解决方案
-
-如下图所示，打开VSCode之后在新建一个基于helloworld的python工程，设定好工程名称（“ultrasonic_ranging”）及工作区路径之后，硬件类型选择M5Stack Core2，点击立即创建，创建一个Python轻应用的解决方案。
+### 3.2、创建解决方案
+&emsp;&emsp;
+如下图所示，在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“超声测距仪”案例点击“立即创建”即可。
 
 <div align="center">
-<img src=./../../../images/classifying_rubbish/垃圾分类识别_创建工程.png width=80%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
+<br>
 
+### 3.3、修改路由器名称及密码
 
-### 代码准备
-
-将[超声测距仪](./code/)目录下的所有脚本进行复制到“ultrasonic_ranging”工程根目录中，然后进行如下设定完成设备端代码的开发。
-
-> Python脚本的详细说明请参考脚本内嵌的文字注释
-
-
-### 修改路由器名称及密码
-
-修改ultrasonic_ranging工程里main.py中SSID和PWD的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
+修改此工程里main.py中SSID和PWD的值为读者实际要连接的路由器的名称及密码（请注意名称和密码都需要放在''符号中间）。
 
 ```python
 # Wi-Fi SSID和Password设置
@@ -136,7 +128,7 @@ PWD='Your-AP-Password'
 
 修改完成之后connect_wifi函数就会连接读者自己设定的路由器。
 
-### 修改设备的三元组信息
+### 3.4、修改设备的三元组信息
 
 请参考“获取设备的三元组步骤”，把获取的三元组信息，填入main.py中：
 ```python
@@ -146,14 +138,15 @@ deviceName  = "Your-devicename"
 deviceSecret  = "Your-deviceSecret"
 ```
 
-### 运行结果
+### 4、运行结果
 
+#### 4.2、本地运行效果查看
 液晶屏幕上实时显示距离测量值，单位为厘米。
 <div align="center">
 <img src=./../../../images/ultrasonic_ranging/display.png width=50%/>
 </div>
 
-### 云端查看
+#### 4.2、云端查看
 
 进入阿里云官网，用阿里云账号[登录物联网平台](https://iot.console.aliyun.com/devices/)查看状态
 
@@ -165,6 +158,6 @@ deviceSecret  = "Your-deviceSecret"
 
 到此为止，超声测距仪案例就已经完成了。如果想学习更多实验，请参考[HaaS案例实践详解](https://gitee.com/haasedu/haasedu/tree/release_2.0)。
 
-## 后记
+## 5、后记
 
 本案例中使用的URM37超声波测距传感器还拥有舵机控制和温度采集功能，后续可尝试把这些功能加入案例中。
