@@ -1,0 +1,11 @@
+freeze(
+    "..",
+    (
+        "modbus/__init__.py",
+        "modbus/uModBus.py",
+        "modbus/uModBusConst.py",
+        "modbus/uModBusFunctions.py",
+        "modbus/uModBusSerial.py",
+        "modbus/uModBusTCP.py"
+    ),
+)

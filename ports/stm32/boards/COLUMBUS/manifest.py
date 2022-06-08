@@ -10,3 +10,6 @@ freeze("$(MPY_DIR)/modules/boardparser", "boardparser.py")
 
 # driver
 include("$(MPY_DIR)/modules/driver/manifest.py")
+
+# modbus
+include("$(MPY_DIR)/modules/modbus/manifest.py")
