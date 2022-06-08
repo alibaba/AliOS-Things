@@ -46,11 +46,10 @@
 
 
 #define TCPIP_THREAD_NAME               "tcp/ip"
-#define TCPIP_THREAD_STACKSIZE          3072
+#define TCPIP_THREAD_STACKSIZE          8192
 #define TCPIP_THREAD_PRIO               7
 
-#define DEFAULT_THREAD_STACKSIZE        200
-#define DEFAULT_THREAD_PRIO             1
+#define DEFAULT_THREAD_PRIO             32
 
 /* Disable lwIP asserts */
 #define LWIP_NOASSERT			1
@@ -92,8 +91,11 @@
 #define SNMP_MIB_DEBUG                  LWIP_DBG_OFF
 #define DNS_DEBUG                       LWIP_DBG_OFF
 #define REENTER_DEBUG                   LWIP_DBG_OFF
-#define IPERF_DEBUG                     LWIP_DBG_OFF
-#define PING_DEBUG                      LWIP_DBG_OFF
+#define PKTPRINT_DEBUG                  LWIP_DBG_OFF
+#define IPERF_DEBUG                     LWIP_DBG_ON
+#define PING_DEBUG                      LWIP_DBG_ON
+#define DNSCLI_DEBUG                    LWIP_DBG_ON
+
 
 //#define LWIP_COMPAT_MUTEX      		1
 /**
@@ -179,8 +181,8 @@
  * (only needed if you use tcpip.c)
  */
 
-#define MEMP_NUM_TCPIP_MSG_INPKT        16
-#define TCPIP_MBOX_SIZE                 16
+#define MEMP_NUM_TCPIP_MSG_INPKT        128
+#define TCPIP_MBOX_SIZE                 128
 
 /**
  * MEMP_NUM_SYS_TIMEOUT: the number of simulateously active timeouts.
@@ -308,7 +310,7 @@
  * DNS related options, revisit later to fine tune.
  */
 #define LWIP_DNS                       1
-#define DNS_TABLE_SIZE                 2  // number of table entries, default 4
+#define DNS_TABLE_SIZE                 (4) // number of table entries, default 4
 //#define DNS_MAX_NAME_LENGTH            64  // max. name length, default 256
 #define DNS_MAX_SERVERS                2  // number of DNS servers, default 2
 #define DNS_DOES_NAME_CHECK            1  // compare received name with given,def 0
@@ -345,7 +347,6 @@
  * SO_RCVTIMEO processing.
  */
 #define LWIP_SO_RCVTIMEO                1
-#define LWIP_SO_SNDTIMEO                1
 /**
  * TCP_LISTEN_BACKLOG==1: Handle backlog connections.
  */
@@ -418,9 +419,9 @@ The STM32F107 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 #define PBUF_POOL_SIZE                  30
 #define TCP_MSS                 (1500 - 40)
 /* TCP receive window. */
-#define TCP_WND                 (3*TCP_MSS)
+#define TCP_WND                 (10 * TCP_MSS)
 /* TCP sender buffer space (bytes). */
-#define TCP_SND_BUF             (10*TCP_MSS)
+#define TCP_SND_BUF             (44 * TCP_MSS)
 
 #define TCP_SND_QUEUELEN        (4* TCP_SND_BUF/TCP_MSS)
 
@@ -432,26 +433,21 @@ The STM32F107 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 
 #define IP_REASS_MAX_PBUFS              0
 #define IP_REASSEMBLY                   0
-#define IP_REASS_MAX_PBUFS              0
-#define IP_REASSEMBLY                   0
 #define MEMP_NUM_REASSDATA              0
 #define IP_FRAG                         0
 
 #define MEM_LIBC_MALLOC                (1)
 
-//#define DEFAULT_UDP_RECVMBOX_SIZE       3 // yhb set, each udp socket max buffer 3 packets.
 
 #define MEMP_MEM_MALLOC (1)
-#define TCP_MSL (TCP_TMR_INTERVAL)
 
 #define LWIP_COMPAT_MUTEX_ALLOWED       (1)
 //#endif
 
-#define TCPIP_MBOX_SIZE                 16
 #define DEFAULT_ACCEPTMBOX_SIZE         8
 #define DEFAULT_RAW_RECVMBOX_SIZE       4
-#define DEFAULT_UDP_RECVMBOX_SIZE       20 // 8
-#define DEFAULT_TCP_RECVMBOX_SIZE       8
+#define DEFAULT_UDP_RECVMBOX_SIZE       32
+#define DEFAULT_TCP_RECVMBOX_SIZE       32
 
 #ifdef CONFIG_AOS_MESH
 #define LWIP_DECLARE_HOOK \
