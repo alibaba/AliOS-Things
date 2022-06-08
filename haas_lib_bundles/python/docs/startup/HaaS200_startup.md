@@ -2,29 +2,23 @@
 &emsp;&emsp;
 HaaS200是高性价比的软硬件创新积木平台开发版，集成的是阿里云IoT团队自主研发的AliOS Things物联网操作系统。软件支持JS/Python轻应用和C/C++开发。本节则主要介绍如何烧录HaaS200 Python标准固件并在此基础上完成helloworld Python程序的运行。
 
-## HaaS200 Python固件
+## 一、HaaS Python固件下载
 
 &emsp;&emsp;
-HaaS200版本固件，请通过下面固件列表链接下载开发板对应的固件压缩包并解压，解压完成后可以看到其目录结构如下：
-```bash
+请从[HaaS Python版本历史](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/startup)下载HaaS200对应的固件压缩包并解压，解压完成后可以看到其目录结构如下：
+```
+bash
 ├── HaaSPython-HaaS200-{xxx}.bin     # HaaS Python官方固件，{xxx}为版本号
 └── littlefs.bin                     # 文件系统
 ```
 
+
+## 二、安装HaaS-Studio开发工具
+
 &emsp;&emsp;
-### HaaS200固件列表
-[HaaSPython-HaaS200-v2.1.0](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-HaaS200-v2.1.0.zip)
-  * 版本更新说明（2022-04-24）
-    * HaaS轻应用标准升级到2.1
-    * 新增6个[HaaS200趣味案例](https://haas.iot.aliyun.com/solution)
+HaaS Studio目前是以插件的形式安装在VS Code（Visual Studio Code）工具中，所以安装HaaS Studio之前需要先安装VS Code。
 
-<br>
-
-## HaaS200开发环境准备
-&emsp;&emsp;
-将HaaS200用typeC USB数据线和电脑相连。
-
-#### 安装VS Code
+### 2.1 安装VS Code
 
 &emsp;&emsp;
 读者请到[微软官方网站](https://code.visualstudio.com/)上下载 VS Code 安装包并进行安装，VS Code安装包要求不低于版本 1.57。
@@ -38,7 +32,7 @@ VS Code安装包下载网站： https://code.visualstudio.com/
 > 推荐 Windows 系统版本为 win10， MacOS 版本不低于 10.15。
 <br>
 
-#### 安装haas-studio插件
+### 2.2 安装haas-studio插件
 
 > 安装完 VS Code之后，windows用户请注意使用管理员权限打开(vscode插件会安装相关工具到C盘，需要管理员权限)
 
@@ -87,21 +81,26 @@ python高级模式打开之后，这些按钮的功能变成如下图所示：
 <img src=../images/haas-studio-python-HaaS200_advance-enable.png width=40%/>
 </div>
 
-### HaaS200串口名称确认
-#### Windows系统
+## 三、固件烧录
+
+&emsp;&emsp;
+进行固件烧录前需要先确认开发板连接到电脑后对应的串口名称。
+
+### 3.1 串口名称确认
+#### 3.1.1 Windows系统
 
 &emsp;&emsp;
 读者请通过控制面板下的设备管理器，查询当前电脑下HaaS200插入后新增的端口。下图中显示HaaS200连接后新增的串口为“COM7”。
 > 注意：每台PC的串口可能都不一样，如果有多个串口，可以断开PC和HaaS200之间的连线，然后将PC和HaaS200相连，找到新增的那个串口。
 
-![HaaS200串口示意图](https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_EDU_K1_WINDOWS_COM.png)
+![HaaS200串口示意图](../images/1_HaaS_EDU_K1_WINDOWS_COM.png)
 
 &emsp;&emsp;
 如果连接HaaS200之前和之后，没有新增串口，则需要安装HaaS200的串口驱动，[请点我下载](https://www.silabs.com/documents/public/software/CP210x_Universal_Windows_Driver.zip)。
 
 <br>
 
-#### MAC系统
+#### 3.1.2 MAC系统
 
 &emsp;&emsp;
 如果您的电脑是MAC系统，系统会自带HaaS200 UART驱动程序，无需单独安装。可以在命令行中通过如下命令查看HaaS200接到电脑之前和之后串口列表的差异确认HaaS200串口名称。
@@ -122,15 +121,14 @@ zsh: no matches found: /dev/tty.usb*
 
 <br>
 
-## 固件烧录过程
-
+### 3.2 使用HaaS Studio进行固件烧录
 &emsp;&emsp;
 烧录此固件需使用HaaS-Studio集成开发环境。
 
 <br>
 1. 点击“快速开始”按钮后选择“烧录工具”按钮。如下图所示。
 <div align="center">
-<img src=../images/HaaS200startup_HaaS_Studio_固件烧录.png width=75%/>
+<img src=../images/1_HaaS_Studio_固件烧录.png width=75%/>
 </div>
 2. 选择好HaaS200对应的“串口名字” <br>
 3. 选择固件所在路径（上面“固件下载”步骤中解压出来的名为HaaSPython-HaaS200-{xxx}.bin的文件） <br>
@@ -142,7 +140,7 @@ zsh: no matches found: /dev/tty.usb*
 > 如果“串口名字”下拉框中没有正确的串口号，可以拔插HaaS200的USB口后，点击“刷新”按钮刷新串口列表。
 
 <div align="center">
-<img src=../images/HaaS_Studio_固件烧录_HaaS200_开始烧录.png width=75%/>
+<img src=../images/haas-studio-firmware-burn.png width=85%/>
 </div>
 
 &emsp;&emsp;
@@ -169,13 +167,13 @@ Packet End >>>
 <<< 0x6
 File: ymodem_burn_xz.bin
 Size: 970676Bytes
-11 0x3ff000 
+11 0x3ff000
 
 yxy ota_patch_write_param successes
 
 
 
-Recv flash addr: 0x00214000, len:0x000ecfb4 OK 
+Recv flash addr: 0x00214000, len:0x000ecfb4 OK
 
 ......
 
@@ -198,7 +196,7 @@ Size: 684032Bytes
 Swap AB partition
 
 
-Recv flash addr: 0x00354000, len:0x000a7000 OK 
+Recv flash addr: 0x00354000, len:0x000a7000 OK
 
 ...
 
@@ -228,7 +226,7 @@ sram test successfully
 &emsp;&emsp;
 经过上面的步骤HaaS Python固件就烧录到HaaS200开发板中去了。
 
-### 固件版本确认
+### 3.3 固件版本确认
 &emsp;&emsp;
 固件烧录完成后，如何确认固件真的有更新到硬件中呢？可以通过如下的方法确认：
 
@@ -249,9 +247,9 @@ sram test successfully
 
 > MACOS建议使用picocom串口工具；Windows系统推荐使用Putty串口工具。
 
-## HaaS200 helloworld例程
+## 四、运行helloworld例程
 
-### 创建helloworld工程
+### 4.1 创建helloworld工程
 &emsp;&emsp;
 请遵循如下的步骤完成helloworld Python工程的创建。
 
@@ -259,33 +257,38 @@ sram test successfully
 如下图所示，点击HaaS Studio的"快速开始"按键会弹出HaaS Studio的欢迎页面，请选择“创建项目”，如下图所示：
 
 <div align="center">
-<img src=../images/HaaS200startup_HaaS_Studio_创建项目向导.png width=80%/>
+<img src=../images/1_HaaS_Studio_创建项目向导.png width=80%/>
 </div>
 
 &emsp;&emsp;
 根据创建工程向导，开发者输入/选择相关的信息即可。下面以在HaaS200上面创建hellworld示例程序为例演示工程进行，步骤如下:
 > 注意事项： 文件夹不要有`中文，空格及其他异常`字符。
 
-1. 输入项目名称
-2. 选择工作区所在路径
-3. 选择硬件类型
-4. 选择编程语言
-5. 选择解决方案模板
-<div align="center">
-<img src=../images/HaaS200_创建工程向导.png width=50%/>
-</div>
-&emsp;&emsp;
-然后点击“立即创建”按钮，在随后的步骤中确认输入的信息无误，点击“确认”，等待工程创建完成后，VS Code会自动打开新创建的工程。就可以在左侧的文件浏览页面中看到刚刚创建的helloworld工程。
+1. 选中“HaaS200”开发板，右侧会更新相应的案例列表
+2. 选择helloworld案例，点击创建。
 
 <div align="center">
-<img src=../images/HaaS200startup_HaaS_Studio_Python_helloworld_代码.png width=80%/>
+<img src=../images/haas-studio-创建工程-选择helloworld.png width=80%/>
 </div>
 
-
-### 推送脚本到设备
+&emsp;&emsp;
+填入项目名称，以及项目工作路径后点击确定。
+&emsp;&emsp;
+<div align="center">
+<img src=../images/haas-studio-创建工程向导.png width=40%/>
+</div>
 
 &emsp;&emsp;
-点击HaaS-Studio的“部署运行”按钮（<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_部署运行.png width=5%/>），HaaS Studio工具上面会弹出如下的选择框，请按照如下的步骤逐步选择完成后，HaaS-Studio开始推送出脚本。
+在随后的步骤中确认输入的信息无误，点击“确认”，等待工程创建完成后，VS Code会自动打开新创建的工程。就可以在左侧的文件浏览页面中看到刚刚创建的helloworld工程。
+
+<div align="center">
+<img src=../images/1_HaaS_Studio_Python_helloworld_代码.png width=80%/>
+</div>
+
+### 4.2 推送脚本到设备
+
+&emsp;&emsp;
+点击HaaS-Studio的“部署运行”按钮（<img src=../images/1_HaaS_Studio_部署运行.png width=5%/>），HaaS Studio工具上面会弹出如下的选择框，请按照如下的步骤逐步选择完成后，HaaS-Studio开始推送出脚本。
 <div align="center">
 <img src=../images/1_HaaS_Studio_Python_本地推送脚本.png width=60%/>
 </div>
@@ -335,7 +338,7 @@ helloworld
 ...
 ```
 
-### 例程Python脚本说明
+### 4.3 例程Python脚本说明
 
 &emsp;&emsp;
 helloworld工程中的main.py脚本内容如下，各行代码的功能请参考下面代码的注释。
@@ -353,10 +356,10 @@ if __name__ == '__main__':
 ```
 
 &emsp;&emsp;
-helloworld例程运行起来就说明HaaS Python开发环境安装好了。接下来是对公测案例的说明。
+helloworld例程运行起来就说明HaaS Python开发环境安装好了。
 
 &emsp;&emsp;
-快速入门完成之后，建议您进入我们的[趣味案例专区](https://haas.iot.aliyun.com/solution)，快速体验更多有意思的案例。
+快速入门完成之后，建议您进入我们的[创意案例专区](https://haas.iot.aliyun.com/solution)，快速体验更多有意思的案例。
 
 &emsp;&emsp;
 如果您想了解如何从浅到深完成一个完整的物联网应用的开发，建议您进入我们的[学习中心](https://haas.iot.aliyun.com/learning)进行学习。

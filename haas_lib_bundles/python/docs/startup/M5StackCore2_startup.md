@@ -5,44 +5,20 @@ M5StackCore2是开源世界中被开发者普遍使用的开发板，在M5StackC
 &emsp;&emsp;
 本文则主要介绍如何烧录M5Stack HaaS标准固件并在此基础上完成helloworld Python程序的运行。
 
-## M5StackCore2 HaaS固件下载
-
+## 一、HaaS Python固件下载
 &emsp;&emsp;
-请通过下面固件列表链接下载开发板对应的固件压缩包并解压，解压完成后可以看到其目录结构如下：
+请从[HaaS Python版本历史](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/startup)下载M5Stack Core2对应的固件压缩包并解压，解压完成后可以看到其目录结构如下：
 ```
 ├── HaaSPython-ESP32-8M-{xxx}.bin   # HaaS官方固件，{xxx}为版本号
 ```
-&emsp;&emsp;
-### HaaS Python M5StackCore2标准固件列表
-* [HaaSPython-ESP32-8M-v2.0.0](https://hli.aliyuncs.com/o/config/HaaSPython/HaaSPython-ESP32-8M-v2.0.0.zip)
-  * 版本更新说明（2022-04-10）
-    * HaaS轻应用标准升级到2.0（AliyunIoT增加文件上传功能，Driver SPI API增加多字节连续读写，AI，UI等能力）
-    * 新增[ESP32乐鑫官方开发板](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C9562896F994200000001&dataId=800C9562896F9942)和[01Studio ESP32开发板](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C55C67883087B00000001&dataId=800C55C67883087B)支持
-    * 新增30+[传感器](https://haas.iot.aliyun.com/solution/hardware)支持
-    * 新增30+[趣味案例](https://haas.iot.aliyun.com/solution)
-    * 新增3个精美UI模板（带UI能力开发板）
-    * 新增9种AI聚合服务（带UI和AI能力开发板）
 
-* [HaaSPython-ESP32-8M-v1.0.3](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP32-8M-opentest.zip)
 
-  <details>
-  <summary>版本更新说明（2022-01-13）</summary>
+## 二、安装HaaS-Studio开发工具
 
-  * ESP32平台新增HaaS AI能力
-  * ESP32平台新增HaaS UI Lite能力
-  * ESP32平台新增Audio案例
-
-  </details>
-
-## M5StackCore2开发环境准备
-&emsp;&emsp;
-将M5StackCore2开发板用USB Type-C数据线和电脑USB口相连。
-
-### HaaS Studio安装
 &emsp;&emsp;
 HaaS Studio目前是以插件的形式安装在VS Code（Visual Studio Code）工具中，所以安装HaaS Studio之前需要先安装VS Code。
 
-#### 安装VS Code
+### 2.1 安装VS Code
 
 &emsp;&emsp;
 读者请到[微软官方网站](https://code.visualstudio.com/)上下载 VS Code 安装包并进行安装，VS Code安装包要求不低于版本 1.57。
@@ -56,7 +32,7 @@ VS Code安装包下载网站： https://code.visualstudio.com/
 > 推荐 Windows 系统版本为 win10， MacOS 版本不低于 10.15。
 <br>
 
-#### 安装haas-studio插件
+### 2.2 安装haas-studio插件
 
 > 安装完 VS Code之后，windows用户请注意使用管理员权限打开(vscode插件会安装相关工具到C盘，需要管理员权限)
 
@@ -66,7 +42,7 @@ VS Code安装包下载网站： https://code.visualstudio.com/
 安装完 VS Code之后，请按照下图中数字的指示步骤完成haas-studio插件的安装。
 
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_安装haas_studio_插件.png width=80%/>
+<img src=../images/1_安装haas_studio_插件.png width=80%/>
 </div>
 
 &emsp;&emsp;
@@ -80,14 +56,14 @@ VS Code安装包下载网站： https://code.visualstudio.com/
 插件安装完成后，则 VSCode 左下角的状态栏会显示"快速开始"的图标，如下图所示。
 
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-startup-page.png width=80%/>
+<img src=../images/haas-studio-startup-page.png width=80%/>
 </div>
 
 &emsp;&emsp;
 一般情况下，左下角只会显示快速开始图标，如果打开或者新建了某个Python工程，则会在VSCode底部的状态栏展开如下一排按钮，这些按钮的功能如下图所示：
 
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_Python工程按钮.png width=40%/>
+<img src=../images/1_HaaS_Studio_Python工程按钮.png width=40%/>
 </div>
 
 &emsp;&emsp;
@@ -105,12 +81,13 @@ python高级模式打开之后，这些按钮的功能变成如下图所示：
 <img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-python-advance-enable.png width=40%/>
 </div>
 
+## 三、固件烧录
 
-### M5StackCore2串口名称确认
 &emsp;&emsp;
-进行下面操作前请务必确认PC和M5StackCore2开发板之间连接用的是USB转Type-C类型的数据线，而非`Type-C的延长线`。`Type-C的延长线会导致电脑没办法正常识别M5StackCore2的串口`。
+进行固件烧录前需要先确认开发板连接到电脑后对应的串口名称。
 
-#### Windows系统
+### 3.1 串口名称确认
+#### 3.1.1 Windows系统
 
 &emsp;&emsp;
 如果您的电脑是Windows系统，请通过控制面板下的设备管理器，查询当前电脑下M5StackCore2插入后新增的端口。下图中显示电脑连接M5StackCore2后新增的串口为“COM7”。
@@ -129,7 +106,7 @@ python高级模式打开之后，这些按钮的功能变成如下图所示：
 
 <br>
 
-#### MAC系统
+#### 3.1.2 MAC系统
 
 &emsp;&emsp;
 使用MAC系统的开发者`务必`下载MACOS的驱动并`严格按照驱动压缩包中的pdf说明文档`中的安装说明进行安装（MAC下驱动加载需要手动开启加载权限）。
@@ -161,13 +138,13 @@ zsh: no matches found: /dev/tty.wchusbserial*
 如果你的电脑在插入M5StackCore2之后出现名称为tty.wchusbserial<xxx>的串口则代表驱动安装成功了。如果电脑只识别到一个名为tty.usbmodem<xxxx>的串口，则代表驱动未安装成功，请寻求M5StackCore2官方旗舰店的客服的协助。
 > 注意：每台PC的串口可能都不一样，上面只是笔者电脑上面的串口信息。
 
-### 固件烧录过程
+### 3.2 使用HaaS Studio进行固件烧录
 &emsp;&emsp;
 烧录此固件需使用HaaS-Studio集成开发环境。
 
 1. 点击“快速开始”按钮后选择“烧录工具”按钮。如下图所示。
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_固件烧录.png width=75%/>
+<img src=../images/1_HaaS_Studio_固件烧录.png width=75%/>
 </div>
 1. 选择好M5StackCore2对应的“串口名字”和固件所在路径（上面“M5StackCore2 HaaS固件下载”步骤中解压出来的名为HaaSPython-ESP32-8M-{xxx}.bin的文件）之后点击“开始烧录”按钮，HaaS Studio便会将此固件烧录到开发板中，如下图所示。
 
@@ -176,7 +153,7 @@ zsh: no matches found: /dev/tty.wchusbserial*
 > 如果“串口名字”下拉框中没有正确的串口号，可以拔插M5StackCore2的USB口后，点击“刷新”按钮刷新串口列表。
 
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-firmware-burn.png width=85%/>
+<img src=../images/haas-studio-firmware-burn.png width=85%/>
 </div>
 
 &emsp;&emsp;
@@ -217,7 +194,7 @@ Hard resetting via RTS pin...
 &emsp;&emsp;
 经过上面的步骤HaaS Python M5StackCore2固件就烧录到M5StackCore2开发板中去了。
 
-### 固件版本确认
+### 3.3 固件版本确认
 &emsp;&emsp;
 固件烧录完成后，如何确认固件真的有更新到硬件中呢？可以通过如下的方法确认：
 
@@ -231,9 +208,11 @@ Hard resetting via RTS pin...
 <img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/HaaSPython_版本号确认_M5StackCore2.png width=80%/>
 </div>
 
-## M5StackCore2 helloworld例程
+> 打开串口工具后，敲回车后如果未出现">>>"符号，则一般是因为您的开发板正在运行Python脚本。此时，可以同时按下Ctrl+C两个按键，尝试打断当前的python脚本。如果按很多次Ctrl+C之后仍然没有出现">>>"，则大概率是因为开发板运行的程序死机，可以尝试按住“Ctrl+C”再对开发板进行硬件复位。
 
-### 创建helloworld工程
+## 四、运行helloworld例程
+
+### 4.1 创建helloworld工程
 &emsp;&emsp;
 请遵循如下的步骤完成helloworld Python工程的创建。
 
@@ -241,31 +220,41 @@ Hard resetting via RTS pin...
 如下图所示，点击HaaS Studio的"快速开始"按键会弹出HaaS Studio的欢迎页面，请选择“创建项目”，如下图所示：
 
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_创建项目向导.png width=60%/>
+<img src=../images/1_HaaS_Studio_创建项目向导.png width=80%/>
 </div>
+
 
 &emsp;&emsp;
 根据创建工程向导，开发者输入/选择相关的信息即可。下面以在M5StackCore2上面创建hellworld示例程序为例演示工程进行，步骤如下:
 > 注意事项： 文件夹不要有中文，空格及其他异常字符。
 
-1. 输入项目名称
-2. 选择工作区所在路径
-3. 选择硬件类型
-4. 选择编程语言
-5. 选择解决方案模板
+1.1. 选中“M5Stack-Core2”开发板，右侧会更新相应的案例列表
+1. 选择helloworld案例，点击创建。
+
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_Python创建工程_项目名称_m5stackcore2.png width=40%/>
+<img src=../images/haas-studio-创建工程-选择helloworld.png width=80%/>
 </div>
 
 &emsp;&emsp;
-然后点击“立即创建”按钮，在随后的步骤中确认输入的信息无误，点击“确认”，等待工程创建完成后，VS Code会自动打开新创建的工程。就可以在左侧的文件浏览页面中看到刚刚创建的helloworld工程。
+填入项目名称，以及项目工作路径后点击确定。
+&emsp;&emsp;
+<div align="center">
+<img src=../images/haas-studio-创建工程向导.png width=40%/>
+</div>
 
-### 推送脚本到设备
+&emsp;&emsp;
+在随后的步骤中确认输入的信息无误，点击“确认”，等待工程创建完成后，VS Code会自动打开新创建的工程。就可以在左侧的文件浏览页面中看到刚刚创建的helloworld工程。
+
+<div align="center">
+<img src=../images/1_HaaS_Studio_Python_helloworld_代码.png width=80%/>
+</div>
+
+### 4.2 推送脚本到设备
 
 &emsp;&emsp;
 点击HaaS-Studio的“部署运行”按钮（<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_部署运行.png width=5%/>），HaaS Studio工具上面会弹出如下的选择框，请按照如下的步骤逐步选择完成后，HaaS-Studio开始推出送固件。
 <div align="center">
-<img src=../images/1_HaaS_Studio_Python_本地推送脚本.png width=60%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_Python_本地推送脚本.png width=60%/>
 </div>
 
 &emsp;&emsp;
@@ -289,7 +278,7 @@ helloworld
 ...
 ```
 
-### 例程Python脚本说明
+### 4.3 例程Python脚本说明
 
 &emsp;&emsp;
 helloworld工程中的main.py脚本内容如下，各行代码的功能请参考下面代码的注释。
@@ -310,7 +299,7 @@ if __name__ == '__main__':
 helloworld例程运行起来就说明HaaS Python开发环境安装好了。
 
 &emsp;&emsp;
-快速入门完成之后，建议您进入我们的[趣味案例专区](https://haas.iot.aliyun.com/solution)，快速体验更多有意思的案例。
+快速入门完成之后，建议您进入我们的[创意案例专区](https://haas.iot.aliyun.com/solution)，快速体验更多有意思的案例。
 
 &emsp;&emsp;
 如果您想了解如何从浅到深完成一个完整的物联网应用的开发，建议您进入我们的[学习中心](https://haas.iot.aliyun.com/learning)进行学习。
@@ -322,7 +311,7 @@ helloworld例程运行起来就说明HaaS Python开发环境安装好了。
 如果您想看HaaS Python都提供哪些库和API，请点击左侧导航栏查看。
 <br>
 
-## M5StackCore2扩展接口图
+## 五、M5StackCore2扩展接口图
 &emsp;&emsp;
 HaaS Python固件刷入M5StackCore2开发版之后，开发板端口详细定义及说明请参考下图：
 <div align="center">

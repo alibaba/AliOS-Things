@@ -3,36 +3,22 @@
 HaaS100是高性价比的软硬件创新积木平台开发版，集成的是阿里云IoT团队自主研发的AliOS Things物联网操作系统。主控芯片HaaS1000是阿里云IoT定制的高性价比物联网芯片，软件支持JS/Python轻应用和C/C++开发。
 本节则主要介绍如何烧录HaaS100 Python标准固件并在此基础上完成helloworld Python程序的运行。
 
-## HaaS100 Python固件下载
+## 一、HaaS100 Python固件下载
 
 &emsp;&emsp;
-HaaS100和HaaS EDU K1共用Python版本固件，请通过下面固件列表链接下载开发板对应的固件压缩包并解压，解压完成后可以看到其目录结构如下：
+HaaS100和HaaS EDU K1共用Python版本固件，请从[HaaS Python版本历史](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/startup)下载HaaS EDU K1对应的固件压缩包并解压，解压完成后可以看到其目录结构如下：
 ```bash
 ├── HaaSPython-HaaSEDUK1-{xxx}.bin   # HaaS Python官方固件，{xxx}为版本号
 └── littlefs.bin                     # 文件系统
 ```
 
-&emsp;&emsp;
-### HaaS100固件列表
-
-* [HaaSPython-HaaS100-v1.0.2](https://hli.aliyuncs.com/p/config/HaaS_Python/HaaSPython-HaaSEDUK1-v1.0.2.zip)
-  * 版本更新说明（2022-01-20）
-    * aliyunIoT稳定性增强
-
-* [HaaSPython-HaaS100-v1.0.1](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-HaaSEDUK1-1.0.1.zip)
-  * 版本更新说明（2022-01-13）
-    * 对齐到HaaS Python 2.0 API标准
 <br>
 
-## HaaS100开发环境准备
-&emsp;&emsp;
-将HaaS100用microUSB数据线和电脑相连。
-
-### HaaS Studio安装
+## 二、安装HaaS-Studio开发工具
 &emsp;&emsp;
 HaaS Studio目前是以插件的形式安装在VS Code（Visual Studio Code）工具中，所以安装HaaS Studio之前需要先安装VS Code。
 
-#### 安装VS Code
+### 2.1 安装VS Code
 
 &emsp;&emsp;
 读者请到[微软官方网站](https://code.visualstudio.com/)上下载 VS Code 安装包并进行安装，VS Code安装包要求不低于版本 1.57。
@@ -46,8 +32,7 @@ VS Code安装包下载网站： https://code.visualstudio.com/
 > 推荐 Windows 系统版本为 win10， MacOS 版本不低于 10.15。
 <br>
 
-
-#### 安装haas-studio插件
+## 2.2 安装haas-studio插件
 
 > 安装完 VS Code之后，windows用户请注意使用管理员权限打开(vscode插件会安装相关工具到C盘，需要管理员权限)
 
@@ -64,14 +49,14 @@ VS Code安装包下载网站： https://code.visualstudio.com/
 插件第一次安装完成后，会提示安装相关工具才能激活插件，请同意安装相关工具。第一次新建或者打开python轻应用工程，也会安装轻应用开发相关工具，同样需要同意安装。
 
 <div align="center">
-<img src=../images/haas-studio-tool-install.png width=80%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-tool-install.png width=80%/>
 </div>
 
 &emsp;&emsp;
 插件安装完成后，则 VSCode 左下角的状态栏会显示"快速开始"的图标，如下图所示。
 
 <div align="center">
-<img src=../images/haas-studio-startup-page.png width=80%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-startup-page.png width=80%/>
 </div>
 
 &emsp;&emsp;
@@ -86,18 +71,22 @@ VS Code安装包下载网站： https://code.visualstudio.com/
 * 注意高级模式某些平台可能不支持，比如低版本的linux，M1系列MACOS等，如果平台不支持，会自动设置成 disable。
 
 <div align="center">
-<img src=../images/haas-studio-python-advance.png width=80%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-python-advance.png width=80%/>
 </div>
 
 &emsp;&emsp;
 python高级模式打开之后，这些按钮的功能变成如下图所示：
 
 <div align="center">
-<img src=../images/haas-studio-python-advance-enable.png width=40%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-python-advance-enable.png width=40%/>
 </div>
 
-### HaaS100串口名称确认
-#### Windows系统
+
+## 三、HaaS100固件烧录
+
+
+### 3.1 HaaS100串口名称确认
+#### 3.1.1 Windows系统
 
 &emsp;&emsp;
 读者请通过控制面板下的设备管理器，查询当前电脑下HaaS100插入后新增的端口。下图中显示HaaS EDUK1连接后新增的串口为“COM7”。
@@ -110,7 +99,7 @@ python高级模式打开之后，这些按钮的功能变成如下图所示：
 
 <br>
 
-#### MAC系统
+#### 3.1.2MAC系统
 
 &emsp;&emsp;
 如果您的电脑是MAC系统，系统会自带HaaS100 UART驱动程序，无需单独安装。可以在命令行中通过如下命令查看HaaS100接到电脑之前和之后串口列表的差异确认HaaS100串口名称。
@@ -131,13 +120,9 @@ zsh: no matches found: /dev/tty.usb*
 
 <br>
 
-## 固件烧录过程
+### 3.2 使用HaaS Studio进行固件烧录
 
-&emsp;&emsp;
-烧录此固件需使用HaaS-Studio集成开发环境。
-
-<br>
-1. 点击“快速开始”按钮后选择“烧录工具”按钮。如下图所示。
+1. 点击HaaS-Studio“快速开始”按钮后选择“烧录工具”按钮。如下图所示。
 <div align="center">
 <img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_固件烧录.png width=75%/>
 </div>
@@ -151,7 +136,7 @@ zsh: no matches found: /dev/tty.usb*
 > 如果“串口名字”下拉框中没有正确的串口号，可以拔插HaaS100的USB口后，点击“刷新”按钮刷新串口列表。
 
 <div align="center">
-<img src=../images/haas-studio-firmware-burn.png width=85%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-firmware-burn.png width=85%/>
 </div>
 
 &emsp;&emsp;
@@ -203,7 +188,7 @@ Burn "[('/Users/xxx/Downloads/HaaSPython-HaaSEDUK1/HaaSPython-HaaSEDUK1-1.0.1.bi
 &emsp;&emsp;
 经过上面的步骤HaaS Python固件就烧录到HaaS100开发板中去了。
 
-### 固件版本确认
+### 3.3 固件版本确认
 &emsp;&emsp;
 固件烧录完成后，如何确认固件真的有更新到硬件中呢？可以通过如下的方法确认：
 
@@ -224,9 +209,9 @@ Burn "[('/Users/xxx/Downloads/HaaSPython-HaaSEDUK1/HaaSPython-HaaSEDUK1-1.0.1.bi
 
 > MACOS建议使用picocom串口工具；Windows系统推荐使用Putty串口工具。
 
-## HaaS100 helloworld例程
+## 四、运行helloworld例程
 
-### 创建helloworld工程
+### 4.1 创建helloworld工程
 &emsp;&emsp;
 请遵循如下的步骤完成helloworld Python工程的创建。
 
@@ -258,12 +243,12 @@ Burn "[('/Users/xxx/Downloads/HaaSPython-HaaSEDUK1/HaaSPython-HaaSEDUK1-1.0.1.bi
 </div>
 
 
-### 推送脚本到设备
+### 4.2 推送脚本到设备
 
 &emsp;&emsp;
 点击HaaS-Studio的“部署运行”按钮（<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_部署运行.png width=5%/>），HaaS Studio工具上面会弹出如下的选择框，请按照如下的步骤逐步选择完成后，HaaS-Studio开始推出送固件。
 <div align="center">
-<img src=../images/1_HaaS_Studio_Python_本地推送脚本.png width=60%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_Python_本地推送脚本.png width=60%/>
 </div>
 
 &emsp;&emsp;
@@ -314,7 +299,7 @@ helloworld
 ...
 ```
 
-### 例程Python脚本说明
+### 4.3 例程Python脚本说明
 
 &emsp;&emsp;
 helloworld工程中的main.py脚本内容如下，各行代码的功能请参考下面代码的注释。
@@ -335,7 +320,7 @@ if __name__ == '__main__':
 helloworld例程运行起来就说明HaaS Python开发环境安装好了。接下来是对公测案例的说明。
 
 &emsp;&emsp;
-快速入门完成之后，建议您进入我们的[趣味案例专区](https://haas.iot.aliyun.com/solution)，快速体验更多有意思的案例。
+快速入门完成之后，建议您进入我们的[创意案例专区](https://haas.iot.aliyun.com/solution)，快速体验更多有意思的案例。
 
 &emsp;&emsp;
 如果您想了解如何从浅到深完成一个完整的物联网应用的开发，建议您进入我们的[学习中心](https://haas.iot.aliyun.com/learning)进行学习。

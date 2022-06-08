@@ -1,7 +1,7 @@
 # HaaS506 快速开始
 &emsp;&emsp;
 HaaS 506开发板是一款经过阿里云HaaS团队认证的高性能、多连接的物联网开发板。本文将从硬件介绍、固件更新、开发环境搭建以及案例验证等多方面为开发者提供详细的快速上手教程。
-请开发者们认证查阅，如有疑问或需技术支持，可用钉钉扫描开发板背面的二维码加入我们的技术支持群，您的提问都将会得到完善的答复。 
+请开发者们认证查阅，如有疑问或需技术支持，可用钉钉扫描开发板背面的二维码加入我们的技术支持群，您的提问都将会得到完善的答复。
 
 ## 一、硬件介绍
 &emsp;&emsp;
@@ -32,31 +32,12 @@ HaaS 506开发板在出厂时已经烧录了最新的固件，但由于固件一
     └── ChangeNotes.txt             # 更新日志
 ```
 
-### HaaS506固件包列表列表
-
-* [HaaS506-v2.01](https://hli.aliyuncs.com/o/config/haas506/HaaS506_v2.01.zip)
-  * 版本更新说明（2022-03-15）
-    * 添加network设置apn，username，password等信息
-    * 解决dataCall中sim卡检测时无论什么情况都判对的bug
-    * 解决sntp多次调用时导致，socket不够的情况
-    * 解决下载代码时，设备返回ide成功与否信息
-    * 添加uos模块支持version version_info方法
-    * 修改spi接口对接readAfterWrite支持bytearray方式
-
-* [HaaS506-v1.17](https://hli.aliyuncs.com/o/config/haas506/haas506.zip)
-
-  <details>
-  <summary>版本更新说明（2021-12-03）</summary>
-
-  * 动态生成QSTR功能
-  * UART增加on/any函数
-  * aliyunIoT修复内存泄漏及postProp返回值问题
-  * 修复部分BUG
-  </details>
+### 2.1 HaaS506固件包列表列表
+HaaS506 HaaS Python固件版本历史列表请参考[链接](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/startup)。建议你使用最新的固件，固件版本查询方法请参考本文中“固件版本确认”小节的说明。
 
 <br>
 
-### 安装USB烧录驱动
+### 2.2 安装USB烧录驱动
 1、下载[USB烧录驱动](https://hli.aliyuncs.com/o/config/usb_driver/8910_module_usb_driver_20191011_signed.7z)并解压，解压后目录结构如下，请选择您的操作系统类型对应的.exe文件进行烧录驱动的安装。
 ```bash
 ├── 20210708
@@ -82,7 +63,7 @@ USB烧录驱动安装完成后，当**连接HaaS506的USB**接口后，Windows�
 ├── Release notes.xls
 ```
 
-### 烧录固件
+### 2.3 烧录固件
 
 1、打开UpgradeDownload.exe烧录软件。<br>
 2、点击软件左上角第一个“Load packet”选项选择所要烧录HaaS Python固件（以.pac为后缀的文件）。<br>
@@ -100,7 +81,7 @@ USB烧录驱动安装完成后，当**连接HaaS506的USB**接口后，Windows�
 
 ## 三、搭建开发环境
 
-### PC环境准备
+### 3.1 PC环境准备
 &emsp;&emsp;
 用**USB转UART模块**连接HaaS506的**TTL串口**后，将USB转UART模块连接电脑的USB口。
 
@@ -110,11 +91,11 @@ USB烧录驱动安装完成后，当**连接HaaS506的USB**接口后，Windows�
 * **HaaS506设备端GND** 接 **USB转UART模块的GND**<br>
 * **3.3V不要连接**
 
-### HaaS Studio安装
+### 3.2 HaaS Studio安装
 &emsp;&emsp;
 HaaS Studio目前是以插件的形式安装在VS Code（Visual Studio Code）工具中，所以安装HaaS Studio之前需要先安装VS Code。
 
-#### 安装VS Code
+#### 3.2.1 安装VS Code
 
 &emsp;&emsp;
 读者请到[微软官方网站](https://code.visualstudio.com/)上下载 VS Code 安装包并进行安装，VS Code安装包要求不低于版本 1.57。
@@ -128,7 +109,7 @@ VS Code安装包下载网站： https://code.visualstudio.com/
 > 推荐 Windows 系统版本为 win10， MacOS 版本不低于 10.15。
 <br>
 
-#### 安装haas-studio插件
+#### 3.2.2 安装haas-studio插件
 
 > 安装完 VS Code之后，windows用户请注意使用管理员权限打开(vscode插件会安装相关工具到C盘，需要管理员权限)
 
@@ -138,7 +119,7 @@ VS Code安装包下载网站： https://code.visualstudio.com/
 安装完 VS Code之后，请按照下图中数字的指示步骤完成haas-studio插件的安装。
 
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_安装haas_studio_插件.png width=80%/>
+<img src=../images/1_安装haas_studio_插件.png width=80%/>
 </div>
 
 &emsp;&emsp;
@@ -152,14 +133,14 @@ VS Code安装包下载网站： https://code.visualstudio.com/
 插件安装完成后，则 VSCode 左下角的状态栏会显示"快速开始"的图标，如下图所示。
 
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/haas-studio-startup-page.png width=80%/>
+<img src=../images/haas-studio-startup-page.png width=80%/>
 </div>
 
 &emsp;&emsp;
 一般情况下，左下角只会显示快速开始图标，如果打开或者新建了某个Python工程，则会在VSCode底部的状态栏展开如下一排按钮，这些按钮的功能如下图所示：
 
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_Python工程按钮.png width=40%/>
+<img src=../images/1_HaaS_Studio_Python工程按钮.png width=40%/>
 </div>
 
 &emsp;&emsp;
@@ -178,8 +159,13 @@ python高级模式打开之后，这些按钮的功能变成如下图所示：
 </div>
 
 
-### HaaS506串口名称确认
-#### Windows系统
+## 四、HaaS506固件烧录
+
+&emsp;&emsp;
+进行固件烧录前需要先确认开发板连接到电脑后对应的串口名称。
+
+### 4.1 HaaS506串口名称确认
+#### 4.1.1 Windows系统
 
 &emsp;&emsp;
 读者请通过设备管理器，查询当前电脑插入**USB转串口模块**后新增的端口（注意不是以`Unisoc Usb Serial Port`开头的固件烧录串口）。下图中显示HaaS506连接后新增的串口（笔者电脑中为COM20）。
@@ -193,9 +179,9 @@ python高级模式打开之后，这些按钮的功能变成如下图所示：
 
 <br>
 
-## 四、HaaS506 HelloWord例程
+## 五、HaaS506 HelloWord例程
 
-### 创建helloworld工程
+### 5.1 创建helloworld工程
 &emsp;&emsp;
 请遵循如下的步骤完成helloworld Python工程的创建。
 
@@ -203,35 +189,39 @@ python高级模式打开之后，这些按钮的功能变成如下图所示：
 如下图所示，点击HaaS Studio的"快速开始"按键会弹出HaaS Studio的欢迎页面，请选择“创建项目”，如下图所示：
 
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_创建项目向导.png width=60%/>
+<img src=../images/1_HaaS_Studio_创建项目向导.png width=80%/>
 </div>
 
 &emsp;&emsp;
-根据创建工程向导，开发者输入/选择相关的信息即可。下面以在HaaS EDU K1上面创建hellworld示例程序为例演示工程进行，步骤如下:
+根据创建工程向导，开发者输入/选择相关的信息即可。下面以在HaaS 506上面创建hellworld示例程序为例演示工程进行，步骤如下:
 > 注意事项： 文件夹不要有`中文，空格及其他异常`字符。
 
-1. 输入项目名称
-2. 选择工作区所在路径
-3. 选择硬件类型
-4. 选择编程语言
-5. 选择解决方案模板
+1. 选中“HaaS506”开发板，右侧会更新相应的案例列表
+2. 选择helloworld案例，点击创建。
+
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_Python创建工程_项目名称_HaaS506.png width=40%/>
+<img src=../images/haas-studio-创建工程-选择helloworld.png width=80%/>
 </div>
 
 &emsp;&emsp;
-然后点击“立即创建”按钮，在随后的步骤中确认输入的信息无误，点击“确认”，等待工程创建完成后，VS Code会自动打开新创建的工程。就可以在左侧的文件浏览页面中看到刚刚创建的helloworld工程。
-
+填入项目名称，以及项目工作路径后点击确定。
+&emsp;&emsp;
 <div align="center">
-<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/4_2_HaaS_Studio_Python_helloworld_代码_HaaS506.png width=80%/>
+<img src=../images/haas-studio-创建工程向导.png width=40%/>
 </div>
 
+&emsp;&emsp;
+在随后的步骤中确认输入的信息无误，点击“确认”，等待工程创建完成后，VS Code会自动打开新创建的工程。就可以在左侧的文件浏览页面中看到刚刚创建的helloworld工程。
+
+<div align="center">
+<img src=../images/1_HaaS_Studio_Python_helloworld_代码.png width=80%/>
+</div>
 ### 推送脚本到设备
 
 &emsp;&emsp;
 点击HaaS-Studio的“部署运行”按钮（<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_部署运行.png width=5%/>），HaaS Studio工具上面会弹出如下的选择框，请按照如下的步骤逐步选择完成后，HaaS-Studio开始推出送固件。
 <div align="center">
-<img src=../images/1_HaaS_Studio_Python_本地推送脚本.png width=60%/>
+<img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/1_HaaS_Studio_Python_本地推送脚本.png width=60%/>
 </div>
 
 &emsp;&emsp;
@@ -282,7 +272,7 @@ helloworld
 ...
 ```
 
-### 例程Python脚本说明
+### 5.2 例程Python脚本说明
 
 &emsp;&emsp;
 helloworld工程中的main.py脚本内容如下，各行代码的功能请参考下面代码的注释。
@@ -303,7 +293,7 @@ if __name__ == '__main__':
 helloworld例程运行起来就说明HaaS Python开发环境安装好了。接下来是对公测案例的说明。
 
 &emsp;&emsp;
-快速入门完成之后，建议您进入我们的[趣味案例专区](https://haas.iot.aliyun.com/solution)，快速体验更多有意思的案例。
+快速入门完成之后，建议您进入我们的[创意案例专区](https://haas.iot.aliyun.com/solution)，快速体验更多有意思的案例。
 
 &emsp;&emsp;
 如果您想了解如何从浅到深完成一个完整的物联网应用的开发，建议您进入我们的[学习中心](https://haas.iot.aliyun.com/learning)进行学习。
@@ -317,7 +307,7 @@ helloworld例程运行起来就说明HaaS Python开发环境安装好了。接�
 
 
 
-### 查看系统日志
+### 六、 查看系统日志
 
 * 用USB转UART模块连接HaaS506的**TTL串口**后，将USB转UART模块连接电脑的USB口。
 
