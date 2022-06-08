@@ -18,7 +18,7 @@ include mpconfigport.mk
 include $(BOARD_DIR)/mpconfigboard.mk
 
 # Set SRC and include path
-INCLUDEDIRS_HAAS :=
+INC_HAAS :=
 SRCDIRS_HAAS :=
 SRC_HAAS :=
 
