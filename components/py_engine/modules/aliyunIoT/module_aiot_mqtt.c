@@ -328,7 +328,7 @@ int32_t pyamp_aiot_mqtt_client_start(void **handle, int keepaliveSec, iot_mqtt_u
 
     aos_task_t mqtt_process_task;
 
-    if (aos_task_new_ext(&mqtt_process_task, "mqtt_process", pyamp_aiot_app_mqtt_process_thread, mqtt_handle, 1024 * 4,
+    if (aos_task_new_ext(&mqtt_process_task, "mqtt_process", pyamp_aiot_app_mqtt_process_thread, mqtt_handle, (1024 * 2 + 512),
                          AOS_DEFAULT_APP_PRI) != 0) {
         amp_debug(MOD_STR, "management mqtt process task create failed!\r\n");
         aiot_mqtt_deinit(&mqtt_handle);

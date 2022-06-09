@@ -144,13 +144,46 @@ STATIC mp_obj_t mod_os_tasklist(void)
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(mod_os_tasklist_obj, mod_os_tasklist);
 
+#ifdef CONFIG_ESP32_SOMELIBS_BSS_ON_IRAM_8BIT
+extern int _iram_8bit_bss_start, _iram_8bit_bss_end;
+#endif
+#ifdef CONFIG_SPIRAM_ALLOW_BSS_SEG_EXTERNAL_MEMORY
+extern int _ext_ram_bss_start, _ext_ram_bss_end;
+#endif
+extern int _data_start, _heap_start, _iram_start, _iram_end;
 extern void aos_mm_show_info(void);
+size_t heap_caps_get_free_size(uint32_t caps);
 STATIC mp_obj_t mod_os_dumpsys_mm(void)
 {
+    printf("\r\n COMPILE-TIME MEMORY STATISTICS \r\n");
+    printf("\r\n[bss/data on internal-dram-8bit]\r\n");
+    printf("%lu\r\n", (unsigned long)&_heap_start - (unsigned long)&_data_start);
+#ifdef CONFIG_ESP32_SOMELIBS_BSS_ON_IRAM_8BIT
+    printf("\r\n[bss on internal-iram-8bit]\r\n");
+    printf("%lu\r\n", (unsigned long)&_iram_8bit_bss_end - (unsigned long)&_iram_8bit_bss_start);
+#endif
+#ifdef CONFIG_SPIRAM_ALLOW_BSS_SEG_EXTERNAL_MEMORY
+    printf("\r\n[bss on external-spiram]\r\n");
+    printf("%lu\r\n", (unsigned long)&_ext_ram_bss_end - (unsigned long)&_ext_ram_bss_start);
+#endif
+    printf("\r\n[text on internal-iram]\r\n");
+    printf("%lu\r\n", (unsigned long)&_iram_end - (unsigned long)&_iram_start);
+    printf("\r\n RUN-TIME MEMORY STATICTICS\r\n");
     aos_mm_show_info();
     return mp_const_none;
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_0(mod_os_dumpsys_mm_obj, mod_os_dumpsys_mm);
+
+
+STATIC mp_obj_t mod_os_plussys_mm(void)
+{
+#if CONFIG_BT_ENABLED
+    #include "esp_bt.h"
+    esp_bt_mem_release(ESP_BT_MODE_BTDM);
+#endif
+    return mp_const_none;
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(mod_os_plussys_mm_obj, mod_os_plussys_mm);
 
 #include "esp_heap_caps.h"
 STATIC mp_obj_t os_heap(void)
@@ -205,6 +238,7 @@ STATIC const mp_rom_map_elem_t os_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_heap), MP_ROM_PTR(&os_heap_obj) },
     { MP_ROM_QSTR(MP_QSTR_tasklist), MP_ROM_PTR(&mod_os_tasklist_obj) },
     { MP_ROM_QSTR(MP_QSTR_dumpsys_mm), MP_ROM_PTR(&mod_os_dumpsys_mm_obj) },
+    { MP_ROM_QSTR(MP_QSTR_plussys_mm), MP_ROM_PTR(&mod_os_plussys_mm_obj) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(os_module_globals, os_module_globals_table);
