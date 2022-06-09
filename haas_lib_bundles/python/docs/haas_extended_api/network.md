@@ -1,8 +1,9 @@
-# Network - 网络配置模块
+# network - 网络配置模块
 * 模块功能：  
 管理Wi-Fi和以太网
 
 * 参考用法：  
+
 ```python
 import network
 import time
@@ -13,12 +14,14 @@ def callback(event_id):
 nic = network.WLAN(network.STA_IF)
 nic.on(callback)
 nic.active(True)
+
 if not nic.isconnected():
     nic.connect(ssid, password)
     print("Waiting for connection...")
     while not nic.isconnected():
         time.sleep(1)
 print(nic.ifconfig())
+
 ```
 
 ## 常量说明
@@ -102,13 +105,6 @@ wlan = network.WLAN(network.STA_IF)
 
 * 函数原型：
 > WLAN.connect(ssid, pwd)
-
-* 参数说明：
-
-|参数|类型|必选参数？|说明|
-|-----|----|:---:|----|
-|ssid|string|是|ssid名称|
-|pwd|string|是|ssid密码|
 
 * 参数说明：
 
@@ -204,7 +200,7 @@ ip_info数据格式说明：
 ## WLAN.on
 
 * 函数功能：  
-注册回调函数，网络状态发生变化时候，引擎会调用毁掉函数
+注册回调函数，网络状态发生变化时候，引擎会调用回调函数
 
 * 函数原型：
 > WLAN.on(callback)
@@ -225,7 +221,7 @@ callback(event_type)
 ## WLAN.scan
 
 * 函数功能：  
-扫描附近AP
+扫描附近AP（无线路由器）
 
 * 函数原型：
 > WLAN.scan()
@@ -236,4 +232,4 @@ callback(event_type)
 
 * 返回值
 
-返回AP列表
+返回AP（无线路由器）列表
