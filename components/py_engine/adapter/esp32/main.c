@@ -87,7 +87,7 @@
 
 // MicroPython runs as a task under FreeRTOS
 #define MP_TASK_PRIORITY   (ESP_TASK_PRIO_MIN + 1)
-#define MP_TASK_STACK_SIZE (16 * 1024)
+#define MP_TASK_STACK_SIZE (8 * 1024)
 
 // Set the margin for detecting stack overflow, depending on the CPU architecture.
 #if CONFIG_IDF_TARGET_ESP32C3
@@ -329,7 +329,7 @@ void app_main(void)
     littlefs_register();
 
     TaskHandle_t mp_queue_task_handle;
-    ret = xTaskCreatePinnedToCore(queue_handler_task, "queue_handler", 1024 * 8 / sizeof(StackType_t), NULL,
+    ret = xTaskCreatePinnedToCore(queue_handler_task, "queue_handler", 1024 * 3 / sizeof(StackType_t), NULL,
                                   ESP_TASK_PRIO_MIN + 3, &mp_queue_task_handle, MP_TASK_COREID);
     if (ret != pdPASS) {
         printf("queue_handler_task creat failed!\r\n");

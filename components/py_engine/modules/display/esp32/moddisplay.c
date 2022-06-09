@@ -110,7 +110,7 @@ int mp_thread_create_c(TaskFunction_t pxTaskCode, const char *const pcName, cons
 
 void start_display()
 {
-    mp_thread_create_c(guiTask, "gui", 4 * 1024, NULL, ESP_TASK_PRIO_MIN + 1, NULL, 0);
+    mp_thread_create_c(guiTask, "gui", 2 * 1024, NULL, ESP_TASK_PRIO_MIN + 1, NULL, 0);
 }
 
 void driver_init()

@@ -283,11 +283,33 @@ static heap_task_block_t s_block_arr[MAX_BLOCK_NUM];
 
 void aos_mm_show_info(void)
 {
+    printf("\r\n[internal-dram-8bit]\r\n");
+    heap_caps_print_heap_info(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+#if CONFIG_SPIRAM_USE_MALLOC
+    printf("\r\n[spiram]\r\n");
+    heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
+#endif
+
+#if CONFIG_ESP32_IRAM_AS_8BIT_ACCESSIBLE_MEMORY
+    printf("\r\n[internal-iram-8bit]\r\n");
+    heap_caps_print_heap_info(MALLOC_CAP_INTERNAL | MALLOC_CAP_IRAM_8BIT);
+#endif
+    printf("\r\n[DMA]\r\n");
+    heap_caps_print_heap_info(MALLOC_CAP_DMA);
+
     heap_task_info_params_t heap_info = {0};
     heap_info.caps[0] = MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT;
     heap_info.mask[0] = MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT;
-    heap_info.caps[1] = MALLOC_CAP_SPIRAM   | MALLOC_CAP_8BIT;
-    heap_info.mask[1] = MALLOC_CAP_SPIRAM   | MALLOC_CAP_8BIT;
+#if CONFIG_ESP32_IRAM_AS_8BIT_ACCESSIBLE_MEMORY
+    heap_info.caps[1] = MALLOC_CAP_INTERNAL | MALLOC_CAP_IRAM_8BIT;
+    heap_info.mask[1] = MALLOC_CAP_INTERNAL | MALLOC_CAP_IRAM_8BIT;
+#elif CONFIG_SPIRAM_USE_MALLOC
+    heap_info.caps[1] = MALLOC_CAP_SPIRAM  | MALLOC_CAP_8BIT;
+    heap_info.mask[1] = MALLOC_CAP_SPIRAM  | MALLOC_CAP_8BIT;
+#else
+    heap_info.caps[1] = 0;
+    heap_info.mask[1] = 0;
+#endif
     heap_info.tasks = NULL;
     heap_info.num_tasks = 0;
     heap_info.totals = s_totals_arr;
@@ -299,18 +321,22 @@ void aos_mm_show_info(void)
     heap_caps_get_per_task_info(&heap_info);
 
     for (int i = 0 ; i < *heap_info.num_totals; i++) {
+#if CONFIG_ESP32_IRAM_AS_8BIT_ACCESSIBLE_MEMORY
+        printf("Task: %s -> CAP_INTERNAL_8BIT: %d CAP_IRAM_8BIT: %d\n",
+                heap_info.totals[i].task ? pcTaskGetTaskName(heap_info.totals[i].task) : "Pre-Scheduler allocs" ,
+                heap_info.totals[i].size[0],
+                heap_info.totals[i].size[1]);
+
+#elif CONFIG_SPIRAM_USE_MALLOC
         printf("Task: %s -> CAP_INTERNAL_8BIT: %d CAP_SPIRAM_8BIT: %d\n",
                 heap_info.totals[i].task ? pcTaskGetTaskName(heap_info.totals[i].task) : "Pre-Scheduler allocs" ,
                 heap_info.totals[i].size[0],
                 heap_info.totals[i].size[1]);
-    }
+#else
+        printf("Task: %s -> CAP_INTERNAL_8BIT: %d\n",
+                heap_info.totals[i].task ? pcTaskGetTaskName(heap_info.totals[i].task) : "Pre-Scheduler allocs" ,
+                heap_info.totals[i].size[0]);
 
-    printf("\r\n[internal]\r\n");
-    heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
-#if CONFIG_SPIRAM_USE_MALLOC
-    printf("\r\n[spiram]\r\n");
-    heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
-    printf("\r\n[DMA]\r\n");
-    heap_caps_print_heap_info(MALLOC_CAP_DMA);
 #endif
+    }
 }
