@@ -162,7 +162,7 @@ static void ota_verify_handler(void *pdata)
             strlen(ota_package_info->hash));
     res = ota_verify_fsfile(&ota_param, ota_package_info->store_path);
     if (res < 0) {
-        amp_error(MOD_STR, "amp jsota verified failed!");
+        amp_error(MOD_STR, "ota verified failed!");
     }
     ota_package_info->res = res;
     py_task_schedule_call(ota_verify_notify, ota_package_info);
@@ -224,7 +224,7 @@ static mp_obj_t py_ota_verify(mp_obj_t data)
             sizeof(ota_package_info->store_path));
 
     res = aos_task_new_ext(&ota_verify_task, "amp ota verify task",
-                           ota_verify_handler, ota_package_info, 1024 * 10,
+                           ota_verify_handler, ota_package_info, 1024 * 5,
                            AOS_DEFAULT_APP_PRI);
     if (res != 0) {
         amp_warn(MOD_STR, "iot create task failed");
@@ -297,7 +297,7 @@ static mp_obj_t ota_download(mp_obj_t data)
             sizeof(ota_package_info->store_path));
 
     res = aos_task_new_ext(&ota_download_task, "amp ota download task",
-                           ota_download_handler, ota_package_info, 1024 * 10,
+                           ota_download_handler, ota_package_info, 1024 * 5,
                            AOS_DEFAULT_APP_PRI);
     if (res != 0) {
         amp_warn(MOD_STR, "iot create task failed");
