@@ -7,11 +7,11 @@
 <img src="./../../docs/images/soil_moisture_front.jpg"  width=40%/>
 </div>
 
-引脚定义：
-* VCC：接电源正极（3.3-5V）
-* GND：接电源负极
-* DO：TTL开关信号输出
-* AO：模拟信号输出
+引脚定义、灵敏度调节电位器及指示灯如下图所示：
+<div align="center">
+<img src="./../../docs/images/soil_moisture_component_description.png"  width=80%/>
+</div>
+
 
 ## 二、技术参数
 * 传感器表面采用镀镍处理，具有较好的抗氧化、导电性、耐用性；
@@ -63,6 +63,7 @@ SoilMoisture inited!
 
 * 函数功能：
 通过 GPIO 读取数字开关量，湿度未达阀值时为高电平 1，湿度达到阀值时为低电平 0
+> 注意：这里的阈值是经验值，可通过旋转电路板上面的“灵敏度调节电位器”来进行调节
 
 * 函数原型：
 > drv.moistureDetect()
