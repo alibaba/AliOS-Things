@@ -9,27 +9,6 @@
 #include "aos/debug.h"
 #endif
 
-#if 0
-#include "cli_console.h"
-
-extern cli_console cli_uart_console;
-#define KMM_CRITICAL_ENTER(head, cpsr)                 \
-    do {                                               \
-        cli_console *console = get_current_console();  \
-        if(console && console == &cli_uart_console) {  \
-            MM_CRITICAL_ENTER(head, cpsr);             \
-        }                                              \
-    } while(0);
-
-#define KMM_CRITICAL_EXIT(head, cpsr)                  \
-    do {                                               \
-        cli_console *console = get_current_console();  \
-        if(console && console == &cli_uart_console) {  \
-            MM_CRITICAL_EXIT(head, cpsr);              \
-        }                                              \
-    } while(0);
-
-#endif
 #define KMM_CRITICAL_ENTER(head, cpsr) MM_CRITICAL_ENTER(head, cpsr)
 #define KMM_CRITICAL_EXIT(head, cpsr)  MM_CRITICAL_EXIT(head, cpsr)
 
@@ -50,7 +29,7 @@ void print_block(k_mm_list_t *b)
         return;
     }
 
-    print("0x%p ", (void *)b);
+    print("%p ", (void *)b);
 
     if (b->buf_size & MM_BUFF_FREE) {
         if (b->dye != MM_DYE_FREE) {
@@ -116,11 +95,11 @@ void check_block(k_mm_list_t *b)
 
     if (b->buf_size & MM_BUFF_FREE) {
         if (b->dye != MM_DYE_FREE) {
-            print("0x%p ", (void *)b);
+            print("%p ", (void *)b);
         }
     } else {
         if (b->dye != MM_DYE_USED) {
-            print("0x%p ", (void *)b);
+            print("%p ", (void *)b);
         }
     }
 }
@@ -326,9 +305,8 @@ uint32_t dumpsys_mm_info_func(uint32_t mm_status)
 
     if (mm_status != KMM_ERROR_LOCKED) {
         KMM_CRITICAL_ENTER(g_kmm_head, flags_cpsr);
-    } else {
-        print = printk;
     }
+    print = printk;
 
     print("\r\n");
     print("------------------------------- all memory blocks --------------------------------- \r\n");
@@ -360,6 +338,7 @@ uint32_t dumpsys_mm_info_func(uint32_t mm_status)
     print("\r\n");
     print("----------------------------------------------------------------------------------- \r\n");
 
+    print = printf;
     if (mm_status != KMM_ERROR_LOCKED) {
         KMM_CRITICAL_EXIT(g_kmm_head, flags_cpsr);
     }
@@ -372,6 +351,7 @@ uint32_t dumpsys_mm_overview_func(uint32_t len)
     cpu_cpsr_t flags_cpsr = 0;
 
     KMM_CRITICAL_ENTER(g_kmm_head, flags_cpsr);
+    print = printk;
 
     print("\r\n");
     print("-------------------------------[kernel] heap size overview -------------------------------- \r\n");
@@ -387,6 +367,7 @@ uint32_t dumpsys_mm_overview_func(uint32_t len)
     print("--------------------------- task allocation statistic ----------------------------- \r\n");
     dump_kmm_task_info(g_kmm_head);
 
+    print = printf;
     KMM_CRITICAL_EXIT(g_kmm_head, flags_cpsr);
 
     print("\r\n");
@@ -431,12 +412,13 @@ uint32_t dumpsys_mm_leakcheck(uint32_t call_cnt, int32_t query_index)
 {
     cpu_cpsr_t flags_cpsr = 0;
     KMM_CRITICAL_ENTER(g_kmm_head, flags_cpsr);
+    print = printk;
 
     if (query_index < 0) {
         query_index = g_mmlk_cnt;
         g_mmlk_cnt = (uint8_t)call_cnt;
     } else if (query_index > g_mmlk_cnt) {
-        printf("query_index should be less than %d\r\n", g_mmlk_cnt);
+        print("query_index should be less than %d\r\n", g_mmlk_cnt);
         return -1;
     }
     print("-----------------All new alloced blocks:----------------\r\n");
@@ -447,6 +429,7 @@ uint32_t dumpsys_mm_leakcheck(uint32_t call_cnt, int32_t query_index)
     print("--------------New alloced blocks info ends.-------------\r\n");
     print("\r\n");
 
+    print = printf;
     KMM_CRITICAL_EXIT(g_kmm_head, flags_cpsr);
     return RHINO_SUCCESS;
 }
@@ -454,14 +437,14 @@ uint32_t dumpsys_mm_leakcheck(uint32_t call_cnt, int32_t query_index)
 void dumpsys_mm_header_check(void)
 {
     cpu_cpsr_t flags_cpsr = 0;
-    KMM_CRITICAL_ENTER(g_kmm_head, flags_cpsr);
 
     print("-----------------All error blocks:----------------\r\n");
 
+    KMM_CRITICAL_ENTER(g_kmm_head, flags_cpsr);
     dump_kmm_chk(g_kmm_head, MM_CHK);
-    print("\r\n");
-
     KMM_CRITICAL_EXIT(g_kmm_head, flags_cpsr);
+
+    print("\r\n");
 }
 
 #endif /* #if (RHINO_CONFIG_MM_TLF > 0) */
