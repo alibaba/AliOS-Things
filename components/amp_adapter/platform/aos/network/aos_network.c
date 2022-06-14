@@ -281,6 +281,13 @@ int aos_wifi_get_info(aos_wifi_info_t *wifi_info)
     return 0;
 }
 
+int aos_wifi_scan(aos_wifi_ap_list_t *ap_list, int ap_list_len)
+{
+    netmgr_wifi_ap_list_t* wifi_ap_records = (netmgr_wifi_ap_list_t *) ap_list;
+    int ap_num = netmgr_wifi_scan_result(wifi_ap_records, 16, NETMGR_WIFI_SCAN_TYPE_FULL);
+    return ap_num;
+}
+
 int aos_wifi_disconnect()
 {
     netmgr_hdl_t hdl;
