@@ -186,7 +186,7 @@ def_config:
   AOS_CONFIG_GPIOC_CSI: 1
   __AP_MODE__: 1
   CONFIG_DM: 0
-  CONFIG_KWS_AI_ENGINE_ENABLE: 1
+
 chip:
   arch_name: arm
   cpu_name: cortex-m33
