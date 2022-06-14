@@ -143,6 +143,14 @@ typedef struct aos_sharemode_info {
     AOS_NETWORK_SHAREMODE_E share_mode;
 } aos_sharemode_info_t;
 
+typedef struct {
+    char     ssid[33];          /**< The SSID of an access point. */
+    char     ap_power;            /**< Received Signal Strength Indication, min: -110, max: 0 */
+    unsigned char  bssid[6];      /**< The BSSID of an access point. */
+    unsigned char  channel;       /**< The RF frequency, 1-13 */
+    unsigned char  sec_type;      /**< details see netmgr_wifi_sec_type */
+} aos_wifi_ap_list_t;
+
 int aos_wifi_init(aos_wifi_manager_t *wifi_manager);
 
 int aos_wifi_start(aos_wifi_manager_t *wifi_manager);
@@ -162,6 +170,8 @@ int aos_wifi_deinit(aos_wifi_manager_t *wifi_manager);
 int aos_net_set_ifconfig(aos_ifconfig_info_t *info);
 
 int aos_net_get_ifconfig(aos_ifconfig_info_t *info);
+
+int aos_wifi_scan(aos_wifi_ap_list_t *ap_list, int ap_list_len);
 
 /**
  * @brief       file close
