@@ -80,6 +80,16 @@ typedef enum {
     AOS_NETWORK_SHAREMODE_AUTHTYPE_INVALID
 } AOS_NETWORK_SHAREMODE_AUTHTYPE_E;
 
+typedef enum {
+    AOS_WIFI_AUTH_OPEN = 0,
+    AOS_WIFI_AUTH_WEP,
+    AOS_WIFI_AUTH_WPA_PSK,
+    AOS_WIFI_AUTH_WPA2_PSK,
+    AOS_WIFI_AUTH_WPA_WPA2_PSK,
+    AOS_WIFI_AUTH_WPA2_ENTERPRISE,
+    AOS_WIFI_AUTH_MAX
+} aos_wifi_auth_mode_t;
+
 typedef struct {
     void (*cb)(int status, void *);
     int wifi_state;
