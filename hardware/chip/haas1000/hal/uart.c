@@ -564,11 +564,6 @@ int32_t hal_uart_recv_II(uart_dev_t *uart, void *data, uint32_t expect_size,
 
     } while (1);
 
-    /*haven't get any data from fifo */
-    if (recved_len == 0) {
-        return EIO;
-    }
-
     if (recv_size != NULL) {
         *recv_size = recved_len;
     }
