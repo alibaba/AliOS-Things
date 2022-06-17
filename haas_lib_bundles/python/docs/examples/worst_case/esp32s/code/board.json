@@ -1,0 +1,99 @@
+{
+    "name": "esp32",
+    "version": "1.0.0",
+    "io": {
+      "uln2003_a": {
+        "type": "GPIO",
+        "port": 4,
+        "dir": "output",
+        "pull": "pushpull"
+      },
+      "uln2003_a_": {
+        "type": "GPIO",
+        "port": 0,
+        "dir": "output",
+        "pull": "pushpull"
+      },
+      "uln2003_b": {
+        "type": "GPIO",
+        "port": 2,
+        "dir": "output",
+        "pull": "pushpull"
+      },
+      "uln2003_b_": {
+        "type": "GPIO",
+        "port": 15,
+        "dir": "output",
+        "pull": "pushpull"
+      },
+      "magnetron": {
+        "type": "GPIO",
+        "port": 13,
+        "dir": "input",
+        "pull": "pullup"
+      },
+      "servo": {
+        "type": "PWM",
+        "port": 27
+      },
+      "photoresistor": {
+        "type": "ADC",
+        "port": 0,
+        "atten": 2,
+        "width": 3,
+        "sampling": 12000000
+      },
+      "sht3x": {
+        "type": "I2C",
+        "port": 0,
+        "addrWidth": 7,
+        "freq": 400000,
+        "mode": "master",
+        "devAddr": 68
+      },
+      "mpu6050": {
+        "type": "I2C",
+        "port": 0,
+        "addrWidth": 7,
+        "freq": 400000,
+        "mode": "master",
+        "devAddr": 104
+      },
+      "gnss": {
+        "type": "UART",
+        "port": 2,
+        "dataWidth": 8,
+        "baudRate": 9600,
+        "stopBits": 1,
+        "flowControl": "disable",
+        "parity": "none"
+      },
+      "motorspeed": {
+        "type": "GPIO",
+        "port": 26,
+        "dir": "irq",
+        "pull": "pullup",
+        "intMode": "falling"
+      },
+      "mfrc522_sda": {
+        "type": "GPIO",
+        "port": 5,
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "mfrc522_rst":{
+        "type":"GPIO",
+        "port": 25,
+        "dir": "output",
+        "pull":"pullup"
+      },
+      "mfrc522": {
+        "type": "SPI",
+        "port": 3,
+        "mode": "master",
+        "freq": 2000000
+      }
+    },
+    "debugLevel": "ERROR",
+    "repl": "disable"
+  }
