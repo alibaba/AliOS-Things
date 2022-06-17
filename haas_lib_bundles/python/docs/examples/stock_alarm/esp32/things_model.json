@@ -1,0 +1,142 @@
+{
+  "schema": "https://iotx-tsl.oss-ap-southeast-1.aliyuncs.com/schema.json",
+  "profile": {
+    "version": "1.0",
+    "productKey": "hdyjChNYZCz"
+  },
+  "properties": [
+    {
+      "identifier": "stock_status",
+      "name": "股票状态",
+      "accessMode": "rw",
+      "desc": "股票状态，0为正常，1为涨停",
+      "required": false,
+      "dataType": {
+        "type": "int",
+        "specs": {
+          "min": "0",
+          "max": "1",
+          "step": "1"
+        }
+      }
+    },
+    {
+      "identifier": "stock_code",
+      "name": "股票代码",
+      "accessMode": "rw",
+      "desc": "股票代码比如 600000",
+      "required": false,
+      "dataType": {
+        "type": "text",
+        "specs": {
+          "length": "12"
+        }
+      }
+    }
+  ],
+  "events": [
+    {
+      "identifier": "post",
+      "name": "post",
+      "type": "info",
+      "required": true,
+      "desc": "属性上报",
+      "method": "thing.event.property.post",
+      "outputData": [
+        {
+          "identifier": "stock_status",
+          "name": "股票状态",
+          "dataType": {
+            "type": "int",
+            "specs": {
+              "min": "0",
+              "max": "1",
+              "step": "1"
+            }
+          }
+        },
+        {
+          "identifier": "stock_code",
+          "name": "股票代码",
+          "dataType": {
+            "type": "text",
+            "specs": {
+              "length": "12"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "services": [
+    {
+      "identifier": "set",
+      "name": "set",
+      "required": true,
+      "callType": "async",
+      "desc": "属性设置",
+      "method": "thing.service.property.set",
+      "inputData": [
+        {
+          "identifier": "stock_status",
+          "name": "股票状态",
+          "dataType": {
+            "type": "int",
+            "specs": {
+              "min": "0",
+              "max": "1",
+              "step": "1"
+            }
+          }
+        },
+        {
+          "identifier": "stock_code",
+          "name": "股票代码",
+          "dataType": {
+            "type": "text",
+            "specs": {
+              "length": "12"
+            }
+          }
+        }
+      ],
+      "outputData": []
+    },
+    {
+      "identifier": "get",
+      "name": "get",
+      "required": true,
+      "callType": "async",
+      "desc": "属性获取",
+      "method": "thing.service.property.get",
+      "inputData": [
+        "stock_status",
+        "stock_code"
+      ],
+      "outputData": [
+        {
+          "identifier": "stock_status",
+          "name": "股票状态",
+          "dataType": {
+            "type": "int",
+            "specs": {
+              "min": "0",
+              "max": "1",
+              "step": "1"
+            }
+          }
+        },
+        {
+          "identifier": "stock_code",
+          "name": "股票代码",
+          "dataType": {
+            "type": "text",
+            "specs": {
+              "length": "12"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
