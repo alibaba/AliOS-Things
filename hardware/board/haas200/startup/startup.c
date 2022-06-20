@@ -112,6 +112,8 @@ static void board_mode_check(void)
     board_init();
 }
 
+extern u32 GlobalDebugEnable;
+
 void sys_init_func(void)
 {
 
@@ -127,6 +129,7 @@ void sys_init_func(void)
 #ifdef AOS_COMP_CPLUSPLUS
     cpp_init();
 #endif
+    GlobalDebugEnable = 0;
 
     aos_maintask(NULL);
 
