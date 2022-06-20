@@ -126,9 +126,9 @@ int aos_wifi_init(aos_wifi_manager_t *wifi_manager)
     int ret = 0;
     netmgr_hdl_t hdl = netmgr_get_dev(WIFI_DEV_PATH);
     if (hdl >= 0) {
-        LOGE(LOG_TAG, "wifi already init by other task\r\n");
+        LOGI(LOG_TAG, "wifi already init by other task\r\n");
     } else {
-        LOGE(LOG_TAG, "aos_wifi_init start");
+        LOGD(LOG_TAG, "aos_wifi_init start\r\n");
         ret = event_service_init(NULL);
         if (ret != 0) {
             LOGE(LOG_TAG, "event_service_init failed\r\n");
