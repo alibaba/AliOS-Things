@@ -250,7 +250,7 @@ void mcu_first_handshake(void)
 
 int WEAK do_ulog(const unsigned char s, const char *mod, const char *f, const unsigned long l, const char *fmt, va_list args)
 {
-    return 0;
+    return 1;
 }
 int aos_printf_hook(const char *tag, const char *fmt, enum PRINTF_FLAG_T flag, va_list ap)
 {
