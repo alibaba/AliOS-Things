@@ -15,7 +15,7 @@
 #include "aiot_state_api.h"
 #include "aiot_sysdep_api.h"
 
-/* socket建联时间默认最大值 */
+/* socket建连时间默认最大值 */
 #define CORE_SYSDEP_DEFAULT_CONNECT_TIMEOUT_MS (10 * 1000)
 
 /*
@@ -283,7 +283,6 @@ static int32_t _core_sysdep_network_connect(char *host, uint16_t port, int famil
         for (pos = addrInfoList; pos != NULL; pos = pos->ai_next) {
             fd = socket(pos->ai_family, pos->ai_socktype, pos->ai_protocol);
             if (fd < 0) {
-                printf("create socket error\n");
                 res = STATE_PORT_NETWORK_SOCKET_CREATE_FAILED;
                 continue;
             }
@@ -339,19 +338,12 @@ static int32_t _core_sysdep_network_connect(char *host, uint16_t port, int famil
                     }
                 }
             }
-            printf("connect error, errno: %d\n", errno);
             close(fd);
         }
     } else {
         res = STATE_PORT_NETWORK_DNS_FAILED;
     }
 
-    if (res < 0) {
-        printf("fail to establish tcp\n");
-    } else {
-        printf("success to establish tcp, fd=%d\n", *fd_out);
-        res = STATE_SUCCESS;
-    }
     freeaddrinfo(addrInfoList);
     return res;
 }
@@ -462,8 +454,6 @@ static int32_t _core_sysdep_network_mbedtls_establish(core_network_handle_t *net
         printf("invalid max_tls_fragment parameter\n");
         return STATE_PORT_TLS_INVALID_MAX_FRAGMENT;
     }
-
-    printf("establish mbedtls connection with server(host='%s', port=[%u])\n", network_handle->host, network_handle->port);
 
     _port_uint2str(network_handle->port, port_str);
 
@@ -624,10 +614,11 @@ static int32_t _core_sysdep_network_mbedtls_establish(core_network_handle_t *net
         printf("mbedtls_ssl_get_verify_result error, res: -0x%04X\n", -res);
         return res;
     }
-
+    /*
     printf("success to establish mbedtls connection, fd = %d(cost %d bytes in total, max used %d bytes)\n",
            (int)network_handle->mbedtls.net_ctx.fd,
            g_mbedtls_total_mem_used, g_mbedtls_max_mem_used);
+    */
 
     return 0;
 }
