@@ -307,7 +307,7 @@ static int wifi_recvmsg_task()
 
 static void wifi_connect_failed_cb(uint32_t event_id, const void *param, void *context)
 {
-    NETMGR_WIFI_LOGE("%s:%d err=%d\n", __func__, __LINE__, event_id);
+    NETMGR_WIFI_LOGI("%s:%d err=%d\n", __func__, __LINE__, event_id);
     if(event_id == RET_WIFI_INVALID_PASSWORD) {
         g_handshake_failed_retry = NETMGR_WIFI_HANDSHAKE_FAILED_MAX_RETRY;
         //netmgr_stat_chg_event(m, NOTIFY_WIFI_HANDSHAKE_FAILED, param);
@@ -980,10 +980,10 @@ static int read_config_value(char** pos, const char* obj,int* line, netmgr_wifi_
             *pos = pos_end;
             NETMGR_WIFI_LOGI("%s:%d len :%d %s ", __func__, __LINE__, len, pos_start);
             if(strncmp(obj,"ssid", 4) == 0) {
-                int contain_chinese = ssid_contain_chinese_check(config->ssid);
                 strncpy(config->ssid, pos_start, len);
                 config->ssid[len]='\0';
                 NETMGR_WIFI_LOGI("%s:%d ssid=%s\n", __func__, __LINE__, config->ssid);
+                int contain_chinese = ssid_contain_chinese_check(config->ssid);
                 if((1 == contain_chinese) && (0 != string_convert((uint8_t *)config->gbk_ssid, MAX_SSID_SIZE, (uint8_t *)config->ssid, strlen(config->ssid), UTF8_TO_GBK))) {
                    config->contain_chinese = true;
                 } else {
@@ -1122,7 +1122,7 @@ static int get_wifi_config(const char *name, netmgr_wifi_ap_config_t* saved_ap_c
 
     fd = open(name, O_RDONLY);
     if(fd < 0) {
-        NETMGR_WIFI_LOGE("%s:%d open %s failed:%s\n", __func__, __LINE__, name, strerror(errno));
+        NETMGR_WIFI_LOGI("%s:%d open %s failed:%s\n", __func__, __LINE__, name, strerror(errno));
         return -1;
     }
 
@@ -1227,7 +1227,7 @@ static void wifi_activation_report_task()
 #ifdef MICROPY_PY_CHANNEL_ENABLE
 static void py_app_ota_handle(void* arg)
 {
-    printf("save wifi info to kv and start ota channel\n");
+    NETMGR_WIFI_LOGD("save wifi info to kv and start ota channel\n");
     extern int save_ssid_and_password(char *ssid, char *passwd);
     save_ssid_and_password(_amp_ssid, _amp_password);
     extern int on_get_url(char *url);
@@ -2202,7 +2202,7 @@ static int wifi_start_sta(netmgr_hdl_t hdl, netmgr_conn_t *conn, const char *ssi
     if((conn->state == CONN_STATE_DISCONNECTED) ||
        (conn->state == CONN_STATE_CONNECTING)) {
         int ret = 0;
-        NETMGR_WIFI_LOGE("%s:%d start wifi\n", __func__, __LINE__);
+        NETMGR_WIFI_LOGI("%s:%d start wifi\n", __func__, __LINE__);
         ret = ioctl(hdl, WIFI_DEV_CMD_CONNECT, &type);
         if(ret != 0) {
             NETMGR_WIFI_LOGE("%s:%d wifi connect failed=%d\n", __func__, __LINE__, ret);
@@ -2418,9 +2418,9 @@ int netmgr_wifi_connect(netmgr_hdl_t hdl, netmgr_wifi_params_t *params)
         /* get wifi config */
         if(-1 == get_wifi_config(NETMGR_WIFI_TEMP_CONF, saved_ap_conf, READ_SPECIFIC_CONFIG)) {
             if(-1 == get_wifi_config(NETMGR_WIFI_CONF, saved_ap_conf, READ_SPECIFIC_CONFIG)) {
-                NETMGR_WIFI_LOGE("%s:%d no temp config found\n", __func__, __LINE__);
+                NETMGR_WIFI_LOGI("%s:%d no temp config found\n", __func__, __LINE__);
             } else {
-                NETMGR_WIFI_LOGE("%s:%d no config found\n", __func__, __LINE__);
+                NETMGR_WIFI_LOGI("%s:%d no config found\n", __func__, __LINE__);
             }
         }
     }
@@ -3040,7 +3040,7 @@ int netmgr_wifi_get_config(netmgr_hdl_t hdl, netmgr_wifi_config_t* config)
     memset(config, 0, sizeof(netmgr_wifi_ap_config_t));
     if(-1 == get_wifi_config(NETMGR_WIFI_TEMP_CONF, config, READ_ALL_CONFIG)) {
         if(-1 == get_wifi_config(NETMGR_WIFI_CONF, config, READ_ALL_CONFIG)) {
-            NETMGR_WIFI_LOGE("%s:%d no config found\n", __func__, __LINE__);
+            NETMGR_WIFI_LOGI("%s:%d no config found\n", __func__, __LINE__);
             return -1;
         }
     }
@@ -3457,7 +3457,7 @@ static void handle_netmgr_wifi_help_cmd()
     NETMGR_WIFI_LOGI("netmgr -t wifi -s\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -p\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -r\n");
-    NETMGR_WIFI_LOGI("netmgr -t wifi -w network={\\nssid=\"xxxxxx\"\\npassword=\"xxxxxxxx\"\\nchannel=\"1\"\\n}\\n");
+    NETMGR_WIFI_LOGI("netmgr -t wifi -w network={\\nssid=\"apple\"\\npassword=\"aos123456\"\\nchannel=\"1\"\\n}\\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -d\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -n 0\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -e\n");

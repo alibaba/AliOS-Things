@@ -289,11 +289,11 @@ int activation_report(void)
     activation_get_report_msg(g_report_msg, sizeof(g_report_msg));
 
     snprintf(g_report_data, sizeof(g_report_data), ACTIVATION_REPORT_PAYLOAD_FORMAT, g_report_msg);
-    ACTIVATION_ERR("%s:%d report_data:%s\n", __func__, __LINE__, g_report_data);
+    ACTIVATION_DEBUG("%s:%d report_data:%s\n", __func__, __LINE__, g_report_data);
 
     snprintf(g_report_http_data, sizeof(g_report_http_data), ACTIVATION_REPORT_FORMAT, strlen(g_report_data), g_report_data);
 
-    ACTIVATION_ERR("%s:%d report http data:%s\n", __func__, __LINE__, g_report_http_data);
+    ACTIVATION_DEBUG("%s:%d report http data:%s\n", __func__, __LINE__, g_report_http_data);
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
@@ -312,7 +312,7 @@ int activation_report(void)
         }
 
         if (connect(sockfd, cur->ai_addr, (int)cur->ai_addrlen) == 0) {
-            ACTIVATION_ERR("socket connect success\n");
+            ACTIVATION_DEBUG("socket connect success\n");
             break;
         } else {
             ACTIVATION_ERR("socket connect failed, errno=%d\n", errno);
