@@ -43,13 +43,6 @@ def load_page():
     label1.set_style_text_color(lv.color_make(0xcc, 0xcc, 0xcc), 0)
     label1.align(lv.ALIGN.BOTTOM_MID, -70, -50)
 
-    #qr2 = lv.qrcode(scr, 130, fg_color, bg_color)
-    #data2 = "https://h5.dingtalk.com/circle/healthCheckin.html?dtaction=os&corpId=dingb846e861c83d9a57ca21756a27946a0e&5730f=56fd0&cbdbhh=qwertyuiop"
-    #qr2.update(data2,len(data2))
-    #qr2.align(lv.ALIGN.CENTTER, 10, -20)
-    #qr2.set_style_border_color(bg_color, 0)
-    #qr2.set_style_border_width(5, 0)
-
     label2 = lv.label(scr)
     font_Alibaba_PuHuiTi.set_text_size(label2, 16)
     label2.set_text("扫码进入钉群")
