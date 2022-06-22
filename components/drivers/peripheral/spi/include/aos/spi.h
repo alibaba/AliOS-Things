@@ -5,7 +5,11 @@
 #ifndef AOS_SPI_H
 #define AOS_SPI_H
 
+#ifdef AOS_KERNEL_BUILD
 #include <aos/device.h>
+#else
+#include <stdint.h>
+#endif
 
 /**
  * @defgroup spi_api SPI Master
@@ -43,18 +47,16 @@
 #define AOS_SPI_MCFG_MSB_FIRST  ((uint32_t)0x0 << 5)
 #define AOS_SPI_MCFG_LSB_FIRST  ((uint32_t)0x1 << 5)
 
-typedef aos_dev_ref_t aos_spi_ref_t;
-
 typedef struct {
-    uint32_t flags;
-    uint32_t num_cs;
+    uint32_t flags : 24;
+    uint32_t num_cs : 8;
     uint32_t min_hz;
     uint32_t max_hz;
 } aos_spi_info_t;
 
 typedef struct {
-    uint32_t cfg;
-    uint32_t cs;
+    uint32_t cfg : 24;
+    uint32_t cs : 8;
     uint32_t hz;
     uint32_t pre_cs;
     uint32_t post_cs;
@@ -80,6 +82,17 @@ typedef struct {
     }
 
 #define aos_spi_msg_init(x)     do { *(x) = (aos_spi_msg_t)AOS_SPI_MSG_INIT_VAL; } while (0)
+
+#if (defined(AOS_KERNEL_BUILD) && defined(AOS_COMP_DEVFS)) || !defined(AOS_KERNEL_BUILD)
+
+#define AOS_SPI_IOC_GET_INFO    0x5301
+#define AOS_SPI_IOC_TRANSFER(n) (0x5310 | ((int)(n) & 0xF))
+
+#endif /* (defined(AOS_KERNEL_BUILD) && defined(AOS_COMP_DEVFS)) || !defined(AOS_KERNEL_BUILD) */
+
+#ifdef AOS_KERNEL_BUILD
+
+typedef aos_dev_ref_t aos_spi_ref_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -117,6 +130,8 @@ aos_status_t aos_spi_transfer(aos_spi_ref_t *ref, const aos_spi_msg_t *msgs, siz
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* AOS_KERNEL_BUILD */
 
 /** @} */
 
