@@ -1,0 +1,17 @@
+#
+# Component Makefile
+#
+COMPONENT_DIR = hmac
+COMPONENT_SUBMODULES += $(COMPONENT_DIR)
+
+COMPONENT_ADD_INCLUDEDIRS := include
+COMPONENT_SRCDIRS := src
+
+INC_HAAS += $(addprefix $(MODULES_DIR)/$(COMPONENT_DIR)/, $(COMPONENT_ADD_INCLUDEDIRS))
+SRC_HAAS += $(addprefix modules/$(COMPONENT_DIR)/$(COMPONENT_SRCDIRS)/,\
+    modhmac.c \
+    hmac_sha256.c \
+    sha256.c \
+)
+
+CFLAGS += -DMICROPY_PY_HMAC=1

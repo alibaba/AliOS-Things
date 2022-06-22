@@ -32,10 +32,10 @@
 #define PHY_READ_TO ((uint32_t)0x0004FFFF)
 #define PHY_WRITE_TO ((uint32_t)0x0004FFFF)
 
-#if defined(MICROPY_PY_NETWORK_LAN8720) || defined(MICROPY_PY_NETWORK_LAN8742)
+#if MICROPY_PY_NETWORK_LAN8720 || MICROPY_PY_NETWORK_LAN8742
 #define ETH_PHY_ADDR (0x01)
 #else
-#define ETH_PHY_ADDR (0x01)
+#define ETH_PHY_ADDR (0x00)
 #endif
 
 typedef struct _eth_t eth_t;
