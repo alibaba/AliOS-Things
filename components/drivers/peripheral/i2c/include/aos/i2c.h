@@ -5,7 +5,11 @@
 #ifndef AOS_I2C_H
 #define AOS_I2C_H
 
+#ifdef AOS_KERNEL_BUILD
 #include <aos/device.h>
+#else
+#include <stdint.h>
+#endif
 
 /**
  * @defgroup i2c_api I2C Master
@@ -20,8 +24,6 @@
 #define AOS_I2C_MCFG_RX         ((uint32_t)0x1 << 0)
 #define AOS_I2C_MCFG_ADDR_7     ((uint32_t)0x0 << 1)
 #define AOS_I2C_MCFG_ADDR_10    ((uint32_t)0x1 << 1)
-
-typedef aos_dev_ref_t aos_i2c_ref_t;
 
 typedef struct {
     uint32_t flags;
@@ -44,6 +46,18 @@ typedef struct {
     }
 
 #define aos_i2c_msg_init(x)     do { *(x) = (aos_i2c_msg_t)AOS_I2C_MSG_INIT_VAL; } while (0)
+
+#if (defined(AOS_KERNEL_BUILD) && defined(AOS_COMP_DEVFS)) || !defined(AOS_KERNEL_BUILD)
+
+#define AOS_I2C_IOC_GET_INFO    0x4901
+#define AOS_I2C_IOC_SET_HZ      0x4902
+#define AOS_I2C_IOC_TRANSFER(n) (0x4910 | ((int)(n) & 0xF))
+
+#endif /* (defined(AOS_KERNEL_BUILD) && defined(AOS_COMP_DEVFS)) || !defined(AOS_KERNEL_BUILD) */
+
+#ifdef AOS_KERNEL_BUILD
+
+typedef aos_dev_ref_t aos_i2c_ref_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,6 +102,8 @@ aos_status_t aos_i2c_transfer(aos_i2c_ref_t *ref, const aos_i2c_msg_t *msgs, siz
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* AOS_KERNEL_BUILD */
 
 /** @} */
 
