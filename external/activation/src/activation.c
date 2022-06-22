@@ -180,7 +180,7 @@ int32_t activation_parse_data(char *response_data)
     char *result_end;
     int32_t len;
 
-    ACTIVATION_DEBUG("response data: %s\n", response_data);
+    ACTIVATION_ERR("response data: %s\n", response_data);
     result_start = strstr(response_data, ACTIVATION_RESPONSE_RESULT_START);
     result_end = strstr(result_start, ACTIVATION_RESPONSE_RESULT_END);
     if ((result_start != NULL) && (result_end != NULL)) {

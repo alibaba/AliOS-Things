@@ -1,0 +1,11 @@
+freeze(
+    "..",
+    (
+        "oss/__init__.py",
+        "oss/api.py",
+        "oss/auth.py",
+        "oss/bucket.py",
+        "oss/credentials.py",
+        "oss/utils.py"
+    ),
+)

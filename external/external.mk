@@ -41,8 +41,4 @@ ifeq ($(AOS_AMP_TASK), 1)
     include $(EXTERNAL_DIR)/amp_task/amp_task.mk
 endif
 
-# SRC_HAAS += $(foreach dir, $(SRCDIRS_HAAS), $(wildcard $(dir)/*.c))
-# $(info 'SRC_HAAS = $(SRC_HAAS)')
-
 INC += $(addprefix -I, ${INC_HAAS})
-# $(info 'INC = $(INC)')

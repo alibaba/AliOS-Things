@@ -145,9 +145,10 @@ ifeq ($(MICROPY_PY_ULOG), y)
 endif
 
 
-SRC_HAAS += $(foreach dir, $(SRCDIRS_HAAS), $(wildcard $(dir)/*.c))
-# $(info 'SRC_HAAS = $(SRC_HAAS)')
+include $(MODULES_DIR)/utility/component.mk
 
+include $(MODULES_DIR)/hmac/component.mk
 
-INC += $(addprefix -I, $(INC_HAAS))
-# $(info 'INC = $(INC)')
+include $(MODULES_DIR)/system/component.mk
+
+INC += $(addprefix -I, ${INC_HAAS})

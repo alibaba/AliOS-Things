@@ -1,15 +1,15 @@
 #Source: https://github.com/pycom/pycom-modbus/tree/master/uModbus (2018-07-16)
 #This file has been modified and differ from its source version.
 
-import modbus.uModBusFunctions as functions
-import modbus.uModBusConst as Const
+import modbus.uModbusFunctions as functions
+import modbus.uModbusConst as Const
 from machine import UART
 from machine import Pin
 import struct
 import time
 import machine
 
-class uModBusSerial:
+class uModbusSerial:
 
     def __init__(self, uart_id, baudrate=9600, data_bits=8, stop_bits=1, parity=None, pins=None, ctrl_pin=None):
         if pins is None:
