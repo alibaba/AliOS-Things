@@ -13,10 +13,6 @@
 #define AOS_I2C_XF_SEQ_HEAD     ((uint32_t)0x1 << 2)
 #define AOS_I2C_XF_SEQ_TAIL     ((uint32_t)0x1 << 3)
 
-#ifndef AOS_I2C_BUF_SIZE
-#define AOS_I2C_BUF_SIZE        0
-#endif
-
 struct aos_i2c_ops;
 
 typedef struct {
@@ -26,6 +22,8 @@ typedef struct {
     const struct aos_i2c_ops *ops;
     uint32_t flags;
     uint32_t hz;
+    size_t buf_size;
+    void *buf[2];
 
     aos_event_t event;
     struct {
@@ -38,9 +36,6 @@ typedef struct {
         size_t tail;
         void *buf;
     } x;
-#if AOS_I2C_BUF_SIZE > 0
-    uint8_t buf[2][AOS_I2C_BUF_SIZE];
-#endif
 } aos_i2c_t;
 
 typedef struct aos_i2c_ops {
@@ -60,7 +55,7 @@ extern "C" {
 
 aos_status_t aos_i2c_register(aos_i2c_t *i2c);
 aos_status_t aos_i2c_register_argumented(aos_i2c_t *i2c, uint32_t id, const aos_i2c_ops_t *ops,
-                                         uint32_t flags, uint32_t hz);
+                                         uint32_t flags, uint32_t hz, size_t buf_size, void *buf[2]);
 aos_status_t aos_i2c_unregister(uint32_t id);
 
 size_t aos_i2c_hard_push(aos_i2c_t *i2c, void *tx_buf, size_t count);
