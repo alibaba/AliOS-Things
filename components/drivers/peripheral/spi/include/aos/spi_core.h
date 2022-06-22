@@ -15,10 +15,6 @@
 #define AOS_SPI_XF_RX           ((uint32_t)0x1 << 4)
 #define AOS_SPI_XF_TX           ((uint32_t)0x1 << 5)
 
-#ifndef AOS_SPI_BUF_SIZE
-#define AOS_SPI_BUF_SIZE        0
-#endif
-
 struct aos_spi_ops;
 
 typedef struct {
@@ -26,17 +22,20 @@ typedef struct {
 
     /* must be initialized before registration */
     const struct aos_spi_ops *ops;
-    uint32_t flags;
-    uint32_t num_cs;
+    uint32_t flags : 24;
+    uint32_t num_cs : 8;
     uint32_t min_hz;
     uint32_t max_hz;
+    size_t buf_size;
+    void *rx_buf[2];
+    void *tx_buf[2];
 
     aos_event_t event;
     struct {
         uint32_t timeout;
         uint32_t flags;
-        uint32_t cfg;
-        uint32_t cs;
+        uint32_t cfg : 24;
+        uint32_t cs : 8;
         uint32_t hz;
         uint32_t pre_cs;
         uint32_t post_cs;
@@ -48,10 +47,6 @@ typedef struct {
         void *rx_buf;
         const void *tx_buf;
     } x;
-#if AOS_SPI_BUF_SIZE > 0
-    uint8_t rx_buf[2][AOS_SPI_BUF_SIZE];
-    uint8_t tx_buf[2][AOS_SPI_BUF_SIZE];
-#endif
 } aos_spi_t;
 
 typedef struct aos_spi_ops {
@@ -70,7 +65,8 @@ extern "C" {
 
 aos_status_t aos_spi_register(aos_spi_t *spi);
 aos_status_t aos_spi_register_argumented(aos_spi_t *spi, uint32_t id, const aos_spi_ops_t *ops, uint32_t flags,
-                                         uint32_t num_cs, uint32_t min_hz, uint32_t max_hz);
+                                         uint32_t num_cs, uint32_t min_hz, uint32_t max_hz,
+                                         size_t buf_size, void *rx_buf[2], void *tx_buf[2]);
 aos_status_t aos_spi_unregister(uint32_t id);
 
 size_t aos_spi_hard_push(aos_spi_t *spi, void *tx_buf, size_t count);

@@ -1,13 +1,12 @@
-
 ## 第一部分： 基础信息
 name: spi                                           # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: master                                    # <必选项> 组件版本号
-description: SPI 通用驱动                           # <必选项> 建议至少20字以上
+version: master                                     # <必选项> 组件版本号
+description: SPI通用驱动                            # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
 tag: 第三方驱动                                     # <可选项> 组件分类，缺省值： ''
 keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
-  - spi core and vfs driver
+  - spi driver
 license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
 
 ## 第二部分：依赖信息
@@ -18,7 +17,6 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - aos: >=v7.2.0
 depends:
   - base: master
-  - vfs: master
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -47,10 +45,8 @@ build_config:
 # source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
 #   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
 source_file:
-
-# SPI
-  - src/spi_dev.c ? <CONFIG_U_SPI_DEV>
   - src/spi.c
+  - src/spi_dev.c ? <CONFIG_U_SPI_DEV>
 
 # SPI Example
 #  - example/spi_example.c
@@ -61,7 +57,7 @@ source_file:
 #   CONFIG_PARAM_NOT_CHECK: y
 #   CONFIG_CLI: y
 def_config:
-
+  AOS_COMP_SPI: 1
   CONFIG_U_SPI_DEV: 1                      # SPI device node named witch "/dev/spi[x]"
   CONFIG_U_SPI_CORE: 0                     # SPI subsys AOS API driver
 
@@ -71,8 +67,9 @@ def_config:
 #     source:                              # 安装源列表
 #      - src/*.h                           # 支持通配符，相对路径
 install:
-  - dest: "include/devices"
+  - dest: "include/aos"
     source:
+      - "include/aos/spi.h"
 
 ## 第七部分：导出部分
 # export:
