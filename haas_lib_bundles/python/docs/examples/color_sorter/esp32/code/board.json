@@ -1,0 +1,24 @@
+{
+    "name": "esp32",
+    "version": "1.0.0",
+    "io": {
+      "colorSensor": {
+        "type": "I2C",
+        "port": 0,
+        "addrWidth": 7,
+        "freq": 400000,
+        "mode": "master",
+        "devAddr": 41
+        },
+        "top_servo": {
+          "type": "PWM",
+          "port": 5
+        },
+        "bottom_servo": {
+          "type": "PWM",
+          "port": 12
+        }
+    },
+    "debugLevel": "ERROR",
+    "repl": "disable"
+  }
