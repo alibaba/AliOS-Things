@@ -1,0 +1,20 @@
+{
+  "name": "m5stackcore2",
+  "version": "1.0.0",
+  "io": {
+    "hx711_clk": {
+      "type": "GPIO",
+      "port": 19,
+      "dir": "output",
+      "pull": "pullup"
+    },
+    "hx711_data": {
+      "type": "GPIO",
+      "port": 27,
+      "dir": "input",
+      "pull": "pullup"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
