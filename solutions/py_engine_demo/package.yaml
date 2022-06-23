@@ -1,7 +1,7 @@
 
 ## 第一部分： 基础信息
 name: py_engine_demo                                # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: master                                    # <必选项> 组件版本号
+version: dev_aos                                    # <必选项> 组件版本号
 description: start python engine demos              # <必选项> 建议至少20字以上
 type: solution                                      # <必选项> 组件类型，为：solution, board, chip, arch, drv_core, drv_peripheral, drv_external_device, kernel, common, sdk, document
 
@@ -14,15 +14,15 @@ type: solution                                      # <必选项> 组件类型�
 #   - minilibc: 'v7.2.0'
 #   - aos: 'v7.2.0 ? <ENABLE_AOS>'
 depends:
-  - init: master
-  - cli: master
-  - osal_aos: master
-  - py_engine: master
-  - haaseduk1:  master
+  - init: dev_aos
+  - cli: dev_aos
+  - osal_aos: dev_aos
+  - py_engine: dev_aos
+  - haaseduk1:  dev_aos
 supported_boards:
-  - haas100: master
-  - haas200: master
-  - haaseduk1: master
+  - haas100: dev_aos
+  - haas200: dev_aos
+  - haaseduk1: dev_aos
 
 ## 第三部分：板级信息
 # hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段
@@ -151,7 +151,6 @@ def_config:
   MICROPY_PY_OTA: 1
   MICROPY_PY_SNTP: 1
   MICROPY_PY_SYSTEM: 0
-  MICROPY_PY_UCAMERA: 0
   #MICROPY_PY_UCLOUD_AI: 1
   MICROPY_PY_UGRAPHICS: 0
   MICROPY_PY_ULOG: 1

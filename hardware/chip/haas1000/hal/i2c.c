@@ -28,7 +28,8 @@ int32_t hal_i2c_init(i2c_dev_t *i2c)
 	struct HAL_I2C_CONFIG_T i2c_cfg;
 
     if (mutex_init == false) {
-        aos_mutex_new(&i2c_mutex);
+        ret = aos_mutex_new(&i2c_mutex);
+        TRACE("aos_mutex_new returns %d", ret);
         mutex_init = true;
     }
 
@@ -54,9 +55,9 @@ int32_t hal_i2c_init(i2c_dev_t *i2c)
 
 	ret = hal_i2c_open(i2c_port, &i2c_cfg);
 	if (ret) {
-		TRACEME("open i2c fail\n");
+		TRACE("open i2c fail\n");
 	} else {
-		TRACEME("open i2c succ.\n");
+		TRACE("open i2c succ.\n");
 	}
 	aos_mutex_unlock(&i2c_mutex);
 
@@ -85,13 +86,13 @@ int32_t hal_i2c_master_send(i2c_dev_t *i2c, uint16_t dev_addr, const uint8_t *da
 
 	lock_ret = aos_mutex_lock(&i2c_mutex, timeout);
 	if (lock_ret != 0) {
-		TRACE("i2c_master_send, get i2c_mutex lock fail");
+		TRACE("i2c_master_send, get i2c_mutex lock fail, timeout:%d", timeout);
 		return lock_ret;
 	}
 	i2c_port = i2c->port;
 	ret = hal_i2c_task_send(i2c_port, dev_addr, data, size, 0, NULL);
 	if(ret) {
-		TRACEME("%s:%d,i2c send fail, dev_addr = 0x%x, data[0] = 0x%x, data[1]= 0x%x, ret = %d\n", __func__,__LINE__,dev_addr, data[0], data[1], ret);
+		TRACE("%s:%d,i2c send fail, dev_addr = 0x%x, data[0] = 0x%x, data[1]= 0x%x, ret = %d\n", __func__,__LINE__,dev_addr, data[0], data[1], ret);
 	}
 	aos_mutex_unlock(&i2c_mutex);
 	return ret;
@@ -118,14 +119,14 @@ int32_t hal_i2c_master_recv(i2c_dev_t *i2c, uint16_t dev_addr, uint8_t *data,
 
 	lock_ret = aos_mutex_lock(&i2c_mutex, timeout);
 	if (lock_ret != 0) {
-		TRACE("i2c_master_recv, get i2c_mutex lock fail");
+		TRACE("i2c_master_recv, get i2c_mutex lock fail ret:%d", lock_ret);
 		return lock_ret;
 	}
 	i2c_port = i2c->port;
 	/*ret = hal_i2c_recv(i2c_port, dev_addr, data, 1, size - 1, HAL_I2C_RESTART_AFTER_WRITE, 0, NULL);*/
 	ret = hal_i2c_recv(i2c_port, dev_addr, data, 0, size, HAL_I2C_RESTART_AFTER_WRITE, 0, NULL);
 	if(ret) {
-		TRACEME("%s:%d,i2c read failed, dev_addr = 0x%x, data[0] = 0x%x, data[1]= 0x%x, ret = %d\n", __func__,__LINE__,dev_addr, data[0], data[1], ret);
+		TRACE("%s:%d,i2c read failed, dev_addr = 0x%x, data[0] = 0x%x, data[1]= 0x%x, ret = %d\n", __func__,__LINE__,dev_addr, data[0], data[1], ret);
 	}
 	aos_mutex_unlock(&i2c_mutex);
 	return ret;
@@ -146,7 +147,7 @@ uint32_t hal_i2c_master_recv_vendor(i2c_dev_t *i2c, uint16_t device_addr, uint8_
 
 	ret = hal_i2c_task_recv(i2c_port, device_addr, tx_buf, tx_len, rx_buf, rx_len, 0, NULL);
 	if(ret) {
-		TRACEME("%s:%d,i2c read failed, dev_addr=0x%x, data[0]=0x%x, ret=%d", __func__,__LINE__,device_addr, ret);
+		TRACE("%s:%d,i2c read failed, dev_addr=0x%x, data[0]=0x%x, ret=%d", __func__,__LINE__,device_addr, ret);
 	}
 	aos_mutex_unlock(&i2c_mutex);
 	return ret;
@@ -266,7 +267,7 @@ int32_t hal_i2c_mem_write(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
 	}
 	ret = hal_i2c_task_send(i2c_port, dev_addr, txbuf, txlen, 0, NULL);
 	if(ret) {
-		TRACEME("%s:%d,i2c send failed,dev_addr = 0x%x,ret = %d\n", __func__,__LINE__,dev_addr,ret);
+		TRACE("%s:%d,i2c send failed,dev_addr = 0x%x,ret = %d\n", __func__,__LINE__,dev_addr,ret);
 	}
 	aos_mutex_unlock(&i2c_mutex);
 	free(txbuf);
@@ -326,7 +327,7 @@ int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
 
 	ret = hal_i2c_recv(i2c_port, dev_addr, txrxbuf, mem_addr_size, size, HAL_I2C_RESTART_AFTER_WRITE, 0, 0);
 	if (ret) {
-		TRACEME("%s:i2c recv failed,dev_addr = 0x%x,ret = %d\n", __func__, dev_addr, ret);
+		TRACE("%s:i2c recv failed,dev_addr = 0x%x,ret = %d\n", __func__, dev_addr, ret);
 	} else {
 		memcpy(data, &txrxbuf[1], size);
 	}
@@ -347,7 +348,14 @@ int32_t hal_i2c_mem_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t mem_addr,
  */
 int32_t hal_i2c_finalize(i2c_dev_t *i2c)
 {
-	return 0;
+	int32_t ret = 0;
+	ret = hal_i2c_close(i2c->port);
+	if (ret) {
+		TRACE("close i2c fail\n");
+	} else {
+		TRACE("close i2c succ.\n");
+	}
+	return ret;
 }
 
 
