@@ -113,6 +113,9 @@ def_config:
   PY_BUILD_UCLOUD_AI: 0            # Py_Engine module build ucloud_ai config
   PY_BUILD_FATFS: 0               # Py_Engine module build FATFS Flag
   MICROPY_PY_BLE: 1
+# ucamera build flag
+  MICROPY_PY_UCAMERA: 0
+  CONFIG_UART_CAMERA_ENABLE: 0
 
 board:
   chip_name: rtl872xd

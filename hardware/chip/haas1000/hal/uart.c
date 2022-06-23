@@ -236,7 +236,6 @@ static void _uart2_dma_rx_handler(uint32_t xfer_size, int dma_error, union HAL_U
 
     len = _uart_ringbuffer_push(uartid, uart_ctx[uartid].uart_buffer, xfer_size);
     if (len < xfer_size) {
-        printf("%s ringbuf is full have %d need %d\r", __FUNCTION__, len, xfer_size);
         return;
     }
 
