@@ -1,6 +1,7 @@
 #define MICROPY_HW_BOARD_NAME       "01Studio Columbus"
 #define MICROPY_HW_MCU_NAME         "STM32F407ZGT6"
-#define	MICROPY_HW_FLASH_FS_LABEL		"COLUMBUS"
+#define	MICROPY_HW_FLASH_FS_LABEL   "COLUMBUS"
+#define MICROPY_SW_VENDOR_NAME      "HaaSPython"
 
 #define MICROPY_HW_ENABLE_INTERNAL_FLASH_STORAGE (0)
 #define MICROPY_HW_HAS_SWITCH       	(1)
@@ -37,9 +38,9 @@
 
 //------------------------------------------------------------------------------------
 //audio
-#define MICROPY_ENABLE_AUDIO			(0)
-#define	MICROPY_HW_WM8978				(0)
-#define MICROPY_ENABLE_MP3				(0)
+#define MICROPY_ENABLE_AUDIO            (1)
+#define MICROPY_HW_WM8978               (1)
+#define MICROPY_ENABLE_MP3              (0)
 //------------------------------------------------------------------------------------
 //video
 #define MICROPY_ENABLE_VIDEO			(1)
@@ -160,7 +161,7 @@ extern struct _spi_bdev_t spi_bdev;
 #define MICROPY_HW_ETH_RMII_TXD0    (pin_G13)
 #define MICROPY_HW_ETH_RMII_TXD1    (pin_G14)
 
-#define MICROPY_PY_NETWORK_LAN8720  (1)
+#define MICROPY_PY_NETWORK_LAN8720  (0)
 
 // SD card detect switch
 #define MICROPY_HW_ENABLE_SDCARD			(1)

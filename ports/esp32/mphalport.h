@@ -35,6 +35,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#define MICROPY_PLATFORM_VERSION "IDF" IDF_VER
+
 // The core that the MicroPython task(s) are pinned to.
 // Until we move to IDF 4.2+, we need NimBLE on core 0, and for synchronisation
 // with the ringbuffer and scheduler MP needs to be on the same core.
@@ -58,25 +60,6 @@ __attribute__((always_inline)) static inline uint32_t mp_hal_ticks_cpu(void) {
     #endif
     return ccount;
 }
-// This macro is used to implement PEP 475 to retry specified syscalls on EINTR
-#define MP_HAL_RETRY_SYSCALL(ret, syscall, raise) \
-    {                                             \
-        for (;;) {                                \
-            MP_THREAD_GIL_EXIT();                 \
-            ret = syscall;                        \
-            MP_THREAD_GIL_ENTER();                \
-            if (ret == -1) {                      \
-                int err = errno;                  \
-                if (err == MP_EINTR) {            \
-                    mp_handle_pending(true);      \
-                    continue;                     \
-                }                                 \
-                raise;                            \
-            }                                     \
-            break;                                \
-        }                                         \
-    }
-
 
 void mp_hal_delay_us(uint32_t);
 #define mp_hal_delay_us_fast(us) ets_delay_us(us)

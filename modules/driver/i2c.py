@@ -1,10 +1,9 @@
 # Adapter for machine driver
 
-import sys
-
 from boardparser import BoardConfigParser
 from machine import I2C as mach_I2C
 from machine import Pin as mach_Pin
+import systemAdaptor
 
 
 """
@@ -46,13 +45,18 @@ class I2C:
             self.mode = item['mode']
             self.devAddr = item['devAddr']
             
-            if('scl' in item):
+            pinMap = systemAdaptor.getPinMap()
+            i2cName = "I2C" + str(self.port)
+            if 'scl' in item and 'sda' in item:
                 self.scl = item['scl']
-                
-            if('sda' in item):
-                self.sda = item['sda']   
-            
-            self.i2c = mach_I2C(self.port, freq=self.freq)
+                self.sda = item['sda']
+                self.i2c = mach_I2C(self.port, mach_Pin(self.scl), mach_Pin(self.sda), freq=self.freq)
+            elif i2cName in pinMap:
+                self.i2c = mach_I2C(self.port, mach_Pin(pinMap[i2cName]["SCL"]),mach_Pin(pinMap[i2cName]["SDA"]), freq=self.freq)
+            else:
+                self.i2c = mach_I2C(self.port, freq=self.freq)
+
+            del pinMap
             return 0
         else:
             raise ValueError('Node type should be str')

@@ -1,7 +1,5 @@
 # Adapter for machine driver
 
-import sys
-
 from boardparser import BoardConfigParser
 from machine import WDT as mach_WDT
 
