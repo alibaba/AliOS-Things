@@ -1,6 +1,6 @@
 @page ucamera ucamera
 
-**[更正文档](https://gitee.com/alios-things/ucamera/edit/rel_3.3.0/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://help.aliyun.com/document_detail/302301.html)**
+**[更正文档](https://gitee.com/alios-things/ucamera/edit/master/README.md)** &emsp;&emsp;&emsp;&emsp; **[贡献说明](https://help.aliyun.com/document_detail/302301.html)**
 
 # 概述
 ucamera组件是摄像头图像数据处理中间框架，支持不同类型摄像头数据接入，目前已接入wifi摄像头，在使用该组件时，需要使用netmgr网络组件连接网络。
