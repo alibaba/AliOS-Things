@@ -1014,7 +1014,12 @@ UI Lite for Python以LVGL 8.1为基础进行打造，本文是各控件的示例
 </div>
 
 * 示例代码：<br>
-示例代码中使用到的三张图片链接：[imgbtn_left](../../images/imgbtn_left.png)、[imgbtn_mid](../../images/imgbtn_mid.png)、[imgbtn_right](../../images/imgbtn_right.png)。<br>
+示例代码中使用到的三张图片链接：
+[imgbtn_left](../../images/imgbtn_left.png)
+[imgbtn_mid](../../images/imgbtn_mid.png)
+[imgbtn_right](../../images/imgbtn_right.png)。
+<br>
+
     <details>
     <summary> 查看代码</summary>
 
