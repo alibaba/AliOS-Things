@@ -58,9 +58,12 @@ def connect_4g_network():
     return 0
 
 ######## 物联网平台相关代码 ############
-productKey = "gyd2HK4GEJQ"
-deviceName = "azz6ldcavPDjR4Luvq4t"
-deviceName = "5cbe23fe7f5995d639fa079187d0f645"
+# Wi-Fi SSID和Password设置
+# 三元组信息
+productKey = "产品密钥"
+deviceName = "设备名字"
+deviceSecret = "设备密钥"
+
 device = None
 zzio606Obj = None
 switchList = ["switch0", "switch1", "switch2", "switch3", "switch4", "switch5"]

@@ -1,0 +1,17 @@
+{
+  "name": "01Studio",
+  "version": "1.0.0",
+  "io": {
+    "gnss": {
+      "type": "UART",
+      "port": 1,
+      "dataWidth": 8,
+      "baudRate": 115200,
+      "stopBits": 1,
+      "flowControl": "disable",
+      "parity": "none"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
