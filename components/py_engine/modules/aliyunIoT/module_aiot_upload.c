@@ -154,7 +154,7 @@ char *pyamp_aiot_upload_mqtt(void *mqtt_handle, char *file_name, char *data, int
     uint32_t block_size = MQTT_UPLOAD_BLOCK_SIZE;
     aiot_mqtt_upload_setopt(up_handle, AIOT_MQTT_UPLOADOPT_DEFAULLT_BLOCK_SIZE, &block_size);
 
-    uint32_t timeout_ms = 100;
+    uint32_t timeout_ms = 10*000;
     aiot_mqtt_setopt(mqtt_handle, AIOT_MQTTOPT_RECV_TIMEOUT_MS, (void *)&timeout_ms);
 
     if (file_name != NULL) {

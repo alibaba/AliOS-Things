@@ -308,6 +308,7 @@ bool pyamp_boot_cli_in()
     unsigned int buf_len = 0;
     unsigned int value = 0;
     unsigned char *buffer = NULL;
+    int retryCnt = 0;
     int ret = 0;
 
     buf_len = 32;
@@ -331,7 +332,12 @@ bool pyamp_boot_cli_in()
             }
         } else {
             pyamp_boot_uart_send_str("received NULL\t\n");
-            pyamp_save_path_defult_set(PYAMP_SAVE_PATH_DEFULT_DATA);
+            retryCnt++;
+            if (retryCnt >= 3) {
+                retryCnt = 0;
+                pyamp_save_path_defult_set(PYAMP_SAVE_PATH_DEFULT_DATA);
+                break;
+            }
         }
     }
 

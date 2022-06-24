@@ -10,8 +10,9 @@
 #include "aos_log.h"
 #include "utility.h"
 #include "aos/kernel.h"
-
+#include "ulog/ulog.h"
 #define LOG_TAG   "mod_network"
+
 
 typedef struct _aos_wifi_obj_t {
     mp_obj_base_t base;
@@ -209,12 +210,44 @@ STATIC mp_obj_t aos_ifconfig(size_t n_args, const mp_obj_t *args)
 }
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(aos_ifconfig_obj, 1, 2, aos_ifconfig);
 
+STATIC mp_obj_t haas_wlan_scan(mp_obj_t self_in)
+{
+    mp_obj_t list = mp_obj_new_list(0, NULL);
+    aos_wifi_ap_list_t wifi_ap_records[16] = { 0 };
+    memset(wifi_ap_records, 0, sizeof(aos_wifi_ap_list_t) * 16);
+
+    MP_THREAD_GIL_EXIT();
+    int ap_num = aos_wifi_scan(wifi_ap_records, 16);
+    MP_THREAD_GIL_ENTER();
+
+    int index = 0;
+    while (index < 16 && index < ap_num) {
+        if (strlen(wifi_ap_records[index].ssid) > 0) {
+            mp_obj_tuple_t *t = mp_obj_new_tuple(6, NULL);
+            char *x = memchr(wifi_ap_records[index].ssid, 0, sizeof(wifi_ap_records[index].ssid));
+            int ssid_len = x ? x - wifi_ap_records[index].ssid : sizeof(wifi_ap_records[index].ssid);
+            t->items[0] = mp_obj_new_bytes(wifi_ap_records[index].ssid, ssid_len);
+            t->items[1] = mp_obj_new_bytes(wifi_ap_records[index].bssid, sizeof(wifi_ap_records[index].bssid));
+            t->items[2] = MP_OBJ_NEW_SMALL_INT(wifi_ap_records[index].channel);
+            t->items[3] = MP_OBJ_NEW_SMALL_INT((signed char)wifi_ap_records[index].ap_power);
+            t->items[4] = MP_OBJ_NEW_SMALL_INT(wifi_ap_records[index].sec_type);
+            t->items[5] = mp_const_false; // XXX hidden?
+            mp_obj_list_append(list, MP_OBJ_FROM_PTR(t));
+        }
+        index++;
+    }
+
+    return list;
+}
+
+STATIC MP_DEFINE_CONST_FUN_OBJ_1(aos_wifi_scan_obj, haas_wlan_scan);
+
 STATIC const mp_rom_map_elem_t wifi_if_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_active), MP_ROM_PTR(&aos_wifi_active_obj) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_connect), MP_ROM_PTR(&aos_wifi_connect_obj) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_disconnect), MP_ROM_PTR(&aos_wifi_disconnect_obj) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_status), MP_ROM_PTR(&aos_wifi_get_status_obj) },
-    // { MP_ROM_QSTR(MP_QSTR_scan), MP_ROM_PTR(&aos_wifi_scan_obj) },
+    { MP_ROM_QSTR(MP_QSTR_scan), MP_ROM_PTR(&aos_wifi_scan_obj) },
     { MP_ROM_QSTR(MP_QSTR_isconnected), MP_ROM_PTR(&wifi_is_connected_obj) },
     // { MP_ROM_QSTR(MP_QSTR_config), MP_ROM_PTR(&esp_config_obj) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_ifconfig), MP_ROM_PTR(&aos_ifconfig_obj) },
@@ -275,6 +308,13 @@ STATIC const mp_rom_map_elem_t mp_module_network_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_STA_DISCONNECTED), MP_ROM_INT(AOS_NET_STA_DISCONNECTED) },
     { MP_ROM_QSTR(MP_QSTR_STA_STOPED), MP_ROM_INT(AOS_NET_STA_STOPED) },
     { MP_ROM_QSTR(MP_QSTR_STA_UNKNOWN), MP_ROM_INT(AOS_NET_STATE_UNKNOWN) },
+
+    { MP_ROM_QSTR(MP_QSTR_AUTH_OPEN), MP_ROM_INT(AOS_WIFI_AUTH_OPEN) },
+    { MP_ROM_QSTR(MP_QSTR_AUTH_WEP), MP_ROM_INT(AOS_WIFI_AUTH_WEP) },
+    { MP_ROM_QSTR(MP_QSTR_AUTH_WPA_PSK), MP_ROM_INT(AOS_WIFI_AUTH_WPA_PSK) },
+    { MP_ROM_QSTR(MP_QSTR_AUTH_WPA2_PSK), MP_ROM_INT(AOS_WIFI_AUTH_WPA2_PSK) },
+    { MP_ROM_QSTR(MP_QSTR_AUTH_WPA_WPA2_PSK), MP_ROM_INT(AOS_WIFI_AUTH_WPA_WPA2_PSK) },
+    { MP_ROM_QSTR(MP_QSTR_AUTH_WPA2_ENTERPRISE), MP_ROM_INT(AOS_WIFI_AUTH_WPA2_ENTERPRISE) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(mp_module_network_globals, mp_module_network_globals_table);

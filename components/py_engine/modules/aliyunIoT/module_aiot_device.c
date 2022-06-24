@@ -670,7 +670,7 @@ static mp_obj_t aiot_create_device(mp_obj_t self_in, mp_obj_t data)
     self->iot_device_handle->keepaliveSec = keepaliveSec;
 
     res = aos_task_new_ext(&iot_device_task, "amp aiot device task", aiot_device_connect, self->iot_device_handle,
-                           1024 * 5, AOS_DEFAULT_APP_PRI);
+                           1024 * 4, AOS_DEFAULT_APP_PRI);
     if (res != STATE_SUCCESS) {
         amp_error(MOD_STR, "iot create task failed.\r\n");
         goto failed;
@@ -683,6 +683,53 @@ failed:
 }
 
 MP_DEFINE_CONST_FUN_OBJ_2(native_aiot_create_device, aiot_create_device);
+
+#if MICROPY_PY_CHANNEL_ENABLE
+/*************************************************************************************
+ * Function:    native_aiot_default_device
+ * Input:       none
+ * Output:      return mqtt handler of otaput module
+ **************************************************************************************/
+extern void *otaput_mqtt_handler;
+extern int amp_reg_onservice_cb(void *device_handler, void *func);
+static void otaput_async_service_notify(void *handler, void *pdata)
+{
+    iot_device_handle_t *iot_device_handler = (iot_device_handle_t *)handler;
+    aiot_dm_recv_async_service_invoke_t *params = (aiot_dm_recv_async_service_invoke_t *)pdata;
+    mp_obj_t callback = MP_OBJ_NULL;
+    mp_sched_carg_t *carg = make_cargs(MP_SCHED_CTYPE_DICT);
+    make_carg_entry(carg, 0, MP_SCHED_ENTRY_TYPE_INT, params->msg_id, NULL, "msg_id");
+    make_carg_entry(carg, 1, MP_SCHED_ENTRY_TYPE_STR, strlen(params->service_id), params->service_id, "service_id");
+    make_carg_entry(carg, 2, MP_SCHED_ENTRY_TYPE_INT, params->params_len, NULL, "params_len");
+    make_carg_entry(carg, 3, MP_SCHED_ENTRY_TYPE_STR, params->params_len, params->params, "params");
+    if (iot_device_handler->callback[ON_SERVICE] != NULL) {
+        callback = iot_device_handler->callback[ON_SERVICE];
+        callback_to_python_LoBo(callback, mp_const_none, carg);
+    }
+}
+
+static mp_obj_t aiot_default_device(mp_obj_t self_in, mp_obj_t func)
+{
+    int res = -1;
+
+    linksdk_device_obj_t *self = self_in;
+    if (self_in == NULL) {
+        mp_raise_OSError(ENOENT);
+        amp_error(MOD_STR, "aiot_default_connect, self is NULL. \r\n");
+        return mp_obj_new_int(-1);
+    }
+    if (otaput_mqtt_handler == NULL) {
+        amp_error(MOD_STR, "aiot_default_connect, otaput_mqtt_handler is NULL. \r\n");
+        return mp_obj_new_int(-1);
+    }
+    self->iot_device_handle->mqtt_handle = otaput_mqtt_handler;
+    self->iot_device_handle->callback[ON_SERVICE] = func;
+    amp_reg_onservice_cb(self->iot_device_handle, otaput_async_service_notify);
+    return mp_obj_new_int(0);
+}
+
+MP_DEFINE_CONST_FUN_OBJ_2(native_aiot_default_device, aiot_default_device);
+#endif
 
 /* post props */
 static mp_obj_t aiot_postProps(mp_obj_t self_in, mp_obj_t data)
@@ -936,7 +983,35 @@ static mp_obj_t aiot_publish(mp_obj_t self_in, mp_obj_t data)
     }
 
     mp_obj_t index = mp_obj_new_str_via_qstr("topic", 5);
+#if MICROPY_PY_CHANNEL_ENABLE
+    char *device_name = aos_get_device_name();
+    extern const char *otaput_product_key;
+    if ((self->iot_device_handle->mqtt_handle == otaput_mqtt_handler) && (NULL != device_name)) {
+        char topic_hack[100];
+        unsigned int len = 0;
+        memset(topic_hack, 0, 100);
+        /* topic = "/sys/" */
+        memcpy(topic_hack, "/sys/", 5);
+        len += 5;
+        /* topic = "/sys/a1ul4uS7RfV" */
+        memcpy(topic_hack + len, otaput_product_key, strlen(otaput_product_key));
+        len += strlen(otaput_product_key);
+        /* topic = "/sys/a1ul4uS7RfV/" */
+        memcpy(topic_hack + len, "/", 1);
+        len += 1;
+        /* topic = "/sys/a1ul4uS7RfV/haas_30c6f71fxxxx" */
+        memcpy(topic_hack + len, device_name, strlen(device_name));
+        len += strlen(device_name);
+        /* topic = "/sys/a1ul4uS7RfV/haas_30c6f71fxxxx/thing/event/hli_event/post" */
+        memcpy(topic_hack + len, "/thing/event/hli_event/post", strlen("/thing/event/hli_event/post"));
+        len += strlen("/thing/event/hli_event/post");
+        topic = topic_hack;
+    } else {
+        topic = mp_obj_str_get_str(mp_obj_dict_get(data, index));
+    }
+#else
     topic = mp_obj_str_get_str(mp_obj_dict_get(data, index));
+#endif
 
     index = mp_obj_new_str_via_qstr("payload", 7);
     payload = mp_obj_str_get_str(mp_obj_dict_get(data, index));
@@ -1139,6 +1214,9 @@ MP_DEFINE_CONST_FUN_OBJ_1(native_aiot_getDeviceInfo, aiot_getDeviceInfo);
 STATIC const mp_rom_map_elem_t linkkit_device_locals_dict_table[] = {
     { MP_OBJ_NEW_QSTR(MP_QSTR_on), MP_ROM_PTR(&native_aiot_register_cb) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_connect), MP_ROM_PTR(&native_aiot_create_device) },
+#if MICROPY_PY_CHANNEL_ENABLE
+    { MP_OBJ_NEW_QSTR(MP_QSTR_default), MP_ROM_PTR(&native_aiot_default_device) },
+#endif
     { MP_OBJ_NEW_QSTR(MP_QSTR_getDeviceHandle), MP_ROM_PTR(&native_aiot_get_device_handle) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_getDeviceInfo), MP_ROM_PTR(&native_aiot_getDeviceInfo) },
     { MP_OBJ_NEW_QSTR(MP_QSTR_uploadFile), MP_ROM_PTR(&native_aiot_uploadFile) },
