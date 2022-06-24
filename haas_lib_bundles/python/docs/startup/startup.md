@@ -8,15 +8,15 @@ HaaS Python的目标是帮助中小开发者聚焦业务，实现设备安全上
 
 ## HaaS Python版本历史
 
-|版本号|版本说明|固件下载链接|详细说明|
-|:-:|-|-|:-:|
+|版本号<div style="width: 90px">|版本说明<div style="width: 250px">|固件下载链接<div style="width: 240px">|详细说明<div style="width: 150px">|
+|:-----:|---------------------|------------------|:------------------:|
 |v2.2<br>2022-05-30|HaaS Studio进阶版上线<br>新增6个传感器支持<br>新增15个创意案例<br>HaaS EDU K1支持彩色触摸屏<br>HaaS毕设计划启动<br>HaaS开源百校科技助力校园大使招募中<br>HaaS星案例征集火热进行中<br>HaaS合作伙伴计划全面启动|[HaaS EDU K1](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-HaaSEDUK1-v2.2.0.zip)<br>[HaaS200](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-HaaS200-v2.2.0.zip)<br><br>[乐鑫 ESP32_DevKitC](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP32-v2.2.0.zip)<br>[安信可 NodeMCU-32S](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP32-v2.2.0.zip)<br>[01Studio pyWiFi-ESP32](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP32-v2.2.0.zip)<br>[安信可 NodeMCU-ESP-S3-32S-Kit](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP-S3-12K-Kit-v2.2.0.zip)<br>[安信可 NodeMCU-ESP-C3-32S-Kit](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP-C3-32S-Kit-v2.2.0.zip)<br>[明栈 M5StackCore2](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP32-8M-v2.2.0.zip)<br>| <div align="center"> <img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/HaaSPython_2.2_overview_1.png width=30%/></div> <br>[查看详情](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/HaaSPython_2.2_detail)|
 |v2.1<br>2022-04-30|HaaS Python标准升级到2.1<br>新增HaaS Python在线热更新功能<br>新增行为识别API<br>新增8款传感器（含工业类）<br>|[HaaS EDU K1](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-HaaSEDUK1-v2.1.0.zip)<br>[HaaS200](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-HaaS200-v2.1.0.zip)<br>[HaaS506](https://hli.aliyuncs.com/o/config/haas506/HaaS506_v2.01.zip)<br>[乐鑫 ESP32_DevKitC](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP32-v2.1.0.zip)<br>[安信可 NodeMCU-32S](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP32-v2.1.0.zip)<br>[01Studio pyWiFi-ESP32](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP32-v2.1.0.zip)<br>[安信可 NodeMCU-ESP-S3-32S-Kit]()<br>[安信可 NodeMCU-ESP-C3-32S-Kit]()<br>[明栈 M5StackCore2](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-ESP32-8M-v2.1.0.zip)<br>|<div align="center"><img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/HaaSPython_2.1_overview_1.png width=30%/></div><br>[查看详情](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/HaaSPython_2.1_detail)|
 
 <details>
 <summary> 更多历史版本 </summary>
 
-|版本号|版本说明|固件连接|详细说明|
+|版本号<div style="width: 90px">|版本说明<div style="width: 250px">|固件下载链接<div style="width: 240px">|详细说明<div style="width: 150px">|
 |:-:|-|-|:-:|
 |v2.0<br>2022-05-30|HaaS Python标准升级到2.0<br>（新增AI，UI等能力、AliyunIoT增加文件上传功能，<br>Driver SPI API增加多字节连续读写）<br>新增ESP32乐鑫官方开发板和01Studio ESP32开发板支持<br>新增30+传感器支持<br>新增30+创意案例<br>新增3个精美UI模板（带UI能力开发板）<br>新增9种AI聚合服务（带UI和AI能力开发板）|[HaaS EDU K1](https://hli.aliyuncs.com/o/config/HaaSPython/HaaSPython-HaaSEDUK1-v2.0.0.zip)<br>[HaaS200](https://hli.aliyuncs.com/o/config/HaaS_Python/HaaSPython-HaaS200-v2.1.0.zip)<br>[HaaS506](https://hli.aliyuncs.com/o/config/haas506/HaaS506_v2.01.zip)<br>[乐鑫 ESP32_DevKitC](https://hli.aliyuncs.com/o/config/HaaSPython/HaaSPython-ESP32-v2.0.0.zip)<br>[安信可 NodeMCU-32S](https://hli.aliyuncs.com/o/config/HaaSPython/HaaSPython-ESP32-v2.0.0.zip)<br>[01Studio pyWiFi-ESP32](https://hli.aliyuncs.com/o/config/HaaSPython/HaaSPython-ESP32-v2.0.0.zip)<br>[明栈 M5StackCore2](https://hli.aliyuncs.com/o/config/HaaSPython/HaaSPython-ESP32-8M-v2.0.0.zip)<br>|<div align="center"><img src=https://hli.aliyuncs.com/haas-static/haasapi/Python/docs/zh-CN/images/HaaSPython_2.0_overview_1.png width=200%/></div><br>[查看详情](https://haas.iot.aliyun.com/haasapi/index.html?#/Python/docs/zh-CN/startup/HaaSPython_2.0_detail)|
 |v1.0.2<br>2022-01-20|aliyunIoT库功能优化<br>新增开源HaaS EDU K1教育案例<br>新增5个创意案例|[HaaS EDU K1](https://hli.aliyuncs.com/p/config/HaaS_Python/HaaSPython-HaaSEDUK1-v1.0.2.zip)<br>[安信可 NodeMCU-32S](https://hli.aliyuncs.com/p/config/HaaS_Python/HaaSPython-ESP32-v1.0.2.zip)|-|
@@ -39,8 +39,8 @@ HaaS Python的目标是帮助中小开发者聚焦业务，实现设备安全上
 &emsp;&emsp;
 目前HaaS Python支持如下几种开发板，如果你手上还没有如下开发板，可以从下表按照你的需求进行开发板的选择。
 
-|硬件系列|开发板介绍|开发板特点|开发板快速开始|
-|-|-|-|-|
+|硬件系列<div style="width: 90px">|开发板介绍<div style="width: 230px">|开发板特点<div style="width: 160px">|开发板快速上手<div style="width: 100px">|
+|-|-|-|:-:|
 |HaaS EDU K1|[HaaS EDU K1](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C5AB3B8A4A88800000001&dataId=800C5AB3B8A4A888)|蓝牙/Wi-Fi<br>内置OLED与多款传感器<br>物联网学习首选|[链接](https://haas.iot.aliyun.com/haasapi/index.html?spm=a2cpu.b17074837.0.0.66e960b1YtzRuv#/Python/docs/zh-CN/startup/HaaS_EDU_K1_startup)|
 |HaaS506|[煜瑛 HaaS506](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800CF06E76DC612F00000001&dataId=800CF06E76DC612F)|4G CAT.1|[链接](https://haas.iot.aliyun.com/haasapi/index.html?spm=a2cpu.b17074837.0.0.66e960b1YtzRuv#/Python/docs/zh-CN/startup/HaaS506_startup)|
 |HaaS200|[翼数 HaaS200](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C8F815768381600000001&dataId=800C8F8157683816)|蓝牙/Wi-Fi|[链接](https://haas.iot.aliyun.com/haasapi/index.html?spm=a2cpu.b17074837.0.0.66e960b1YtzRuv#/Python/docs/zh-CN/startup/HaaS200_startup)|
@@ -80,7 +80,7 @@ HaaS Studio安装完毕后，在“快速开始”可以看到其全部功能，
 <img src=../images/HaaS_Studio_HaaSEDUK1_fw_download.png width=80%/>
 </div>
 
-> 不同开发板详细固件烧录流程请参考上文“开发板快速开始”链接中“固件烧录”章节的说明。
+> 不同开发板详细固件烧录流程请参考上文“开发板快速上手”链接中“固件烧录”章节的说明。
 
 ### 3.2 创建并运行第一个HaaS Python程序
 
@@ -94,7 +94,7 @@ HaaS Python固件烧录完成后，在HaaS Studio的的“快速开始”页面�
 &emsp;&emsp;
 待工程创建完毕后点击“部署运行”按钮，将程序推送到开发板中即可体验Hello World程序。
 
-> 不同开发板部署运行的详细流程请参考上文“开发板快速开始”链接中“Hello World例程”章节的说明。
+> 不同开发板部署运行的详细流程请参考上文“开发板快速上手”链接中“Hello World例程”章节的说明。
 
 &emsp;&emsp;
 体验完Hello World例程后，建议你进入[HaaS Python创意案例专区](https://haas.iot.aliyun.com/solution)，找一个和你创意接近的案例或你感兴趣的案例，学学怎样用HaaS Python完成一个云端一体全链路物联网应用开发过程。

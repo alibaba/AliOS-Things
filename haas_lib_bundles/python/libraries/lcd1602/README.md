@@ -3,7 +3,7 @@
 ## 一、产品简介
 LCD1602 字符型液晶显示模块是专门用于显示字母、数字、符号等的点阵型液晶显示模块。分4位和8位数据传输方式。提供5x7点阵+游标的显示模式。提供显示数据缓冲区 DDRAM、字符发生器CGROM和字符发生器CGRAM，可以使用CGRAM来存储自己定义的最多8个5x8点阵的图形字符的字模数据。提供了丰富的指令设置：清显示；游标回原点；显示开/关；游标开/关；显示字符闪烁；游标移位；显示移位等。提供内部上电自动复位电路，当外加电源电压超过+4.5V时，自动对模块进行初始化操作，将模块设置为默认的显示工作状态。
 <div align="center">
-<img src="./../../docs/images/lcd1602_front.jpg"  width=40%/>
+<img src=./../../docs/images/lcd1602_front.jpg  width=40%/>
 </div>
 
 引脚定义：
@@ -20,7 +20,7 @@ LCD1602 字符型液晶显示模块是专门用于显示字母、数字、符号
 
 接线示意图：
 <div align="center">
-<img src="./../../docs/images/lcd1602_pins.jpg"  width=40%/>
+<img src=./../../docs/images/lcd1602_pins.jpg  width=40%/>
 </div>
 
 ## 二、技术参数
@@ -181,7 +181,7 @@ LCD printed
     * 然后进行功能、显示模式、打印项模式的设置，均为指令通讯方式；
 
 <div align="center">
-<img src="./../../docs/images/lcd1602_init.jpg"  width=50%/>
+<img src=./../../docs/images/lcd1602_init.jpg  width=50%/>
 </div>
 
 * 指令通讯阶段
@@ -189,7 +189,7 @@ LCD printed
     * 通过 RS=1，选择 LCD 控制器的数据寄存器，随后通过D4-D7发送数据内容，可实现向 LCD 屏幕打印字符的功能；
 
 <div align="center">
-<img src="./../../docs/images/lcd1602_instructions.jpg"  width=50%/>
+<img src=./../../docs/images/lcd1602_instructions.jpg  width=50%/>
 </div>
 
 * 4线传输机制
@@ -202,7 +202,7 @@ LCD printed
         * 因为 LCD 控制器获得下降沿时需要读取数据并执行指令，因此再保持一个命令执行的时间稳定，时间为 40us
 
 <div align="center">
-<img src="./../../docs/images/lcd1602_rw_timing.jpg"  width=50%/>
+<img src=./../../docs/images/lcd1602_rw_timing.jpg  width=50%/>
 </div>
 
 ## 六、工作原理
@@ -218,10 +218,10 @@ LCD printed
 * K 背光源负极。
 
 <div align="center">
-<img src="./../../docs/images/lcd1602_front.jpg"  width=50%/>
+<img src=./../../docs/images/lcd1602_front.jpg  width=50%/>
 </div>
 
 ## 参考文献及购买链接
 [1] [DOT MATRIX LIQUID CRYSTAL DISPLAY MODULE](http://hades.mech.northwestern.edu/images/f/f7/LCD16x2_HJ1602A.pdf)
 [2] [LCD1602系列](https://www.waveshare.com/datasheet/LCD_en_PDF/LCD1602.pdf)<br>
-[3] [商品链接]()
+[3] [商品链接](https://detail.tmall.com/item.htm?id=43573239792&ns=1&abbucket=11)

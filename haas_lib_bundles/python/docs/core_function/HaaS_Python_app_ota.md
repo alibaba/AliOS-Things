@@ -18,7 +18,7 @@ HaaS在线更新即用户借助VS Code的HaaS Studio插件通过无线的方式�
 | [pyWiFi-ESP32](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C55C67883087B00000001&dataId=800C55C67883087B) | 2.1.0及以上版本 |
 | [M5Stack Core2](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C84FAF561DF6A00000001&dataId=800C84FAF561DF6A) | 2.1.0及以上版本 |
 
-## 准备
+### 1.1、准备
 
 - PC工具：Visual Studio Code和HaaS Studio插件V2.1.0以上版本。
 - HaaS智能硬件：已烧录最新版HaaS固件（V2.1.0版本及以上）。

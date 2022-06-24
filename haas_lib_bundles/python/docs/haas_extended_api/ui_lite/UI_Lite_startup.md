@@ -6,11 +6,12 @@ UI Lite for Python以LVGL 8.1为基础进行打造，最低只需要64k Flash和
 
 * 创建本地工程<br>
 
-完成固件烧录并安装好HaaS-Studio开发环境之后，请基于helloworld新建一个基于helloworld的程序，命名为“HaaS_UI_Lite_helloworld”，如下图所示。
+完成固件烧录并安装好HaaS-Studio开发环境之后在Haas Studio中创建项目。先选择左侧的“开发板型号”再从右侧的案例中选择“Hello World”案例点击“立即创建”即可。
 
 <div align="center">
-<img src=../../images/HaaS_UI_Lite_helloworld.png width=50%/>
+<img src=./../../../images/HaaS_Studio_创建工程示范.png width=100%/>
 </div>
+<br>
 
 工程创建完成后，HaaS-Studio会创建一个main.py脚本，里边是通过串口打印helloworld的例子程序。
 接下来我们只需要下面3步就可以在这个main.py中调用lvgl和display组件完成向屏幕上输出"Welcome to HaaS UI Lite"。
@@ -59,7 +60,7 @@ lv.scr_load(scr)                # 加载屏幕对象为当前屏幕
 
 目前UI Lite覆盖了常用的33个控件，其例子程序请参考[UI Lite控件合集文章](https://haas.iot.aliyun.com/haasapi/index.html#/Python/docs/zh-CN/haas_extended_api/ui_lite/UI_Lite_widgets)
 
-另外我们提供了温湿度面板、计时器、音乐播放器等模版，只需要几行代码就能使用这些功能，详情请参考如下趣味案例。
+另外我们提供了温湿度面板、计时器、音乐播放器等模版，只需要几行代码就能使用这些功能，详情请参考如下创意案例。
 * [温湿度面板](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800AEA703FFFF1A300000001&dataId=800AEA703FFFF1A3)
 * [倒计时计时器](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800A1DAF896F599700000001&dataId=800A1DAF896F5997)
 * [音乐播放器](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800AE9E2A8B7DCDB00000001&dataId=800AE9E2A8B7DCDB)
