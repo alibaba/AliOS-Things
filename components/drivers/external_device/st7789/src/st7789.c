@@ -414,7 +414,7 @@ void    st7789_local_refresh(uint16_t x1,
                          uint16_t y2,
                          uint8_t *frame)
 {
-    printf("new st7789_local_refresh\r\n");
+    // printf("new st7789_local_refresh\r\n");
     uint16_t *rgb565_frame = (uint16_t *)frame;
     uint32_t  bufferSize   = (x2 -x1 + 1) * (y2 -y1 +1);
 
