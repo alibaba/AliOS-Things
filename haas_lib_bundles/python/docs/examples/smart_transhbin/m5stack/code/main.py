@@ -146,7 +146,7 @@ def infraRed_thread():
     while True:
         if gStartRecognize == False :
             status = gIrDev.objectDetection()
-            if status == 1 :
+            if status == 0 :
                 gStartRecognize = True
                 print('有物体进入')
             else :

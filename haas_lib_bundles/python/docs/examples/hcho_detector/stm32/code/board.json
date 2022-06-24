@@ -1,0 +1,13 @@
+{
+  "name": "01Studio",
+  "version": "1.0.0",
+  "io": {
+    "hcho": {
+      "type": "ADC",
+      "port": "A1",
+      "sampling": 12000000
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

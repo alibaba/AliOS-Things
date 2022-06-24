@@ -1,0 +1,19 @@
+{
+  "name": "01Studio",
+  "version": "1.0.0",
+  "io": {
+    "fire": {
+      "type": "ADC",
+      "port": "A0",
+      "sampling": 12000000
+    },
+    "led": {
+      "type": "GPIO",
+      "port": "A1",
+      "dir": "output",
+      "pull": "pullup"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

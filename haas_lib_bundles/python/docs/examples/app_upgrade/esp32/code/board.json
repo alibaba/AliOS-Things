@@ -1,0 +1,8 @@
+{
+    "name": "m5stackcore2",
+    "version": "1.0.0",
+    "io": {
+    },
+    "debugLevel": "ERROR",
+    "repl": "disable"
+}

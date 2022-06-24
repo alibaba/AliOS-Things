@@ -1,0 +1,20 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "buzzer": {
+      "type": "PWM",
+      "port": 25
+    },
+    "RS": { "type": "GPIO", "port": 16, "dir": "output", "pull": "pullup" },
+    "RW": { "type": "GPIO", "port": 17, "dir": "output", "pull": "pullup" },
+    "E": { "type": "GPIO", "port": 5, "dir": "output", "pull": "pullup" },
+
+    "D4": { "type": "GPIO", "port": 15, "dir": "output", "pull": "pullup" },
+    "D5": { "type": "GPIO", "port": 2, "dir": "output", "pull": "pullup" },
+    "D6": { "type": "GPIO", "port": 0, "dir": "output", "pull": "pullup" },
+    "D7": { "type": "GPIO", "port": 4, "dir": "output", "pull": "pullup" }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

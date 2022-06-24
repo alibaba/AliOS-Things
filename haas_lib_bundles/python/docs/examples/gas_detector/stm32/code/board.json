@@ -1,0 +1,19 @@
+{
+  "name": "esp32",
+  "version": "1.0.0",
+  "io": {
+    "mq2": {
+      "type": "ADC",
+      "port": "A1",
+      "sampling": 12000000
+    },
+    "led": {
+      "type": "GPIO",
+      "port": "E2",
+      "dir": "output",
+      "pull": "pullup"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

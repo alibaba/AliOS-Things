@@ -1,0 +1,26 @@
+{
+  "name": "01Studio",
+  "version": "1.0.0",
+  "io": {
+    "buzzer": {
+      "type": "GPIO",
+      "port": "B10",
+      "dir": "output",
+      "pull": "pullup"
+    },
+    "trig": {
+      "type": "GPIO",
+      "port": "A3",
+      "dir": "output",
+      "pull": "pullup"
+    },
+    "echo": {
+      "type": "GPIO",
+      "port": "A5",
+      "dir": "input",
+      "pull": "pullup"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
