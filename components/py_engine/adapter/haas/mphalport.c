@@ -172,7 +172,7 @@ void mp_hal_delay_ms(mp_uint_t ms)
         MP_THREAD_GIL_EXIT();
         uint64_t t1 = aos_now_ms() * 1000;
         dt = t1 - t0;
-        if (dt + RHINO_CONFIG_TICKS_PER_SECOND * 1000 >= us) {
+        if (dt + ((unsigned int)1000 / RHINO_CONFIG_TICKS_PER_SECOND) * 1000 >= us) {
             // doing a TaskDelay would take us beyond requested delay time
             aos_msleep(1);
             MP_THREAD_GIL_ENTER();

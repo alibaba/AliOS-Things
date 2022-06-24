@@ -116,6 +116,10 @@ int32_t pyamp_aiot_dynreg_http(mp_obj_t cb)
         /* 配置DYNREG默认消息接收回调函数参数 */
         aiot_dynreg_setopt(dynreg_handle, AIOT_DYNREGOPT_USERDATA, cb);
 
+        /* 增大DYNREG默认timeout值 */
+        uint32_t timeout =  (2 * 5 * 1000);
+        aiot_dynreg_setopt(dynreg_handle, AIOT_DYNREGOPT_TIMEOUT_MS, &timeout);
+
         res = aiot_dynreg_send_request(dynreg_handle);
         if (res < STATE_SUCCESS) {
             LOGE(MOD_STR, "dynamic register send  fail res = -0x%04X\n\r", -res);

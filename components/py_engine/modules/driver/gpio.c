@@ -37,7 +37,11 @@ void gpio_driver_irq_handler(int polarity, void *arg)
 {
     mp_gpio_obj_t *self = (mp_gpio_obj_t *)arg;
     int32_t level = aos_hal_gpio_get(self->gpio_device);
-    callback_to_python_LoBo(self->callback, MP_OBJ_NEW_SMALL_INT(level), NULL);
+    gpio_params_t *priv = (gpio_params_t *)self->gpio_device->priv;
+    uintptr_t tmp = (uintptr_t)priv->reserved;
+    priv->reserved = (void *)(tmp + 1);
+    if (!callback_to_python_LoBo(self->callback, MP_OBJ_NEW_SMALL_INT(level), NULL))
+        LOGE(LOG_TAG, "%s: callback_to_python_LoBo failed\n", __func__);
 }
 
 void gpio_obj_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind)
@@ -109,6 +113,8 @@ STATIC mp_obj_t obj_open(size_t n_args, const mp_obj_t *args)
     }
     driver_obj->gpio_device = gpio_device;
 
+    gpio_params_t *priv = (gpio_params_t *)gpio_device->priv;
+    LOGE(LOG_TAG, "%s: gpio %u irq count %lu\n", __func__, gpio_device->port, (unsigned long)priv->reserved);
 
     ret = aos_hal_gpio_init(gpio_device);
     if (ret) {
@@ -263,6 +269,9 @@ STATIC mp_obj_t obj_on(size_t n_args, const mp_obj_t *args)
     if (ret < 0) {
         LOGE(LOG_TAG, "%s:aos_hal_gpio_enable_irq failed, %d\n", __func__, ret);
     }
+
+    LOGE(LOG_TAG, "%s: gpio %u irq count %lu\n", __func__,
+         driver_obj->gpio_device->port, (unsigned long)priv->reserved);
 
     return MP_ROM_INT(ret);
 }

@@ -1,5 +1,6 @@
 import axp192
 import kv
+import uos
 
 try:
     # for m5stack-core2 only
@@ -24,11 +25,24 @@ def _connect_wifi(ssid, passwd):
         sta_if.connect(ssid, passwd)
 
 
+bt_disabled = kv.get('disable_bt')
+if bt_disabled != "no":
+    uos.plussys_mm()
+
+
 channel = kv.get('app_upgrade_channel')
-if channel != "disable":
+if channel == "enable":
     ssid = kv.get('_amp_wifi_ssid')
     passwd = kv.get('_amp_wifi_passwd')
     if isinstance(ssid, str) and isinstance(passwd, str):
         _connect_wifi(ssid, passwd)
     import online_upgrade
     online_upgrade.on(_on_get_url)
+
+
+app_upgrade = kv.get('_amp_app_upgrade')
+if app_upgrade == "enable":
+    print("App is being upgraded. It will take about 10 seconds.")
+    execfile('/lib/appUpgrade.py')
+    kv.remove('_amp_app_upgrade')
+    print("App upgrade finished.")

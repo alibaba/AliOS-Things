@@ -46,6 +46,7 @@ int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
     msg = (char *)aos_malloc(msg_len);
     if (msg == NULL) {
         amp_error(MOD_STR, "malloc msg err");
+        aiot_devinfo_deinit(&devinfo_handle);
         goto exit;
     }
     memset(msg, 0, msg_len);
@@ -54,6 +55,7 @@ int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
     res = snprintf(msg, msg_len, DEVICE_INFO_UPDATE_FMT, APPLICATION, MODULE_NAME);
     if (res <= 0) {
         amp_error(MOD_STR, "topic msg generate err");
+        aiot_devinfo_deinit(&devinfo_handle);
         res = -1;
         goto exit;
     }
@@ -61,6 +63,7 @@ int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
     devinfo = aos_malloc(sizeof(aiot_devinfo_msg_t));
     if (devinfo == NULL) {
         amp_error(MOD_STR, "device devinfo info malloc failed");
+        aiot_devinfo_deinit(&devinfo_handle);
         res = -1;
         goto exit;
     }
@@ -69,6 +72,7 @@ int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
     devinfo->product_key = aos_malloc(IOTX_PRODUCT_KEY_LEN);
     if (devinfo->product_key == NULL) {
         amp_error(MOD_STR, "device product_key info malloc failed");
+        aiot_devinfo_deinit(&devinfo_handle);
         res = -1;
         goto exit;
     }
@@ -77,6 +81,7 @@ int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
     devinfo->device_name = aos_malloc(IOTX_DEVICE_NAME_LEN);
     if (devinfo->device_name == NULL) {
         amp_error(MOD_STR, "device device_name info malloc failed");
+        aiot_devinfo_deinit(&devinfo_handle);
         res = -1;
         goto exit;
     }
@@ -85,6 +90,7 @@ int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
     devinfo->data.update.params = aos_malloc(msg_len);
     if (devinfo->data.update.params == NULL) {
         amp_error(MOD_STR, "device update info malloc failed");
+        aiot_devinfo_deinit(&devinfo_handle);
         res = -1;
         goto exit;
     }
@@ -98,6 +104,7 @@ int32_t pyamp_amp_app_devinfo_report(void *mqtt_handle)
     res = aiot_devinfo_send(devinfo_handle, devinfo);
     if (res < STATE_SUCCESS) {
         amp_error(MOD_STR, "aiot_devinfo_send failed");
+        aiot_devinfo_deinit(&devinfo_handle);
         res = -1;
     }
 
@@ -115,7 +122,5 @@ exit:
         }
         aos_free(devinfo);
     }
-    aiot_devinfo_deinit(&devinfo_handle);
-
     return res;
 }

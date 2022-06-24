@@ -14,17 +14,19 @@ shellPath=$(cd $(dirname ${BASH_SOURCE[0]}); pwd )
 hardwarePath=${shellPath}/../../hardware
 hardwarePath="`cd "${hardwarePath}";pwd`"
 
-driverSrcPath=${shellPath}/../../haas_lib_bundles/python/libraries
+driverSrcPath=${shellPath}/fs
 driverSrcPath="`cd "${driverSrcPath}";pwd`"
 
-
 if [ ${targetBoard} = "HaaS100" ]; then
+    driverSrcPath=${shellPath}/adapter/haas/fs/lib
+    driverSrcPath="`cd "${driverSrcPath}";pwd`"
+
     libs_dst=${hardwarePath}/chip/haas1000/prebuild/data/data/lib
     fs_root=${hardwarePath}/chip/haas1000/prebuild/data/
-elif [ ${targetBoard} = "HaaS200" ]; then
-    libs_dst=${hardwarePath}/chip/rtl872xd/prebuild/data/data/lib
-    fs_root=${hardwarePath}/chip/rtl872xd/prebuild/data/
 elif [ ${targetBoard} = "HaaSEDUk1" ]; then
+    driverSrcPath=${shellPath}/adapter/haas/fs/lib
+    driverSrcPath="`cd "${driverSrcPath}";pwd`"
+
     libs_dst=${hardwarePath}/chip/haas1000/prebuild/data/data/lib
     fs_root=${hardwarePath}/chip/haas1000/prebuild/data/
 else
@@ -61,7 +63,13 @@ done
 # cp boot.py and appOta.py for haas devices
 
 cp -rf ${shellPath}/adapter/haas/fs/boot.py ${fs_root}
-cp -rf ${shellPath}/adapter/haas/fs/lib ${fs_root}
+
+if [ ! -d "${fs_root}/lib" ]; then
+    mkdir -p ${fs_root}/lib
+else
+    rm -rf ${fs_root}/lib/*
+fi
+cp -rf ${shellPath}/adapter/haas/fs/lib/appOta.py ${fs_root}/lib/appOta.py
 
 exit 0
 
