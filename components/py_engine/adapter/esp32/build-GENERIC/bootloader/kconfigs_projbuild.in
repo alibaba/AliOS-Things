@@ -1,0 +1,3 @@
+source "/Users/ethan.lcz1/Desktop/git/aos33/hardware/chip/espressif_esp32/esp-idf/components/bootloader/Kconfig.projbuild"
+source "/Users/ethan.lcz1/Desktop/git/aos33/hardware/chip/espressif_esp32/esp-idf/components/esptool_py/Kconfig.projbuild"
+source "/Users/ethan.lcz1/Desktop/git/aos33/hardware/chip/espressif_esp32/esp-idf/components/partition_table/Kconfig.projbuild"

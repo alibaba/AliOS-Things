@@ -1,0 +1,2 @@
+/Users/ethan.lcz1/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-ar qc libconsole.a CMakeFiles/__idf_console.dir/commands.c.obj CMakeFiles/__idf_console.dir/esp_console_repl.c.obj CMakeFiles/__idf_console.dir/split_argv.c.obj CMakeFiles/__idf_console.dir/argtable3/argtable3.c.obj CMakeFiles/__idf_console.dir/linenoise/linenoise.c.obj
+/Users/ethan.lcz1/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-ranlib libconsole.a

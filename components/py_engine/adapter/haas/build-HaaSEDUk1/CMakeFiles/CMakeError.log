@@ -1,0 +1,76 @@
+Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+Compiler: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-gcc 
+Build flags: 
+Id flags:  
+
+The output was:
+1
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/libc.a(lib_a-exit.o): in function `exit':
+exit.c:(.text.exit+0x2c): undefined reference to `_exit'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/libc.a(lib_a-__call_atexit.o): in function `__call_exitprocs':
+__call_atexit.c:(.text.__call_exitprocs+0x18): undefined reference to `pthread_mutex_lock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: __call_atexit.c:(.text.__call_exitprocs+0x120): undefined reference to `pthread_mutex_unlock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/libc.a(lib_a-__atexit.o): in function `__register_exitproc':
+__atexit.c:(.text.__register_exitproc+0x18): undefined reference to `pthread_mutex_lock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: __atexit.c:(.text.__register_exitproc+0x98): undefined reference to `pthread_mutex_unlock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: __atexit.c:(.text.__register_exitproc+0xfc): undefined reference to `pthread_mutex_unlock'
+collect2: error: ld returned 1 exit status
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-g++ 
+Build flags: 
+Id flags:  
+
+The output was:
+1
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/libc.a(lib_a-exit.o): in function `exit':
+exit.c:(.text.exit+0x2c): undefined reference to `_exit'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/libc.a(lib_a-__call_atexit.o): in function `__call_exitprocs':
+__call_atexit.c:(.text.__call_exitprocs+0x18): undefined reference to `pthread_mutex_lock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: __call_atexit.c:(.text.__call_exitprocs+0x120): undefined reference to `pthread_mutex_unlock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/libc.a(lib_a-__atexit.o): in function `__register_exitproc':
+__atexit.c:(.text.__register_exitproc+0x18): undefined reference to `pthread_mutex_lock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: __atexit.c:(.text.__register_exitproc+0x98): undefined reference to `pthread_mutex_unlock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: __atexit.c:(.text.__register_exitproc+0xfc): undefined reference to `pthread_mutex_unlock'
+collect2: error: ld returned 1 exit status
+
+
+Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+Compiler: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-gcc 
+Build flags: 
+Id flags:  
+
+The output was:
+1
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/libc.a(lib_a-exit.o): in function `exit':
+exit.c:(.text.exit+0x2c): undefined reference to `_exit'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/libc.a(lib_a-__call_atexit.o): in function `__call_exitprocs':
+__call_atexit.c:(.text.__call_exitprocs+0x18): undefined reference to `pthread_mutex_lock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: __call_atexit.c:(.text.__call_exitprocs+0x120): undefined reference to `pthread_mutex_unlock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/libc.a(lib_a-__atexit.o): in function `__register_exitproc':
+__atexit.c:(.text.__register_exitproc+0x18): undefined reference to `pthread_mutex_lock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: __atexit.c:(.text.__register_exitproc+0x98): undefined reference to `pthread_mutex_unlock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: __atexit.c:(.text.__register_exitproc+0xfc): undefined reference to `pthread_mutex_unlock'
+collect2: error: ld returned 1 exit status
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-g++ 
+Build flags: 
+Id flags:  
+
+The output was:
+1
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/libc.a(lib_a-exit.o): in function `exit':
+exit.c:(.text.exit+0x2c): undefined reference to `_exit'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/libc.a(lib_a-__call_atexit.o): in function `__call_exitprocs':
+__call_atexit.c:(.text.__call_exitprocs+0x18): undefined reference to `pthread_mutex_lock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: __call_atexit.c:(.text.__call_exitprocs+0x120): undefined reference to `pthread_mutex_unlock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/libc.a(lib_a-__atexit.o): in function `__register_exitproc':
+__atexit.c:(.text.__register_exitproc+0x18): undefined reference to `pthread_mutex_lock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: __atexit.c:(.text.__register_exitproc+0x98): undefined reference to `pthread_mutex_unlock'
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/ld: __atexit.c:(.text.__register_exitproc+0xfc): undefined reference to `pthread_mutex_unlock'
+collect2: error: ld returned 1 exit status
+
+

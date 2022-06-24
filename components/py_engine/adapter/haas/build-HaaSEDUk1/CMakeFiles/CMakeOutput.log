@@ -1,0 +1,592 @@
+The target system is: Generic -  - 
+The host system is: Darwin - 21.2.0 - x86_64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-gcc 
+Build flags: 
+Id flags: -c 
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.o"
+
+The C compiler identification is GNU, found in "/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/3.22.4/CompilerIdC/CMakeCCompilerId.o"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-g++ 
+Build flags: 
+Id flags: -c 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.o"
+
+The CXX compiler identification is GNU, found in "/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/3.22.4/CompilerIdCXX/CMakeCXXCompilerId.o"
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: /Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make -f Makefile cmTC_887d0/fast && make[1]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make  -f CMakeFiles/cmTC_887d0.dir/build.make CMakeFiles/cmTC_887d0.dir/build
+make[2]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-gcc   -v -o CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj -c /Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/share/cmake-3.22/Modules/CMakeCCompilerABI.c
+Using built-in specs.
+COLLECT_GCC=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-gcc
+Target: arm-ali-aoseabi
+Configured with: /Users/jinliang/code/gcc-arm-newlib/repo/scripts/../src/gcc/configure --target=arm-ali-aoseabi --prefix=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native --libexecdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/lib --infodir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/info --mandir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/man --htmldir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/html --pdfdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/pdf --enable-languages=c,c++ --enable-plugins --disable-decimal-float --disable-libffi --disable-libgomp --disable-libmudflap --disable-libquadmath --disable-libssp --disable-libstdcxx-pch --disable-nls --disable-shared --enable-threads=posix --disable-tls --with-gnu-as --with-gnu-ld --with-newlib --with-headers=yes --with-python-dir=share/gcc-arm-ali-aoseabi --with-sysroot=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/arm-ali-aoseabi --build=x86_64-apple-darwin10 --host=x86_64-apple-darwin10 --with-gmp=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpfr=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpc=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-isl=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-libelf=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-host-libstdcxx='-static-libgcc -Wl,-lstdc++ -lm' --with-pkgversion='GNU Arm Embedded Toolchain 10-2021-q3-update' --with-multilib-list=aprofile,rmprofile
+Thread model: posix
+Supported LTO compression algorithms: zlib
+gcc version 10.2.1 20201103 (release) (GNU Arm Embedded Toolchain 10-2021-q3-update) 
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t'
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/cc1 -quiet -v -iprefix /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/ -isysroot /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi -D__USES_INITFINI__ /Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/share/cmake-3.22/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mcpu=arm7tdmi -mfloat-abi=soft -marm -march=armv4t -auxbase-strip CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj -version -o /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//ccRekV1x.s
+GNU C17 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)
+	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9), GMP version 6.1.0, MPFR version 3.1.4, MPC version 1.0.3, isl version isl-0.18-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include"
+ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/local/include"
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed"
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include"
+ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include
+End of search list.
+GNU C17 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)
+	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9), GMP version 6.1.0, MPFR version 3.1.4, MPC version 1.0.3, isl version isl-0.18-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+Compiler executable checksum: de401cc198d8b2a2707d1e0d91fb0c87
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t'
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/as -v -march=armv4t -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//ccRekV1x.s
+GNU assembler version 2.35.1 (arm-ali-aoseabi) using BFD version (GNU Arm Embedded Toolchain 10-2021-q4-major) 2.35.1.20201028
+COMPILER_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/
+LIBRARY_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t'
+Linking C static library libcmTC_887d0.a
+/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/bin/cmake -P CMakeFiles/cmTC_887d0.dir/cmake_clean_target.cmake
+/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/bin/cmake -E cmake_link_script CMakeFiles/cmTC_887d0.dir/link.txt --verbose=1
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ar qc libcmTC_887d0.a CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ranlib libcmTC_887d0.a
+make[2]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+
+
+
+Parsed C implicit include dir info from above output: rv=done
+  found start of include info
+  found start of implicit include info
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include]
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed]
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include]
+  end of search list found
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include]
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed]
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include]
+  implicit include dirs: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include;/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed;/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include]
+
+
+Parsed C implicit link information from above output:
+  link line regex: [^( *|.*[/\])(arm-ali-aoseabi-ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make -f Makefile cmTC_887d0/fast && make[1]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: [/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make  -f CMakeFiles/cmTC_887d0.dir/build.make CMakeFiles/cmTC_887d0.dir/build]
+  ignore line: [make[2]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: [Building C object CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj]
+  ignore line: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-gcc   -v -o CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj -c /Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/share/cmake-3.22/Modules/CMakeCCompilerABI.c]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-gcc]
+  ignore line: [Target: arm-ali-aoseabi]
+  ignore line: [Configured with: /Users/jinliang/code/gcc-arm-newlib/repo/scripts/../src/gcc/configure --target=arm-ali-aoseabi --prefix=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native --libexecdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/lib --infodir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/info --mandir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/man --htmldir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/html --pdfdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/pdf --enable-languages=c,c++ --enable-plugins --disable-decimal-float --disable-libffi --disable-libgomp --disable-libmudflap --disable-libquadmath --disable-libssp --disable-libstdcxx-pch --disable-nls --disable-shared --enable-threads=posix --disable-tls --with-gnu-as --with-gnu-ld --with-newlib --with-headers=yes --with-python-dir=share/gcc-arm-ali-aoseabi --with-sysroot=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/arm-ali-aoseabi --build=x86_64-apple-darwin10 --host=x86_64-apple-darwin10 --with-gmp=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpfr=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpc=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-isl=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-libelf=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-host-libstdcxx='-static-libgcc -Wl,-lstdc++ -lm' --with-pkgversion='GNU Arm Embedded Toolchain 10-2021-q3-update' --with-multilib-list=aprofile,rmprofile]
+  ignore line: [Thread model: posix]
+  ignore line: [Supported LTO compression algorithms: zlib]
+  ignore line: [gcc version 10.2.1 20201103 (release) (GNU Arm Embedded Toolchain 10-2021-q3-update) ]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t']
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/cc1 -quiet -v -iprefix /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/ -isysroot /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi -D__USES_INITFINI__ /Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/share/cmake-3.22/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mcpu=arm7tdmi -mfloat-abi=soft -marm -march=armv4t -auxbase-strip CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj -version -o /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//ccRekV1x.s]
+  ignore line: [GNU C17 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)]
+  ignore line: [	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9)  GMP version 6.1.0  MPFR version 3.1.4  MPC version 1.0.3  isl version isl-0.18-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include"]
+  ignore line: [ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/local/include"]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed"]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include"]
+  ignore line: [ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/include"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include]
+  ignore line: [End of search list.]
+  ignore line: [GNU C17 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)]
+  ignore line: [	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9)  GMP version 6.1.0  MPFR version 3.1.4  MPC version 1.0.3  isl version isl-0.18-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [Compiler executable checksum: de401cc198d8b2a2707d1e0d91fb0c87]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t']
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/as -v -march=armv4t -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//ccRekV1x.s]
+  ignore line: [GNU assembler version 2.35.1 (arm-ali-aoseabi) using BFD version (GNU Arm Embedded Toolchain 10-2021-q4-major) 2.35.1.20201028]
+  ignore line: [COMPILER_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/]
+  ignore line: [LIBRARY_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t']
+  ignore line: [Linking C static library libcmTC_887d0.a]
+  ignore line: [/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/bin/cmake -P CMakeFiles/cmTC_887d0.dir/cmake_clean_target.cmake]
+  ignore line: [/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/bin/cmake -E cmake_link_script CMakeFiles/cmTC_887d0.dir/link.txt --verbose=1]
+  ignore line: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ar qc libcmTC_887d0.a CMakeFiles/cmTC_887d0.dir/CMakeCCompilerABI.c.obj]
+  ignore line: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ranlib libcmTC_887d0.a]
+  ignore line: [make[2]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: [make[1]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: []
+  ignore line: []
+  implicit libs: []
+  implicit objs: []
+  implicit dirs: []
+  implicit fwks: []
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make -f Makefile cmTC_77c36/fast && make[1]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make  -f CMakeFiles/cmTC_77c36.dir/build.make CMakeFiles/cmTC_77c36.dir/build
+make[2]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-g++   -v -o CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj -c /Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/share/cmake-3.22/Modules/CMakeCXXCompilerABI.cpp
+Using built-in specs.
+COLLECT_GCC=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-g++
+Target: arm-ali-aoseabi
+Configured with: /Users/jinliang/code/gcc-arm-newlib/repo/scripts/../src/gcc/configure --target=arm-ali-aoseabi --prefix=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native --libexecdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/lib --infodir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/info --mandir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/man --htmldir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/html --pdfdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/pdf --enable-languages=c,c++ --enable-plugins --disable-decimal-float --disable-libffi --disable-libgomp --disable-libmudflap --disable-libquadmath --disable-libssp --disable-libstdcxx-pch --disable-nls --disable-shared --enable-threads=posix --disable-tls --with-gnu-as --with-gnu-ld --with-newlib --with-headers=yes --with-python-dir=share/gcc-arm-ali-aoseabi --with-sysroot=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/arm-ali-aoseabi --build=x86_64-apple-darwin10 --host=x86_64-apple-darwin10 --with-gmp=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpfr=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpc=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-isl=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-libelf=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-host-libstdcxx='-static-libgcc -Wl,-lstdc++ -lm' --with-pkgversion='GNU Arm Embedded Toolchain 10-2021-q3-update' --with-multilib-list=aprofile,rmprofile
+Thread model: posix
+Supported LTO compression algorithms: zlib
+gcc version 10.2.1 20201103 (release) (GNU Arm Embedded Toolchain 10-2021-q3-update) 
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t'
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/cc1plus -quiet -v -iprefix /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/ -isysroot /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi -D__USES_INITFINI__ /Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/share/cmake-3.22/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpbase CMakeCXXCompilerABI.cpp -mcpu=arm7tdmi -mfloat-abi=soft -marm -march=armv4t -auxbase-strip CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj -version -o /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//ccyNWY24.s
+GNU C++14 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)
+	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9), GMP version 6.1.0, MPFR version 3.1.4, MPC version 1.0.3, isl version isl-0.18-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1"
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi"
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/backward"
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include"
+ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/local/include"
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed"
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include"
+ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/backward
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include
+End of search list.
+GNU C++14 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)
+	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9), GMP version 6.1.0, MPFR version 3.1.4, MPC version 1.0.3, isl version isl-0.18-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+Compiler executable checksum: bb08e59805e3b853aa315cb4f0e04ba9
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t'
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/as -v -march=armv4t -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//ccyNWY24.s
+GNU assembler version 2.35.1 (arm-ali-aoseabi) using BFD version (GNU Arm Embedded Toolchain 10-2021-q4-major) 2.35.1.20201028
+COMPILER_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/
+LIBRARY_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t'
+Linking CXX static library libcmTC_77c36.a
+/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/bin/cmake -P CMakeFiles/cmTC_77c36.dir/cmake_clean_target.cmake
+/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/bin/cmake -E cmake_link_script CMakeFiles/cmTC_77c36.dir/link.txt --verbose=1
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ar qc libcmTC_77c36.a CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ranlib libcmTC_77c36.a
+make[2]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+
+
+
+Parsed CXX implicit include dir info from above output: rv=done
+  found start of include info
+  found start of implicit include info
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1]
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi]
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/backward]
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include]
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed]
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include]
+  end of search list found
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include/c++/10.2.1]
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi]
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/backward] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include/c++/10.2.1/backward]
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include]
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed]
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include]
+  implicit include dirs: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include/c++/10.2.1;/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi;/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include/c++/10.2.1/backward;/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include;/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed;/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include]
+
+
+Parsed CXX implicit link information from above output:
+  link line regex: [^( *|.*[/\])(arm-ali-aoseabi-ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make -f Makefile cmTC_77c36/fast && make[1]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: [/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make  -f CMakeFiles/cmTC_77c36.dir/build.make CMakeFiles/cmTC_77c36.dir/build]
+  ignore line: [make[2]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: [Building CXX object CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj]
+  ignore line: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-g++   -v -o CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj -c /Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/share/cmake-3.22/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-g++]
+  ignore line: [Target: arm-ali-aoseabi]
+  ignore line: [Configured with: /Users/jinliang/code/gcc-arm-newlib/repo/scripts/../src/gcc/configure --target=arm-ali-aoseabi --prefix=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native --libexecdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/lib --infodir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/info --mandir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/man --htmldir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/html --pdfdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/pdf --enable-languages=c,c++ --enable-plugins --disable-decimal-float --disable-libffi --disable-libgomp --disable-libmudflap --disable-libquadmath --disable-libssp --disable-libstdcxx-pch --disable-nls --disable-shared --enable-threads=posix --disable-tls --with-gnu-as --with-gnu-ld --with-newlib --with-headers=yes --with-python-dir=share/gcc-arm-ali-aoseabi --with-sysroot=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/arm-ali-aoseabi --build=x86_64-apple-darwin10 --host=x86_64-apple-darwin10 --with-gmp=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpfr=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpc=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-isl=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-libelf=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-host-libstdcxx='-static-libgcc -Wl,-lstdc++ -lm' --with-pkgversion='GNU Arm Embedded Toolchain 10-2021-q3-update' --with-multilib-list=aprofile,rmprofile]
+  ignore line: [Thread model: posix]
+  ignore line: [Supported LTO compression algorithms: zlib]
+  ignore line: [gcc version 10.2.1 20201103 (release) (GNU Arm Embedded Toolchain 10-2021-q3-update) ]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t']
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/cc1plus -quiet -v -iprefix /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/ -isysroot /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi -D__USES_INITFINI__ /Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/share/cmake-3.22/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpbase CMakeCXXCompilerABI.cpp -mcpu=arm7tdmi -mfloat-abi=soft -marm -march=armv4t -auxbase-strip CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj -version -o /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//ccyNWY24.s]
+  ignore line: [GNU C++14 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)]
+  ignore line: [	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9)  GMP version 6.1.0  MPFR version 3.1.4  MPC version 1.0.3  isl version isl-0.18-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1"]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi"]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/backward"]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include"]
+  ignore line: [ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/local/include"]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed"]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include"]
+  ignore line: [ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/include"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/backward]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include]
+  ignore line: [End of search list.]
+  ignore line: [GNU C++14 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)]
+  ignore line: [	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9)  GMP version 6.1.0  MPFR version 3.1.4  MPC version 1.0.3  isl version isl-0.18-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [Compiler executable checksum: bb08e59805e3b853aa315cb4f0e04ba9]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t']
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/as -v -march=armv4t -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//ccyNWY24.s]
+  ignore line: [GNU assembler version 2.35.1 (arm-ali-aoseabi) using BFD version (GNU Arm Embedded Toolchain 10-2021-q4-major) 2.35.1.20201028]
+  ignore line: [COMPILER_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/]
+  ignore line: [LIBRARY_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t']
+  ignore line: [Linking CXX static library libcmTC_77c36.a]
+  ignore line: [/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/bin/cmake -P CMakeFiles/cmTC_77c36.dir/cmake_clean_target.cmake]
+  ignore line: [/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/lib/python3.8/site-packages/cmake/data/CMake.app/Contents/bin/cmake -E cmake_link_script CMakeFiles/cmTC_77c36.dir/link.txt --verbose=1]
+  ignore line: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ar qc libcmTC_77c36.a CMakeFiles/cmTC_77c36.dir/CMakeCXXCompilerABI.cpp.obj]
+  ignore line: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ranlib libcmTC_77c36.a]
+  ignore line: [make[2]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: [make[1]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: []
+  ignore line: []
+  implicit libs: []
+  implicit objs: []
+  implicit dirs: []
+  implicit fwks: []
+
+
+The target system is: Generic -  - 
+The host system is: Darwin - 21.2.0 - x86_64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-gcc 
+Build flags: 
+Id flags: -c 
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.o"
+
+The C compiler identification is GNU, found in "/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/3.20.1/CompilerIdC/CMakeCCompilerId.o"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-g++ 
+Build flags: 
+Id flags: -c 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.o"
+
+The CXX compiler identification is GNU, found in "/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/3.20.1/CompilerIdCXX/CMakeCXXCompilerId.o"
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: /Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make -f Makefile cmTC_bbf43/fast && make[1]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make  -f CMakeFiles/cmTC_bbf43.dir/build.make CMakeFiles/cmTC_bbf43.dir/build
+make[2]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-gcc   -v -o CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj -c /usr/local/Cellar/cmake/3.20.1/share/cmake/Modules/CMakeCCompilerABI.c
+Using built-in specs.
+COLLECT_GCC=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-gcc
+Target: arm-ali-aoseabi
+Configured with: /Users/jinliang/code/gcc-arm-newlib/repo/scripts/../src/gcc/configure --target=arm-ali-aoseabi --prefix=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native --libexecdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/lib --infodir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/info --mandir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/man --htmldir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/html --pdfdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/pdf --enable-languages=c,c++ --enable-plugins --disable-decimal-float --disable-libffi --disable-libgomp --disable-libmudflap --disable-libquadmath --disable-libssp --disable-libstdcxx-pch --disable-nls --disable-shared --enable-threads=posix --disable-tls --with-gnu-as --with-gnu-ld --with-newlib --with-headers=yes --with-python-dir=share/gcc-arm-ali-aoseabi --with-sysroot=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/arm-ali-aoseabi --build=x86_64-apple-darwin10 --host=x86_64-apple-darwin10 --with-gmp=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpfr=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpc=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-isl=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-libelf=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-host-libstdcxx='-static-libgcc -Wl,-lstdc++ -lm' --with-pkgversion='GNU Arm Embedded Toolchain 10-2021-q3-update' --with-multilib-list=aprofile,rmprofile
+Thread model: posix
+Supported LTO compression algorithms: zlib
+gcc version 10.2.1 20201103 (release) (GNU Arm Embedded Toolchain 10-2021-q3-update) 
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t'
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/cc1 -quiet -v -iprefix /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/ -isysroot /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi -D__USES_INITFINI__ /usr/local/Cellar/cmake/3.20.1/share/cmake/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mcpu=arm7tdmi -mfloat-abi=soft -marm -march=armv4t -auxbase-strip CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj -version -o /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//cc5nFFir.s
+GNU C17 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)
+	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9), GMP version 6.1.0, MPFR version 3.1.4, MPC version 1.0.3, isl version isl-0.18-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include"
+ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/local/include"
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed"
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include"
+ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include
+End of search list.
+GNU C17 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)
+	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9), GMP version 6.1.0, MPFR version 3.1.4, MPC version 1.0.3, isl version isl-0.18-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+Compiler executable checksum: de401cc198d8b2a2707d1e0d91fb0c87
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t'
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/as -v -march=armv4t -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//cc5nFFir.s
+GNU assembler version 2.35.1 (arm-ali-aoseabi) using BFD version (GNU Arm Embedded Toolchain 10-2021-q4-major) 2.35.1.20201028
+COMPILER_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/
+LIBRARY_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t'
+Linking C static library libcmTC_bbf43.a
+/usr/local/Cellar/cmake/3.20.1/bin/cmake -P CMakeFiles/cmTC_bbf43.dir/cmake_clean_target.cmake
+/usr/local/Cellar/cmake/3.20.1/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bbf43.dir/link.txt --verbose=1
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ar qc libcmTC_bbf43.a CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ranlib libcmTC_bbf43.a
+make[2]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+
+
+
+Parsed C implicit include dir info from above output: rv=done
+  found start of include info
+  found start of implicit include info
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include]
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed]
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include]
+  end of search list found
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include]
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed]
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include]
+  implicit include dirs: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include;/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed;/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include]
+
+
+Parsed C implicit link information from above output:
+  link line regex: [^( *|.*[/\])(arm-ali-aoseabi-ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make -f Makefile cmTC_bbf43/fast && make[1]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: [/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make  -f CMakeFiles/cmTC_bbf43.dir/build.make CMakeFiles/cmTC_bbf43.dir/build]
+  ignore line: [make[2]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: [Building C object CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj]
+  ignore line: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-gcc   -v -o CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj -c /usr/local/Cellar/cmake/3.20.1/share/cmake/Modules/CMakeCCompilerABI.c]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-gcc]
+  ignore line: [Target: arm-ali-aoseabi]
+  ignore line: [Configured with: /Users/jinliang/code/gcc-arm-newlib/repo/scripts/../src/gcc/configure --target=arm-ali-aoseabi --prefix=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native --libexecdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/lib --infodir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/info --mandir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/man --htmldir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/html --pdfdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/pdf --enable-languages=c,c++ --enable-plugins --disable-decimal-float --disable-libffi --disable-libgomp --disable-libmudflap --disable-libquadmath --disable-libssp --disable-libstdcxx-pch --disable-nls --disable-shared --enable-threads=posix --disable-tls --with-gnu-as --with-gnu-ld --with-newlib --with-headers=yes --with-python-dir=share/gcc-arm-ali-aoseabi --with-sysroot=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/arm-ali-aoseabi --build=x86_64-apple-darwin10 --host=x86_64-apple-darwin10 --with-gmp=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpfr=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpc=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-isl=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-libelf=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-host-libstdcxx='-static-libgcc -Wl,-lstdc++ -lm' --with-pkgversion='GNU Arm Embedded Toolchain 10-2021-q3-update' --with-multilib-list=aprofile,rmprofile]
+  ignore line: [Thread model: posix]
+  ignore line: [Supported LTO compression algorithms: zlib]
+  ignore line: [gcc version 10.2.1 20201103 (release) (GNU Arm Embedded Toolchain 10-2021-q3-update) ]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t']
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/cc1 -quiet -v -iprefix /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/ -isysroot /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi -D__USES_INITFINI__ /usr/local/Cellar/cmake/3.20.1/share/cmake/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mcpu=arm7tdmi -mfloat-abi=soft -marm -march=armv4t -auxbase-strip CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj -version -o /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//cc5nFFir.s]
+  ignore line: [GNU C17 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)]
+  ignore line: [	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9)  GMP version 6.1.0  MPFR version 3.1.4  MPC version 1.0.3  isl version isl-0.18-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include"]
+  ignore line: [ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/local/include"]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed"]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include"]
+  ignore line: [ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/include"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include]
+  ignore line: [End of search list.]
+  ignore line: [GNU C17 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)]
+  ignore line: [	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9)  GMP version 6.1.0  MPFR version 3.1.4  MPC version 1.0.3  isl version isl-0.18-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [Compiler executable checksum: de401cc198d8b2a2707d1e0d91fb0c87]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t']
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/as -v -march=armv4t -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//cc5nFFir.s]
+  ignore line: [GNU assembler version 2.35.1 (arm-ali-aoseabi) using BFD version (GNU Arm Embedded Toolchain 10-2021-q4-major) 2.35.1.20201028]
+  ignore line: [COMPILER_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/]
+  ignore line: [LIBRARY_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t']
+  ignore line: [Linking C static library libcmTC_bbf43.a]
+  ignore line: [/usr/local/Cellar/cmake/3.20.1/bin/cmake -P CMakeFiles/cmTC_bbf43.dir/cmake_clean_target.cmake]
+  ignore line: [/usr/local/Cellar/cmake/3.20.1/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bbf43.dir/link.txt --verbose=1]
+  ignore line: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ar qc libcmTC_bbf43.a CMakeFiles/cmTC_bbf43.dir/CMakeCCompilerABI.c.obj]
+  ignore line: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ranlib libcmTC_bbf43.a]
+  ignore line: [make[2]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: [make[1]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: []
+  ignore line: []
+  implicit libs: []
+  implicit objs: []
+  implicit dirs: []
+  implicit fwks: []
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make -f Makefile cmTC_4b190/fast && make[1]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make  -f CMakeFiles/cmTC_4b190.dir/build.make CMakeFiles/cmTC_4b190.dir/build
+make[2]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-g++   -v -o CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj -c /usr/local/Cellar/cmake/3.20.1/share/cmake/Modules/CMakeCXXCompilerABI.cpp
+Using built-in specs.
+COLLECT_GCC=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-g++
+Target: arm-ali-aoseabi
+Configured with: /Users/jinliang/code/gcc-arm-newlib/repo/scripts/../src/gcc/configure --target=arm-ali-aoseabi --prefix=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native --libexecdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/lib --infodir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/info --mandir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/man --htmldir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/html --pdfdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/pdf --enable-languages=c,c++ --enable-plugins --disable-decimal-float --disable-libffi --disable-libgomp --disable-libmudflap --disable-libquadmath --disable-libssp --disable-libstdcxx-pch --disable-nls --disable-shared --enable-threads=posix --disable-tls --with-gnu-as --with-gnu-ld --with-newlib --with-headers=yes --with-python-dir=share/gcc-arm-ali-aoseabi --with-sysroot=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/arm-ali-aoseabi --build=x86_64-apple-darwin10 --host=x86_64-apple-darwin10 --with-gmp=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpfr=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpc=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-isl=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-libelf=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-host-libstdcxx='-static-libgcc -Wl,-lstdc++ -lm' --with-pkgversion='GNU Arm Embedded Toolchain 10-2021-q3-update' --with-multilib-list=aprofile,rmprofile
+Thread model: posix
+Supported LTO compression algorithms: zlib
+gcc version 10.2.1 20201103 (release) (GNU Arm Embedded Toolchain 10-2021-q3-update) 
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t'
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/cc1plus -quiet -v -iprefix /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/ -isysroot /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi -D__USES_INITFINI__ /usr/local/Cellar/cmake/3.20.1/share/cmake/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpbase CMakeCXXCompilerABI.cpp -mcpu=arm7tdmi -mfloat-abi=soft -marm -march=armv4t -auxbase-strip CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj -version -o /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//ccleQgpF.s
+GNU C++14 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)
+	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9), GMP version 6.1.0, MPFR version 3.1.4, MPC version 1.0.3, isl version isl-0.18-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1"
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi"
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/backward"
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include"
+ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/local/include"
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed"
+ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include"
+ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/backward
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include
+End of search list.
+GNU C++14 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)
+	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9), GMP version 6.1.0, MPFR version 3.1.4, MPC version 1.0.3, isl version isl-0.18-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+Compiler executable checksum: bb08e59805e3b853aa315cb4f0e04ba9
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t'
+ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/as -v -march=armv4t -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//ccleQgpF.s
+GNU assembler version 2.35.1 (arm-ali-aoseabi) using BFD version (GNU Arm Embedded Toolchain 10-2021-q4-major) 2.35.1.20201028
+COMPILER_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/
+LIBRARY_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t'
+Linking CXX static library libcmTC_4b190.a
+/usr/local/Cellar/cmake/3.20.1/bin/cmake -P CMakeFiles/cmTC_4b190.dir/cmake_clean_target.cmake
+/usr/local/Cellar/cmake/3.20.1/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4b190.dir/link.txt --verbose=1
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ar qc libcmTC_4b190.a CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj
+/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ranlib libcmTC_4b190.a
+make[2]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+make[1]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp'
+
+
+
+Parsed CXX implicit include dir info from above output: rv=done
+  found start of include info
+  found start of implicit include info
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1]
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi]
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/backward]
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include]
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed]
+    add: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include]
+  end of search list found
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include/c++/10.2.1]
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi]
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/backward] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include/c++/10.2.1/backward]
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include]
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed]
+  collapse include dir [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include] ==> [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include]
+  implicit include dirs: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include/c++/10.2.1;/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi;/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include/c++/10.2.1/backward;/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include;/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed;/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/arm-ali-aoseabi/include]
+
+
+Parsed CXX implicit link information from above output:
+  link line regex: [^( *|.*[/\])(arm-ali-aoseabi-ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make -f Makefile cmTC_4b190/fast && make[1]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: [/Users/ethan.lcz1/.aliot/miniconda3/envs/_aos_env/bin/make  -f CMakeFiles/cmTC_4b190.dir/build.make CMakeFiles/cmTC_4b190.dir/build]
+  ignore line: [make[2]: Entering directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: [Building CXX object CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj]
+  ignore line: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-g++   -v -o CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj -c /usr/local/Cellar/cmake/3.20.1/share/cmake/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-g++]
+  ignore line: [Target: arm-ali-aoseabi]
+  ignore line: [Configured with: /Users/jinliang/code/gcc-arm-newlib/repo/scripts/../src/gcc/configure --target=arm-ali-aoseabi --prefix=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native --libexecdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/lib --infodir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/info --mandir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/man --htmldir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/html --pdfdir=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/share/doc/gcc-arm-ali-aoseabi/pdf --enable-languages=c,c++ --enable-plugins --disable-decimal-float --disable-libffi --disable-libgomp --disable-libmudflap --disable-libquadmath --disable-libssp --disable-libstdcxx-pch --disable-nls --disable-shared --enable-threads=posix --disable-tls --with-gnu-as --with-gnu-ld --with-newlib --with-headers=yes --with-python-dir=share/gcc-arm-ali-aoseabi --with-sysroot=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../install-native/arm-ali-aoseabi --build=x86_64-apple-darwin10 --host=x86_64-apple-darwin10 --with-gmp=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpfr=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-mpc=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-isl=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-libelf=/Users/jinliang/code/gcc-arm-newlib/repo/scripts/../build-native/host-libs/usr --with-host-libstdcxx='-static-libgcc -Wl,-lstdc++ -lm' --with-pkgversion='GNU Arm Embedded Toolchain 10-2021-q3-update' --with-multilib-list=aprofile,rmprofile]
+  ignore line: [Thread model: posix]
+  ignore line: [Supported LTO compression algorithms: zlib]
+  ignore line: [gcc version 10.2.1 20201103 (release) (GNU Arm Embedded Toolchain 10-2021-q3-update) ]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t']
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/cc1plus -quiet -v -iprefix /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/ -isysroot /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi -D__USES_INITFINI__ /usr/local/Cellar/cmake/3.20.1/share/cmake/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpbase CMakeCXXCompilerABI.cpp -mcpu=arm7tdmi -mfloat-abi=soft -marm -march=armv4t -auxbase-strip CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj -version -o /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//ccleQgpF.s]
+  ignore line: [GNU C++14 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)]
+  ignore line: [	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9)  GMP version 6.1.0  MPFR version 3.1.4  MPC version 1.0.3  isl version isl-0.18-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1"]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi"]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/backward"]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include"]
+  ignore line: [ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/local/include"]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed"]
+  ignore line: [ignoring duplicate directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/../../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include"]
+  ignore line: [ignoring nonexistent directory "/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/usr/include"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/arm-ali-aoseabi]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include/c++/10.2.1/backward]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/include-fixed]
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/include]
+  ignore line: [End of search list.]
+  ignore line: [GNU C++14 (GNU Arm Embedded Toolchain 10-2021-q3-update) version 10.2.1 20201103 (release) (arm-ali-aoseabi)]
+  ignore line: [	compiled by GNU C version Apple LLVM 12.0.5 (clang-1205.0.22.9)  GMP version 6.1.0  MPFR version 3.1.4  MPC version 1.0.3  isl version isl-0.18-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [Compiler executable checksum: bb08e59805e3b853aa315cb4f0e04ba9]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t']
+  ignore line: [ /Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/as -v -march=armv4t -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj /var/folders/8x/tpg_fq4d0pl1_zk3kz9hdsm80000gs/T//ccleQgpF.s]
+  ignore line: [GNU assembler version 2.35.1 (arm-ali-aoseabi) using BFD version (GNU Arm Embedded Toolchain 10-2021-q4-major) 2.35.1.20201028]
+  ignore line: [COMPILER_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/bin/]
+  ignore line: [LIBRARY_PATH=/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../lib/gcc/arm-ali-aoseabi/10.2.1/../../../../arm-ali-aoseabi/lib/:/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/../arm-ali-aoseabi/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-march=armv4t']
+  ignore line: [Linking CXX static library libcmTC_4b190.a]
+  ignore line: [/usr/local/Cellar/cmake/3.20.1/bin/cmake -P CMakeFiles/cmTC_4b190.dir/cmake_clean_target.cmake]
+  ignore line: [/usr/local/Cellar/cmake/3.20.1/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4b190.dir/link.txt --verbose=1]
+  ignore line: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ar qc libcmTC_4b190.a CMakeFiles/cmTC_4b190.dir/CMakeCXXCompilerABI.cpp.obj]
+  ignore line: [/Users/ethan.lcz1/.aliot/arm-ali-aoseabi/main/bin/arm-ali-aoseabi-ranlib libcmTC_4b190.a]
+  ignore line: [make[2]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: [make[1]: Leaving directory '/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/CMakeTmp']
+  ignore line: []
+  ignore line: []
+  implicit libs: []
+  implicit objs: []
+  implicit dirs: []
+  implicit fwks: []
+
+

@@ -1,0 +1,984 @@
+{
+    "objects": {},
+    "functions": {
+        "decode_memory": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "out"
+                },
+                {
+                    "type": "void*",
+                    "name": "w"
+                },
+                {
+                    "type": "void*",
+                    "name": "h"
+                },
+                {
+                    "type": "void*",
+                    "name": "in"
+                },
+                {
+                    "type": "int",
+                    "name": "insize"
+                },
+                {
+                    "type": "int",
+                    "name": "colortype"
+                },
+                {
+                    "type": "int",
+                    "name": "bitdepth"
+                }
+            ],
+            "return_type": "int"
+        },
+        "decode32": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "out"
+                },
+                {
+                    "type": "void*",
+                    "name": "w"
+                },
+                {
+                    "type": "void*",
+                    "name": "h"
+                },
+                {
+                    "type": "void*",
+                    "name": "in"
+                },
+                {
+                    "type": "int",
+                    "name": "insize"
+                }
+            ],
+            "return_type": "int"
+        },
+        "decode24": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "out"
+                },
+                {
+                    "type": "void*",
+                    "name": "w"
+                },
+                {
+                    "type": "void*",
+                    "name": "h"
+                },
+                {
+                    "type": "void*",
+                    "name": "in"
+                },
+                {
+                    "type": "int",
+                    "name": "insize"
+                }
+            ],
+            "return_type": "int"
+        },
+        "decode_file": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "out"
+                },
+                {
+                    "type": "void*",
+                    "name": "w"
+                },
+                {
+                    "type": "void*",
+                    "name": "h"
+                },
+                {
+                    "type": "char*",
+                    "name": "filename"
+                },
+                {
+                    "type": "int",
+                    "name": "colortype"
+                },
+                {
+                    "type": "int",
+                    "name": "bitdepth"
+                }
+            ],
+            "return_type": "int"
+        },
+        "decode32_file": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "out"
+                },
+                {
+                    "type": "void*",
+                    "name": "w"
+                },
+                {
+                    "type": "void*",
+                    "name": "h"
+                },
+                {
+                    "type": "char*",
+                    "name": "filename"
+                }
+            ],
+            "return_type": "int"
+        },
+        "decode24_file": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "out"
+                },
+                {
+                    "type": "void*",
+                    "name": "w"
+                },
+                {
+                    "type": "void*",
+                    "name": "h"
+                },
+                {
+                    "type": "char*",
+                    "name": "filename"
+                }
+            ],
+            "return_type": "int"
+        },
+        "error_text": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "int",
+                    "name": "code"
+                }
+            ],
+            "return_type": "char*"
+        },
+        "decompress_settings_init": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGDecompressSettings",
+                    "name": "settings"
+                }
+            ],
+            "return_type": "NoneType"
+        },
+        "color_mode_init": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "info"
+                }
+            ],
+            "return_type": "NoneType"
+        },
+        "color_mode_cleanup": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "info"
+                }
+            ],
+            "return_type": "NoneType"
+        },
+        "color_mode_copy": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "dest"
+                },
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "source"
+                }
+            ],
+            "return_type": "int"
+        },
+        "color_mode_make": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "int",
+                    "name": "colortype"
+                },
+                {
+                    "type": "int",
+                    "name": "bitdepth"
+                }
+            ],
+            "return_type": "LodePNGColorMode"
+        },
+        "palette_clear": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "info"
+                }
+            ],
+            "return_type": "NoneType"
+        },
+        "palette_add": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "info"
+                },
+                {
+                    "type": "int",
+                    "name": "r"
+                },
+                {
+                    "type": "int",
+                    "name": "g"
+                },
+                {
+                    "type": "int",
+                    "name": "b"
+                },
+                {
+                    "type": "int",
+                    "name": "a"
+                }
+            ],
+            "return_type": "int"
+        },
+        "get_bpp": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "info"
+                }
+            ],
+            "return_type": "int"
+        },
+        "get_channels": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "info"
+                }
+            ],
+            "return_type": "int"
+        },
+        "is_greyscale_type": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "info"
+                }
+            ],
+            "return_type": "int"
+        },
+        "is_alpha_type": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "info"
+                }
+            ],
+            "return_type": "int"
+        },
+        "is_palette_type": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "info"
+                }
+            ],
+            "return_type": "int"
+        },
+        "has_palette_alpha": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "info"
+                }
+            ],
+            "return_type": "int"
+        },
+        "can_have_alpha": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "info"
+                }
+            ],
+            "return_type": "int"
+        },
+        "get_raw_size": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "int",
+                    "name": "w"
+                },
+                {
+                    "type": "int",
+                    "name": "h"
+                },
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "color"
+                }
+            ],
+            "return_type": "int"
+        },
+        "info_init": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGInfo",
+                    "name": "info"
+                }
+            ],
+            "return_type": "NoneType"
+        },
+        "info_cleanup": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGInfo",
+                    "name": "info"
+                }
+            ],
+            "return_type": "NoneType"
+        },
+        "info_copy": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGInfo",
+                    "name": "dest"
+                },
+                {
+                    "type": "LodePNGInfo",
+                    "name": "source"
+                }
+            ],
+            "return_type": "int"
+        },
+        "add_text": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGInfo",
+                    "name": "info"
+                },
+                {
+                    "type": "char*",
+                    "name": "key"
+                },
+                {
+                    "type": "char*",
+                    "name": "str"
+                }
+            ],
+            "return_type": "int"
+        },
+        "clear_text": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGInfo",
+                    "name": "info"
+                }
+            ],
+            "return_type": "NoneType"
+        },
+        "add_itext": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGInfo",
+                    "name": "info"
+                },
+                {
+                    "type": "char*",
+                    "name": "key"
+                },
+                {
+                    "type": "char*",
+                    "name": "langtag"
+                },
+                {
+                    "type": "char*",
+                    "name": "transkey"
+                },
+                {
+                    "type": "char*",
+                    "name": "str"
+                }
+            ],
+            "return_type": "int"
+        },
+        "clear_itext": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGInfo",
+                    "name": "info"
+                }
+            ],
+            "return_type": "NoneType"
+        },
+        "set_icc": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGInfo",
+                    "name": "info"
+                },
+                {
+                    "type": "char*",
+                    "name": "name"
+                },
+                {
+                    "type": "void*",
+                    "name": "profile"
+                },
+                {
+                    "type": "int",
+                    "name": "profile_size"
+                }
+            ],
+            "return_type": "int"
+        },
+        "clear_icc": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGInfo",
+                    "name": "info"
+                }
+            ],
+            "return_type": "NoneType"
+        },
+        "convert": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "out"
+                },
+                {
+                    "type": "void*",
+                    "name": "in"
+                },
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "mode_out"
+                },
+                {
+                    "type": "LodePNGColorMode",
+                    "name": "mode_in"
+                },
+                {
+                    "type": "int",
+                    "name": "w"
+                },
+                {
+                    "type": "int",
+                    "name": "h"
+                }
+            ],
+            "return_type": "int"
+        },
+        "decoder_settings_init": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGDecoderSettings",
+                    "name": "settings"
+                }
+            ],
+            "return_type": "NoneType"
+        },
+        "state_init": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGState",
+                    "name": "state"
+                }
+            ],
+            "return_type": "NoneType"
+        },
+        "state_cleanup": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGState",
+                    "name": "state"
+                }
+            ],
+            "return_type": "NoneType"
+        },
+        "state_copy": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGState",
+                    "name": "dest"
+                },
+                {
+                    "type": "LodePNGState",
+                    "name": "source"
+                }
+            ],
+            "return_type": "NoneType"
+        },
+        "decode": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "out"
+                },
+                {
+                    "type": "void*",
+                    "name": "w"
+                },
+                {
+                    "type": "void*",
+                    "name": "h"
+                },
+                {
+                    "type": "LodePNGState",
+                    "name": "state"
+                },
+                {
+                    "type": "void*",
+                    "name": "in"
+                },
+                {
+                    "type": "int",
+                    "name": "insize"
+                }
+            ],
+            "return_type": "int"
+        },
+        "inspect": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "w"
+                },
+                {
+                    "type": "void*",
+                    "name": "h"
+                },
+                {
+                    "type": "LodePNGState",
+                    "name": "state"
+                },
+                {
+                    "type": "void*",
+                    "name": "in"
+                },
+                {
+                    "type": "int",
+                    "name": "insize"
+                }
+            ],
+            "return_type": "int"
+        },
+        "inspect_chunk": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "LodePNGState",
+                    "name": "state"
+                },
+                {
+                    "type": "int",
+                    "name": "pos"
+                },
+                {
+                    "type": "void*",
+                    "name": "in"
+                },
+                {
+                    "type": "int",
+                    "name": "insize"
+                }
+            ],
+            "return_type": "int"
+        },
+        "chunk_length": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "chunk"
+                }
+            ],
+            "return_type": "int"
+        },
+        "chunk_type": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "mp_arr_to_char___5__",
+                    "name": "type"
+                },
+                {
+                    "type": "void*",
+                    "name": "chunk"
+                }
+            ],
+            "return_type": "NoneType"
+        },
+        "chunk_type_equals": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "chunk"
+                },
+                {
+                    "type": "char*",
+                    "name": "type"
+                }
+            ],
+            "return_type": "int"
+        },
+        "chunk_ancillary": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "chunk"
+                }
+            ],
+            "return_type": "int"
+        },
+        "chunk_private": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "chunk"
+                }
+            ],
+            "return_type": "int"
+        },
+        "chunk_safetocopy": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "chunk"
+                }
+            ],
+            "return_type": "int"
+        },
+        "chunk_data": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "chunk"
+                }
+            ],
+            "return_type": "void*"
+        },
+        "chunk_data_const": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "chunk"
+                }
+            ],
+            "return_type": "void*"
+        },
+        "chunk_check_crc": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "chunk"
+                }
+            ],
+            "return_type": "int"
+        },
+        "chunk_generate_crc": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "chunk"
+                }
+            ],
+            "return_type": "NoneType"
+        },
+        "chunk_next": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "chunk"
+                },
+                {
+                    "type": "void*",
+                    "name": "end"
+                }
+            ],
+            "return_type": "void*"
+        },
+        "chunk_next_const": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "chunk"
+                },
+                {
+                    "type": "void*",
+                    "name": "end"
+                }
+            ],
+            "return_type": "void*"
+        },
+        "chunk_find": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "chunk"
+                },
+                {
+                    "type": "void*",
+                    "name": "end"
+                },
+                {
+                    "type": "mp_arr_to_char___5__",
+                    "name": "type"
+                }
+            ],
+            "return_type": "void*"
+        },
+        "chunk_find_const": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "chunk"
+                },
+                {
+                    "type": "void*",
+                    "name": "end"
+                },
+                {
+                    "type": "mp_arr_to_char___5__",
+                    "name": "type"
+                }
+            ],
+            "return_type": "void*"
+        },
+        "chunk_append": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "out"
+                },
+                {
+                    "type": "void*",
+                    "name": "outsize"
+                },
+                {
+                    "type": "void*",
+                    "name": "chunk"
+                }
+            ],
+            "return_type": "int"
+        },
+        "chunk_create": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "out"
+                },
+                {
+                    "type": "void*",
+                    "name": "outsize"
+                },
+                {
+                    "type": "int",
+                    "name": "length"
+                },
+                {
+                    "type": "char*",
+                    "name": "type"
+                },
+                {
+                    "type": "void*",
+                    "name": "data"
+                }
+            ],
+            "return_type": "int"
+        },
+        "crc32": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "buf"
+                },
+                {
+                    "type": "int",
+                    "name": "len"
+                }
+            ],
+            "return_type": "int"
+        },
+        "inflate": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*"
+                },
+                {
+                    "type": "void*"
+                },
+                {
+                    "type": "void*"
+                },
+                {
+                    "type": "int"
+                },
+                {
+                    "type": "void*"
+                }
+            ],
+            "return_type": "int"
+        },
+        "zlib_decompress": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*"
+                },
+                {
+                    "type": "void*"
+                },
+                {
+                    "type": "void*"
+                },
+                {
+                    "type": "int"
+                },
+                {
+                    "type": "void*"
+                }
+            ],
+            "return_type": "int"
+        },
+        "load_file": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "out"
+                },
+                {
+                    "type": "void*",
+                    "name": "outsize"
+                },
+                {
+                    "type": "char*",
+                    "name": "filename"
+                }
+            ],
+            "return_type": "int"
+        },
+        "save_file": {
+            "type": "function",
+            "args": [
+                {
+                    "type": "void*",
+                    "name": "buffer"
+                },
+                {
+                    "type": "int",
+                    "name": "buffersize"
+                },
+                {
+                    "type": "char*",
+                    "name": "filename"
+                }
+            ],
+            "return_type": "int"
+        }
+    },
+    "enums": {
+        "LCT": {
+            "members": {
+                "GREY": {
+                    "type": "enum_member"
+                },
+                "RGB": {
+                    "type": "enum_member"
+                },
+                "PALETTE": {
+                    "type": "enum_member"
+                },
+                "GREY_ALPHA": {
+                    "type": "enum_member"
+                },
+                "RGBA": {
+                    "type": "enum_member"
+                },
+                "MAX_OCTET_VALUE": {
+                    "type": "enum_member"
+                }
+            }
+        }
+    },
+    "structs": [
+        "C_Pointer",
+        "LodePNGDecompressSettings",
+        "LodePNGColorMode",
+        "LodePNGInfo",
+        "LodePNGTime",
+        "LodePNGDecoderSettings",
+        "LodePNGState"
+    ],
+    "blobs": [
+        "default_decompress_settings"
+    ],
+    "int_constants": []
+}

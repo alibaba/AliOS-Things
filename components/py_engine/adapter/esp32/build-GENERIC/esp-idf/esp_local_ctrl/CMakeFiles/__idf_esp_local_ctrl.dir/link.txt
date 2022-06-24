@@ -1,0 +1,2 @@
+/Users/ethan.lcz1/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-ar qc libesp_local_ctrl.a CMakeFiles/__idf_esp_local_ctrl.dir/src/esp_local_ctrl.c.obj CMakeFiles/__idf_esp_local_ctrl.dir/src/esp_local_ctrl_handler.c.obj CMakeFiles/__idf_esp_local_ctrl.dir/proto-c/esp_local_ctrl.pb-c.c.obj
+/Users/ethan.lcz1/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-ranlib libesp_local_ctrl.a

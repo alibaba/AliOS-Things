@@ -1,0 +1,8 @@
+Q(__name__)
+Q(ota)
+Q(init)
+Q(on)
+Q(download)
+Q(verify)
+Q(report)
+Q(upgrade)

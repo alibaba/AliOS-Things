@@ -1,0 +1,8 @@
+Q(__name__)
+Q(Battery)
+Q(open)
+Q(close)
+Q(getConnectState)
+Q(getVoltage)
+Q(getLevel)
+Q(getTemperature)

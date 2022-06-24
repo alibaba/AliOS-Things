@@ -1,0 +1,7 @@
+Q(get_i32)
+Q(set_i32)
+Q(get_blob)
+Q(set_blob)
+Q(erase_key)
+Q(commit)
+Q(NVS)
