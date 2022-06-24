@@ -257,6 +257,7 @@ class TCS34725(object):
     def wait_for_valid(self):
         status = self._readU8(TCS34725_STATUS)
         while not (status & TCS34725_STATUS_AVALID):
+            status = self._readU8(TCS34725_STATUS)
             pass
         print(self._readU8(TCS34725_STATUS))
 

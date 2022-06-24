@@ -107,7 +107,7 @@ create page
 如果读者想要基于此模板进行UI布局的调整，可能需要用到UI lite的更多组件，UI Lite组件的详细用法请参考[UI Lite控件合集文章](https://haas.iot.aliyun.com/haasapi/index.html#/Python/docs/zh-CN/haas_extended_api/ui_lite/UI_Lite_widgets)
 
 &emsp;&emsp;
-另外我们提供了温湿度面板、音乐播放器等模版，只需要几行代码就能使用这些功能。基于这些模板的案例详情请参考如下趣味案例。
+另外我们提供了温湿度面板、音乐播放器等模版，只需要几行代码就能使用这些功能。基于这些模板的案例详情请参考如下创意案例。
 * [温湿度面板](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800AEA703FFFF1A300000001&dataId=800AEA703FFFF1A3)
 * [倒计时计时器](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800A1DAF896F599700000001&dataId=800A1DAF896F5997)
 * [音乐播放器](https://haas.iot.aliyun.com/solution/detail/solution?versionId=800AE9E2A8B7DCDB00000001&dataId=800AE9E2A8B7DCDB)
