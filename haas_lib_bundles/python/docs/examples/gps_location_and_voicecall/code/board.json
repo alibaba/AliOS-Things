@@ -1,0 +1,24 @@
+{
+    "version": "2.0.0",
+    "io": {
+        "serial1":{
+            "type":"UART",
+            "port":0,
+            "dataWidth":8,
+            "baudRate":9600,
+            "stopBits":1,
+            "flowControl":"disable",
+            "parity":"none"
+          },
+        "KEY1": {
+            "type": "GPIO",
+            "port": 44,
+            "dir": "irq",
+            "pull": "pullup",
+            "intMode": "falling"
+            }
+    },
+    "debugLevel": "ERROR",
+    "repl": "enable",
+    "replPort": 3
+}

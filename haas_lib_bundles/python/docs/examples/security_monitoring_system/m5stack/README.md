@@ -5,15 +5,15 @@
 <img src=./../../../images/security_monitoring_system/导学流程.png width=80%/>
 </div>
 
-## 简介
-### 背景
+## 1、简介
+### 1.1、背景
 &emsp;&emsp;
 日常生活中，在夜间休息或家中无人时，如果在家中存放了贵重物品，需要做好家中贵重物品的防盗工作。当门窗或存放贵重物品的柜子、抽屉被打开时，防盗报警系统需要能够及时报警，并抓拍到入侵者的图像信息。
 
 &emsp;&emsp;
 本案例采用M5Stack Core2开发板，结合干簧管传感器、蜂鸣器、摄像头等传感器，搭建了一套低成本、易实现的家庭防盗监控系统，基于阿里云物联网平台，可在手机app上进行远程监控，动态控制系统运行。
 
-## 准备
+## 1.2、准备
 
 1. [M5Stack Core2开发板](https://haas.iot.aliyun.com/solution/detail/hardware?versionId=800C84FAF561DF6A00000001&dataId=800C84FAF561DF6A) 一套
 2. M5Stack Unit CAM摄像头 一个
@@ -39,7 +39,7 @@
 </div>
 <br>
 
-## 云端开发
+## 2、云端开发
 
 &emsp;&emsp;
 整个过程包含以下4个步骤：
@@ -49,7 +49,7 @@
 3. 定义产品功能（物模型）
 4. 创建设备及获取三元组
 
-### 开通公共实例
+### 2.1、开通公共实例
 &emsp;&emsp;
 对于第一次使用物联网平台的开发者，需要开通实例以使用物联网平台的功能。这里可以使用免费的公共实例进行开发。
 
@@ -58,7 +58,7 @@
 
 ![防盗报警系统物联网平台.png](./../../../images/security_monitoring_system/防盗报警系统物联网平台.png)
 
-### 创建产品（设备模型）
+### 2.2、创建产品（设备模型）
 &emsp;&emsp;
 进入[公共实例控制台](https://iot.console.aliyun.com/lk/summary/new)，点击“创建产品”按钮，即可进入[新建产品页面](https://iot.console.aliyun.com/product)。
 
@@ -85,7 +85,7 @@
 
 ![防盗报警系统尚未添加任何功能.png](./../../../images/security_monitoring_system/防盗报警系统尚未添加任何功能.png)
 
-### 定义产品功能（物模型）
+### 2.3、定义产品功能（物模型）
 &emsp;&emsp;
 开发者可以使用准备好的[物模型文件](./link_platform/model.zip)来进行快速导入。点击左上角“快速导入”，选择物模型文件并上传，就能够生成案例对应的物模型。
 
@@ -105,7 +105,7 @@
 &emsp;&emsp;
 产品及其物模型创建完成后就可以创建这个产品的设备了。
 
-### 创建设备及获取三元组
+### 2.4、创建设备及获取三元组
 &emsp;&emsp;
 点击左侧栏中“设备“，在筛选框中选择要添加设备的产品，点击“添加设备”。这里这里我们命名为“**test_device**”，开发者也可以根据自己的喜好来命名。
 
@@ -137,12 +137,12 @@
 
 ![防盗报警系统物模型数据.png](./../../../images/security_monitoring_system/防盗报警系统物模型数据.png)
 
-## 物联网应用开发
+## 3、物联网应用开发
 
 &emsp;&emsp;
 IoT Studio 提供了应用快速开发的能力，可以很方便地与物联网平台进行联动。本节的开发工作也将围绕 IoT Studio展开。
 
-### 1. 新建“普通项目”
+### 3.1、新建“普通项目”
 
 &emsp;&emsp;
 打开IoT Studio官网，在项目管理中新建一个空白项目，如下图所示，将此项目命名为“**防盗报警系统**”,开发者也可以根据自己的喜好来命名。
@@ -151,7 +151,7 @@ IoT Studio 提供了应用快速开发的能力，可以很方便地与物联网
 
 ![防盗报警系统IS新建项目.png](./../../../images/security_monitoring_system/防盗报警系统IS新建项目.png)
 
-### 2. 关联产品
+### 3.2、关联产品
 
 &emsp;&emsp;
 为了使本项目能够获取到目标设备的属性信息，我们首先需要将该项目和我们在前一节创建的产品“防盗报警系统”绑定。
@@ -161,27 +161,26 @@ IoT Studio 提供了应用快速开发的能力，可以很方便地与物联网
 
 ![防盗报警系统IS关联产品.png](./../../../images/security_monitoring_system/防盗报警系统IS关联产品.png)
 
-### 3. 创建“移动应用”
+### 3.3、创建“移动应用”
 
 ![防盗报警系统IS创建移动应用.png](./../../../images/security_monitoring_system/防盗报警系统IS创建移动应用.png)
 
-### 4. “移动应用”开发
+### 3.4、“移动应用”开发
 &emsp;&emsp;
 从左侧组件栏中选择防盗报警系统app需要的组件，将其拖入中间的窗口，按自己的喜好进行布局。本案例中，选择了时钟、实时曲线、开关、指示灯、图片、文字等组件。具体配置过程如下：
 
-&emsp;&emsp;
-- 配置图表组件
+#### 3.4.1、配置图表组件
 ![防盗报警系统IS创建移动应用.png](./../../../images/security_monitoring_system/移动应用-配置图表组件.jpg)
-- 配置开关组件
+#### 3.4.2、配置开关组件
 ![防盗报警系统IS创建移动应用.png](./../../../images/security_monitoring_system/移动应用-配置设备报警开关.jpg)
 ![防盗报警系统IS创建移动应用.png](./../../../images/security_monitoring_system/移动应用-配置设备属性开关.jpg)
-- 配置指示灯组件
+#### 3.4.3、配置指示灯组件
 ![防盗报警系统IS创建移动应用.png](./../../../images/security_monitoring_system/移动应用-指示灯.jpg)
 ![防盗报警系统IS创建移动应用.png](./../../../images/security_monitoring_system/移动应用-状态指示灯.jpg)
-- 配置图片组件
+#### 3.4.4、配置图片组件
 ![防盗报警系统IS创建移动应用.png](./../../../images/security_monitoring_system/移动应用-图片配置.jpg)
 
-## HaaS Cloud平台配置
+### 3.5、HaaS Cloud平台配置
 &emsp;&emsp;
 由于需要用到HaaS聚合服务中工具服务能力，获取图片url，因此需要在HaaS Cloud平台绑定物联网平台产品。
 
@@ -203,14 +202,14 @@ IoT Studio 提供了应用快速开发的能力，可以很方便地与物联网
  ![防盗报警系统HaaS控制台绑定产品.png](./../../../images/security_monitoring_system/防盗报警系统HaaS控制台绑定设备.png)
 
 
-## 设备端开发
+## 4、设备端开发
 
-### 开发环境准备
+### 4.1、开发环境准备
 &emsp;&emsp;
 在进行下一步之前请确保ESP32中已经烧录了HaaS Python固件并且其开发环境已经搭建完毕。详情请参考[M5StackCore2开发环境](../../../startup/M5StackCore2_startup.md)的说明。
 <br>
 
-### 创建解决方案
+### 4.2、创建解决方案
 
 &emsp;&emsp;
 如下图所示，打开VS Code之后在新建一个基于helloworld的python工程，设定好工程名称（“security_monitoring_system”）及工作区路径之后，硬件类型选择"m5stackcore2"，点击”立即创建“，创建一个Python轻应用的解决方案。
@@ -262,7 +261,7 @@ deviceSecret  = "Your-deviceSecret"
     - imageUrl：返回的图片url链接地址
     - commandName：saveImageTestReply表明该消息是saveImageTest服务的返回信息。
 ```json
-establish tcp connection with server(host='xxxxx.iot-as-mqtt.cn-shanghai.aliyuncs.com', port=[443])
+establish tcp connection with server(host='h3cmtQJN1wy.iot-as-mqtt.cn-shanghai.aliyuncs.com', port=[443])
 tcp_connect: can only connect from state CLOSED
 success to establish tcp, fd=55
 link platform connected
@@ -271,12 +270,12 @@ megnetic detector ...
 upload--->{'qos': 1, 'payload': '{"version": "1.0", "id": 1, "params": {"ext": "{\\"fileName\\": \\"test.jpg\\", \\"enlarge\\": 1, \\"filePosition\\": \\"lp\\", \\"fileId\\": \\"xxxxx\\"}", "eventType": "haas.faas", "eventName": "saveImageTest", "argInt": 1}}', 'topic': '/sys/xxx/xxxxx/thing/event/hli_event/post'}
 recognize time : 1629
 
-download <----{'msg_id': 140514731, 'service_id': 'hli_async_service', 'params': '{"ext":"{\\"imageUrl\\":\\"http://vibktprfx-prod-prod-aic-vc-cn-shanghai.oss-cn-shanghai.aliyuncs.com/xxx/22-05-24-01/xxx.png?Expires=xxx&OSSAccessKeyId=xxx&Signature=xxx\\",
+download <----{'msg_id': 140514731, 'service_id': 'hli_async_service', 'params': '{"ext":"{\\"imageUrl\\":\\"http://vibktprfx-prod-prod-aic-vc-cn-shanghai.oss-cn-shanghai.aliyuncs.com/sisrx2/22-05-24-01/7d05e6fd-fcba-4309-b3c8-c31f12b549a4.png?Expires=xxx&OSSAccessKeyId=xxx&Signature=xxx\\",
 \\"result\\":\\"success\\"}","commandName":"saveImageTestReply","commandType":"haas.faas","argInt":1}', 'code': 0, 'params_len': 360}
 ```
 
-## 端云连调
-### 云端查看设备上报结果
+## 5、端云连调
+### 5.1、云端查看设备上报结果
 &emsp;&emsp;
 此时如果拉开抽屉，触发干簧管传感器，蜂鸣器会发出响声，app页面的报警指示灯会变成红色，同时摄像头上传抓拍到的图像。
 <div align="center">
@@ -312,7 +311,7 @@ upload props-->{'params': '{"PictureURL": "", "alarm_status": 0, "magnetic_switc
 <img src=./../../../images/security_monitoring_system/移动应用-app手机端.jpg width=50%/>
 </div>
 
-### 设备端效果
+### 5.2、设备端效果
 &emsp;&emsp;
 将开发板、摄像头、蜂鸣器、干簧管传感器、磁铁等传感器固定好，当抽屉被拉开时，由于干簧管传感器与磁铁分离，产生信号，屏幕上会打印"WARNING"字样，蜂鸣器发出声音，能够有效震慑入侵者。
 

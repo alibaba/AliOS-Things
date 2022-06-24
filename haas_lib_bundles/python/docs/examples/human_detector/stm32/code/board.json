@@ -1,0 +1,14 @@
+{
+  "name": "01Studio",
+  "version": "1.0.0",
+  "io": {
+    "ir": {
+      "type": "GPIO",
+      "port": "E10",
+      "dir": "input",
+      "pull": "pullup"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

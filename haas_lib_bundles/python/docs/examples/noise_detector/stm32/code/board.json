@@ -1,0 +1,42 @@
+{
+    "name": "01Studio",
+    "version": "1.0.0",
+    "io": {
+      "led_b": {
+        "type": "GPIO",
+        "port": "A5",
+        "dir": "output",
+        "pull": "pullup"
+      },
+
+      "led_g": {
+        "type": "GPIO",
+        "port": "A2",
+        "dir": "output",
+        "pull": "pullup"
+      },
+
+      "led_r": {
+        "type": "GPIO",
+        "port": "A7",
+        "dir": "output",
+        "pull": "pullup"
+      },
+
+      "buzzer": {
+        "type": "GPIO",
+        "port": "F8",
+        "dir": "output",
+        "pull": "pullup"
+      },
+      "voice": {
+        "type": "ADC",
+        "port": "A1",
+        "sampling": 12000000,
+        "atten": 3,
+        "width": 3
+      }
+    },
+    "debugLevel": "ERROR",
+    "repl": "disable"
+  }

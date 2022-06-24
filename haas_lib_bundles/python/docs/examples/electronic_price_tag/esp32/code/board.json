@@ -1,0 +1,38 @@
+{
+  "name": "haas100",
+  "version": "1.0.0",
+  "io": {
+      "epaper": {
+          "type": "SPI",
+          "port": 3,
+          "mode": "master",
+          "freq": 14500000
+      },
+      "epaper_dc": {
+          "type": "GPIO",
+          "port": 17,
+          "dir": "output",
+          "pull": "pulldown"
+      },
+      "epaper_cs": {
+        "type": "GPIO",
+        "port": 5,
+        "dir": "output",
+        "pull": "pullup"
+    },
+    "epaper_rst": {
+        "type": "GPIO",
+        "port": 16,
+        "dir": "output",
+        "pull": "pullup"
+    },
+    "epaper_busy": {
+        "type": "GPIO",
+        "port": 4,
+        "dir": "input",
+        "pull": "pullup"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}

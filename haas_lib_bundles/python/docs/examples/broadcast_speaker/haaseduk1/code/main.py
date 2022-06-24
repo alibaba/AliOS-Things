@@ -28,8 +28,8 @@ deviceName = "设备名称"
 deviceSecret = "设备密钥"
 
 # Wi-Fi SSID和Password设置
-wifi_ssid = "请填写您的路由器名称"
-wifi_password = "请填写您的路由器密码"
+wifiSsid = "请填写您的路由器名称"
+wifiPassword = "请填写您的路由器密码"
 
 # 回调函数状态
 on_request = False

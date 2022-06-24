@@ -1,0 +1,28 @@
+{
+  "name": "01Studio",
+  "version": "1.0.0",
+  "io": {
+    "ir": {
+      "type": "GPIO",
+      "port": "D10",
+      "dir": "input",
+      "pull": "pullup"
+    },
+    "trig": {
+      "type": "GPIO",
+      "port": "A3",
+      "dir": "output",
+      "pull": "pullup"
+    },
+    "echo": {
+      "type": "GPIO",
+      "port": "A5",
+      "dir": "input",
+      "pull": "pullup"
+    },
+    "servo": {
+      "type": "PWM",
+      "port": "B5"
+    }
+  }
+}
