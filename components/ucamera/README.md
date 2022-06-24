@@ -67,8 +67,8 @@ def_config:                              # 组件的可配置项
 ```yaml
 
 depends:
-  - ucamera: dev_aos # helloworld_demo中引入ucamera组件
-  - netmgr: dev_aos  # helloworld_demo中引入netmgr组件
+  - ucamera: master # helloworld_demo中引入ucamera组件
+  - netmgr: master  # helloworld_demo中引入netmgr组件
 
 def_config:
     CLI_IOBOX_ENABLE: 1        # 使能文件系统测试命令，例如ls, ll, mkdir, touch, echo等
