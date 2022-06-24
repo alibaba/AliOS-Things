@@ -21,10 +21,9 @@ bt_disabled = kv.get('disable_bt')
 if bt_disabled != "no":
     uos.plussys_mm()
 
+
 channel = kv.get('app_upgrade_channel')
-if channel == "disable":
-    pass
-else:
+if channel == "enable":
     import online_upgrade
     online_upgrade.on(_on_get_url)
     try:
@@ -32,6 +31,14 @@ else:
         #_thread.stack_size(10 * 1024)
     except Exception as e:
         print(e)
+
+
+app_upgrade = kv.get('_amp_app_upgrade')
+if app_upgrade == "enable":
+    print("App is being upgraded. It will take about 10 seconds.")
+    execfile('/lib/appUpgrade.py')
+    kv.remove('_amp_app_upgrade')
+    print("App upgrade finished.")
 
 
 
