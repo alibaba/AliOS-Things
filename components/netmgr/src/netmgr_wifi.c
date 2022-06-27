@@ -3458,7 +3458,7 @@ static void handle_netmgr_wifi_help_cmd()
     NETMGR_WIFI_LOGI("netmgr -t wifi -s\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -p\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -r\n");
-    NETMGR_WIFI_LOGI("netmgr -t wifi -w network={\\nssid=\"apple\"\\npassword=\"aos123456\"\\nchannel=\"1\"\\n}\\n");
+    NETMGR_WIFI_LOGI("netmgr -t wifi -w network={\\nssid=\"xxxxx\"\\npassword=\"xxxxxxxx\"\\nchannel=\"1\"\\n}\\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -d\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -n 0\n");
     NETMGR_WIFI_LOGI("netmgr -t wifi -e\n");
