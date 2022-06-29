@@ -206,9 +206,9 @@ uint32_t rosc_random_u32(void) {
 }
 
 const char rp2_help_text[] =
-    "Welcome to MicroPython!\n"
+    "Welcome to HaaS Python!\n"
     "\n"
-    "For online help please visit https://micropython.org/help/.\n"
+    "For online help please visit https://haas.iot.aliyun.com/.\n"
     "\n"
     "For access to the hardware use the 'machine' module.  RP2 specific commands\n"
     "are in the 'rp2' module.\n"

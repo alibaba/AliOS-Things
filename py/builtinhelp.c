@@ -33,9 +33,9 @@
 #if MICROPY_PY_BUILTINS_HELP
 
 const char mp_help_default_text[] =
-    "Welcome to MicroPython!\n"
+    "Welcome to HaaS Python!\n"
     "\n"
-    "For online docs please visit http://docs.micropython.org/\n"
+    "For online docs please visit https://haas.iot.aliyun.com/.\n"
     "\n"
     "Control commands:\n"
     "  CTRL-A        -- on a blank line, enter raw REPL mode\n"

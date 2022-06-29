@@ -1,17 +1,16 @@
 # Adapter for machine driver
 
-import sys
-
 from boardparser import BoardConfigParser
 from machine import SPI as mach_SPI
 from machine import Pin as mach_Pin
+import systemAdaptor
 
 """
 SPI APIs:
 
 "spi_bmp280": {
       "type": "SPI",
-      "port": 3,
+      "port": 2,
       "mode": "master",
       "freq": 2000000
     }
@@ -40,22 +39,28 @@ class SPI:
             self.port = item['port']   
             self.freq = item['freq']
             self.mode = item['mode']
+            self.spi = mach_SPI(self.port, baudrate=self.freq)
             
-            if 'sck' in item:
+            pinMap = systemAdaptor.getPinMap()
+            spiName = "SPI" + str(self.port)
+
+            if 'sck' in item and 'mosi' in item and 'miso' in item:
                 self.sck = item['sck']
-                
-            if 'mosi' in item:
                 self.mosi = item['mosi']
-            
-            if 'miso' in item:
                 self.miso = item['miso']
-                
+                self.spi = self.spi.init(self.port, baudrate=self.freq, sck=mach_Pin(self.sck), mosi=mach_Pin(self.mosi), miso = mach_Pin(self.miso))
+            elif spiName in pinMap:
+                self.sck = mach_Pin(pinMap[spiName]["SCLK"])
+                self.mosi = mach_Pin(pinMap[spiName]["MOSI"])
+                self.miso = mach_Pin(pinMap[spiName]["MOSO"])
+                self.cs = mach_Pin(pinMap[spiName]["CS"])
+                self.spi = self.spi.init(self.port, baudrate=self.freq, sck=mach_Pin(self.sck), mosi=mach_Pin(self.mosi), miso = mach_Pin(self.miso))
+            del pinMap
+            
             if 'cs' in item:
                 self.cs = item['cs']
-            
-            self.spi = mach_SPI(self.port, baudrate=self.freq)
             self.cs_pin = mach_Pin(self.cs, mach_Pin.OUT)
-
+            
             return 0
         else:
             raise ValueError('Node type should be str')
@@ -69,16 +74,22 @@ class SPI:
          
     def read(self, buf):
         spi = self.spi
-        if spi is not None:
+        cs_pin = self.cs_pin
+        if spi is not None and cs_pin is not None:
+            cs_pin.low()
             spi.readinto(buf)
+            cs_pin.high()
             return len(buf)
         else:
             return -1
     
     def write(self, buf):
         spi = self.spi
-        if spi is not None:
+        cs_pin = self.cs_pin
+        if spi is not None and cs_pin is not None:
+            cs_pin.low()
             spi.write(buf)
+            cs_pin.high()
             return len(buf)
         else:
             return -1

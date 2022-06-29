@@ -3,20 +3,21 @@
 # This is a simple, convenience wrapper around idf.py (which uses cmake).
 
 # Select the board to build for, defaulting to GENERIC.
+
 BOARD ?= GENERIC
 
 # If the build directory is not given, make it reflect the board name.
 BUILD ?= build-$(BOARD)
 
 # Device serial settings.
-PORT ?= /dev/ttyUSB0
+PORT ?= /dev/tty.usbserial-0001
 BAUD ?= 460800
 
 PYTHON ?= python3
 
 GIT_SUBMODULES = lib/berkeley-db-1.xx
 
-.PHONY: all clean deploy erase submodules menuconfig FORCE
+.PHONY: all clean deploy erase submodules FORCE
 
 CMAKE_ARGS =
 
@@ -25,11 +26,6 @@ ifdef USER_C_MODULES
 endif
 
 IDFPY_FLAGS += -D MICROPY_BOARD=$(BOARD) -B $(BUILD) $(CMAKE_ARGS)
-
-mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
-current_dir := $(abspath $(patsubst %/,%,$(dir $(mkfile_path))))
-
-FROZEN_MANIFEST ?= ${current_dir}/boards/manifest_release.py
 
 ifdef FROZEN_MANIFEST
        IDFPY_FLAGS += -D MICROPY_FROZEN_MANIFEST=$(FROZEN_MANIFEST)
@@ -57,6 +53,3 @@ erase:
 
 submodules:
 	git submodule update --init $(addprefix ../../,$(GIT_SUBMODULES))
-
-menuconfig:
-	idf.py $(IDFPY_FLAGS) menuconfig

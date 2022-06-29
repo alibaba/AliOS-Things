@@ -19,12 +19,17 @@ include("$(MPY_DIR)/modules/modbus/manifest.py")
 # ulinksdk
 include("$(MPY_DIR)/modules/ulinksdk/manifest.py")
 
+# aliyunIoT
+freeze("$(MPY_DIR)/modules/ualiyunIoT", "aliyunIoT.py")
+
 # http
 freeze("$(MPY_DIR)/modules/http", "http.py")
+
+# ukv
+freeze("$(MPY_DIR)/modules/ukv", "kv.py")
 
 # oss
 include("$(MPY_DIR)/modules/oss/manifest.py")
 
 # ukv
-freeze("$(MPY_DIR)/modules/ukv", ("kv.py", "systemAdaptor.py"))
-
+freeze("$(MPY_DIR)/modules/adaptor/stm32", "systemAdaptor.py")

@@ -1,0 +1,6 @@
+#ifndef _HAAS_PYTHON_SYSTEM_H_
+#define _HAAS_PYTHON_SYSTEM_H_
+
+#define SYSINFO_SYSTEM_VERSION "2.3.0"
+
+#endif
