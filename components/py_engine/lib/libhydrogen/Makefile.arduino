@@ -1,0 +1,51 @@
+TARGET_DEVICE ?= atmega328p
+HWTYPE ?= HYDRO_TARGET_DEVICE_ATMEGA328
+ARDUINO_HOME ?= /Applications/Arduino.app/Contents/Java
+ARDUINO_TOOLS ?= $(ARDUINO_HOME)/hardware/tools/avr/bin
+AR = $(ARDUINO_TOOLS)/avr-gcc-ar
+CC = $(ARDUINO_TOOLS)/avr-gcc
+RANLIB = $(ARDUINO_TOOLS)/avr-gcc-ranlib
+WFLAGS ?= -Wall -Wextra -Wmissing-prototypes -Wdiv-by-zero -Wbad-function-cast -Wcast-align -Wcast-qual -Wfloat-equal -Wmissing-declarations -Wnested-externs -Wno-unknown-pragmas -Wpointer-arith -Wredundant-decls -Wstrict-prototypes -Wswitch-enum -Wno-type-limits
+CFLAGS ?= -mmcu=$(TARGET_DEVICE) -Os -mcall-prologues -fno-exceptions -ffunction-sections -fdata-sections -flto $(WFLAGS)
+CFLAGS += -I. -I$(ARDUINO_HOME)/hardware/arduino/avr/cores/arduino -I$(ARDUINO_HOME)/hardware/arduino/avr/variants/standard
+CFLAGS += -DHYDRO_HWTYPE=$(HYDRO_HWTYPE)
+OBJ = hydrogen.o
+ARDUINO_PACKAGE ?= hydrogen-crypto.zip
+SRC = \
+	hydrogen.c \
+	hydrogen.h \
+	impl/common.h \
+	impl/core.h \
+	impl/gimli-core.h \
+	impl/hash.h \
+	impl/hydrogen_p.h \
+	impl/kdf.h \
+	impl/kx.h \
+	impl/pwhash.h \
+	impl/random.h \
+	impl/secretbox.h \
+	impl/sign.h \
+	impl/x25519.h \
+	impl/gimli-core/portable.h
+
+all: lib package
+
+package: $(ARDUINO_PACKAGE)
+
+$(ARDUINO_PACKAGE):
+	7z a -tzip -mx=9 -r $(ARDUINO_PACKAGE) $(SRC) library.properties
+
+lib: libhydrogen.a
+
+$(OBJ): $(SRC)
+
+libhydrogen.a: $(OBJ)
+	$(AR) -ar cr $@ $^
+	$(RANLIB) $@
+
+.PHONY: clean
+
+clean:
+	rm -f libhydrogen.a $(OBJ)
+	rm -f tests/tests
+	rm -f $(ARDUINO_PACKAGE)

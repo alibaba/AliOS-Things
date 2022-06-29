@@ -1,0 +1,4 @@
+/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/edit_cache.dir
+/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/rebuild_cache.dir
+/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/micropython.dir
+/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/haas/build-HaaSEDUk1/CMakeFiles/micropy_extmod_btree.dir

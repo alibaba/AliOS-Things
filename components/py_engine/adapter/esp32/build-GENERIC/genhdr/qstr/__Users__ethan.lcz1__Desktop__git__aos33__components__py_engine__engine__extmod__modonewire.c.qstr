@@ -1,0 +1,8 @@
+Q(__name__)
+Q(onewire)
+Q(reset)
+Q(readbit)
+Q(readbyte)
+Q(writebit)
+Q(writebyte)
+Q(crc8)

@@ -1,0 +1,2 @@
+/Users/ethan.lcz1/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-ar qc libesp_gdbstub.a CMakeFiles/__idf_esp_gdbstub.dir/src/gdbstub.c.obj CMakeFiles/__idf_esp_gdbstub.dir/src/packet.c.obj CMakeFiles/__idf_esp_gdbstub.dir/esp32/gdbstub_esp32.c.obj CMakeFiles/__idf_esp_gdbstub.dir/xtensa/gdbstub_xtensa.c.obj
+/Users/ethan.lcz1/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-ranlib libesp_gdbstub.a

@@ -1,0 +1,24 @@
+{
+    "write_flash_args" : [ "--flash_mode", "dio",
+                           "--flash_size", "detect",
+                           "--flash_freq", "40m" ],
+    "flash_settings" : {
+        "flash_mode": "dio",
+        "flash_size": "detect",
+        "flash_freq": "40m"
+    },
+    "flash_files" : {
+        "0x15000" : "partition_table/partition-table.bin",
+        "0x1000" : "bootloader/bootloader.bin",
+        "0x20000" : "$<TARGET_PROPERTY:__idf_build_target,EXECUTABLE_NAME>.bin"
+    },
+    "partition_table" : { "offset" : "0x15000", "file" : "partition_table/partition-table.bin" },
+    "bootloader" : { "offset" : "0x1000", "file" : "bootloader/bootloader.bin" },
+    "app" : { "offset" : "0x20000", "file" : "$<TARGET_PROPERTY:__idf_build_target,EXECUTABLE_NAME>.bin" },
+    "extra_esptool_args" : {
+        "after"  : "hard_reset",
+        "before" : "default_reset",
+        "stub"   : true,
+        "chip"   : "esp32"
+    }
+}

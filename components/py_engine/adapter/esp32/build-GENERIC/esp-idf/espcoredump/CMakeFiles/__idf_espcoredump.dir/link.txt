@@ -1,0 +1,2 @@
+/Users/ethan.lcz1/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-ar qc libespcoredump.a CMakeFiles/__idf_espcoredump.dir/src/core_dump_common.c.obj CMakeFiles/__idf_espcoredump.dir/src/core_dump_flash.c.obj CMakeFiles/__idf_espcoredump.dir/src/core_dump_port.c.obj CMakeFiles/__idf_espcoredump.dir/src/core_dump_uart.c.obj CMakeFiles/__idf_espcoredump.dir/src/core_dump_elf.c.obj
+/Users/ethan.lcz1/.espressif/tools/xtensa-esp32-elf/esp-2020r3-8.4.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-ranlib libespcoredump.a

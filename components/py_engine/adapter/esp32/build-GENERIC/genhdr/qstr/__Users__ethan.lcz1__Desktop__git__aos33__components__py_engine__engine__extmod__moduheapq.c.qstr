@@ -1,0 +1,5 @@
+Q(__name__)
+Q(uheapq)
+Q(heappush)
+Q(heappop)
+Q(heapify)

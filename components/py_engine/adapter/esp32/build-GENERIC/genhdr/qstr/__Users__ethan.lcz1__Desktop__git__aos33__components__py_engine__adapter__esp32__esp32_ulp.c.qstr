@@ -1,0 +1,5 @@
+Q(set_wakeup_period)
+Q(load_binary)
+Q(run)
+Q(RESERVE_MEM)
+Q(ULP)

@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/esp32/build-GENERIC/CMakeFiles/bootloader
+/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/esp32/build-GENERIC/CMakeFiles/bootloader.rule
+/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/esp32/build-GENERIC/CMakeFiles/bootloader-complete.rule
+/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/esp32/build-GENERIC/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/esp32/build-GENERIC/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/esp32/build-GENERIC/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/esp32/build-GENERIC/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/esp32/build-GENERIC/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/esp32/build-GENERIC/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/Users/ethan.lcz1/Desktop/git/aos33/components/py_engine/adapter/esp32/build-GENERIC/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule

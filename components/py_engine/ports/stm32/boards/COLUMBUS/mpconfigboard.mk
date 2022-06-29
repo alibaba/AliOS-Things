@@ -1,0 +1,21 @@
+MCU_SERIES = f4
+CMSIS_MCU = STM32F407xx
+AF_FILE = boards/stm32f407_af.csv
+LD_FILES = boards/stm32f407.ld boards/common_ifs.ld
+TEXT0_ADDR = 0x08000000
+TEXT1_ADDR = 0x08020000
+
+# MicroPython settings
+MICROPY_PY_LWIP = 1
+MICROPY_PY_USSL = 1
+MICROPY_SSL_MBEDTLS = 1
+#01studio
+MICROPY_PY_PICLIB = 1
+MICROPY_PY_VIDEO  = 1
+MICROPY_PY_MP3	  = 1
+
+#MICROPY_PY_GUI = 1
+#MICROPY_PY_UCGUI = 1
+
+# COLUMBUS-specific frozen modules
+FROZEN_MANIFEST = $(BOARD_DIR)/manifest_release.py

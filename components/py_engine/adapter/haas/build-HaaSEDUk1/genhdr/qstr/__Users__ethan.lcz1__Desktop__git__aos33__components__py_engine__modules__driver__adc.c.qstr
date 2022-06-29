@@ -1,0 +1,8 @@
+Q(__name__)
+Q(ADC)
+Q(open)
+Q(close)
+Q(readVoltage)
+Q(readRaw)
+Q(getHwParam)
+Q(ADC)
