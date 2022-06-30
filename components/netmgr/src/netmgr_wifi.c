@@ -1,5 +1,4 @@
 /*
- /*
  * Copyright (C) 2015-2020 Alibaba Group Holding Limited
  */
 
@@ -7,7 +6,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#ifndef TOOLCHAIN_SDE
 #include <dirent.h>
+#endif
 #include <unistd.h>
 #include "netmgr.h"
 #include "netmgr_wifi.h"
@@ -1309,7 +1310,11 @@ static int update_wifi_config(netmgr_conn_t* conn, const char *name)
         }
     }
 
+#ifdef TOOLCHAIN_SDE
+    {
+#else
     if((0 != mkdir(NETMGR_WIFI_TEMP_PATH, 0644)) && (errno != EEXIST && errno != 0)) {
+#endif
         NETMGR_WIFI_LOGE("mkdir %s failed:%s\n", NETMGR_WIFI_TEMP_PATH, strerror(errno));
         return -1;
     }

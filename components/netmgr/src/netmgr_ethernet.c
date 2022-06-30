@@ -2,8 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <dirent.h>
-#include <unistd.h>
 #include "netmgr.h"
 #include "netmgr_conn.h"
 #include "netmgr_ethernet.h"

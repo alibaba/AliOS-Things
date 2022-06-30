@@ -86,7 +86,7 @@ source_file:
 def_config:
   CONFIG_AOS_LWIP: 1
   CONFIG_TCPIP: 1
-  WITH_LWIP_PKTPRINT: 1
+  # WITH_LWIP_PKTPRINT: 1
   IPERF_ENABLED: 1
 
 ## 第六部分：安装信息

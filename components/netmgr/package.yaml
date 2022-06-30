@@ -20,7 +20,7 @@ depends:                                 # <可选项> 该组件依赖其他的�
     - osal_aos: master
     - uservice: master
     - sntp: master
-    - posix: master
+    - posix: master ? <!TOOLCHAIN_SDE>
     - lwip: master
 
 ## 第四部分：编译连接信息

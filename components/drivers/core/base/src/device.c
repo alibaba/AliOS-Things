@@ -8,7 +8,7 @@
 #define REF_COUNT_PENDING       UINT32_MAX
 #define REF_COUNT_MAX           (UINT32_MAX - 1)
 
-static struct k_rbtree_root_t device_map = RBT_ROOT;
+static struct k_rbtree_root_t device_map = RBT_ROOT_INIT_VAL;
 static aos_mutex_t device_map_mutex;
 
 static void device_map_lock(void)

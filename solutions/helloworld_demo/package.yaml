@@ -1,33 +1,29 @@
 
 ## 第一部分： 基础信息
 name: helloworld_demo                               # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: master                                    # <必选项> 组件版本号
-description: 循环打印输出“helloworld”字符的简单示例      # <必选项> 建议至少20字以上
-type: solution                                      # <必选项> 组件类型，为：solution, chip, board, common, sdk
+version: master                                     # <必选项> 组件版本号
+description: 循环打印输出“helloworld”字符的简单示例 # <必选项> 建议至少20字以上
+type: solution                                      # <必选项> 组件类型，为：solution, board, chip, arch, drv_core, drv_peripheral, drv_external_device, kernel, common, sdk, document
 
-
-solution:
-  cpu_id: cpu0
-  # board_name: haas100
 
 ## 第二部分：依赖信息
-#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
-#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+#           指定该组件依赖的组件及版本，未来版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           目前仅支持指定某一个版本，如 v1.0 与 ==v1.0
+#           依赖还可以包含条件，条件可以不定义(即false)；也可以是组件（该组件或其它组件）里的def_config里的宏，且取值为0(即false)，1(即true)
 # depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
-#   - minilibc: v7.2.0
-#   - aos: >=v7.2.0
-# 编译前，需要将当前需要编译的板子添加到depends中，同时修改board_name
+#   - minilibc: 'v7.2.0'
+#   - aos: 'v7.2.0 ? <ENABLE_AOS>'
 depends:
   - init: master
   - cli: master
   - osal_aos: master
-
-# supported_boards 中记录当前组件能支持的所有板子
+  - ramfs: master
 supported_boards:
   - haas100: master
   - haas200: master
   - haaseduk1: master
   - vexpress_a9: master
+  - qemu_loongson1c: master
 
 ## 第三部分：板级信息
 # hw_info:                                 # 对 solution、board、chip 三个字段的改进，统称为 hw_info 字段
@@ -39,6 +35,7 @@ supported_boards:
 #   ld_script: configs/gcc_eflash.ld       # <可选项> 连接时使用 LD 脚本，当选把未设置时，使用对应的 board 的 LD 脚本
 #   flash_program: bin/flash_program.elf   # <可选项> 芯片全局烧写程序
 #   toolchain_prefix: csky-abiv2-elf       # <可选项> 编译器前缀
+#   toolchain_path: ''                     # <可选项> 用户自行配置的编译器路径
 #   cpu0:
 #     cpu_name: CK804EF                    # <必选项> 该芯片使用的 CPU 型号
 #     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
@@ -69,6 +66,7 @@ supported_boards:
 #   cpu_name: CK804EF
 #   ld_script: configs/gcc_eflash.ld
 #   toolchain_prefix: csky-abiv2-elf
+#   toolchain_path: 
 #   flash_program: bin/flash_program.elf
 
 ## chip component(多处理器)
@@ -83,6 +81,9 @@ supported_boards:
 #     ld_script: configs/gcc_eflash.ld     # <必选项> 连接时使用 LD 脚本
 #     flash_program: bin/flash_program.elf # <可选项> 该CPU对应烧写程序，未指定时使用全局烧写程序
 #     toolchain_prefix: csky-abiv2-elf     # <可选项> 编译器前缀
+solution:
+  cpu_id: cpu0
+  board_name: qemu_loongson1c
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -117,7 +118,7 @@ source_file:
 
 ## 第六部分：安装信息
 # install:
-#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于AOS SDK 安装目录
 #     source:                              # 安装源列表
 #      - src/*.h                           # 支持通配符，相对路径
 

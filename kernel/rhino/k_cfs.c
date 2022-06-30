@@ -5,7 +5,7 @@
 #include "k_api.h"
 
 #if (RHINO_CONFIG_SCHED_CFS > 0)
-static struct k_rbtree_root_t  cfs_root = RBT_ROOT;
+static struct k_rbtree_root_t cfs_root = RBT_ROOT_INIT_VAL;
 
 /*
  * Insert @key into rbtree, On success, return 0, else return -1

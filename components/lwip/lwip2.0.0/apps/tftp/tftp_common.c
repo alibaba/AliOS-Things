@@ -55,6 +55,7 @@
 #include "lwip/apps/tftp.h"
 #include <limits.h>
 #include <string.h>
+#include <vfs_conf.h>
 #include <aos/vfs.h>
 #include <aos/cli.h>
 
@@ -105,7 +106,7 @@ static void tftp_get_done(int error, int len)
     } else {
         aos_cli_printf("tftp received failed.\r\n");
     }
-    char _buf[PATH_MAX] = {0};
+    char _buf[VFS_PATH_MAX] = {0};
     aos_cli_printf("(%s)#", aos_getcwd(_buf, sizeof(_buf)));
 }
 

@@ -30,7 +30,8 @@ struct k_rbtree_augment_callbacks {
 #define K_RBTREE_RED   0
 #define K_RBTREE_BLACK 1
 
-#define RBT_ROOT (struct k_rbtree_root_t) { NULL, }
+#define RBT_ROOT_INIT_VAL       { .rbt_node = NULL, }
+#define RBT_ROOT                (struct k_rbtree_root_t)RBT_ROOT_INIT_VAL
 
 #define __rbtree_parent(pcolor)    ((struct k_rbtree_node_t *)(pcolor & ~3))
 #define __rbtree_color(pcolor)     ((pcolor) & 1)

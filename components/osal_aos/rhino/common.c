@@ -67,21 +67,21 @@ void aos_srand(uint32_t seed)
         seed_val = SEED_MAGIC;
     }
     seed_val += seed;
-    srandom(seed_val);
+    srand(seed_val);
 
-    seed_val = (uint32_t)random();
+    seed_val = (uint32_t)rand();
     ret = aos_kv_set(g_seed_key, &seed_val, sizeof(seed_val), 1);
     if (ret) {
         printf("aos_kv_set error, return :%d\r\n", ret);
     }
 #else
-    srandom(seed);
+    srand(seed);
 #endif
 }
 
 int32_t aos_rand(void)
 {
-    return (int32_t)random();
+    return (int32_t)rand();
 }
 
 const char *aos_comp_version_get(const char *comp_name)
