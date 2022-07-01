@@ -1,0 +1,15 @@
+#
+# Component Makefile
+#
+COMPONENT_DIR = system
+COMPONENT_SUBMODULES += $(COMPONENT_DIR)
+
+COMPONENT_ADD_INCLUDEDIRS := include
+COMPONENT_SRCDIRS := src
+
+INC_HAAS += $(addprefix $(MODULES_DIR)/$(COMPONENT_DIR)/, $(COMPONENT_ADD_INCLUDEDIRS))
+SRC_HAAS += $(addprefix modules/$(COMPONENT_DIR)/$(COMPONENT_SRCDIRS)/,\
+    modsystem.c \
+)
+
+CFLAGS += -DMICROPY_PY_SYSTEM=1

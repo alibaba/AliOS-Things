@@ -46,7 +46,7 @@ Connection: Keep-Alive\r\n\r\n%s\r\n"
 #define ACTIVATION_AOS_VERSION_PREFIX          "AOS-R-"
 #define ACTIVATION_AOS_VERSION_POSTFIX_MAX_LEN (8)
 
-#define MAX_WAIT_MS                            (12 * 1000)
+#define MAX_WAIT_MS                            (5 * 1000)
 #define DELAY_PERIOD_MS                        (100)
 
 /* tigger activation report */

@@ -1,0 +1,5 @@
+source "/Users/jinouxiang/Documents/work/esp/esp-idf/components/app_update/Kconfig.projbuild"
+source "/Users/jinouxiang/Documents/work/esp/esp-idf/components/bootloader/Kconfig.projbuild"
+source "/Users/jinouxiang/Documents/work/esp/esp-idf/components/esp_rom/Kconfig.projbuild"
+source "/Users/jinouxiang/Documents/work/esp/esp-idf/components/esptool_py/Kconfig.projbuild"
+source "/Users/jinouxiang/Documents/work/esp/esp-idf/components/partition_table/Kconfig.projbuild"

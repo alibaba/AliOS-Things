@@ -27,9 +27,9 @@
 #include "py/builtin.h"
 
 const char stm32_help_text[] =
-    "Welcome to MicroPython!\n"
+    "Welcome to HaaS Python!\n"
     "\n"
-    "For online help please visit http://micropython.org/help/.\n"
+    "For online help please visit https://haas.iot.aliyun.com/.\n"
     "\n"
     "Quick overview of commands for the board:\n"
     "  pyb.info()    -- print some general information\n"

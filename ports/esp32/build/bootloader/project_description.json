@@ -1,0 +1,21 @@
+{
+    "project_name":       "bootloader",
+    "project_path":       "/Users/jinouxiang/Documents/work/esp/esp-idf/components/bootloader/subproject",
+    "build_dir":          "/Users/jinouxiang/Documents/work/test_download/components/py_engine/ports/esp32/build/bootloader",
+    "config_file":        "/Users/jinouxiang/Documents/work/test_download/components/py_engine/ports/esp32/build/sdkconfig",
+    "config_defaults":    "",
+    "app_elf":            "bootloader.elf",
+    "app_bin":            "bootloader.bin",
+    "git_revision":       "v4.4",
+    "target":             "esp32s3",
+    "rev":                "",
+    "phy_data_partition": "",
+    "monitor_baud" :      "115200",
+    "monitor_toolprefix": "xtensa-esp32s3-elf-",
+    "config_environment" : {
+        "COMPONENT_KCONFIGS" : "/Users/jinouxiang/Documents/work/esp/esp-idf/components/efuse/Kconfig;/Users/jinouxiang/Documents/work/esp/esp-idf/components/esp32s3/Kconfig;/Users/jinouxiang/Documents/work/esp/esp-idf/components/esp_common/Kconfig;/Users/jinouxiang/Documents/work/esp/esp-idf/components/esp_hw_support/Kconfig;/Users/jinouxiang/Documents/work/esp/esp-idf/components/esp_system/Kconfig;/Users/jinouxiang/Documents/work/esp/esp-idf/components/freertos/Kconfig;/Users/jinouxiang/Documents/work/esp/esp-idf/components/hal/Kconfig;/Users/jinouxiang/Documents/work/esp/esp-idf/components/log/Kconfig;/Users/jinouxiang/Documents/work/esp/esp-idf/components/newlib/Kconfig;/Users/jinouxiang/Documents/work/esp/esp-idf/components/spi_flash/Kconfig",
+        "COMPONENT_KCONFIGS_PROJBUILD" : "/Users/jinouxiang/Documents/work/esp/esp-idf/components/bootloader/Kconfig.projbuild;/Users/jinouxiang/Documents/work/esp/esp-idf/components/esp_rom/Kconfig.projbuild;/Users/jinouxiang/Documents/work/esp/esp-idf/components/esptool_py/Kconfig.projbuild;/Users/jinouxiang/Documents/work/esp/esp-idf/components/partition_table/Kconfig.projbuild"
+    },
+    "build_components" : [ "bootloader", "bootloader_support", "efuse", "esp32s3", "esp_common", "esp_hw_support", "esp_rom", "esp_system", "esptool_py", "freertos", "hal", "log", "main", "micro-ecc", "newlib", "partition_table", "soc", "spi_flash", "xtensa", "" ],
+    "build_component_paths" : [ "/Users/jinouxiang/Documents/work/esp/esp-idf/components/bootloader", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/bootloader_support", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/efuse", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/esp32s3", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/esp_common", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/esp_hw_support", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/esp_rom", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/esp_system", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/esptool_py", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/freertos", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/hal", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/log", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/bootloader/subproject/main", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/bootloader/subproject/components/micro-ecc", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/newlib", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/partition_table", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/soc", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/spi_flash", "/Users/jinouxiang/Documents/work/esp/esp-idf/components/xtensa", "" ]
+}

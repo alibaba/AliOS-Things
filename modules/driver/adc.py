@@ -3,7 +3,7 @@
 from boardparser import BoardConfigParser
 from machine import Pin as mach_Pin
 from machine import ADC as mach_ADC
-
+import systemAdaptor
 
 """
 ADC APIs:
@@ -90,8 +90,17 @@ class ADC:
             self.port = item['port']   
             self.sampling = item['sampling']
             
-            pin = mach_Pin(self.port)
-            self.adc = mach_ADC(pin)
+            pinMap = systemAdaptor.getPinMap()
+            adcName = "ADC" + str(self.port)
+            
+            if pinMap is not None and adcName in pinMap:
+                pin = mach_Pin(pinMap[adcName])
+                self.adc = mach_ADC(pin)
+            else:
+                pin = mach_Pin(self.port)
+                self.adc = mach_ADC(pin)          
+            del pinMap
+            
             return 0
         else:
             raise ValueError('Node type should be str')
@@ -110,6 +119,8 @@ class ADC:
     def readVoltage(self):
         adc = self.adc
         if adc is not None:
-            return adc.read_uv(buf)
+            # 3300 means 3300mv, 12 means 12-bits width
+            raw = adc.read_u16()
+            return (raw * 3300) >> 12
         else:
             raise Exception('readVoltage disabled when ADC closed')

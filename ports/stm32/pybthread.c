@@ -39,8 +39,8 @@
 
 // These macros are used when we only need to protect against a thread
 // switch; other interrupts are still allowed to proceed.
-#define RAISE_IRQ_PRI() raise_irq_pri(IRQ_PRI_PENDSV)
-#define RESTORE_IRQ_PRI(state) restore_irq_pri(state)
+#define RAISE_IRQ_PRI() disable_irq() 
+#define RESTORE_IRQ_PRI(state) enable_irq(state)
 
 extern void __fatal_error(const char *);
 
@@ -57,12 +57,32 @@ static inline void pyb_thread_add_to_runable(pyb_thread_t *thread) {
 
 static inline void pyb_thread_remove_from_runable(pyb_thread_t *thread) {
     if (thread->run_next == thread) {
+        pyb_thread_dump();
+        printf("%s curr:%p next:%p prev:%p\r\n",__func__, thread, thread->run_next, thread->run_prev );
         __fatal_error("deadlock");
     }
     thread->run_prev->run_next = thread->run_next;
     thread->run_next->run_prev = thread->run_prev;
 }
 
+static inline void pyb_thread_remove_from_runable_sem(pyb_thread_t *thread) {
+    if (thread->run_next == thread) {
+        pyb_thread_dump();
+        printf("%s curr:%p next:%p prev:%p\r\n",__func__, thread, thread->run_next, thread->run_prev );
+        __fatal_error("deadlock");
+    }
+    thread->run_prev->run_next = thread->run_next;
+    thread->run_next->run_prev = thread->run_prev;
+}
+static inline void pyb_thread_remove_from_runable_mutex(pyb_thread_t *thread) {
+    if (thread->run_next == thread) {
+        pyb_thread_dump();
+        printf("%s curr:%p next:%p prev:%p\r\n",__func__, thread, thread->run_next, thread->run_prev );
+        __fatal_error("deadlock");
+    }
+    thread->run_prev->run_next = thread->run_next;
+    thread->run_next->run_prev = thread->run_prev;
+}
 void pyb_thread_init(pyb_thread_t *thread) {
     pyb_thread_enabled = 0;
     pyb_thread_all = thread;
@@ -76,6 +96,7 @@ void pyb_thread_init(pyb_thread_t *thread) {
     thread->run_prev = thread;
     thread->run_next = thread;
     thread->queue_next = NULL;
+    memcpy(thread->name, "repl", strlen("repl")+1);
 }
 
 void pyb_thread_deinit() {
@@ -88,6 +109,37 @@ void pyb_thread_deinit() {
     enable_irq(irq_state);
 }
 
+void pyb_thread_yield(void) {
+if (pyb_thread_cur->run_next == pyb_thread_cur) {
+    __WFI();
+} else {
+    SCB->ICSR = SCB_ICSR_PENDSVSET_Msk;
+}
+}
+
+void pyb_thread_terminate_thread(pyb_thread_t *thread) {
+    uint32_t irq_state = disable_irq();
+    // take current thread off the run list
+    pyb_thread_remove_from_runable(thread);
+    // take current thread off the list of all threads
+    for (pyb_thread_t **n = (pyb_thread_t **)&pyb_thread_all;; n = &(*n)->all_next) {
+        if (*n == thread) {
+            *n = thread->all_next;
+            break;
+        }
+    }
+    // clean pointers as much as possible to help GC
+    thread->all_next = NULL;
+    thread->queue_next = NULL;
+    thread->stack = NULL;
+    if (pyb_thread_all->all_next == NULL) {
+        // only 1 thread left
+        pyb_thread_enabled = 0;
+    }
+    // thread switch will occur after we enable irqs
+    SCB->ICSR = SCB_ICSR_PENDSVSET_Msk;
+    enable_irq(irq_state);
+}
 STATIC void pyb_thread_terminate(void) {
     uint32_t irq_state = disable_irq();
     pyb_thread_t *thread = pyb_thread_cur;
@@ -145,9 +197,9 @@ uint32_t pyb_thread_new(pyb_thread_t *thread, void *stack, size_t stack_len, voi
 
 void pyb_thread_dump(void) {
     if (!pyb_thread_enabled) {
-        printf("THREAD: only main thread\n");
+        printf("THREAD: only main thread\r\n");
     } else {
-        printf("THREAD:\n");
+        printf("THREAD:\r\n");
         for (pyb_thread_t *th = pyb_thread_all; th != NULL; th = th->all_next) {
             bool runable = false;
             for (pyb_thread_t *th2 = pyb_thread_cur;; th2 = th2->run_next) {
@@ -159,11 +211,11 @@ void pyb_thread_dump(void) {
                     break;
                 }
             }
-            printf("    id=%p sp=%p sz=%u", th, th->stack, th->stack_len);
+            printf(" name=%s   id=%p sp=%p sz=%u", th->name, th, th->stack, th->stack_len);
             if (runable) {
                 printf(" (runable)");
             }
-            printf("\n");
+            printf("\r\n");
         }
     }
 }
@@ -176,15 +228,331 @@ void *pyb_thread_next(void *sp) {
     return pyb_thread_cur->sp;
 }
 
-void pyb_mutex_init(pyb_mutex_t *m) {
-    *m = PYB_MUTEX_UNLOCKED;
+void pyb_sem_init(pyb_sem_t *m, uint32_t count) {
+    m->count = count;
+    m->thread  = NULL;
+}
+/*
+    1:fail;0:ok
+ */
+int pyb_sem_take(pyb_sem_t *m, int wait) {
+    uint32_t irq_state = RAISE_IRQ_PRI();
+    if (m->count > 0) {
+        // sem is available
+        m->count -= 1;
+        RESTORE_IRQ_PRI(irq_state);
+    } else {
+        // sem is locked
+        if (!wait) {
+            RESTORE_IRQ_PRI(irq_state);
+            return 1; // failed to lock sem
+        }
+        
+        if (m->thread == NULL) {
+            m->thread = pyb_thread_cur; // first thread to take
+        } else {
+            for (pyb_thread_t *n = m->thread;; n = n->queue_next) {
+                if (n->queue_next == NULL) {
+                    n->queue_next = pyb_thread_cur;
+                    break;
+                }
+            }
+        }
+        pyb_thread_cur->queue_next = NULL;
+        // take current thread off the run list
+        pyb_thread_remove_from_runable_sem(pyb_thread_cur);
+        // thread switch will occur after we enable irqs
+        SCB->ICSR = SCB_ICSR_PENDSVSET_Msk;
+        RESTORE_IRQ_PRI(irq_state);
+        // when we come back we have the mutex
+    }
+    return 0; // have mutex
 }
 
+void pyb_sem_give(pyb_sem_t *m) {
+    uint32_t irq_state = RAISE_IRQ_PRI();
+    if ((m->count > 0) || (m->count == 0 && m->thread == NULL)) {
+        // no threads are blocked on the sem.
+        m->count += 1;
+    } else {
+        // at least one thread is blocked on this mutex
+        pyb_thread_t *th = m->thread;
+        if (th->queue_next == NULL) {
+            // no other threads are blocked
+            m->thread = NULL;
+        } else {
+            // at least one other thread is still blocked
+            m->thread = th->queue_next;
+        }
+        // put unblocked thread on runable list
+        pyb_thread_add_to_runable(th);
+    }
+    RESTORE_IRQ_PRI(irq_state);
+}
+
+int pyb_mbox_init(pyb_mbox_t *mbox, int size)
+{
+    (void)size;
+    memset(mbox, 0, sizeof(pyb_mbox_t));
+
+    mbox->write = mbox->read = mbox->entry =0;
+    mbox->size = SYS_MBOX_SIZE; 
+    pyb_sem_init(&mbox->have_space, 0);
+    pyb_sem_init(&mbox->have_data, 0);
+    pyb_mutex_init(&mbox->mutex);
+    mbox->wait_send = 0;
+    mbox->wait_recv = 0;
+    return 0;
+}
+
+/*-----------------------------------------------------------------------------------*/
+/*
+    Posts the "msg" to the mailbox. This function have to block until  the "msg" is really posted.
+*/
+void pyb_mbox_post(pyb_mbox_t *mbox, void *msg)
+{
+    
+    pyb_mutex_lock(&mbox->mutex, 1);
+
+    while (mbox->entry == mbox->size) {
+        mbox->wait_send++;
+        pyb_mutex_unlock(&mbox->mutex);
+        pyb_sem_take(&mbox->have_space, 1);
+        pyb_mutex_lock(&mbox->mutex, 1);
+        mbox->wait_send--;
+    }
+
+    mbox->msgs[mbox->write] = msg;
+    ++mbox->write;
+    if (mbox->write >= mbox->size)
+        mbox->write = 0;
+    mbox->entry++;
+    
+    if (mbox->wait_recv) {
+        pyb_sem_give(&mbox->have_data);
+    }
+
+    pyb_mutex_unlock(&mbox->mutex);
+}
+
+/*
+    err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg)
+
+    Try to post the "msg" to the mailbox. Returns ERR_MEM if this one  is full, else, ERR_OK if the "msg" is posted.
+*/
+int pyb_mbox_trypost(pyb_mbox_t *mbox, void *msg)
+{
+    uint8_t first;
+
+    pyb_mutex_lock(&mbox->mutex, 1);
+
+
+    if (mbox->entry == mbox->size) {
+        pyb_mutex_unlock(&mbox->mutex);
+        return 1;
+    }
+    mbox->msgs[mbox->write] = msg;
+    ++mbox->write;
+    if (mbox->write >= mbox->size)
+        mbox->write = 0;
+    mbox->entry++;
+    
+    if (mbox->wait_recv) {
+        pyb_sem_give(&mbox->have_data);
+    }
+
+    pyb_mutex_unlock(&mbox->mutex);
+    return 0;
+}
+
+/*-----------------------------------------------------------------------------------*/
+/*
+  Blocks the thread until a message arrives in the mailbox, but does
+  not block the thread longer than "timeout" milliseconds (similar to
+  the sys_arch_sem_wait() function). The "msg" argument is a result
+  parameter that is set by the function (i.e., by doing "*msg =
+  ptr"). The "msg" parameter maybe NULL to indicate that the message
+  should be dropped.
+
+  The return values are the same as for the sys_arch_sem_wait() function:
+  Number of milliseconds spent waiting or SYS_ARCH_TIMEOUT if there was a
+  timeout.
+
+  Note that a function with a similar name, sys_mbox_fetch(), is
+  implemented by lwIP.
+*/
+unsigned int pyb_mbox_fetch(pyb_mbox_t *mbox, void **msg, unsigned int timeout)
+{
+    unsigned int time_needed = 0;
+
+    /* The mutex lock is quick so we don't bother with the timeout
+     stuff here. */
+    pyb_mutex_lock(&mbox->mutex, 1);
+
+    while (mbox->entry == 0) {
+        mbox->wait_recv++;
+        pyb_mutex_unlock(&mbox->mutex);
+
+        /* We block while waiting for a mail to arrive in the mailbox. We
+           must be prepared to timeout. */
+        pyb_sem_take(&mbox->have_data, 1);
+        pyb_mutex_lock(&mbox->mutex, 1);
+        mbox->wait_recv--;
+    }
+
+    if (msg != NULL) {
+        *msg = mbox->msgs[mbox->read];
+    } 
+    ++ mbox->read;
+    if (mbox->read >= mbox->size)
+        mbox->read  =0;
+    mbox->entry--;
+    
+    if (mbox->wait_send) {
+        pyb_sem_give(&mbox->have_space);
+    }
+
+    pyb_mutex_unlock(&mbox->mutex);
+
+    return 0;
+}
+
+unsigned int pyb_mbox_has_entry(pyb_mbox_t *mbox)
+{
+    unsigned int has_entry;
+    
+    pyb_mutex_lock(&mbox->mutex, 1);
+    has_entry = (mbox->entry > 0) ? 1 : 0;
+    pyb_mutex_unlock(&mbox->mutex);
+
+    return has_entry;
+}
+/*
+    similar to sys_arch_mbox_fetch, however if a message is not  present in the mailbox,
+    it immediately returns with the code  SYS_MBOX_EMPTY.
+*/
+unsigned int pyb_mbox_tryfetch(pyb_mbox_t *mbox, void **msg)
+{
+    pyb_mutex_lock(&mbox->mutex, 1);
+
+    if (mbox->entry == 0) {
+        pyb_mutex_unlock(&mbox->mutex);
+        return 1;
+    }
+
+    if (msg != NULL) {
+        *msg = mbox->msgs[mbox->read];
+    } 
+    ++ mbox->read;
+    if (mbox->read >= mbox->size)
+        mbox->read  =0;
+    mbox->entry--;
+    
+    if (mbox->wait_send) {
+        pyb_sem_give(&mbox->have_space);
+    }
+
+    pyb_mutex_unlock(&mbox->mutex);
+
+    return 0;
+
+}
+void pyb_mutex_init(pyb_mutex_t *m) {
+    m->self = PYB_MUTEX_UNLOCKED;
+    m->mutex_task = NULL;
+    m->owner_nested = 0;
+}
+
+#if 1
 int pyb_mutex_lock(pyb_mutex_t *m, int wait) {
     uint32_t irq_state = RAISE_IRQ_PRI();
-    if (*m == PYB_MUTEX_UNLOCKED) {
+    
+    if (pyb_thread_cur == m->mutex_task) {
+        m->owner_nested += 1;       
+        RESTORE_IRQ_PRI(irq_state);
+        return 1;
+    }
+    if (m->self == PYB_MUTEX_UNLOCKED) {
         // mutex is available
-        *m = PYB_MUTEX_LOCKED;
+        m->self = PYB_MUTEX_LOCKED;
+        m->mutex_task = pyb_thread_cur;
+        m->owner_nested = 1;
+        RESTORE_IRQ_PRI(irq_state);
+        return 1;
+    } else {
+        // mutex is locked
+        if (!wait) {
+            RESTORE_IRQ_PRI(irq_state);
+            return 0; // failed to lock mutex
+        }
+        if (m->self == PYB_MUTEX_LOCKED) {
+            m->self = pyb_thread_cur;
+        } else {
+            for (pyb_thread_t *n = m->self;; n = n->queue_next) {
+                if (n->queue_next == NULL) {
+                    n->queue_next = pyb_thread_cur;
+                    break;
+                }
+            }
+        }
+        pyb_thread_cur->queue_next = NULL;
+        // take current thread off the run list
+        pyb_thread_remove_from_runable_mutex(pyb_thread_cur);
+        // thread switch will occur after we enable irqs
+        SCB->ICSR = SCB_ICSR_PENDSVSET_Msk;
+        RESTORE_IRQ_PRI(irq_state);
+        // when we come back we have the mutex
+    }
+    return 1; // have mutex
+}
+
+void pyb_mutex_unlock(pyb_mutex_t *m) {
+    uint32_t irq_state = RAISE_IRQ_PRI();
+    
+    if (pyb_thread_cur != m->mutex_task) {
+        printf("unlock from different thread\r\n");
+        RESTORE_IRQ_PRI(irq_state);
+        return;
+    }
+    
+    m->owner_nested -= 1;
+
+    if (m->owner_nested < 0) {
+        printf("unlock from same thread[%s] m:%p m->owner_nested = %d\r\n", pyb_thread_cur->name, m, m->owner_nested);
+        RESTORE_IRQ_PRI(irq_state);
+        return;
+    }
+    if (m->owner_nested > 0) {
+        RESTORE_IRQ_PRI(irq_state);
+        return;
+    }
+    if (m->self == PYB_MUTEX_LOCKED) {
+        // no threads are blocked on the mutex
+        m->self = PYB_MUTEX_UNLOCKED;
+        m->mutex_task = NULL;
+    } else {
+        // at least one thread is blocked on this mutex
+        pyb_thread_t *th = m->self;
+        if (th->queue_next == NULL) {
+            // no other threads are blocked
+            m->self = PYB_MUTEX_LOCKED;
+        } else {
+            // at least one other thread is still blocked
+            m->self = th->queue_next;
+        }
+        m->mutex_task = th;
+        m->owner_nested = 1;
+        // put unblocked thread on runable list
+        pyb_thread_add_to_runable(th);
+    }
+    RESTORE_IRQ_PRI(irq_state);
+}
+#else
+int pyb_mutex_lock(pyb_mutex_t *m, int wait) {
+    uint32_t irq_state = RAISE_IRQ_PRI();
+    if (m->self == PYB_MUTEX_UNLOCKED) {
+        // mutex is available
+        m->self = PYB_MUTEX_LOCKED;
         RESTORE_IRQ_PRI(irq_state);
     } else {
         // mutex is locked
@@ -192,10 +560,10 @@ int pyb_mutex_lock(pyb_mutex_t *m, int wait) {
             RESTORE_IRQ_PRI(irq_state);
             return 0; // failed to lock mutex
         }
-        if (*m == PYB_MUTEX_LOCKED) {
-            *m = pyb_thread_cur;
+        if (m->self == PYB_MUTEX_LOCKED) {
+            m->self = pyb_thread_cur;
         } else {
-            for (pyb_thread_t *n = *m;; n = n->queue_next) {
+            for (pyb_thread_t *n = m->self;; n = n->queue_next) {
                 if (n->queue_next == NULL) {
                     n->queue_next = pyb_thread_cur;
                     break;
@@ -215,18 +583,18 @@ int pyb_mutex_lock(pyb_mutex_t *m, int wait) {
 
 void pyb_mutex_unlock(pyb_mutex_t *m) {
     uint32_t irq_state = RAISE_IRQ_PRI();
-    if (*m == PYB_MUTEX_LOCKED) {
+    if (m->self == PYB_MUTEX_LOCKED) {
         // no threads are blocked on the mutex
-        *m = PYB_MUTEX_UNLOCKED;
+        m->self = PYB_MUTEX_UNLOCKED;
     } else {
         // at least one thread is blocked on this mutex
-        pyb_thread_t *th = *m;
+        pyb_thread_t *th = m->self;
         if (th->queue_next == NULL) {
             // no other threads are blocked
-            *m = PYB_MUTEX_LOCKED;
+            m->self = PYB_MUTEX_LOCKED;
         } else {
             // at least one other thread is still blocked
-            *m = th->queue_next;
+            m->self = th->queue_next;
         }
         // put unblocked thread on runable list
         pyb_thread_add_to_runable(th);
@@ -234,4 +602,6 @@ void pyb_mutex_unlock(pyb_mutex_t *m) {
     RESTORE_IRQ_PRI(irq_state);
 }
 
+
+#endif
 #endif // MICROPY_PY_THREAD

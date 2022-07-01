@@ -3,6 +3,11 @@ if(NOT MICROPY_DIR)
     get_filename_component(MICROPY_DIR ${PROJECT_DIR}/../../engine ABSOLUTE)
 endif()
 
+if(MICROPY_PY_OPENMV)
+option(CONFIG_OPENMV_SUPPORT "option for openmv" ON)
+include(${MICROPY_DIR}/../modules/openmv/adapter/omv.cmake)
+endif()
+
 # Include core source components.
 include(${MICROPY_DIR}/../modules/portmod.cmake)
 include(${MICROPY_DIR}/../external/external.cmake)
@@ -51,6 +56,7 @@ set(MICROPY_SOURCE_DRIVERS
 )
 
 set(MICROPY_SOURCE_PORT
+    ${PROJECT_DIR}/main.c
     ${PROJECT_DIR}/uart.c
     ${PROJECT_DIR}/usb.c
     ${PROJECT_DIR}/usb_serial_jtag.c
@@ -65,16 +71,15 @@ set(MICROPY_SOURCE_PORT
     ${PROJECT_DIR}/machine_pin.c
     ${PROJECT_DIR}/machine_touchpad.c
     ${PROJECT_DIR}/machine_adc.c
-    ${PROJECT_DIR}/machine_adcblock.c
     ${PROJECT_DIR}/machine_dac.c
     ${PROJECT_DIR}/machine_i2c.c
     ${PROJECT_DIR}/machine_i2s.c
-    ${PROJECT_DIR}/machine_pwm.c
     ${PROJECT_DIR}/machine_uart.c
     ${PROJECT_DIR}/modmachine.c
     ${PROJECT_DIR}/modnetwork.c
     ${PROJECT_DIR}/network_lan.c
     ${PROJECT_DIR}/network_ppp.c
+    ${PROJECT_DIR}/network_wlan.c
     ${PROJECT_DIR}/mpnimbleport.c
     ${PROJECT_DIR}/modsocket.c
     ${PROJECT_DIR}/modesp.c
@@ -88,7 +93,6 @@ set(MICROPY_SOURCE_PORT
     ${PROJECT_DIR}/mpthreadport.c
     ${PROJECT_DIR}/machine_rtc.c
     ${PROJECT_DIR}/machine_sdcard.c
-    ${PROJECT_DIR}/utility.c
 )
 
 set(MICROPY_SOURCE_QSTR
@@ -100,6 +104,7 @@ set(MICROPY_SOURCE_QSTR
     ${MICROPY_SOURCE_PORT}
     ${MICROPY_SOURCE_MODULES_PORT}
     ${MICROPY_SOURCE_EXTERNAL}
+    ${OMV_MOD_SRCS}
     ${LV_SRC}
 )
 
@@ -108,16 +113,13 @@ set(IDF_COMPONENTS
     bootloader_support
     bt
     driver
-    esp_adc_cal
     esp_common
     esp_eth
     esp_event
-    esp_http_client
     esp_ringbuf
     esp_rom
-    esp-tls
     esp_wifi
-#fatfs
+#    fatfs   // TODO: mark for openmv build  pass
     freertos
     heap
     log
@@ -125,7 +127,6 @@ set(IDF_COMPONENTS
     mbedtls
     mdns
     newlib
-    nghttp
     nvs_flash
     sdmmc
     soc
@@ -133,8 +134,10 @@ set(IDF_COMPONENTS
     tcpip_adapter
     ulp
     vfs
-    wear_levelling
     xtensa
+    screen
+    bus
+    tinyusb
 )
 
 if(IDF_VERSION_MINOR GREATER_EQUAL 1 OR IDF_VERSION_MAJOR GREATER_EQUAL 5)
@@ -163,6 +166,9 @@ elseif(IDF_TARGET STREQUAL "esp32s2")
 elseif(IDF_TARGET STREQUAL "esp32s3")
     list(APPEND IDF_COMPONENTS esp32s3)
     list(APPEND IDF_COMPONENTS tinyusb)
+    list(APPEND IDF_COMPONENTS esp32-camera)
+    list(APPEND IDF_COMPONENTS fb_gfx)
+    list(APPEND IDF_COMPONENTS esp-dl)
 endif()
 
 # Register the main IDF component.
@@ -174,8 +180,10 @@ idf_component_register(
         ${MICROPY_SOURCE_LIB}
         ${MICROPY_SOURCE_DRIVERS}
         ${MICROPY_SOURCE_PORT}
-        ${MICROPY_SOURCE_MODULES_PORT}
-        ${MICROPY_SOURCE_EXTERNAL}
+	${MICROPY_SOURCE_MODULES_PORT}
+        ${MICROPY_SOURCE_BOARD}
+	${MICROPY_SOURCE_EXTERNAL}
+        ${OMV_SRCS}
 	    ${LV_SRC}
     INCLUDE_DIRS
         ${MICROPY_INC_CORE}
@@ -186,6 +194,12 @@ idf_component_register(
         ${MICROPY_INC_MODULES_PORT}
         ${MICROPY_INC_EXTERNAL}
 	    ${LV_INCLUDE}
+        ${PROJECT_DIR}/components/screen
+        ${PROJECT_DIR}/components/bus
+        ${PROJECT_DIR}/components/esp-dl
+        ${PROJECT_DIR}/components/fb_gfx
+    #    ${MICROPY_DIR}/lib/oofatfs
+        ${OMV_INCLUDEDIRS}
     REQUIRES
         ${IDF_COMPONENTS}
 )
@@ -199,13 +213,15 @@ set(MICROPY_CROSS_FLAGS -march=xtensawin)
 # Set compile options for this port.
 target_compile_definitions(${MICROPY_TARGET} PUBLIC
     ${MICROPY_DEF_MODULES_PORT}
+    ${MICROPY_DEF_MODULES_OMV}
     ${MICROPY_DEF_CORE}
     MICROPY_ESP_IDF_4=1
-    ESP_PLATFORM=1
+    MICROPY_VFS_FAT=1
+    MICROPY_VFS_LFS2=1
+    CONFIG_OPENMV_SUPPORT=1
     FFCONF_H=\"${MICROPY_OOFATFS_DIR}/ffconf.h\"
     LFS1_NO_MALLOC LFS1_NO_DEBUG LFS1_NO_WARN LFS1_NO_ERROR LFS1_NO_ASSERT
     LFS2_NO_MALLOC LFS2_NO_DEBUG LFS2_NO_WARN LFS2_NO_ERROR LFS2_NO_ASSERT
-    LV_KCONFIG_IGNORE
 )
 
 # Disable some warnings to keep the build output clean.
@@ -213,23 +229,19 @@ target_compile_options(${MICROPY_TARGET} PUBLIC
     -Wno-clobbered
     -Wno-deprecated-declarations
     -Wno-missing-field-initializers
-    -Wno-implicit-function-declaration
-    -Wno-unused-const-variable
-    -Wno-format-truncation
-    -Wno-pointer-sign
-    -Wno-unused-local-typedefs
 )
 
 # Add additional extmod and usermod components.
 target_link_libraries(${MICROPY_TARGET} micropy_extmod_btree)
 target_link_libraries(${MICROPY_TARGET} usermod)
 
+
 # Collect all of the include directories and compile definitions for the IDF components.
 foreach(comp ${IDF_COMPONENTS})
     micropy_gather_target_properties(__idf_${comp})
 endforeach()
 
-if(IDF_VERSION_MINOR GREATER_EQUAL 2)
+if(IDF_VERSION_MINOR GREATER_EQUAL 2 OR IDF_VERSION_MAJOR GREATER_EQUAL 5)
     # These paths cannot currently be found by the IDF_COMPONENTS search loop above,
     # so add them explicitly.
     list(APPEND MICROPY_CPP_INC_EXTRA ${IDF_PATH}/components/soc/soc/${IDF_TARGET}/include)
@@ -242,8 +254,3 @@ endif()
 
 # Include the main MicroPython cmake rules.
 include(${MICROPY_DIR}/py/mkrules.cmake)
-
-if(MICROPY_PY_LVGL)
-    # Add lv_bindings rules
-    all_lv_bindings()
-endif()

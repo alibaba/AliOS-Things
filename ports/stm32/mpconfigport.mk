@@ -11,6 +11,7 @@ MICROPY_PY_CC3K ?= 0
 
 # VFS FAT FS support
 MICROPY_VFS_FAT ?= 1
+MICROPY_PY_LWESP_WIFI ?= y
 
 # Encrypted/signed bootloader support (ensure the MBOOT_PACK_xxx values match stm32/mboot/Makefile)
 MBOOT_ENABLE_PACKING ?= 0

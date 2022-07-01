@@ -33,6 +33,9 @@
 #include "systick.h"
 #include "dma.h"
 #include "irq.h"
+#if MICROPY_HW_WM8978
+#include "wm8978.h"
+#endif
 
 #define DMA_IDLE_ENABLED()  (dma_idle.enabled != 0)
 #define DMA_SYSTICK_LOG2    (3)
@@ -652,6 +655,12 @@ void DMA1_Stream2_IRQHandler(void) {
 }
 void DMA1_Stream3_IRQHandler(void) {
     IRQ_ENTER(DMA1_Stream3_IRQn);
+#if MICROPY_HW_WM8978
+    if (__HAL_DMA_GET_FLAG(&I2S2_RXDMA_Handler, DMA_FLAG_TCIF3_7) != RESET) {
+        __HAL_DMA_CLEAR_FLAG(&I2S2_RXDMA_Handler, DMA_FLAG_TCIF3_7);
+        i2s_rx_callback();
+    }
+#endif
     if (dma_handle[dma_id_3] != NULL) {
         HAL_DMA_IRQHandler(dma_handle[dma_id_3]);
     }
@@ -659,6 +668,15 @@ void DMA1_Stream3_IRQHandler(void) {
 }
 void DMA1_Stream4_IRQHandler(void) {
     IRQ_ENTER(DMA1_Stream4_IRQn);
+#if MICROPY_HW_WM8978
+    if (__HAL_DMA_GET_FLAG(&I2S2_TXDMA_Handler, DMA_FLAG_TCIF0_4) != RESET) {
+        __HAL_DMA_CLEAR_FLAG(&I2S2_TXDMA_Handler, DMA_FLAG_TCIF0_4);
+        i2s_tx_callback();
+#if defined(STM32F7)
+        SCB_CleanInvalidateDCache();
+#endif
+    }
+#endif
     if (dma_handle[dma_id_4] != NULL) {
         HAL_DMA_IRQHandler(dma_handle[dma_id_4]);
     }
