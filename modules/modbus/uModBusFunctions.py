@@ -1,6 +1,6 @@
 #Source: https://github.com/pycom/pycom-modbus/tree/master/uModbus (2018-07-16)
 
-import modbus.uModBusConst as Const
+import modbus.uModbusConst as Const
 import struct
 
 def read_coils(starting_address, quantity):
@@ -52,7 +52,7 @@ def write_multiple_coils(starting_address, value_list):
         byte_count = len(value_list) // 8 + 1
     else:
         byte_count = len(value_list) // 8
-    
+
     return struct.pack('>BHHB' + fmt, Const.WRITE_MULTIPLE_COILS, starting_address,
                         len(value_list), byte_count, *output_value)
 

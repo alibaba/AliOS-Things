@@ -184,7 +184,7 @@ int boardctrl_run_main_py(boardctrl_state_t *state) {
         // Run main.py (or what it was configured to be), if it exists.
         const char *main_py;
         if (MP_STATE_PORT(pyb_config_main) == MP_OBJ_NULL) {
-            main_py = "main.py";
+            main_py = "/data/pyamp/main.py";
         } else {
             main_py = mp_obj_str_get_str(MP_STATE_PORT(pyb_config_main));
         }

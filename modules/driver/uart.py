@@ -1,10 +1,10 @@
 # Adapter for machine driver
 
-import sys
-
 from boardparser import BoardConfigParser
 from machine import UART as mach_UART
 from machine import Pin as mach_Pin
+
+import systemAdaptor
 
 """
 
@@ -67,18 +67,36 @@ class UART:
             else:
                 raise ValueError('parity:{} mode not supported'.format(item['parity']))
             
-            if 'tx' in item:
-                self.tx = item['tx']
-                
-            if 'rx' in item:
-                self.rx = item['rx']            
-    
             self.uart = mach_UART(self.port)
-            self.uart.init(self.baudRate,
-                           bits = self.dataWidth,
-                           parity = self.parity,
-                           stop = self.stopBits,
-                           flow = self.flowControl)
+            
+            pinMap = systemAdaptor.getPinMap()
+            uartName = "UART" + str(self.port)
+            
+            if 'tx' in item and 'rx' in item:
+                self.uart.init(self.baudRate,
+                    bits = self.dataWidth,
+                    parity = self.parity,
+                    stop = self.stopBits,
+                    flow = self.flowControl,
+                    tx = item['tx'],
+                    rx = item['rx'])
+
+            elif pinMap is not None and uartName in pinMap:
+                self.uart.init(self.baudRate,
+                    bits = self.dataWidth,
+                    parity = self.parity,
+                    stop = self.stopBits,
+                    flow = self.flowControl,
+                    tx = pinMap[uartName]["TX"],
+                    rx = pinMap[uartName]["RX"])
+            else:
+                self.uart.init(self.baudRate,
+                    bits = self.dataWidth,
+                    parity = self.parity,
+                    stop = self.stopBits,
+                    flow = self.flowControl)
+            
+            del pinMap
             return 0
         else:
             raise ValueError('Node type should be str')

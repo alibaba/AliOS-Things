@@ -1,0 +1,19 @@
+menu "Bus Options"
+
+    menu "I2C Bus Options"
+        config I2C_BUS_DYNAMIC_CONFIG
+            bool "enable dynamic configuration"
+            default y
+            help
+                If enable, i2c_bus will dynamically check configs and re-install i2c driver before each transfer,
+                hence multiple devices with different configs on a single bus can be supported.
+
+        config I2C_MS_TO_WAIT
+            int "mutex block time"
+            default 200
+            range 50 5000 
+            help
+                task block time when try to take the bus, unit:milliseconds
+    endmenu
+
+endmenu

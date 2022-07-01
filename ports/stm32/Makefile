@@ -23,7 +23,7 @@ SRCDIRS_HAAS :=
 SRC_HAAS :=
 
 # Set AOS lib path
-AOS_DIR := $(TOP)/../..
+AOS_DIR := $(MPY_DIR)/../..
 
 # Set external dir
 EXTERNAL_DIR ?= $(TOP)/external
@@ -381,6 +381,8 @@ SRC_C += \
 	servo.c \
 	dac.c \
 	adc.c \
+	modaudio.c \
+	wm8978.c \
 	$(wildcard $(BOARD_DIR)/*.c)
 
 SRC_CXX += \
@@ -830,3 +832,10 @@ $(GEN_CDCINF_FILE): $(CDCINF_TEMPLATE) $(INSERT_USB_IDS) $(USB_IDS_FILE) | $(HEA
 	$(Q)$(PYTHON) $(INSERT_USB_IDS) $(USB_IDS_FILE) $< > $@
 
 include $(TOP)/py/mkrules.mk
+
+
+PYTHON = python3
+MAKEFS = make-fs.py
+fs:
+	@echo "Generating File System."
+	$(PYTHON) $(MAKEFS)

@@ -37,10 +37,36 @@ typedef struct _pyb_thread_t {
     struct _pyb_thread_t *run_prev;
     struct _pyb_thread_t *run_next;
     struct _pyb_thread_t *queue_next;
+    char name[32+1];
 } pyb_thread_t;
 
-typedef pyb_thread_t *pyb_mutex_t;
+typedef struct _pyb_mutex {
+    pyb_thread_t *self;
+    pyb_thread_t *mutex_task;
+    int owner_nested;
+} pyb_mutex;
+typedef pyb_mutex pyb_mutex_t;
 
+typedef struct _pyb_sem {
+    uint32_t count;
+    pyb_thread_t *thread;
+} pyb_sem;
+typedef pyb_sem pyb_sem_t;
+
+#define SYS_MBOX_SIZE 32
+typedef struct _pyb_mbox {
+    unsigned int write;
+    unsigned int read;
+    unsigned int size;
+    unsigned int entry;
+    void *msgs[SYS_MBOX_SIZE];
+    pyb_sem_t have_data;
+    pyb_sem_t have_space;
+    pyb_mutex_t mutex;
+    int wait_send;
+    int wait_recv;
+} pyb_mbox;
+typedef pyb_mbox pyb_mbox_t;
 extern volatile int pyb_thread_enabled;
 extern pyb_thread_t *volatile pyb_thread_all;
 extern pyb_thread_t *volatile pyb_thread_cur;
@@ -49,6 +75,17 @@ void pyb_thread_init(pyb_thread_t *th);
 void pyb_thread_deinit();
 uint32_t pyb_thread_new(pyb_thread_t *th, void *stack, size_t stack_len, void *entry, void *arg);
 void pyb_thread_dump(void);
+void pyb_thread_terminate_thread(pyb_thread_t *thread);
+
+void pyb_sem_init(pyb_sem_t *m, uint32_t count);
+int pyb_sem_take(pyb_sem_t *m, int wait);
+void pyb_sem_give(pyb_sem_t *m);
+int pyb_mbox_init(pyb_mbox_t *mbox, int size);
+void pyb_mbox_post(pyb_mbox_t *mbox, void *msg);
+int pyb_mbox_trypost(pyb_mbox_t *mbox, void *msg);
+unsigned int pyb_mbox_fetch(pyb_mbox_t *mbox, void **msg, unsigned int timeout);
+unsigned int pyb_mbox_tryfetch(pyb_mbox_t *mbox, void **msg);
+unsigned int pyb_mbox_has_entry(pyb_mbox_t *mbox);
 
 static inline uint32_t pyb_thread_get_id(void) {
     return (uint32_t)pyb_thread_cur;
@@ -62,13 +99,7 @@ static inline void *pyb_thread_get_local(void) {
     return (void *)pyb_thread_cur->local_state;
 }
 
-static inline void pyb_thread_yield(void) {
-    if (pyb_thread_cur->run_next == pyb_thread_cur) {
-        __WFI();
-    } else {
-        SCB->ICSR = SCB_ICSR_PENDSVSET_Msk;
-    }
-}
+void pyb_thread_yield(void);
 
 void pyb_mutex_init(pyb_mutex_t *m);
 int pyb_mutex_lock(pyb_mutex_t *m, int wait);

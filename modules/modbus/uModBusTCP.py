@@ -2,13 +2,13 @@
 #This file has been modified and differ from its source version.
 
 
-import modbus.uModBusFunctions as functions
-import modbus.uModBusConst as Const
+import modbus.uModbusFunctions as functions
+import modbus.uModbusConst as Const
 import struct
 import socket
 import random
 
-class uModBusTCP:
+class uModbusTCP:
 
     def __init__(self, slave_ip, slave_port=502, timeout=5):
         self._sock = socket.socket()

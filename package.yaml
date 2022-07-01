@@ -1,0 +1,126 @@
+
+## 第一部分： 基础信息
+name: py_engine
+version: dev_aos
+description: "component built by cmake"             # <必选项> 建议至少20字以上
+type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag:                                                # <可选项> 组件分类，缺省值： ''
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+depends:
+  - osal_aos: dev_aos
+  - amp_adapter: dev_aos
+  - linksdk: "dev_aos ? <MICROPY_PY_ALIYUNIOT>"
+  - ulog: "dev_aos ? <MICROPY_PY_ULOG>"
+  - uagent: "dev_aos ? <PY_BUILD_UAGENT>"
+  - kv: "dev_aos ? <MICROPY_PY_KV>"
+  - mbedtls: dev_aos? <PY_MBEDTLS_ENABLE>
+  - cjson: dev_aos? <PY_BUILD_CJSON>
+  - fatfs: "dev_aos ? <PY_BUILD_FATFS>"
+  - vfs: dev_aos ? <PY_BUILD_VFS>
+  - mbmaster: "dev_aos ? <MICROPY_PY_MODBUS>"
+  - oss: "dev_aos ? <MICROPY_PY_OSS>"
+  - ucamera: "dev_aos ? <MICROPY_PY_UCAMERA>"
+  - netmgr: "dev_aos ? <PY_BUILD_NETMGR>"
+  - lwip: "dev_aos ? <PY_BUILD_LWIP>"
+  - http: "dev_aos ? <PY_BUILD_HTTP, HAAS_PLATFORM>"
+  - ucloud_ai: "dev_aos ? <MICROPY_PY_UCLOUD_AI>"
+  - ai_agent: dev_aos ? <MICROPY_PY_AIAGENT>
+  - uvoice: "dev_aos ? <MICROPY_PY_AUDIO, HAAS_PLATFORM>"
+  - a2sa: "dev_aos ? <MICROPY_PY_AUDIO, HAAS_PLATFORM>"
+  - ble_netconfig: "dev_aos ? <MICROPY_PY_BLE>"
+  - ble_host: "dev_aos ? <MICROPY_PY_BLE>"
+  - sntp: "dev_aos ? <MICROPY_PY_SNTP, HAAS_PLATFORM>"
+  - ugraphics: "dev_aos ? <PY_BUILD_UGRAPHICS>"
+  - st7789: "dev_aos ? <MICROPY_PY_LVGL, HAAS_PLATFORM>"
+  - ft6336: "dev_aos ? <MICROPY_PY_LVGL, HAAS_PLATFORM>"
+  - m5driver: "dev_aos ? <MICROPY_PY_LVGL, ESP_PLATFORM>"
+  - freetype: "dev_aos ? <MICROPY_PY_LVGL>"
+  - localAI: "dev_aos ? <MICROPY_PY_LOCAL_AI>"
+
+build_config:
+  prebuild_script: build_cmake.sh
+
+  include:
+  # adapter
+    - adapter/
+    - adapter/haas/ ? <HAAS_PLATFORM>
+    - adapter/esp32/ ? <ESP_PLATFORM>
+
+    # boards file
+    - adapter/esp32/boards/GENERIC_C3/ ? <ESP_PLATFORM, BOARD_NODEMCU32C3>
+    - adapter/esp32/boards/GENERIC/ ? <ESP_PLATFORM, BOARD_NODEMCU32S>
+    - adapter/esp32/boards/GENERIC_S3/ ? <ESP_PLATFORM, BOARD_NODEMCU32S3>
+    - adapter/esp32/boards/M5STACK_CORE2/ ? <ESP_PLATFORM, BOARD_M5STACKCORE2>
+    - adapter/haas/boards/HaaSEDUk1/ ? <HAAS_PLATFORM>
+    - adapter/haas/boards/HaaS200/ ? <HAAS_PLATFORM>
+    - adapter/esp32/boards/KSDIY_S3/ ? <ESP_PLATFORM, BOARD_KSDIY_S3>
+
+    # cmake generated files
+    - adapter/esp32/build-GENERIC_C3/ ? <ESP_PLATFORM, BOARD_NODEMCU32C3>
+    - adapter/esp32/build-GENERIC/ ? <ESP_PLATFORM, BOARD_NODEMCU32S>
+    - adapter/esp32/build-GENERIC_S3/ ? <ESP_PLATFORM, BOARD_NODEMCU32S3>
+    - adapter/esp32/build-M5STACK_CORE2/ ? <ESP_PLATFORM, BOARD_M5STACKCORE2>
+    - adapter/haas/build-HaaSEDUk1/ ? <HAAS_PLATFORM>
+    - adapter/haas/build-HaaS200/ ? <HAAS_PLATFORM>
+    - adapter/esp32/build-KSDIY_S3/ ? <ESP_PLATFORM, BOARD_KSDIY_S3>
+
+    # engine
+    - engine/
+    - engine/py/
+    - engine/drivers/
+    - engine/extmod/
+    - engine/lib/
+    - engine/lib/littlefs/
+    - engine/lib/lv_bindings/ ? <MICROPY_PY_LVGL>"
+    - engine/lib/lv_bindings/lvgl/ ? <MICROPY_PY_LVGL>"
+    - engine/lib/lv_bindings/lvgl/src/ ? <MICROPY_PY_LVGL>"
+    - engine/shared/
+    - engine/lib/berkeley-db-1.xx/
+    - engine/lib/berkeley-db-1.xx/include/
+    - engine/lib/berkeley-db-1.xx/PORT/include
+    - external/amp_task/
+    - external/amp_utils/
+    - external/common/
+    - external/amp_boot/
+    - external/app_mgr/
+    - external/unzip/internal/
+    - external/unzip/include/
+    - modules/display/esp32/ ? <MICROPY_PY_LVGL, ESP_PLATFORM>
+    - modules/display/esp32/ ? <MICROPY_PY_TFT, ESP_PLATFORM>
+    - modules/display/haas/ ? <MICROPY_PY_LVGL, HAAS_PLATFORM>
+
+  libs:
+    - otaput ? <MICROPY_PY_CHANNEL_ENABLE>
+    - dl ? <BOARD_KSDIY_S3>
+    - mfn ? <BOARD_KSDIY_S3>
+    - human_face_detect ? <BOARD_KSDIY_S3>
+
+  libpath:
+    - external/libs/haas1000 ? <BOARD_HAAS100>
+    - external/libs/haas1000 ? <BOARD_HAASEDUK1>
+    - external/libs/rtl872xd ? <BOARD_HAAS200>
+    - external/libs/esp32 ? <BOARD_NODEMCU32S>
+    - external/libs/esp32 ? <BOARD_NODEMCU32S3>
+    - external/libs/esp32 ? <BOARD_M5STACKCORE2>
+    - external/libs/esp32 ? <BOARD_KSDIY_S3>
+    - external/libs/espc3 ? <BOARD_NODEMCU32C3>
+    - adapter/esp32/components/esp-dl/lib/esp32s3 ? <BOARD_KSDIY_S3>
+
+source_file:
+  # adapter
+  - adapter/haas/main.c ? <HAAS_PLATFORM>
+  - adapter/esp32/main.c ? <ESP_PLATFORM>
+
+  # external
+  - external/amp_task/*.c
+  - external/amp_boot/*.c
+  - external/app_mgr/*.c
+  - external/unzip/src/*.c
+  - external/amp_utils/*.c
+
+def_config:
+  AOS_BUILD_APP: "py_engine"
+  FFCONF_H: lib/oofatfs/ffconf.h
+  MBEDTLS_NO_PLATFORM_ENTROPY: 1

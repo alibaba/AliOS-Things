@@ -1,0 +1,115 @@
+{
+    "l1": {
+        "operation": "conv2d",
+        "feature_type": "s16",
+        "bias": "True",
+        "output_exponent": -2,
+        "activation": {
+            "type": "ReLU"
+        }
+    },
+    "l2_depth": {
+        "operation": "depthwise_conv2d",
+        "feature_type": "s16",
+        "activation": {
+            "type": "ReLU"
+        }
+    },
+    "l2_compress": {
+        "operation": "conv2d",
+        "feature_type": "s16",
+        "bias": "True",
+        "output_exponent": -3
+    },
+    "l3_a_depth": {
+        "operation": "depthwise_conv2d",
+        "feature_type": "s16",
+        "activation": {
+            "type": "ReLU"
+        }
+    },
+    "l3_a_compress": {
+        "operation": "conv2d",
+        "feature_type": "s16",
+        "bias": "True",
+        "output_exponent": -12
+    },
+    "l3_b_depth": {
+        "operation": "depthwise_conv2d",
+        "feature_type": "s16",
+        "activation": {
+            "type": "ReLU"
+        }
+    },
+    "l3_b_compress": {
+        "operation": "conv2d",
+        "feature_type": "s16",
+        "bias": "True",
+        "output_exponent": -12
+    },
+    "l3_c_depth": {
+        "operation": "depthwise_conv2d",
+        "feature_type": "s16",
+        "activation": {
+            "type": "ReLU"
+        }
+    },
+    "l3_c_compress": {
+        "operation": "conv2d",
+        "feature_type": "s16",
+        "bias": "True",
+        "output_exponent": -12
+    },
+    "l3_d_depth": {
+        "operation": "depthwise_conv2d",
+        "feature_type": "s16",
+        "activation": {
+            "type": "ReLU"
+        }
+    },
+    "l3_d_compress": {
+        "operation": "conv2d",
+        "feature_type": "s16",
+        "bias": "True",
+        "output_exponent": -11
+    },
+    "l3_e_depth": {
+        "operation": "depthwise_conv2d",
+        "feature_type": "s16",
+        "activation": {
+            "type": "ReLU"
+        }
+    },
+    "l3_e_compress": {
+        "operation": "conv2d",
+        "feature_type": "s16",
+        "bias": "True",
+        "output_exponent": -12
+    },
+    "l4_depth": {
+        "operation": "depthwise_conv2d",
+        "feature_type": "s16",
+        "activation": {
+            "type": "LeakyReLU"
+        }
+    },
+    "l4_compress": {
+        "operation": "conv2d",
+        "feature_type": "s16",
+        "bias": "True",
+        "output_exponent": -11
+    },
+    "l5_depth": {
+        "operation": "depthwise_conv2d",
+        "feature_type": "s16",
+        "activation": {
+            "type": "LeakyReLU"
+        }
+    },
+    "l5_compress": {
+        "operation": "conv2d",
+        "feature_type": "s16",
+        "bias": "True",
+        "output_exponent": -9
+    }
+}

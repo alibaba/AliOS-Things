@@ -144,10 +144,14 @@ ifeq ($(MICROPY_PY_ULOG), y)
 		$(AOS_DIR)/ulog/include
 endif
 
+ifeq ($(MICROPY_PY_LWESP_WIFI), y)
+include $(MODULES_DIR)/lwesp/port.mk
+endif
 
-SRC_HAAS += $(foreach dir, $(SRCDIRS_HAAS), $(wildcard $(dir)/*.c))
-# $(info 'SRC_HAAS = $(SRC_HAAS)')
+include $(MODULES_DIR)/utility/component.mk
 
+include $(MODULES_DIR)/hmac/component.mk
 
-INC += $(addprefix -I, $(INC_HAAS))
-# $(info 'INC = $(INC)')
+include $(MODULES_DIR)/system/component.mk
+
+INC += $(addprefix -I, ${INC_HAAS})

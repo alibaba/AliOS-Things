@@ -1,32 +1,23 @@
 # Adapter for machine driver
 
-import sys
-
 from boardparser import BoardConfigParser
 from machine import SPI as mach_SPI
 from machine import Pin as mach_Pin
+import systemAdaptor
 
 """
 SPI APIs:
 
 "spi_bmp280": {
       "type": "SPI",
-      "port": 3,
+      "port": 2,
       "mode": "master",
       "freq": 2000000
     }
 """
 class SPI:
     def __init__(self):
-        self.port = 2
         self.mode = "master"
-        self.freq = 2000000
-        self.spi = None
-        self.cs_pin = None
-        self.sck = 'B13'
-        self.mosi = 'C2'
-        self.miso = 'B15'
-        self.cs = 'B12'
 
     def open(self, node):
         if type(node) is str:          
@@ -41,21 +32,35 @@ class SPI:
             self.freq = item['freq']
             self.mode = item['mode']
             
-            if 'sck' in item:
+            pinMap = systemAdaptor.getPinMap()
+            spiName = "SPI" + str(self.port)
+
+            if 'sck' in item and 'mosi' in item and 'miso' in item:
                 self.sck = item['sck']
-                
-            if 'mosi' in item:
                 self.mosi = item['mosi']
-            
-            if 'miso' in item:
                 self.miso = item['miso']
-                
+                self.spi = mach_SPI(self.port, baudrate=self.freq, sck=mach_Pin(self.sck), mosi=mach_Pin(self.mosi), miso = mach_Pin(self.miso))
+            elif pinMap is not None and spiName in pinMap:
+                self.port = pinMap[spiName]["PORT"]
+                self.sck = pinMap[spiName]["SCLK"]
+                self.mosi = pinMap[spiName]["MOSI"]
+                self.miso = pinMap[spiName]["MOSO"]
+                self.cs = pinMap[spiName]["CS"]
+                if systemAdaptor.getChipName() == "stm32" :
+                    self.spi = mach_SPI(self.port, baudrate=self.freq)
+                else :
+                    self.spi = mach_SPI(self.port, baudrate=self.freq, sck=mach_Pin(self.sck), mosi=mach_Pin(self.mosi), miso = mach_Pin(self.miso))
+
+            else:
+                self.spi = mach_SPI(self.port, baudrate=self.freq)
+
+            del pinMap
+            
             if 'cs' in item:
                 self.cs = item['cs']
             
-            self.spi = mach_SPI(self.port, baudrate=self.freq)
             self.cs_pin = mach_Pin(self.cs, mach_Pin.OUT)
-
+            
             return 0
         else:
             raise ValueError('Node type should be str')
@@ -69,16 +74,22 @@ class SPI:
          
     def read(self, buf):
         spi = self.spi
-        if spi is not None:
+        cs_pin = self.cs_pin
+        if spi is not None and cs_pin is not None:
+            cs_pin.value(0)
             spi.readinto(buf)
+            cs_pin.value(1)
             return len(buf)
         else:
             return -1
     
     def write(self, buf):
         spi = self.spi
-        if spi is not None:
+        cs_pin = self.cs_pin
+        if spi is not None and cs_pin is not None:
+            cs_pin.value(0)
             spi.write(buf)
+            cs_pin.value(1)
             return len(buf)
         else:
             return -1
@@ -88,14 +99,14 @@ class SPI:
         cs_pin = self.cs_pin
         if spi is not None and cs_pin is not None:
             # set cs_pin low
-            cs_pin.low()
+            cs_pin.value(0)
             
             # issue write then read cmd
             spi.write(write_buf)
             spi.readinto(read_buf)
         
             # set cs_pin high
-            cs_pin.high()
+            cs_pin.value(1)
             
             return len(read_buf)
         else:

@@ -1,0 +1,46 @@
+menu "LCD Drivers"
+
+    menu "Select Screen Controller"
+        config LCD_DRIVER_SCREEN_CONTROLLER_ILI9341
+            bool "ILI9341"
+            default y
+        config LCD_DRIVER_SCREEN_CONTROLLER_ILI9486
+            bool "ILI9486"
+            default n
+        config LCD_DRIVER_SCREEN_CONTROLLER_ILI9806
+            bool "ILI9806"
+            default n
+        config LCD_DRIVER_SCREEN_CONTROLLER_ILI9488
+            bool "ILI9488"
+            default n
+        config LCD_DRIVER_SCREEN_CONTROLLER_NT35510
+            bool "NT35510"
+            default n
+        config LCD_DRIVER_SCREEN_CONTROLLER_RM68120
+            bool "RM68120"
+            default n
+        config LCD_DRIVER_SCREEN_CONTROLLER_SSD1351
+            bool "SSD1351"
+            default n
+        config LCD_DRIVER_SCREEN_CONTROLLER_SSD1963
+            bool "SSD1963"
+            default n
+        config LCD_DRIVER_SCREEN_CONTROLLER_ST7789
+            bool "ST7789"
+            default n
+        config LCD_DRIVER_SCREEN_CONTROLLER_ST7796
+            bool "ST7796"
+            default n
+        
+        config LCD_DRIVER_SCREEN_CONTROLLER_SSD1306
+            bool "SSD1306"
+            default n
+        config LCD_DRIVER_SCREEN_CONTROLLER_SSD1307
+            bool "SSD1307"
+            default n
+        config LCD_DRIVER_SCREEN_CONTROLLER_SSD1322
+            bool "SSD1322"
+            default n
+    endmenu
+
+endmenu

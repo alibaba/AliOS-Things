@@ -35,6 +35,9 @@
 #define MICROPY_CONFIG_ROM_LEVEL (MICROPY_CONFIG_ROM_LEVEL_EXTRA_FEATURES)
 #endif
 
+// Memory allocation policies
+#define MICROPY_QSTR_BYTES_IN_HASH   (1)
+
 // memory allocation policies
 #ifndef MICROPY_GC_STACK_ENTRY_TYPE
 #if MICROPY_HW_SDRAM_SIZE
@@ -92,6 +95,7 @@
 #endif
 
 // extended modules
+#define MICROPY_EPOCH_IS_1970       (1)
 #define MICROPY_PY_USSL_FINALISER   (MICROPY_PY_USSL)
 #define MICROPY_PY_UHASHLIB_MD5     (MICROPY_PY_USSL)
 #define MICROPY_PY_UHASHLIB_SHA1    (MICROPY_PY_USSL)
@@ -141,6 +145,10 @@
 #define MICROPY_PY_UPLATFORM        (1)
 #endif
 
+#ifndef MICROPY_ENABLE_AUDIO
+#define MICROPY_ENABLE_AUDIO           (0)
+#endif
+
 // fatfs configuration used in ffconf.h
 #define MICROPY_FATFS_ENABLE_LFN       (1)
 #define MICROPY_FATFS_LFN_CODE_PAGE    437 /* 1=SFN/ANSI 437=LFN/U.S.(OEM) */
@@ -184,6 +192,9 @@ extern const struct _mp_obj_module_t mp_module_utime;
 extern const struct _mp_obj_module_t mp_module_usocket;
 extern const struct _mp_obj_module_t mp_module_network;
 extern const struct _mp_obj_module_t mp_module_onewire;
+extern const struct _mp_obj_module_t audio_module;
+extern const struct _mp_obj_module_t mp_module_lwesp_usocket;
+extern const struct _mp_obj_module_t mp_module_lwesp_network;
 
 #if MICROPY_PY_PYB
 #define PYB_BUILTIN_MODULE                  { MP_ROM_QSTR(MP_QSTR_pyb), MP_ROM_PTR(&pyb_module) },
@@ -216,8 +227,9 @@ extern const struct _mp_obj_module_t mp_module_onewire;
 #else
 #define UTIME_BUILTIN_MODULE
 #endif
-
-#if MICROPY_PY_USOCKET && MICROPY_PY_LWIP
+#if MICROPY_PY_LWESP_WIFI
+#define SOCKET_BUILTIN_MODULE               { MP_ROM_QSTR(MP_QSTR_usocket), MP_ROM_PTR(&mp_module_lwesp_usocket) },
+#elif MICROPY_PY_USOCKET && MICROPY_PY_LWIP
 // usocket implementation provided by lwIP
 #define SOCKET_BUILTIN_MODULE               { MP_ROM_QSTR(MP_QSTR_usocket), MP_ROM_PTR(&mp_module_lwip) },
 #elif MICROPY_PY_USOCKET
@@ -228,7 +240,9 @@ extern const struct _mp_obj_module_t mp_module_onewire;
 #define SOCKET_BUILTIN_MODULE
 #endif
 
-#if MICROPY_PY_NETWORK
+#if MICROPY_PY_LWESP_WIFI
+#define NETWORK_BUILTIN_MODULE              { MP_ROM_QSTR(MP_QSTR_network), MP_ROM_PTR(&mp_module_lwesp_network) },
+#elif MICROPY_PY_NETWORK
 #define NETWORK_BUILTIN_MODULE              { MP_ROM_QSTR(MP_QSTR_network), MP_ROM_PTR(&mp_module_network) },
 #else
 #define NETWORK_BUILTIN_MODULE
@@ -238,6 +252,12 @@ extern const struct _mp_obj_module_t mp_module_onewire;
 #define ONEWIRE_BUILTIN_MODULE              { MP_ROM_QSTR(MP_QSTR__onewire), MP_ROM_PTR(&mp_module_onewire) },
 #else
 #define ONEWIRE_BUILTIN_MODULE
+#endif
+
+#if MICROPY_ENABLE_AUDIO
+#define AUDIO_MODULE                        { MP_ROM_QSTR(MP_QSTR_audio), MP_ROM_PTR(&audio_module) },
+#else
+#define AUDIO_MODULE
 #endif
 
 #if defined(MICROPY_HW_ETH_MDC)
@@ -281,6 +301,7 @@ extern const struct _mod_network_nic_type_t mod_network_nic_type_cc3k;
     SOCKET_BUILTIN_MODULE \
     NETWORK_BUILTIN_MODULE \
     ONEWIRE_BUILTIN_MODULE \
+    AUDIO_MODULE \
 
 // extra constants
 #define MICROPY_PORT_CONSTANTS \
@@ -288,6 +309,7 @@ extern const struct _mod_network_nic_type_t mod_network_nic_type_cc3k;
     MACHINE_BUILTIN_MODULE_CONSTANTS \
     PYB_BUILTIN_MODULE \
     STM_BUILTIN_MODULE \
+    AUDIO_MODULE \
 
 #define MICROPY_PORT_NETWORK_INTERFACES \
     MICROPY_HW_NIC_ETH  \
@@ -302,6 +324,13 @@ extern const struct _mod_network_nic_type_t mod_network_nic_type_cc3k;
 #else
 #define MICROPY_PORT_ROOT_POINTER_MBEDTLS
 #endif
+
+#if MICROPY_PY_LWESP_WIFI
+#define MICROPY_PORT_ROOT_POINTER_LWESP_WIFI void **lwesp_wifi_memory;
+#else
+#define MICROPY_PORT_ROOT_POINTER_LWESP_WIFI
+#endif
+
 
 #if MICROPY_BLUETOOTH_NIMBLE
 struct _mp_bluetooth_nimble_root_pointers_t;
@@ -359,6 +388,7 @@ struct _mp_bluetooth_btstack_root_pointers_t;
     \
     /* root pointers for sub-systems */ \
     MICROPY_PORT_ROOT_POINTER_MBEDTLS \
+    MICROPY_PORT_ROOT_POINTER_LWESP_WIFI \
     MICROPY_PORT_ROOT_POINTER_BLUETOOTH_NIMBLE \
     MICROPY_PORT_ROOT_POINTER_BLUETOOTH_BTSTACK \
     \

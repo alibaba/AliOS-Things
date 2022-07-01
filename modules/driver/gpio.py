@@ -3,6 +3,7 @@
 import sys
 
 from boardparser import BoardConfigParser
+import systemAdaptor
 from machine import Pin as mach_Pin
 
 BOARD_JSON_PATH = '/data/pyamp/board.json'
@@ -18,15 +19,6 @@ GPIO APIs
 """
 class GPIO:
     
-    _dirStrToInt = {
-        'input': mach_Pin.IN,            # 0
-        'output': mach_Pin.OUT,          # 1
-        'alt': mach_Pin.ALT,             # 2
-        'analog': mach_Pin.ANALOG,       # 3
-        'opendrain': mach_Pin.OUT_OD,    # 17
-        'altopendrain': mach_Pin.ALT_OPEN_DRAIN # 18
-    }
-    
     def __init__(self):
         self.pin = None
 
@@ -34,7 +26,8 @@ class GPIO:
         if self.pin is not None:
             return -1
 
-        if type(node) is str:          
+        if type(node) is str:
+            pinModeDict = systemAdaptor.getSupportedPinMode()          
             parser = BoardConfigParser()
             try:
                 item = parser.findItem(node, 'GPIO')
@@ -42,17 +35,14 @@ class GPIO:
                 print(e)
                 return BoardConfigParser.NODE_NOT_EXIST
             
-            if type(item['port']) is not str:
-                raise ValueError('port fild should be str')
-            else:
-                self.port = item['port']
+            self.port = item['port']
             
             # Check dir option
-            if 'dir' in item:
-                self.dir = self._dirStrToInt[item['dir']]
+            if 'dir' in item and pinModeDict is not None:
+                self.dir = pinModeDict[item['dir']]
             else:
                 raise Exception('dir un-assigned')
-            
+            del pinModeDict
             # Check pull option
             if 'pull' in item:
                 if item['pull'] == 'pullup':
@@ -60,11 +50,11 @@ class GPIO:
                 elif item['pull'] == 'pulldown':
                     self.pull = mach_Pin.PULL_DOWN
                 elif item['pull'] == 'none':
-                    self.pull = mach_Pin.PULL_NONE
+                    self.pull = None
                 else:
                     raise ValueError('unSupported pull type, avaiable type is {pullup, pulldown, none}')
             else:
-               self.pull = mach_Pin.PULL_NONE
+               self.pull = None
             
             # Check intMode exist or not
             if('intMode' in item):
@@ -81,10 +71,7 @@ class GPIO:
             
             self.pin = mach_Pin(self.port,
                                 mode=self.dir,
-                                pull=self.pull,
-                                value=None,
-                                af=-1,
-                                alt=-1)
+                                pull=self.pull)
             return 0
         else:
             raise ValueError('Node type should be str')

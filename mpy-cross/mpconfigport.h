@@ -38,6 +38,8 @@
 #endif
 #endif
 
+#define MICROPY_QSTR_BYTES_IN_HASH  (1)
+
 #define MICROPY_EMIT_X64            (1)
 #define MICROPY_EMIT_X86            (1)
 #define MICROPY_EMIT_THUMB          (1)
