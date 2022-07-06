@@ -20,7 +20,8 @@
 #include "aos/errno.h"
 #include "aos/kernel.h"
 
-#include "aos/hal/flash.h"
+#include <aos/flashpart.h>
+#include <aos/hal/flash.h>
 
 #ifdef AOS_COMP_NFTL
 #include <inc/nftl.h>
@@ -41,14 +42,6 @@
 #define LFS_INVALID_SIZE ((lfs_size_t)(-1))
 #define WAIT_FOREVER 0xFFFFFFFF
 
-#if CONFIG_U_FLASH_CORE
-#define LITTLEFS_USING_MTD 1
-#include <aos/mtd.h>
-#else
-#include <vfsdev/flash_dev.h>
-#define LITTLEFS_USING_MTD 0
-#endif
-
 typedef aos_mutex_t lfs_lock_t;
 
 hal_partition_t _lfs_parttion[CONFIG_LITTLEFS_CNT] = {
@@ -59,13 +52,13 @@ hal_partition_t _lfs_parttion[CONFIG_LITTLEFS_CNT] = {
 };
 
 typedef struct {
-    struct lfs_config *config;
-    lfs_t             *lfs;
-    lfs_lock_t        *lock;
-    hal_partition_t   part;
-    int               fd;
-    char              *mountpath;
-    bool              mounted;
+    struct lfs_config   *config;
+    lfs_t               *lfs;
+    lfs_lock_t          *lock;
+    hal_partition_t     part;
+    aos_flashpart_ref_t ref;
+    char                *mountpath;
+    bool                mounted;
 } lfs_manager_t;
 
 typedef struct _lfsvfs_dir_t
@@ -122,67 +115,36 @@ static int get_partition_from_cfg(const struct lfs_config *cfg)
 }
 #endif
 
-#if !LITTLEFS_USING_MTD
-static int get_fd_from_cfg(const struct lfs_config *cfg)
+static aos_flashpart_ref_t *get_ref_from_cfg(const struct lfs_config *cfg)
 {
     int i = 0;
 
     while (i < CONFIG_LITTLEFS_CNT) {
         if (g_lfs_manager[i]->config == cfg) {
-            return g_lfs_manager[i]->fd;
+            return &g_lfs_manager[i]->ref;
         } else {
             i++;
         }
     }
 
-    return -1;
+    return NULL;
 }
-
-static hal_mtdpart_info_t * littlefs_get_mtd_info(hal_partition_t part, int *idx)
-{
-    int cnt, ret;
-    hal_mtdpart_info_t *arr;
-
-    ret = hal_flash_mtdpart_info_get(&arr, &cnt);
-    if (ret) {
-        LFS_ERROR("Failed to get mtd partition info!\r\n");
-        return NULL;
-    }
-
-    int i = 0;
-    while (i < cnt) {
-        if (arr[i].p == part) break;
-        else i++;
-    }
-
-    if (i >= cnt) {
-        LFS_ERROR("No parition found for index %d!", part);
-        return NULL;
-    }
-
-    *idx = i;
-
-    return arr;
-}
-#endif // !LITTLEFS_USING_MTD
 
 static lfs_size_t littlefs_mtd_get_block_cnt(const struct lfs_config *c)
 {
     lfs_size_t ret = LFS_INVALID_SIZE;
+    aos_flashpart_ref_t *ref;
+    aos_flashpart_info_t part_info;
+    aos_flash_info_t flash_info;
 
-#if LITTLEFS_USING_MTD
-    aos_mtd_t *mtd = c->context;
-    if (mtd) ret = (mtd->size / mtd->block_size);
-#else
-    int idx;
-    hal_partition_t part = *(int *)c->context;
-    hal_mtdpart_info_t *arr = littlefs_get_mtd_info(part, &idx);
+    ref = get_ref_from_cfg(c);
+    if (!ref)
+        return ret;
 
-    if (arr) {
-        ret = arr[idx].siz / arr[idx].bsiz;
-        free(arr);
-    }
-#endif // !LITTLEFS_USING_MTD
+    if (aos_flashpart_get_info(ref, &part_info, &flash_info))
+        return ret;
+
+    ret = part_info.block_count;
 
     return ret;
 }
@@ -190,69 +152,50 @@ static lfs_size_t littlefs_mtd_get_block_cnt(const struct lfs_config *c)
 static lfs_size_t littlefs_mtd_get_read_size(const struct lfs_config *c)
 {
     lfs_size_t ret = LFS_INVALID_SIZE;
+    aos_flashpart_ref_t *ref;
+    aos_flashpart_info_t part_info;
+    aos_flash_info_t flash_info;
 
-#if LITTLEFS_USING_MTD
-    aos_mtd_t *mtd = c->context;
-    if (mtd) ret = mtd->sector_size;
-#else
-    int idx;
-    hal_partition_t part = *(int *)c->context;
-    hal_mtdpart_info_t *arr = littlefs_get_mtd_info(part, &idx);
+    ref = get_ref_from_cfg(c);
+    if (!ref)
+        return ret;
 
-    if (arr) {
-        ret = arr[idx].ssiz;
-        free(arr);
-    }
-#endif // !LITTLEFS_USING_MTD
+    if (aos_flashpart_get_info(ref, &part_info, &flash_info))
+        return ret;
+
+    ret = flash_info.page_data_size;
 
     return ret;
 }
 
 static lfs_size_t littlefs_mtd_get_prog_size(const struct lfs_config *c)
 {
-    lfs_size_t ret = LFS_INVALID_SIZE;
-
-#if LITTLEFS_USING_MTD
-    aos_mtd_t *mtd = c->context;
-    if (mtd) ret = mtd->sector_size;
-#else
-    int idx;
-    hal_partition_t part = *(int *)c->context;
-    hal_mtdpart_info_t *arr = littlefs_get_mtd_info(part, &idx);
-
-    if (arr) {
-        ret = arr[idx].ssiz;
-        free(arr);
-    }
-#endif // !LITTLEFS_USING_MTD
-
-    return ret;
+    return littlefs_mtd_get_read_size(c);
 }
 
 static lfs_size_t littlefs_mtd_get_block_size(const struct lfs_config *c)
 {
-    lfs_size_t ret = (lfs_size_t)(-1);
+    lfs_size_t ret = LFS_INVALID_SIZE;
+    aos_flashpart_ref_t *ref;
+    aos_flashpart_info_t part_info;
+    aos_flash_info_t flash_info;
 
-#if LITTLEFS_USING_MTD
-    aos_mtd_t *mtd = c->context;
-    if (mtd) ret = mtd->block_size;
-#else
-    int idx;
-    hal_partition_t part = *(int *)c->context;
-    hal_mtdpart_info_t *arr = littlefs_get_mtd_info(part, &idx);
+    ref = get_ref_from_cfg(c);
+    if (!ref)
+        return ret;
 
-    if (arr) {
-        ret = arr[idx].bsiz;
-        free(arr);
-    }
-#endif // !LITTLEFS_USING_MTD
+    if (aos_flashpart_get_info(ref, &part_info, &flash_info))
+        return ret;
+
+    ret = flash_info.page_data_size * flash_info.pages_per_block;
 
     return ret;
 }
 
-static int32_t littlefs_block_read(const struct lfs_config *c, lfs_block_t block,
-                             lfs_off_t off, void *dst, lfs_size_t size)
+static int32_t
+littlefs_block_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *dst, lfs_size_t size)
 {
+    aos_flashpart_ref_t *ref;
     int ret;
 
 #ifdef AOS_COMP_NFTL
@@ -270,30 +213,26 @@ static int32_t littlefs_block_read(const struct lfs_config *c, lfs_block_t block
         default: LFS_ERROR("%s invalid parition number %d", __func__, idx); return LFS_ERR_IO;
     }
     ret = nftl_flash_read(target_partition, block, off, dst, size);
+    return ret ? LFS_ERR_CORRUPT : 0;
 #else
-#if LITTLEFS_USING_MTD
-    aos_mtd_t *mtd = c->context;
-    ret = aos_mtd_read(mtd, c->block_size * block + off, dst, size);
-    ret = (ret == size) ? 0 : -1;
-#else
-    int fd = get_fd_from_cfg(c);
-    if (fd < 0) return fd;
+    ref = get_ref_from_cfg(c);
+    if (!ref)
+        return LFS_ERR_CORRUPT;
 
-    uint32_t addr;
-    addr = c->block_size * block + off;
-    lseek(fd, (off_t)addr, SEEK_SET);
-    ret = read(fd, dst, size);
-    ret = (ret == size) ? 0 : -1;
-#endif // LITTLEFS_USING_MTD
+    ret = aos_flashpart_read(ref, c->block_size * block + off, dst, size);
+    if (ret < 0 || ret == AOS_FLASH_ECC_ERROR) {
+        LFS_ERROR("%s ret: %d", __func__, ret);
+        return LFS_ERR_CORRUPT;
+    }
+
+    return 0;
 #endif
-
-    if (ret) LFS_ERROR("%s ret: %d", __func__, ret);
-    return ret == 0 ? ret : LFS_ERR_CORRUPT;
 }
 
-static int32_t littlefs_block_write(const struct lfs_config *c, lfs_block_t block,
-                              lfs_off_t off, const void *dst, lfs_size_t size)
+static int32_t
+littlefs_block_write(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *src, lfs_size_t size)
 {
+    aos_flashpart_ref_t *ref;
     int ret;
 
 #ifdef AOS_COMP_NFTL
@@ -310,31 +249,26 @@ static int32_t littlefs_block_write(const struct lfs_config *c, lfs_block_t bloc
         case HAL_PARTITION_LITTLEFS3: target_partition = NFTL_PARTITION1; break;
         default: LFS_ERROR("%s invalid parition number %d", __func__, idx); return LFS_ERR_IO;
     }
-    ret = nftl_flash_write(target_partition, block, off, dst, size);
+    ret = nftl_flash_write(target_partition, block, off, src, size);
+    return ret ? LFS_ERR_CORRUPT : 0;
 #else
-#if LITTLEFS_USING_MTD
-    aos_mtd_t *mtd = c->context;
-    ret = aos_mtd_write(mtd, c->block_size * block + off, dst, size);
-    ret = (ret == size) ? 0 : -1;
-#else
-    int fd = get_fd_from_cfg(c);
-    if (fd < 0) return fd;
+    ref = get_ref_from_cfg(c);
+    if (!ref)
+        return LFS_ERR_CORRUPT;
 
-    uint32_t addr;
-    addr = c->block_size * block + off;
-    lseek(fd, (off_t)addr, SEEK_SET);
-    ret = write(fd, dst, size);
-    ret = (ret == size) ? 0 : -1;
-#endif // LITTLEFS_USING_MTD
+    ret = aos_flashpart_write(ref, c->block_size * block + off, src, size);
+    if (ret) {
+        LFS_ERROR("%s ret: %d", __func__, ret);
+        return LFS_ERR_CORRUPT;
+    }
+
+    return 0;
 #endif
-
-    if (ret) LFS_ERROR("%s ret: %d", __func__, ret);
-
-    return ret == 0 ? ret : LFS_ERR_CORRUPT;
 }
 
 static int32_t littlefs_block_erase(const struct lfs_config *c, lfs_block_t block)
 {
+    aos_flashpart_ref_t *ref;
     int ret;
 
 #ifdef AOS_COMP_NFTL
@@ -352,22 +286,20 @@ static int32_t littlefs_block_erase(const struct lfs_config *c, lfs_block_t bloc
         default: LFS_ERROR("%s invalid parition number %d", __func__, idx); return LFS_ERR_IO;
     }
     ret = nftl_flash_erase(target_partition, block);
+    return ret ? LFS_ERR_CORRUPT : 0;
 #else
-#if LITTLEFS_USING_MTD
-    aos_mtd_t *mtd = c->context;
-    ret = aos_mtd_erase(mtd, c->block_size * block, c->block_size);
-#else // LITTLEFS_USING_MTD
-    int fd = get_fd_from_cfg(c);
-    if (fd < 0) return fd;
+    ref = get_ref_from_cfg(c);
+    if (!ref)
+        return LFS_ERR_CORRUPT;
 
-    uint32_t addr;
-    addr = c->block_size * block;
-    lseek(fd, (off_t)addr, SEEK_SET);
-    ret = ioctl(fd, IOC_FLASH_ERASE_FLASH, c->block_size);
-#endif // LITTLEFS_USING_MTD
+    ret = aos_flashpart_erase_block(ref, block);
+    if (ret) {
+        LFS_ERROR("%s ret: %d", __func__, ret);
+        return LFS_ERR_CORRUPT;
+    }
+
+    return 0;
 #endif
-
-    if (ret) LFS_ERROR("%s ret: %d", __func__, ret);
 
     return ret == 0 ? ret : LFS_ERR_CORRUPT;
 }
@@ -416,7 +348,7 @@ static int32_t littlefs_block_sync(const struct lfs_config *c)
     return 0;
 }
 
-struct lfs_config default_cfg[CONFIG_LITTLEFS_CNT] = {
+static struct lfs_config default_cfg[CONFIG_LITTLEFS_CNT] = {
     {
         // block device operations
         .read  = littlefs_block_read,
@@ -636,7 +568,7 @@ static int32_t _lfs_deinit(void)
         if (g_lfs_manager[i]) lfs_free(g_lfs_manager[i]);
     #endif
 
-        close(g_lfs_manager[i]->fd);
+        aos_flashpart_put(&g_lfs_manager[i]->ref);
 
         if (g_lfs_manager[i]->config) {
             if (g_lfs_manager[i]->config->read_buffer) {
@@ -659,9 +591,9 @@ static int32_t _lfs_deinit(void)
 
 #ifdef LFS_STATIC_OBJECT
 static lfs_manager_t native_lfs_manager[CONFIG_LITTLEFS_CNT] = {
-    {NULL, NULL, NULL, HAL_PARTITION_LITTLEFS, -1, NULL, false},
+    {NULL, NULL, NULL, HAL_PARTITION_LITTLEFS, AOS_DEV_REF_INIT_VAL, NULL, false},
 #if defined(CONFIG_MULTI_FS)
-    {NULL, NULL, NULL, HAL_PARTITION_LITTLEFS2, -1, NULL, false},
+    {NULL, NULL, NULL, HAL_PARTITION_LITTLEFS2, AOS_DEV_REF_INIT_VAL, NULL, false},
 #endif /* CONFIG_MULTI_FS */
 };
 
@@ -673,12 +605,6 @@ static lfs_lock_t native_lfs_lock[CONFIG_LITTLEFS_CNT];
 static int32_t _lfs_init(void)
 {
     int i = 0;
-#if LITTLEFS_USING_MTD
-    const char *mtd_part[2] = {MTD_PART_NAME_LITTLEFS, MTD_PART_NAME_LITTLEFS2};
-#else
-    int fd;
-    char dev_str[16];
-#endif
 
     /* Create LFS struct */
     while (i < CONFIG_LITTLEFS_CNT) {
@@ -701,64 +627,51 @@ static int32_t _lfs_init(void)
         g_lfs_manager[i]->part = _lfs_parttion[i];
 
         if (i == 0) {
+            g_lfs_manager[i]->part = HAL_PARTITION_LITTLEFS;
             g_lfs_manager[i]->mountpath = CONFIG_LFS_MOUNTPOINT;
         }
 #if defined(CONFIG_MULTI_FS)
         else {
+            g_lfs_manager[i]->part = HAL_PARTITION_LITTLEFS2;
             g_lfs_manager[i]->mountpath = CONFIG_LFS_MOUNTPOINT2;
         }
 #endif /* CONFIG_MULTI_FS */
 
-        // open flash device
-    #if !LITTLEFS_USING_MTD
-        memset(dev_str, 0, sizeof(dev_str));
-        snprintf(dev_str, sizeof(dev_str) - 1,
-                 "/dev/flash%d", g_lfs_manager[i]->part);
-        fd = open(dev_str, 0);
-        if (fd < 0) {
-            // TODO: close open fd?
-            LFS_ERROR("Faild to open device %s", dev_str);
+        // open flash part
+        if (aos_flashpart_get(&g_lfs_manager[i]->ref, g_lfs_manager[i]->part)) {
+            LFS_ERROR("Failed to open flashpart %u", (unsigned int)g_lfs_manager[i]->part);
             goto ERROR;
         }
 
-        g_lfs_manager[i]->fd = fd;
-    #endif // !LITTLEFS_USING_MTD
-
         /* Set LFS default config */
         g_lfs_manager[i]->config = &default_cfg[i];
-    #if LITTLEFS_USING_MTD
-        g_lfs_manager[i]->config->context = aos_mtd_open(mtd_part[i]);
-    #else
+
         g_lfs_manager[i]->config->context = &(g_lfs_manager[i]->part);
-    #endif
 
         // block device configuration
-        default_cfg[i].read_size = littlefs_mtd_get_read_size(g_lfs_manager[i]->config);
-        default_cfg[i].prog_size = littlefs_mtd_get_prog_size(g_lfs_manager[i]->config);
-        default_cfg[i].block_size = littlefs_mtd_get_block_size(g_lfs_manager[i]->config);
-        LFS_ASSERT(default_cfg[i].read_size != LFS_INVALID_SIZE);
-        LFS_ASSERT(default_cfg[i].prog_size != LFS_INVALID_SIZE);
-        LFS_ASSERT(default_cfg[i].block_size != LFS_INVALID_SIZE);
+        g_lfs_manager[i]->config->read_size = littlefs_mtd_get_read_size(g_lfs_manager[i]->config);
+        g_lfs_manager[i]->config->prog_size = littlefs_mtd_get_prog_size(g_lfs_manager[i]->config);
+        g_lfs_manager[i]->config->block_size = littlefs_mtd_get_block_size(g_lfs_manager[i]->config);
+        g_lfs_manager[i]->config->block_count = littlefs_mtd_get_block_cnt(g_lfs_manager[i]->config);
+        LFS_ASSERT(g_lfs_manager[i]->config->read_size != LFS_INVALID_SIZE);
+        LFS_ASSERT(g_lfs_manager[i]->config->prog_size != LFS_INVALID_SIZE);
+        LFS_ASSERT(g_lfs_manager[i]->config->block_size != LFS_INVALID_SIZE);
+        LFS_ASSERT(g_lfs_manager[i]->config->block_count != LFS_INVALID_SIZE);
 
-        default_cfg[i].block_count = littlefs_mtd_get_block_cnt(g_lfs_manager[i]->config);
-        default_cfg[i].lookahead_size = GET_LOOKAHEAD_SIZE(default_cfg[i].block_count);
-        default_cfg[i].cache_size = default_cfg[i].prog_size;
+        g_lfs_manager[i]->config->lookahead_size = GET_LOOKAHEAD_SIZE(g_lfs_manager[i]->config->block_count);
+        g_lfs_manager[i]->config->cache_size = g_lfs_manager[i]->config->prog_size;
 
-        g_lfs_manager[i]->config->read_buffer = \
-           lfs_malloc(default_cfg[i].read_size);
-        g_lfs_manager[i]->config->prog_buffer = \
-            lfs_malloc(default_cfg[i].prog_size);
-        g_lfs_manager[i]->config->lookahead_buffer = \
-            lfs_malloc(default_cfg[i].lookahead_size);
-        LFS_ASSERT(default_cfg[i].read_buffer);
-        LFS_ASSERT(default_cfg[i].prog_buffer);
-        LFS_ASSERT(default_cfg[i].lookahead_buffer);
-
+        g_lfs_manager[i]->config->read_buffer = lfs_malloc(g_lfs_manager[i]->config->read_size);
+        g_lfs_manager[i]->config->prog_buffer = lfs_malloc(g_lfs_manager[i]->config->prog_size);
+        g_lfs_manager[i]->config->lookahead_buffer = lfs_malloc(g_lfs_manager[i]->config->lookahead_size);
+        LFS_ASSERT(g_lfs_manager[i]->config->read_buffer);
+        LFS_ASSERT(g_lfs_manager[i]->config->prog_buffer);
+        LFS_ASSERT(g_lfs_manager[i]->config->lookahead_buffer);
 
     #ifdef AOS_COMP_NFTL
-        default_cfg[i].block_cycles = -1;
+        g_lfs_manager[i]->config->block_cycles = -1;
     #else
-        default_cfg[i].block_cycles = 500;
+        g_lfs_manager[i]->config->block_cycles = 500;
     #endif
 
 #ifdef CONFIG_LFS_SYSTEM_READONLY
@@ -1084,7 +997,6 @@ static int32_t lfs_vfs_statfs(vfs_file_t *fp, const char *path, vfs_statfs_t *sf
         sfs->f_bfree = g_lfs_manager[idx]->config->block_count - block_used;
         sfs->f_bavail = sfs->f_bfree;
         sfs->f_files = 1024;
-        ret = 0;
     }
 
     return ret;

@@ -1,111 +1,47 @@
 /*
  * Copyright (C) 2015-2017 Alibaba Group Holding Limited
  */
-#include <fcntl.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <sys/ioctl.h>
 #include "k_api.h"
 #include "kv_conf.h"
 #include "kv_adapt.h"
-#include "aos/hal/flash.h"
-#include "vfsdev/flash_dev.h"
-#if (CONFIG_U_FLASH_CORE > 0)
-#include <aos/mtd.h>
-#endif
+#include <aos/flashpart.h>
+#include <aos/hal/flash.h>
 
-static int32_t g_kv_flash_fd = -1;
+static aos_flashpart_ref_t kv_flashpart_ref = AOS_DEV_REF_INIT_VAL;
 
-static int32_t kv_flash_fd_open(void)
+static aos_status_t kv_flash_open(void)
 {
-    int fd;
-    char dev_str[16] = {0};
-    if(g_kv_flash_fd >= 0){
-        return g_kv_flash_fd;
-    }
-
-#if (CONFIG_U_FLASH_CORE > 0)
-    snprintf(dev_str,16-1,"/dev/mtdblock%d",KV_PARTITION);
-#else
-    snprintf(dev_str,16-1,"/dev/flash%d",KV_PARTITION);
-#endif
-
-    fd = open(dev_str, 0);
-    if(fd < 0){
-        return fd;
-    }
-    g_kv_flash_fd = fd;
-
-    return g_kv_flash_fd;
+    return aos_flashpart_get(&kv_flashpart_ref, KV_PARTITION);
 }
 
 int32_t kv_flash_read(uint32_t offset, void *buf, uint32_t nbytes)
 {
-    int32_t ret;
-    int fd;
-    if(kv_flash_fd_open() < 0){
+    aos_status_t r;
+
+    if (!aos_dev_ref_is_valid(&kv_flashpart_ref) && kv_flash_open())
         return -1;
-    }
-    fd = g_kv_flash_fd;
-    ret = lseek(fd, offset, SEEK_SET);
-    if(ret < 0){
-        return ret;
-    }
-    ret = read(fd, buf, nbytes);
-    if(ret > 0){
-       return 0;
-    }else{
-        return -1;
-    }
+
+    r = aos_flashpart_read(&kv_flashpart_ref, offset, buf, nbytes);
+
+    return (r >= 0 && r < AOS_FLASH_ECC_ERROR) ? 0 : -1;
 }
 
 int32_t kv_flash_write(uint32_t offset, void *buf, uint32_t nbytes)
 {
-    int32_t ret;
-    int fd;
-    if(kv_flash_fd_open() < 0){
+    if (!aos_dev_ref_is_valid(&kv_flashpart_ref) && kv_flash_open())
         return -1;
-    }
-    fd = g_kv_flash_fd;
-    ret = lseek(fd, offset, SEEK_SET);
-    if(ret < 0){
-        return ret;
-    }
-    ret = write(fd, buf, nbytes);
-    if(ret > 0){
-       return 0;
-    }else{
-        return -1;
-    }
+
+    return aos_flashpart_write(&kv_flashpart_ref, offset, buf, nbytes) ? -1 : 0;
 }
 
 int32_t kv_flash_erase(uint32_t offset, uint32_t size)
 {
-    int32_t ret;
-    int fd;
-#if (CONFIG_U_FLASH_CORE > 0)
-    struct mtd_erase_info erase_arg;
-#endif
-
-    if(kv_flash_fd_open() < 0){
+    if (!aos_dev_ref_is_valid(&kv_flashpart_ref) && kv_flash_open())
         return -1;
-    }
-    fd = g_kv_flash_fd;
-    ret = lseek(fd, offset, SEEK_SET);
-    if(ret < 0){
-        return ret;
-    }
 
-#if (CONFIG_U_FLASH_CORE > 0)
-    erase_arg.offset = offset;
-    erase_arg.length = size;
-    ret = ioctl(fd, IOC_MTD_ERASE, &erase_arg);
-#else
-    ret = ioctl(fd, IOC_FLASH_ERASE_FLASH, size);
-#endif
-
-    return ret;
+    return aos_flashpart_erase(&kv_flashpart_ref, offset, size) ? -1 : 0;
 }
 
 void *kv_lock_create(void)
