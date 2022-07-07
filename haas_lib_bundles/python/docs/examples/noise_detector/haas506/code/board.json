@@ -1,0 +1,39 @@
+{
+  "name": "haas506",
+  "version": "2.0.0",
+  "io": {
+    "ADC1": {
+        "type": "ADC",
+        "port": 1,
+        "sampling": 12000000
+      },
+      "buzzer": {
+        "type": "PWM",
+        "port": 39
+        },
+      "red":{
+        "type":"GPIO",
+        "port": 18,
+        "dir": "input",
+        "pull":"pullup"
+      },     
+      "green": {
+        "type": "GPIO",
+        "port": 17,
+        "dir": "output",
+        "pull": "pullup"
+        },
+
+      "blue": {
+          "type": "GPIO",
+          "port": 16,
+          "dir": "output",
+          "pull": "pullup"
+      }
+
+  },
+  "debugLevel": "ERROR",
+  "repl": "enable",
+  "replPort": 0
+}
+
