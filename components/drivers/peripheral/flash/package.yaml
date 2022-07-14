@@ -1,6 +1,6 @@
 ## 第一部分：基础信息
 name: flash                                         # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
-version: master                                    # <必选项> 组件版本号
+version: master                                     # <必选项> 组件版本号
 description: Flash通用驱动                          # <必选项> 建议至少20字以上
 type: common                                        # <必选项> 组件类型，为：solution, chip, board, common, sdk
 
@@ -17,8 +17,6 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 #   - aos: >=v7.2.0
 depends:
   - base: master
-  - epoll: master
-  - csi: master
 
 ## 第四部分：编译连接信息
 # build_config:                            # <可选项> 编译配置项
@@ -49,10 +47,6 @@ build_config:
 source_file:
   - src/flash.c
   - src/flashpart.c
-  - src/flash_dev.c ? <CONFIG_U_FLASH_DEV>
-  - src/mtd.c ? <CONFIG_U_FLASH_CORE>
-  - src/mtdnand.c ? <CONFIG_U_FLASH_CORE>
-  - src/mtdnor.c ? <CONFIG_U_FLASH_CORE>
 
 ## 第五部分：配置信息
 # def_config:                              # 组件的可配置项
@@ -61,8 +55,6 @@ source_file:
 #   CONFIG_CLI: y
 def_config:
   AOS_COMP_FLASH: 1
-  CONFIG_U_FLASH_DEV: 0                    # FLASH device node named witch "/dev/flash[x]"
-  CONFIG_U_FLASH_CORE: 0                   # FLASH subsys AOS API driver
 
 ## 第六部分：安装信息
 # install:
