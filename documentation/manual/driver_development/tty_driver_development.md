@@ -137,7 +137,7 @@ void (*enable_rx)(aos_tty_t *tty);
 ```c
 size_t aos_tty_rx_buffer_produce(aos_tty_t *tty, const void *buf, size_t count);
 ```
-在中断处理程序中使用`aos_tty_rx_buffer_produce`将硬件接收到的数据送入设备软件核心层。参数`count`为硬件接收到的字节数目。驱动程序应在调用该函数之前从FIFO或DMA获取数据并存放到`buf`指向的空间。返回值为实际送入设备软件核心层的字节数目，在设备软件接收缓冲区已满的情况下返回值会小于`count`。`aos_tty_rx_buffer_produce`应在关闭本地CPU中断且`tty->lock`加锁的环境下调用。例如：
+在中断处理程序中使用`aos_tty_rx_buffer_produce`将硬件接收到的数据送入设备驱动核心层。参数`count`为硬件接收到的字节数目。驱动程序应在调用该函数之前从FIFO或DMA获取数据并存放到`buf`指向的空间。返回值为实际送入设备驱动核心层的字节数目，在设备软件接收缓冲区已满的情况下返回值会小于`count`。`aos_tty_rx_buffer_produce`应在关闭本地CPU中断且`tty->lock`加锁的环境下调用。例如：
 ```c
 void rx_irq_handler(tty_abc_t *tty_abc)
 {
@@ -161,7 +161,7 @@ void rx_irq_handler(tty_abc_t *tty_abc)
 ```c
 void (*disable_rx)(aos_tty_t *tty);
 ```
-`enable_rx`回调函数在禁用接收功能时被调用，驱动程序应在该函数中禁用硬件的接收功能。此时FIFO中已接收的数据或DMA正在接收的数据可直接丢弃。
+`disable_rx`回调函数在禁用接收功能时被调用，驱动程序应在该函数中禁用硬件的接收功能。此时FIFO中已接收的数据或DMA正在接收的数据可直接丢弃。
 
 ## 5.7. start_tx
 ```c
@@ -171,7 +171,7 @@ void (*start_tx)(aos_tty_t *tty);
 ```c
 size_t aos_tty_tx_buffer_consume(aos_tty_t *tty, void *buf, size_t count);
 ```
-在`start_tx`回调函数或中断处理程序中使用`aos_tty_tx_buffer_consume`从设备软件核心层获取待发送数据。参数`count`为硬件发送最大字节数，例如FIFO深度或DMA最大长度。待发送数据将被复制到`buf`指向的空间，驱动程序应将这些数据交给FIFO或DMA。返回值为实际从设备软件核心层获取的字节数目；返回0时说明设备软件发送缓冲区为空，驱动程序应禁用发送中断（本设备级别而非中断控制器级别）。`aos_tty_tx_buffer_consume`应在关闭本地CPU中断且`tty->lock`加锁的环境下调用。例如：
+在`start_tx`回调函数或中断处理程序中使用`aos_tty_tx_buffer_consume`从设备驱动核心层获取待发送数据。参数`count`为硬件发送最大字节数，例如FIFO深度或DMA最大长度。待发送数据将被复制到`buf`指向的空间，驱动程序应将这些数据交给FIFO或DMA。返回值为实际从设备驱动核心层获取的字节数目；返回0时说明设备软件发送缓冲区为空，驱动程序应禁用发送中断（本设备级别而非中断控制器级别）。`aos_tty_tx_buffer_consume`应在关闭本地CPU中断且`tty->lock`加锁的环境下调用。例如：
 ```c
 void tx_irq_handler(tty_abc_t *tty_abc)
 {
@@ -198,4 +198,4 @@ void tx_irq_handler(tty_abc_t *tty_abc)
 ```c
 void (*stop_tx)(aos_tty_t *tty);
 ```
-`disable_tx`回调函数在中止发送时被调用，驱动程序应在该函数中中止硬件的发送流程。若此时FIFO中有待发送的数据或DMA正在发送数据，应先等待这些数据发送完成。
+`stop_tx`回调函数在中止发送时被调用，驱动程序应在该函数中中止硬件的发送流程。若此时FIFO中有待发送的数据或DMA正在发送数据，应先等待这些数据发送完成。
