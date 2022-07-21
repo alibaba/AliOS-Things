@@ -2,7 +2,6 @@
  * Copyright (C) 2020-2021 Alibaba Group Holding Limited
  */
 
-#include <string.h>
 #include <aos/device_core.h>
 
 #define REF_COUNT_PENDING       UINT32_MAX
@@ -10,6 +9,24 @@
 
 static struct k_rbtree_root_t device_map = RBT_ROOT;
 static aos_mutex_t device_map_mutex;
+
+static aos_status_t device_core_init(void)
+{
+    return aos_mutex_new(&device_map_mutex);
+}
+
+#if defined(CONFIG_DRV_CORE) && CONFIG_DRV_CORE != 0
+static int dev_core_init(void)
+{
+    return (int)device_core_init();
+}
+CORE_DRIVER_ENTRY(dev_core_init)
+#else
+aos_status_t aos_dev_core_init(void)
+{
+    return device_core_init();
+}
+#endif
 
 static void device_map_lock(void)
 {
@@ -96,37 +113,6 @@ static void remove_device(aos_dev_t *dev)
     k_rbtree_erase(&dev->rb_node, &device_map);
 }
 
-#ifdef AOS_COMP_VFS
-static aos_status_t add_to_vfs(aos_dev_t *dev)
-{
-    const char prefix[] = "/dev/";
-    char path[sizeof(prefix) - 1 + sizeof(dev->vfs_helper.name)];
-
-    if (dev->vfs_helper.name[0] == '\0' || !dev->vfs_helper.ops)
-        return 0;
-
-    memcpy(path, prefix, sizeof(prefix) - 1);
-    strncpy(&path[sizeof(prefix) - 1], dev->vfs_helper.name, sizeof(dev->vfs_helper.name) - 1);
-    path[sizeof(path) - 1] = '\0';
-
-    return aos_register_driver(path, dev->vfs_helper.ops, dev);
-}
-
-static void remove_from_vfs(aos_dev_t *dev)
-{
-    const char prefix[] = "/dev/";
-    char path[sizeof(prefix) - 1 + sizeof(dev->vfs_helper.name)];
-
-    if (dev->vfs_helper.name[0] == '\0' || !dev->vfs_helper.ops)
-        return;
-
-    memcpy(path, prefix, sizeof(prefix) - 1);
-    strncpy(&path[sizeof(prefix) - 1], dev->vfs_helper.name, sizeof(dev->vfs_helper.name) - 1);
-    path[sizeof(path) - 1] = '\0';
-    (void)aos_unregister_driver(path);
-}
-#endif /* AOS_COMP_VFS */
-
 aos_status_t aos_dev_register(aos_dev_t *dev)
 {
     aos_status_t ret;
@@ -157,15 +143,17 @@ aos_status_t aos_dev_register(aos_dev_t *dev)
     insert_device(dev);
     device_map_unlock();
 
-#ifdef AOS_COMP_VFS
-    ret = add_to_vfs(dev);
-    if (ret) {
-        device_map_lock();
-        remove_device(dev);
-        device_map_unlock();
-        aos_mutex_free(&dev->mutex);
-        aos_sem_free(&dev->rb_sem);
-        return ret;
+#ifdef AOS_COMP_DEVFS
+    if (aos_devfs_node_is_valid(&dev->devfs_node)) {
+        ret = aos_devfs_add_node(&dev->devfs_node);
+        if (ret) {
+            device_map_lock();
+            remove_device(dev);
+            device_map_unlock();
+            aos_mutex_free(&dev->mutex);
+            aos_sem_free(&dev->rb_sem);
+            return ret;
+        }
     }
 #endif
 
@@ -179,7 +167,6 @@ aos_status_t aos_dev_register(aos_dev_t *dev)
 aos_status_t aos_dev_unregister(aos_dev_type_t type, uint32_t id)
 {
     aos_dev_t *dev;
-    aos_status_t ret;
 
     device_map_lock();
     dev = find_device(type, id);
@@ -206,8 +193,9 @@ aos_status_t aos_dev_unregister(aos_dev_type_t type, uint32_t id)
 
     aos_dev_unlock(dev);
     device_allow_removal(dev);
-#ifdef AOS_COMP_VFS
-    remove_from_vfs(dev);
+#ifdef AOS_COMP_DEVFS
+    if (aos_devfs_node_is_valid(&dev->devfs_node))
+        (void)aos_devfs_remove_node(&dev->devfs_node);
 #endif
     device_map_lock();
     device_wait_removal(dev);
@@ -302,10 +290,3 @@ void aos_dev_put(aos_dev_ref_t *ref)
     aos_dev_unlock(ref->dev);
     aos_dev_ref_init(ref);
 }
-
-static int device_core_init(void)
-{
-    return (int)aos_mutex_new(&device_map_mutex);
-}
-
-CORE_DRIVER_ENTRY(device_core_init)

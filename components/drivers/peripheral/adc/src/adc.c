@@ -2,13 +2,11 @@
  * Copyright (C) 2021 Alibaba Group Holding Limited
  */
 
-#include <stdint.h>
-#include <errno.h>
-#include <stdbool.h>
-#include <aos/kernel.h>
-#include <aos/list.h>
-#include <aos/adc.h>
 #include <aos/adc_core.h>
+#ifdef AOS_COMP_DEVFS
+#include <stdio.h>
+#include <inttypes.h>
+#endif
 
 #define AOS_ADC_CHECK_NULL(x) \
     do { \
@@ -166,9 +164,154 @@ static const aos_dev_ops_t dev_adc_ops = {
     .put = dev_adc_put,
 };
 
+#ifdef AOS_COMP_DEVFS
+
+static aos_status_t devfs_adc_ioctl(aos_devfs_file_t *file, int cmd, uintptr_t arg)
+{
+    aos_adc_ref_t *ref = aos_devfs_file2ref(file);
+    aos_status_t ret;
+
+    switch (cmd) {
+    case AOS_ADC_IOC_SET_SAMPLE_TIME:
+        {
+            aos_adc_set_sample_time_args_t args;
+            if (!aos_devfs_file_is_writable(file)) {
+                ret = -EPERM;
+                break;
+            }
+            if (!aos_umem_check((const void *)arg, sizeof(args))) {
+                ret = -EFAULT;
+                break;
+            }
+            if (aos_umem_copy(&args, (const void *)arg, sizeof(args))) {
+                ret = -EFAULT;
+                break;
+            }
+            ret = aos_adc_set_sample_time(ref, args.channel, args.time);
+        }
+        break;
+    case AOS_ADC_IOC_SET_MODE:
+        {
+            aos_adc_mode_t mode;
+            if (!aos_devfs_file_is_writable(file)) {
+                ret = -EPERM;
+                break;
+            }
+            if (!aos_umem_check((const void *)arg, sizeof(mode))) {
+                ret = -EFAULT;
+                break;
+            }
+            if (aos_umem_copy(&mode, (const void *)arg, sizeof(mode))) {
+                ret = -EFAULT;
+                break;
+            }
+            ret = aos_adc_set_mode(ref, mode);
+        }
+        break;
+    case AOS_ADC_IOC_GET_RESOLUTION:
+        {
+            uint32_t resolution;
+            if (!aos_devfs_file_is_readable(file)) {
+                ret = -EPERM;
+                break;
+            }
+            ret = aos_adc_get_resolution(ref, &resolution);
+            if (ret)
+                break;
+            if (!aos_umem_check((const void *)arg, sizeof(resolution))) {
+                ret = -EFAULT;
+                break;
+            }
+            ret = aos_umem_copy((void *)arg, &resolution, sizeof(resolution)) ? -EFAULT : 0;
+        }
+        break;
+    case AOS_ADC_IOC_GET_RANGE:
+        {
+            aos_adc_get_range_args_t args;
+            if (!aos_devfs_file_is_readable(file)) {
+                ret = -EPERM;
+                break;
+            }
+            if (!aos_umem_check((const void *)arg, sizeof(args))) {
+                ret = -EFAULT;
+                break;
+            }
+            if (aos_umem_copy(&args, (const void *)arg, sizeof(args))) {
+                ret = -EFAULT;
+                break;
+            }
+            ret = aos_adc_get_range(ref, args.channel, &args.range);
+            if (ret)
+                break;
+            ret = aos_umem_copy((void *)arg, &args, sizeof(args)) ? -EFAULT : 0;
+        }
+        break;
+    case AOS_ADC_IOC_READ:
+        {
+            aos_adc_read_args_t args;
+            if (!aos_devfs_file_is_readable(file)) {
+                ret = -EPERM;
+                break;
+            }
+            if (!aos_umem_check((const void *)arg, sizeof(args))) {
+                ret = -EFAULT;
+                break;
+            }
+            if (aos_umem_copy(&args, (const void *)arg, sizeof(args))) {
+                ret = -EFAULT;
+                break;
+            }
+            ret = aos_adc_read(ref, args.channel, &args.data);
+            if (ret)
+                break;
+            ret = aos_umem_copy((void *)arg, &args, sizeof(args)) ? -EFAULT : 0;
+        }
+        break;
+    case AOS_ADC_IOC_READ_VOLTAGE:
+        {
+            aos_adc_read_args_t args;
+            if (!aos_devfs_file_is_readable(file)) {
+                ret = -EPERM;
+                break;
+            }
+            if (!aos_umem_check((const void *)arg, sizeof(args))) {
+                ret = -EFAULT;
+                break;
+            }
+            if (aos_umem_copy(&args, (const void *)arg, sizeof(args))) {
+                ret = -EFAULT;
+                break;
+            }
+            ret = aos_adc_read_voltage(ref, args.channel, &args.data);
+            if (ret)
+                break;
+            ret = aos_umem_copy((void *)arg, &args, sizeof(args)) ? -EFAULT : 0;
+        }
+        break;
+    default:
+        ret = -EINVAL;
+        break;
+    }
+
+    return ret;
+}
+
+static const aos_devfs_file_ops_t devfs_adc_ops = {
+    .ioctl      = devfs_adc_ioctl,
+    .poll       = NULL,
+    .mmap       = NULL,
+    .read       = NULL,
+    .write      = NULL,
+    .lseek      = NULL,
+};
+
+#endif /* AOS_COMP_DEVFS */
+
 aos_status_t aos_adc_register(aos_adc_t *adc)
 {
-    aos_status_t ret;
+#ifdef AOS_COMP_DEVFS
+    int name_len;
+#endif
 
     AOS_ADC_CHECK_NULL(adc);
 
@@ -183,10 +326,12 @@ aos_status_t aos_adc_register(aos_adc_t *adc)
 
     adc->dev.type = AOS_DEV_TYPE_ADC;
     adc->dev.ops = &dev_adc_ops;
-#ifdef AOS_COMP_VFS
-    /* TODO: support vfs ops. */
-    adc->dev.vfs_helper.name[0] = '\0';
-    adc->dev.vfs_helper.ops = NULL;
+#ifdef AOS_COMP_DEVFS
+    aos_devfs_node_init(&adc->dev.devfs_node);
+    adc->dev.devfs_node.ops = &devfs_adc_ops;
+    name_len = snprintf(adc->dev.devfs_node.name, sizeof(adc->dev.devfs_node.name), "adc%" PRIu32, adc->dev.id);
+    if (name_len < 0 || name_len >= sizeof(adc->dev.devfs_node.name))
+        return -EINVAL;
 #endif
 
     return aos_dev_register(&(adc->dev));
