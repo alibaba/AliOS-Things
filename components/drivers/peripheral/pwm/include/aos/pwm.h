@@ -2,24 +2,21 @@
  * Copyright (C) 2021 Alibaba Group Holding Limited
  */
 
-#ifndef _AOS_PWM_H
-#define _AOS_PWM_H
+#ifndef AOS_PWM_H
+#define AOS_PWM_H
 
-#include <stdint.h>
-#include <aos/kernel.h>
+#ifdef AOS_KERNEL_BUILD
 #include <aos/device.h>
+#else
+#include <stdint.h>
+#endif
 
 /**
- * @defgroup aos_pwm_app PWM
+ * @defgroup pwm_api PWM
  * @ingroup driver_api
- * 给应用提供PWM操作的AOS API.
- *
+ * @brief AOS API for PWM.
  * @{
  */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef enum {
     AOS_PWM_POLARITY_NORMAL,
@@ -32,15 +29,21 @@ typedef struct {
     aos_pwm_polarity_t polarity;
     bool enabled;
 } aos_pwm_attr_t;
-/**
- * @defgroup aos_pwm_app PWM应用操作
- * @ingroup driver_api
- * 给应用提供PWM操作的AOS PWM API.
- *
- * @{
- */
+
+#if (defined(AOS_KERNEL_BUILD) && defined(AOS_COMP_DEVFS)) || !defined(AOS_KERNEL_BUILD)
+
+#define AOS_PWM_IOC_GET_ATTR    0x5001
+#define AOS_PWM_IOC_SET_ATTR    0x5002
+
+#endif /* (defined(AOS_KERNEL_BUILD) && defined(AOS_COMP_DEVFS)) || !defined(AOS_KERNEL_BUILD) */
+
+#ifdef AOS_KERNEL_BUILD
 
 typedef aos_dev_ref_t aos_pwm_ref_t;  /**< PWM设备的引用 */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * 获取一个PWM设备的引用
@@ -85,6 +88,8 @@ aos_status_t aos_pwm_get_attr(aos_pwm_ref_t *ref, aos_pwm_attr_t *attr);
 }
 #endif
 
+#endif /* AOS_KERNEL_BUILD */
+
 /** @} */
 
-#endif /* _AOS_PWM_H */
+#endif /* AOS_PWM_H */
