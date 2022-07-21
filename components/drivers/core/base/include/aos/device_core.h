@@ -8,29 +8,22 @@
 #include <aos/kernel.h>
 #include <aos/list.h>
 #include <k_rbtree.h>
-#include <drivers/u_ld.h>
-#ifdef AOS_COMP_VFS
-#include <aos/vfs.h>
-#endif
 #include <aos/device.h>
+#ifdef AOS_COMP_DEVFS
+#include <aos/devfs.h>
+#endif
+#if defined(CONFIG_DRV_CORE) && CONFIG_DRV_CORE != 0
+#include <drivers/u_ld.h>
+#endif
 
 struct aos_dev_ops;
-
-#ifdef AOS_COMP_VFS
-#define AOS_DEV_NAME_MAX_LEN    63
-
-typedef struct {
-    char name[AOS_DEV_NAME_MAX_LEN + 1];
-    const struct file_ops *ops;
-} aos_dev_vfs_helper_t;
-#endif
 
 typedef struct aos_dev {
     aos_dev_type_t type;
     uint32_t id;
     const struct aos_dev_ops *ops;
-#ifdef AOS_COMP_VFS
-    aos_dev_vfs_helper_t vfs_helper;
+#ifdef AOS_COMP_DEVFS
+    aos_devfs_node_t devfs_node;
 #endif
     struct k_rbtree_node_t rb_node;
     aos_sem_t rb_sem;
@@ -53,6 +46,9 @@ typedef struct aos_dev_ops {
 extern "C" {
 #endif
 
+#if !(defined(CONFIG_DRV_CORE) && CONFIG_DRV_CORE != 0)
+aos_status_t aos_dev_core_init(void);
+#endif
 aos_status_t aos_dev_register(aos_dev_t *dev);
 aos_status_t aos_dev_unregister(aos_dev_type_t type, uint32_t id);
 aos_status_t aos_dev_ref(aos_dev_ref_t *ref, aos_dev_t *dev);

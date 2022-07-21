@@ -2,11 +2,9 @@
  * Copyright (C) 2021 Alibaba Group Holding Limited
  */
 
-#ifndef _AOS_PWM_CORE_H
-#define _AOS_PWM_CORE_H
+#ifndef AOS_PWM_CORE_H
+#define AOS_PWM_CORE_H
 
-#include <stdint.h>
-#include <aos/kernel.h>
 #include <aos/device_core.h>
 #include <aos/pwm.h>
 
@@ -76,4 +74,4 @@ aos_status_t aos_pwm_unregister(uint32_t id);
 }
 #endif
 
-#endif /* _AOS_PWM_CORE_H */
+#endif /* AOS_PWM_CORE_H */

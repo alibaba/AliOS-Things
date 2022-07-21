@@ -2,38 +2,60 @@
  * Copyright (C) 2021 Alibaba Group Holding Limited
  */
 
-#ifndef _AOS_ADC_H
-#define _AOS_ADC_H
+#ifndef AOS_ADC_H
+#define AOS_ADC_H
 
-#include <stdint.h>
-#include <aos/kernel.h>
+#ifdef AOS_KERNEL_BUILD
 #include <aos/device.h>
-
-#ifdef __cplusplus
-extern "C" {
+#else
+#include <stdint.h>
 #endif
 
-/** @defgroup driver_api driver
- *  @ingroup aos_components
- * @{
- */
-
-/** @} */
-
 /**
- * @defgroup aos_adc_app ADC
+ * @defgroup adc_api ADC
  * @ingroup driver_api
- * 给应用提供ADC操作的AOS API.
- *
+ * @brief AOS API for ADC.
  * @{
  */
-
-typedef aos_dev_ref_t aos_adc_ref_t;  /**< ADC设备的引用 */
 
 typedef enum {
     AOS_ADC_MODE_SINGLE,   /**< 单次采样模式 */
     AOS_ADC_MODE_CONTINUE, /**< 连续采样模式 */
 } aos_adc_mode_t;
+
+#if (defined(AOS_KERNEL_BUILD) && defined(AOS_COMP_DEVFS)) || !defined(AOS_KERNEL_BUILD)
+
+typedef struct {
+    int32_t channel;
+    uint32_t time;
+} aos_adc_set_sample_time_args_t;
+
+typedef struct {
+    int32_t channel;
+    uint32_t range;
+} aos_adc_get_range_args_t;
+
+typedef struct {
+    int32_t channel;
+    int32_t data;
+} aos_adc_read_args_t;
+
+#define AOS_ADC_IOC_SET_SAMPLE_TIME     0x4101
+#define AOS_ADC_IOC_SET_MODE            0x4102
+#define AOS_ADC_IOC_GET_RESOLUTION      0x4103
+#define AOS_ADC_IOC_GET_RANGE           0x4104
+#define AOS_ADC_IOC_READ                0x4105
+#define AOS_ADC_IOC_READ_VOLTAGE        0x4106
+
+#endif /* (defined(AOS_KERNEL_BUILD) && defined(AOS_COMP_DEVFS)) || !defined(AOS_KERNEL_BUILD) */
+
+#ifdef AOS_KERNEL_BUILD
+
+typedef aos_dev_ref_t aos_adc_ref_t;  /**< ADC设备的引用 */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * 获取一个ADC设备的引用
@@ -120,9 +142,12 @@ aos_status_t aos_adc_read(aos_adc_ref_t *ref, int32_t channel, int32_t *data);
  */
 aos_status_t aos_adc_read_voltage(aos_adc_ref_t *ref, int32_t channel, int32_t *data);
 
-/** @} */
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _AOS_ADC_H */
+#endif /* AOS_KERNEL_BUILD */
+
+/** @} */
+
+#endif /* AOS_ADC_H */

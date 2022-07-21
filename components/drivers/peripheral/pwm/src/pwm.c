@@ -2,14 +2,11 @@
  * Copyright (C) 2021 Alibaba Group Holding Limited
  */
 
-#include <stdint.h>
-#include <errno.h>
-#include <stdbool.h>
-#include <aos/kernel.h>
-#include <aos/list.h>
-#include <aos/pwm.h>
+#include <stdio.h>
 #include <aos/pwm_core.h>
-#include <drivers/ddkc_log.h>
+#ifdef AOS_COMP_DEVFS
+#include <inttypes.h>
+#endif
 
 #define AOS_MAX_PERIOD (1000000000U)
 #define AOS_PWM_CHECK_NULL(x) \
@@ -45,11 +42,11 @@ aos_status_t aos_pwm_set_attr(aos_pwm_ref_t *ref, aos_pwm_attr_t const *attr)
     pwm = aos_container_of(ref->dev, aos_pwm_t, dev);
     memcpy(&l_attr, attr, sizeof(aos_pwm_attr_t));
     if (l_attr.period > AOS_MAX_PERIOD) {
-        ddkc_warn("warning:period exceeds 1s\r\n");
+        printf("warning:period exceeds 1s\r\n");
         l_attr.period = AOS_MAX_PERIOD;
     }
     if (l_attr.duty_cycle > l_attr.period) {
-        ddkc_warn("warning: duty exceeds period\r\n");
+        printf("warning: duty exceeds period\r\n");
         l_attr.duty_cycle = l_attr.period;
     }
     if (l_attr.period == pwm->period &&
@@ -74,7 +71,6 @@ aos_status_t aos_pwm_set_attr(aos_pwm_ref_t *ref, aos_pwm_attr_t const *attr)
 
 aos_status_t aos_pwm_get_attr(aos_pwm_ref_t *ref, aos_pwm_attr_t *attr)
 {
-    aos_status_t ret;
     aos_pwm_t *pwm;
 
     AOS_PWM_CHECK_NULL(ref);
@@ -83,7 +79,7 @@ aos_status_t aos_pwm_get_attr(aos_pwm_ref_t *ref, aos_pwm_attr_t *attr)
     aos_dev_lock(ref->dev);
     attr->period = pwm->period;
     attr->duty_cycle = pwm->duty_cycle;
-    attr->enabled =  pwm->enabled;
+    attr->enabled = pwm->enabled;
     attr->polarity = pwm->polarity;
     aos_dev_unlock(ref->dev);
     return 0;
@@ -124,9 +120,69 @@ static const aos_dev_ops_t dev_pwm_ops = {
     .put = dev_pwm_put,
 };
 
+#ifdef AOS_COMP_DEVFS
+
+static aos_status_t devfs_pwm_ioctl(aos_devfs_file_t *file, int cmd, uintptr_t arg)
+{
+    aos_pwm_ref_t *ref = aos_devfs_file2ref(file);
+    aos_status_t ret;
+
+    switch (cmd) {
+    case AOS_PWM_IOC_GET_ATTR:
+        {
+            aos_pwm_attr_t attr;
+            if (!aos_devfs_file_is_readable(file)) {
+                ret = -EPERM;
+                break;
+            }
+            ret = aos_pwm_get_attr(ref, &attr);
+            if (ret)
+                break;
+            if (!aos_umem_check((const void *)arg, sizeof(attr)))
+                return -EFAULT;
+            ret = aos_umem_copy((void *)arg, &attr, sizeof(attr)) ? -EFAULT : 0;
+        }
+        break;
+    case AOS_PWM_IOC_SET_ATTR:
+        {
+            aos_pwm_attr_t attr;
+            if (!aos_devfs_file_is_writable(file)) {
+                ret = -EPERM;
+                break;
+            }
+            if (!aos_umem_check((const void *)arg, sizeof(attr)))
+                return -EFAULT;
+            if (aos_umem_copy(&attr, (const void *)arg, sizeof(attr))) {
+                ret = -EFAULT;
+                break;
+            }
+            ret = aos_pwm_set_attr(ref, &attr);
+        }
+        break;
+    default:
+        ret = -EINVAL;
+        break;
+    }
+
+    return ret;
+}
+
+static const aos_devfs_file_ops_t devfs_pwm_ops = {
+    .ioctl      = devfs_pwm_ioctl,
+    .poll       = NULL,
+    .mmap       = NULL,
+    .read       = NULL,
+    .write      = NULL,
+    .lseek      = NULL,
+};
+
+#endif /* AOS_COMP_DEVFS */
+
 aos_status_t aos_pwm_register(aos_pwm_t *pwm)
 {
-    aos_status_t ret;
+#ifdef AOS_COMP_DEVFS
+    int name_len;
+#endif
 
     AOS_PWM_CHECK_NULL(pwm);
 
@@ -142,10 +198,12 @@ aos_status_t aos_pwm_register(aos_pwm_t *pwm)
     pwm->duty_cycle = 0;
     pwm->period = 0;
     pwm->polarity = 0;
-#ifdef AOS_COMP_VFS
-    /* TODO: support vfs ops. */
-    pwm->dev.vfs_helper.name[0] = '\0';
-    pwm->dev.vfs_helper.ops = NULL;
+#ifdef AOS_COMP_DEVFS
+    aos_devfs_node_init(&pwm->dev.devfs_node);
+    pwm->dev.devfs_node.ops = &devfs_pwm_ops;
+    name_len = snprintf(pwm->dev.devfs_node.name, sizeof(pwm->dev.devfs_node.name), "pwm%" PRIu32, pwm->dev.id);
+    if (name_len < 0 || name_len >= sizeof(pwm->dev.devfs_node.name))
+        return -EINVAL;
 #endif
 
     return aos_dev_register(&(pwm->dev));
