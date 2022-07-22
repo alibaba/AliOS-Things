@@ -1,10 +1,10 @@
-@page ucloud_ai_demo 老板来了：通过HaaS100实现端云一体人脸识别示例
+@page ucloud_ai_demo 老板来了：通过HaaS100实现端云一体AI识别示例
 
 [更正文档](https://gitee.com/alios-things/ucloud_ai_demo/edit/master/README.md) &emsp;&emsp;&emsp;&emsp; [贡献说明](https://help.aliyun.com/document_detail/302301.html)
 
 # 1. 案例简介
 ucloud_ai_demo是基于云端AI能力实现的AI识别案例，主要有三个部分组成：
-1. 通过采集WiFi摄像头(ESP32)的数据后得到jpeg图像;
+1. 通过采集WiFi摄像头（ESP32）的数据后得到jpeg图像;
 2. 上传至云端OSS，再通过ucloud_ai组件实现视觉智能开放平台对图片识别处理；
 3. 通过LCD屏进行画面显示及识别结果显示。
 
@@ -40,11 +40,9 @@ ucloud_ai_demo是基于云端AI能力实现的AI识别案例，主要有三个�
 ## 3.1 WiFi摄像头安装
 ### 3.1.1 WiFi摄像头选型
 市面上的WiFi摄像头比较多，在本例中WiFi摄像头采用ESP官方的ESP32-EYE进行适配，ESP32-CAM是ESP32第三方厂商开发的一款低成本方案，应用也比较广泛，开发者也可以选择它作为方案之一，万能的淘宝上有很多卖家，商家也会提供相应的资料，开发者可以根据自己需要进行调试，购买链接如下：
-ESP32-EYE: [https://detail.tmall.com/item.htm?spm=a230r.1.14.1.150d6a6ftZ6h4K&id=611790371635&ns=1&abbucket=3](https://detail.tmall.com/item.htm?spm=a230r.1.14.1.150d6a6ftZ6h4K&id=611790371635&ns=1&abbucket=3)
+[ESP32-EYE](https://item.taobao.com/item.htm?spm=a230r.1.14.33.150d6a6ftZ6h4K&id=586201030146&ns=1&abbucket=3#detail)
 
-ESP32-CAM: [https://detail.tmall.com/item.htm?spm=a230r.1.14.1.3f543b21XaGDay&id=581256720864&ns=1&abbucket=3](https://detail.tmall.com/item.htm?spm=a230r.1.14.1.3f543b21XaGDay&id=581256720864&ns=1&abbucket=3)
-
-[https://item.taobao.com/item.htm?spm=a230r.1.14.33.150d6a6ftZ6h4K&id=586201030146&ns=1&abbucket=3#detail](https://item.taobao.com/item.htm?spm=a230r.1.14.33.150d6a6ftZ6h4K&id=586201030146&ns=1&abbucket=3#detail)
+[ESP32-CAM](https://detail.tmall.com/item.htm?spm=a230r.1.14.1.3f543b21XaGDay&id=581256720864&ns=1&abbucket=3)
 
 
 ### 3.1.2 ESP32-EYE开发配置
@@ -56,7 +54,7 @@ $git clone --recursive https://github.com/espressif/esp-who.git
 
 #### 3.1.2.2 ESP-IDF安装
 不同的操作系统安装的步骤也有所差异，请参考官网文档进行安装：
-[https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32/get-started/index.html#get-started-set-up-env](https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32/get-started/index.html#get-started-set-up-env)
+[文档链接](https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32/get-started/index.html#get-started-set-up-env)
 
 #### 3.1.2.3 环境变量设置
 > 这里以Macbook为例进行环境变量设置：
@@ -146,7 +144,7 @@ idf.py -p /dev/cu.SLAB_USBtoUART monitor
 ### 3.2 LCD连线
 使用本测试示例时，需要先连接SPI LCD屏幕。
 
-LCD购买链接[https://item.taobao.com/item.htm?spm=a1z09.2.0.0.768d2e8d9D3S7s&id=38842179442&_u=m1tg6s6048c2](https://item.taobao.com/item.htm?spm=a1z09.2.0.0.768d2e8d9D3S7s&id=38842179442&_u=m1tg6s6048c2)
+[LCD购买链接](https://item.taobao.com/item.htm?spm=a1z09.2.0.0.768d2e8d9D3S7s&id=38842179442&_u=m1tg6s6048c2)
 
 请选择购买2.4寸屏。
 
@@ -224,7 +222,7 @@ wifi camera的http访问地址,用户根据自己摄像头的IP地址进行替�
 ## 4.7 案例代码下载
 该案例相关的源代码下载可参考[《AliOS Things集成开发环境使用说明之创建工程》](https://help.aliyun.com/document_detail/302379.html)。
 其中：
-> 选择解决方案: “云端AI案例”或者“ucloud_ai_demo”
+> 选择解决方案：“云端AI案例”或者“ucloud_ai_demo”
 
 > 选择开发板: HaaS100
 
@@ -248,7 +246,7 @@ wifi camera的http访问地址,用户根据自己摄像头的IP地址进行替�
 
 
 ## 4.10 网络连接
-当串口终端打开成功后，可在串口中输入联网命令。因为HaaS100开发板需要连接到云端，因此需要连接到一个可以上外网的路由器，WiFi摄像头(ESP32-EYE)也只能使用Station模式连接到同一台路由器。
+当串口终端打开成功后，可在串口中输入联网命令。因为HaaS100开发板需要连接到云端，因此需要连接到一个可以上外网的路由器，WiFi摄像头（ESP32-EYE）也只能使用Station模式连接到同一台路由器。
 
 ```sh
 # 系统起来后在串口输入配网命令
