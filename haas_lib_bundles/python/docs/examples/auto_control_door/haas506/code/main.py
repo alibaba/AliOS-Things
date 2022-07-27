@@ -193,7 +193,7 @@ if __name__ == '__main__':
     # 连接网络
     connect_network()
      # 获取设备的IMEI 作为deviceName 进行动态注册
-    deviceName = modem.getDevImei()
+    deviceName = modem.info.getDevImei()
     #获取设备的ICCID
     ICCID=modem.sim.getIccid()
     #初始化物联网平台Device类，获取device实例
