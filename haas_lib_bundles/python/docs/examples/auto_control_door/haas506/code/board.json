@@ -1,0 +1,55 @@
+{
+  "name": "haas506",
+  "version": "2.0.0",
+  "io": {
+    "pwm_lpg": {
+      "type": "PWM",
+      "port": 3
+      },   
+    "infrared":{
+      "type":"GPIO",
+      "port": 20,
+      "dir": "input",
+      "pull":"pullup"
+    },         
+    "SPI0": {
+      "type": "SPI",
+      "port": 0,
+      "mode": "master",
+      "freq": 2000000
+    },
+    "serial1": {
+      "type": "UART",
+      "port": 0,
+      "dataWidth": 8,
+      "baudRate": 115200,
+      "stopBits": 1,
+      "flowControl": "disable",
+      "parity": "none",
+      "timeout": 1000
+    },
+    "serial2": {
+      "type": "UART",
+      "port": 1,
+      "dataWidth": 8,
+      "baudRate": 9600,
+      "stopBits": 1,
+      "flowControl": "disable",
+      "parity": "none",
+      "timeout": 1000
+    },
+    "serial3": {
+      "type": "UART",
+      "port": 2,
+      "dataWidth": 8,
+      "baudRate": 115200,
+      "stopBits": 1,
+      "flowControl": "disable",
+      "parity": "none",
+      "timeout": 1000
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "enable",
+  "replPort": 0
+}

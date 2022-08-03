@@ -1,0 +1,46 @@
+{
+    "name": "haas506",
+   "version": "2.0.0",
+   "io": {     
+    "OLED": {
+      "type": "I2C",
+      "port": 1,
+      "addrWidth": 7,
+      "freq": 400000,
+      "mode": "master",
+      "devAddr": 60
+    },            
+      "serial1":{
+        "type":"UART",
+        "port":0,
+        "dataWidth":8,
+        "baudRate":9600,
+        "stopBits":1,
+        "flowControl":"disable",
+        "parity":"none"
+      },
+      "serial2":{
+        "type":"UART",
+        "port":1,
+        "dataWidth":8,
+        "baudRate":115200,
+        "stopBits":1,
+        "flowControl":"disable",
+        "parity":"none"
+      },
+      "serial3":{
+        "type":"UART",
+        "port":2,
+        "dataWidth":8,
+        "baudRate":115200,
+        "stopBits":1,
+        "flowControl":"disable",
+        "parity":"none"
+      }
+   },
+   "debugLevel": "ERROR",
+   "repl":"enable",
+   "replPort":3
+  
+  }
+   
