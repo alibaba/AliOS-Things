@@ -1,0 +1,23 @@
+{
+  "name": "haas506",
+  "version": "2.0.0",
+  "io": {
+        "echo":{
+          "type":"GPIO",
+          "port": 20,
+          "dir": "input",
+          "pull":"pullup"
+        },  
+        "trig":{
+          "type":"GPIO",
+          "port": 19,
+          "dir": "output",
+          "pull":"pullup"
+        }    
+
+  },
+  "debugLevel": "ERROR",
+  "repl": "enable",
+  "replPort": 0
+}
+
