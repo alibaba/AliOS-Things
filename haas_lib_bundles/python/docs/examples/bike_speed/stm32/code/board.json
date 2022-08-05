@@ -1,0 +1,107 @@
+{
+  "name": "01studio",
+  "version": "1.0.0",
+  "io": {
+    "hcho": {
+      "type": "ADC",
+      "port": "A0",
+      "atten": 0,
+      "width": 3,
+      "sampling": 12000000
+    },
+    "sht3x": {
+      "type": "I2C",
+      "port": 1,
+      "addrWidth": 7,
+      "freq": 400000,
+      "mode": "master",
+      "devAddr": 104
+    },
+    "led_g": {
+      "type": "GPIO",
+      "port": "A2",
+      "dir": "output",
+      "pull": "pullup"
+    },
+    "led_b": {
+      "type": "GPIO",
+      "port": "A5",
+      "dir": "output",
+      "pull": "pullup"
+    },
+    "led_r": {
+      "type": "GPIO",
+      "port": "F15",
+      "dir": "output",
+      "pull": "pullup"
+    },
+    "ir": {
+      "type": "GPIO",
+      "port": "D10",
+      "dir": "input",
+      "pull": "pullup"
+    },
+    "gnss": {
+      "type": "UART",
+      "port": 1,
+      "dataWidth": 8,
+      "baudRate": 115200,
+      "stopBits": 1,
+      "flowControl": "disable",
+      "parity": "none"
+    },
+    "bmp280": {
+      "type": "I2C",
+      "port": 1,
+      "addrWidth": 7,
+      "freq": 400000,
+      "mode": "master",
+      "devAddr": 118
+    },
+    "buzzer": {
+      "type": "GPIO",
+      "port": "B14",
+      "dir": "output",
+      "pull": "pullup"
+    },
+    "trig": {
+      "type": "GPIO",
+      "port": "A3",
+      "dir": "output",
+      "pull": "pullup"
+    },
+    "echo": {
+      "type": "GPIO",
+      "port": "A5",
+      "dir": "input",
+      "pull": "pullup"
+    },
+    "hw181_adc": {
+      "type": "ADC",
+      "port": "A0",
+      "sampling": 12000000,
+      "atten": 0,
+      "width": 3
+    },
+    "rgbR": {
+      "type": "PWM",
+      "port": "A7"
+    },
+    "rgbG": {
+      "type": "PWM",
+      "port": "A2"
+    },
+    "rgbB": {
+      "type": "PWM",
+      "port": "A5"
+    },
+    "hal55695":{
+      "type": "GPIO",
+      "port": "B1",
+      "dir": "input",
+      "pull": "pullup"
+    }
+  },
+  "debugLevel": "ERROR",
+  "repl": "disable"
+}
