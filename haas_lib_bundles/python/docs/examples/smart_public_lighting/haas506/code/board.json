@@ -1,0 +1,107 @@
+{
+  "name": "haas506",
+  "version": "1.0.0",
+  "io": {
+      "ADC0": {
+          "type": "ADC",
+          "port": 0,
+          "sampling": 12000000
+      },
+      "led1": {
+        "type": "GPIO",
+        "port": 7,
+        "dir": "output",
+        "pull": "pullup"
+        },
+      "mpu6050": {
+          "type": "I2C",
+          "port": 1,
+          "addrWidth": 7,
+          "freq": 400000,
+          "mode": "master",
+          "devAddr": 105
+      },
+      "BH1750": {
+          "type": "I2C",
+          "port": 1,
+          "addrWidth": 7,
+          "freq": 400000,
+          "mode": "master",
+          "devAddr": 35
+      },
+      "KEY1": {
+          "type": "GPIO",
+          "port": 44,
+          "dir": "irq",
+          "pull": "pullup",
+          "intMode": "rising"
+      },
+      "work_led": {
+          "type": "GPIO",
+          "port": 0,
+          "dir": "output",
+          "pull": "pulldown"
+      },
+      "net_led": {
+          "type": "GPIO",
+          "port": 7,
+          "dir": "output",
+          "pull": "pulldown"
+      },
+      "cloud_led": {
+          "type": "GPIO",
+          "port": 9,
+          "dir": "output",
+          "pull": "pulldown"
+      },
+      "d2_led": {
+          "type": "GPIO",
+          "port": 6,
+          "dir": "output",
+          "pull": "pulldown"
+      },
+      "d3_led": {
+          "type": "GPIO",
+          "port": 8,
+          "dir": "output",
+          "pull": "pulldown"
+      },
+      "SPI0": {
+      "type": "SPI",
+      "port": 0,
+      "mode": "master",
+      "freq": 2000000
+      },
+  "serial1":{
+      "type":"UART",
+      "port":0,
+      "dataWidth":8,
+      "baudRate":115200,
+      "stopBits":1,
+      "flowControl":"disable",
+      "parity":"none"
+  },
+  "serial2":{
+      "type":"UART",
+      "port":1,
+      "dataWidth":8,
+      "baudRate":115200,
+      "stopBits":1,
+      "flowControl":"disable",
+      "parity":"none"
+  },
+  "serial3":{
+      "type":"UART",
+      "port":2,
+      "dataWidth":8,
+      "baudRate":115200,
+      "stopBits":1,
+      "flowControl":"disable",
+      "parity":"none"
+  }
+  },
+  "debugLevel": "ERROR",
+  "repl": "enable",
+  "replPort": 0
+}
+
