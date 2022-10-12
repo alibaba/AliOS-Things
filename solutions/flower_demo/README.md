@@ -32,40 +32,7 @@ HaaS100核心板有着丰富的外设接口，如下所示：
     <img src="https://img.alicdn.com/imgextra/i1/O1CN01G4JbCl1qcplUe5ynk_!!6000000005517-2-tps-1604-872.png" style="max-width:800px;" />
 </div>
 
-DHT11温湿度传感器的工作原理
-### 2.2.1 工作时序
-主机发开始信号-》DHT11响应输出-》DHT11数据信号。（平时默认为高电平，起始信号为低电平）
-
-<div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN017lZ9eZ1cIlnMoyjU3_!!6000000003578-2-tps-1398-352.png" style="max-width:800px;" />
-</div>
-
-### 2.2.2 起始信号和响应信号的规则
-主机发开始信号：低电平大于18ms，高电平20-40us；
-DHT11的响应信号：低电平80us，高电平80us；
-
-<div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i3/O1CN01etKzgU1UNKoYVqtxo_!!6000000002505-2-tps-1592-508.png" style="max-width:800px;" />
-</div>
-
-### 2.2.3 数字信号的规则
-
-一次完整的数据传输为40bit,高位先出。
-数据格式:8bit湿度整数数据+8bit湿度小数数据+8bit温度整数数据+8bit温度小数数据+8bit校验和
-校验和数据=“8bit湿度整数数据+8bit湿度小数数据+8bi温度整数数据+8bit温度小数数据”所得结果的末8位。
-
-DHT11传感器如果没有接收到主机发送开始信号,不会主动进行温湿度采集。
-数字‘0’信号：低电平50us，高电平26-28us
-
-<div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i1/O1CN01BVYeO41aQtaXWn8Di_!!6000000003325-2-tps-1564-850.png" style="max-width:800px;" />
-</div>
-
-数字‘1’信号：低电平50us，高电平70us
-
-<div align=left display=flex>
-    <img src="https://img.alicdn.com/imgextra/i2/O1CN01jH1ELf1Z8Hspm5NNC_!!6000000003149-2-tps-1574-730.png" style="max-width:800px;" />
-</div>
+DHT11温湿度传感器的工作原理可以参考网上文章，比如[CSDN上的文章](https://blog.csdn.net/lin5103151/article/details/103193089)。
 
 # 3. 物料清单
 
