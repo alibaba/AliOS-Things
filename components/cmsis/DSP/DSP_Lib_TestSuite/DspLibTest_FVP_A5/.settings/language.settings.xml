@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project>
+	<configuration id="com.arm.eclipse.build.config.baremetal.exe.debug.base.var.arm_compiler_5-5.1602530321" name="Debug">
+		<extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
+			<provider copy-of="extension" id="org.eclipse.cdt.ui.UserLanguageSettingsProvider"/>
+			<provider-reference id="org.eclipse.cdt.core.ReferencedProjectsLanguageSettingsProvider" ref="shared-provider"/>
+			<provider-reference id="org.eclipse.cdt.managedbuilder.core.MBSLanguageSettingsProvider" ref="shared-provider"/>
+			<provider class="com.arm.eclipse.builder.armcc.discovery.ArmCompiler6LanguageSettingsProvider" console="false" env-hash="-1406983329259045156" id="com.arm.eclipse.builder.armcc.v6.langprovider" keep-relative-paths="false" name="Arm Compiler 6 Built-in Compiler Settings" parameter="${COMMAND} ${FLAGS} -E -P -v -dD &quot;${INPUTS}&quot;" prefer-non-shared="true">
+				<language-scope id="org.eclipse.cdt.core.gcc"/>
+				<language-scope id="org.eclipse.cdt.core.g++"/>
+			</provider>
+		</extension>
+	</configuration>
+	<configuration id="com.arm.eclipse.build.config.baremetal.exe.release.base.var.arm_compiler_5-5.233016572" name="Release">
+		<extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
+			<provider copy-of="extension" id="org.eclipse.cdt.ui.UserLanguageSettingsProvider"/>
+			<provider-reference id="org.eclipse.cdt.core.ReferencedProjectsLanguageSettingsProvider" ref="shared-provider"/>
+			<provider-reference id="org.eclipse.cdt.managedbuilder.core.MBSLanguageSettingsProvider" ref="shared-provider"/>
+			<provider class="com.arm.eclipse.builder.armcc.discovery.ArmCompiler5LanguageSettingsProvider" console="false" env-hash="-1446449183757281068" id="com.arm.eclipse.builder.armcc.v5.langprovider" keep-relative-paths="false" name="Arm Compiler 5 Built-in Compiler Settings" parameter="${COMMAND} ${FLAGS} --list-macros &quot;${INPUTS}&quot;" prefer-non-shared="true">
+				<language-scope id="com.arm.eclipse.builder.armcc.lang.c"/>
+				<language-scope id="com.arm.eclipse.builder.armcc.lang.cpp"/>
+			</provider>
+		</extension>
+	</configuration>
+</project>
