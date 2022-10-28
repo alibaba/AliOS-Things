@@ -1,0 +1,140 @@
+
+## 第一部分： 基础信息
+name: stm32u5                                    # <必选项> 包名称 （符合C语言变量命名规则），长度少于等于64字节
+version: master                                    # <必选项> 组件版本号
+description: driver & sdk for platform/mcu stm32u5          # <必选项> 建议至少20字以上
+type: chip                                          # <必选项> 组件类型，为：solution, chip, board, common, sdk
+
+tag: 核心模块                                       # <可选项> 组件分类，缺省值： ''
+keywords:                                           # <可选项> 标签，会影响到组件被搜索的效果，合理的标签很重要
+  - base
+license: Apache license v2.0                        # <可选项> 源代码的许可证，要确保所有代码、文件的许可证不冲突。如：MIT，Apache license v2.0，BSD
+
+#           指定该组件依赖的组件及版本，版本支持条件比较，支持：>=v1.0, >v1.0, ==v1.0, <=v1.0, <v1.0, v1.0
+#           未指定条件时，默认为 ==，如 v1.0 与 ==v1.0
+# depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
+#   - minilibc: v7.2.0
+#   - aos: >=v7.2.0
+depends:
+  - armv8m: master
+  - rhino: master
+# - dm_engine: master ? <CONFIG_DM>
+## 第四部分：编译连接信息
+# build_config:                            # <可选项> 编译配置项
+#   include:                               # <可选项> 编译时，影响编译器的-I 参数 ,全局有效
+#     - src                                #        include 只能是该软件包下的目录，不能使用外部目录
+#   internal_include:                      # <可选项> 编译时，影响编译器的-I 参数 ,组件内有效
+#     - include
+#   cflag: ''                              # <可选项> C 编译器所需要要的编译参数
+#   cxxflag: ''                            # <可选项> CXX 编译器所需要要的编译参数
+#   asmflag: ''                            # <可选项> 汇编器所需要要参数
+#   define:                                # <可选项> 宏定义, 增加编译器的-D 选项,如：
+#     XXX: 1                               #   -DXXX=1
+#     AAA: 1                               #   -DAAA
+#     STR: "abc"                           #   -DSTR="abc"
+#   libs:                                  # 该组件中支持的二进制静态库,如：libxxx.a, libyyy.a
+#     - xxx                                #   -lxxx
+#     - yyy                                #   -lyyy
+#   libpath:                               # 指定静态库所在的路径（相对于该组件路径）
+#     - libs                               #   -Llibs
+build_config:
+  cflag: >
+        -mthumb -mcpu=cortex-m33 -mfpu=fpv5-sp-d16 -mfloat-abi=hard -g -Os
+        -DSECURE_BOOT -DKERNEL=RHINO -DFLASH_SIZE=0x1000000 -DCRASH_DUMP_SECTION_SIZE=0
+        -DAUD_SECTION_SIZE=0 -DUSERDATA_SECTION_SIZE=0x1000 -DFACTORY_SECTION_SIZE=0x1000
+        -DNV_REC_DEV_VER=2 -DREVISION_INFO=x -DCHIP_HAS_UART=3 -DRESAMPLE_ANY_SAMPLE_RATE -DCHIP_HAS_TRANSQ -DRTOS=1
+        -DCQ_FUNC_ATTR= -DDEBUG=1 -DREL_TRACE_ENABLE -DPERSIST_DATA_SECTION_SIZE=0x1000 -std=gnu11 -fno-common -fmessage-length=0 -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer
+  cxxflag: >
+          -D_GLIBCXX_HAS_GTHREADS -mthumb -mcpu=cortex-m33 -mfpu=fpv5-sp-d16 -mfloat-abi=hard 
+          -DAUD_SECTION_SIZE=0 -DUSERDATA_SECTION_SIZE=0x1000 -DFACTORY_SECTION_SIZE=0x1000
+          -DFLASH_SIZE=0x1000000  -DCRASH_DUMP_SECTION_SIZE=0
+          -DSECURE_BOOT
+          -DNV_REC_DEV_VER=2 -DREVISION_INFO=x -DCHIP_HAS_UART=3 -DRESAMPLE_ANY_SAMPLE_RATE -DCHIP_HAS_TRANSQ -DRTOS=1
+          -DCQ_FUNC_ATTR= -DDEBUG=1 -DREL_TRACE_ENABLE -DPERSIST_DATA_SECTION_SIZE=0x1000 -DCHIP_HAS_TRANSQ -DCHIP_HAS_UART=3 -DRTOS=1 -DDISABLE_CLI_MULTI_CONSOLE=0
+          -std=gnu++11 -fsigned-char -fno-common -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -fpermissive -DSNTP_PERIODIC_SYNC_INTERVAL_MS=3600000
+          -g -Os
+  ldflag: -mthumb -mcpu=cortex-m33 -mfpu=fpv5-sp-d16 -mfloat-abi=hard -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys --specs=nano.specs -Wl,-Map="aos.map" -Wl,--gc-sections --coverage
+  shldflag: -mcpu=cortex-m33 -mthumb -mfpu=fpv5-sp-d16 -mfloat-abi=hard -s
+  asmflag: >
+          -mthumb -mcpu=cortex-m33 -mfpu=fpv5-sp-d16 -mfloat-abi=hard -g -Os
+          -DKERNEL=RHINO -c -x assembler-with-cpp
+
+  include:
+    - drivers/STM32U5xx_HAL_Driver/Inc/
+    - drivers/STM32U5xx_HAL_Driver/Inc/Legacy/
+    - aos/arch/
+    - aos/
+
+
+  libpath:
+    - drivers
+
+# source_file:                             # <可选项> 指定参与编译的源代码文件，支持通配符，采用相对路径
+#   - src/*.c                              # 例：组件 src 目录下所有的扩展名为 c 的源代码文件
+source_file:
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_cortex.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_dma_ex.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_dma.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_exti.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_mdf.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_flash_ex.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_flash.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_gpio.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_gtzc.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_i2c_ex.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_i2c.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_icache.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_pwr_ex.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_pwr.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_rcc_ex.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_rcc.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_tim_ex.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_tim.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_uart_ex.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_uart.c
+  - drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal.c
+  - aos/*.c
+  - hal/*.c
+
+## 第五部分：配置信息
+# def_config:                              # 组件的可配置项
+#   CONFIG_DEBUG: y
+#   CONFIG_PARAM_NOT_CHECK: y
+#   CONFIG_CLI: y
+def_config:
+  HAL_MDF_MODULE_ENABLED: 1
+  HAL_DMA_MODULE_ENABLED: 1
+  __STM32U5__: 1
+chip:
+  arch_name: arm
+  cpu_name: cortex-m33
+  vendor_name: ST
+  ld_script: STM32U585AIIXQ_FLASH.ld
+
+hw_info:
+  arch_name: arm
+  cpu_name: cortex-m33
+  toolchain_prefix: arm-ali-aoseabi
+  vendor_name: ST
+  ld_script: STM32U585AIIXQ_FLASH.ld
+
+## 第六部分：安装信息
+# install:
+#   - dest: include/                       # 安装的目的路径 dest是相当路径，通常是相对于YoC SDK 安装目录
+#     source:                              # 安装源列表
+#      - src/*.h                           # 支持通配符，相对路径
+install:
+  - dest: "include"
+    source:
+      - drivers/STM32U5xx_HAL_Driver/Inc/*.h
+      - drivers/STM32U5xx_HAL_Driver/Inc/Legacy/*.h
+
+
+## 第七部分：导出部分
+# export:
+#   - dest: "<SOLUTION_PATH>/generated/data" # 安装的目的路径 dest是相当路径
+#     source:                                # 安装源列表
+#       - "bootimgs/boot"
+#       - "bootimgs/tee"
+#       - "bootimgs/mtb"
+#       - "configs/config.yaml"
