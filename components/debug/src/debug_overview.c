@@ -191,20 +191,16 @@ void debug_task_overview(int (*print_func)(const char *fmt, ...))
 void debug_buf_queue_overview(int (*print_func)(const char *fmt, ...))
 {
     int           i;
-    klist_t      *listnode;
-    klist_t      *blk_list_head;
+    klist_t      *listnode, *task_listnode;
     ktask_t      *task;
     kbuf_queue_t *buf_queue;
     const name_t *task_name;
     char s_buf_queue_overview[] = "0x         0x         0x         0x         "
                                   "0x                             \r\n";
 
-    print_func(
-                "------------------------------------------------------------------\r\n");
-    print_func(
-                "BufQueAddr TotalSize  PeakNum    CurrNum    MinFreeSz  TaskWaiting\r\n");
-    print_func(
-                "------------------------------------------------------------------\r\n");
+    print_func("------------------------------------------------------------------\r\n");
+    print_func("BufQueAddr TotalSize  PeakNum    CurrNum    MinFreeSz  TaskWaiting\r\n");
+    print_func("------------------------------------------------------------------\r\n");
     for (listnode = g_kobj_list.buf_queue_head.next;
          listnode != &g_kobj_list.buf_queue_head; listnode = listnode->next) {
 
@@ -222,27 +218,30 @@ void debug_buf_queue_overview(int (*print_func)(const char *fmt, ...))
         k_int2str((int)buf_queue->cur_num, &s_buf_queue_overview[35]);
         k_int2str((int)buf_queue->min_free_buf_size, &s_buf_queue_overview[46]);
 
-        /* set pending task name */
-        blk_list_head = &buf_queue->blk_obj.blk_list;
-        if (is_klist_empty(blk_list_head)) {
-            task_name = " ";
-        } else {
-            task = krhino_list_entry(blk_list_head->next, ktask_t, task_list);
-            task_name = task->task_name == NULL ? "anonym" : task->task_name;
-        }
-
-        for (i = 0; i < 20; i++) {
-            s_buf_queue_overview[55 + i] = ' ';
-        }
-        for (i = 0; i < 20; i++) {
-            if (task_name[i] == '\0') {
-                break;
-            }
-            s_buf_queue_overview[55 + i] = task_name[i];
-        }
-
         /* print */
         print_func(s_buf_queue_overview);
+
+        /* clear info */
+        for (i = 0; i < 75; i++) {
+            s_buf_queue_overview[i] = ' ';
+        }
+
+        /* set pending task name */
+        for (task_listnode = buf_queue->blk_obj.blk_list.next;
+             task_listnode != &buf_queue->blk_obj.blk_list;
+             task_listnode = task_listnode->next) {
+            task = krhino_list_entry(task_listnode, ktask_t, task_list);
+            task_name = task->task_name == NULL ? "anonym" : task->task_name;
+            for (i = 0; i < 20; i++) {
+                s_buf_queue_overview[55 + i] = ' ';
+            }
+            for (i = 0; (i < 20) && (i < strlen(task_name)); i++) {
+                s_buf_queue_overview[55 + i] = task_name[i];
+            }
+
+            /* print */
+            print_func(s_buf_queue_overview);
+        }
     }
 }
 #else
@@ -258,8 +257,7 @@ void debug_buf_queue_overview(int (*print_func)(const char *fmt, ...))
 void debug_queue_overview(int (*print_func)(const char *fmt, ...))
 {
     int           i;
-    klist_t      *listnode;
-    klist_t      *blk_list_head;
+    klist_t      *listnode, *task_listnode;
     ktask_t      *task;
     kqueue_t     *queue;
     const name_t *task_name;
@@ -285,27 +283,30 @@ void debug_queue_overview(int (*print_func)(const char *fmt, ...))
         k_int2str((int)queue->msg_q.peak_num, &s_queue_overview[24]);
         k_int2str((int)queue->msg_q.cur_num, &s_queue_overview[35]);
 
-        /* set pending task name */
-        blk_list_head = &queue->blk_obj.blk_list;
-        if (is_klist_empty(blk_list_head)) {
-            task_name = " ";
-        } else {
-            task = krhino_list_entry(blk_list_head->next, ktask_t, task_list);
-            task_name = task->task_name == NULL ? "anonym" : task->task_name;
-        }
-
-        for (i = 0; i < 20; i++) {
-            s_queue_overview[44 + i] = ' ';
-        }
-        for (i = 0; i < 20; i++) {
-            if (task_name[i] == '\0') {
-                break;
-            }
-            s_queue_overview[44 + i] = task_name[i];
-        }
-
         /* print */
         print_func(s_queue_overview);
+
+        /* clear info */
+        for (i = 0; i < 64; i++) {
+            s_queue_overview[i] = ' ';
+        }
+
+        /* set pending task name */
+        for (task_listnode = queue->blk_obj.blk_list.next;
+             task_listnode != &queue->blk_obj.blk_list;
+             task_listnode = task_listnode->next) {
+            task = krhino_list_entry(task_listnode, ktask_t, task_list);
+            task_name = task->task_name == NULL ? "anonym" : task->task_name;
+            for (i = 0; i < 20; i++) {
+                s_queue_overview[44 + i] = ' ';
+            }
+            for (i = 0; (i < 20) && (i < strlen(task_name)); i++) {
+                s_queue_overview[44 + i] = task_name[i];
+            }
+
+            /* print */
+            print_func(s_queue_overview);
+        }
     }
 }
 #else
@@ -323,8 +324,7 @@ void debug_sem_overview(int (*print_func)(const char *fmt, ...))
     int           i, cnt = 0;
     ksem_t       *sem;
     ktask_t      *task;
-    klist_t      *listnode;
-    klist_t      *blk_list_head;
+    klist_t      *listnode, *task_listnode;
     const name_t *task_name;
     char          s_sem_overview[] =
                 "0x         0x         0x                             \r\n";
@@ -347,8 +347,8 @@ void debug_sem_overview(int (*print_func)(const char *fmt, ...))
         }
 
         /* only show sem waited by task */
-        blk_list_head = &sem->blk_obj.blk_list;
-        if (is_klist_empty(blk_list_head)) {
+        task_listnode = sem->blk_obj.blk_list.next;
+        if (task_listnode == &sem->blk_obj.blk_list) {
             continue;
         }
 
@@ -357,24 +357,30 @@ void debug_sem_overview(int (*print_func)(const char *fmt, ...))
         k_int2str((int)sem->count, &s_sem_overview[13]);
         k_int2str((int)sem->peak_count, &s_sem_overview[24]);
 
-        /* set pending task name */
-        blk_list_head = &sem->blk_obj.blk_list;
-        if (is_klist_empty(blk_list_head)) {
-            task_name = " ";
-        } else {
-            task = krhino_list_entry(blk_list_head->next, ktask_t, task_list);
-            task_name = task->task_name == NULL ? "anonym" : task->task_name;
-        }
-
-        for (i = 0; i < 20; i++) {
-            s_sem_overview[33 + i] = ' ';
-        }
-        for (i = 0; (i < 20) && i < strlen(task_name); i++) {
-            s_sem_overview[33 + i] = task_name[i];
-        }
-
         /* print */
         print_func(s_sem_overview);
+
+        /* clear info */
+        for (i = 0; i < 53; i++) {
+            s_sem_overview[i] = ' ';
+        }
+
+        /* set pending task name */
+        for (task_listnode = sem->blk_obj.blk_list.next;
+             task_listnode != &sem->blk_obj.blk_list;
+             task_listnode = task_listnode->next) {
+            task = krhino_list_entry(task_listnode, ktask_t, task_list);
+            task_name = task->task_name == NULL ? "anonym" : task->task_name;
+            for (i = 0; i < 20; i++) {
+                s_sem_overview[33 + i] = ' ';
+            }
+            for (i = 0; (i < 20) && (i < strlen(task_name)); i++) {
+                s_sem_overview[33 + i] = task_name[i];
+            }
+
+            /* print */
+            print_func(s_sem_overview);
+        }
     }
     k_int2str(cnt, &s_sem_total[9]);
     print_func(s_sem_total);
@@ -393,8 +399,7 @@ void debug_mutex_overview(int (*print_func)(const char *fmt, ...))
     int           i, cnt = 0;
     kmutex_t     *mutex;
     ktask_t      *task;
-    klist_t      *listnode;
-    klist_t      *blk_list_head;
+    klist_t      *listnode, *task_listnode;
     const name_t *task_name;
     char          s_mutex_overview[] =
                 "0x                              0x                              \r\n";
@@ -431,14 +436,23 @@ void debug_mutex_overview(int (*print_func)(const char *fmt, ...))
         for (i = 0; i < 20; i++) {
             s_mutex_overview[11 + i] = ' ';
         }
-        for (i = 0; i <= strlen(task_name); i++) {
+        for (i = 0; i < strlen(task_name); i++) {
             s_mutex_overview[11 + i] = task_name[i];
         }
 
+        /* print */
+        print_func(s_mutex_overview);
+
+        /* clear info */
+        for (i = 0; i < 63; i++) {
+            s_mutex_overview[i] = ' ';
+        }
+
         /* set pending task name */
-        blk_list_head = &mutex->blk_obj.blk_list;
-        if (!is_klist_empty(blk_list_head)) {
-            task = krhino_list_entry(blk_list_head->next, ktask_t, task_list);
+        for (task_listnode = mutex->blk_obj.blk_list.next;
+             task_listnode != &mutex->blk_obj.blk_list;
+             task_listnode = task_listnode->next) {
+            task = krhino_list_entry(task_listnode, ktask_t, task_list);
             task_name = task->task_name == NULL ? "anonym" : task->task_name;
             for (i = 0; i < 20; i++) {
                 s_mutex_overview[43 + i] = ' ';
@@ -446,10 +460,10 @@ void debug_mutex_overview(int (*print_func)(const char *fmt, ...))
             for (i = 0; (i < 20) && (i < strlen(task_name)); i++) {
                 s_mutex_overview[43 + i] = task_name[i];
             }
-        }
 
-        /* print */
-        print_func(s_mutex_overview);
+            /* print */
+            print_func(s_mutex_overview);
+        }
     }
 
     k_int2str(cnt, &s_mutex_total[9]);
