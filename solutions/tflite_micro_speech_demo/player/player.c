@@ -125,7 +125,7 @@ int32_t player_play(player_mp3_e file)
     return 0;
 }
 
-int32_t player_stop(void)
+void player_stop(void)
 {
     player_state_t state;
 
@@ -137,7 +137,7 @@ int32_t player_stop(void)
 }
 
 
-int32_t player_wait_complete(void)
+void player_wait_complete(void)
 {
     int32_t ret;
 
