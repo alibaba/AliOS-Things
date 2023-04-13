@@ -222,6 +222,10 @@ int activation_parse_data(char *response_data)
 
     ACTIVATION_DEBUG("response data: %s\n", response_data);
     result_start = strstr(response_data, ACTIVATION_RESPONSE_RESULT_START);
+    if(result_start == NULL){
+        ACTIVATION_ERR("parse reponse result failed\n");
+        return -1;
+    }
     result_end = strstr(result_start, ACTIVATION_RESPONSE_RESULT_END);
     if ((result_start != NULL)
         && (result_end != NULL)) {
@@ -239,6 +243,10 @@ int activation_parse_data(char *response_data)
         }
 
         result_start = strstr(response_data, ACTIVATION_RESPONSE_MESSAGE_START);
+        if(result_start == NULL){
+            ACTIVATION_ERR("parse reponse result failed\n");
+            return -1;
+        }
         result_end = strstr(result_start, ACTIVATION_RESPONSE_MESSAGE_END);
         if ((result_start != NULL) && (result_end != NULL)) {
             result_start += strlen(ACTIVATION_RESPONSE_MESSAGE_START);
