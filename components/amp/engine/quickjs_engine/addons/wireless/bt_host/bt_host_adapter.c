@@ -191,7 +191,7 @@ static ad_data_t *bt_host_adapter_adv_data_parse(char *adv_data, int8_t *num)
     if (ad_data == NULL) {
         return NULL;
     }
-    memset(ad_data, 0, sizeof(ad_num * sizeof(ad_data_t)));
+    memset(ad_data, 0, ad_num * sizeof(ad_data_t));
     ad_num = 0;
     for (i = 0; i < adv_len;) {
         len = adv_bin[i];
