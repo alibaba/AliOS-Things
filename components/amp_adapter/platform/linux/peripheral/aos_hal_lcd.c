@@ -23,7 +23,7 @@ int32_t aos_hal_lcd_uninit(void)
 int32_t aos_hal_lcd_show(int x, int y, int w, int h, uint8_t *buf, bool rotate)
 {
     printf("aos_hal_lcd_show x: %d, y: %d, w: %d, h: %d, rotate: %d\n", x, y, w, h, rotate);
-    for (int i; i < w * h * 2; i++)
+    for (int i = 0; i < w * h * 2; i++)
         printf("buf: 0x%x", buf[i]);
 
     return 0;
