@@ -87,49 +87,15 @@ int main(int argc, char **argv)
 
     switch (bits_per_pixel) {
     case 8:
+        const int rgb_values[] = {0, SCALE(36), SCALE(73), SCALE(109), SCALE(146), SCALE(182), SCALE(219), SCALE(255)};
         for (i = 0; i < cmsize; i++) {
-            if (i < 32)
-                red[i] = 0;
-            else if (i < 64)
-                red[i] = SCALE(36);
-            else if (i < 96)
-                red[i] = SCALE(73);
-            else if (i < 128)
-                red[i] = SCALE(109);
-            else if (i < 160)
-                red[i] = SCALE(146);
-            else if (i < 192)
-                red[i] = SCALE(182);
-            else if (i < 224)
-                red[i] = SCALE(219);
-            else if (i < 256)
-                red[i] = SCALE(255);
+            red[i] = rgb_values[i / 32];
 
-            if ((i % 32) < 4)
-                green[i] = 0;
-            else if (i < 8)
-                green[i] = SCALE(36);
-            else if ((i % 32) < 12)
+            green[i] = rgb_values[i % 32 / 4];
+            if (i > 8 && (i % 32) >= 4 && (i % 32) < 12)
                 green[i] = SCALE(73);
-            else if ((i % 32) < 16)
-                green[i] = SCALE(109);
-            else if ((i % 32) < 20)
-                green[i] = SCALE(146);
-            else if ((i % 32) < 24)
-                green[i] = SCALE(182);
-            else if ((i % 32) < 28)
-                green[i] = SCALE(219);
-            else if ((i % 32) < 32)
-                green[i] = SCALE(255);
 
-            if ((i % 4) == 0)
-                blue[i] = SCALE(0);
-            else if ((i % 4) == 1)
-                blue[i] = SCALE(85);
-            else if ((i % 4) == 2)
-                blue[i] = SCALE(170);
-            else if ((i % 4) == 3)
-                blue[i] = SCALE(255);
+            blue[i] = SCALE(i % 4 * 85);
         }
         break;
     case 4:
