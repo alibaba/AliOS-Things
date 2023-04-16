@@ -593,11 +593,16 @@ int haas200_wifi_start_specified_scan(netdev_t *dev, ap_list_t *ap_list, int ap_
         channel_list = (uint8_t *)malloc(haas200_wifi_channel_list_num);
         if (!channel_list) {
             printf("ERROR: malloc for channel list failed!\n");
+            free(result.ap_list);
+            result.ap_list = NULL;
             return -1;
         }
         pscan_config = (uint8_t *)malloc(haas200_wifi_channel_list_num);
         if (!pscan_config) {
             printf("ERROR: malloc for pscan config failed!\n");
+            free(channel_list);
+            free(result.ap_list);
+            result.ap_list = NULL;
             return -1;
         }
 
@@ -608,8 +613,14 @@ int haas200_wifi_start_specified_scan(netdev_t *dev, ap_list_t *ap_list, int ap_
 
         if (wifi_set_pscan_chan(channel_list, pscan_config, haas200_wifi_channel_list_num) < 0) {
             printf("ERROR: set channel pscan failed!");
+            free(channel_list);
+            free(pscan_config);
+            free(result.ap_list);
+            result.ap_list = NULL;
             return -1;
         }
+        free(channel_list);
+        free(pscan_config);
     }
 
     result.ap_num = ap_num;
@@ -627,6 +638,8 @@ int haas200_wifi_start_specified_scan(netdev_t *dev, ap_list_t *ap_list, int ap_
 
 end:
     event_publish(EVENT_WIFI_SCAN_DONE, &result);
+    free(result.ap_list);
+    result.ap_list = NULL;
     return 0;
 }
 
