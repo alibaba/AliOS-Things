@@ -188,6 +188,10 @@ static int scan_result_handler(rtw_scan_handler_result_t *malloced_scan_result)
     end:
         ApNum = 0;
         event_publish(EVENT_WIFI_SCAN_DONE, &result);
+        if (result.ap_list != NULL) {
+            free(result.ap_list);
+            result.ap_list = NULL;
+        }
         if (malloced_scan_result->user_data)
             rtw_free(malloced_scan_result->user_data);
     }
@@ -206,9 +210,10 @@ int haas200_wifi_start_scan(netdev_t *dev, wifi_scan_config_t *config, bool bloc
     rtw_memset(scan_buf, 0, 65 * sizeof(rtw_scan_result_t));
     if (wifi_scan_networks((rtw_scan_result_handler_t)scan_result_handler, scan_buf) != 0) {
         printf("ERROR: wifi scan failed!\n");
+        rtw_free(scan_buf);
         return -1;
     }
-
+    rtw_free(scan_buf);
     return 0;
 }
 
@@ -593,11 +598,16 @@ int haas200_wifi_start_specified_scan(netdev_t *dev, ap_list_t *ap_list, int ap_
         channel_list = (uint8_t *)malloc(haas200_wifi_channel_list_num);
         if (!channel_list) {
             printf("ERROR: malloc for channel list failed!\n");
+            free(result.ap_list);
+            result.ap_list = NULL;
             return -1;
         }
         pscan_config = (uint8_t *)malloc(haas200_wifi_channel_list_num);
         if (!pscan_config) {
             printf("ERROR: malloc for pscan config failed!\n");
+            free(channel_list);
+            free(result.ap_list);
+            result.ap_list = NULL;
             return -1;
         }
 
@@ -608,8 +618,14 @@ int haas200_wifi_start_specified_scan(netdev_t *dev, ap_list_t *ap_list, int ap_
 
         if (wifi_set_pscan_chan(channel_list, pscan_config, haas200_wifi_channel_list_num) < 0) {
             printf("ERROR: set channel pscan failed!");
+            free(channel_list);
+            free(pscan_config);
+            free(result.ap_list);
+            result.ap_list = NULL;
             return -1;
         }
+        free(channel_list);
+        free(pscan_config);
     }
 
     result.ap_num = ap_num;
@@ -627,6 +643,8 @@ int haas200_wifi_start_specified_scan(netdev_t *dev, ap_list_t *ap_list, int ap_
 
 end:
     event_publish(EVENT_WIFI_SCAN_DONE, &result);
+    free(result.ap_list);
+    result.ap_list = NULL;
     return 0;
 }
 
