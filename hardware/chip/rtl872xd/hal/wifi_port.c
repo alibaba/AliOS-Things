@@ -188,6 +188,7 @@ static int scan_result_handler(rtw_scan_handler_result_t *malloced_scan_result)
     end:
         ApNum = 0;
         event_publish(EVENT_WIFI_SCAN_DONE, &result);
+        free(result.ap_list);
         if (malloced_scan_result->user_data)
             rtw_free(malloced_scan_result->user_data);
     }
@@ -208,7 +209,7 @@ int haas200_wifi_start_scan(netdev_t *dev, wifi_scan_config_t *config, bool bloc
         printf("ERROR: wifi scan failed!\n");
         return -1;
     }
-
+    rtw_free(scan_buf);
     return 0;
 }
 
@@ -610,6 +611,8 @@ int haas200_wifi_start_specified_scan(netdev_t *dev, ap_list_t *ap_list, int ap_
             printf("ERROR: set channel pscan failed!");
             return -1;
         }
+        free(channel_list);
+        free(pscan_config);
     }
 
     result.ap_num = ap_num;
@@ -627,6 +630,7 @@ int haas200_wifi_start_specified_scan(netdev_t *dev, ap_list_t *ap_list, int ap_
 
 end:
     event_publish(EVENT_WIFI_SCAN_DONE, &result);
+    free(result.ap_list);
     return 0;
 }
 
