@@ -125,7 +125,7 @@ int32_t player_play(player_mp3_e file)
     return 0;
 }
 
-void player_stop(void)
+int32_t player_stop(void)
 {
     player_state_t state;
 
@@ -134,10 +134,11 @@ void player_stop(void)
     uvocplayer->stop_async();
     uvocplayer->clr_source();
 
+    return 0;
 }
 
 
-void player_wait_complete(void)
+int32_t player_wait_complete(void)
 {
     int32_t ret;
 
@@ -145,7 +146,10 @@ void player_wait_complete(void)
     if (ret < 0)
         aos_msleep(1000);
     aos_msleep(500);
+
+    return 0;
 }
+
 
 int32_t player_init(player_cb_t cb)
 {
