@@ -64,7 +64,14 @@ static int pwm_csi_init(void)
     csi_error_t ret;
     static aos_pwm_csi_t pwm_csi_dev[CONFIG_PWM_NUM];
     int i;
+    int idx = 0;
+    RTIM_TimeBaseInitTypeDef TIM_InitStruct;
+    RTIM_TimeBaseStructInit(&TIM_InitStruct);
+    TIM_InitStruct.TIM_Idx = PWM_TIMER;
+    RTIM_TimeBaseInit(CSI_PWM_TIM[idx], &TIM_InitStruct, TIMER5_IRQ, NULL, (u32)&TIM_InitStruct);
+    RTIM_Cmd(CSI_PWM_TIM[idx], ENABLE);
     for (i = 0; i < CONFIG_PWM_NUM; i++) {
+        ret = csi_pwm_init(&(pwm_csi_dev[i].csi_pwm), idx);
         pwm_csi_dev[i].csi_pwm.dev.idx |= (i);
         if (ret != CSI_OK) {
             return ret;
