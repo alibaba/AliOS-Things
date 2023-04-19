@@ -207,7 +207,7 @@ static const aos_pwm_ops_t rtl872xd_pwm_ops = {
 
 static int rtl872xd_pwm_init(void)
 {
-    int ret;
+    int ret=0;
     static rtl872xd_pwm_t pwm_dev[CONFIG_PWM_NUM];
     int idx = 0, i;
     RTIM_TimeBaseInitTypeDef TIM_InitStruct;
@@ -216,8 +216,13 @@ static int rtl872xd_pwm_init(void)
     RTIM_TimeBaseInit(RTL872xD_PWM_TIM[idx], &TIM_InitStruct, TIMER5_IRQ, NULL, (u32)&TIM_InitStruct);
     RTIM_Cmd(RTL872xD_PWM_TIM[idx], ENABLE);
     for (i = 0; i < CONFIG_PWM_NUM; i++) {
-        pwm_dev[i].priv = (TIM_CCInitTypeDef *)malloc(sizeof(TIM_CCInitTypeDef));
-        pwm_dev[i].idx = idx << BIT_PWM_TIM_IDX_SHIFT;
+        if(!pwm_dev[i] ||IDX!=0){
+            ret=-1;
+        }
+        else{
+            pwm_dev[i].priv = (TIM_CCInitTypeDef *)malloc(sizeof(TIM_CCInitTypeDef));
+            pwm_dev[i].idx = idx << BIT_PWM_TIM_IDX_SHIFT;
+        }
         pwm_dev[i].idx |= (i) & (~BIT_PWM_TIM_IDX_FLAG);
         if (ret != 0) {
             return ret;
