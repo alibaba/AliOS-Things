@@ -422,14 +422,7 @@ icon_t *get_icon_num_5_3(uint8_t num)
 
 void draw_score(uint16_t score)
 {
-    if(score>999){
-        OLED_Icon_Draw(3, 35, 9, 0);
-        OLED_Icon_Draw(3, 31, 9, 0);
-        OLED_Icon_Draw(3, 27, 9, 0);
-    }else{
-        OLED_Icon_Draw(3, 35, get_icon_num_5_3((uint8_t)(score / 100)), 0);
-        OLED_Icon_Draw(3, 31, get_icon_num_5_3((uint8_t)((score % 100) / 10)), 0);
-        OLED_Icon_Draw(3, 27, get_icon_num_5_3((uint8_t)(score % 10)), 0);
-    }
-
+    OLED_Icon_Draw(3, 35, get_icon_num_5_3((uint8_t)(score / 100)), 0);
+    OLED_Icon_Draw(3, 31, get_icon_num_5_3((uint8_t)((score % 100) / 10)), 0);
+    OLED_Icon_Draw(3, 27, get_icon_num_5_3((uint8_t)(score % 10)), 0);
 }
