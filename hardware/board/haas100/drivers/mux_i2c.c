@@ -94,7 +94,7 @@ int32_t haas_mux_i2c_reg_write(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t reg_a
         return -1;
     }
 
-
+    return ret;
 }
 
 /*********************************************************
@@ -134,7 +134,7 @@ int32_t haas_mux_i2c_reg_read(i2c_dev_t *i2c, uint16_t dev_addr, uint16_t reg_ad
         printf("mux_i2c reg write failed\r\n");
         return -1;
     }
-
+    return ret;
 }
 
 /********************************************************
@@ -172,7 +172,7 @@ int32_t haas_mux_i2c_data_send(i2c_dev_t *i2c, uint16_t dev_addr, const uint8_t 
         printf("mux_i2c data send failed\r\n");
         return -1;
     }
-
+    return ret;
 }
 
 /********************************************************
@@ -210,6 +210,7 @@ int32_t haas_mux_i2c_data_recv(i2c_dev_t *i2c, uint16_t dev_addr, uint8_t *data,
         printf("mux_i2c data recv failed\r\n");
         return -1;
     }
+    return ret;
 }
 
 /********************************************************
