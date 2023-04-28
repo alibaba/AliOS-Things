@@ -130,7 +130,7 @@ static void demo_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv, vo
 
         /* 属性设置 */
         case AIOT_DMRECV_PROPERTY_SET: {
-            printf("msg_id = %ld, params = %.*s\r\n",
+            printf("msg_id = %lu, params = %.*s\r\n",
                    (unsigned long)recv->data.property_set.msg_id,
                    recv->data.property_set.params_len,
                    recv->data.property_set.params);
@@ -156,7 +156,7 @@ static void demo_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv, vo
 
         /* 异步服务调用 */
         case AIOT_DMRECV_ASYNC_SERVICE_INVOKE: {
-            printf("msg_id = %ld, service_id = %s, params = %.*s\r\n",
+            printf("msg_id = %lu, service_id = %s, params = %.*s\r\n",
                    (unsigned long)recv->data.async_service_invoke.msg_id,
                    recv->data.async_service_invoke.service_id,
                    recv->data.async_service_invoke.params_len,
@@ -188,7 +188,7 @@ static void demo_dm_recv_handler(void *dm_handle, const aiot_dm_recv_t *recv, vo
 
         /* 同步服务调用 */
         case AIOT_DMRECV_SYNC_SERVICE_INVOKE: {
-            printf("msg_id = %ld, rrpc_id = %s, service_id = %s, params = %.*s\r\n",
+            printf("msg_id = %lu, rrpc_id = %s, service_id = %s, params = %.*s\r\n",
                    (unsigned long)recv->data.sync_service_invoke.msg_id,
                    recv->data.sync_service_invoke.rrpc_id,
                    recv->data.sync_service_invoke.service_id,
