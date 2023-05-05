@@ -10,8 +10,6 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 
 depends:
     - vfs: master ? <CLI_IOBOX_ENABLE>
-    - littlefs: master ? <CLI_IOBOX_ENABLE>
-    - posix: master ? <CLI_IOBOX_ENABLE>
     - uagent: master ? <CLI_UAGENT_ENABLE>
 
 build_config:
