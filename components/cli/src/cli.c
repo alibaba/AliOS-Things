@@ -1032,7 +1032,7 @@ void cli_main(void *data)
                    "             Welcome to AliOS Things          ");
     }
 
-#if CLI_IOBOX_ENABLE
+#if CLI_IOBOX_ENABLE && defined(CONFIG_LFS_MOUNTPOINT)
     ret = aos_chdir(CONFIG_LFS_MOUNTPOINT);
     if (ret != 0) {
         cli_printf("Failed to change to %s, errno: %d\r\n",

@@ -7,6 +7,7 @@
 #define CLI_API_H
 
 #include <stdint.h>
+#include <stdarg.h>
 #include "k_api.h"
 #include "aos/kernel.h"
 #include "aos/cli.h"
