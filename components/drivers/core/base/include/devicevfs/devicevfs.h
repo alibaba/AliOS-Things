@@ -11,7 +11,6 @@
 #include <stdlib.h>
 
 #include <aos/kernel.h>
-#include <drivers/mutex.h>
 #include <drivers/u_ld.h>
 #include <drivers/platform/u_platform_bus.h>
 
