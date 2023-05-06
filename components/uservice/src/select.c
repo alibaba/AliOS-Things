@@ -4,6 +4,7 @@
 
 #include <aos/kernel.h>
 #include <sys/select.h>
+#include <sys/time.h>
 //#include "lwip/opt.h"
 //#include "lwip/sockets.h"
 
