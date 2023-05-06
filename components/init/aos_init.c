@@ -133,7 +133,7 @@ static void tcpip_cli_init(void)
     aos_cli_register_commands(&tcpip_cli_cmd[0],sizeof(tcpip_cli_cmd) / sizeof(struct cli_command));
 }
 
-#ifdef AOS_NET_WITH_WIFI
+#if(AOS_COMP_WIFI > 0)
 static uint8_t hex(char c)
 {
     if (c >= '0' && c <= '9')
@@ -152,11 +152,6 @@ static void hexstr2bin(const char *macstr, uint8_t *mac, int len)
         mac[i] = hex(macstr[2 * i]) << 4;
         mac[i] |= hex(macstr[2 * i + 1]);
     }
-}
-
-static void wifi_debug_cmd(char *buf, int len, int argc, char **argv)
-{
-    hal_wifi_start_debug_mode(NULL);
 }
 
 static void mac_cmd(char *buf, int len, int argc, char **argv)
@@ -184,7 +179,6 @@ static void mac_cmd(char *buf, int len, int argc, char **argv)
 
 
 static struct cli_command  wifi_cli_cmd[] = {
-    { "wifi_debug", "wifi debug mode", wifi_debug_cmd },
     { "mac", "get/set mac", mac_cmd },
 };
 
@@ -192,7 +186,7 @@ static void hal_wifi_cli_init(void)
 {
     aos_cli_register_commands(&wifi_cli_cmd[0],sizeof(wifi_cli_cmd) / sizeof(struct cli_command));
 }
-#endif /* AOS_NET_WITH_WIFI */
+#endif /* AOS_COMP_WIFI */
 #endif /* CONFIG_AOS_LWIP */
 #endif /*!defined CONFIG_NO_LWIP */
 
@@ -205,7 +199,7 @@ void cli_service_init(kinit_t *kinit)
 #ifndef CONFIG_NO_LWIP
 #if(CONFIG_AOS_LWIP > 0)
         tcpip_cli_init();
-#ifdef AOS_NET_WITH_WIFI
+#if(AOS_COMP_WIFI > 0)
         hal_wifi_cli_init();
 #endif
 #ifdef IPERF_ENABLED

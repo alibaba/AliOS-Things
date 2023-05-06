@@ -17,7 +17,9 @@
 #ifdef SYSINFO_MCU_ESP32
 #include "esp_log.h"
 #else
+#ifdef AOS_COMP_WIFI
 #include <vfsdev/wifi_dev.h>
+#endif
 #endif
 
 #define TAG    "ACTIVATION_REPORT"
@@ -178,7 +180,7 @@ int activation_get_report_msg(char *report_msg, int len)
 #ifdef SYSINFO_MCU_ESP32
     extern esp_err_t esp_efuse_mac_get_custom(uint8_t *mac);
     esp_efuse_mac_get_custom(mac);
-#else
+#elif defined(AOS_COMP_WIFI)
     fd = open("/dev/wifi0", O_RDWR);
     if ((fd < 0) || (0 != ioctl(fd, WIFI_DEV_CMD_GET_MAC, mac))) {
         ACTIVATION_ERR("%s:%d WIFI_DEV_CMD_GET_MAC cmd failed!!\n", __func__, __LINE__);

@@ -16,11 +16,10 @@ license: Apache license v2.0                        # <可选项> 源代码的�
 depends:                                 # <可选项> 该组件依赖其他的组件，合理的依赖才能保证组件能编译、使用
 #   - minilibc: v7.2.0
 #   - aos: >=v7.2.0
-    - wifi: master
     - osal_aos: master
     - uservice: master
     - sntp: master
-    - posix: master
+    - posix: master ? <AOS_COMP_WIFI>
     - lwip: master
 
 ## 第四部分：编译连接信息
@@ -55,7 +54,7 @@ build_config:
 source_file:
 
   - src/netmgr_service.c
-  - src/netmgr_wifi.c
+  - src/netmgr_wifi.c ? <AOS_COMP_WIFI>
   - src/netmgr_conn.c
   - src/netmgr_ethernet.c
   - src/string_convert.c

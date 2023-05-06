@@ -9,9 +9,9 @@
 #include "lwip/opt.h"
 #include "iperf_wrapper.h"
 #ifdef AOS_NETMGR_WITH_MODERN
-#ifdef AOS_NET_WITH_WIFI
+#ifdef AOS_COMP_WIFI
 #include "wifi_service.h"
-#endif /* AOS_NET_WITH_WIFI */
+#endif /* AOS_COMP_WIFI */
 #endif /* AOS_NETMGR_WITH_MODERN */
 #include "lwip/debug.h"
 #include "lwip/sockets.h"
@@ -1176,11 +1176,11 @@ void iperf_display_report( char *report_title, unsigned time, unsigned h_ms_time
     aos_cli_printf("%d bits/sec", pkt_count.Bytes );
 
 #ifdef AOS_NETMGR_WITH_MODERN
-#ifdef AOS_NET_WITH_WIFI
+#ifdef AOS_COMP_WIFI
     int rssi;
     wifi_service_get_rssi(&rssi);
     aos_cli_printf(" rssi: %d dBm",  rssi);
-#endif /* AOS_NET_WITH_WIFI */
+#endif /* AOS_COMP_WIFI */
 #endif /* AOS_NETMGR_WITH_MODERN */
 
    aos_cli_printf("\n");
