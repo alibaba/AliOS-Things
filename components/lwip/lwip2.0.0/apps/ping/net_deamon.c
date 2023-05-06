@@ -11,7 +11,9 @@
 #include "lwip/prot/ip4.h"
 #include "lwip/sockets.h"
 
+#ifdef AOS_COMP_WIFI
 #include "vfsdev/wifi_dev.h"
+#endif
 #include "ulog/ulog.h"
 
 #define PRINT_TAG "net_deamon"
@@ -293,6 +295,7 @@ void start_net_deamon(void)
 
 void get_gw_addr(ip4_addr_t *gw_addr)
 {
+#if AOS_COMP_WIFI
     int ret = 0;
     wifi_ip_stat_t ip_stat = {0};
     //ret = wifi_get_ip_stat(NULL, &ip_stat, STATION);
@@ -305,6 +308,7 @@ void get_gw_addr(ip4_addr_t *gw_addr)
         LWIP_DEBUGF( PING_DEBUG, ("Convert ipaddr addr failed!\n"));
         return;
     }
+#endif
     return;
 }
 void stop_net_deamon(void)
