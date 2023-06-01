@@ -222,20 +222,21 @@ SDK相关代码及操作readme在application/miniapp/目录下。
 </div>
 
 - step1 在app.js填写 AccessKeyID 以及 AccessKeySecret ， 获取云端API调用权限
+
+  **重要**
+  阿里云账号AccessKey拥有所有API的访问权限，建议您使用RAM用户进行API访问或日常运维。
+  请妥善保管好您的AccessKey信息。强烈建议不要将AccessKey ID和AccessKey Secret保存到工程代码里或者任何容易被泄露的地方，AccessKey泄露会威胁您账号下所有资源的安全。
+
 - step2 填写目标设备 DeviceName 以及 ProductKey，这里是待控制的设备
 
 ```javascript
 // app.js
-let accessKey = {
-  accessKeyId: '<- accessKeyId ->', 	// 填入阿里云平台生成的 assessKeyId 以及 Secret
-  accessKeySecret: '<- accessKeySecret ->',
-}
+// getAccessKey()方法是为了获取AccessKeyID以及AccessKeySecret，请用安全方法实现
+let accessKey = getAccessKey();
 
-// HaasFlower.js
-let device = {
-  DeviceName: '<- DeviceName ->',   // 填入目标设备 DeviceName 以及 ProductKey
-  ProductKey: '<- ProductKey ->'
-}
+// HaasCar.js
+// 填入目标设备 DeviceName 以及 ProductKey
+let device = getDeviceKey();
 ```
 
 
@@ -259,6 +260,9 @@ let device = {
 - DeviceName ProducKey
 
 这两个参数在[创建设备](#jSkOe)时生成。
+
+- getAccessKey()和getDeviceKey()方法的实现，可以通过从kv中读取或者从文件中读取都可以，不建议明文写在代码中。
+
 4、 编译验证
 点击小程序IDE右上角“真机调试”按钮，等待二维码生成后，使用钉钉APP扫码，即可发起小程序。
 
