@@ -93,9 +93,17 @@ READ_SD_SIZE_MAX: 1024*15
 # API说明
 
 > 在使用OSS组件之前，开发者需要从阿里云平台购买OSS服务获取，在oss_example.c中替换即可。
+
+  **重要**
+  阿里云账号AccessKey拥有所有API的访问权限，建议您使用RAM用户进行API访问或日常运维。
+  请妥善保管好您的AccessKey信息。强烈建议不要将AccessKey ID和AccessKey Secret保存到工程代码里或者任何容易被泄露的地方，AccessKey泄露会威胁您账号下所有资源的安全。
+
 ```c
-char AccessKey_ID[] = "Access Key ID";
-char AccessKey_Secret[] = "Access Key Secret";
+// 填入阿里云平台生成的 AccessKeyID 以及 AccessKeySecret
+// getAccessKeyID()和getAccessKeySecret()方法的实现，可以通过
+// 从kv中读取或者从文件中读取都可以，不建议明文写在代码中
+char AccessKey_ID[] = getAccessKeyID();
+char AccessKey_Secret[] = getAccessKeySecret();
 char Endpoint[] = "End point";
 char Bucket[] = "Bucket";
 ```
