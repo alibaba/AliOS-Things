@@ -124,8 +124,15 @@ int tjpeg2rgb(unsigned char *jpeg_buffer, int jpeg_size,
     }
     LOG("width: %d, height: %d", width, height);
     flags |= 0;
-    *rgb_buffer = (unsigned char *)tjAlloc(width * height *
-                                           tjPixelSize[pixelfmt]);
+
+    if ((unsigned long long)width * height * tjPixelSize[pixelfmt] >
+            (unsigned long long)((size_t)-1)) {
+        LOGE(TAG, "Image is too large!!!");
+        goto finish;
+    }
+    *rgb_buffer = (unsigned char *)malloc(sizeof(unsigned char) * width * height *
+                    tjPixelSize[pixelfmt]);
+
     if ((*rgb_buffer) == NULL) {
         LOGE(TAG, "allocating uncompressed image buffer");
         goto finish;
