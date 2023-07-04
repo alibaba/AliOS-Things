@@ -24,29 +24,9 @@ static uint8_t sem_flag = 0;
 void kv_test_init(void)
 {
     int ret;
-    //ret=aos_hal_flash_init(HAL_PARTITION_APPLICATION);
+    ret=aos_hal_flash_init(HAL_PARTITION_APPLICATION);
     YUNIT_ASSERT_EQUAL(ret, 0);
 }
-
-#if 0
-/* test kv item */
-void kv_test_item(void)
-{
-    int ret;
-    int set_len = strlen(test_val);
-    int get_len;
-    char get_value[32] = {0};
-    ret = kv_item_set(test_key, test_val, set_len, 1); /* set kv item */
-    YUNIT_ASSERT_EQUAL(ret, 0);
-    ret = kv_item_get(test_key, get_value, &get_len); /* get kv item */
-    YUNIT_ASSERT_EQUAL(ret, 0);
-    YUNIT_ASSERT_EQUAL(get_len, set_len);
-    ret = strcmp(get_value, test_val);
-    YUNIT_ASSERT_EQUAL(ret, 0);
-    ret = kv_item_delete(test_key); /* del kv item */
-    YUNIT_ASSERT_EQUAL(ret, 0);
-}
-#endif
 
 /* test kv flash */
 void kv_test_flash(void)

@@ -6,11 +6,10 @@
 #include <sched.h>
 #include <pthread.h>
 #include <yunit/yunit.h>
-extern void kv_test_init(void);
-extern void kv_test_flash(void);
-extern void kv_test_lock(void);
-extern void kv_test_malloc(void);
-extern void kv_test_task(void);
+extern void lcd_test_init(void);
+extern void lcd_test_onoff(void);
+extern void lcd_test_image(void);
+extern void lcd_test_finalize(void);
 
 static int init(void)
 {
@@ -38,23 +37,22 @@ static void teardown_pri_restore(void)
 {
 }
 
-static yunit_test_case_t aos_kv_testcases[] = {
-    { "kv_test_init", kv_test_init},
-    { "kv_test_flash", kv_test_flash},
-    { "kv_test_lock", kv_test_lock},
-    { "kv_test_malloc", kv_test_malloc},
-    { "kv_test_task", kv_test_task},
+static yunit_test_case_t aos_lcd_testcases[] = {
+    { "lcd_test_init", lcd_test_init},
+    { "lcd_test_onoff", lcd_test_onoff},
+    { "lcd_test_image", lcd_test_image},
+    { "lcd_test_finalize", lcd_test_finalize},
     YUNIT_TEST_CASE_NULL
 };
 
 static yunit_test_suite_t suites[] = {
-    { "kv", init, cleanup, setup, teardown, aos_kv_testcases },
+    { "lcd", init, cleanup, setup, teardown, aos_lcd_testcases },
     YUNIT_TEST_SUITE_NULL
 };
 
-void aos_kv_test(void)
+void aos_lcd_test(void)
 {
     yunit_add_test_suites(suites);
 }
 
-AOS_TESTCASE(aos_kv_test);
+AOS_TESTCASE(aos_lcd_test);
