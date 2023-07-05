@@ -415,6 +415,7 @@ icon_t *get_icon_num_5_3(uint8_t num)
             return &icon_9_5_3;
             break;
         default:
+            return &icon_9_5_3;
             break;
     }
 }
