@@ -93,28 +93,28 @@ void format_compass_str(char *number_str,
     heading = (heading % 360 < 0) ? (heading % 360 + 360) : (heading % 360);
     sprintf(number_str, "%3d", heading);
     if ((heading > 0 && heading <= 23) || (heading > 337 && heading <= 360)) {
-        sprintf(code_str, " N", heading);
+        sprintf(code_str, " N");
         *arror_len = 16;
     } else if (heading > 292 && heading <= 337) {
-        sprintf(code_str, "WN", heading);
+        sprintf(code_str, "WN");
         *arror_len = 20;
     } else if (heading > 246 && heading <= 292) {
-        sprintf(code_str, " W", heading);
+        sprintf(code_str, " W");
         *arror_len = 16;
     } else if (heading > 202 && heading <= 246) {
-        sprintf(code_str, "WS", heading);
+        sprintf(code_str, "WS");
         *arror_len = 20;
     } else if (heading > 158 && heading <= 202) {
-        sprintf(code_str, " S", heading);
+        sprintf(code_str, " S");
         *arror_len = 16;
     } else if (heading > 112 && heading <= 158) {
-        sprintf(code_str, "ES", heading);
+        sprintf(code_str, "ES");
         *arror_len = 20;
     } else if (heading > 67 && heading <= 112) {
-        sprintf(code_str, " E", heading);
+        sprintf(code_str, " E");
         *arror_len = 16;
     } else if (heading > 23 && heading <= 67) {
-        sprintf(code_str, "EN", heading);
+        sprintf(code_str, "EN");
         *arror_len = 20;
     }
 }
