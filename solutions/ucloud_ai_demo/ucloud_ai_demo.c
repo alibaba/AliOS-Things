@@ -470,6 +470,7 @@ static int imagerecog_classifying_rubbish_callback(ai_result_t *result)
         ugraphics_draw_string(category, 20, 60);
         // ugraphics_draw_string(category_score_str, 20, 80);
     }
+    return 0;
 }
 
 static int imagerecog_detect_fruits_callback(ai_result_t *result)
@@ -496,6 +497,7 @@ static int imagerecog_detect_fruits_callback(ai_result_t *result)
         ugraphics_draw_string(name, x, tmp_y);
         ugraphics_draw_string(score_str, x, tmp_y + 40);
     }
+    return 0;
 }
 #endif
 
