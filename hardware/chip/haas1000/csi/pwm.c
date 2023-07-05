@@ -65,6 +65,7 @@ static int pwm_csi_init(void)
     static aos_pwm_csi_t pwm_csi_dev[CONFIG_PWM_NUM];
     int i;
     for (i = 0; i < CONFIG_PWM_NUM; i++) {
+        ret = csi_pwm_init(&(pwm_csi_dev[i].csi_pwm), idx);
         pwm_csi_dev[i].csi_pwm.dev.idx |= (i);
         if (ret != CSI_OK) {
             return ret;
