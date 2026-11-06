@@ -72,7 +72,7 @@ disp_backlight_h disp_backlight_new(const disp_backlight_config_t *config)
 
 void disp_backlight_set(disp_backlight_h bckl, int brightness_percent)
 {
-    // Check input paramters
+    // Check input parameters
     if (bckl == NULL)
         return;
     if (brightness_percent > 100)
